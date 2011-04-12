@@ -1,1 +1,6 @@
 # Properties in this file will be read when running in dev mode
+
+mail.smtp.host=smtp.gmail.com
+mail.smtp.user=???
+mail.smtp.pass=???
+
