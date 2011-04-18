@@ -19,78 +19,37 @@ import java.io.{FileInputStream, File}
 class Boot extends Loggable {
   def boot {
 
-//    val localFile = () => {
-//      val file = new File("/lift-services.properties")
-//      if (file.exists) Full(new FileInputStream(file)) else Empty
-//    }
-//    Props.whereToLook = () => (("local", localFile) :: Nil)
+    //    val localFile = () => {
+    //      val file = new File("/lift-services.properties")
+    //      if (file.exists) Full(new FileInputStream(file)) else Empty
+    //    }
+    //    Props.whereToLook = () => (("local", localFile) :: Nil)
 
     MongoDB.defineDb(
       DefaultMongoIdentifier,
       MongoAddress(MongoHost(), "lift_services")
     )
-    // where to search snippet
+
     LiftRules.addToPackages("eu.delving")
 
-    // Build SiteMap
-    def sitemap() = SiteMap(
-      Menu("Home") / "index",
-      Menu(
-        Loc(
-          "Static",
-          Link(
-            List("static"),
-            true,
-            "/static/index"
-          ),
-          "Static Content"
-        )
-      ) // Menu with special Link
+    LiftRules.setSiteMap(
+      SiteMap(
+        (
+          Menu(Loc("Home", List("index"), "Home")) ::
+          Menu(Loc("Static", Link(List("static"), true, "/static/index"), "Static Content")) ::
+          User.sitemap
+        ): _*
+      )
     )
 
-    //    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
-    // Build SiteMap
-    val entries = Menu(Loc("Home", List("index"), "Home")) ::
-            Menu(Loc("Static", Link(List("static"), true, "/static/index"),
-              "Static Content")) ::
-            User.sitemap
+    // spinny image
+    LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+    LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
-    LiftRules.setSiteMap(SiteMap(entries: _*))
-
-    /*
-     * Show the spinny image when an Ajax call starts
-     */
-    LiftRules.ajaxStart =
-            Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
-
-    /*
-     * Make the spinny image go away when it ends
-     */
-    LiftRules.ajaxEnd =
-            Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
-
-    LiftRules.early.append(makeUtf8)
-
+    LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
-    configMailer
-  }
-
-  /**
-   * Force the request to be UTF-8
-   */
-  private def makeUtf8(req: HTTPRequest) {
-    req.setCharacterEncoding("UTF-8")
-  }
-
-
-  /*
-  * Config mailer
-  */
-  private def configMailer {
-
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
-
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {
       case "smtp.gmail.com" =>
         isAuth = true
@@ -118,5 +77,4 @@ class Boot extends Loggable {
       }
     }
   }
-
 }
