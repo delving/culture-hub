@@ -14,8 +14,10 @@ import _root_.net.liftweb.http._
 
 object DelvingServices extends RestHelper {
   serve {
-    case "service" :: Nil XmlGet _ => service("unsafe")
-    case "safe-service" :: Nil XmlGet _ => if (User.notLoggedIn_?) Full(RedirectResponse("user_mgt/login")) else service("safe")
+    case "service" :: Nil XmlGet _ => service("open")
+    case "protected-service" :: Nil XmlGet _ => if (User.notLoggedIn_?) Full(ForbiddenResponse("fuck off!")) else service("protected!")
+// todo: figure out why this url is not protected by the SiteMap
+//    case "protected-service" :: Nil XmlGet _ => service("protected!")
   }
 
   private def service(say : String) =
