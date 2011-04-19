@@ -11,6 +11,7 @@ import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
 import java.io.{FileInputStream, File}
+import rest.RestHelper
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -37,6 +38,7 @@ class Boot extends Loggable {
         (
           Menu(Loc("Home", List("index"), "Home")) ::
           Menu(Loc("Static", Link(List("static"), true, "/static/index"), "Static Content")) ::
+          Menu(Loc("Service", List("service"), "XML Service")) ::
           User.sitemap
         ): _*
       )
@@ -48,6 +50,8 @@ class Boot extends Loggable {
 
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
+
+    LiftRules.dispatch append DelvingServices
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {
