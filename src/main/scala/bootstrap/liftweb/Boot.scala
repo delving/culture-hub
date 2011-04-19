@@ -34,14 +34,17 @@ class Boot extends Loggable {
     LiftRules.addToPackages("eu.delving")
 
     LiftRules.setSiteMap(
-      SiteMap(
-        (
-          Menu(Loc("Home", List("index"), "Home")) ::
-          Menu(Loc("Static", Link(List("static"), true, "/static/index"), "Static Content")) ::
-          Menu(Loc("Service", List("service"), "XML Service")) ::
-          User.sitemap
-        ): _*
-      )
+      SiteMap((
+        List(
+          Menu(Loc("Home", List("index"), "Home")),
+          Menu("Logout") / "logout",
+          Menu(Loc("Static", Link(List("static"), true, "/static/index"), "Static Content")),
+          Menu("Service") / "service",
+          Menu("Safe Service") / "safe-service" >> TestAccess(() => if (User.notLoggedIn_?) Full(RedirectResponse("login")) else Empty )
+//          Menu("Safe Service") / "safe-service" >> Test(request => User.loggedIn_?)
+        ) :::
+        User.sitemap
+      ): _*)
     )
 
     // spinny image
@@ -52,6 +55,11 @@ class Boot extends Loggable {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     LiftRules.dispatch append DelvingServices
+    LiftRules.dispatch append {
+      case Req("logout" :: Nil, _, GetRequest) =>
+        S.request.foreach(_.request.session.terminate)
+        S.redirectTo("/")
+    }
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {

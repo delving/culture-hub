@@ -1,6 +1,9 @@
 package bootstrap.liftweb
 
 import net.liftweb.http.rest.RestHelper
+import eu.delving.model.User
+import _root_.net.liftweb.common._
+import _root_.net.liftweb.http._
 
 /**
  * todo: javadoc
@@ -11,13 +14,14 @@ import net.liftweb.http.rest.RestHelper
 
 object DelvingServices extends RestHelper {
   serve {
-    case "service" :: Nil XmlGet _ => service()
+    case "service" :: Nil XmlGet _ => service("unsafe")
+    case "safe-service" :: Nil XmlGet _ => if (User.notLoggedIn_?) Full(RedirectResponse("user_mgt/login")) else service("safe")
   }
 
-  private def service() =
+  private def service(say : String) =
     <service>
       <ladies-and-gentlemen>
-         <the-delving-dispatcher/>
+         <the-delving-dispatcher status={say}/>
       </ladies-and-gentlemen>
     </service>
 
