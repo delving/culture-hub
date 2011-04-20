@@ -1,9 +1,10 @@
 package eu.delving.model
 
 import net.liftweb.mongodb.record.{MongoMetaRecord, MongoRecord, MongoId}
-import net.liftweb.mongodb.{JsonObjectMeta, JsonObject}
 import net.liftweb.mongodb.record.field.{DateField, MongoCaseClassListField, MongoCaseClassField, MongoMapField}
 import net.liftweb.record.field.{BooleanField, IntField, StringField}
+import java.util.concurrent.ConcurrentHashMap
+import net.liftweb.mongodb.{JsonObjectMeta, JsonObject}
 
 /**
  * MongoDB storage for metadata repository
@@ -12,6 +13,7 @@ import net.liftweb.record.field.{BooleanField, IntField, StringField}
  */
 
 class DataSet private() extends MongoRecord[DataSet] with MongoId[DataSet] {
+
   def meta = DataSet
 
   object spec extends StringField(this, "")
@@ -33,10 +35,11 @@ class DataSet private() extends MongoRecord[DataSet] with MongoId[DataSet] {
   object errorMessage extends StringField(this, "")
 }
 
-object DataSet extends DataSet with MongoMetaRecord[DataSet]
+object DataSet extends DataSet with MongoMetaRecord[DataSet] {
+  override def collectionName = "dataset"
+}
 
-class DataRecord private() extends MongoRecord[DataRecord] with MongoId[DataRecord] {
-  def meta = DataRecord
+abstract class DataRecord() extends MongoRecord[DataRecord] with MongoId[DataRecord] {
 
   object unique extends StringField(this, "")
 
@@ -51,11 +54,39 @@ class DataRecord private() extends MongoRecord[DataRecord] with MongoId[DataReco
   object xml extends StringField(this, "")
 }
 
-object DataRecord extends DataRecord with MongoMetaRecord[DataRecord]
+abstract class DataRecordMeta extends DataRecord with MongoMetaRecord[DataRecord]
+
+object DataRecordCollection {
+  private val metaObjects = new ConcurrentHashMap[String, DataRecordMeta]
+
+  def apply(spec: String): DataRecordMeta = {
+    val existingMeta = metaObjects.get(spec)
+    if (existingMeta != null) {
+      existingMeta
+    }
+    else {
+      val freshMeta = new DataRecordMeta {
+        self: DataRecordMeta =>
+
+        override def meta = self
+
+        override def collectionName = "records_" + spec
+
+        override protected def instantiateRecord = new DataRecord {
+          override def meta = self
+        }
+      }
+      metaObjects.put(spec, freshMeta)
+      freshMeta
+    }
+  }
+}
 
 case class DataSetState(name : String) extends JsonObject[DataSetState] {
   def meta = DataSetState
+}
 
+object DataSetState extends JsonObjectMeta[DataSetState] {
   val Incomplete = DataSetState("Incomplete")
   val Disabled = DataSetState("Disabled")
   val Uploaded = DataSetState("Uploaded")
@@ -64,8 +95,6 @@ case class DataSetState(name : String) extends JsonObject[DataSetState] {
   val Enabled = DataSetState("Enabled")
   val Error = DataSetState("Error")
 }
-
-object DataSetState extends JsonObjectMeta[DataSetState]
 
 case class Facts(
   factBytes: Array[Byte],
@@ -115,4 +144,4 @@ extends JsonObject[Mapping] {
 
 object Mapping extends JsonObjectMeta[Mapping]
 
-class MetadataRepository
+object MetadataRepository
