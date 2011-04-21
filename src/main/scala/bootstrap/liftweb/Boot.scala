@@ -9,6 +9,8 @@ import Helpers._
 import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
+import eu.delving.lib.MetaRepoService
+
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
@@ -50,7 +52,7 @@ class Boot extends Loggable {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
-    LiftRules.dispatch append MetadataRepositoryService
+    LiftRules.dispatch append MetaRepoService
     LiftRules.dispatch append {
       case Req("logout" :: Nil, _, GetRequest) =>
         S.request.foreach(_.request.session.terminate)

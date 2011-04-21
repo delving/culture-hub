@@ -1,4 +1,4 @@
-package bootstrap.liftweb
+package eu.delving.lib
 
 import net.liftweb.http.rest.RestHelper
 import _root_.net.liftweb.common._
@@ -12,7 +12,7 @@ import eu.delving.model.{DataSetState, DataSet, User}
  */
 
 
-object MetadataRepositoryService extends RestHelper {
+object MetaRepoService extends RestHelper {
 
   serve {
 
