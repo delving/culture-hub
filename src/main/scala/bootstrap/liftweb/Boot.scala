@@ -3,22 +3,18 @@ package bootstrap.liftweb
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.provider._
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
 import Helpers._
 import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
-import java.io.{FileInputStream, File}
-import rest.RestHelper
-
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
  */
 class Boot extends Loggable {
-  def boot {
+  def boot() {
 
     //    val localFile = () => {
     //      val file = new File("/lift-services.properties")
@@ -54,7 +50,7 @@ class Boot extends Loggable {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
-    LiftRules.dispatch append DelvingServices
+    LiftRules.dispatch append MetadataRepositoryService
     LiftRules.dispatch append {
       case Req("logout" :: Nil, _, GetRequest) =>
         S.request.foreach(_.request.session.terminate)
