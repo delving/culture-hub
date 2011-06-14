@@ -49,6 +49,11 @@
             <artifactId>lift-util_2.9.0-1</artifactId>
             <version>2.4-M2</version>
         </dependency>
+        <dependency>
+            <groupId>net.liftweb</groupId>
+            <artifactId>lift-oauth_2.9.0-1</artifactId>
+            <version>2.4-M2</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.foursquare</groupId>-->
             <!--<artifactId>rogue_2.8.1</artifactId>-->
