@@ -4,7 +4,6 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
 import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
 import Helpers._
 import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
@@ -18,32 +17,16 @@ import eu.delving.lib.MetaRepoService
 class Boot extends Loggable {
   def boot() {
 
-    //    val localFile = () => {
-    //      val file = new File("/lift-services.properties")
-    //      if (file.exists) Full(new FileInputStream(file)) else Empty
-    //    }
-    //    Props.whereToLook = () => (("local", localFile) :: Nil)
-
     MongoDB.defineDb(
       DefaultMongoIdentifier,
       MongoAddress(MongoHost(), "lift_services")
     )
 
-    LiftRules.addToPackages("eu.delving")
+    LiftRules addToPackages "eu.delving"
 
-    LiftRules.setSiteMap(
-      SiteMap((
-        List(
-          Menu(Loc("Home", List("index"), "Home")),
-          Menu("Logout") / "logout",
-          Menu(Loc("Static", Link(List("static"), true, "/static/index"), "Static Content")),
-          Menu("Service") / "service",
-          Menu("Safe Service") / "safe-service" >> TestAccess(() => if (User.notLoggedIn_?) Full(RedirectResponse("login")) else Empty )
-//          Menu("Safe Service") / "safe-service" >> Test(request => User.loggedIn_?)
-        ) :::
-        User.sitemap
-      ): _*)
-    )
+    val pages = List(Menu("Home") / "index")
+
+    LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
 
     // spinny image
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
@@ -52,12 +35,7 @@ class Boot extends Loggable {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
-    LiftRules.dispatch append MetaRepoService
-    LiftRules.dispatch append {
-      case Req("logout" :: Nil, _, GetRequest) =>
-        S.request.foreach(_.request.session.terminate)
-        S.redirectTo("/")
-    }
+    LiftRules.statelessDispatchTable append MetaRepoService
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {
