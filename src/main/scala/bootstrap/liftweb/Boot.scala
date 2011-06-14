@@ -35,7 +35,7 @@ class Boot extends Loggable {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
-    LiftRules.statelessDispatchTable append MetaRepoService
+    LiftRules.dispatch append MetaRepoService
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {

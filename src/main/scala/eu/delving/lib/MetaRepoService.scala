@@ -3,8 +3,10 @@ package eu.delving.lib
 import net.liftweb.http.rest.RestHelper
 import net.liftweb.common._
 import eu.delving.model.{DataSetState, DataSet, User}
-import net.liftweb.sitemap.{**, Menu}
+import net.liftweb.sitemap.Menu
+import net.liftweb.sitemap.Loc.TestAccess
 import net.liftweb.http._
+
 /**
  * Dispatch the services
  *
@@ -18,7 +20,7 @@ object MetaRepoService extends RestHelper {
 
   val sitemap = List(
     Menu("Service") / "service",
-    Menu("Protected Service") / "protected-service"
+    Menu("Protected Service") / "protected-service" >> TestAccess(() => if (User.notLoggedIn_?) Full(ForbiddenResponse("No way!")) else Empty)
   )
 
   serve {
@@ -64,24 +66,18 @@ object MetaRepoService extends RestHelper {
     }
 
 
-    case "service" :: Nil XmlGet _ => {
-      fakeService("open")
-    }
+    case "service" :: Nil XmlGet _ => fakeService("open")
 
-    case "protected-service" :: Nil XmlGet _ => fakeService("secured")
-//    case "protected-service" :: Nil XmlGet _ => Full(guard.openOr(fakeService("secure")))
+    case "protected-service" :: Nil XmlGet _ if User.loggedIn_? => fakeService("you're in")
 
   }
-
-  def guard : Box[LiftResponse] = if (User.notLoggedIn_?) Full(ForbiddenResponse("Not on my watch, buddy! "+User.niceName)) else Empty
 
   def createOne() = {
     DataSet.createRecord.spec("fresh").state(DataSetState.Incomplete).sourceHash("hash").save
     OkResponse
   }
 
-
-  private def fakeService(say : String) = XmlResponse(
+  def fakeService(say : String) = XmlResponse(
     <service>
       <ladies-and-gentlemen loggedIn={User.loggedIn_?.toString}>
          <the-delving-dispatcher status={say}/>
