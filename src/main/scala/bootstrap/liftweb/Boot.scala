@@ -27,9 +27,9 @@ class Boot extends Loggable {
       Menu("Home") / "index",
       Menu("Static") / "static" / **,
       Menu("User") / "user",
-      Menu("User") / "user" / "profile",
-      Menu("User") / "user" / "label",
-      Menu("User") / "user" / "collection"
+      Menu("Profile") / "user" / "profile",
+      Menu("Label") / "user" / "label",
+      Menu("Collection") / "user" / "collection"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
@@ -94,7 +94,7 @@ class Boot extends Loggable {
 
   val FORBIDDEN = Set(
     "object", "profile", "map", "graph", "label", "collection",
-    "story", "user", "services", "portal", "api",
+    "story", "user", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search"
   )
 }
