@@ -27,9 +27,9 @@ class Boot extends Loggable {
       Menu("Home") / "index",
       Menu("Static") / "static" / **,
       Menu("User") / "user",
-      Menu("Profile") / "user" / "profile",
-      Menu("Label") / "user" / "label",
-      Menu("Collection") / "user" / "collection"
+      Menu("Profile") / "profile",
+      Menu("Label")  / "label",
+      Menu("Collection") / "collection"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
@@ -38,15 +38,15 @@ class Boot extends Loggable {
       case RewriteRequest(ParsePath(Allowed(userName) :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("user" :: Nil, Map("userName" -> userName))
       case RewriteRequest(ParsePath(Allowed(userName) :: "profile" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: "profile" :: Nil, Map("userName" -> userName))
+        RewriteResponse("profile" :: Nil, Map("userName" -> userName))
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: "label" :: Nil, Map("userName" -> userName))
+        RewriteResponse("labels" :: Nil, Map("userName" -> userName))
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Allowed(labelName) :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: "label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
+        RewriteResponse("label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: "collection" :: Nil, Map("userName" -> userName))
+        RewriteResponse("collections" :: Nil, Map("userName" -> userName))
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Allowed(collectionName) :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: "collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
+        RewriteResponse("collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
     }
 
     // spinny image
