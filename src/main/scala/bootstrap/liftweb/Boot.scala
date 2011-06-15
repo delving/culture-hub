@@ -29,24 +29,33 @@ class Boot extends Loggable {
       Menu("User") / "user",
       Menu("Profile") / "profile",
       Menu("Label")  / "label",
-      Menu("Collection") / "collection"
+      Menu("Labels")  / "labels",
+      Menu("Collection") / "collection",
+      Menu("Collections") / "collections"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
 
     LiftRules.statelessRewrite append {
+
       case RewriteRequest(ParsePath(Allowed(userName) :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("user" :: Nil, Map("userName" -> userName))
+
       case RewriteRequest(ParsePath(Allowed(userName) :: "profile" :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("profile" :: Nil, Map("userName" -> userName))
+
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("labels" :: Nil, Map("userName" -> userName))
+
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Allowed(labelName) :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
+
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("collections" :: Nil, Map("userName" -> userName))
+
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Allowed(collectionName) :: Nil, "", true, false), GetRequest, http) =>
         RewriteResponse("collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
+
     }
 
     // spinny image
