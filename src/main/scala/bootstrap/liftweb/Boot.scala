@@ -97,8 +97,14 @@ class Boot extends Loggable {
   }
 
   object Allowed {
-    // todo: expand this to look for the FORBIDDEN inside of the string, and other variations
-    def unapply(string: String): Option[String] = if (FORBIDDEN.contains(string)) None else Some(string)
+    def unapply(string: String): Option[String] = {
+      FORBIDDEN map {
+        f => if(string.contains(f)) {
+          return None
+        }
+      }
+      Some(string)
+    }
   }
 
   val FORBIDDEN = Set(
