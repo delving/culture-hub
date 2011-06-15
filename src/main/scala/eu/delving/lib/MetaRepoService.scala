@@ -27,11 +27,10 @@ object MetaRepoService extends RestHelper {
 
     case "dataset" :: Nil XmlGet _ => {
       <datasets>
-        { for (dataSet <- DataSet.findAll) yield
+        {for (dataSet <- DataSet.findAll) yield
         <dataset>
-          <spec>{ dataSet.spec }</spec>
-        </dataset>
-        }
+          <spec>{dataSet.spec}</spec>
+        </dataset>}
       </datasets>
     }
 
@@ -46,12 +45,12 @@ object MetaRepoService extends RestHelper {
             case _ => <command-not-found/>
           }
         }
-        case _ => NotFoundResponse("Dataset "+spec)
+        case _ => NotFoundResponse("Dataset " + spec)
       }
     }
 
     case "dataset" :: "submit" :: spec :: fileType :: fileName :: Nil XmlPost _ => {
-//      DataSet.find("spec", spec).openOr(NotFoundResponse("dataset " + spec)).map(ds => )
+      //      DataSet.find("spec", spec).openOr(NotFoundResponse("dataset " + spec)).map(ds => )
       DataSet.find("spec", spec) match {
         case Full(dataSet) => {
           fileType match {
@@ -61,7 +60,7 @@ object MetaRepoService extends RestHelper {
             case _ => <file-type-not-found/>
           }
         }
-        case _ => NotFoundResponse("Dataset "+spec)
+        case _ => NotFoundResponse("Dataset " + spec)
       }
     }
 
@@ -77,12 +76,11 @@ object MetaRepoService extends RestHelper {
     OkResponse
   }
 
-  def fakeService(say : String) = XmlResponse(
+  def fakeService(say: String) =
     <service>
       <ladies-and-gentlemen loggedIn={User.loggedIn_?.toString}>
-         <the-delving-dispatcher status={say}/>
+          <the-delving-dispatcher status={say}/>
       </ladies-and-gentlemen>
     </service>
-  )
 
 }

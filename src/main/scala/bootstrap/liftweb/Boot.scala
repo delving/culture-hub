@@ -1,14 +1,13 @@
 package bootstrap.liftweb
 
-import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
 import _root_.net.liftweb.sitemap._
-import Helpers._
 import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
 import eu.delving.lib.MetaRepoService
+import net.liftweb.util._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -24,9 +23,31 @@ class Boot extends Loggable {
 
     LiftRules addToPackages "eu.delving"
 
-    val pages = List(Menu("Home") / "index")
+    val pages = List(
+      Menu("Home") / "index",
+      Menu("Static") / "static" / **,
+      Menu("User") / "user",
+      Menu("User") / "user" / "profile",
+      Menu("User") / "user" / "label",
+      Menu("User") / "user" / "collection"
+    )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
+
+    LiftRules.statelessRewrite append {
+      case RewriteRequest(ParsePath(Allowed(userName) :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: Nil, Map("userName" -> userName))
+      case RewriteRequest(ParsePath(Allowed(userName) :: "profile" :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: "profile" :: Nil, Map("userName" -> userName))
+      case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: "label" :: Nil, Map("userName" -> userName))
+      case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Allowed(labelName) :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: "label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
+      case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: "collection" :: Nil, Map("userName" -> userName))
+      case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Allowed(collectionName) :: Nil, "", true, false), GetRequest, http) =>
+        RewriteResponse("user" :: "collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
+    }
 
     // spinny image
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
@@ -65,4 +86,15 @@ class Boot extends Loggable {
       }
     }
   }
+
+  object Allowed {
+    // todo: expand this to look for the FORBIDDEN inside of the string, and other variations
+    def unapply(string: String): Option[String] = if (FORBIDDEN.contains(string)) None else Some(string)
+  }
+
+  val FORBIDDEN = Set(
+    "object", "profile", "map", "graph", "label", "collection",
+    "story", "user", "services", "portal", "api",
+    "add", "edit", "save", "delete", "update", "create", "search"
+  )
 }
