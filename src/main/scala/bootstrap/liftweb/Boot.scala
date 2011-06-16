@@ -6,8 +6,8 @@ import _root_.net.liftweb.sitemap._
 import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
-import eu.delving.lib.MetaRepoService
 import net.liftweb.util._
+import eu.delving.lib.{BrowseService, MetaRepoService}
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -66,6 +66,7 @@ class Boot extends Loggable {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     LiftRules.dispatch append MetaRepoService
+    LiftRules.dispatch append BrowseService
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {
