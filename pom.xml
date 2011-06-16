@@ -181,7 +181,15 @@
                 <version>6.1.25</version>
                 <configuration>
                     <contextPath>/</contextPath>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
+                    <scanIntervalSeconds>1</scanIntervalSeconds>
+                    <scanTargetPatterns>
+                        <scanTargetPattern>
+                          <directory>src/main/scala</directory>
+                          <includes>
+                              <include>**/*.scala</include>
+                          </includes>
+                        </scanTargetPattern>
+                  </scanTargetPatterns>
                 </configuration>
             </plugin>
             <plugin>
