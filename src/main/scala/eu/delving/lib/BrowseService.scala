@@ -1,8 +1,9 @@
 package eu.delving.lib
 
-import net.liftweb.common._
 import eu.delving.model._
 import net.liftweb.http.rest.{JsonXmlAble, RestHelper}
+import net.liftweb.common._
+import net.liftweb.http.Req
 
 /**
  * Dispatch the services
@@ -15,13 +16,18 @@ object BrowseService extends RestHelper {
 
   val log = Logger("BrowseService")
 
-  override protected def defaultGetAsJson: Boolean = false
+  def acceptsHtml(in: Req) = in.weightedAccept.find(_.matches("text" -> "html")).isDefined
+
+  override protected def jsonResponse_?(in: Req): Boolean = (in.acceptsJson_? && !acceptsHtml(in)) || in.param("format") == "json"
+  override protected def xmlResponse_?(in: Req): Boolean = (in.acceptsXml_? && !acceptsHtml(in)) || in.param("format") == "xml"
 
   case class Response(response: AnyRef) extends JsonXmlAble
 
+  def give(any : AnyRef) = Full(Response(any))
+
   serveJx[Response] {
-    case "service" :: "user" :: Nil Get _ if User.notLoggedIn_? => Full(Response(User.findAll.head.getPublic))
-    case "service" :: "user" :: Nil Get _ if User.loggedIn_? => Full(Response(User.findAll.head.getPrivate))
+    case "service" :: "user" :: Nil Get _ if User.notLoggedIn_? => give(User.findAll.head.getPublic)
+    case "service" :: "user" :: Nil Get _ if User.loggedIn_? => give(User.findAll.head.getPrivate)
   }
 
 }
