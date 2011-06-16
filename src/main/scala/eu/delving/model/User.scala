@@ -1,15 +1,9 @@
-package eu.delving {
-package model {
+package eu.delving.model
 
-import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
-import net.liftweb.util.Helpers._
-import lib._
-import xml.{Node, NodeSeq}
-import net.liftweb.json.JsonAST.JValue
-import net.liftweb.json.{Extraction, Xml}
+import xml.NodeSeq
 import net.liftweb.http.rest.JsonXmlAble
-
+import eu.delving.lib.{MetaMegaProtoUser, MegaProtoUser}
 
 /**
  * The singleton that has methods for accessing the database
@@ -58,12 +52,9 @@ object User extends User with MetaMegaProtoUser[User] {
 */
 class User extends MegaProtoUser[User] {
   def meta = User // what's the "meta" server
-  def getCase = UserCase(firstName.asString, lastName.asString, email.asString)
-
+  def getPublic = UserPublic(firstName.value, lastName.value)
+  def getPrivate = UserPrivate(firstName.value, lastName.value, email.value)
 }
 
-case class UserCase(firstName: String, lastName: String, email: String) extends JsonXmlAble
-
-}
-
-}
+case class UserPublic(firstName: String, lastName: String) extends JsonXmlAble
+case class UserPrivate(firstName: String, lastName: String, email: String) extends JsonXmlAble
