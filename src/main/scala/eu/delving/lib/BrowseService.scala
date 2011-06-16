@@ -26,8 +26,7 @@ object BrowseService extends RestHelper {
   def give(any : AnyRef) = Full(Response(any))
 
   serveJx[Response] {
-    case "service" :: "user" :: Nil Get _ if User.notLoggedIn_? => give(User.findAll.head.getPublic)
-    case "service" :: "user" :: Nil Get _ if User.loggedIn_? => give(User.findAll.head.getPrivate)
+    case "service" :: "user" :: Nil Get _ => give(User.findAll.head.getValue)
   }
 
 }

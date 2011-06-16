@@ -52,8 +52,12 @@ object User extends User with MetaMegaProtoUser[User] {
 */
 class User extends MegaProtoUser[User] {
   def meta = User // what's the "meta" server
-  def getPublic = UserPublic(firstName.value, lastName.value)
-  def getPrivate = UserPrivate(firstName.value, lastName.value, email.value)
+  def getValue = {
+    if (User.loggedIn_?)
+      UserPrivate(firstName.value, lastName.value, email.value)
+    else
+      UserPublic(firstName.value, lastName.value)
+  }
 }
 
 case class UserPublic(firstName: String, lastName: String) extends JsonXmlAble
