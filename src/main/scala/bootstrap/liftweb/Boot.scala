@@ -26,12 +26,12 @@ class Boot extends Loggable {
     val pages = List(
       Menu("Home") / "index",
       Menu("Static") / "static" / **,
-      Menu("User") / "user",
-      Menu("Profile") / "profile",
-      Menu("Label")  / "label",
-      Menu("Labels")  / "labels",
-      Menu("Collection") / "collection",
-      Menu("Collections") / "collections"
+      Menu("User") / "service" / "user",
+      Menu("Profile") / "service" / "profile",
+      Menu("Label") / "service" / "label",
+      Menu("Labels") / "service" / "labels",
+      Menu("Collection") / "service" / "collection",
+      Menu("Collections") / "service" / "collections"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
@@ -39,22 +39,22 @@ class Boot extends Loggable {
     LiftRules.statelessRewrite append {
 
       case RewriteRequest(ParsePath(Allowed(userName) :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("user" :: Nil, Map("userName" -> userName))
+        RewriteResponse("service" :: "user" :: Nil, Map("userName" -> userName))
 
       case RewriteRequest(ParsePath(Allowed(userName) :: "profile" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("profile" :: Nil, Map("userName" -> userName))
+        RewriteResponse("service" :: "profile" :: Nil, Map("userName" -> userName))
 
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("labels" :: Nil, Map("userName" -> userName))
+        RewriteResponse("service" :: "labels" :: Nil, Map("userName" -> userName))
 
       case RewriteRequest(ParsePath(Allowed(userName) :: "label" :: Allowed(labelName) :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
+        RewriteResponse("service" :: "label" :: Nil, Map("userName" -> userName, "labelName" -> labelName))
 
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("collections" :: Nil, Map("userName" -> userName))
+        RewriteResponse("service" :: "collections" :: Nil, Map("userName" -> userName))
 
       case RewriteRequest(ParsePath(Allowed(userName) :: "collection" :: Allowed(collectionName) :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
+        RewriteResponse("service" :: "collection" :: Nil, Map("userName" -> userName, "collectionName" -> collectionName))
 
     }
 
@@ -109,7 +109,7 @@ class Boot extends Loggable {
 
   val FORBIDDEN = Set(
     "object", "profile", "map", "graph", "label", "collection",
-    "story", "user", "services", "portal", "api", "index",
+    "story", "user", "service", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search"
   )
 }
