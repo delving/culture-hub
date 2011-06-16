@@ -4,9 +4,11 @@ package model {
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import net.liftweb.util.Helpers._
-import xml.NodeSeq
-
 import lib._
+import xml.{Node, NodeSeq}
+import net.liftweb.json.JsonAST.JValue
+import net.liftweb.json.{Extraction, Xml}
+import net.liftweb.http.rest.JsonXmlAble
 
 
 /**
@@ -56,7 +58,11 @@ object User extends User with MetaMegaProtoUser[User] {
 */
 class User extends MegaProtoUser[User] {
   def meta = User // what's the "meta" server
+  def getCase = UserCase(firstName.asString, lastName.asString, email.asString)
+
 }
+
+case class UserCase(firstName: String, lastName: String, email: String) extends JsonXmlAble
 
 }
 
