@@ -3,7 +3,7 @@ package eu.delving.lib
 import eu.delving.model._
 import net.liftweb.common._
 import net.liftweb.http.rest.{JsonXmlAble, RestHelper}
-import net.liftweb.http.{PlainTextResponse, Req}
+import net.liftweb.http.{XmlResponse, Req}
 
 /**
  * Dispatch the services
@@ -22,7 +22,7 @@ object BrowseService extends RestHelper {
   override protected def xmlResponse_?(in: Req): Boolean = (in.acceptsXml_? && !acceptsHtml(in)) || in.param("format") == "xml"
 
   protected trait KmlTest {
-    def testResponse_?(r: Req): Boolean = r.param("format") == "kml" || r.weightedAccept.find(_.matches("application" -> "vnd.google-earth.kml+xml")).isDefined
+    def testResponse_?(r: Req): Boolean = r.param("format") == "kml" || (r.weightedAccept.find(_.matches("application" -> "vnd.google-earth.kml+xml")).isDefined && !acceptsHtml(r))
   }
 
   protected lazy val KmlGet = new TestGet with KmlTest
@@ -32,7 +32,7 @@ object BrowseService extends RestHelper {
   def give(any : AnyRef) = Full(Response(any))
 
   serve {
-    case "service" :: "user" :: Nil KmlGet _ => PlainTextResponse("This is some KML")
+    case "service" :: "user" :: Nil KmlGet _ => XmlResponse(KMLSerializer.toKml(User.findAll.head))
   }
 
   serveJx[Response] {

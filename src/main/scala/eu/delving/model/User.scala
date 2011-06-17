@@ -1,9 +1,9 @@
 package eu.delving.model
 
 import _root_.net.liftweb.common._
-import xml.NodeSeq
 import net.liftweb.http.rest.JsonXmlAble
 import eu.delving.lib.{MetaMegaProtoUser, MegaProtoUser}
+import xml.NodeSeq
 
 /**
  * The singleton that has methods for accessing the database
@@ -52,12 +52,15 @@ object User extends User with MetaMegaProtoUser[User] {
 */
 class User extends MegaProtoUser[User] {
   def meta = User // what's the "meta" server
+
   def getValue = {
     if (User.loggedIn_?)
       UserPrivate(firstName.value, lastName.value, email.value)
     else
       UserPublic(firstName.value, lastName.value)
   }
+
+  def fullName = firstName + " " + lastName
 }
 
 case class UserPublic(firstName: String, lastName: String) extends JsonXmlAble
