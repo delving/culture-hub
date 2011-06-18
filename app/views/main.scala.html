@@ -1,0 +1,14 @@
+@(title:String = "")(body: => Html)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>@title</title>
+        <link rel="stylesheet" media="screen" href="@asset("public/stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@asset("public/images/favicon.png")">
+        <script src="@asset("public/javascripts/jquery-1.5.2.min.js")" type="text/javascript"></script>
+    </head>
+    <body>
+        @body
+    </body>
+</html>

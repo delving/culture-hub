@@ -1,0 +1,28 @@
+@(title:String)(implicit errors:Map[String,play.data.validation.Error])
+
+@main(title) {
+
+Please log in. Login form will come soon.
+
+@form(controllers.Authentication.authenticate()) {
+
+@if(errors) {
+    <p class="error">
+        @errors.head._2
+    </p>
+}
+
+<p>
+  <label for="username">Username: </label>
+  <input type="text" id="username" name="username">
+</p>
+<p>
+  <label for="password">Your message: </label>
+  <input type="password" id="password" name="password">
+</p>
+<p>
+  <input type="submit" value="Login"/>
+</p>
+
+}
+}
