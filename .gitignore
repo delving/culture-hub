@@ -3,3 +3,4 @@ test-result
 *.iml
 .DS_Store
 .idea
+modules/
