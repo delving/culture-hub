@@ -40,7 +40,7 @@ object KMLSerializer {
             .setText("<![CDATA[" + "<b><font color='#CC0000' size='+3'>$[name]</font></b>" + "<br/><br/>" + "<font face='Courier'>$[description]</font>" + "<br/><br/>" + "Extra text that will appear in the description balloon" + "<br/><br/>" + "<!-- insert the to/from hyperlinks -->" + "$[geDirections]]]>");
 
     val placemark: Placemark = new Placemark
-    document.getFeature().add(placemark);
+    document.getFeature.add(placemark);
     placemark.setName(user.fullName);
     placemark.setDescription("This is the user " + user.fullName);
     placemark.setStyleUrl("#exampleBalloonStyle");
