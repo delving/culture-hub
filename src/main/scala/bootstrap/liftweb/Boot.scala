@@ -69,7 +69,7 @@ class Boot extends Loggable {
 
     LiftRules.dispatch append MetaRepoService
     // TODO find a way to tell the service not to let the next one in the chain reply if there's no match
-    // LiftRules.dispatch append OaiPmhService
+    LiftRules.dispatch append OaiPmhService
     LiftRules.dispatch append BrowseService
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean

@@ -5,7 +5,7 @@ import net.liftweb.common.Logger
 import net.liftweb.http.XmlResponse._
 import xml.Elem
 import org.joda.time.DateTime
-import net.liftweb.http.{XmlResponse, Req}
+import net.liftweb.http._
 
 /**
  *
@@ -19,9 +19,6 @@ object OaiPmhService extends RestHelper {
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey")
 
-  // TODO this should either move to a trait, or be removed alltogether if there's a better way
-  def acceptsHtml(in: Req) = in.weightedAccept.find(_.matches("text" -> "html")).isDefined
-
   def isGetOrPost(r: Req): Boolean = {
     (r.requestType.get_? || r.requestType.post_?)
   }
@@ -29,7 +26,7 @@ object OaiPmhService extends RestHelper {
   protected trait LegalPmhRequestTest {
     def testResponse_?(r: Req): Boolean = {
       log.info("Testing for valid request")
-      r.param(VERB).isDefined && hasLegalPmhParameters(r.params) && isGetOrPost(r) && !acceptsHtml(r)
+      r.param(VERB).isDefined && hasLegalPmhParameters(r.params) && isGetOrPost(r)
     }
   }
 
@@ -37,7 +34,7 @@ object OaiPmhService extends RestHelper {
   protected trait IllegalPmhRequestTest {
     def testResponse_?(r: Req): Boolean = {
       log.info("Testing for invalid request")
-      r.param(VERB).isDefined && !hasLegalPmhParameters(r.params) && isGetOrPost(r)  && !acceptsHtml(r)
+      r.param(VERB).isDefined && !hasLegalPmhParameters(r.params) && isGetOrPost(r)
     }
   }
 
@@ -56,8 +53,10 @@ object OaiPmhService extends RestHelper {
 
 
   serve {
-    case request @ Req("service" :: "user" :: Nil, _, LegalPmhRequest) => { XmlResponse(<foo></foo>) }
-    case request @ Req("service" :: "user" :: Nil, _, illegalPmhRequest) => {
+    case request @ "service" :: _ :: Nil LegalPmhRequest _ => {
+      XmlResponse(<foo></foo>)
+    }
+    case request @ "service" :: _ :: Nil `illegalPmhRequest` _ => {
       XmlResponse(createErrorResponse("badArgument", request.uri))
     }
   }
