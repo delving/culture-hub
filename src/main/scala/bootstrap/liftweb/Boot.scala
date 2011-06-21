@@ -7,7 +7,7 @@ import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
 import net.liftweb.util._
-import eu.delving.lib.{BrowseService, MetaRepoService}
+import eu.delving.lib.{OaiPmhService, BrowseService, MetaRepoService}
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -58,6 +58,8 @@ class Boot extends Loggable {
 
     }
 
+    LiftRules.templateSuffixes
+
     // spinny image
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
     LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
@@ -66,6 +68,8 @@ class Boot extends Loggable {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     LiftRules.dispatch append MetaRepoService
+    // TODO find a way to tell the service not to let the next one in the chain reply if there's no match
+    // LiftRules.dispatch append OaiPmhService
     LiftRules.dispatch append BrowseService
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
