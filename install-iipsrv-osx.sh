@@ -58,5 +58,5 @@ cp src/iipsrv.fcgi fcgi/
 echo
 echo ==========================================================
 echo Done! The binary is fcgi/iipsrv.fcgi, you can run it with:
-echo "sh iipsrv.fcgi --bind 127.0.0.1:7777"
+echo "sh iipsrv.fcgi --bind 127.0.0.1:7000"
 echo ==========================================================

@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
+  <script type="text/javascript" src="/iipzoom/swfobject.js"></script>
+  <script type="text/javascript">
+
+    function displayImage(image) {
+      var flashvars = {
+        server: "/fcgi-bin/iipsrv.fcgi",
+        image: image,
+        navigation: true,
+        credit: "copyright or information message"
+      };
+      var params = {
+        scale: "noscale",
+        bgcolor: "#000000",
+        allowfullscreen: "true",
+        allowscriptaccess: "always"
+      };
+      swfobject.embedSWF("/iipzoom/IIPZoom.swf", "container", "100%", "100%", "9.0.0", "/iipzoom/expressInstall.swf", flashvars, params);
+    }
+  </script>
+</head>
+<body>
+<div class="lift:image_snippet.loadImage"></div>
+<div id="container">Foobar</div>
+</body>
+</html>

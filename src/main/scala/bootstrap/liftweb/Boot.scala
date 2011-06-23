@@ -31,7 +31,8 @@ class Boot extends Loggable {
       Menu("Label") / "service" / "label",
       Menu("Labels") / "service" / "labels",
       Menu("Collection") / "service" / "collection",
-      Menu("Collections") / "service" / "collections"
+      Menu("Collections") / "service" / "collections",
+      Menu("Image") / "service" / "image"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
@@ -68,9 +69,15 @@ class Boot extends Loggable {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     LiftRules.dispatch append MetaRepoService
-    // TODO find a way to tell the service not to let the next one in the chain reply if there's no match
     LiftRules.dispatch append OaiPmhService
     LiftRules.dispatch append BrowseService
+
+    // do not apply lift foo for requests meant for the fcgi-bin servlet
+    LiftRules.liftRequest.append({
+      case r if (r.path.partPath match {
+        case "fcgi-bin" :: _ => true case _ => false
+      }) => false
+    })
 
     var isAuth = Props.get("mail.smtp.auth", "false").toBoolean
     Mailer.customProperties = Props.get("mail.smtp.host", "localhost") match {
@@ -113,7 +120,7 @@ class Boot extends Loggable {
   }
 
   val FORBIDDEN = Set(
-    "object", "profile", "map", "graph", "label", "collection",
+    "object", "profile", "map", "graph", "label", "collection", "image", "fcgi-bin",
     "story", "user", "service", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search"
   )
