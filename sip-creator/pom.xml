@@ -27,11 +27,11 @@
         >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving</groupId>
+    <groupId>eu.delving.culturesuite</groupId>
     <artifactId>sip-creator</artifactId>
     <packaging>jar</packaging>
     <name>SIP-Creator</name>
-    <version>0.2.9</version>
+    <version>0.1-SNAPSHOT</version>
     <inceptionYear>2008</inceptionYear>
 
     <organization>
@@ -64,9 +64,9 @@
     </developers>
 
     <parent>
-        <groupId>eu.delving</groupId>
+        <groupId>eu.delving.culturesuite</groupId>
         <artifactId>parent</artifactId>
-        <version>0.2.9</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
     <build>
@@ -108,9 +108,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.delving</groupId>
+            <groupId>eu.delving.culturesuite</groupId>
             <artifactId>sip-core</artifactId>
-            <version>0.2.9-SNAPSHOT</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.jnlp</groupId>

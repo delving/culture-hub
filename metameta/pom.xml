@@ -27,13 +27,13 @@
         >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving</groupId>
+    <groupId>eu.delving.culturesuite</groupId>
     <artifactId>metameta</artifactId>
     <packaging>jar</packaging>
     <name>Meta-Meta</name>
-    <version>0.2.9-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <description>
-        Minimal classes shared by all code of the Delving Framework
+        Minimal classes shared by all code of the Delving Culture Suite Framework
     </description>
     <inceptionYear>2010</inceptionYear>
 
@@ -67,23 +67,10 @@
     </developers>
 
     <parent>
-        <groupId>eu.delving</groupId>
+        <groupId>eu.delving.culturesuite</groupId>
         <artifactId>parent</artifactId>
-        <version>0.2.9</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
-
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<source>1.6</source>-->
-                    <!--<target>1.6</target>-->
-                    <!--<encoding>UTF-8</encoding>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
 
     <dependencies>
         <dependency>
