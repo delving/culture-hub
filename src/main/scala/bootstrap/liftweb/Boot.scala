@@ -7,7 +7,7 @@ import _root_.eu.delving.model._
 import javax.mail.{Authenticator, PasswordAuthentication}
 import net.liftweb.mongodb.{MongoDB, MongoHost, DefaultMongoIdentifier, MongoAddress}
 import net.liftweb.util._
-import eu.delving.lib.{OaiPmhService, BrowseService, MetaRepoService}
+import eu.delving.lib.{FileUploadService, OaiPmhService, BrowseService, MetaRepoService}
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -32,10 +32,19 @@ class Boot extends Loggable {
       Menu("Labels") / "service" / "labels",
       Menu("Collection") / "service" / "collection",
       Menu("Collections") / "service" / "collections",
-      Menu("Image") / "service" / "image"
+      Menu("Image") / "service" / "image",
+      Menu("Upload") / "service" / "upload"
     )
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
+
+    // attempt to disable XHTML check for pages using e.g. jQuery templates
+    LiftRules.determineContentType = {
+      case (Full(Req("service" :: "upload" :: Nil, _, GetRequest)), Full(accept)) => {
+        "text/html; charset=utf-8"
+      }
+      case _ => "application/xhtml+xml; charset=utf-8"
+    }
 
     LiftRules.statelessRewrite append {
 
@@ -71,11 +80,13 @@ class Boot extends Loggable {
     LiftRules.dispatch append MetaRepoService
     LiftRules.dispatch append OaiPmhService
     LiftRules.dispatch append BrowseService
+    LiftRules.dispatch append FileUploadService
 
     // do not apply lift foo for requests meant for the fcgi-bin servlet
     LiftRules.liftRequest.append({
       case r if (r.path.partPath match {
-        case "fcgi-bin" :: _ => true case _ => false
+        case "fcgi-bin" :: _ => true
+        case _ => false
       }) => false
     })
 
@@ -111,7 +122,7 @@ class Boot extends Loggable {
   object Allowed {
     def unapply(string: String): Option[String] = {
       FORBIDDEN map {
-        f => if(string.contains(f)) {
+        f => if (string.contains(f)) {
           return None
         }
       }
@@ -120,8 +131,9 @@ class Boot extends Loggable {
   }
 
   val FORBIDDEN = Set(
-    "object", "profile", "map", "graph", "label", "collection", "image", "fcgi-bin",
+    "object", "profile", "map", "graph", "label", "collection",
     "story", "user", "service", "services", "portal", "api", "index",
-    "add", "edit", "save", "delete", "update", "create", "search"
-  )
+    "add", "edit", "save", "delete", "update", "create", "search",
+    "image", "fcgi-bin", "upload")
+
 }
