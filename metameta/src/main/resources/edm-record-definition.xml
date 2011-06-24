@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<record-definition prefix="edm">
+    <namespaces>
+        <namespace prefix="rdf" uri="http://www.w3.org/TR/rdf-concepts/"
+                   schema="http://www.w3.org/TR/rdf-concepts/"/>
+        <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/"
+                   schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+        <namespace prefix="dcterms" uri="http://purl.org/dc/terms/"
+                   schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+        <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/"
+                   schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/"
+                   schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="abm" uri="http://abmu.org/abm"
+                   schema="http://abmu.org/abm.xsd"/>
+        <namespace prefix="ore" uri="http://www.openarchives.org/ore"
+                   schema="http://www.openarchives.org/ore.xsd"/>
+        <namespace prefix="skos" uri="http://www.w3.org/TR/skos-reference/"
+                   schema="http://www.w3.org/TR/skos-reference/"/>
+        <namespace prefix="ens" uri="" schema=""/>
+    </namespaces>
+    <root prefix="rdf" localName="RDF">
+        <element prefix="ore" localName="Aggregation">
+            <field prefix="ens" localName="hasView" />
+            <field prefix="ens" localName="aggregateCHO" />
+        </element>
+    </root>
+</record-definition>
