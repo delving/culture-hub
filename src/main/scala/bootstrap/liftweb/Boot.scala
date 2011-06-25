@@ -124,4 +124,9 @@ class Boot extends Loggable {
     "story", "user", "service", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search"
   )
+
+  ResourceServer.allow {
+    case "css" :: _ => true
+  }
+
 }

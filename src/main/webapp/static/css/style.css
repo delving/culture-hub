@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Raleway Thin'), local('Raleway-Thin'), url('http://themes.googleusercontent.com/font?kit=RJMlAoFXXQEzZoMSUteGWLO3LdcAZYWl9Si6vvxL-qU') format('woff');
+}
+
+body {
+    background: #fff;
+}
+
+h1 {
+    font-size: 3em;
+    font-family: 'Raleway', arial;
+    color: #555;
+}
+
