@@ -1,5 +1,6 @@
 package controllers
 
+
 import models.User
 import play.libs.Crypto
 import play.data.validation.Validation
@@ -46,8 +47,7 @@ object Authentication extends Controller {
 
   import views.Authentication._
 
-  def login = {
-    // TODO this doesn't work because we can't return a Result
+  def login():AnyRef = {
     if(session("username").isDefined) {
       Redirect("/")
     }
@@ -62,7 +62,7 @@ object Authentication extends Controller {
       }
     }
     flash.keep("url")
-    html.login(title = "Login"))
+      html.login(title = "Login")
   }
 
   def authenticate(): Result = {
@@ -101,7 +101,7 @@ object Authentication extends Controller {
   }
 
 
-  private def redirectToOriginalURL = {
+  private def redirectToOriginalURL:Result = {
     val url = flash.get("url")
     if (url == null) {
       Redirect("/")
