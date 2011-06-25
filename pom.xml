@@ -20,91 +20,141 @@
   ~ permissions and limitations under the Licence.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+        >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving</groupId>
-    <artifactId>culture-hub</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
-    <name>CultureHub Project</name>
-    <inceptionYear>2011</inceptionYear>
-    <properties>
-        <scala.version>2.9.0-1</scala.version>
-        <!-- Common plugin settings -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
-        <!-- vscaladoc settings -->
-        <maven.scaladoc.vscaladocVersion>1.2-m1</maven.scaladoc.vscaladocVersion>
-        <vscaladoc.links.liftweb.pathsufix>scaladocs/</vscaladoc.links.liftweb.pathsufix>
-        <vscaladoc.links.liftweb.baseurl>http://scala-tools.org/mvnsites/liftweb</vscaladoc.links.liftweb.baseurl>
-    </properties>
+    <groupId>eu.delving.culturesuite</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Culture Suite Parent</name>
+    <description>
+        This parent project defines the version management, repositories, etc for all the other modules.
+    </description>
+
+    <organization>
+        <name>Delving B.V.</name>
+        <url>http://www.delving.eu</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Sjoerd Siebinga</name>
+            <email>sjoerd@delving.eu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Gerald de Jong</name>
+            <email>gerald@delving.eu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Eric van der Meulen</name>
+            <email>eric@delving.eu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>
-            <id>scala-tools.releases</id>
-            <name>Scala-Tools Dependencies Repository for Releases</name>
-            <url>http://scala-tools.org/repo-releases</url>
+            <id>releases</id>
+            <name>delving</name>
+            <url>http://development.delving.org:8081/nexus/content/groups/public</url>
         </repository>
         <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Maven 2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-            <layout>default</layout>
+            <id>snapshots</id>
+            <name>delving</name>
+            <url>http://development.delving.org:8081/nexus/content/repositories/snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>clojars</id>
-            <name>Clojure JAR repository</name>
-            <url>http://clojars.org/repo/</url>
-        </repository>
+
+        <!--had to add these to the default repositories in Nexus: -->
+        <!--  spring-releases: http://repository.springsource.com/maven/bundles/release/-->
+        <!--  scala-tools.releases: http://scala-tools.org/repo-releases/-->
+        <!--  scala-tools.snapshots: http://scala-tools.org/repo-snapshots/-->
+        <!--had to add manually to 3rd-party hosted in Nexus:-->
+        <!--  javax.jnlp:jnlp-api:1.5.0-->
+
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>scala-tools.releases</id>
-            <name>Scala-Tools Plugins Repository for Releases</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <distributionManagement>
+        <!-- use the following if you're not using a snapshot version. -->
+        <repository>
+            <id>releases</id>
+            <name>Delving Nexus</name>
+            <url>http://development.delving.org:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <!-- use the following if you ARE using a snapshot version. -->
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Delving Nexus</name>
+            <url>http://development.delving.org:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <pluginRepositories/>
+
+    <modules>
+        <module>metameta</module>
+        <module>sip-core</module>
+        <module>culture-hub</module>
+        <module>sip-creator</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-mongodb-record_2.9.0-1</artifactId>
-            <version>2.4-M2</version>
-        </dependency>
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-util_2.9.0-1</artifactId>
-            <version>2.4-M2</version>
-        </dependency>
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-oauth_2.9.0-1</artifactId>
-            <version>2.4-M2</version>
-        </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.foursquare</groupId>-->
-        <!--<artifactId>rogue_2.8.1</artifactId>-->
-        <!--<version>1.0.6</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>0.9.26</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -112,204 +162,280 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.9.0</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
         </dependency>
         <dependency>
-            <groupId>org.scala-tools.testing</groupId>
-            <artifactId>specs_2.8.1</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.1_3</version>
         </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>6.1.25</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- for LiftConsole -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>${scala.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- The Java API for KML -->
-        <dependency>
-            <groupId>de.micromata.jak</groupId>
-            <artifactId>JavaAPIforKml</artifactId>
-            <version>2.2.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- FastCGI Servlet for serving IIPImage requests -->
-        <dependency>
-            <groupId>org.clojars.pepijndevos</groupId>
-            <artifactId>jfastcgi</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>1.4</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium</artifactId>
-            <version>2.0b1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-server</artifactId>
-            <version>2.0b1</version>
-        </dependency>
-
-
     </dependencies>
 
-    <build>
-        <sourceDirectory>src/main/scala</sourceDirectory>
-        <testSourceDirectory>src/test/scala</testSourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.14.3</version>
-                <configuration>
-                    <charset>${project.build.sourceEncoding}</charset>
-                    <jvmArgs>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                        <jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg>
-                    </jvmArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.2</version>
-                <executions>
-                    <execution>
-                        <id>default-copy-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <overwrite>true</overwrite>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.basedir}/src</directory>
-                                    <includes>
-                                        <include>packageLinkDefs.properties</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- commons -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <!--two different http clients-->
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+            <dependency>
+                <!--two different http clients-->
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.0.0.GA</version>
+            </dependency>
+
+            <!-- containers -->
+            <dependency>
                 <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.25</version>
-                <configuration>
-                    <contextPath>/</contextPath>
-                    <scanIntervalSeconds>1</scanIntervalSeconds>
-                    <scanTargetPatterns>
-                        <scanTargetPattern>
-                            <directory>src/main/scala</directory>
-                            <includes>
-                                <include>**/*.scala</include>
-                            </includes>
-                        </scanTargetPattern>
-                    </scanTargetPatterns>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>net.sf.alchim</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>0.7.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compress</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <nosuffix>true</nosuffix>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-idea-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <downloadSources>true</downloadSources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <downloadSources>true</downloadSources>
-                    <additionalProjectnatures>
-                        <projectnature>ch.epfl.lamp.sdt.core.scalanature</projectnature>
-                    </additionalProjectnatures>
-                    <additionalBuildcommands>
-                        <buildcommand>ch.epfl.lamp.sdt.core.scalabuilder</buildcommand>
-                    </additionalBuildcommands>
-                    <classpathContainers>
-                        <classpathContainer>ch.epfl.lamp.sdt.launching.SCALA_CONTAINER</classpathContainer>
-                        <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
-                    </classpathContainers>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.zeroturnaround</groupId>
-                <artifactId>jrebel-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-rebel-xml</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.14.3</version>
-                <configuration>
-                    <charset>${project.build.sourceEncoding}</charset>
-                    <jvmArgs>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                        <jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg>
-                    </jvmArgs>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
+                <artifactId>jetty</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jsp-2.1</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- persistence -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>2.5</version>
+            </dependency>
+
+
+            <!-- Spring -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.oxm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <!-- presentation -->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.16</version>
+            </dependency>
+
+            <!-- other -->
+            <dependency>
+                <groupId>concurrent</groupId>
+                <artifactId>concurrent</artifactId>
+                <version>1.3.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>woodstox-core-asl</artifactId>
+                <version>4.0.9</version>
+            </dependency>
+            <dependency>
+                <groupId>quartz</groupId>
+                <artifactId>quartz</artifactId>
+                <version>1.5.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>1.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>2.9.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-core</artifactId>
+                <version>3.2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_2.9.0</artifactId>
+                <version>${scalaTest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-compiler</artifactId>
+                <version>${scala.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>1.7.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>1.3.04</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.collections</groupId>
+                <artifactId>google-collections</artifactId>
+                <version>1.0</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <jdkLevel>1.6</jdkLevel>
+        <spring.version>3.0.5.RELEASE</spring.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <scala.version>2.9.0-1</scala.version>
+        <scalaTest.version>1.6.1</scalaTest.version>
+    </properties>
+
 </project>

@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<record-definition prefix="ead">
+    <namespaces>
+        <namespace prefix="rdf" uri="http://www.w3.org/TR/rdf-concepts/"
+                   schema="http://www.w3.org/TR/rdf-concepts/"/>
+        <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/"
+                   schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+        <namespace prefix="dcterms" uri="http://purl.org/dc/terms/"
+                   schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+        <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/"
+                   schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/"
+                   schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="abm" uri="http://abmu.org/abm"
+                   schema="http://abmu.org/abm.xsd"/>
+        <namespace prefix="ore" uri="http://www.openarchives.org/ore"
+                   schema="http://www.openarchives.org/ore.xsd"/>
+        <namespace prefix="skos" uri="http://www.w3.org/TR/skos-reference/"
+                   schema="http://www.w3.org/TR/skos-reference/"/>
+        <namespace prefix="ead" uri="" schema=""/>
+    </namespaces>
+    <root localName="ead">
+        <field localName="@audience"/>
+        <element localName="eadheader">
+            <element localName="eadid">
+                <field localName="@countrycode"/>
+                <field localName="@identifier"/>
+                <field localName="@mainagencycode"/>
+                <field localName="@url"/>
+            </element>
+            <element localName="filedesc">
+                <element localName="titlestmt">
+                    <field localName="titleproper"/>
+                    <field localName="subtitle"/>
+                    <field localName="author"/>
+                </element>
+                <element localName="publicationstmt">
+                    <field localName="publisher"/>
+                    <element localName="date">
+                        <field localName="@calendar"/>
+                        <field localName="@era"/>
+                        <field localName="@normal"/>
+                    </element>
+                    <element localName="address">
+                        <field localName="addressline"/>
+                    </element>
+                </element>
+                <element localName="seriesstmt">
+                    <field localName="titleproper"/>
+                </element>
+            </element>
+            <element localName="profiledesc">
+                <element localName="creation">
+                    <element localName="date">
+                        <field localName="@calendar"/>
+                        <field localName="@era"/>
+                        <field localName="@normal"/>
+                    </element>
+                </element>
+                <element localName="langusage">
+                    <element localName="language">
+                        <field localName="@langcode"/>
+                        <field localName="@scriptcode"/>
+                    </element>
+                </element>
+                <field localName="descrules"/>
+            </element>
+        </element>
+        <element localName="archdesc">
+            <field localName="@level"/>
+            <field localName="@type"/>
+            <element localName="did">
+                <field localName="unitid"/>
+                <field localName="unittitle"/>
+                <element localName="unitdate">
+                    <field localName="@calendar"/>
+                    <field localName="@era"/>
+                    <field localName="@normal"/>
+                </element>
+                <element localName="origination">
+                    <element localName="corpname">
+                        <field localName="@authfilenumber"/>
+                    </element>
+                    <element localName="persname">
+                        <field localName="@authfilenumber"/>
+                    </element>
+                    <element localName="famname">
+                        <field localName="@authfilenumber"/>
+                    </element>
+                    <element localName="name">
+                        <field localName="@authfilenumber"/>
+                    </element>
+                </element>
+                <element localName="langmaterial">
+                    <element localName="language">
+                        <field localName="@langcode"/>
+                        <field localName="@scriptcode"/>
+                    </element>
+                </element>
+                <element localName="repository">
+                    <element localName="address">
+                        <field localName="addressline"/>
+                    </element>
+                </element>
+                <element localName="physloc">
+                    <field localName="@label"/>
+                </element>
+                <field localName="materialspec"/>
+                <element localName="physdesc">
+                    <element localName="physfacet">
+                        <field localName="@type"/>
+                    </element>
+                    <element localName="extent">
+                        <field localName="@unit"/>
+                    </element>
+                    <field localName="genreform"/>
+                    <element localName="dimensions">
+                        <field localName="@type"/>
+                        <field localName="@unit"/>
+                    </element>
+                </element>
+                <element localName="dao">
+                    <field localName="@xlink:href"/>
+                    <field localName="@xlink:title"/>
+                </element>
+                <field localName="note"/>
+            </element>
+            <field localName="appraisal"/>
+            <field localName="processinfo"/>
+            <field localName="custodhist"/>
+            <element localName="bioghist">
+                <element localName="dao">
+                    <field localName="@xlink:href"/>
+                    <field localName="@xlink:title"/>
+                </element>
+            </element>
+            <field localName="arrangement"/>
+            <field localName="fileplan"/>
+            <field localName="accruals"/>
+            <field localName="acqinfo"/>
+            <field localName="altformavail"/>
+            <field localName="relatedmaterial"/>
+            <field localName="separatedmaterial"/>
+            <field localName="originalsloc"/>
+            <field localName="prefercite"/>
+            <field localName="otherfindaid"/>
+            <field localName="accessrestrict"/>
+            <field localName="userretrict"/>
+            <field localName="phystech"/>
+            <element localName="scopecontent">
+                <field localName="@encodinganalog"/>
+            </element>
+            <field localName="odd"/>
+            <element localName="controlaccess">
+                <field localName="name"/>
+                <field localName="geogname"/>
+                <field localName="famname"/>
+                <field localName="subject"/>
+                <field localName="corpname"/>
+                <field localName="persname"/>
+                <field localName="occupation"/>
+                <field localName="function"/>
+                <field localName="title"/>
+                <field localName="genreform"/>
+            </element>
+
+            <!--the remainder here is about composing a hierarchy of things that look like archdesc-->
+            <element localName="dsc">
+                <element localName="c">
+                    <field localName="@level"/>
+                    <!-- fonds, series, subseries - composite-->
+                    <!-- file, item - file can only contain item-->
+                    <field localName="@id"/>
+                </element>
+            </element>
+        </element>
+    </root>
+</record-definition>
