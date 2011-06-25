@@ -7,6 +7,8 @@ import play.data.validation.Validation
 import play.Play
 import play.mvc.{Util, Before, Controller}
 import play.mvc.results.Result
+import play.templates.Html
+import play.i18n.Messages
 
 trait Secure {
   self: Controller =>
@@ -24,13 +26,13 @@ trait Secure {
           case None => {
             session.remove("username")
             flash.put("url", if (("GET" == request.method)) request.url else "/")
-            Action(Authentication.login)
+            Action(Authentication.login())
           }
         }
       }
       case None => {
         flash.put("url", if (("GET" == request.method)) request.url else "/")
-        Action(Authentication.login)
+        Action(Authentication.login())
       }
     }
   }
@@ -65,17 +67,16 @@ object Authentication extends Controller {
       html.login(title = "Login")
   }
 
-  def authenticate(): Result = {
+  def authenticate(): AnyRef = {
     val username: String = params.get("username")
     val password: String = params.get("password")
-    val remember: Boolean = params.get("remember").asInstanceOf[Boolean]
+    val remember: Boolean = params.get("remember") == "true"
 
     Validation.required("username", username).message("Username is required")
     Validation.required("password", password).message("Password is required")
 
     if (Validation.hasErrors) {
-      flash.keep("url")
-      Action(login)
+      loginError()
     } else {
       val sec = getSecurity.newInstance.asInstanceOf[ {def authenticate(username: String, password: String): Boolean}]
       val ok = sec.authenticate(username, password)
@@ -87,16 +88,22 @@ object Authentication extends Controller {
         session.put("username", username)
         redirectToOriginalURL
       } else {
-        flash.keep("url")
-        Action(login)
+        loginError()
       }
     }
+  }
+
+  def loginError(): Html = {
+    flash.keep("url")
+    flash.error(Messages.get("secure.error"))
+    params.flash()
+    html.login(title = "Login")
   }
 
   def logout = {
     session.clear()
     response.removeCookie("rememberme")
-    flash.success("secure.logout")
+    flash.success(Messages.get("secure.logout"))
     Action(login)
   }
 

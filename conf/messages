@@ -1,3 +1,5 @@
 # You can specialize this file for each language.
 # For example, for French create a messages.fr file
 #
+secure.error=Login incorrect
+secure.logout=You were logged out successfully

@@ -1,28 +1,43 @@
-@(title:String)(implicit errors:Map[String,play.data.validation.Error])
+@(title:String)
+@import views.context._
 
-@main(title) {
+@layout(title) {
 
-Please log in. Login form will come soon.
+<div id="login">
 
-@form(controllers.Authentication.authenticate()) {
+  <h1>Play Services</h1>
 
-@if(errors) {
-    <p class="error">
-        @errors.head._2
+  @form(controllers.Authentication.authenticate()) {
+  @if(flash.contains("error")) {
+  <p class="error">
+    @flash.get("error")
+  </p>
+  }
+  @if(flash.contains("success")) {
+    <p class="success">
+      @flash.get("success")
     </p>
-}
+  }
 
-<p>
-  <label for="username">Username: </label>
-  <input type="text" id="username" name="username">
-</p>
-<p>
-  <label for="password">Your message: </label>
-  <input type="password" id="password" name="password">
-</p>
-<p>
-  <input type="submit" value="Login"/>
-</p>
+  <p id="username-field">
+    <label for="username">Username: </label>
+    <input type="text" id="username" name="username">
+  </p>
 
+  <p id="password-field">
+    <label for="password">Your password: </label>
+    <input type="password" id="password" name="password" value="">
+  </p>
+
+  <p id="remember-field">
+    <input type="checkbox" name="remember" id="remember" value="true" @if(flash.contains("remember")) { "checked=\"true\"" } />
+    <label for="remember">Remember me</label>
+  </p>
+
+  <p id="signin-field">
+    <input type="submit" id="signin" value="Login"/>
+  </p>
+
+</div>
 }
 }
