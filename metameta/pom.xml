@@ -27,13 +27,13 @@
         >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving.culturesuite</groupId>
+    <groupId>eu.delving.culturehub</groupId>
     <artifactId>metameta</artifactId>
     <packaging>jar</packaging>
     <name>Meta-Meta</name>
     <version>0.1-SNAPSHOT</version>
     <description>
-        Minimal classes shared by all code of the Delving Culture Suite Framework
+        Minimal classes shared by all code of the Delving Culture Hub Framework
     </description>
     <inceptionYear>2010</inceptionYear>
 
@@ -67,7 +67,7 @@
     </developers>
 
     <parent>
-        <groupId>eu.delving.culturesuite</groupId>
+        <groupId>eu.delving.culturehub</groupId>
         <artifactId>parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>

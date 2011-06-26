@@ -27,11 +27,11 @@
         >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving.culturesuite</groupId>
+    <groupId>eu.delving.culturehub</groupId>
     <artifactId>parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Culture Suite Parent</name>
+    <name>Culture Hub Parent</name>
     <description>
         This parent project defines the version management, repositories, etc for all the other modules.
     </description>
@@ -109,7 +109,7 @@
     <modules>
         <module>metameta</module>
         <module>sip-core</module>
-        <module>culture-hub</module>
+        <module>hub-server</module>
         <module>sip-creator</module>
     </modules>
 

@@ -26,11 +26,11 @@
 
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving.culturesuite</groupId>
-    <artifactId>culture-hub</artifactId>
+    <groupId>eu.delving.culturehub</groupId>
+    <artifactId>hub-server</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>CultureHub Project</name>
+    <name>Hub-Server</name>
     <inceptionYear>2011</inceptionYear>
     <properties>
         <scala.version>2.9.0-1</scala.version>

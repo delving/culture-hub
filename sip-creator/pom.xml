@@ -27,7 +27,7 @@
         >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>eu.delving.culturesuite</groupId>
+    <groupId>eu.delving.culturehub</groupId>
     <artifactId>sip-creator</artifactId>
     <packaging>jar</packaging>
     <name>SIP-Creator</name>
@@ -64,7 +64,7 @@
     </developers>
 
     <parent>
-        <groupId>eu.delving.culturesuite</groupId>
+        <groupId>eu.delving.culturehub</groupId>
         <artifactId>parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
@@ -108,7 +108,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.delving.culturesuite</groupId>
+            <groupId>eu.delving.culturehub</groupId>
             <artifactId>sip-core</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
