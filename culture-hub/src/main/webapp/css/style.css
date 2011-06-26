@@ -1,16 +1,19 @@
 @font-face {
     font-family: 'Raleway';
-    font-style: normal;
-    font-weight: normal;
+    /*font-style: normal;*/
+    /*font-weight: normal;*/
     src: local('Raleway Thin'), local('Raleway-Thin'), url('http://themes.googleusercontent.com/font?kit=RJMlAoFXXQEzZoMSUteGWLO3LdcAZYWl9Si6vvxL-qU') format('woff');
 }
 
 body {
     background: #fff url(../images/bg-gradient-gray.png) repeat-x top left;
+    font: 13px/1.5 Arial,Helvetica,sans-serif;
     margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', arial;
+    font-weight: normal;
     margin-top: 0;
 }
 
@@ -34,14 +37,15 @@ h1, h2, h3, h4, h5, h6 {
 #header h1 {
     color: #fff;
     font-size: 3em;
-    font-family: 'Raleway', arial;
+
     font-weight: normal;
     margin-top: 60px;
     text-align: left;
 }
 
 ul {
-    margin: 0 0 0 18px;
+    margin: 0;
+    padding: 0 0 0 18px;
 }
 
 li {

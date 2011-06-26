@@ -12,8 +12,8 @@ object User extends User with MetaMegaProtoUser[User] {
 
   override def collectionName = "users"
 
-  // define the MongoDB collection name
-  override def screenWrap = Full(<lift:surround with="default" at="content">
+  // define what surround template to use
+  override def screenWrap = Full(<lift:surround with="delving-shell" at="content">
       <lift:bind/>
   </lift:surround>)
 
