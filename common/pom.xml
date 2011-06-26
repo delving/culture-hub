@@ -28,9 +28,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>eu.delving.culturehub</groupId>
-    <artifactId>sip-core</artifactId>
+    <artifactId>common</artifactId>
     <packaging>jar</packaging>
-    <name>SIP-Core</name>
+    <name>Common</name>
     <version>0.1-SNAPSHOT</version>
     <description>
         A Minimal set of classes shared between client and server, avoiding dependency on core module.
@@ -86,11 +86,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>eu.delving.culturehub</groupId>
-            <artifactId>metameta</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

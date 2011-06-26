@@ -169,7 +169,7 @@ public class MappingCategory {
     return sanitize(list.toString())
   }
 
-  static String sanitize(String text) { // same effect as in eu.delving.metadata.Sanitizer.sanitizeGroovy, except apostrophe removal
+  static String sanitize(String text) { // same effect as in Sanitizer.sanitizeGroovy, except apostrophe removal
     text = (text =~ /\n/).replaceAll(' ')
     text = (text =~ / +/).replaceAll(' ')
     return text

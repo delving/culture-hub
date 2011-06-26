@@ -31,7 +31,7 @@
     <artifactId>parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Culture Hub Parent</name>
+    <name>Culture-Hub</name>
     <description>
         This parent project defines the version management, repositories, etc for all the other modules.
     </description>
@@ -107,8 +107,7 @@
     <pluginRepositories/>
 
     <modules>
-        <module>metameta</module>
-        <module>sip-core</module>
+        <module>common</module>
         <module>hub-server</module>
         <module>sip-creator</module>
     </modules>

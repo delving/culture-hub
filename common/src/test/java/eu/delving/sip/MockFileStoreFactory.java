@@ -21,7 +21,7 @@ public class MockFileStoreFactory {
     private FileStore.DataSetStore dataSetStore;
 
     public MockFileStoreFactory() throws FileStoreException {
-        File target = new File("sip-core/target");
+        File target = new File("common/target");
         if (!target.exists()) {
             target = new File("target");
             if (!target.exists()) {

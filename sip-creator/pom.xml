@@ -109,7 +109,7 @@
     <dependencies>
         <dependency>
             <groupId>eu.delving.culturehub</groupId>
-            <artifactId>sip-core</artifactId>
+            <artifactId>common</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
