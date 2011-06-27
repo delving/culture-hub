@@ -62,6 +62,9 @@ class Boot extends Loggable {
 
     LiftRules.templateSuffixes
 
+    // file upload
+    LiftRules.handleMimeFile = OnDiskFileParamHolder.apply
+
     // spinny image
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
     LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)

@@ -49,5 +49,8 @@ project/boot
 # Pax Runner (for easy OSGi launching)
 runner
 
+# Properties
+default.props 
+
 # SipCreator files
 SipCreatorGUI.xml

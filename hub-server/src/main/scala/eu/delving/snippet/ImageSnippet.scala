@@ -15,11 +15,10 @@ import JsCmds._
 class ImageSnippet {
 
   def loadImage(xml: NodeSeq): NodeSeq = {
-    // until we have a configuration mechanism figure out the absolute path via a JVM arg
-    val arg = System.getProperty("culture-hub.root.path")
-    if(arg == null) {
-      throw new RuntimeException("You need to start the webapp with a -Dculture-hub.root.path JVM arg that points to the absolute path of culture-hub")
+    val images = Props.get("image.store.path").openTheBox
+    if(images == null) {
+      throw new RuntimeException("You need configure an image storage path in default.props")
     }
-    <head>{Script(OnLoad(Call("displayImage", arg +  "/src/main/webapp/images/smallballs.tif")))}</head>
+    <head>{Script(OnLoad(Call("displayImage", images +  "/smallballs.tif")))}</head>
   }
 }

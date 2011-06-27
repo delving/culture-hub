@@ -1,0 +1,8 @@
+# Properties in this file will be read when running in dev mode
+
+mail.smtp.host=smtp.gmail.com
+mail.smtp.user=???
+mail.smtp.pass=???
+
+# Absolute path of the image store on disk
+image.store.path=/Users/foo/workspace/culture-hub/hub-server/src/test/resources/
