@@ -38,14 +38,6 @@ class Boot extends Loggable {
 
     LiftRules.setSiteMap(SiteMap((pages ::: MetaRepoService.sitemap ::: User.sitemap): _*))
 
-    // attempt to disable XHTML check for pages using e.g. jQuery templates
-    LiftRules.determineContentType = {
-      case (Full(Req("service" :: "upload" :: Nil, _, GetRequest)), Full(accept)) => {
-        "text/html; charset=utf-8"
-      }
-      case _ => "application/xhtml+xml; charset=utf-8"
-    }
-
     LiftRules.statelessRewrite append {
 
       case RewriteRequest(ParsePath(Allowed(userName) :: Nil, "", true, false), GetRequest, http) =>
