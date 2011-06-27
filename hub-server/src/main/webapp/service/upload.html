@@ -1,7 +1,7 @@
 <div class="lift:surround?with=delving-shell;at=content">
 
   <div id="fileupload">
-    <form action="/service/fileUpload" method="POST" enctype="multipart/form-data">
+    <form action="/service/imageUpload" method="POST" enctype="multipart/form-data">
       <div class="fileupload-buttonbar">
         <label class="fileinput-button">
           <span>Add files...</span>
@@ -118,7 +118,9 @@
 
 
               });
-      $('#fileupload').fileupload();
+      $('#fileupload').fileupload({
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|tiff?|jp2)$/i
+              });
 
     });
     // ]]>
