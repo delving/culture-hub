@@ -7,18 +7,16 @@ import net.liftweb.http._
 import js._
 import JE._
 import JsCmds._
+import eu.delving.lib.Util
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class ImageSnippet {
+class ImageSnippet extends Util {
 
   def loadImage(xml: NodeSeq): NodeSeq = {
-    val images = Props.get("image.store.path").openTheBox
-    if(images == null) {
-      throw new RuntimeException("You need configure an image storage path in default.props")
-    }
-    <head>{Script(OnLoad(Call("displayImage", images +  "/smallballs.tif")))}</head>
+    val images = getPath("image.store.path")
+    <head>{Script(OnLoad(Call("displayImage", images +  "/" + S.param("imageName").openOr("smallballs") + ".tif")))}</head>
   }
 }

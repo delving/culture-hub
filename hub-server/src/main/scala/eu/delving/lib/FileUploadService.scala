@@ -16,7 +16,7 @@ import at.ait.dme.magicktiler.{TilingException, TilesetInfo, MagickTiler}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUploadService extends RestHelper {
+object FileUploadService extends RestHelper with Util {
 
   serve {
     case request@"service" :: "imageUpload" :: _ Post _ => {
@@ -64,18 +64,5 @@ object FileUploadService extends RestHelper {
   }
 
   case class FileUploadResponse(name: String, size: Long, url: String = "", thumbnail_url: String = "", delete_url: String = "", delete_type: String = "DELETE", error: String = null)
-
-  private def getPath(key: String): File = {
-    val imageStorePath = Props.get(key)
-    if (imageStorePath.isEmpty) {
-      throw new RuntimeException("You need to configure %s" format (key))
-    }
-    val imageStore = new File(imageStorePath.openTheBox)
-    if (!imageStore.exists()) {
-      throw new RuntimeException("Could not find path %s for key %s" format (imageStore.getAbsolutePath, key))
-    }
-    imageStore
-  }
-
 
 }
