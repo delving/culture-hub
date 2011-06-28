@@ -1,0 +1,92 @@
+@font-face {
+    font-family: 'Raleway';
+    /*font-style: normal;*/
+    /*font-weight: normal;*/
+    src: local('Raleway Thin'), local('Raleway-Thin'), url('http://themes.googleusercontent.com/font?kit=RJMlAoFXXQEzZoMSUteGWLO3LdcAZYWl9Si6vvxL-qU') format('woff');
+}
+
+body {
+    background: #fff url(../images/bg-gradient-gray.png) repeat-x top left;
+    font: 13px/1.5 Arial,Helvetica,sans-serif;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', arial;
+    font-weight: normal;
+    margin-top: 0;
+}
+
+.container_16 {
+    background: #fff;
+}
+
+#header {
+    display: block;
+    background: #81AAd0;
+    background: -moz-linear-gradient(top, #336699, #81AAd0);
+    background: -webkit-gradient(linear, center top, center bottom, from(#336699), to(#81AAd0));
+    background: -o-linear-gradient(top, #336699, #81AAd0);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#336699', endColorstr = '#81AAd0');
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#336699', endColorstr='#81AAd0')";
+    height: 170px;
+    position: relative;
+    margin-bottom: 50px;
+}
+
+#header h1 {
+    color: #fff;
+    font-size: 3em;
+
+    font-weight: normal;
+    margin-top: 60px;
+    text-align: left;
+}
+
+ul {
+    margin: 0;
+    padding: 0 0 0 18px;
+}
+
+li {
+    list-style-position: outside;
+    list-style-type: none;
+    list-style-image: url("../images/bullet-square-blue.png");
+}
+
+li ul li {
+    list-style-type: square;
+    list-style-image: none;
+}
+
+.sidebar ul {
+    margin: 0;
+    padding: 0;
+    /*border-bottom: 1px dashed #ccc;*/
+}
+
+.sidebar ul li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px dashed #ccc;
+}
+
+.sidebar ul li a {
+    display: block;
+    padding: 3px;
+    text-indent: 10px;
+    text-decoration: none;
+}
+
+.sidebar ul li span {
+    display: block;
+    padding: 3px;
+    text-indent: 10px;
+    text-decoration: none;
+}
+
+.sidebar ul li a:hover {
+    background-color: #eee;
+}
+

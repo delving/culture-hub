@@ -1,14 +1,67 @@
 @(title:String = "")(body: => Html)
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@asset("public/stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@asset("public/images/favicon.png")">
-        <script src="@asset("public/javascripts/jquery-1.5.2.min.js")" type="text/javascript"></script>
-    </head>
-    <body>
-        @body
-    </body>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <meta name="description" content=""/>
+  <meta name="keywords" content=""/>
+
+  <title>@title</title>
+  <link rel="stylesheet" type="text/css" href="@asset("/public/stylesheets/960.css")"/>
+  <link rel="stylesheet" type="text/css" href="@asset("/public/stylesheets/style.css")"/>
+</head>
+<body>
+<div class="container_16">
+
+  <div id="header" class="grid_16">
+    <div id="logo" class="grid_4 alpha"><img src="@asset("/public/images/logo.png")" /></div>
+    <h1 class="grid_12 omega">DELVING Play Services<img alt="" id="ajax-loader"
+                                                        style="display:none; margin-bottom: 0px; margin-left: 5px"
+                                                        src="@asset("/public/images/ajax-loader.gif")" />
+    </h1>
+  </div>
+
+  <div class="clear"></div>
+
+  <!-- there is no sitemap equivalent in Play but it would be very easy to do one. Also there are modules that do that. -->
+  <div class="grid_4 sidebar">
+    <ul>
+      <li><a href="@action(controllers.Application.index)">Home</a></li>
+    </ul>
+    <ul>
+      <li><a href="@action(controllers.User.index)">User</a></li>
+    </ul>
+    <ul>
+      <li><a href="@action(controllers.Profile.index)">Profile</a></li>
+    </ul>
+    <ul>
+      <li><a href="">Label</a></li>
+    </ul>
+    <ul>
+      <li><a href="">Labels</a></li>
+    </ul>
+    <ul>
+      <li><a href="">Collection</a></li>
+    </ul>
+    <ul>
+      <li><a href="">Collections</a></li>
+    </ul>
+  </div>
+
+  <div class="grid_12">
+    <div id="content">
+      @body
+    </div>
+  </div>
+
+  <div class="clear"></div>
+
+  <div class="grid_16" style="text-align: center">
+    <h4 class="alt">
+      <a href="http://www.delving.eu"><i>Delving</i></a>
+    </h4>
+  </div>
+
+</div>
+</body>
 </html>

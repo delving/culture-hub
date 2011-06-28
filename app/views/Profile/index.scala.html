@@ -1,0 +1,7 @@
+@import views.context._
+
+@main("Profile of user " + Option(params.get("user")).getOrElse("nobody") ) {
+
+        Howdy folks! This is the profile of @params.get("user")
+
+}

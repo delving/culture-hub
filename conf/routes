@@ -3,19 +3,26 @@
 # ~~~~
 
 # Home page
-GET     /                                       Application.index
+GET         /                                       Application.index
 
 # Authentication
-GET			    /login			                        Authentication.login
-POST        /login                              Authentication.authenticate
-GET         /logout                             Authentication.logout
+GET			    /login			                            Authentication.login
+POST        /login                                  Authentication.authenticate
+GET         /logout                                 Authentication.logout
+
+# User
+GET         /service/user/?                         User.index
+
+# Profile
+GET         /service/profile                        Profile.index
+GET         /service/profile/{user}                 Profile.index
 
 
 # Ignore favicon requests
-GET     /favicon.ico                            404
+GET         /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
-GET     /public/                                staticDir:public
+GET         /public/                                staticDir:public
 
 # Catch all
-*       /{controller}/{action}                  {controller}.{action}
+*           /{controller}/{action}                  {controller}.{action}
