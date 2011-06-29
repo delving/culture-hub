@@ -1,21 +1,20 @@
 package controllers
 
 import com.mongodb.casbah.Imports._
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager
 import org.apache.log4j.Logger
 import java.util.Date
 import java.awt.image.BufferedImage
 import com.thebuzzmedia.imgscalr.Scalr
 import javax.imageio.ImageIO
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, OutputStream, InputStream}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams
 import com.mongodb.casbah.gridfs.{GridFSInputFile, GridFSDBFile, GridFS}
-import play.libs.WS
-import play.libs.WS.HttpResponse
 import play.mvc.Http.Response
 import scala.collection.JavaConversions._
-import play.mvc.{Util, Controller}
+import play.mvc.Controller
 import play.mvc.results.{NotFound, RenderBinary, Result}
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.httpclient.{Header, HttpClient, MultiThreadedHttpConnectionManager}
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -80,7 +79,6 @@ class ImageCacheService {
     }
     catch {
       case ia: IllegalArgumentException =>
-        ia.printStackTrace()
         log.error("problem with processing this url: \"" + url + "\"")
         respondWithNotFound(url)
       case ex: Exception =>
@@ -139,25 +137,22 @@ class ImageCacheService {
     }
   }
 
-  // retrieveImageFromUrl
-  def retrieveImageFromUrl(url: String): WebResource = {
-    // attempting to use Play's WS lib. we get stuck in both cases for the moment
-    val response: HttpResponse = WS.url(url).get()
-    //    val httpClient = new HttpClient(multiThreadedHttpConnectionManager)
-    //    val method = new GetMethod(url)
-    //    httpClient executeMethod (method)
-    response.getHeaders.foreach(header => log debug (header))
-    //    println(method.getStatusText)
-    val storable = isStorable(response)
-    WebResource(url, response.getStream, storable._1, storable._2)
+
+  def retrieveImageFromUrl(url: String) : WebResource = {
+    val httpClient = new HttpClient(multiThreadedHttpConnectionManager)
+    val method = new GetMethod(url)
+    httpClient executeMethod (method)
+    method.getResponseHeaders.foreach(header => log debug (header) )
+    val storable = isStorable(method)
+    WebResource(url, method.getResponseBodyAsStream, storable._1, storable._2)
   }
 
-  def isStorable(response: HttpResponse) = {
-    val contentType: String = response.getHeader("Content-Type")
-    val contentLength: String = response.getHeader("Content-Length")
+  def isStorable(method: GetMethod) = {
+    val contentType : Header = method.getResponseHeader("Content-Type")
+    val contentLength : Header = method.getResponseHeader("Content-Length")
     val mimeTypes = List("image/png", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/pjpeg")
     //todo build a size check in later
-    (mimeTypes.contains(contentType), contentType)
+    (mimeTypes.contains(contentType.getValue.toLowerCase), contentType.getValue)
   }
 
   private def respondWithNotFound(url: String): Result = {
@@ -172,25 +167,12 @@ class ImageCacheService {
     new RenderBinary(image.inputStream, "cachedImage", image.contentType, true)
   }
 
-  private def writeImage(in: Option[InputStream], out: OutputStream, callback: OutputStream => Any) {
-    try {
-      callback(out)
-    } finally {
-      in.map {
-        stream => stream.close()
-      }
-      out.close()
-    }
-  }
-
   private def setImageCacheControlHeaders(image: GridFSDBFile, response: Response) {
     response.setContentTypeIfNotSet(image.contentType)
-    response.cacheFor(cacheDuration.toString + "s")
+    val now = System.currentTimeMillis();
+    response.cacheFor("", cacheDuration.toString + "s", now)
     response.headers.get("Cache-Control").values.add("must-revalidate")
-
-    // TODO
-    //    response.setDateHeader("Last-Modified", now)
-    //    response.setDateHeader("Expires", now + cacheDuration * 1000)
+    response.setHeader("Expires", (now + cacheDuration * 1000).toString)
   }
 
   private def isThumbnail(thumbnail: Option[String]): Boolean = {
@@ -202,9 +184,7 @@ class ImageCacheService {
     Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
   }
 
-
 }
-
 
 case class WebResource(url: String, dataAsStream: InputStream, storable: Boolean, contentType: String)
 
