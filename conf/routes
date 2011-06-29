@@ -17,6 +17,8 @@ GET         /service/user/?                         Users.index
 GET         /service/profile                        Profiles.index
 GET         /service/profile/{user}                 Profiles.index
 
+# Image Cache
+GET         /service/image                          Images.image
 
 # Ignore favicon requests
 GET         /favicon.ico                            404
