@@ -4,3 +4,4 @@ test-result
 .DS_Store
 .idea
 modules/
+lib/

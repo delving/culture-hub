@@ -7,11 +7,12 @@ import play.mvc.{Controller}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Profile extends Controller {
+object Users extends Controller with Secure {
 
-  import views.Profile._
+  import views.User._
 
   def index = {
-    html.index()
+    html.index(username = "Melvin")
   }
+
 }

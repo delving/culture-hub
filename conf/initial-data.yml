@@ -4,3 +4,4 @@
     password:       secret
     fullname:       Bob
     isAdmin:        true
+    displayName:    bob

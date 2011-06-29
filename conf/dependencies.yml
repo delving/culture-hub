@@ -3,3 +3,6 @@
 require:
     - play
     - play -> scala 0.9.1
+    - net.liftweb -> lift-json-ext_2.8.1 2.3:
+        exclude:
+            - org.scala-lang -> *

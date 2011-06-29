@@ -11,11 +11,11 @@ POST        /login                                  Authentication.authenticate
 GET         /logout                                 Authentication.logout
 
 # User
-GET         /service/user/?                         User.index
+GET         /service/user/?                         Users.index
 
 # Profile
-GET         /service/profile                        Profile.index
-GET         /service/profile/{user}                 Profile.index
+GET         /service/profile                        Profiles.index
+GET         /service/profile/{user}                 Profiles.index
 
 
 # Ignore favicon requests

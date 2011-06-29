@@ -1,7 +1,9 @@
+@(user:models.User)
+
 @import views.context._
 
-@main("Profile of user " + Option(params.get("user")).getOrElse("nobody") ) {
+@main("Profile of user " + user.fullname ) {
 
-        Howdy folks! This is the profile of @params.get("user")
+        Howdy folks! This is the profile of @user.fullname
 
 }
