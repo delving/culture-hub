@@ -4,9 +4,6 @@ import play.classloading.enhancers.LocalvariablesNamesEnhancer
 import play.mvc.Http.{Response, Request}
 import net.liftweb.json.Serialization._
 import net.liftweb.json.{Extraction, DefaultFormats, ParameterNameReader}
-import views.Profile.html
-import reflect.Template
-import play.mvc.ScalaControllerCompatibility
 import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}

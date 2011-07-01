@@ -10,12 +10,12 @@ GET			    /login			                            Authentication.login
 POST        /login                                  Authentication.authenticate
 GET         /logout                                 Authentication.logout
 
-# User
-GET         /service/user/?                         Users.index
+# Delving URL scheme
+GET         /{user}/?                               Users.index
+GET         /{user}/profile                         Profiles.index
+GET         /{user}/label/                          Labels.list
+GET         /{user}/label/{label}                   Labels.label
 
-# Profile
-GET         /service/profile                        Profiles.index
-GET         /service/{user}/profile                 Profiles.index
 
 # Image Cache
 GET         /service/image                          Images.image

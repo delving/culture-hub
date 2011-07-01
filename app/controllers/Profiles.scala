@@ -13,13 +13,13 @@ import extensions.AdditionalActions
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Profiles extends Controller with AdditionalActions {
+object Profiles extends DelvingController {
 
   import views.Profile._
 
   def index(): AnyRef = {
     val displayName = params.get("user")
-    val u: User = User.find("displayName = {displayName}").on("displayName" -> displayName).first().getOrElse(User.nobody)
+    val u: User = getUser(displayName)
     RenderMultitype(html.index, ('user, u))
   }
 }
