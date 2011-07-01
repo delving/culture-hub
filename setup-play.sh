@@ -19,7 +19,7 @@ echo ========================
 echo
 echo
 
-play install scala-0.9.1
+./play install scala-0.9.1
 
 cd ..
 
