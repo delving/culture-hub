@@ -17,6 +17,10 @@ GET         /{user}/label                           Labels.list
 GET         /{user}/label/{label}                   Labels.label
 GET         /{user}/collection                      Collections.list
 GET         /{user}/collection/{collection}         Collections.collection
+GET         /{user}/object                          Dobjects.list
+GET         /{user}/object/{dobject}                 Dobjects.dobject
+GET         /{user}/story                           Stories.list
+GET         /{user}/story/{story}                   Stories.story
 
 
 # Image Cache

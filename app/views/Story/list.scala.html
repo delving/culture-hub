@@ -1,0 +1,15 @@
+@(user:models.User)
+
+@import views.context._
+
+@main("List of stories for user " + user.fullname ) {
+
+        <h1>All the stories of @user.fullname</h1>
+        <ul>
+          <li>Foos</li>
+          <li>Bars</li>
+          <li>Bazs</li>
+        </ul>
+
+
+}

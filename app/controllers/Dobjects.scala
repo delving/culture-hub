@@ -3,21 +3,21 @@ package controllers
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ * @author Sjoerd Siebinga <sjoerd@delving.eu>
  */
 
-object Collections extends DelvingController {
+object Dobjects extends DelvingController {
 
-  import views.Collection._
+  import views.Dobject._
   
   def list(user: String): AnyRef = {
     val u = getUser(user)
     html.list(user = u)
   }
 
-  def collection(user: String, collection: String): AnyRef = {
+  def dobject(user: String, dobject: String): AnyRef = {
     val u = getUser(user)
-    html.collection(user = u, name = collection)
-
+    html.dobject(user = u, name = dobject)
   }
 
 }
