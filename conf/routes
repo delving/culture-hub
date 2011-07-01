@@ -13,8 +13,10 @@ GET         /logout                                 Authentication.logout
 # Delving URL scheme
 GET         /{user}/?                               Users.index
 GET         /{user}/profile                         Profiles.index
-GET         /{user}/label/                          Labels.list
+GET         /{user}/label                           Labels.list
 GET         /{user}/label/{label}                   Labels.label
+GET         /{user}/collection                      Collections.list
+GET         /{user}/collection/{collection}         Collections.collection
 
 
 # Image Cache
