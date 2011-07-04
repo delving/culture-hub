@@ -25,6 +25,7 @@ object PlayParameterNameReader extends ParameterNameReader {
  */
 trait AdditionalActions {
 
+  def Json(data: AnyRef) = new RenderLiftJson(data)
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 
 }
@@ -61,4 +62,16 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     }
   }
 
+}
+
+
+class RenderLiftJson(data: AnyRef) extends Result {
+  def apply(request: Request, response: Response) {
+
+    implicit val formats = new DefaultFormats {
+      override val parameterNameReader = PlayParameterNameReader
+    }
+
+    new RenderJson(write(data))(request, response)
+  }
 }

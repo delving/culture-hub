@@ -26,6 +26,10 @@ GET         /{user}/story/{story}                   Stories.story
 # Image Cache
 GET         /service/image                          Images.image
 
+# File Upload
+GET         /service/upload                         FileUpload.upload
+POST        /service/uploadFile                     FileUpload.uploadFile
+
 # Ignore favicon requests
 GET         /favicon.ico                            404
 

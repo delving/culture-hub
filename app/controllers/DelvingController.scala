@@ -2,7 +2,9 @@ package controllers
 
 import _root_.models.User
 import extensions.AdditionalActions
-import play.mvc.{Before, Controller}
+import java.io.File
+import play.mvc.{Util, Before, Controller}
+import play.Play
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -48,8 +50,17 @@ trait DelvingController extends Controller with AdditionalActions {
   def getUser(displayName: String): User = {
     User.find("displayName = {displayName}").on("displayName" -> displayName).first().getOrElse(User.nobody)
   }
-}
 
-object DelvingController {
+  /**
+   * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
+   */
+  @Util def getPath(key: String): File = {
+    val imageStorePath = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
+    val imageStore = new File(imageStorePath)
+    if (!imageStore.exists()) {
+      throw new RuntimeException("Could not find path %s for key %s" format (imageStore.getAbsolutePath, key))
+    }
+    imageStore
+  }
 
 }

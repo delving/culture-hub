@@ -11,6 +11,9 @@ require:
         exclude:
             - org.scala-lang -> *
     - com.thebuzzmedia -> imgscalr-lib 3.1
+    - provided -> magicktiler-lib 0.9-patched
+    - provided -> im4java 1.1.0
+
 
 repositories:
     - scala-tools:
@@ -24,3 +27,8 @@ repositories:
         root: "http://maven.thebuzzmedia.com"
         contains:
             - com.thebuzzmedia.*
+    - provided:
+        type: local
+        artifact: "${application.path}/lib-extra/[module]-[revision].jar"
+        contains:
+          - provided -> *
