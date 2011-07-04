@@ -7,12 +7,13 @@ import play.mvc.{Controller}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Users extends Controller with Secure {
+object Users extends DelvingController {
 
   import views.User._
 
-  def index = {
-    html.index(username = "Melvin")
+  def index(user: String) = {
+    val u = getUser(user)
+    html.index(username = u.displayName)
   }
 
 }

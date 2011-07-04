@@ -29,16 +29,16 @@
       <li><a href="@action(controllers.Application.index)">Home</a></li>
     </ul>
     <ul>
-      <li><a href="@action(controllers.Users.index)">User</a></li>
+      <li><a href="@action(controllers.Users.index("bob"))">Bob's User</a></li>
     </ul>
     <ul>
-      <li><a href="@action(controllers.Profiles.index())">Profile</a></li>
+      <li><a href="@action(controllers.Profiles.index("bob"))">Bob's Profile</a></li>
     </ul>
     <ul>
-      <li><a href="/bob/label">Bob's labels</a></li>
+      <li><a href="@action(controllers.Labels.list("bob"))">Bob's labels</a></li>
     </ul>
     <ul>
-      <li><a href="/bob/collection">Bob's collections</a></li>
+      <li><a href="@action(controllers.Collections.list("bob"))">Bob's collections</a></li>
     </ul>
   </div>
 

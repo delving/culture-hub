@@ -17,9 +17,8 @@ object Profiles extends DelvingController {
 
   import views.Profile._
 
-  def index(): AnyRef = {
-    val displayName = params.get("user")
-    val u: User = getUser(displayName)
+  def index(user: String): AnyRef = {
+    val u: User = getUser(user)
     RenderMultitype(html.index, ('user, u))
   }
 }
