@@ -5,3 +5,4 @@ test-result
 .idea
 modules/
 lib/
+conf/application.conf
