@@ -210,10 +210,14 @@ mail.smtp=mock
 
 
 
-## Delving Services
+###### Delving Services
 
-image.graphicsmagic.cmd=/opt/local/bin/gm
+# Absolute path to ImageMagick
+image.graphicsmagic.cmd=
 
+# Absolute path of where to store uploaded / transformed images
 image.store.path=/tmp
+
+# Absolute path of where to do temporary image operations
 image.tmp.path=/tmp
 
