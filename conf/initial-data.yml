@@ -1,5 +1,4 @@
 - !!models.User
-    id:             !!Id[Long] 1
     email:          bob@gmail.com
     password:       secret
     fullname:       Bob

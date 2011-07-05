@@ -9,6 +9,7 @@ import play.mvc.{Util, Before, Controller}
 import play.mvc.results.Result
 import play.templates.Html
 import play.i18n.Messages
+import com.mongodb.casbah.commons.MongoDBObject
 
 trait Secure {
   self: Controller =>
@@ -17,7 +18,7 @@ trait Secure {
   def checkSecurity = {
     session("username") match {
       case Some(username) => {
-        val maybeUser: Option[User] = User.find("email = {username}").onParams(username).first()
+        val maybeUser: Option[User] = User.findOne(MongoDBObject("email" -> username))
         maybeUser match {
           case Some(user) => {
             renderArgs += "username" -> user

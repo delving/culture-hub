@@ -1,5 +1,8 @@
 # Application dependencies
 
+# Note about scala dependencies: Play-Scala comes with Scala packaged in, therefore we need to exclude the scala dependencies
+# from those artifacts
+
 require:
     - play
     - play -> scala 0.9.1
@@ -7,6 +10,9 @@ require:
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
+    - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
+        exclude:
+            - org.scala-lang -> scala-library
     - net.liftweb -> lift-json-ext_2.8.1 2.3:
         exclude:
             - org.scala-lang -> *
@@ -34,6 +40,11 @@ repositories:
          contains:
             - de.micromata.jak -> *
             - com.sun.xml.bind -> *
+    - novus:
+        type: iBiblio
+        root: "http://repo.novus.com/snapshots/"
+        contains:
+            - com.novus.*
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"
