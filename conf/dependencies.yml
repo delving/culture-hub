@@ -3,7 +3,7 @@
 require:
     - play
     - play -> scala 0.9.1
-    - commons-httpclient-> commons-httpclient 3.1
+    - commons-httpclient -> commons-httpclient 3.1
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
