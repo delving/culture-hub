@@ -3,12 +3,12 @@ package extensions
 import play.classloading.enhancers.LocalvariablesNamesEnhancer
 import play.mvc.Http.{Response, Request}
 import net.liftweb.json.Serialization._
-import net.liftweb.json.{Extraction, DefaultFormats, ParameterNameReader}
 import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
 import models.User
 import play.mvc.Before
+import net.liftweb.json.{Xml, Extraction, DefaultFormats, ParameterNameReader}
 
 /**
  *
@@ -52,9 +52,10 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     if (request.format == "json") {
       new RenderJson(write(arg))(request, response)
     } else if (request.format == "xml") {
-      new RenderXml(<response>
+      val doc = <response>
         {net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}
-      </response>)(request, response)
+      </response>
+      new RenderXml(doc.toString())(request, response)
     } else if (request.format == "kml") {
       // TODO handle case when the entity does not support being rendered via KML
       new RenderKml(arg)(request, response)
@@ -86,9 +87,10 @@ class RenderLiftJson(data: AnyRef) extends Result {
 
 class RenderKml(entity: AnyRef) extends Result {
   def apply(request: Request, response: Response) {
-    entity match {
-      case u: User => new RenderXml(KMLSerializer.toKml(u))(request, response)
+    val doc = entity match {
+      case u: User => KMLSerializer.toKml(u)
       case _ => throw new RuntimeException("not implemented")
     }
+    new RenderXml(doc.toString())(request, response)
   }
 }
