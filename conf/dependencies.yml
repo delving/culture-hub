@@ -10,7 +10,7 @@ require:
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
-    - com.novus -> salat-core_2.8.1 0.0.7:
+    - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
     - net.liftweb -> lift-json-ext_2.8.1 2.3:
@@ -33,11 +33,11 @@ repositories:
         root: "http://maven.thebuzzmedia.com"
         contains:
             - com.thebuzzmedia.*
-    - novusRels:
-        type: iBiblio
-        root: "http://repo.novus.com/releases/"
-        contains:
-            - com.novus.*
+    - novus:
+         type: iBiblio
+         root: "http://repo.novus.com/snapshots/"
+         contains:
+            - com.novus -> *
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"
