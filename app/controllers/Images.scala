@@ -7,14 +7,12 @@ import java.awt.image.BufferedImage
 import com.thebuzzmedia.imgscalr.Scalr
 import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams
 import com.mongodb.casbah.gridfs.{GridFSInputFile, GridFSDBFile, GridFS}
 import play.mvc.Http.Response
-import scala.collection.JavaConversions._
 import play.mvc.Controller
 import play.mvc.results.{NotFound, RenderBinary, Result}
 import org.apache.commons.httpclient.methods.GetMethod
-import org.apache.commons.httpclient.{Header, HttpClient, MultiThreadedHttpConnectionManager}
+import org.apache.commons.httpclient.Header
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -31,18 +29,10 @@ object Images extends Controller {
 
 }
 
-class ImageCacheService {
+class ImageCacheService extends HTTPClient {
 
   val imageCache = MongoConnection().getDB("imageCache")
   val myFS: GridFS = GridFS(imageCache)
-
-  // HttpClient Settings
-  val connectionParams = new HttpConnectionManagerParams
-  connectionParams setDefaultMaxConnectionsPerHost (15)
-  connectionParams setMaxTotalConnections (250)
-  connectionParams setConnectionTimeout (2000)
-  val multiThreadedHttpConnectionManager = new MultiThreadedHttpConnectionManager()
-  multiThreadedHttpConnectionManager setParams (connectionParams)
 
   // General Settings
   val thumbnailWidth = 220
@@ -139,9 +129,8 @@ class ImageCacheService {
 
 
   def retrieveImageFromUrl(url: String) : WebResource = {
-    val httpClient = new HttpClient(multiThreadedHttpConnectionManager)
     val method = new GetMethod(url)
-    httpClient executeMethod (method)
+    getHttpClient executeMethod (method)
     method.getResponseHeaders.foreach(header => log debug (header) )
     val storable = isStorable(method)
     WebResource(url, method.getResponseBodyAsStream, storable._1, storable._2)
