@@ -212,7 +212,7 @@ mail.smtp=mock
 
 ###### Delving Services
 
-# Absolute path to ImageMagick
+# Absolute path to GraphicsMagick (e.g. /usr/local/bin/gm)
 image.graphicsmagic.cmd=
 
 # Absolute path of where to store uploaded / transformed images
