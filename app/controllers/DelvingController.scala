@@ -16,6 +16,13 @@ import play.Play
 trait DelvingController extends Controller with AdditionalActions {
 
   @Before
+  def setFormat() {
+    if (request.headers.get("accept").value().equals("application/vnd.google-earth.kml+xml")) {
+      request.format = "kml";
+    }
+  }
+
+  @Before
   def checkParameters(): AnyRef = {
     val parametersToCheck = List("user", "collection", "label", "dobject", "story")
     parametersToCheck map {

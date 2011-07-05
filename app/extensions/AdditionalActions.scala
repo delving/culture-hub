@@ -7,6 +7,8 @@ import net.liftweb.json.{Extraction, DefaultFormats, ParameterNameReader}
 import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
+import models.User
+import play.mvc.Before
 
 /**
  *
@@ -26,7 +28,10 @@ object PlayParameterNameReader extends ParameterNameReader {
 trait AdditionalActions {
 
   def Json(data: AnyRef) = new RenderLiftJson(data)
+
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
+
+  def RenderKml(entity: AnyRef) = new RenderKml(entity)
 
 }
 
@@ -50,6 +55,9 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
       new RenderXml(<response>
         {net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}
       </response>)(request, response)
+    } else if (request.format == "kml") {
+      // TODO handle case when the entity does not support being rendered via KML
+      new RenderKml(arg)(request, response)
     } else {
       // TODO this was hacked together in five minutes. Due to lack of knowledge of the scala reflection mechnism I resolved to the ugly code below
       // but I guess there is a better way
@@ -73,5 +81,14 @@ class RenderLiftJson(data: AnyRef) extends Result {
     }
 
     new RenderJson(write(data))(request, response)
+  }
+}
+
+class RenderKml(entity: AnyRef) extends Result {
+  def apply(request: Request, response: Response) {
+    entity match {
+      case u: User => new RenderXml(KMLSerializer.toKml(u))(request, response)
+      case _ => throw new RuntimeException("not implemented")
+    }
   }
 }
