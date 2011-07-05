@@ -5,6 +5,7 @@ import extensions.AdditionalActions
 import java.io.File
 import play.mvc.{Util, Before, Controller}
 import play.Play
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -48,7 +49,7 @@ trait DelvingController extends Controller with AdditionalActions {
 
 
   def getUser(displayName: String): User = {
-    User.find("displayName = {displayName}").on("displayName" -> displayName).first().getOrElse(User.nobody)
+    User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
   }
 
   /**
