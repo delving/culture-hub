@@ -15,11 +15,21 @@ import play.Play
 
 trait DelvingController extends Controller with AdditionalActions {
 
+  // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
+  val supportedFormats = List("html", "xml", "json", "kml")
+
   @Before
-  def setFormat() {
+  def setFormat(): AnyRef = {
     if (request.headers.get("accept").value().equals("application/vnd.google-earth.kml+xml")) {
       request.format = "kml";
     }
+    val formatParam = Option(params.get("format"))
+    if (formatParam.isDefined && supportedFormats.contains(formatParam.get)) {
+      request.format = params.get("format")
+    } else if (formatParam.isDefined && !supportedFormats.contains(formatParam.get)) {
+      return Error("Unsupported format %s" format (formatParam.get))
+    }
+    Continue
   }
 
   @Before
