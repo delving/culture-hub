@@ -24,10 +24,10 @@ package util
 import org.apache.log4j.Logger
 import java.lang.String
 import xml.{Node, NodeSeq, Elem, XML}
-import reflect.BeanProperty
-import eu.delving.metadata.{RecordDefinition, MetadataModel}
-import javax.servlet.ServletRequest
 import play.Play
+import play.mvc.Http
+import eu.delving.metadata.{MetadataModelImpl, RecordDefinition, MetadataModel}
+import scala.collection.JavaConversions._
 
 /**
  *
@@ -68,11 +68,11 @@ class ThemeHandler {
     else getDefaultTheme
   }
 
-  def getByBaseUrl(request : ServletRequest) : PortalTheme = getByBaseUrl(request.getServerName)
+  def getByBaseUrl(request : Http.Request) : PortalTheme = getByBaseUrl(request.host)
 
-  def getByRequest(request : ServletRequest) : PortalTheme = {
+  def getByRequest(request : Http.Request) : PortalTheme = {
     if (hasSingleTheme) getDefaultTheme
-    else if (debug && request.getParameterMap.containsKey("theme")) getByThemeName(request.getParameter("theme"))
+    else if (debug && request.params._contains("theme")) getByThemeName(request.params.get("theme"))
     else getByBaseUrl(request)
   }
 
@@ -147,7 +147,12 @@ class ThemeHandler {
     portalThemeSeq
   }
 
-  @BeanProperty var metadataModel:  MetadataModel = _
+  // TODO fix this. figure out a way to do something like DI
+  val metadataModel: MetadataModelImpl = new MetadataModelImpl
+  metadataModel.setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
+  metadataModel.setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
+
+
 }
 case class PortalTheme (
   name : String,

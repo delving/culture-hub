@@ -3,18 +3,39 @@ package controllers
 import _root_.models.User
 import extensions.AdditionalActions
 import java.io.File
-import play.mvc.{Util, Before, Controller}
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
+import play.mvc.{After, Util, Before, Controller}
+import util.{ThemeHandler, LocalizedFieldNames, PortalTheme}
+import scala.collection.JavaConversions._
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
- * @author Gerald de Jong <geralddejong@gmail.com>
  */
+trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeInitializer {
 
-trait DelvingController extends Controller with AdditionalActions {
+  @Util def getUser(displayName: String): User = {
+    User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
+  }
+
+  /**
+   * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
+   */
+  @Util def getPath(key: String): File = {
+    val imageStorePath = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
+    val imageStore = new File(imageStorePath)
+    if (!imageStore.exists()) {
+      throw new RuntimeException("Could not find path %s for key %s" format (imageStore.getAbsolutePath, key))
+    }
+    imageStore
+  }
+
+}
+
+trait FormatResolver {
+  self: Controller =>
 
   // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
   val supportedFormats = List("html", "xml", "json", "kml")
@@ -32,6 +53,16 @@ trait DelvingController extends Controller with AdditionalActions {
     }
     Continue
   }
+}
+
+/**
+ * Checks the validity of parameters
+ *
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ * @author Gerald de Jong <geralddejong@gmail.com>
+ */
+trait ParameterCheck {
+  self: Controller =>
 
   @Before(priority = 0)
   def checkParameters(): AnyRef = {
@@ -64,27 +95,32 @@ trait DelvingController extends Controller with AdditionalActions {
     "add", "edit", "save", "delete", "update", "create", "search",
     "image", "fcgi-bin", "upload")
 
+}
+
+trait ThemeInitializer {
+  self: Controller =>
+
+  val themeHandler = new ThemeHandler
+  val localizedFieldNames = new LocalizedFieldNames
+
+  private val themeThreadLocal: ThreadLocal[PortalTheme] = new ThreadLocal[PortalTheme]
+  private val lookupThreadLocal: ThreadLocal[LocalizedFieldNames.Lookup] = new ThreadLocal[LocalizedFieldNames.Lookup]
+
+  implicit def theme = themeThreadLocal.get()
+
+  implicit def lookup = lookupThreadLocal.get()
 
   @Before(priority = 2)
   def setTheme() {
-
+    val portalTheme = themeHandler.getByRequest(request)
+    themeThreadLocal.set(portalTheme)
+    lookupThreadLocal.set(localizedFieldNames.createLookup(List(portalTheme.getLocaliseQueryKeys  : _*)))
   }
 
-
-  @Util def getUser(displayName: String): User = {
-    User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
-  }
-
-  /**
-   * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
-   */
-  @Util def getPath(key: String): File = {
-    val imageStorePath = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
-    val imageStore = new File(imageStorePath)
-    if (!imageStore.exists()) {
-      throw new RuntimeException("Could not find path %s for key %s" format (imageStore.getAbsolutePath, key))
-    }
-    imageStore
+  @After
+  def cleanup() {
+    themeThreadLocal.remove()
+    lookupThreadLocal.remove()
   }
 
 }

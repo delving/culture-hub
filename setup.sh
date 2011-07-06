@@ -26,7 +26,7 @@ echo Linking the legacyServices module
 echo =================================
 echo
 echo
-ln -s legacyServices/ modules/legacyServices
+echo "../legacyServices" > modules/legacyServices
 
 echo =========================================
 echo Done! Run the application with "play run"

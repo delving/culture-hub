@@ -1,0 +1,23 @@
+<searchFields>
+    <field localName="text"/>
+    <field localName="who"/>
+    <field localName="what"/>
+    <field localName="where"/>
+    <field localName="when"/>
+    <field localName="title" briefdoc="true"/>
+    <field localName="description"/>
+    <field localName="subject" fieldType="string"/>
+    <field localName="creator" briefdoc="true"/>
+    <field localName="contributor" fieldType="string"/>
+    <field localName="date"/>
+    <field localName="language" facetPrefix="lang" fieldType="string"/>
+    <field localName="publisher"/>
+    <field localName="format"/>
+    <field localName="userTags" fieldType="string" facetPrefix="ut"/>
+    <field localName="relation"/>
+    <field localName="identifier"/> <!--to be deleted later-->
+    <field localName="source"/>  <!--to be deleted later-->
+    <field localName="location" fieldType="string"/>
+    <field localName="timestamp" fieldType="text"/> <!--to be deleted later-->
+    <field localName="rights"/>
+</searchFields>

@@ -8,6 +8,6 @@ public class LegacyPlugin extends PlayPlugin {
 
     @Override
     public void onLoad() {
-        Logger.info("Starting the legacy services module");
+        Logger.info("Starting the Delving legacy services module");
     }
 }
