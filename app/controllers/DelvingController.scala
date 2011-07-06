@@ -65,7 +65,7 @@ trait DelvingController extends Controller with AdditionalActions {
     "image", "fcgi-bin", "upload")
 
 
-  def getUser(displayName: String): User = {
+  @Util def getUser(displayName: String): User = {
     User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
   }
 
