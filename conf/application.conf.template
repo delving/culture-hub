@@ -228,3 +228,7 @@ debug=false
 # Path to the themes.xml file that defines the different themes for the portal
 
 portal.theme.file = conf/delving_themes.xml.example
+
+# The name of the record-definition that is used to index from OAI-PMH repository
+
+services.harvindexing.prefix = ese

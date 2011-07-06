@@ -1,0 +1,25 @@
+- !!util.EmailTarget(defaultEmailTarget)
+    adminTo: username@email.com
+    exceptionTo: username@email.com
+    feedbackTo: username@email.com
+    registerTo: username@email.com
+    systemFrom: noreply@delving.eu
+    feedbackFrom: noreply@delving.eu
+
+- !!util.PortalTheme
+    name: norvegiana
+    templateDir: norvegiana
+    isDefault: true
+    localiseQueryKeys:
+    hiddenQueryFilter:
+    baseUrl: norvegiana2.delving.org
+    displayName: Kulturnett.no
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    defaultLanguage: no
+    colorScheme: azure
+    solrSelectUrl: "http://localhost:8983/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget: defaultEmailTarget
+    homePage:
+    metadataPrefix:

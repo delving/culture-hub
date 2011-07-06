@@ -27,6 +27,7 @@ import xml.{Node, NodeSeq, Elem, XML}
 import play.Play
 import play.mvc.Http
 import eu.delving.metadata.{MetadataModelImpl, RecordDefinition, MetadataModel}
+import cake.ComponentRegistry
 import scala.collection.JavaConversions._
 
 /**
@@ -36,8 +37,6 @@ import scala.collection.JavaConversions._
  */
 
 class ThemeHandler {
-
-  import cake.ComponentRegistry
 
   private val log: Logger = Logger.getLogger(getClass)
 
@@ -82,15 +81,7 @@ class ThemeHandler {
   private[util] def loadThemes() : Seq[PortalTheme] = {
 
     def getProperty(prop : String) : String = Play.configuration.getProperty(prop).trim
-    def getRecordDefinition(prefix : String) : RecordDefinition = {
-      try {
-        metadataModel.getRecordDefinition(prefix)
-      }
-      catch {
-        case ex : Exception => metadataModel.getRecordDefinition
-      }
-    }
-
+    
     val themeFilePath = getProperty("portal.theme.file")
 
     if (themeFilePath == null) {
@@ -120,18 +111,18 @@ class ThemeHandler {
         templateDir = getNodeText("templateDir"),
         isDefault = isDefault,
         localiseQueryKeys = defaultQueryKeys.toArray ++ getNodeTextAsArray("localiseQueryKeys"),
-        hqf = getNodeText("hiddenQueryFilter"),
+        hiddenQueryFilter = getNodeText("hiddenQueryFilter"),
         baseUrl = getNodeText("portalBaseUrl"),
         solrSelectUrl = getNodeText("solrSelectUrl"),
         cacheUrl = getNodeText("cacheUrl"),
         displayName = getNodeText("portalDisplayName"),
-        gaCode = getNodeText("googleAnalyticsTrackingCode"),
-        addThisCode = getNodeText("addThisTrackingCode"),
+        googleAnalyticsTrackingCode = getNodeText("googleAnalyticsTrackingCode"),
+        addThisTrackingCode = getNodeText("addThisTrackingCode"),
         defaultLanguage = getNodeText("defaultLanguage"),
         colorScheme = getNodeText("colorScheme"),
         emailTarget = createEmailTarget(node) ,
         homePage = getNodeText("homePage"),
-        recordDefinition = getRecordDefinition(getNodeText("metadataPrefix"))
+        metadataPrefix = ""
       )
     }
 
@@ -149,44 +140,52 @@ class ThemeHandler {
     }
     portalThemeSeq
   }
-
-  val metadataModel: MetadataModelImpl = ComponentRegistry.metadataModel
 }
-
 case class PortalTheme (
   name : String,
   templateDir : String,
   isDefault : Boolean = false,
   localiseQueryKeys : Array[String] = Array(),
-  hqf : String = "",
+  hiddenQueryFilter : String = "",
   baseUrl : String = "",
   displayName: String = "default",
-  gaCode: String = "",
-  addThisCode : String = "",
+  googleAnalyticsTrackingCode: String = "",
+  addThisTrackingCode : String = "",
   defaultLanguage : String = "en",
   colorScheme : String = "azure",
   solrSelectUrl : String = "http://localhost:8983/solr",
   cacheUrl : String = "http://localhost:8983/services/image?",
   emailTarget : EmailTarget = EmailTarget(),
   homePage : String = "",
-  recordDefinition : RecordDefinition
+  metadataPrefix: String = ""
 ) {
   def getName = name
   def getTemplateDir = templateDir
-  def getHiddenQueryFilters = hqf
+  def getHiddenQueryFilters = hiddenQueryFilter
   def getSolrSelectUrl = solrSelectUrl
   def getBaseUrl = baseUrl
   def getCacheUrl = cacheUrl
   def getDisplayName = displayName
-  def getGaCode = gaCode
-  def getAddThisCode = addThisCode
+  def getGaCode = googleAnalyticsTrackingCode
+  def getAddThisCode = addThisTrackingCode
   def getDefaultLanguage = defaultLanguage
   def getColorScheme = colorScheme
   def withLocalisedQueryString = localiseQueryKeys.isEmpty
   def getLocaliseQueryKeys = localiseQueryKeys
   def getEmailTarget = emailTarget
   def getHomePage = homePage
+  val recordDefinition = buildRecordDefinition(metadataPrefix)
   def getRecordDefinition = recordDefinition
+  
+  private def buildRecordDefinition(prefix : String) : RecordDefinition = {
+    val metadataModel: MetadataModelImpl = ComponentRegistry.metadataModel
+    try {
+      metadataModel.getRecordDefinition(prefix)
+    }
+    catch {
+      case ex : Exception => metadataModel.getRecordDefinition
+    }
+  }
 }
 
 case class EmailTarget(
