@@ -19,7 +19,7 @@ trait DelvingController extends Controller with AdditionalActions {
   // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
   val supportedFormats = List("html", "xml", "json", "kml")
 
-  @Before
+  @Before(priority = 1)
   def setFormat(): AnyRef = {
     if (request.headers.get("accept").value().equals("application/vnd.google-earth.kml+xml")) {
       request.format = "kml";
@@ -33,7 +33,7 @@ trait DelvingController extends Controller with AdditionalActions {
     Continue
   }
 
-  @Before
+  @Before(priority = 0)
   def checkParameters(): AnyRef = {
     val parametersToCheck = List("user", "collection", "label", "dobject", "story")
     parametersToCheck map {
@@ -63,6 +63,12 @@ trait DelvingController extends Controller with AdditionalActions {
     "story", "user", "service", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search",
     "image", "fcgi-bin", "upload")
+
+
+  @Before(priority = 2)
+  def setTheme() {
+
+  }
 
 
   @Util def getUser(displayName: String): User = {

@@ -1,9 +1,10 @@
 tmp
+*.pyc
 test-result
 *.iml
 .DS_Store
 .idea
-modules/
+/modules
 lib/
 conf/application.conf
 extras/solr-server/solr/*/data/
