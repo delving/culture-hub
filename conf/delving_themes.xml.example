@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!--
+  ~ Copyright 2011 DELVING BV
+  ~
+  ~ Licensed under the EUPL, Version 1.1 or as soon they
+  ~ will be approved by the European Commission - subsequent
+  ~ versions of the EUPL (the "Licence");
+  ~ you may not use this work except in compliance with the
+  ~ Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ http://ec.europa.eu/idabc/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in
+  ~ writing, software distributed under the Licence is
+  ~ distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+  ~ express or implied.
+  ~ See the Licence for the specific language governing
+  ~ permissions and limitations under the Licence.
+  -->
+
+<themes>
+    <theme default="true">
+        <name>norvegiana</name>
+        <templateDir>norvegiana</templateDir>
+        <hiddenQueryFilter></hiddenQueryFilter>
+        <portalBaseUrl>norvegiana2.delving.org</portalBaseUrl>
+        <portalDisplayName>Kulturnett.no</portalDisplayName>
+        <googleAnalyticsTrackingCode></googleAnalyticsTrackingCode>
+        <addThisTrackingCode></addThisTrackingCode>
+        <defaultLanguage>no</defaultLanguage>
+        <colorScheme>azure</colorScheme>
+        <adminTo>username@email.com</adminTo>
+        <exceptionTo>username@email.com</exceptionTo>
+        <feedbackTo>username@email.com</feedbackTo>
+        <registerTo>username@email.com</registerTo>
+        <systemFrom>noreply@delving.eu</systemFrom>
+        <feedbackFrom>noreply@delving.eu</feedbackFrom>
+        <solrSelectUrl>http://localhost:8983/solr</solrSelectUrl>
+        <cacheUrl>http://localhost:8983/services/image?</cacheUrl>
+        <homePage></homePage>
+        <localiseQueryKeys>dc.title,dc.creator</localiseQueryKeys>
+        <metadataPrefix>abm</metadataPrefix>
+    </theme>
+    <theme default="false">
+        <name>friesmuseum</name>
+        <templateDir>friesmuseum</templateDir>
+        <hiddenQueryFilter>DATAPROVIDER:Fries Museum</hiddenQueryFilter>
+        <portalBaseUrl>localhost</portalBaseUrl>
+        <portalDisplayName>Fries Museum</portalDisplayName>
+        <googleAnalyticsTrackingCode></googleAnalyticsTrackingCode>
+        <addThisTrackingCode></addThisTrackingCode>
+        <defaultLanguage>no</defaultLanguage>
+        <colorScheme>azure</colorScheme>
+        <adminTo>username@email.com</adminTo>
+        <exceptionTo>username@email.com</exceptionTo>
+        <feedbackTo>username@email.com</feedbackTo>
+        <registerTo>username@email.com</registerTo>
+        <systemFrom>noreply@delving.eu</systemFrom>
+        <feedbackFrom>noreply@delving.eu</feedbackFrom>
+        <solrSelectUrl>http://localhost:8983/solr</solrSelectUrl>
+        <cacheUrl>http://localhost:8983/services/image?</cacheUrl>
+        <homePage></homePage>
+        <localiseQueryKeys>dc.title,dc.creator</localiseQueryKeys>
+        <metadataPrefix>icn</metadataPrefix>
+    </theme>
+</themes>
