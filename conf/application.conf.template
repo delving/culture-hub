@@ -82,7 +82,7 @@ date.format=yyyy-MM-dd
 # To quickly set up a development database, use either:
 #   - mem : for a transient in memory database (H2 in memory)
 #   - fs  : for a simple file written database (H2 file stored)
-db=mem
+# db=mem
 #
 # To connect to a local MySQL5 database, use:
 # db=mysql:user:pwd@database_name
@@ -221,3 +221,10 @@ image.store.path=/tmp
 # Absolute path of where to do temporary image operations
 image.tmp.path=/tmp
 
+###### Properties that come from ported code / copied verbatim
+
+debug=false
+
+# Path to the themes.xml file that defines the different themes for the portal
+
+portal.theme.file = conf/delving_themes.xml.example
