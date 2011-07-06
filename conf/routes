@@ -14,8 +14,11 @@ GET         /logout                                 Authentication.logout
 # Backwards compatibility with the old services module
 GET         /services/                              Services.index
 GET         /services/api/solr/select               Services.solrSearch
+GET         /services/api/search                    Services.index
+GET         /services/api/open-search               Services.index
+GET         /services/api/open-search.xml           Services.index
 
-# Backwards compatibility with the old portal module
+# Backwards compatibility with the old po   rtal module
 GET         /portal/                                Portal.index
 
 # Delving URL scheme

@@ -1,5 +1,5 @@
 #
-# Copyright 2011 DELVING BV
+# Copyright 2010 DELVING BV
 #
 # Licensed under the EUPL, Version 1.1 or as soon they
 # will be approved by the European Commission - subsequent
@@ -35,14 +35,12 @@ _action.previous=Previous
 _action.refine.your.search=Refine your search
 _action.return.to.results=Return to results
 _action.save.this.search=Save this search
-_action.save.to.mine=Save to my personal page
+_action.save.to.mine=Save to My Personal Page
 _action.search=Search
 _action.search.order.by=Order by
 _action.see.all.related.items=See all related items
 _action.send=Send
 _action.share.with.friend=Share with a friend
-_action.view.alternate=Alternate view
-_action.view.basic=Basic view
 _action.view.enlarge.image=Enlarge image
 _action.view.in.original.context=View in original context
 _cms.administration.images=Image administration
@@ -62,7 +60,7 @@ _cms.html.editor.show.hide=Show / Hide HTML editor
 _cms.image.change=Change this image
 _cms.image.choose=Choose an image
 _cms.image.create=Create new image
-_cms.image.delete.fail=Image could not be deleted
+_cms.image.delete.fail=Image could not be del
 _cms.image.delete.question=Delete this image?
 _cms.image.list=Image list
 _cms.image.new.path=Change image path
@@ -83,7 +81,7 @@ _cms.user.change.role.step.1=Fill in the name or email of the user whose role yo
 _cms.user.change.role.step.2=Press "Find"
 _cms.user.change.role.step.3=Select the new role for the user from the drop-down list
 _cms.user.change.role.step.4=Press "Change"
-_cms.user.find=Find a user_cms.versions=Versions
+_cms.user.find=Find a user
 _cms.user.not.found=No user found matching your input
 _cms.user.remove.confirm=By clicking OK you will permanently remove the user registration and all saved items. Click Cancel to abort.
 _cms.user.role.administrator=Administrator
@@ -103,7 +101,7 @@ _facet.by.date=By date
 _facet.by.language=By language
 _facet.by.provider=By provider
 _facet.by.type=By type
-_facet.by.user.tag=By us
+_facet.by.user.tag=By user tag
 _facet.by.year=By year
 _facet.has.digital.object=Has digital object
 _facet.has.images.only=Images only
@@ -176,12 +174,11 @@ _locale.sk=Slovak (slo)
 _locale.sl=Slovenian (slv)
 _locale.sr=Serbian (scc)
 _locale.sv=Swedish (sve/swe)
-_metadata.abm.contentProvider=Content Provider
+_metadata.abm.contentProvider=Provider
 _metadata.abm.county=County
-_metadata.abm.data.provider=Data Provider
+_metadata.abm.data.provider=Data provider
 _metadata.abm.municipality=Municipality
 _metadata.abm.namedPlace=Named place
-_metadata.abm.aboutPerson=About Person
 _metadata.dc.contributor=Contributor
 _metadata.dc.coverage=Coverage
 _metadata.dc.creator=Author
@@ -215,26 +212,9 @@ _metadata.dcterms.temporal=Temporal coverage
 _metadata.delving.dimensions=Dimensions
 _metadata.delving.owner=Owner
 _metadata.europeana.country=Country
-_metadata.europeana.dataProvider=Data Provider
+_metadata.europeana.dataProvider=Provider
 _metadata.europeana.provider=Provider
 _metadata.europeana.type=Type
-_metadata.europeana.year=Year
-
-
-_metadata.icn.material=Material
-_metadata.icn.collection=Collection
-_metadata.icn.technique=Technique
-_metadata.icn.creatorYearOfBirth=Creator Birth
-
-_metadata.icn.acquisitionMeans=Means of Aquisition
-_metadata.icn.acquisitionYear=Year Acquired
-_metadata.icn.acquiredWithHelpFrom=Acquired with help from
-_metadata.icn.collectionPart=Part
-_metadata.icn.location=Location
-_metadata.icn.physicalState=Physical State
-_metadata.icn.province=Province
-_metadata.icn.purchasePrice=Purchase Price
-
 _metadata.is.about=Is about
 _metadata.searchfield.contributor=Contributor
 _metadata.searchfield.dataprovider=Provider
@@ -341,18 +321,15 @@ _search.boolean.and=and
 _search.boolean.not=not
 _search.boolean.or=or
 _search.field.any.field=Any field
-_search.field.collection=Collection
 _search.field.country=Country
+_search.field.collection=Collection
 _search.field.creator=Creator
 _search.field.date=Date
-_search.field.date.range=Date range
 _search.field.description=Description
 _search.field.keyword=Keyword
 _search.field.provider=Provider
 _search.field.subject=Subject
 _search.field.title=Title
-_search.in=Search in
-_search.select=Select
 _statistics.graph.not.rendered=Currently this data-set cannot be rendered as a graph
 _statistics.not.available=No statistics available
 _toberemoved.althome=Click here to return to the Europeana homepage
