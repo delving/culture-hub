@@ -16,26 +16,27 @@ object Services extends DelvingController with HTTPClient {
     html.index(username = u.displayName)
   }
 
-  def solrSearch : Result  = {
+  def solrSearchProxy : Result  = {
     import org.apache.commons.httpclient.methods.GetMethod
     import org.apache.commons.httpclient.{HttpClient, HttpMethod}
-    import play.mvc.results.{RenderJson, RenderXml, RenderText, RenderBinary}
+    import play.mvc.results.{RenderJson, RenderXml, RenderBinary}
     val solrQueryString: String = request.querystring
 
-    val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr", solrQueryString)
+    val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr/core0", solrQueryString)
     val method: HttpMethod = new GetMethod(solrServerUrl)
 
     val httpClient: HttpClient = getHttpClient
     httpClient executeMethod (method)
 
     val responseContentType: String = method.getResponseHeader("Content-Type").getValue
-//    method.getResponseHeaders.filter(h => h.getValue.equalsIgnoreCase("chunked")).foreach(header => response.setHeader(header.getName, header.getValue))
+    val solrResponseType: Option[String] = Option[String](request.params.get("wt"))
 
     val responseString: String = method.getResponseBodyAsString
 
-    responseContentType match {
-      case "application/octet-stream" => new RenderBinary(method.getResponseBodyAsStream, "solrResult", responseContentType, false)
-      case x if x.startsWith("text/plain") => new RenderJson(responseString)
+    solrResponseType match {
+      case Some("javabin") => new RenderBinary(method.getResponseBodyAsStream, "solrResult", responseContentType, false)
+      case Some("json") => new RenderJson(responseString)
+      case Some("xml") => new RenderXml(responseString)
       case _ => new RenderXml(responseString)
     }
   }
