@@ -19,6 +19,15 @@ echo
 echo
 play dependencies --sync
 
+echo
+echo
+echo =================================
+echo Linking the legacyServices module
+echo =================================
+echo
+echo
+ln -s legacyServices/ modules/legacyServices
+
 echo =========================================
 echo Done! Run the application with "play run"
 echo =========================================
