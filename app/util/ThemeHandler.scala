@@ -36,6 +36,9 @@ import scala.collection.JavaConversions._
  */
 
 class ThemeHandler {
+
+  import cake.ComponentRegistry
+
   private val log: Logger = Logger.getLogger(getClass)
 
   private lazy val themeList: Seq[PortalTheme] = loadThemes()
@@ -147,13 +150,9 @@ class ThemeHandler {
     portalThemeSeq
   }
 
-  // TODO fix this. figure out a way to do something like DI
-  val metadataModel: MetadataModelImpl = new MetadataModelImpl
-  metadataModel.setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
-  metadataModel.setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
-
-
+  val metadataModel: MetadataModelImpl = ComponentRegistry.metadataModel
 }
+
 case class PortalTheme (
   name : String,
   templateDir : String,
