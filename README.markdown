@@ -11,7 +11,7 @@ This will eventually demonstrate things such as authentication & authorization, 
 - configure the settings at the end of `conf/application.conf`
 - run the application via `play run`
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
-- an example user is `bob@gmail.com` with password `bob`
+- an example user is `bob@gmail.com` with password `secret`
 - to use Apache Solr go to `extras/solr-server` and run `java -jar start.jar`.
 
 
