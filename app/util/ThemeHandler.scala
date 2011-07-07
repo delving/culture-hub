@@ -23,12 +23,12 @@ package util
 
 import org.apache.log4j.Logger
 import java.lang.String
-import xml.{Node, NodeSeq, Elem, XML}
 import play.Play
 import play.mvc.Http
 import eu.delving.metadata.{MetadataModelImpl, RecordDefinition, MetadataModel}
 import cake.ComponentRegistry
 import scala.collection.JavaConversions._
+import play.test._
 
 /**
  *
@@ -40,7 +40,7 @@ class ThemeHandler {
 
   private val log: Logger = Logger.getLogger(getClass)
 
-  private lazy val themeList: Seq[PortalTheme] = loadThemes()
+  private lazy val themeList: Seq[PortalTheme] = loadThemesYaml()
 
   private val defaultQueryKeys = List("dc.title","dc.description","dc.creator","dc.subject", "dc.date") // todo add more default cases
 
@@ -78,67 +78,21 @@ class ThemeHandler {
     else getByBaseUrl(request)
   }
 
-  private[util] def loadThemes() : Seq[PortalTheme] = {
+  private[util] def loadThemesYaml() : Seq[PortalTheme] = {
 
     def getProperty(prop : String) : String = Play.configuration.getProperty(prop).trim
-    
-    val themeFilePath = getProperty("portal.theme.file")
 
-    if (themeFilePath == null) {
-        log.fatal("portal.theme.file path must be defined in -Dlaunch.properties=/path/to/property/file");
+    val themeFileName = getProperty("portal.theme.file")
+
+    if (themeFileName == null) {
+        log.fatal("portal.theme.file path must be defined in application.conf");
         System.exit(1);
     }
 
-    def createPortalTheme(node : Node, isDefault : Boolean = false) : PortalTheme = {
-      val templateDir = node \\ "templateDir"
-      def getNodeText(label : String) : String = (node \\ label).text
-      def getBooleanNodeText(label : String) : Boolean = try {(node \\ label).text.toBoolean} catch {case ex : Exception => false}
-      def getNodeTextAsArray(label : String)  : Array[String] = (node \\ label).text.trim().split(" *, *")
-
-      def createEmailTarget(node: Node): EmailTarget = {
-        EmailTarget(
-          adminTo = getNodeText("adminTo"),
-          exceptionTo = getNodeText("exceptionTo"),
-          feedbackTo = getNodeText("feedbackTo"),
-          registerTo = getNodeText("registerTo"),
-          systemFrom = getNodeText("systemFrom"),
-          feedbackFrom = getNodeText("feedbackFrom")
-        )
-      }
-
-      PortalTheme(
-        name = getNodeText("name"),
-        templateDir = getNodeText("templateDir"),
-        isDefault = isDefault,
-        localiseQueryKeys = defaultQueryKeys.toArray ++ getNodeTextAsArray("localiseQueryKeys"),
-        hiddenQueryFilter = getNodeText("hiddenQueryFilter"),
-        baseUrl = getNodeText("portalBaseUrl"),
-        solrSelectUrl = getNodeText("solrSelectUrl"),
-        cacheUrl = getNodeText("cacheUrl"),
-        displayName = getNodeText("portalDisplayName"),
-        googleAnalyticsTrackingCode = getNodeText("googleAnalyticsTrackingCode"),
-        addThisTrackingCode = getNodeText("addThisTrackingCode"),
-        defaultLanguage = getNodeText("defaultLanguage"),
-        colorScheme = getNodeText("colorScheme"),
-        emailTarget = createEmailTarget(node) ,
-        homePage = getNodeText("homePage"),
-        metadataPrefix = ""
-      )
+    val themes = for(theme <- Yaml[List[PortalTheme]](themeFileName)) yield {
+      theme.copy(localiseQueryKeys = if(theme.localiseQueryKeys == null) defaultQueryKeys.toArray else defaultQueryKeys.toArray ++ theme.localiseQueryKeys)
     }
-
-    val themes: Elem = XML.loadFile(themeFilePath)
-    val themeList: NodeSeq = themes \\ "theme"
-    val portalThemeSeq = themeList.map {
-      themeNode =>
-        val isDefault : Boolean = themeNode.attributes.get("default").head.text.toBoolean
-//      themeNode.child.filter(!_.label.startsWith("#PCDATA")).foreach(nd => println (nd.label + nd.text))
-        createPortalTheme(themeNode, isDefault)
-    }
-    if (portalThemeSeq.isEmpty) {
-        log.fatal("Error loading themes from " + themeFilePath)
-        System.exit(1)
-    }
-    portalThemeSeq
+    themes
   }
 }
 case class PortalTheme (
