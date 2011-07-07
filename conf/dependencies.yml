@@ -22,6 +22,11 @@ require:
     - xpp3 -> xpp3_min 1.1.4c
     - provided -> magicktiler-lib 0.9-patched
     - provided -> im4java 1.1.0
+    - org.apache.solr -> solr-solrj 3.3.0
+    - provided -> sip-core 0.2.9-SNAPSHOT
+    - provided -> metameta 0.2.9-SNAPSHOT
+    # remove later
+    - com.google.collections -> google-collections 1.0
 
 
 repositories:

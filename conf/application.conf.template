@@ -229,6 +229,58 @@ debug=false
 
 portal.theme.file = conf/delving_themes.xml.example
 
+###############################################
+#                                             #
+#       services WebApp settings              #
+#                                             #
+###############################################
+
 # The name of the record-definition that is used to index from OAI-PMH repository
 
 services.harvindexing.prefix = ese
+# The secrect password that is used to generate the accesskeys for OAI-PMH, Sip-Creator, and other Servcicse
+
+services.password = delvingmelvin
+
+# Allow access to search API via accessKey or completely open
+
+services.api.useAccessKey = false
+
+
+###############################################
+#                                             #
+#       Services OAI-PMH  Repository settings #
+#                                             #
+###############################################
+
+# The name of the repository that is given in the ?verb=Identify response
+
+services.pmh.repositoryName = Delving MetaRepo
+
+# The administrator email that is given in the ?verb=Identify response
+
+services.pmh.adminEmail = somebody@delving.eu
+
+# The earliest Datestamp of the repository and the one that is given in the ?verb=Identify response
+
+services.pmh.earliestDateStamp = 1990-02-01T12:00:00Z
+
+# The name of the OAI-PMH repository that is given in the ?verb=Identify response
+
+services.pmh.repositoryIdentifier = meta-repo.delving.eu
+
+# The sample identifier that is given in the ?verb=Identify response. It is constructed of the CollectionID + the MongoDB id
+
+services.pmh.sampleIdentifier = 00101_Ag_NO_sffDF:4c277cd8f208d29792096c1e
+
+# The number of records returned by the OAI-PMH repository per ?verb=List* request
+
+services.pmh.responseListSize = 100
+
+# The time to live for each Harvest step before being cleaned up. So time (now) + this value is the experationDate
+
+services.pmh.harvestStepCleanupDelay = 15000
+
+# The name of the OAI-PMH  reposistory database in mongodb. This db is created when the application starts up the first time.
+
+services.mongo.dbName = MetaRepo

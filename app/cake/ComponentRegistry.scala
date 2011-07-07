@@ -1,6 +1,9 @@
 package cake
 
 /**
+ * This object uses the Cake pattern to manage Dependency Injection, see also
+ * http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di.html
+ *
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 7/6/11 4:36 PM  
@@ -26,8 +29,16 @@ package cake
 trait MetadataModelComponent {
 
   import eu.delving.metadata.MetadataModelImpl
-  val metadataModel : MetadataModelImpl
 
+  val metadataModel: MetadataModelImpl
+}
+
+trait MetaRepoComponent {
+
+  import eu.delving.sip.AccessKey
+
+  val accessKey: AccessKey
+//  val metaRepo: MetaRepo
 }
 
 // =======================
@@ -58,17 +69,27 @@ trait MetadataModelComponent {
 
 // =======================
 // instantiate the services in a module
-object ComponentRegistry extends MetadataModelComponent
+object ComponentRegistry extends MetadataModelComponent with MetaRepoComponent
    {
 
-  import eu.delving.metadata.MetadataModelImpl
   import scala.collection.JavaConversions._
   import play.Play
+  import eu.delving.sip.AccessKey
+  import eu.delving.metadata.MetadataModelImpl
 
   val metadataModel: MetadataModelImpl = new MetadataModelImpl
   metadataModel.setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
   metadataModel.setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
+
+  val accessKey = new AccessKey
+  accessKey.setServicesPassword(Play.configuration.getProperty("services.password").trim)
+
+//  val metaRepo = new MetaRepoImpl
+//  metaRepo.setResponseListSize(Play.configuration.getProperty("services.pmh.responseListSize").trim)
+//  metaRepo.setHarvestStepSecondsToLive(180)
+
 }
+
 
 //// =======================
 //val warmer = ComponentRegistry.warmer

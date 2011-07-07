@@ -41,5 +41,15 @@ object Services extends DelvingController with HTTPClient {
     }
   }
 
+  def oaipmh : Result = {
+    import play.mvc.results.RenderText
+    //    val oaiPmhService = new OaiPmhService()
+    new RenderText("todo")
+  }
 
+  def oaipmhSecured(accessKey: String) : Result = {
+    import play.mvc.results.RenderText
+    //    val oaiPmhService = new OaiPmhService()
+    new RenderText("todo")
+  }
 }

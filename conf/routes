@@ -12,11 +12,19 @@ GET         /logout                                 Authentication.logout
 
 
 # Backwards compatibility with the old services module
-GET         /services/                              Services.index
-GET         /services/api/solr/select               Services.solrSearchProxy
-GET         /services/api/search                    Services.index
-GET         /services/api/open-search               Services.index
-GET         /services/api/open-search.xml           Services.index
+GET         /services/                                                       Services.index
+GET         /services/api/solr/select                                        Services.solrSearchProxy
+GET         /services/api/search                                             Services.index
+GET         /services/api/open-search                                        Services.index
+GET         /services/api/open-search.xml                                    Services.index
+GET         /services/oai-pmh                                                Services.oaipmh
+GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
+GET         /services/dataset                                                Dataset.listAll
+GET         /services/dataset/{dataSetSpec}/{command}                        Dataset.indexingControl
+POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     Dataset.acceptFile
+POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    Dataset.fetchSIP
+GET         /services/administrator/dataset                                  Dataset.secureListAll
+GET         /services/administrator/dataset/{dataSetSpec}/{command}          Dataset.secureIndexingControl
 
 # Backwards compatibility with the old portal module
 GET         /portal/                                Portal.index
@@ -34,7 +42,7 @@ GET         /{user}/story                           Stories.list
 GET         /{user}/story/{story}                   Stories.story
 
 # Image Cache
-GET         /service/image                          Images.image
+GET         /services/image                          Images.image
 
 # File Upload
 GET         /service/upload                         FileUpload.upload
