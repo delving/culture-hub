@@ -6,7 +6,7 @@
 GET         /                                       Application.index
 
 # Authentication
-GET			/login			                        Authentication.login
+GET         /login                                  Authentication.login
 POST        /login                                  Authentication.authenticate
 GET         /logout                                 Authentication.logout
 
@@ -32,6 +32,10 @@ GET         /{user}/object                          Dobjects.list
 GET         /{user}/object/{dobject}                Dobjects.dobject
 GET         /{user}/story                           Stories.list
 GET         /{user}/story/{story}                   Stories.story
+
+# Administration
+GET        /admin/themes                            admin.Themes.index
+POST       /admin/themes/reload                     admin.Themes.reload
 
 # Image Cache
 GET         /service/image                          Images.image
