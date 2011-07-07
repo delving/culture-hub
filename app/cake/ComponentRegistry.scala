@@ -1,5 +1,8 @@
 package cake
 
+import util.ThemeHandlerComponent
+
+
 /**
  * This object uses the Cake pattern to manage Dependency Injection, see also
  * http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di.html
@@ -69,7 +72,7 @@ trait MetaRepoComponent {
 
 // =======================
 // instantiate the services in a module
-object ComponentRegistry extends MetadataModelComponent with MetaRepoComponent
+object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent
    {
 
   import scala.collection.JavaConversions._
@@ -87,6 +90,9 @@ object ComponentRegistry extends MetadataModelComponent with MetaRepoComponent
 //  val metaRepo = new MetaRepoImpl
 //  metaRepo.setResponseListSize(Play.configuration.getProperty("services.pmh.responseListSize").trim)
 //  metaRepo.setHarvestStepSecondsToLive(180)
+  
+  val themeHandler: ThemeHandler = new ThemeHandler
+  themeHandler.update()
 
 }
 

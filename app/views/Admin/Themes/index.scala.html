@@ -1,0 +1,17 @@
+@import views.context._
+
+@main("Themes administration" ) {
+
+  <h1>CultureHub themes administration</h1>
+
+  @if(flash.get("error")) {
+    <p style="color:#c00">
+        @flash.get("error")
+    </p>
+  }
+
+  <form action="@action(controllers.admin.Themes.reload)" method="POST">
+    <input type="submit" value="Reload themes from disk" />
+  </form>
+
+}

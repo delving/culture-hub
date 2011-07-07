@@ -1,12 +1,4 @@
-- !!util.EmailTarget(defaultEmailTarget)
-    adminTo: username@email.com
-    exceptionTo: username@email.com
-    feedbackTo: username@email.com
-    registerTo: username@email.com
-    systemFrom: noreply@delving.eu
-    feedbackFrom: noreply@delving.eu
-
-- !!util.PortalTheme
+- !!models.PortalTheme
     name: norvegiana
     templateDir: norvegiana
     isDefault: true
@@ -20,6 +12,37 @@
     colorScheme: azure
     solrSelectUrl: "http://localhost:8983/solr"
     cacheUrl: "http://localhost:8983/services/image?"
-    emailTarget: defaultEmailTarget
+    emailTarget:
+        adminTo: username@email.com
+        exceptionTo: username@email.com
+        feedbackTo: username@email.com
+        registerTo: username@email.com
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
     homePage:
     metadataPrefix:
+
+- !!models.PortalTheme
+    name: friesmuseum
+    templateDir: friesmuseum
+    hiddenQueryFilter: Fries Museum
+    baseUrl: localhost
+    displayName: Fries Museum
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    defaultLanguage: no
+    colorScheme: azure
+    solrSelectUrl: "http://localhost:8983/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: username@email.com
+        exceptionTo: username@email.com
+        feedbackTo: username@email.com
+        registerTo: username@email.com
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    homePage:
+    localiseQueryKeys:
+        - dc.title
+        - dc.creator
+    metadataPrefix: icn

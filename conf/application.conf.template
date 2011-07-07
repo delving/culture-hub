@@ -227,7 +227,7 @@ debug=false
 
 # Path to the themes.xml file that defines the different themes for the portal
 
-portal.theme.file = conf/delving_themes.xml.example
+portal.theme.file = delving_themes.yml
 
 ###############################################
 #                                             #
