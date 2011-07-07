@@ -1,12 +1,12 @@
 package controllers
 
-import _root_.models.User
 import extensions.AdditionalActions
 import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
 import play.mvc.{After, Util, Before, Controller}
-import util.{LocalizedFieldNames, PortalTheme}
+import models.{PortalTheme, User}
+import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 
@@ -15,6 +15,7 @@ import cake.ComponentRegistry
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
+
 trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeInitializer {
 
   @Util def getUser(displayName: String): User = {
@@ -34,6 +35,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   }
 
 }
+
 
 trait FormatResolver {
   self: Controller =>
@@ -115,7 +117,7 @@ trait ThemeInitializer {
   def setTheme() {
     val portalTheme = themeHandler.getByRequest(request)
     themeThreadLocal.set(portalTheme)
-    lookupThreadLocal.set(localizedFieldNames.createLookup(List(portalTheme.getLocaliseQueryKeys  : _*)))
+    lookupThreadLocal.set(localizedFieldNames.createLookup(List(portalTheme.localiseQueryKeys: _*)))
   }
 
   @After

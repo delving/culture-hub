@@ -1,4 +1,4 @@
-- !!util.PortalTheme
+- !!models.PortalTheme
     name: norvegiana
     templateDir: norvegiana
     isDefault: true
@@ -22,7 +22,7 @@
     homePage:
     metadataPrefix:
 
-- !!util.PortalTheme
+- !!models.PortalTheme
     name: friesmuseum
     templateDir: friesmuseum
     hiddenQueryFilter: Fries Museum

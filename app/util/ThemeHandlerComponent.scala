@@ -29,6 +29,7 @@ import eu.delving.metadata.RecordDefinition
 import scala.collection.JavaConversions._
 import play.test._
 import cake.MetadataModelComponent
+import models.PortalTheme
 
 trait ThemeHandlerComponent {
   this: MetadataModelComponent =>
@@ -130,76 +131,5 @@ trait ThemeHandlerComponent {
 
 }
 
-case class PortalTheme(
-                              name: String,
-                              templateDir: String,
-                              isDefault: Boolean = false,
-                              localiseQueryKeys: Array[String] = Array(),
-                              hiddenQueryFilter: String = "",
-                              baseUrl: String = "",
-                              displayName: String = "default",
-                              googleAnalyticsTrackingCode: String = "",
-                              addThisTrackingCode: String = "",
-                              defaultLanguage: String = "en",
-                              colorScheme: String = "azure",
-                              solrSelectUrl: String = "http://localhost:8983/solr",
-                              cacheUrl: String = "http://localhost:8983/services/image?",
-                              emailTarget: EmailTarget = EmailTarget(),
-                              homePage: String = "",
-                              metadataPrefix: String = "",
-                              recordDefinition: RecordDefinition
 
-                              ) {
-  def getName = name
 
-  def getTemplateDir = templateDir
-
-  def getHiddenQueryFilters = hiddenQueryFilter
-
-  def getSolrSelectUrl = solrSelectUrl
-
-  def getBaseUrl = baseUrl
-
-  def getCacheUrl = cacheUrl
-
-  def getDisplayName = displayName
-
-  def getGaCode = googleAnalyticsTrackingCode
-
-  def getAddThisCode = addThisTrackingCode
-
-  def getDefaultLanguage = defaultLanguage
-
-  def getColorScheme = colorScheme
-
-  def withLocalisedQueryString = localiseQueryKeys.isEmpty
-
-  def getLocaliseQueryKeys = localiseQueryKeys
-
-  def getEmailTarget = emailTarget
-
-  def getHomePage = homePage
-
-  def getRecordDefinition = recordDefinition
-}
-
-case class EmailTarget(
-                              adminTo: String = "test-user@delving.eu",
-                              exceptionTo: String = "test-user@delving.eu",
-                              feedbackTo: String = "test-user@delving.eu",
-                              registerTo: String = "test-user@delving.eu",
-                              systemFrom: String = "noreply@delving.eu",
-                              feedbackFrom: String = "noreply@delving.eu"
-                              ) {
-  def getAdminTo = adminTo
-
-  def getExceptionTo = exceptionTo
-
-  def getFeedbackTo = feedbackTo
-
-  def getRegisterTo = registerTo
-
-  def getSystemFrom = systemFrom
-
-  def getFeebackFrom = feedbackFrom
-}
