@@ -1,5 +1,8 @@
 package cake
 
+import util.ThemeHandlerComponent
+
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -58,7 +61,7 @@ trait MetadataModelComponent {
 
 // =======================
 // instantiate the services in a module
-object ComponentRegistry extends MetadataModelComponent
+object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent
    {
 
   import eu.delving.metadata.MetadataModelImpl
@@ -68,6 +71,9 @@ object ComponentRegistry extends MetadataModelComponent
   val metadataModel: MetadataModelImpl = new MetadataModelImpl
   metadataModel.setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
   metadataModel.setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
+
+  val themeHandler: ThemeHandler = new ThemeHandler
+  themeHandler.update()
 }
 
 //// =======================

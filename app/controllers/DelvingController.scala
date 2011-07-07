@@ -6,8 +6,9 @@ import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
 import play.mvc.{After, Util, Before, Controller}
-import util.{ThemeHandler, LocalizedFieldNames, PortalTheme}
+import util.{LocalizedFieldNames, PortalTheme}
 import scala.collection.JavaConversions._
+import cake.ComponentRegistry
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -100,7 +101,7 @@ trait ParameterCheck {
 trait ThemeInitializer {
   self: Controller =>
 
-  val themeHandler = new ThemeHandler
+  val themeHandler = ComponentRegistry.themeHandler
   val localizedFieldNames = new LocalizedFieldNames
 
   private val themeThreadLocal: ThreadLocal[PortalTheme] = new ThreadLocal[PortalTheme]
