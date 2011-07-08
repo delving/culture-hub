@@ -1,4 +1,4 @@
-import com.novus.salat.Context
+import cake.ComponentRegistry
 import play.jobs._
 import play.Play
 
@@ -18,6 +18,9 @@ import play.Play
         }
       }
     }
+
+    ComponentRegistry.themeHandler.startup()
+
 
   }
 

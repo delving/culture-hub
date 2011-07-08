@@ -1,17 +1,67 @@
+@(themes: Seq[models.PortalTheme])
+
 @import views.context._
 
 @main("Themes administration" ) {
 
-  <h1>CultureHub themes administration</h1>
+<h1>CultureHub themes administration</h1>
 
-  @if(flash.get("error")) {
-    <p style="color:#c00">
-        @flash.get("error")
-    </p>
-  }
+@if(flash.get("error")) {
+<p style="color:#c00">
+  @flash.get("error")
+</p>
+}
 
-  <form action="@action(controllers.admin.Themes.reload)" method="POST">
-    <input type="submit" value="Reload themes from disk" />
-  </form>
+<div id="themeForms" data-bind="template: { name: 'templateUpdateForm', foreach: themes }"></div>
 
+<script type="text/javascript">
+  $(document).ready(function() {
+    var viewModel = {};
+    $.get('@action(controllers.admin.Themes.list)', function(data) {
+      viewModel = ko.mapping.fromJS(data);
+      ko.applyBindings(viewModel);
+      $('.form').ajaxForm();
+    });
+  });
+</script>
+
+    <script type="text/html" id="templateUpdateForm">
+      <h2>${name}</h2>
+
+      <form class="form" action="@action(controllers.admin.Themes.update)" method="POST">
+        <div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: name, label: 'Name'} }"></div>
+          <div class="field">
+            <label for="isDefault">Default:</label>
+            <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
+          </div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: baseUrl, label: 'Base URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: displayName, label: 'Display name'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: googleAnalyticsTrackingCode, label: 'Google Analytics code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: addThisTrackingCode, label: 'Add This tracking code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: defaultLanguage, label: 'Default Language code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: colorScheme, label: 'Color scheme'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: solrSelectUrl, label: 'SOLR select URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: cacheUrl, label: 'Cache URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: homePage, label: 'Homepage'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: metadataPrefix, label: 'Metadata prefix'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.adminTo, label: 'Administration email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.exceptionTo, label: 'Exceptions email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.feedbackTo, label: 'Feedback email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.registerTo, label: 'Registration email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.systemFrom, label: 'System from email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.feedbackFrom, label: 'Feedback from email'} }"></div>
+          <div class="field">
+            <input id="id" type="hidden" name="id" data-bind="value: _id.$oid">
+          </div>
+        </div>
+        <div>
+          <input type="submit" value="Update">
+        </div>
+      </form>
+    </script>
+    <script type="text/html" id="templateTextField">
+      <label for="${name}">${label}:</label>
+      <input id="${name}" type="text" name="${name}" data-bind="value: name" size="40">
+    </script>
 }

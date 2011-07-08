@@ -117,7 +117,7 @@ trait ThemeInitializer {
   def setTheme() {
     val portalTheme = themeHandler.getByRequest(request)
     themeThreadLocal.set(portalTheme)
-    lookupThreadLocal.set(localizedFieldNames.createLookup(List(portalTheme.localiseQueryKeys: _*)))
+    lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
   }
 
   @After

@@ -25,7 +25,6 @@ import org.apache.log4j.Logger
 import java.lang.String
 import play.Play
 import play.mvc.Http
-import eu.delving.metadata.RecordDefinition
 import scala.collection.JavaConversions._
 import play.test._
 import cake.MetadataModelComponent
@@ -41,7 +40,6 @@ trait ThemeHandlerComponent {
    * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
    * @since 3/9/11 3:25 PM
    */
-
   class ThemeHandler {
 
     private val log: Logger = Logger.getLogger(getClass)
@@ -50,21 +48,50 @@ trait ThemeHandlerComponent {
 
     private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
 
+    private val getThemeList: Seq[PortalTheme] = if (themeList.isEmpty) {
+      startup()
+      themeList
+    } else themeList
+
     def getThemeNames: java.util.Set[String] = {
       val set: java.util.Set[String] = new java.util.TreeSet[String]
-      themeList.foreach(theme => set.add(theme.name))
+      getThemeList.foreach(theme => set.add(theme.name))
       set
     }
 
     private lazy val debug = Play.configuration.getProperty("debug").trim.toBoolean
 
-    def update(): Boolean = {
+    /**
+     * Look into the database if we have some themes. If we don't attempt to load from YML.
+     */
+    def startup() {
+
+      if (PortalTheme.count() == 0) {
+        if (updateFromDisk()) {
+          themeList foreach {
+            PortalTheme.insert(_)
+          }
+        }
+      } else {
+        themeList = readThemesFromDatabase()
+      }
+    }
+
+    /**
+     * Sync the in-memory state with the state in the database
+     */
+    def readThemesFromDatabase(): List[PortalTheme] = {
+      PortalTheme.findAll
+    }
+
+    def updateFromDisk(): Boolean = {
       try {
         val newThemes = loadThemesYaml()
         if (themeList != newThemes) themeList = newThemes
       } catch {
-        case _ => {
-          log.error("Error updating themes")
+        case ex: Throwable => {
+          ex.printStackTrace
+          log.error("Error updating themes from YAML descriptor")
           return false
         }
 
@@ -72,20 +99,20 @@ trait ThemeHandlerComponent {
       true
     }
 
-    def hasSingleTheme: Boolean = themeList.length == 1
+    def hasSingleTheme: Boolean = getThemeList.length == 1
 
-    def hasTheme(themeName: String): Boolean = !themeList.filter(theme => theme.name == themeName).isEmpty
+    def hasTheme(themeName: String): Boolean = !getThemeList.filter(theme => theme.name == themeName).isEmpty
 
-    def getDefaultTheme = themeList.filter(_.isDefault == true).head
+    def getDefaultTheme = getThemeList.filter(_.isDefault == true).head
 
     def getByThemeName(name: String) = {
-      val theme = themeList.filter(_.name.equalsIgnoreCase(name))
+      val theme = getThemeList.filter(_.name.equalsIgnoreCase(name))
       if (!theme.isEmpty) theme.head
       else getDefaultTheme
     }
 
     def getByBaseUrl(baseUrl: String): PortalTheme = {
-      val theme = themeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
+      val theme = getThemeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
       if (!theme.isEmpty) theme.head
       else getDefaultTheme
     }
@@ -102,16 +129,6 @@ trait ThemeHandlerComponent {
 
       def getProperty(prop: String): String = Play.configuration.getProperty(prop).trim
 
-      def buildRecordDefinition(prefix: String): RecordDefinition = {
-        try {
-          metadataModel.getRecordDefinition(prefix)
-        }
-        catch {
-          case ex: Exception => metadataModel.getRecordDefinition
-        }
-      }
-
-
       val themeFileName = getProperty("portal.theme.file")
 
       if (themeFileName == null) {
@@ -119,10 +136,9 @@ trait ThemeHandlerComponent {
         System.exit(1);
       }
 
-      val themes = for (theme <- Yaml[List[PortalTheme]](themeFileName)) yield {
+      val themes = for (theme <- YamlLoader.load[List[PortalTheme]](themeFileName)) yield {
         theme.copy(
-          localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys.toArray else defaultQueryKeys.toArray ++ theme.localiseQueryKeys,
-          recordDefinition = buildRecordDefinition(theme.metadataPrefix)
+          localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys
         )
       }
       themes

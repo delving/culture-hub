@@ -7,7 +7,8 @@ import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
 import models.User
-import net.liftweb.json.{Extraction, DefaultFormats, ParameterNameReader}
+import org.bson.types.ObjectId
+import net.liftweb.json._
 
 /**
  *
@@ -74,13 +75,30 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
 
 class RenderLiftJson(data: AnyRef) extends Result {
   def apply(request: Request, response: Response) {
-
     implicit val formats = new DefaultFormats {
       override val parameterNameReader = PlayParameterNameReader
-    }
+    } + new ObjectIdSerializer
 
     new RenderJson(write(data))(request, response)
   }
+}
+
+class ObjectIdSerializer extends Serializer[ObjectId] {
+  private val ObjectIdClass = classOf[ObjectId]
+
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ObjectId] = {
+    case (TypeInfo(ObjectIdClass, _), json) => json match {
+      case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
+        new ObjectId(s)
+      case x => throw new MappingException("Can't convert " + x + " to ObjectId")
+    }
+  }
+
+  def serialize(implicit formats: Formats): PartialFunction[Any, JValue] = {
+    case x: ObjectId => objectIdAsJValue(x)
+  }
+
+  def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toStringMongod)) :: Nil)
 }
 
 class RenderKml(entity: AnyRef) extends Result {
