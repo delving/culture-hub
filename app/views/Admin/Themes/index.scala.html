@@ -29,27 +29,21 @@
 
   <form action="@action(controllers.admin.Themes.update)" method="POST">
     <div>
-      <div class="field">
-        <label for="name">Name:</label>
-        <input id="name" type="text" name="name" data-bind="value: name" size="40">
-      </div>
+      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: name} }"></div>
       <div class="field">
         <label for="isDefault">Default:</label>
         <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
       </div>
-      <div class="field">
-        <label for="baseUrl">Base URL:</label>
-        <input id="baseUrl" type="text" name="baseURL" data-bind="value: baseUrl" size="40">
-      </div>
-      <div class="field">
-        <label for="displayName">Display name:</label>
-        <input id="displayName" type="text" name="baseURL" data-bind="value: displayName" size="40">
-      </div>
+      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: baseUrl} }"></div>
+      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: displayName} }"></div>
     </div>
     <div>
       <input type="submit" value="Update">
     </div>
   </form>
 </script>
-
+<script type="text/html" id="templateTextField">
+  <label for="${name}">Display name:</label>
+  <input id="${name}" type="text" name="${name}" data-bind="value: name" size="40">
+</script>
 }
