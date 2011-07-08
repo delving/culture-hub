@@ -24,26 +24,40 @@
   });
 </script>
 
-<script type="text/html" id="templateUpdateForm">
-  <h2>${name}</h2>
+    <script type="text/html" id="templateUpdateForm">
+      <h2>${name}</h2>
 
-  <form action="@action(controllers.admin.Themes.update)" method="POST">
-    <div>
-      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: name} }"></div>
-      <div class="field">
-        <label for="isDefault">Default:</label>
-        <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
-      </div>
-      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: baseUrl} }"></div>
-      <div class="field" data-bind="template: { name: 'templateTextField', data: {name: displayName} }"></div>
-    </div>
-    <div>
-      <input type="submit" value="Update">
-    </div>
-  </form>
-</script>
-<script type="text/html" id="templateTextField">
-  <label for="${name}">Display name:</label>
-  <input id="${name}" type="text" name="${name}" data-bind="value: name" size="40">
-</script>
+      <form action="@action(controllers.admin.Themes.update)" method="POST">
+        <div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: name, label: 'Name'} }"></div>
+          <div class="field">
+            <label for="isDefault">Default:</label>
+            <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
+          </div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: baseUrl, label: 'Base URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: displayName, label: 'Display name'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: googleAnalyticsTrackingCode, label: 'Google Analytics code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: addThisTrackingCode, label: 'Add This tracking code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: defaultLanguage, label: 'Default Language code'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: colorScheme, label: 'Color scheme'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: solrSelectUrl, label: 'SOLR select URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: cacheUrl, label: 'Cache URL'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: homePage, label: 'Homepage'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: metadataPrefix, label: 'Metadata prefix'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.adminTo, label: 'Administration email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.exceptionTo, label: 'Exceptions email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.feedbackTo, label: 'Feedback email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.registerTo, label: 'Registration email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.systemFrom, label: 'System from email'} }"></div>
+          <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.feedbackFrom, label: 'Feedback from email'} }"></div>
+        </div>
+        <div>
+          <input type="submit" value="Update">
+        </div>
+      </form>
+    </script>
+    <script type="text/html" id="templateTextField">
+      <label for="${name}">${label}:</label>
+      <input id="${name}" type="text" name="${name}" data-bind="value: name" size="40">
+    </script>
 }
