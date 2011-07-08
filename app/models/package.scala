@@ -11,7 +11,7 @@ package object salatContext {
   val portalThemeCollection = connection("portalTheme")
   val emailTargetCollection = connection("emailTarget")
   val userCollection = connection("user")
-
+  
   implicit val ctx = new Context {
     val name = Some("PlaySalatContext")
   }

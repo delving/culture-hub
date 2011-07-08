@@ -31,12 +31,13 @@ object Themes extends DelvingController {
 
   def list(): AnyRef = {
     import net.liftweb.json._
-    
+
     val themeList = PortalTheme.findAll
     Json(Map("themes" -> themeList))
   }
 
   def update() {
+    val theme = params.get("theme", classOf[PortalTheme])
     Ok
   }
 

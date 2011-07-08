@@ -20,6 +20,7 @@
     $.get('@action(controllers.admin.Themes.list)', function(data) {
       viewModel = ko.mapping.fromJS(data);
       ko.applyBindings(viewModel);
+      $('.form').ajaxForm();
     });
   });
 </script>
@@ -27,7 +28,7 @@
     <script type="text/html" id="templateUpdateForm">
       <h2>${name}</h2>
 
-      <form action="@action(controllers.admin.Themes.update)" method="POST">
+      <form class="form" action="@action(controllers.admin.Themes.update)" method="POST">
         <div>
           <div class="field" data-bind="template: { name: 'templateTextField', data: {name: name, label: 'Name'} }"></div>
           <div class="field">
@@ -50,6 +51,9 @@
           <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.registerTo, label: 'Registration email'} }"></div>
           <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.systemFrom, label: 'System from email'} }"></div>
           <div class="field" data-bind="template: { name: 'templateTextField', data: {name: emailTarget.feedbackFrom, label: 'Feedback from email'} }"></div>
+          <div class="field">
+            <input id="id" type="hidden" name="id" data-bind="value: _id.$oid">
+          </div>
         </div>
         <div>
           <input type="submit" value="Update">

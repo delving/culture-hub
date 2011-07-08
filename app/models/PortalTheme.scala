@@ -6,14 +6,14 @@ import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
-
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class PortalTheme(name:                                String,
+case class PortalTheme(_id:                                 ObjectId = new ObjectId,
+                       name:                                String,
                        templateDir:                         String,
                        isDefault:                           Boolean = false,
                        localiseQueryKeys:                   List[String] = List(),
@@ -43,6 +43,8 @@ case class PortalTheme(name:                                String,
 
 object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) {
 
-  def findAll = find(MongoDBObject()).toList
+  def findAll = {
+    find(MongoDBObject()).toList
+  }
 
 }
