@@ -11,7 +11,7 @@ import play.mvc.Http
  * @since Jun 16, 2010 12:06:56 AM
  */
 
-class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String = "") {
+class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String = "") extends MetaConfig {
 
   import org.apache.log4j.Logger
   import java.text.SimpleDateFormat
@@ -86,18 +86,17 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
    */
   // TODO: add values from a message.properties file and complete oai identifier block
   def processIdentify(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    val config = metaRepo.getMetaRepoConfig
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
       <request verb="Identify">{getRequestURL}</request>
       <Identify>
-        <repositoryName>{config.getRepositoryName}</repositoryName>
+        <repositoryName>{repositoryName}</repositoryName>
         <baseURL>{getRequestURL}</baseURL>
         <protocolVersion>2.0</protocolVersion>
-        <adminEmail>{config.getAdminEmail}</adminEmail>
-        <earliestDatestamp>{config.getEarliestDateStamp}</earliestDatestamp>
+        <adminEmail>{adminEmail}</adminEmail>
+        <earliestDatestamp>{earliestDateStamp}</earliestDatestamp>
         <deletedRecord>persistent</deletedRecord>
         <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
         <compression>deflate</compression>
@@ -108,9 +107,9 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
             xsi:schemaLocation=
                 "http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
             <scheme>oai</scheme>
-            <repositoryIdentifier>{config.getRepositoryIdentifier}</repositoryIdentifier>
+            <repositoryIdentifier>{repositoryIdentifier}</repositoryIdentifier>
             <delimiter>:</delimiter>
-            <sampleIdentifier>{config.getSampleIdentifier}</sampleIdentifier>
+            <sampleIdentifier>{sampleIdentifier}</sampleIdentifier>
           </oai-identifier>
         </description>
      </Identify>
@@ -132,7 +131,7 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
         { for (set <- dataSets) yield
           <set>
             <setSpec>{set.getSpec}</setSpec>
-            <setName>{set.getDetails.getName}</setName>
+            <setName>{set.getDetails.name}</setName>
           </set>
         }
       </ListSets>
