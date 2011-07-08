@@ -43,6 +43,7 @@ GET         /{user}/story/{story}                   Stories.story
 
 # Administration
 GET        /admin/themes                            admin.Themes.index
+GET        /admin/themes/list                       admin.Themes.list
 POST       /admin/themes/reload                     admin.Themes.reload
 
 # Image Cache

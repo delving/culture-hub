@@ -2,6 +2,7 @@ package controllers.admin
 
 import controllers.DelvingController
 import cake.ComponentRegistry
+import models.PortalTheme
 
 /**
  * TODO add Access Control
@@ -14,7 +15,8 @@ object Themes extends DelvingController {
   import views.admin.Themes._
 
   def index(): AnyRef = {
-    html.index()
+    val themeList = PortalTheme.findAll
+    html.index(themes = themeList)
   }
 
   def reload(): AnyRef = {
@@ -25,6 +27,17 @@ object Themes extends DelvingController {
       case _ => flash += ("error" -> "Error reloading themes. Make sure your theme file is OK")
     }
     Action(index())
+  }
+
+  def list(): AnyRef = {
+    import net.liftweb.json._
+    
+    val themeList = PortalTheme.findAll
+    Json(Map("themes" -> themeList))
+  }
+
+  def update() {
+    Ok
   }
 
 }

@@ -1,17 +1,55 @@
+@(themes: Seq[models.PortalTheme])
+
 @import views.context._
 
 @main("Themes administration" ) {
 
-  <h1>CultureHub themes administration</h1>
+<h1>CultureHub themes administration</h1>
 
-  @if(flash.get("error")) {
-    <p style="color:#c00">
-        @flash.get("error")
-    </p>
-  }
+@if(flash.get("error")) {
+<p style="color:#c00">
+  @flash.get("error")
+</p>
+}
 
-  <form action="@action(controllers.admin.Themes.reload)" method="POST">
-    <input type="submit" value="Reload themes from disk" />
+<div id="themeForms" data-bind="template: { name: 'templateUpdateForm', foreach: themes }"></div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var viewModel = {};
+    $.get('@action(controllers.admin.Themes.list)', function(data) {
+      viewModel = ko.mapping.fromJS(data);
+      ko.applyBindings(viewModel);
+    });
+  });
+</script>
+
+<script type="text/html" id="templateUpdateForm">
+  <h2>${name}</h2>
+
+  <form action="@action(controllers.admin.Themes.update)" method="POST">
+    <div>
+      <div class="field">
+        <label for="name">Name:</label>
+        <input id="name" type="text" name="name" data-bind="value: name" size="40">
+      </div>
+      <div class="field">
+        <label for="isDefault">Default:</label>
+        <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
+      </div>
+      <div class="field">
+        <label for="baseUrl">Base URL:</label>
+        <input id="baseUrl" type="text" name="baseURL" data-bind="value: baseUrl" size="40">
+      </div>
+      <div class="field">
+        <label for="displayName">Display name:</label>
+        <input id="displayName" type="text" name="baseURL" data-bind="value: displayName" size="40">
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="Update">
+    </div>
   </form>
+</script>
 
 }
