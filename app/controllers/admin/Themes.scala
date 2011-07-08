@@ -18,9 +18,12 @@ object Themes extends DelvingController {
   }
 
   def reload(): AnyRef = {
-    val hasSuccess = ComponentRegistry.themeHandler.readThemesFromDatabase()
-    // TODO more detailed error reporting with cause etc.
-    if(!hasSuccess) flash += ("error" -> "Error reloading themes. Make sure your theme file is OK")
+    try {
+      ComponentRegistry.themeHandler.readThemesFromDatabase()
+    } catch {
+      // TODO more detailed error reporting with cause etc.
+      case _ => flash += ("error" -> "Error reloading themes. Make sure your theme file is OK")
+    }
     Action(index())
   }
 
