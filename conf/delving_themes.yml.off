@@ -2,12 +2,8 @@
     name: norvegiana
     templateDir: norvegiana
     isDefault: true
-    localiseQueryKeys:
-    hiddenQueryFilter:
     baseUrl: norvegiana2.delving.org
     displayName: Kulturnett.no
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
     defaultLanguage: no
     colorScheme: azure
     solrSelectUrl: "http://localhost:8983/solr"
@@ -19,17 +15,18 @@
         registerTo: username@email.com
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+    hiddenQueryFilter:
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
     homePage:
     metadataPrefix:
 
 - !!models.PortalTheme
     name: friesmuseum
     templateDir: friesmuseum
-    hiddenQueryFilter: Fries Museum
     baseUrl: localhost
     displayName: Fries Museum
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
     defaultLanguage: no
     colorScheme: azure
     solrSelectUrl: "http://localhost:8983/solr"
@@ -41,8 +38,11 @@
         registerTo: username@email.com
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
-    homePage:
     localiseQueryKeys:
         - dc.title
         - dc.creator
+    hiddenQueryFilter: Fries Museum
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    homePage:
     metadataPrefix: icn

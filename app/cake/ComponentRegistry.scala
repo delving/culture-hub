@@ -72,7 +72,7 @@ trait MetaRepoComponent {
 
 // =======================
 // instantiate the services in a module
-object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent
+object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent with MetaRepoComponent
    {
 
   import scala.collection.JavaConversions._
@@ -92,7 +92,7 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
 //  metaRepo.setHarvestStepSecondsToLive(180)
   
   val themeHandler: ThemeHandler = new ThemeHandler
-  themeHandler.update()
+  themeHandler.startup()
 
 }
 

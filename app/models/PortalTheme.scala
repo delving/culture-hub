@@ -2,9 +2,10 @@ package models
 
 import eu.delving.metadata.RecordDefinition
 import com.novus.salat.dao.SalatDAO
-import com.mongodb.casbah.commons.TypeImports._
-import com.mongodb.casbah.MongoConnection
+import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
+import com.mongodb.casbah.commons.MongoDBObject
+import cake.ComponentRegistry
 
 /**
  *
@@ -12,22 +13,36 @@ import models.salatContext._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class PortalTheme(name: String,
-                       templateDir: String,
-                       isDefault: Boolean = false,
-                       localiseQueryKeys: Array[String] = Array(),
-                       hiddenQueryFilter: String = "",
-                       baseUrl: String = "",
-                       displayName: String = "default",
-                       googleAnalyticsTrackingCode: String = "",
-                       addThisTrackingCode: String = "",
-                       defaultLanguage: String = "en",
-                       colorScheme: String = "azure",
-                       solrSelectUrl: String = "http://localhost:8983/solr",
-                       cacheUrl: String = "http://localhost:8983/services/image?",
-                       emailTarget: EmailTarget = EmailTarget(),
-                       homePage: String = "",
-                       metadataPrefix: String = "",
-                       recordDefinition: RecordDefinition)
+case class PortalTheme(name:                                String,
+                       templateDir:                         String,
+                       isDefault:                           Boolean = false,
+                       localiseQueryKeys:                   List[String] = List(),
+                       hiddenQueryFilter:                   Option[String] = Some(""),
+                       baseUrl:                             String,
+                       displayName:                         String,
+                       googleAnalyticsTrackingCode:         Option[String] = Some(""),
+                       addThisTrackingCode:                 Option[String] = Some(""),
+                       defaultLanguage:                     String = "en",
+                       colorScheme:                         String = "azure",
+                       solrSelectUrl:                       String = "http://localhost:8983/solr",
+                       cacheUrl:                            String = "http://localhost:8983/services/image?",
+                       emailTarget:                         EmailTarget = EmailTarget(),
+                       homePage:                            Option[String] = Some(""),
+                       metadataPrefix:                      Option[String] = Some("")) {
 
-object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection)
+  def getRecordDefinition: RecordDefinition = {
+    try {
+      ComponentRegistry.metadataModel.getRecordDefinition(metadataPrefix.get)
+    }
+    catch {
+      case ex: Exception => ComponentRegistry.metadataModel.getRecordDefinition
+    }
+  }
+
+}
+
+object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) {
+
+  def findAll = find(MongoDBObject()).toList
+
+}
