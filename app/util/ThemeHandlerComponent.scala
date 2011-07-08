@@ -112,7 +112,7 @@ trait ThemeHandlerComponent {
     }
 
     def getByBaseUrl(baseUrl: String): PortalTheme = {
-      val theme = getThemeList.filter(_.baseUrl.get.equalsIgnoreCase(baseUrl))
+      val theme = getThemeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
       if (!theme.isEmpty) theme.head
       else getDefaultTheme
     }
