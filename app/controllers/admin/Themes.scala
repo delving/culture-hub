@@ -38,6 +38,7 @@ object Themes extends DelvingController {
 
   def update() {
     val theme = params.get("theme", classOf[PortalTheme])
+    println(theme)
     Ok
   }
 
