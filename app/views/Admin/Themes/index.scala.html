@@ -16,25 +16,23 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    var viewModel = {
-      'addQueryKeys': ko.observable(""),
-      'addItem': function() {
-        if (viewModel.addQueryKeys() != "") {
-            viewModel.localiseQueryKeys.push(viewModel.addQueryKeys());
-            viewModel.addQueryKeys("");
-        }
-    }};
+    var viewModel = {};
 
     $.get('@action(controllers.admin.Themes.list)', function(data) {
       $.extend(viewModel, ko.mapping.fromJS(data));
       for(var i = 0; i < viewModel.themes().length; i++) {
         viewModel.themes()[i].addQueryKeys = ko.observable("");
+        viewModel.themes()[i].selectedQueryKeys = ko.observableArray();
         viewModel.themes()[i].addItem = function() {
           if (this.addQueryKeys() != "") {
               this.localiseQueryKeys.push(this.addQueryKeys());
               this.addQueryKeys("");
           }
-        }
+        };
+        viewModel.themes()[i].removeSelected = function() {
+          this.localiseQueryKeys.removeAll(this.selectedQueryKeys());
+          this.selectedQueryKeys([]);
+        };
       }
       ko.applyBindings(viewModel);
       $('.form').ajaxForm();
@@ -65,9 +63,10 @@
           <div class="field">
             <label for="localiseQueryKeys">Localised query keys</label>
             <div>
-              <select id="localiseQueryKeys" multiple="multiple" width="50" name="localiseQueryKeys" data-bind="options: localiseQueryKeys"> </select>
+              <select id="localiseQueryKeys" multiple="multiple" width="50" name="localiseQueryKeys" data-bind="options: localiseQueryKeys, selectedOptions: selectedQueryKeys"> </select>
               <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"' />
               <button type="button" data-bind="enable: addQueryKeys().length > 0, click: addItem">Add</button>
+              <button data-bind="click: removeSelected, enable: selectedQueryKeys().length > 0">Remove</button>
             </div>
           </div>
           <div class="field" data-bind="template: { name: 'text', data: {data: metadataPrefix, name: 'metadataPrefix', label: 'Metadata prefix'} }"></div>
