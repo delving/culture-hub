@@ -37,7 +37,9 @@ object Themes extends DelvingController {
   }
 
   def update() {
+    import scala.collection.JavaConversions._
     val theme = params.get("theme", classOf[PortalTheme])
+    println(theme)
     Ok
   }
 
