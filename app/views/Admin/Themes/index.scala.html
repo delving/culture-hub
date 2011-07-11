@@ -22,7 +22,7 @@
       $.extend(viewModel, ko.mapping.fromJS(data));
       for(var i = 0; i < viewModel.themes().length; i++) {
         viewModel.themes()[i].addQueryKeys = ko.observable("");
-        viewModel.themes()[i].selectedQueryKeys = ko.observableArray();
+        viewModel.themes()[i].selectedQueryKeys = ko.observableArray(viewModel.themes()[i].localiseQueryKeys());
         viewModel.themes()[i].addItem = function() {
           if (this.addQueryKeys() != "") {
               this.localiseQueryKeys.push(this.addQueryKeys());
@@ -63,7 +63,7 @@
           <div class="field">
             <label for="localiseQueryKeys">Localised query keys</label>
             <div>
-              <select id="localiseQueryKeys" multiple="multiple" width="50" name="localiseQueryKeys" data-bind="options: localiseQueryKeys, selectedOptions: selectedQueryKeys"> </select>
+              <select id="localiseQueryKeys" multiple="multiple" width="50" name="theme.localiseQueryKeys" data-bind="options: localiseQueryKeys, selectedOptions: selectedQueryKeys"> </select>
               <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"' />
               <button type="button" data-bind="enable: addQueryKeys().length > 0, click: addItem">Add</button>
               <button data-bind="click: removeSelected, enable: selectedQueryKeys().length > 0">Remove</button>
@@ -77,7 +77,7 @@
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.systemFrom, name: 'emailTarget.systemFrom', label: 'System from email'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.feedbackFrom, name: 'emailTarget.feedbackFrom', label: 'Feedback from email'} }"></div>
           <div class="field">
-            <input id="id" type="hidden" name="id" data-bind="value: _id.$oid">
+            <input id="id" type="hidden" name="theme.id" data-bind="value: _id.$oid">
           </div>
         </div>
         <div>

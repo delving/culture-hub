@@ -1,6 +1,8 @@
 package cake
 
 import util.ThemeHandlerComponent
+import play.scalasupport.PkBinder
+import extensions.ScalaListTypeBinder
 
 
 /**
@@ -93,6 +95,9 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
   
   val themeHandler: ThemeHandler = new ThemeHandler
   themeHandler.startup()
+
+  play.data.binding.Binder.register(classOf[scala.collection.immutable.List[String]], new ScalaListTypeBinder)
+
 
 }
 
