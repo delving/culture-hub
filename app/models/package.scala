@@ -11,7 +11,12 @@ package object salatContext {
   val portalThemeCollection = connection("portalTheme")
   val emailTargetCollection = connection("emailTarget")
   val userCollection = connection("user")
-  
+  val dataSetsCollection = connection("Datasets")
+  val harvestStepsCollection = connection("HarvestSteps")
+
+  val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved
+  val MONGO_ID: String = "_id" // mongo identifier we use
+
   implicit val ctx = new Context {
     val name = Some("PlaySalatContext")
   }

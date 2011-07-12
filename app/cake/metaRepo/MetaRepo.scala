@@ -6,6 +6,7 @@ package cake.metaRepo
  * @since 7/7/11 8:43 AM  
  */
 
+// Implemented
 trait MetaRepo {
 
   import java.util.Date
@@ -31,60 +32,11 @@ trait MetaRepo {
 
   def getRecord(identifier: String, metadataFormat: String, accessKey: String): Record
 
-  def getMetaRepoConfig: MetaConfig
-
-  final val RECORD_COLLECTION_PREFIX: String = "Records."
-  final val DATASETS_COLLECTION: String = "Datasets"
-  final val HARVEST_STEPS_COLLECTION: String = "HarvestSteps"
-  final val MONGO_ID: String = "_id"
+//  def getMetaRepoConfig: MetaConfig
 }
 
-object Details {
-  final val NAME: String = "name"
-  final val METADATA_FORMAT: String = "metadata_format"
-  final val FACT_BYTES: String = "fact_bytes"
-  final val TOTAL_RECORDS: String = "total_records"
-  final val DELETED_RECORDS: String = "deleted_records"
-  final val UPLOADED_RECORDS: String = "uploaded_records"
-}
-
-abstract trait Details {
-  def getName: String
-
-  def setName(value: String): Unit
-
-  def getMetadataFormat: MetadataFormat
-
-  def getFacts: Array[Byte]
-
-  def setFacts(factBytes: Array[Byte]): Unit
-
-  def getTotalRecordCount: Int
-
-  def setTotalRecordCount(count: Int): Unit
-
-  def getDeletedRecordCount: Int
-
-  def setDeletedRecordCount(count: Int): Unit
-
-  def getUploadedRecordCount: Int
-
-  def setUploadedRecordCount(count: Int): Unit
-}
-
-object HarvestStep {
-  final val FIRST: String = "first"
-  final val EXPIRATION: String = "exporatopm"
-  final val LIST_SIZE: String = "listSize"
-  final val CURSOR: String = "cursor"
-  final val PMH_REQUEST: String = "pmhRequest"
-  final val NAMESPACES: String = "namespaces"
-  final val ERROR_MESSAGE: String = "error"
-  final val AFTER_ID: String = "afterId"
-  final val NEXT_ID: String = "nextId"
-}
-
-abstract trait HarvestStep {
+// implemented
+trait HarvestStep {
 
   import org.bson.types.ObjectId
   import java.util.Date
@@ -121,15 +73,8 @@ abstract trait HarvestStep {
   def save: Unit
 }
 
-object PmhRequest {
-  final val VERB: String = "verb"
-  final val SET: String = "set"
-  final val FROM: String = "from"
-  final val UNTIL: String = "until"
-  final val PREFIX: String = "prefix"
-}
-
-abstract trait PmhRequest {
+// implemented
+trait PmhRequest {
 
   import java.util.Date
   import cake.metaRepo.PmhVerbType.PmhVerb
@@ -145,14 +90,8 @@ abstract trait PmhRequest {
   def getMetadataPrefix: String
 }
 
-object Record {
-  final val MODIFIED: String = "modified"
-  final val DELETED: String = "deleted"
-  final val UNIQUE: String = "uniq"
-  final val HASH: String = "hash"
-}
-
-abstract trait Record {
+// implemented
+trait Record {
 
   import com.mongodb.DBObject
   import java.util.Date
@@ -170,19 +109,15 @@ abstract trait Record {
 
   def getHash: DBObject
 
-  def getFingerprint: Map[String, Integer]
+  def getFingerprint: Map[String, Int]
 
   def getXmlString: String
 
   def getXmlString(metadataPrefix: String): String
 }
 
-object Mapping {
-  val RECORD_MAPPING: String = "recordMapping"
-  val FORMAT: String = "format"
-}
-
-abstract trait Mapping {
+// implemented  can be deprecated
+trait Mapping {
 
   import eu.delving.metadata.RecordMapping
 
@@ -191,26 +126,8 @@ abstract trait Mapping {
   def getRecordMapping: RecordMapping
 }
 
-object MetadataFormat {
-  val PREFIX: String = "prefix"
-  val SCHEMA: String = "schema"
-  val NAMESPACE: String = "namespace"
-  val ACCESS_KEY_REQUIRED: String = "accessKeyRequired"
-}
-
-abstract trait MetaConfig {
-  def getRepositoryName: String
-
-  def getAdminEmail: String
-
-  def getEarliestDateStamp: String
-
-  def getRepositoryIdentifier: String
-
-  def getSampleIdentifier: String
-}
-
-abstract trait MetadataFormat {
+// implemented can be deprecated
+trait MetadataFormat {
   def getPrefix: String
 
   def setPrefix(value: String): Unit
@@ -228,7 +145,7 @@ abstract trait MetadataFormat {
   def setAccessKeyRequired(required: Boolean): Unit
 }
 
-abstract trait DataSet {
+trait DataSet {
 
   import com.mongodb.DBObject
   import eu.delving.sip.DataSetState
@@ -236,6 +153,7 @@ abstract trait DataSet {
   import java.io.InputStream
   import eu.delving.metadata.RecordMapping
   import org.bson.types.ObjectId
+  import models.Details
 
   def getSpec: String
 
@@ -251,9 +169,9 @@ abstract trait DataSet {
 
   def getState(fresh: Boolean): DataSetState
 
-  def getErrorMessage: String
-
   def setState(dataSetState: DataSetState): Unit
+
+  def getErrorMessage: String
 
   def setErrorState(message: String): Unit
 
@@ -290,15 +208,31 @@ abstract trait DataSet {
 
     def getAfterId: ObjectId
   }
+
 }
+
+// from here complete
 
 object PmhVerbType extends Enumeration {
 
-        case class PmhVerb(command:String) extends Val(command)
-        val LIST_SETS = PmhVerb("ListSets")
-        val List_METADATA_FORMATS = PmhVerb("ListMetadataFormats")
-        val LIST_IDENTIFIERS = PmhVerb("ListIdentifiers")
-        val LIST_RECORDS = PmhVerb("ListRecords")
-        val GET_RECORD = PmhVerb("GetRecord")
-        val IDENTIFY = PmhVerb("Identify")
+  case class PmhVerb(command: String) extends Val(command)
+
+  val LIST_SETS = PmhVerb("ListSets")
+  val List_METADATA_FORMATS = PmhVerb("ListMetadataFormats")
+  val LIST_IDENTIFIERS = PmhVerb("ListIdentifiers")
+  val LIST_RECORDS = PmhVerb("ListRecords")
+  val GET_RECORD = PmhVerb("GetRecord")
+  val IDENTIFY = PmhVerb("Identify")
+}
+
+trait MetaConfig {
+
+  import play.Play
+  def conf(key: String) = Play.configuration.getProperty(key).trim
+
+  val repositoryName: String = conf("services.pmh.repositoryName ")
+  val adminEmail: String = conf("services.pmh.adminEmail")
+  val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
+  val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
+  val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
 }
