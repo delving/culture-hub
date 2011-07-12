@@ -5,7 +5,7 @@ test-result
 .DS_Store
 .idea
 /modules
-lib/
+/lib
 conf/application.conf
 extras/solr-server/solr/*/data/
 extras/solr-server/work/
