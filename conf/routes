@@ -19,12 +19,12 @@ GET         /services/api/open-search                                        Ser
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
 GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
-GET         /services/dataset                                                Dataset.listAll
-GET         /services/dataset/{dataSetSpec}/{command}                        Dataset.indexingControl
-POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     Dataset.acceptFile
-POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    Dataset.fetchSIP
-GET         /services/administrator/dataset                                  Dataset.secureListAll
-GET         /services/administrator/dataset/{dataSetSpec}/{command}          Dataset.secureIndexingControl
+GET         /services/dataset                                                Datasets.listAll
+GET         /services/dataset/{dataSetSpec}/{command}                        Datasets.indexingControl
+POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     Datasets.acceptFile
+POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    Datasets.fetchSIP
+GET         /services/administrator/dataset                                  Datasets.secureListAll
+GET         /services/administrator/dataset/{dataSetSpec}/{command}          Datasets.secureIndexingControl
 
 # Backwards compatibility with the old portal module
 GET         /portal/                                Portal.index

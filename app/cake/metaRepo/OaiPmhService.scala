@@ -21,7 +21,7 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   import collection.mutable.HashMap
   import cake.metaRepo.PmhVerbType.PmhVerb
 
-  private val log = Logger.getLogger(getClass());
+  private val log = Logger.getLogger(getClass);
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey")
@@ -82,9 +82,10 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   private def toUtcDateTime(date: DateTime) : String = date.toString("yyyy-MM-dd'T'HH:mm:ss'Z'")
   private def currentDate = toUtcDateTime (new DateTime())
   private def printDate(date: Date) : String = if (date != null) toUtcDateTime(new DateTime(date)) else ""
+
   /**
    */
-  // TODO: add values from a message.properties file and complete oai identifier block
+
   def processIdentify(pmhRequestEntry: PmhRequestEntry) : Elem = {
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -117,7 +118,7 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    val dataSets = metaRepo.getDataSets
+    val dataSets = metaRepo.getDataSets // todo needs to be implemented
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (dataSets.size == 0) return createErrorResponse("noSetHierarchy")

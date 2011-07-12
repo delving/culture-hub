@@ -1,12 +1,16 @@
-package controllers
+package controllers.admin
+
+import controllers.SolrServer
 
 /**
+ * This Controller is responsible
+ *
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 7/7/11 12:04 AM  
  */
 
-object Dataset extends SolrServer {
+object Datasets extends SolrServer {
 
   import play.mvc.results.Result
   import org.apache.solr.client.solrj.SolrServer
@@ -16,41 +20,54 @@ object Dataset extends SolrServer {
   import eu.delving.metadata.{Facts, RecordMapping, MetadataModel}
   import eu.delving.sip.{DataSetInfo, DataSetResponse, DataSetResponseCode, AccessKey}
   import play.mvc.results.RenderText
+  import play.mvc.results.RenderXml
+  import org.apache.log4j.Logger
+  import cake.ComponentRegistry
+  import models.DataSet
+  import xml.Elem
 
   private val RECORD_STREAM_CHUNK: Int = 1000
-//  private var log: Logger = Logger.getLogger(getClass)
+  private val log: Logger = Logger.getLogger(getClass)
 
 //  private val metaRepo: MetaRepo = ComponentRegistry.metaRepo
-
-//  private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
-//
-//  private var accessKey: AccessKey = ComponentRegistry.accessKey
-
   private val solrServer: SolrServer = getSolrServer
 
+  private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
+//
+  private val accessKeyService: AccessKey = ComponentRegistry.accessKey
+
   def secureListAll: Result = {
-//    try {
-//      view(metaRepo.getDataSets)
-//    }
-//    catch {
-//      case e: Exception => {
-//        view(e)
-//      }
-//    }
-    new RenderText("something")
+    try {
+      new RenderXml(renderDataSetList(dataSets = DataSet.findAll))
+    }
+    catch {
+      case e: Exception => renderException(e)
+    }
+  }
+
+  def renderDataSetList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
+                        dataSets: List[DataSet] = List[DataSet](),
+                        errorMessage: String = "") : Elem = {
+    <data-set>
+      <data-set-list>
+        {dataSets.map{ds => ds.toXml}}
+      </data-set-list>
+      {if (responseCode != DataSetResponseCode.THANK_YOU) {
+          <errorMessage>{errorMessage}</errorMessage>
+        }
+      }
+    </data-set>
   }
 
   def listAll(accessKey: String): Result = {
-//    try {
-//      checkAccessKey(accessKey)
-//      view(metaRepo.getDataSets)
-//    }
-//    catch {
-//      case e: Exception => {
-//        view(e)
-//      }
-//    }
-    new RenderText("something")
+    try {
+      import play.mvc.results.RenderXml
+      checkAccessKey(accessKey)
+      new RenderXml(renderDataSetList(dataSets = DataSet.findAll))
+    }
+    catch {
+      case e: Exception => renderException(e)
+    }
   }
 
 //  @RequestMapping(value = Array("/administrator/dataset/{dataSetSpec}/{command}"))
@@ -73,42 +90,42 @@ object Dataset extends SolrServer {
     new RenderText("something")
   }
 
+  private def checkAccessKey(accessKey: String) {
+    import cake.metaRepo.AccessKeyException
+    if (accessKey.isEmpty) {
+      log.warn("Service Access Key missing")
+      throw new AccessKeyException("Access Key missing")
+    }
+    else if (!accessKeyService.checkKey(accessKey)) {
+      log.warn(String.format("Service Access Key %s invalid!", accessKey))
+      throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
+    }
+  }
+
 //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, inputStream: InputStream, accessKey: String): Result = {
-//    try {
-//      import eu.delving.metadata.Hasher
-//      checkAccessKey(accessKey)
-//      var `type` : FileType = FileType.valueOf(fileType)
-//      log.info(String.format("accept type %s for %s: %s", `type`, dataSetSpec, fileName))
-//      var hash: String = Hasher.extractHashFromFileName(fileName)
-//      if (hash == null) {
-//        throw new RuntimeException("No hash available for file name " + fileName)
-//      }
-//      var response: DataSetResponseCode = null
-//      `type` match {
-//        case FACTS =>
-//          import eu.delving.metadata.Facts
-//          response = receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
-//          break //todo: break is not supported
-//        case SOURCE =>
-//          response = receiveSource(new GZIPInputStream(inputStream), dataSetSpec, hash)
-//          break //todo: break is not supported
-//        case MAPPING =>
-//          import eu.delving.metadata.RecordMapping
-//          response = receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
-//          break //todo: break is not supported
-//        case _ =>
-//          response = DataSetResponseCode.SYSTEM_ERROR
-//          break //todo: break is not supported
-//      }
-//      return view(response)
-//    }
-//    catch {
-//      case e: Exception => {
-//        return view(e)
-//      }
-//    }
-    new RenderText("something")
+    import play.mvc.results.RenderXml
+    try {
+      import eu.delving.metadata.Hasher
+      import java.util.zip.GZIPInputStream
+      checkAccessKey(accessKey)
+      log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
+      var hash: String = Hasher.extractHashFromFileName(fileName)
+      if (hash == null) {
+        throw new RuntimeException("No hash available for file name " + fileName)
+      }
+      val responseCode = fileType match {
+        case "text/plain" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
+        case "application/x-gzip" => receiveSource(new GZIPInputStream(inputStream), dataSetSpec, hash)
+        case "text/xml" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
+        case _ => DataSetResponseCode.SYSTEM_ERROR
+      }
+      new RenderXml(renderDataSetList(responseCode = responseCode))
+    }
+    catch {
+      case e: Exception => renderException(e)
+    }
+
   }
 
 //  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
@@ -180,7 +197,7 @@ object Dataset extends SolrServer {
 //    sourceStream.endZipStream
 //  }
 
-//  private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
+  private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
 //    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
 //    if (dataSet == null) {
 //      return datasetresponsecode.DATA_SET_NOT_FOUND
@@ -191,8 +208,8 @@ object Dataset extends SolrServer {
 //    dataSet.setMapping(recordMapping, true)
 //    dataSet.setMappingHash(recordMapping.getPrefix, hash)
 //    dataSet.save
-//    DataSetResponseCode.THANK_YOU
-//  }
+    DataSetResponseCode.THANK_YOU
+  }
 
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
 //    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
@@ -248,19 +265,7 @@ object Dataset extends SolrServer {
     DataSetResponseCode.THANK_YOU
   }
 
-  private def checkAccessKey(accessKey: String): Unit = {
-//    if (accessKey == null) {
-//      import play.modules.legacyServices.eu.delving.exceptions.AccessKeyException
-//      log.warn("Service Access Key missing")
-//      throw new AccessKeyException("Access Key missing")
-//    }
-//    else if (!this.accessKey.checkKey(accessKey)) {
-//      import play.modules.legacyServices.eu.delving.exceptions.AccessKeyException
-//      import play.modules.legacyServices.eu.delving.services.exceptions.AccessKeyException
-//      log.warn(String.format("Service Access Key %s invalid!", accessKey))
-//      throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
-//    }
-  }
+
 
   private def indexingControlInternal(dataSetSpec: String, commandString: String): Result = {
 //    try {
@@ -344,21 +349,16 @@ object Dataset extends SolrServer {
     new RenderText("something")
   }
 
-  private def view(exception: Exception): Result = {
-    import eu.delving.sip.DataSetResponse
-//    log.warn("Problem in controller", exception)
-//    var code: DataSetResponseCode = null
-//    if (exception.isInstanceOf[AccessKeyException]) {
-//      code = DataSetResponseCode.ACCESS_KEY_FAILURE
-//    }
-//    else if (exception.isInstanceOf[DataSetNotFoundException]) {
-//      code = DataSetResponseCode.DATA_SET_NOT_FOUND
-//    }
-//    else {
-//      code = DataSetResponseCode.SYSTEM_ERROR
-//    }
-//    view(new DataSetResponse(code))
-    new RenderText("something")
+  private def renderException(exception: Exception): Result = {
+    import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
+    import play.mvc.results.RenderXml
+    log.warn("Problem in controller", exception)
+    val errorcode = exception match {
+      case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
+      case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND
+      case _ => DataSetResponseCode.SYSTEM_ERROR
+    }
+    new RenderXml(renderDataSetList(responseCode = errorcode, errorMessage = exception.getMessage))
   }
 
 //  private def view(dataSet: MetaRepo.DataSet): Result = {
@@ -381,7 +381,7 @@ object Dataset extends SolrServer {
 //    new RenderText("something")
 //  }
 
-  private def view(response: DataSetResponse): Result = {
+  private def render(response: DataSetResponse): Result = {
     //    new Result("dataSetXmlView", BindingResult.MODEL_KEY_PREFIX + "response", response)
     new RenderText("something")
   }
