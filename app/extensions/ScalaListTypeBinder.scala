@@ -11,9 +11,8 @@ import play.mvc.Http.Request
  */
 
 class ScalaListTypeBinder extends TypeBinder[scala.collection.immutable.List[String]] {
-  def bind(name: String, annotations: Array[Annotation], value: String, actualClass: Class[_], genericType: Type): AnyRef = {
-    println("ScalaListTypeBinder")
+  def bind(name: String, annotations: Array[Annotation], value: String, actualClass: Class[_], genericType: Type): List[String] = {
     val values:Array[String] = Request.current().params.getAll(name)
-    List(values)
+    values.toList
   }
 }
