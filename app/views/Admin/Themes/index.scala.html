@@ -70,6 +70,7 @@
             </div>
           </div>
           <div class="field" data-bind="template: { name: 'text', data: {data: metadataPrefix, name: 'metadataPrefix', label: 'Metadata prefix'} }"></div>
+          <div class="field" data-bind="template: { name: 'text', data: {data: hiddenQueryFilter, name: 'hiddenQueryFilter', label: 'Hidden query filter'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.adminTo, name: 'emailTarget.adminTo', label: 'Administration email'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.exceptionTo, name: 'emailTarget.exceptionTo', label: 'Exceptions email'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.feedbackTo, name: 'emailTarget.feedbackTo', label: 'Feedback email'} }"></div>
@@ -77,7 +78,7 @@
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.systemFrom, name: 'emailTarget.systemFrom', label: 'System from email'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: emailTarget.feedbackFrom, name: 'emailTarget.feedbackFrom', label: 'Feedback from email'} }"></div>
           <div class="field">
-            <input id="id" type="hidden" name="theme.id" data-bind="value: _id.$oid">
+            <input id="id" type="hidden" name="theme._id" data-bind="value: _id.$oid">
           </div>
         </div>
         <div>

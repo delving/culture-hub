@@ -98,7 +98,7 @@ class ObjectIdSerializer extends Serializer[ObjectId] {
     case x: ObjectId => objectIdAsJValue(x)
   }
 
-  def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toStringMongod)) :: Nil)
+  def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toString)) :: Nil)
 }
 
 class RenderKml(entity: AnyRef) extends Result {

@@ -1,9 +1,7 @@
 package cake
 
 import util.ThemeHandlerComponent
-import play.scalasupport.PkBinder
-import extensions.ScalaListTypeBinder
-
+import extensions.{ObjectIdTypeBinder, ScalaListTypeBinder}
 
 /**
  * This object uses the Cake pattern to manage Dependency Injection, see also
@@ -97,6 +95,7 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
   themeHandler.startup()
 
   play.data.binding.Binder.register(classOf[scala.collection.immutable.List[String]], new ScalaListTypeBinder)
+  play.data.binding.Binder.register(classOf[org.bson.types.ObjectId], new ObjectIdTypeBinder)
 
 
 }

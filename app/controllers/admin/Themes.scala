@@ -3,6 +3,9 @@ package controllers.admin
 import controllers.DelvingController
 import cake.ComponentRegistry
 import models.PortalTheme
+import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.WriteConcern
+import org.bson.types.ObjectId
 
 /**
  * TODO add Access Control
@@ -12,7 +15,7 @@ import models.PortalTheme
 
 object Themes extends DelvingController {
 
-  import views.Admin.Themes._
+  import views.admin.Themes._
 
   def index(): AnyRef = {
     val themeList = PortalTheme.findAll
@@ -37,9 +40,8 @@ object Themes extends DelvingController {
   }
 
   def update() {
-    import scala.collection.JavaConversions._
-    val theme = params.get("theme", classOf[PortalTheme])
-    println(theme)
+    val theme:PortalTheme = params.get("theme", classOf[PortalTheme])
+    PortalTheme.update(MongoDBObject("_id" -> theme._id), theme, false, false, new WriteConcern())
     Ok
   }
 
