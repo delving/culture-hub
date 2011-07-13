@@ -38,10 +38,10 @@ object Themes extends DelvingController {
     Json(Map("themes" -> themeList))
   }
 
-  def update() {
-    val theme:PortalTheme = params.get("theme", classOf[PortalTheme])
+  def update(): AnyRef = {
+    val theme: PortalTheme = params.get("theme", classOf[PortalTheme])
     PortalTheme.update(MongoDBObject("_id" -> theme._id), theme, false, false, new WriteConcern())
-    Ok
+    Action(index())
   }
 
 }

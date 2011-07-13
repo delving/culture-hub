@@ -35,7 +35,6 @@
         };
       }
       ko.applyBindings(viewModel);
-      $('.form').ajaxForm();
     });
   });
 </script>
@@ -48,7 +47,7 @@
           <div class="field" data-bind="template: { name: 'text', data: {data: name, name: 'name', label: 'Name'} }"></div>
           <div class="field">
             <label for="isDefault">Default:</label>
-            <input id="isDefault" type="checkbox" name="isDefault" data-bind="checked: isDefault">
+            <input id="isDefault" type="checkbox" name="theme.isDefault" data-bind="checked: isDefault">
           </div>
           <div class="field" data-bind="template: { name: 'text', data: {data: baseUrl, name: 'baseUrl', label: 'Base URL'} }"></div>
           <div class="field" data-bind="template: { name: 'text', data: {data: displayName, name: 'displayName', label: 'Display name'} }"></div>

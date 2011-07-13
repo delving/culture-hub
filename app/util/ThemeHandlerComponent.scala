@@ -71,14 +71,13 @@ trait ThemeHandlerComponent {
         themeList = readThemesFromDatabase()
       }
 
-      if(getDefaultTheme.isEmpty) {
-        throw new RuntimeException("No themes could be found!") // this should be some kind of custom startup exception
+      if(!getDefaultTheme.isDefined) {
+        throw new RuntimeException("No default theme could be found!") // this should be some kind of custom startup exception
       }
     }
 
-    def readThemesFromDatabase(): Seq[PortalTheme] = {
-      PortalTheme.findAll
-    }
+    def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll
+
 
     def readThemesFromDisk(): Seq[PortalTheme] = {
       try {
