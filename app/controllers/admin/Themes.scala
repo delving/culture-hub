@@ -5,7 +5,6 @@ import cake.ComponentRegistry
 import models.PortalTheme
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
-import org.bson.types.ObjectId
 
 /**
  * TODO add Access Control

@@ -26,7 +26,6 @@ import java.lang.String
 import play.Play
 import play.mvc.Http
 import scala.collection.JavaConversions._
-import play.test._
 import cake.MetadataModelComponent
 import models.PortalTheme
 
@@ -36,8 +35,10 @@ trait ThemeHandlerComponent {
 
 
   /**
+   * ThemHandler taking care of loading themes (initially from YML, then from mongo)
    *
    * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+   * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
    * @since 3/9/11 3:25 PM
    */
   class ThemeHandler {
@@ -48,14 +49,9 @@ trait ThemeHandlerComponent {
 
     private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
 
-    private val getThemeList: Seq[PortalTheme] = if (themeList.isEmpty) {
-      startup()
-      themeList
-    } else themeList
-
     def getThemeNames: java.util.Set[String] = {
       val set: java.util.Set[String] = new java.util.TreeSet[String]
-      getThemeList.foreach(theme => set.add(theme.name))
+      themeList.foreach(theme => set.add(theme.name))
       set
     }
 
@@ -67,60 +63,56 @@ trait ThemeHandlerComponent {
     def startup() {
 
       if (PortalTheme.count() == 0) {
-        if (updateFromDisk()) {
-          themeList foreach {
-            PortalTheme.insert(_)
-          }
+        themeList = readThemesFromDisk()
+        themeList foreach {
+          PortalTheme.insert(_)
         }
       } else {
         themeList = readThemesFromDatabase()
       }
+
+      if(getDefaultTheme.isEmpty) {
+        throw new RuntimeException("No themes could be found!") // this should be some kind of custom startup exception
+      }
     }
 
-    /**
-     * Sync the in-memory state with the state in the database
-     */
-    def readThemesFromDatabase(): List[PortalTheme] = {
+    def readThemesFromDatabase(): Seq[PortalTheme] = {
       PortalTheme.findAll
     }
 
-    def updateFromDisk(): Boolean = {
+    def readThemesFromDisk(): Seq[PortalTheme] = {
       try {
-        val newThemes = loadThemesYaml()
-        if (themeList != newThemes) themeList = newThemes
+        loadThemesYaml()
       } catch {
         case ex: Throwable => {
-          ex.printStackTrace
           log.error("Error updating themes from YAML descriptor")
-          return false
+          throw new RuntimeException("Error updating themes from YAML descriptor", ex)
         }
-
       }
-      true
     }
 
-    def hasSingleTheme: Boolean = getThemeList.length == 1
+    def hasSingleTheme: Boolean = themeList.length == 1
 
-    def hasTheme(themeName: String): Boolean = !getThemeList.filter(theme => theme.name == themeName).isEmpty
+    def hasTheme(themeName: String): Boolean = !themeList.filter(theme => theme.name == themeName).isEmpty
 
-    def getDefaultTheme = getThemeList.filter(_.isDefault == true).head
+    def getDefaultTheme = themeList.filter(_.isDefault == true).headOption
 
     def getByThemeName(name: String) = {
-      val theme = getThemeList.filter(_.name.equalsIgnoreCase(name))
+      val theme = themeList.filter(_.name.equalsIgnoreCase(name))
       if (!theme.isEmpty) theme.head
-      else getDefaultTheme
+      else getDefaultTheme.get
     }
 
     def getByBaseUrl(baseUrl: String): PortalTheme = {
-      val theme = getThemeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
+      val theme = themeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
       if (!theme.isEmpty) theme.head
-      else getDefaultTheme
+      else getDefaultTheme.get
     }
 
     def getByBaseUrl(request: Http.Request): PortalTheme = getByBaseUrl(request.host)
 
     def getByRequest(request: Http.Request): PortalTheme = {
-      if (hasSingleTheme) getDefaultTheme
+      if (hasSingleTheme) getDefaultTheme.get
       else if (debug && request.params._contains("theme")) getByThemeName(request.params.get("theme"))
       else getByBaseUrl(request)
     }

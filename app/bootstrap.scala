@@ -18,10 +18,6 @@ import play.Play
         }
       }
     }
-
-    ComponentRegistry.themeHandler.startup()
-
-
   }
 
 }
