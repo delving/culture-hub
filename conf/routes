@@ -46,8 +46,10 @@ GET        /admin/themes                            admin.Themes.index
 GET        /admin/themes/list                       admin.Themes.list
 POST       /admin/themes/reload                     admin.Themes.reload
 
-# Image Cache
-GET         /services/image                          Images.image
+# Image Cache and Viewer
+GET        /services/image                          Images.image
+GET        /services/imageView/{image}              Images.view
+GET        /fcgi-bin/iipsrv.fcgi                    Images.iipsrv
 
 # File Upload
 GET         /service/upload                         FileUpload.upload
@@ -58,6 +60,7 @@ GET         /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
 GET         /public/                                staticDir:public
+
 
 # Catch all
 *           /{controller}/{action}                  {controller}.{action}

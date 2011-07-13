@@ -221,6 +221,9 @@ image.store.path=/tmp
 # Absolute path of where to do temporary image operations
 image.tmp.path=/tmp
 
+# FastCGI IIPSRV module URL
+iipsrv.url=http://localhost:8983/fastcgi/fcgi-bin/iipsrv.fcgi
+
 ###### Properties that come from ported code / copied verbatim
 
 debug=false

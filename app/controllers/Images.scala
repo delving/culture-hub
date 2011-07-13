@@ -13,18 +13,35 @@ import play.mvc.Controller
 import play.mvc.results.{NotFound, RenderBinary, Result}
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
+import play.Play
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 1/2/11 10:09 PM
  */
-object Images extends Controller {
+object Images extends DelvingController {
 
   val imageCacheService = new ImageCacheService
 
   def image(`type` : String, id: String, size: String): Result = {
     imageCacheService.retrieveImageFromCache(id, size, response)
+  }
+
+  def view(image: String): AnyRef = {
+    import views.Image._
+
+    // just for testing
+    //val smallballs = getPath("image.store.path") + "/" + image + ".tif"
+    val smallballs = Play.applicationPath.getAbsolutePath + "/public/images/smallballs.tif"
+
+    html.view(smallballs)
+
+  }
+
+  def iipsrv(): Result = {
+    // TODO this should be a permanent redirect
+    Redirect(Play.configuration.getProperty("iipsrv.url") + "?" + request.querystring, true)
   }
 
 }
