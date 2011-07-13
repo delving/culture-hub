@@ -37,6 +37,10 @@ trait Secure {
       }
     }
   }
+}
+
+trait UserAuthentication {
+  self: Controller =>
 
   @Util def connectedUser = session.get("username")
 

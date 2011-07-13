@@ -1,5 +1,7 @@
 @(title:String = "")(body: => Html)
 
+@import views.context._
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
@@ -37,8 +39,16 @@
 
   <div class="clear"></div>
 
-  <!-- there is no sitemap equivalent in Play but it would be very easy to do one. Also there are modules that do that. -->
   <div class="grid_4 sidebar">
+    @if(renderArgs.get("displayName") != null) {
+    <ul>
+      Hi @renderArgs.get("fullName")<li><a href="/logout">Logout</a></li>
+    </ul>
+    } else {
+    <ul>
+      <li><a href="/login">Login</a></li>
+    </ul>
+    }
     <ul>
       <li><a href="@action(controllers.Registration.index)">Register!</a></li>
     </ul>

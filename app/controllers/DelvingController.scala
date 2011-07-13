@@ -16,7 +16,19 @@ import cake.ComponentRegistry
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeInitializer {
+trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeInitializer with UserAuthentication {
+
+  @Before def setConnectedUser() {
+
+    val user = User.findOne(MongoDBObject("email" -> connectedUser))
+    user map {
+      u => {
+        renderArgs.put("fullName", u.fullname)
+        renderArgs.put("displayName", u.displayName)
+      }
+    }
+  }
+
 
   @Util def getUser(displayName: String): User = {
     User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
