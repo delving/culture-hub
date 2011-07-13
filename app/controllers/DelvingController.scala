@@ -4,11 +4,11 @@ import extensions.AdditionalActions
 import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
-import play.mvc.{After, Util, Before, Controller}
 import models.{PortalTheme, User}
 import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
+import play.mvc._
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -16,7 +16,7 @@ import cake.ComponentRegistry
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeInitializer with UserAuthentication {
+trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
   @Before def setConnectedUser() {
 
@@ -112,8 +112,7 @@ trait ParameterCheck {
 
 }
 
-trait ThemeInitializer {
-  self: Controller =>
+trait ThemeAware {
 
   val themeHandler = ComponentRegistry.themeHandler
   val localizedFieldNames = new LocalizedFieldNames
@@ -127,7 +126,7 @@ trait ThemeInitializer {
 
   @Before(priority = 2)
   def setTheme() {
-    val portalTheme = themeHandler.getByRequest(request)
+    val portalTheme = themeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
   }

@@ -4,6 +4,7 @@ import play.data.validation.{Valid, Validation, Required, Email}
 import models.User
 import play.cache.Cache
 import play.libs.Codec
+import notifiers.Mails
 
 /**
  *
@@ -40,8 +41,8 @@ object Registration extends DelvingController {
     }
     Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
 
-    // TODO check email uniqueness
-    // TODO check displayName uniqueness
+    if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
+    if (User.existsWithDisplayName(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
 
     Cache.delete(randomId)
 
@@ -52,9 +53,11 @@ object Registration extends DelvingController {
     } else {
       val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false)
       User.insert(newUser)
+      flash += ("success" -> newUser.email)
 
-      // TODO user feedback (flash scope message)
-      // TODO send email to the user
+      // TODO this seems to be broken in play-scala
+      // /Mails.activation(newUser)
+
       Action(controllers.Application.index)
     }
   }
