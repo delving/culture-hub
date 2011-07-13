@@ -45,7 +45,7 @@ object Themes extends DelvingController {
     // TODO check if there is at least one default theme left
 
     PortalTheme.update(MongoDBObject("_id" -> theme._id), theme, false, false, new WriteConcern())
-    ComponentRegistry.themeHandler.
+    ComponentRegistry.themeHandler.update()
 
     Action(index())
   }
