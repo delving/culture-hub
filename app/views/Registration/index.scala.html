@@ -1,3 +1,5 @@
+@(randomId:String)
+
 @field(name:String, label:String, fieldType:String) = {
 <div class="field">
   <label for="@name">@label</label>
@@ -25,6 +27,15 @@
   @field("displayName", "Display name", "text")
   @field("password1", "Password", "password")
   @field("password2", "Password (repeat)", "password")
+
+  <div class="field">
+    <label for="code">Please type the code below: </label>
+    <img src="@action(controllers.Registration.captcha(randomId))">
+    <br>
+    <input type="text" name="code" id="code" size="18" value="">
+    <input type="hidden" name="randomID" value="@randomId">
+    <span class="error">@showError("code")</span>
+  </div>
 
   <div>
     <input type="submit" value="Register!">

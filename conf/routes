@@ -32,6 +32,7 @@ GET         /portal/                                Portal.index
 # User registration
 GET        /registration                            Registration.index
 POST       /registration/register                   Registration.register
+GET        /registration/captcha                    Registration.captcha
 
 # Delving URL scheme
 GET         /{user}/?                               Users.index
