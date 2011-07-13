@@ -29,6 +29,10 @@ GET         /services/administrator/dataset/{dataSetSpec}/{command}          Dat
 # Backwards compatibility with the old portal module
 GET         /portal/                                Portal.index
 
+# User registration
+GET        /registration                            Registration.index
+POST       /registration/register                   Registration.register
+
 # Delving URL scheme
 GET         /{user}/?                               Users.index
 GET         /{user}/profile                         Profiles.index

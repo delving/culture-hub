@@ -5,11 +5,13 @@ import com.mongodb.casbah.Imports._
 import dao.SalatDAO
 import models.salatContext._
 
-case class User(email: String, password: String, fullname: String, displayName: String, isAdmin: Boolean = false)
+case class User(firstName: String, lastName:String, email: String, password: String, displayName: String, isAdmin: Boolean = false) {
+  val fullname = firstName + " " + lastName
+}
 
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User("none@nothing.com", "", "Nobody", "", false)
+  val nobody: User = User("", "", "none@nothing.com", "", "Nobody", false)
 
   def connect(email: String, password: String) = {
     User.findOne(MongoDBObject("email" -> email, "password" -> password))

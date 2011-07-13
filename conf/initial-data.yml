@@ -1,6 +1,15 @@
 - !!models.User
+    firstName:      Bob
+    lastName:       Marley
     email:          bob@gmail.com
     password:       secret
-    fullname:       Bob
     isAdmin:        true
     displayName:    bob
+
+- !!models.User
+    firstName:      Jimmy
+    lastName:       Hendrix
+    email:          jimmy@gmail.com
+    password:       secret
+    isAdmin:        true
+    displayName:    jimmy

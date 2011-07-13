@@ -1,0 +1,34 @@
+@field(name:String, label:String, fieldType:String) = {
+<div class="field">
+  <label for="@name">@label</label>
+  <input id="@name" type="@fieldType" name="registration.@name" size="40" value="@params.get("registration."+name)">
+  <span class="error">@showError("registration." + name)</span>
+</div>
+}
+
+@import views.context._
+
+@main("Register!" ) {
+
+<h2>Register to CultureHub!</h2>
+<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST">
+
+  @if(!errors.isEmpty()) {
+  <p class="error">
+    Error creating your account, please check the errors marked in red
+  </p>
+  }
+
+  @field("firstName", "First name", "text")
+  @field("lastName", "Last name", "text")
+  @field("email", "Email", "text")
+  @field("displayName", "Display name", "text")
+  @field("password1", "Password", "password")
+  @field("password2", "Password (repeat)", "password")
+
+  <div>
+    <input type="submit" value="Register!">
+  </div>
+</form>
+
+}
