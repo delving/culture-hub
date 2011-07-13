@@ -3,14 +3,14 @@ package controllers.admin
 import controllers.SolrServer
 
 /**
- * This Controller is responsible
+ * This Controller is responsible for all the interaction with the SIP-Creator
  *
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 7/7/11 12:04 AM  
  */
 
-object Datasets extends SolrServer {
+object Datasets {
 
   import play.mvc.results.Result
   import org.apache.solr.client.solrj.SolrServer
@@ -29,11 +29,8 @@ object Datasets extends SolrServer {
   private val RECORD_STREAM_CHUNK: Int = 1000
   private val log: Logger = Logger.getLogger(getClass)
 
-//  private val metaRepo: MetaRepo = ComponentRegistry.metaRepo
-  private val solrServer: SolrServer = getSolrServer
-
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
-//
+
   private val accessKeyService: AccessKey = ComponentRegistry.accessKey
 
   def secureListAll: Result = {
@@ -45,10 +42,10 @@ object Datasets extends SolrServer {
     }
   }
 
-  def renderDataSetList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
+  private def renderDataSetList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
                         dataSets: List[DataSet] = List[DataSet](),
                         errorMessage: String = "") : Elem = {
-    <data-set>
+    <data-set responseCode={responseCode.toString}>
       <data-set-list>
         {dataSets.map{ds => ds.toXml}}
       </data-set-list>
@@ -72,22 +69,18 @@ object Datasets extends SolrServer {
 
 //  @RequestMapping(value = Array("/administrator/dataset/{dataSetSpec}/{command}"))
   def secureIndexingControl(dataSetSpec: String, command: String): Result = {
-//    indexingControlInternal(dataSetSpec, command)
-    new RenderText("something")
+    indexingControlInternal(dataSetSpec, command)
   }
 
 //  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}")) 
   def indexingControl(dataSetSpec: String, command: String, accessKey: String): Result = {
-//    try {
-//      checkAccessKey(accessKey)
-//      return indexingControlInternal(dataSetSpec, command)
-//    }
-//    catch {
-//      case e: Exception => {
-//        return view(e)
-//      }
-//    }
-    new RenderText("something")
+    try {
+      checkAccessKey(accessKey)
+      indexingControlInternal(dataSetSpec, command)
+    }
+    catch {
+      case e: Exception => renderException(e)
+    }
   }
 
   private def checkAccessKey(accessKey: String) {
@@ -104,8 +97,8 @@ object Datasets extends SolrServer {
 
 //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, inputStream: InputStream, accessKey: String): Result = {
-    import play.mvc.results.RenderXml
     try {
+      import play.mvc.results.RenderXml
       import eu.delving.metadata.Hasher
       import java.util.zip.GZIPInputStream
       checkAccessKey(accessKey)
@@ -128,7 +121,144 @@ object Datasets extends SolrServer {
 
   }
 
-//  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
+  private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
+    import models.HarvestStep
+    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    if (dataSet.hasHash(hash)) {
+      return DataSetResponseCode.GOT_IT_ALREADY
+    }
+    HarvestStep.removeFirstHarvestSteps(dataSetSpec)
+    DataSet.save(dataSet.setMapping(mapping = recordMapping, hash = hash))
+    DataSetResponseCode.THANK_YOU
+  }
+
+
+
+  private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
+    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    if (dataSet.hasHash(hash)) {
+      return DataSetResponseCode.GOT_IT_ALREADY
+    }
+    DataSet.parseRecords(inputStream, dataSet)
+
+    val recordCount: Int = DataSet.getRecordCount(dataSetSpec)
+
+    val details = dataSet.details.copy(
+      total_records = recordCount,
+      deleted_records = recordCount - dataSet.details.uploaded_records
+    )
+    val ds = dataSet.copy(source_hash = hash, details = details)
+    DataSet.save(ds)
+    DataSetResponseCode.THANK_YOU
+  }
+
+  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
+    import models.{MetadataFormat, Details}
+    import eu.delving.metadata.{MetadataException, MetadataNamespace}
+    import cake.metaRepo.MetaRepoSystemException
+    import com.mongodb.casbah.commons.MongoDBObject
+    import com.mongodb.WriteConcern
+    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    if (dataSet.hasHash(hash)) {
+      return DataSetResponseCode.GOT_IT_ALREADY
+    }
+
+    val prefix = facts.get("namespacePrefix")
+    val ns = MetadataNamespace.values.filter(_.getPrefix == prefix).headOption.getOrElse(
+      throw new MetaRepoSystemException("Unable to retrieve metadataFormat info for prefix: " + prefix)
+    )
+
+    val metadataFormat = MetadataFormat(prefix, ns.getSchema, ns.getUri, true)
+
+    val details: Details = Details(
+      name = facts.get("name"),
+      uploaded_records = facts.getRecordCount.toInt,
+      metadataFormat = metadataFormat,
+      facts_bytes = Facts.toBytes(facts)
+    )
+    val updatedDataSet = dataSet.copy(facts_hash = hash, details = details)
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), updatedDataSet, true, false, new WriteConcern())
+
+    DataSetResponseCode.THANK_YOU
+  }
+
+
+
+  private def indexingControlInternal(dataSetSpec: String, commandString: String): Result = {
+    try {
+      import eu.delving.sip.DataSetState._
+      import eu.delving.sip.DataSetCommand._
+      import eu.delving.sip.{DataSetState, DataSetCommand}
+
+      val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+
+      val command: DataSetCommand = DataSetCommand.valueOf(commandString)
+      val state: DataSetState = dataSet.state
+
+      def changeState(state: DataSetState): DataSet = {
+        val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
+        val updatedDataSet = dataSet.copy(state = state, mappings = mappings)
+        DataSet.save(updatedDataSet)
+        updatedDataSet
+      }
+
+      val response =  command match {
+        case DataSetCommand.DISABLE =>
+          state match {
+            case QUEUED | INDEXING | ERROR | ENABLED =>
+              val updatedDataSet = changeState(state = DataSetState.DISABLED)
+              DataSet.deleteFromSolr(updatedDataSet)
+              renderDataSetList(dataSets = List(updatedDataSet))
+            case _ =>
+              renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)
+          }
+        case INDEX =>
+          state match {
+            case DISABLED | UPLOADED =>
+              val updatedDataset = changeState(state = DataSetState.QUEUED)
+              renderDataSetList(dataSets = List(updatedDataset))
+            case _ =>
+              renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)
+          }
+        case REINDEX =>
+          state match {
+            case ENABLED =>
+              val updatedDataSet = changeState(DataSetState.QUEUED)
+              renderDataSetList(dataSets = List(updatedDataSet))
+            case _ =>
+              renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)
+          }
+        case DELETE =>
+          state match {
+            case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
+              DataSet.remove(dataSet)
+              renderDataSetList(dataSets = List(dataSet.copy(state = DataSetState.INCOMPLETE)))
+            case _ =>
+              renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)
+          }
+        case _ =>
+          throw new RuntimeException
+      }
+      new RenderXml(response)
+    }
+    catch {
+      case e: Exception => renderException(e)
+    }
+  }
+
+  private def renderException(exception: Exception): Result = {
+    import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
+    import play.mvc.results.RenderXml
+    log.warn("Problem in controller", exception)
+    val errorcode = exception match {
+      case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
+      case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND
+      case _ => DataSetResponseCode.SYSTEM_ERROR
+    }
+    new RenderXml(renderDataSetList(responseCode = errorcode, errorMessage = exception.getMessage))
+  }
+
+  //  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
   def fetchSIP(dataSetSpec: String, accessKey: String, response: Http.Response): Unit = {
 //    try {
 //      import org.apache.commons.httpclient.HttpStatus
@@ -195,208 +325,5 @@ object Datasets extends SolrServer {
 //      }
 //    }
 //    sourceStream.endZipStream
-//  }
-
-  private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
-//    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
-//    if (dataSet == null) {
-//      return datasetresponsecode.DATA_SET_NOT_FOUND
-//    }
-//    if (hasHash(hash, dataSet)) {
-//      return DataSetResponseCode.GOT_IT_ALREADY
-//    }
-//    dataSet.setMapping(recordMapping, true)
-//    dataSet.setMappingHash(recordMapping.getPrefix, hash)
-//    dataSet.save
-    DataSetResponseCode.THANK_YOU
-  }
-
-  private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
-//    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
-//    if (dataSet == null) {
-//      return DataSetResponseCode.DATA_SET_NOT_FOUND
-//    }
-//    if (hasHash(hash, dataSet)) {
-//      return DataSetResponseCode.GOT_IT_ALREADY
-//    }
-//    dataSet.parseRecords(inputStream)
-//    dataSet.setSourceHash(hash, false)
-//    val details: MetaRepo.Details = dataSet.getDetails
-//    details.setTotalRecordCount(dataSet.getRecordCount)
-//    details.setDeletedRecordCount(details.getTotalRecordCount - details.getUploadedRecordCount)
-//    dataSet.save
-    DataSetResponseCode.THANK_YOU
-  }
-
-  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
-//    import eu.delving.metadata.{MetadataException, MetadataNamespace}
-//    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
-//    if (dataSet == null) {
-//      dataSet = metaRepo.createDataSet(dataSetSpec)
-//    }
-//    if (hasHash(hash, dataSet)) {
-//      return DataSetResponseCode.GOT_IT_ALREADY
-//    }
-//    var details: MetaRepo.Details = dataSet.createDetails
-//    details.setName(facts.get("name"))
-//    details.setUploadedRecordCount(Integer.parseInt(facts.getRecordCount))
-//    details.setTotalRecordCount(-1)
-//    details.setDeletedRecordCount(-1)
-//    var prefix: String = facts.get("namespacePrefix")
-//    for (metadataNamespace <- MetadataNamespace.values) {
-//      if (metadataNamespace.getPrefix == prefix) {
-//        details.getMetadataFormat.setPrefix(prefix)
-//        details.getMetadataFormat.setNamespace(metadataNamespace.getUri)
-//        details.getMetadataFormat.setSchema(metadataNamespace.getSchema)
-//        details.getMetadataFormat.setAccessKeyRequired(true)
-//        break //todo: break is not supported
-//      }
-//    }
-//    dataSet.setFactsHash(hash)
-//    try {
-//      details.setFacts(Facts.toBytes(facts))
-//    }
-//    catch {
-//      case e: MetadataException => {
-//        return DataSetResponseCode.SYSTEM_ERROR
-//      }
-//    }
-//    dataSet.save
-    DataSetResponseCode.THANK_YOU
-  }
-
-
-
-  private def indexingControlInternal(dataSetSpec: String, commandString: String): Result = {
-//    try {
-//      import eu.delving.sip.{DataSetState, DataSetCommand}
-//      var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
-//      if (dataSet == null) {
-//        throw new DataSetNotFoundException(String.format("String %s does not exist", dataSetSpec))
-//      }
-//      var command: DataSetCommand = DataSetCommand.valueOf(commandString)
-//      var state: DataSetState = dataSet.getState(false)
-//      command match {
-//        case DISABLE =>
-//          state match {
-//            case QUEUED =>
-//            case INDEXING =>
-//            case ERROR =>
-//            case ENABLED =>
-//              dataSet.setState(DataSetState.DISABLED)
-//              dataSet.setRecordsIndexed(0)
-//              dataSet.save
-//              deleteFromSolr(dataSet)
-//              view(dataSet)
-//            case _ =>
-//              view(DataSetResponseCode.STATE_CHANGE_FAILURE)
-//          }
-//        case INDEX =>
-//          state match {
-//            case DISABLED =>
-//            case UPLOADED =>
-//              dataSet.setState(DataSetState.QUEUED)
-//              dataSet.save
-//              view(dataSet)
-//            case _ =>
-//              view(DataSetResponseCode.STATE_CHANGE_FAILURE)
-//          }
-//        case REINDEX =>
-//          state match {
-//            case ENABLED =>
-//              dataSet.setRecordsIndexed(0)
-//              dataSet.setState(DataSetState.QUEUED)
-//              dataSet.save
-//              view(dataSet)
-//            case _ =>
-//              view(DataSetResponseCode.STATE_CHANGE_FAILURE)
-//          }
-//        case DELETE =>
-//          state match {
-//            case INCOMPLETE =>
-//            case DISABLED =>
-//            case ERROR =>
-//            case UPLOADED =>
-//              dataSet.delete
-//              dataSet.setState(DataSetState.INCOMPLETE)
-//              view(dataSet)
-//            case _ =>
-//              view(DataSetResponseCode.STATE_CHANGE_FAILURE)
-//          }
-//        case _ =>
-//          throw new RuntimeException
-//      }
-//    }
-//    catch {
-//      case e: Exception => {
-//        view(e)
-//      }
-//    }
-    new RenderText("something")
-  }
-
-//  private def deleteFromSolr(dataSet: MetaRepo.DataSet): Unit = {
-//    import org.apache.solr.client.solrj.response.UpdateResponse
-//    import org.apache.solr.common.util.NamedList
-//    val deleteResponse: UpdateResponse = solrServer.deleteByQuery("europeana_collectionName:" + dataSet.getSpec)
-//    val responseHeader: NamedList[_] = deleteResponse.getResponseHeader
-//    solrServer.commit
-//  }
-
-  private def view(responseCode: DataSetResponseCode): Result = {
-    //    import eu.delving.sip.DataSetResponse
-//    view(new DataSetResponse(responseCode))
-    new RenderText("something")
-  }
-
-  private def renderException(exception: Exception): Result = {
-    import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
-    import play.mvc.results.RenderXml
-    log.warn("Problem in controller", exception)
-    val errorcode = exception match {
-      case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
-      case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND
-      case _ => DataSetResponseCode.SYSTEM_ERROR
-    }
-    new RenderXml(renderDataSetList(responseCode = errorcode, errorMessage = exception.getMessage))
-  }
-
-//  private def view(dataSet: MetaRepo.DataSet): Result = {
-//    import eu.delving.sip.DataSetResponse
-//    if (dataSet == null) {
-//      throw new DataSetNotFoundException("Data Set was null")
-//    }
-//    var response: DataSetResponse = new DataSetResponse(DataSetResponseCode.THANK_YOU)
-//    response.addDataSetInfo(getInfo(dataSet))
-//    new Result("dataSetXmlView", BindingResult.MODEL_KEY_PREFIX + "response", response)
-//    new RenderText("something")
-//  }
-
-//  private def view(dataSetList: Collection[_ <: MetaRepo.DataSet]): Result = {
-    //    var response: DataSetResponse = new DataSetResponse(DataSetResponseCode.THANK_YOU)
-//    for (dataSet <- dataSetList) {
-//      response.addDataSetInfo(getInfo(dataSet))
-//    }
-//    view(response)
-//    new RenderText("something")
-//  }
-
-  private def render(response: DataSetResponse): Result = {
-    //    new Result("dataSetXmlView", BindingResult.MODEL_KEY_PREFIX + "response", response)
-    new RenderText("something")
-  }
-
-//  private def hasHash(hash: String, dataSet: MetaRepo.DataSet): Boolean = dataSet.getHashes.contains(hash)
-//
-//  private def getInfo(dataSet: MetaRepo.DataSet): DataSetInfo = {
-//    val info: DataSetInfo = new DataSetInfo
-//    info.spec = dataSet.getSpec
-//    info.name = dataSet.getDetails.getName
-//    info.state = dataSet.getState(false).toString
-//    info.recordCount = dataSet.getRecordCount
-//    info.errorMessage = dataSet.getErrorMessage
-//    info.recordsIndexed = dataSet.getRecordsIndexed
-//    info.hashes = dataSet.getHashes
-//    info
 //  }
 }
