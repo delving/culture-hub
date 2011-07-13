@@ -25,18 +25,13 @@ This will eventually demonstrate things such as authentication & authorization, 
 
 ## Notes
 
-### Legacy Services module
+### Running the Image Server
 
-Legacy Services are kept in a separate play module under /legacyServices which is linked via a symbolic link created
-by the `setup.sh` script. Do *not* run `play depedendencies` with the `--sync` option as this will erase the module
-(or at least did so in earlier versions). This is because play thinks it will get back the module from a module
-repository which is not the case for local modules as this one.
-
-Classes under `legacyServices/src/play/modules/legacyServices` are available in the classpath of the application and are not
-instrumented by play. They can be used directly in the main application controllers. Additionally, bootstrapping tasks for
-the plugin can be done in the `LegacyPlugin` class.
-
-Play modules are not automatically compiled and reloaded, so whenever you do changes there, compile the plugin with
-
-    ant -Dplay.path=/path/to/play
+In order to use the advanced image viewer, you need to run IIPImage (http://iipimage.sourceforge.net) on your system.
+This is how:
+- install the iipsrv module by running `sh extras/install-iipsrv-osx.sh`. This will download a couple of files and compile the module for you
+- once you have compiled the module you can run it via `cd extras/iipsrv-0.9.9/fcgi && ./iipsrv.fcgi --bind 127.0.0.1:7000`
+- you also need to run a connector for FastCGI. Normally this happens in a web server but for convenience you can also do this without additional
+installation by running `cd extras/servlet-server && java -jar start.jar`
+- now you are ready to go and use the advanced image viewer
 
