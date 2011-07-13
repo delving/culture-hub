@@ -76,6 +76,13 @@ trait ThemeHandlerComponent {
       }
     }
 
+    /**
+     * Updates the themes in memory by reading them from the database
+     */
+    def update() {
+      themeList = readThemesFromDatabase()
+    }
+
     def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll
 
 

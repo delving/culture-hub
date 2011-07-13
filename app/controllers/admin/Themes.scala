@@ -40,7 +40,13 @@ object Themes extends DelvingController {
 
   def update(): AnyRef = {
     val theme: PortalTheme = params.get("theme", classOf[PortalTheme])
+
+    // TODO validation for required fields and duplicate theme names once we know how annotation-based validation works here
+    // TODO check if there is at least one default theme left
+
     PortalTheme.update(MongoDBObject("_id" -> theme._id), theme, false, false, new WriteConcern())
+    ComponentRegistry.themeHandler.
+
     Action(index())
   }
 
