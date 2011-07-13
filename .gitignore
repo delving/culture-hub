@@ -6,6 +6,7 @@ test-result
 .idea
 /modules
 /lib
+target/
 conf/application.conf
 extras/solr-server/solr/*/data/
 extras/solr-server/work/
