@@ -30,7 +30,7 @@ class MetaRepoImpl {
 //
   def removeExpiredHarvestSteps {}
 //
-//  def getRecord(identifier: String, metadataFormat: String, accessKey: String): Record = null
+//  def getRecord(identifier: String, metadataFormat: String, accessKey: String): MetadataRecord = null
 }
 
 class AccessKeyException(s: String, throwable: Throwable) extends Exception(s, throwable) {

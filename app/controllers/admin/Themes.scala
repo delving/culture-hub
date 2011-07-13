@@ -14,7 +14,7 @@ import com.mongodb.WriteConcern
 
 object Themes extends DelvingController {
 
-  import views.admin.Themes._
+  import views.Admin.Themes._
 
   def index(): AnyRef = {
     val themeList = PortalTheme.findAll
