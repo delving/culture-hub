@@ -23,6 +23,13 @@ require:
     - provided -> magicktiler-lib 0.9-patched
     - provided -> im4java 1.1.0
     - org.apache.solr -> solr-solrj 3.3.0
+    # for testing
+    - com.borachio -> borachio_2.8.1 1.1:
+        exclude:
+            - org.scala-lang -> scala-library
+            - org.scalatest -> *
+    - org.mockito -> mockito-all 1.8.5
+    # delving dependencies
     - provided -> sip-core 0.2.9-SNAPSHOT
     - provided -> metameta 0.2.9-SNAPSHOT
     # remove later
@@ -36,6 +43,8 @@ repositories:
         contains:
             - com.mongodb.casbah.*
             - org.scalaj.*
+            - com.borachio.*
+            - org.specs2.*
     - theBuzzMedia:
         type: iBiblio
         root: "http://maven.thebuzzmedia.com"

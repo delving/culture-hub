@@ -31,9 +31,9 @@ import extensions.{ObjectIdTypeBinder, ScalaListTypeBinder}
 
 trait MetadataModelComponent {
 
-  import eu.delving.metadata.MetadataModelImpl
+  import eu.delving.metadata.MetadataModel
 
-  val metadataModel: MetadataModelImpl
+  val metadataModel: MetadataModel
 }
 
 trait MetaRepoComponent {
@@ -78,11 +78,12 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
   import scala.collection.JavaConversions._
   import play.Play
   import eu.delving.sip.AccessKey
+  import eu.delving.metadata.MetadataModel
   import eu.delving.metadata.MetadataModelImpl
 
-  val metadataModel: MetadataModelImpl = new MetadataModelImpl
-  metadataModel.setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
-  metadataModel.setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
+  val metadataModel: MetadataModel = new MetadataModelImpl
+  metadataModel.asInstanceOf[MetadataModelImpl].setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
+  metadataModel.asInstanceOf[MetadataModelImpl].setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
 
   val accessKey = new AccessKey
   accessKey.setServicesPassword(Play.configuration.getProperty("services.password").trim)

@@ -1,11 +1,12 @@
 package models
 
-import eu.delving.metadata.RecordDefinition
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
+import eu.delving.metadata.{MetadataModelImpl, RecordDefinition}
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -32,10 +33,11 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
 
   def getRecordDefinition: RecordDefinition = {
     try {
-      ComponentRegistry.metadataModel.getRecordDefinition(metadataPrefix.get)
+      // getRecordDefinition should be in the interface
+      ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
     }
     catch {
-      case ex: Exception => ComponentRegistry.metadataModel.getRecordDefinition
+      case ex: Exception => ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition
     }
   }
 
