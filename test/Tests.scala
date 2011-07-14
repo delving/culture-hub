@@ -1,13 +1,15 @@
 import cake.MetadataModelComponent
+import com.borachio.scalatest.MockFactory
 import eu.delving.metadata.MetadataModel
-import models.{User}
+import models.{PortalTheme, User}
 import org.scalatest.matchers._
+import org.scalatest.Suite
 import play.test._
-import org.mockito.Mockito._
+import util.{ThemeHandler, ThemeHandlerComponent}
 
-trait TestEnvironment extends MetadataModelComponent {
-  val metadataModel: MetadataModel = mock(classOf[MetadataModel])
-//  val themeHandler: ThemeHandler = mock(classOf[ThemeHandler])
+trait TestEnvironment extends ThemeHandlerComponent with MetadataModelComponent with Suite with MockFactory {
+  val metadataModel: MetadataModel = mock[MetadataModel]
+  val themeHandler: ThemeHandler
 }
 
 trait TestDataUsers {
@@ -18,23 +20,14 @@ trait TestDataUsers {
   }
 }
 
-class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataUsers {
+class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataUsers with TestEnvironment {
 
-  it should "run this dumb test" in {
-    (1 + 1) should be(2)
-  }
-
+  val themeHandler = new ThemeHandler
 
   it should "load themes from disk" in {
-//    Foo.themeHandler.startup()
-//    Foo.themeHandler.hasSingleTheme should be(false)
-//    PortalTheme.findAll.size should not be (0)
+    themeHandler.startup()
+    themeHandler.hasSingleTheme should be(false)
+    PortalTheme.findAll.size should not be (0)
   }
-
-}
-
-object Foo extends TestEnvironment {
-//  override val themeHandler = new ThemeHandler
-
 
 }

@@ -1,6 +1,7 @@
 # This file contains the required properties for CultureHub to start
 # These are checked at application startup and the application will refuse to start if they are not configured / empty
 
+- db.mongo.name
 - image.graphicsmagic.cmd
 - image.store.path
 - image.tmp.path

@@ -1,7 +1,7 @@
 package cake
 
-import util.ThemeHandlerComponent
 import extensions.{ObjectIdTypeBinder, ScalaListTypeBinder}
+import util.{ThemeHandler, ThemeHandlerComponent}
 
 /**
  * This object uses the Cake pattern to manage Dependency Injection, see also

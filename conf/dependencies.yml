@@ -28,7 +28,6 @@ require:
         exclude:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
-    - org.mockito -> mockito-all 1.8.5
     # delving dependencies
     - provided -> sip-core 0.2.9-SNAPSHOT
     - provided -> metameta 0.2.9-SNAPSHOT
