@@ -17,8 +17,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     User.findOne(MongoDBObject("email" -> email, "password" -> password))
   }
 
-  def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) == 0
-  def existsWithDisplayName(displayName: String) = User.count(MongoDBObject("displayName" -> displayName)) == 0
+  def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
+  def existsWithDisplayName(displayName: String) = User.count(MongoDBObject("displayName" -> displayName)) != 0
 
 
 }
