@@ -11,6 +11,11 @@
   Your account successfully created! An email has been sent to @flash.get("success") for activation
 </p>
 }
+@if(flash.get("error") != null) {
+<p class="error">
+  Error creating your account, please try again. The cause of the error is: "@flash.get("error")"
+</p>
+}
 
 <p>
   This awesome welcome message has been written in a Starbucks in Vienna on a sunny tuesday afternoon.

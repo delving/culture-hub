@@ -53,10 +53,16 @@ object Registration extends DelvingController {
     } else {
       val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false)
       User.insert(newUser)
-      flash += ("success" -> newUser.email)
 
-      // TODO this seems to be broken in play-scala
-      // /Mails.activation(newUser)
+      try {
+        Mails.activation(newUser)
+        flash += ("success" -> newUser.email)
+      } catch {
+        case t:Throwable => {
+          User.remove(newUser)
+          flash += ("error" -> t.getMessage)
+        }
+      }
 
       Action(controllers.Application.index)
     }
