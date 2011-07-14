@@ -43,8 +43,12 @@ trait UserAuthentication {
   self: Controller =>
 
   @Util def connectedUser = session.get("username")
-
 }
+
+/**
+ * Exception thrown when a user is not yet active
+ */
+class InactiveUserException extends Exception
 
 trait Security {
   def authenticate(username: String, password: String): Boolean
@@ -84,23 +88,34 @@ object Authentication extends Controller {
       loginError()
     } else {
       val sec = getSecurity.newInstance.asInstanceOf[ {def authenticate(username: String, password: String): Boolean}]
-      val ok = sec.authenticate(username, password)
-
-      if (ok) {
-        if (remember) {
-          response.setCookie("rememberme", Crypto.sign(username) + "-" + username, "30d")
+      try {
+        if (sec.authenticate(username, password)) {
+          if (remember) {
+            response.setCookie("rememberme", Crypto.sign(username) + "-" + username, "30d")
+          }
+          session.put("username", username)
+          redirectToOriginalURL
+        } else {
+          loginError()
         }
-        session.put("username", username)
-        redirectToOriginalURL
-      } else {
-        loginError()
+      } catch {
+        case iue: InactiveUserException => userNotActiveError()
+        case _ => loginError()
       }
+
     }
   }
 
   def loginError(): Html = {
     flash.keep("url")
     flash.error(Messages.get("secure.error"))
+    params.flash()
+    html.login(title = "Login")
+  }
+
+  def userNotActiveError(): Html = {
+    flash.keep("url")
+    flash.error(Messages.get("secure.notactive.error"))
     params.flash()
     html.login(title = "Login")
   }

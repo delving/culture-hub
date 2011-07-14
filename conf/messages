@@ -21,6 +21,7 @@
 
 secure.error=Login incorrect
 secure.logout=You were logged out successfully
+secure.notactive.error=Your account is not yet active. Active it following the link in the mail.
 
 _action.OpenInNewWindow=Opens in a new window
 _action.add.annotation=Add annotation

@@ -4,6 +4,7 @@ import com.novus.salat._
 import com.mongodb.casbah.Imports._
 import dao.SalatDAO
 import models.salatContext._
+import controllers.InactiveUserException
 
 case class User(firstName: String, lastName: String, email: String, password: String, displayName: String, isActive: Boolean = false, activationToken: String = "", isAdmin: Boolean = false) {
   val fullname = firstName + " " + lastName
@@ -13,7 +14,13 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   val nobody: User = User("", "", "none@nothing.com", "", "Nobody", false, "", false)
 
-  def connect(email: String, password: String) = User.findOne(MongoDBObject("email" -> email, "password" -> password))
+  def connect(email: String, password: String): Boolean = {
+    val theOne: Option[User] = User.findOne(MongoDBObject("email" -> email, "password" -> password))
+    if(!theOne.getOrElse(return false).isActive) {
+      throw new InactiveUserException
+    }
+    true
+  }
 
   def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
 
