@@ -2,4 +2,4 @@ Hi ${user.fullname} !
 
 Your account on Culturehub has been created. In order to activate it, please click the link below:
 
-http://foo
+@@{application.index}registration/activate/${activationToken}

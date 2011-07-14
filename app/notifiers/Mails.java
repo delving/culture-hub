@@ -8,7 +8,7 @@ import play.mvc.Mailer;
  */
 public class Mails extends Mailer {
 
-    public static void activation(User user) {
+    public static void activation(User user, String activationToken) {
         setSubject("Welcome to CultureHub");
         addRecipient(user.email());
         ThemeAwareBridge.before();
@@ -17,7 +17,7 @@ public class Mails extends Mailer {
         } finally {
             ThemeAwareBridge.after();
         }
-        send(user);
+        send(user, activationToken);
     }
 
 }

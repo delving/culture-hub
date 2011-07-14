@@ -51,16 +51,17 @@ object Registration extends DelvingController {
       Validation.keep()
       index()
     } else {
-      val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false)
+      val activationToken: String = Codec.UUID()
+      val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false, activationToken, false)
       User.insert(newUser)
 
       try {
-        Mails.activation(newUser)
-        flash += ("success" -> newUser.email)
+        Mails.activation(newUser, activationToken)
+        flash += ("registrationSuccess" -> newUser.email)
       } catch {
         case t:Throwable => {
           User.remove(newUser)
-          flash += ("error" -> t.getMessage)
+          flash += ("registrationError" -> t.getMessage)
         }
       }
 
@@ -73,6 +74,12 @@ object Registration extends DelvingController {
     val code = captcha.getText("#E4EAFD")
     Cache.set(id, code, "10mn")
     captcha
+  }
+
+  def activate(activationToken: Option[String]) = {
+    val success = activationToken.isDefined && User.activateUser(activationToken.get)
+    if(success) flash += ("activation" -> "true") else flash += ("activation" -> "false")
+    Action(controllers.Application.index)
   }
 
   case class Registration(@Required firstName: String,
