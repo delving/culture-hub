@@ -7,7 +7,6 @@ test-result
 /modules
 /lib
 target/
-conf/application.conf
 extras/solr-server/solr/*/data/
 extras/solr-server/work/
 legacyServices/lib/*.jar

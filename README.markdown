@@ -6,10 +6,10 @@ This will eventually demonstrate things such as authentication & authorization, 
 
 ## Getting started
 
-- run `sh setup-play.sh` in order to install play. Make sure you add the play directory to your shell path after installation so it can be found in further steps.
+- run `sh setup-play-patched.sh` in order to install play. Make sure you add the play directory to your shell path after installation so it can be found in further steps.
 - from the `play-services` directory, run `sh setup.sh` in order to setup the application. You may need to run `play dependencies` later on by hand in order to download and install additional dependencies.
-- configure the settings at the end of `conf/application.conf`
-- run the application via `play run`
+- configure the settings at the end of `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
+- run the application via `play run --%youruser`. "youruser" is the key you used for your custom properties in `conf/application.conf
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
 - an example user is `bob@gmail.com` with password `secret`
 - to use Apache Solr go to `extras/solr-server` and run `java -jar start.jar`.
@@ -24,6 +24,12 @@ This will eventually demonstrate things such as authentication & authorization, 
     # todo add other dependencies.
 
 ## Notes
+
+### Play installation - Play versions
+
+As Play has some issues (just as any other frameworks) it makes sense, during development, to use the latest development version.
+This way we can also use patches that did not yet make it into a release. The `setup-play-patched.sh` takes care of checking out the development branch and to apply patches for issues we may find.
+For production we then use the newly released version that contains our patches.
 
 ### Running the Image Server
 
