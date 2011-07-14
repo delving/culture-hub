@@ -23,6 +23,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     val user:User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse(return false)
     val activeUser:User = user.copy(isActive = true, activationToken ="")
     User.update(MongoDBObject("email" -> activeUser.email), activeUser, false, false, new WriteConcern())
+    // also log the guy in
+    play.mvc.Scope.Session.current().put("username", activeUser.email)
     true
   }
 
