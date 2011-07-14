@@ -6,12 +6,12 @@
 
 @if(flash.get("registrationSuccess") != null) {
 <p class="success">
-  Your account was successfully created! An email has been sent to @flash.get("success") for activation
+  Your account was successfully created! An email has been sent to @flash.get("registrationSuccess") for activation
 </p>
 }
 @if(flash.get("registrationError") != null) {
 <p class="error">
-  Error creating your account, please try again. The cause of the error is: "@flash.get("error")"
+  Error creating your account, please try again. The cause of the error is: "@flash.get("registrationError")"
 </p>
 }
 @if(flash.get("activation") != null && flash.get("activation") == "true") {

@@ -1,3 +1,5 @@
+package test
+
 import cake.MetadataModelComponent
 import com.borachio.scalatest.MockFactory
 import com.mongodb.casbah.commons.MongoDBObject
@@ -8,6 +10,7 @@ import org.scalatest.Suite
 import models.salatContext._
 import play.test._
 import util.{ThemeHandler, ThemeHandlerComponent}
+import test.{TestEnvironment, TestDataUsers, TestData}
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -38,6 +41,8 @@ trait TestDataUsers extends TestData {
     }
   }
 }
+
+class TestDataUsersLoader extends TestDataUsers
 
 /**
  * Test for the ThemeHandler. We use UnitFlatSpec which is a Play version of the FlatSpec

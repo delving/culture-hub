@@ -5,6 +5,7 @@ import models.User
 import play.cache.Cache
 import play.libs.Codec
 import notifiers.Mails
+import play.Play
 
 /**
  *
@@ -39,7 +40,10 @@ object Registration extends DelvingController {
       Validation.addError("registration.password1", "Passwords are not the same", r.password1)
       Validation.addError("registration.password2", "Passwords are not the same", r.password2)
     }
-    Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
+
+    if (Play.id != "test") {
+      Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
+    }
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
     if (User.existsWithDisplayName(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
@@ -51,7 +55,7 @@ object Registration extends DelvingController {
       Validation.keep()
       index()
     } else {
-      val activationToken: String = Codec.UUID()
+      val activationToken: String = if(Play.id == "test") "testActivationToken" else Codec.UUID()
       val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false, activationToken, false)
       User.insert(newUser)
 
