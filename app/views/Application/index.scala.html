@@ -1,8 +1,29 @@
 @(title:String)
 
+@import views.context._
 @main(title) {
-
 <h2>Hi and welcome to Play-Services!</h2>
+
+@if(flash.get("registrationSuccess") != null) {
+<p class="success">
+  Your account was successfully created! An email has been sent to @flash.get("registrationSuccess") for activation
+</p>
+}
+@if(flash.get("registrationError") != null) {
+<p class="error">
+  Error creating your account, please try again. The cause of the error is: "@flash.get("registrationError")"
+</p>
+}
+@if(flash.get("activation") != null && flash.get("activation") == "true") {
+<p class="success">
+  Your account is now active!
+</p>
+}
+@if(flash.get("activation") != null && flash.get("activation") == "false") {
+<p class="error">
+  Error activating your account.
+</p>
+}
 
 <p>
   This awesome welcome message has been written in a Starbucks in Vienna on a sunny tuesday afternoon.

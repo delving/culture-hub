@@ -6,7 +6,7 @@ import com.mongodb.casbah.{MongoDB, MongoConnection}
 
 package object salatContext {
 
-  val connection: MongoDB = MongoConnection()("culturehub")
+  val connection: MongoDB = MongoConnection()(Play.configuration.getProperty("db.mongo.name"))
 
   val portalThemeCollection = connection("portalTheme")
   val emailTargetCollection = connection("emailTarget")

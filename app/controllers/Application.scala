@@ -7,7 +7,7 @@ import play.mvc.Controller
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Application extends Controller {
+object Application extends DelvingController {
 
   import views.Application._
 

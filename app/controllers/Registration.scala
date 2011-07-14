@@ -4,6 +4,8 @@ import play.data.validation.{Valid, Validation, Required, Email}
 import models.User
 import play.cache.Cache
 import play.libs.Codec
+import notifiers.Mails
+import play.Play
 
 /**
  *
@@ -38,10 +40,13 @@ object Registration extends DelvingController {
       Validation.addError("registration.password1", "Passwords are not the same", r.password1)
       Validation.addError("registration.password2", "Passwords are not the same", r.password2)
     }
-    Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
 
-    // TODO check email uniqueness
-    // TODO check displayName uniqueness
+    if (Play.id != "test") {
+      Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
+    }
+
+    if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
+    if (User.existsWithDisplayName(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
 
     Cache.delete(randomId)
 
@@ -50,11 +55,20 @@ object Registration extends DelvingController {
       Validation.keep()
       index()
     } else {
-      val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false)
+      val activationToken: String = if(Play.id == "test") "testActivationToken" else Codec.UUID()
+      val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false, activationToken, false)
       User.insert(newUser)
 
-      // TODO user feedback (flash scope message)
-      // TODO send email to the user
+      try {
+        Mails.activation(newUser, activationToken)
+        flash += ("registrationSuccess" -> newUser.email)
+      } catch {
+        case t:Throwable => {
+          User.remove(newUser)
+          flash += ("registrationError" -> t.getMessage)
+        }
+      }
+
       Action(controllers.Application.index)
     }
   }
@@ -64,6 +78,12 @@ object Registration extends DelvingController {
     val code = captcha.getText("#E4EAFD")
     Cache.set(id, code, "10mn")
     captcha
+  }
+
+  def activate(activationToken: Option[String]) = {
+    val success = activationToken.isDefined && User.activateUser(activationToken.get)
+    if(success) flash += ("activation" -> "true") else flash += ("activation" -> "false")
+    Action(controllers.Application.index)
   }
 
   case class Registration(@Required firstName: String,
