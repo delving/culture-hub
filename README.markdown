@@ -26,7 +26,7 @@ This will eventually demonstrate things such as authentication & authorization, 
 
 Run the application via
 
-    play run --%youruser
+    play run -Xss4m --%youruser
 
 where `youruser is the key you used for your custom properties in `conf/application.conf``
 
@@ -36,7 +36,7 @@ An example user is `bob@gmail.com` with password `secret`
 
 Run the test mode via
 
-    play test -Duser=youruser
+    play test -Xss4m -Duser=youruser
 
 Then you can access the test dashboard on `http://localhost:9000/@tests`
 

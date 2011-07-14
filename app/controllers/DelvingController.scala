@@ -20,7 +20,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Before def setConnectedUser() {
 
-    val user = User.findOne(MongoDBObject("email" -> connectedUser))
+    val user = User.findOne(MongoDBObject("email" -> connectedUser, "isActive" -> true))
     user map {
       u => {
         renderArgs.put("fullName", u.fullname)
@@ -31,7 +31,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
 
   @Util def getUser(displayName: String): User = {
-    User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
+    User.findOne(MongoDBObject("displayName" -> displayName, "isActive" -> true)).getOrElse(User.nobody)
   }
 
   /**

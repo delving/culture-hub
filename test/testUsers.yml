@@ -5,6 +5,7 @@
     password:       secret
     isAdmin:        true
     displayName:    bob
+    isActive:       true
 
 - !!models.User
     firstName:      Jimmy
@@ -13,3 +14,4 @@
     password:       secret
     isAdmin:        true
     displayName:    jimmy
+    isActive:       true
