@@ -31,7 +31,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
 
   @Util def getUser(displayName: String): User = {
-    User.findOne(MongoDBObject("displayName" -> displayName)).getOrElse(User.nobody)
+    User.findOne(MongoDBObject("displayName" -> displayName, "isActive" -> true)).getOrElse(User.nobody)
   }
 
   /**
