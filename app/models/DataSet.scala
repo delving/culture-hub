@@ -3,11 +3,11 @@ package models
 import java.util.Date
 import cake.metaRepo.PmhVerbType.PmhVerb
 import org.bson.types.ObjectId
-import eu.delving.metadata.RecordMapping
-import eu.delving.sip.DataSetState
 import models.salatContext._
 import com.novus.salat.dao.SalatDAO
 import controllers.SolrServer
+import eu.delving.metadata.{Path, RecordMapping}
+import eu.delving.sip.DataSetState
 
 /**
  *
@@ -20,15 +20,16 @@ case class DataSet(_id: ObjectId = new ObjectId,
                           state: DataSetState, // imported from sip-core
                           details: Details,
                           facts_hash: String,
-                          source_hash: String,
+                          source_hash: String = "",
                           downloaded_source_hash: Option[String] = Some(""),
-                          namespaces: Map[String, String],
-                          mappings: Map[String, Mapping]
+                          namespaces: Option[Map[String, String]] = Some(Map[String, String]()),
+                          mappings: Option[Map[String, Mapping]] = Some(Map[String, Mapping]())
                           ) {
   import xml.Elem
 
   def getHashes : List[String] = {
-    val hashes: List[String] = facts_hash :: source_hash :: mappings.values.map(_.mapping_hash).toList
+    val mappingList = mappings.get.values.map(_.mapping_hash).toList
+    val hashes: List[String] = facts_hash :: source_hash :: mappingList
     hashes.filterNot(_.isEmpty)
   }
 
@@ -47,7 +48,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
       </hashes>
       <errorMessage>{details.errorMessage}</errorMessage>
       <mappings>
-         {mappings.values.map{mapping => mapping.toXml}}
+         {mappings.get.values.map{mapping => mapping.toXml}}
       </mappings>
     </dataset>
   }
@@ -66,7 +67,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
       format = MetadataFormat(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired),
       mapping_hash = hash)
     // remove First Harvest Step
-    this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
+    this.copy(mappings = Some(this.mappings.get.updated(mapping.getPrefix, newMapping)))
   }
 
 }
@@ -76,8 +77,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   import cake.metaRepo.DataSetNotFoundException
   import com.mongodb.casbah.commons.MongoDBObject
   import java.io.InputStream
+  import eu.delving.metadata.Facts
 
   def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
+
+
 
   def findAll = {
     find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
@@ -102,12 +106,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val records: MongoCollection = connection("Records." + dataSet.spec)
     records.drop()
     try {
-//      import java.io.ByteArrayInputStream
-//      import eu.delving.services.core.MongoObjectParser
-//      import eu.delving.metadata.{Path, Facts}
-//      var details: Details = dataSet.details
-//      var facts: Facts = Facts.read(new ByteArrayInputStream(details.facts_bytes))
-//      var parser: MongoObjectParser = new MongoObjectParser(inputStream, new Path(facts.getRecordRootPath), new Path(facts.getUniqueElementPath), details.getMetadataFormat.getPrefix, details.getMetadataFormat.getNamespace)
+      import java.io.ByteArrayInputStream
+      import eu.delving.metadata.{Path, Facts}
+      val details: Details = dataSet.details
+      val facts: Facts = Facts.read(new ByteArrayInputStream(details.facts_bytes))
+//      val parser: MongoObjectParser = new MongoObjectParser(inputStream, new Path(facts.getRecordRootPath), new Path(facts.getUniqueElementPath), details.getMetadataFormat.getPrefix, details.getMetadataFormat.getNamespace)
 //      var record: MongoObjectParser.Record = null
 //      var modified: Date = new Date
 //      `object`.put(NAMESPACES, parser.getNamespaces)
@@ -138,6 +141,90 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     save(dataSet.copy(state = DataSetState.UPLOADED))
   }
 
+  private def runPullParser(inputStream: InputStream, facts: Facts, dataSet: DataSet, recordSep: String = "record")(codeBlock: String => Unit) {
+    import xml.pull._
+    import scala.collection.immutable.List
+    import scala.collection.mutable.{ListBuffer}
+    import xml.{Node, MetaData, Elem, XML}
+    import io.Source
+    import eu.delving.metadata.MetadataNamespace
+
+    val namespaces = scala.collection.mutable.Map[String, String]()
+//    nameSpacePrefixSet.foreach(prefix => namespaces(prefix, e))
+
+    for (ns <- MetadataNamespace.values) {
+      namespaces.put(ns.getPrefix, ns.getUri)
+    }
+    val mdFormat: MetadataFormat = dataSet.details.metadataFormat
+    namespaces.put(mdFormat.prefix, mdFormat.namespace)
+
+    val er = new XMLEventReader(Source.fromInputStream(inputStream))
+
+    val sep = if (recordSep.contains(":")) {
+      val list: List[String] = recordSep.split(":").toList
+      RecordSep(list.head, list.last)
+    }
+    else {
+      RecordSep(null, recordSep)
+    }
+
+    var foundRecord = false
+
+    val buffer = new ListBuffer[String]
+
+    val nameSpacePrefixSet = scala.collection.mutable.Set[String]()
+    def addToBuffer(event: XMLEvent) {
+      buffer += backToXml(event)
+    }
+
+    er foreach {
+      event: XMLEvent =>
+        event match {
+          case EvElemStart(sep.pre, sep.label, _, _) =>
+            foundRecord = true
+            addToBuffer(event)
+          case EvElemStart(_, _, attrs: MetaData, _)
+            if foundRecord => addToBuffer(event)
+          case EvElemEnd(sep.pre, sep.label) =>
+            foundRecord = false
+            addToBuffer(event)
+            codeBlock(buffer.mkString(""))
+            buffer.clear()
+          case EvElemEnd(_, _) if foundRecord => addToBuffer(event)
+          case EvText(text: String) if (foundRecord && text.trim.size > 0) =>
+            buffer += text.replaceAll("\\s{2,10}", " ")
+          case _ =>
+        }
+    }
+
+    def backToXml(ev: XMLEvent): String = {
+      ev match {
+        case EvElemStart(pre, label, attrs, scope) =>
+          "<" + writePrefix(pre) + label + attrsToString(attrs) + ">"
+        case EvElemEnd(pre, label) =>
+          "</" + writePrefix(pre) + label + ">"
+        case _ => ""
+      }
+    }
+
+    def writePrefix(pre: String): String = {
+      nameSpacePrefixSet + pre
+      pre match {
+        case null => ""
+        case _ => pre + ":"
+      }
+    }
+
+
+    def attrsToString(attrs: MetaData): String = {
+      attrs.length match {
+        case 0 => ""
+        case _ => attrs.map((m: MetaData) => " " + m.key + "='" + m.value + "'").reduceLeft(_ + _)
+      }
+    }
+
+  }
+
   def getRecordCount(dataSet: DataSet) : Int = getRecordCount(dataSet.spec)
 
   def getRecordCount(spec: String): Int = {
@@ -147,6 +234,21 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 }
+
+//object DataSetStateType extends Enumeration {
+//
+//  case class DataSetState1(state: String) extends Val(state)
+//
+//  val INCOMPLETE = DataSetState1("incomplete")
+//  val DISABLED  = DataSetState1("disabled")
+//  val UPLOADED = DataSetState1("uploaded")
+//  val QUEUED = DataSetState1("queued")
+//  val INDEXING = DataSetState1("indexing")
+//  val ENABLED = DataSetState1("enabled")
+//  val ERROR = DataSetState1("error")
+//}
+
+case class RecordSep(pre: String, label: String, path: Path = new Path())
 
 case class Mapping(recordMapping: RecordMapping,
                    format: MetadataFormat,

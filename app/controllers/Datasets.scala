@@ -1,6 +1,6 @@
-package controllers.admin
+package controllers
 
-import controllers.SolrServer
+import play.mvc.Controller
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -10,7 +10,7 @@ import controllers.SolrServer
  * @since 7/7/11 12:04 AM  
  */
 
-object Datasets {
+object Datasets extends Controller {
 
   import play.mvc.results.Result
   import org.apache.solr.client.solrj.SolrServer
@@ -35,7 +35,7 @@ object Datasets {
 
   def secureListAll: Result = {
     try {
-      new RenderXml(renderDataSetList(dataSets = DataSet.findAll))
+      renderDataSetListAsXml(dataSets = DataSet.findAll)
     }
     catch {
       case e: Exception => renderException(e)
@@ -56,11 +56,17 @@ object Datasets {
     </data-set>
   }
 
+  private def renderDataSetListAsXml(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
+                        dataSets: List[DataSet] = List[DataSet](),
+                        errorMessage: String = "") : Result = {
+    new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
+  }
+
   def listAll(accessKey: String): Result = {
     try {
       import play.mvc.results.RenderXml
       checkAccessKey(accessKey)
-      new RenderXml(renderDataSetList(dataSets = DataSet.findAll))
+      renderDataSetListAsXml(dataSets = DataSet.findAll)
     }
     catch {
       case e: Exception => renderException(e)
@@ -96,7 +102,10 @@ object Datasets {
   }
 
 //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
-  def acceptFile(dataSetSpec: String, fileType: String, fileName: String, inputStream: InputStream, accessKey: String): Result = {
+
+
+
+  def acceptFile(dataSetSpec: String, fileType: String, fileName: String, accessKey: String): Result = {
     try {
       import play.mvc.results.RenderXml
       import eu.delving.metadata.Hasher
@@ -107,10 +116,11 @@ object Datasets {
       if (hash == null) {
         throw new RuntimeException("No hash available for file name " + fileName)
       }
+      val inputStream: InputStream = request.body
       val responseCode = fileType match {
-        case "text/plain" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
-        case "application/x-gzip" => receiveSource(new GZIPInputStream(inputStream), dataSetSpec, hash)
-        case "text/xml" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
+        case "text/plain" | "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
+        case "application/x-gzip" | "SOURCE"=> receiveSource(new GZIPInputStream(inputStream), dataSetSpec, hash)
+        case "text/xml" | "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
         case _ => DataSetResponseCode.SYSTEM_ERROR
       }
       new RenderXml(renderDataSetList(responseCode = responseCode))
@@ -158,8 +168,8 @@ object Datasets {
     import cake.metaRepo.MetaRepoSystemException
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
-    if (dataSet.hasHash(hash)) {
+    val dataSet: Option[DataSet] = DataSet.find(dataSetSpec)
+    if (dataSet != None && dataSet.get.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
 
@@ -176,19 +186,26 @@ object Datasets {
       metadataFormat = metadataFormat,
       facts_bytes = Facts.toBytes(facts)
     )
-    val updatedDataSet = dataSet.copy(facts_hash = hash, details = details)
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), updatedDataSet, true, false, new WriteConcern())
+
+    val updatedDataSet : DataSet = {
+      import eu.delving.sip.DataSetState
+      dataSet match {
+        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE, details = details, facts_hash = hash)
+        case _ => dataSet.get.copy(facts_hash = hash, details = details)
+      }
+    }
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, true, false, new WriteConcern())
 
     DataSetResponseCode.THANK_YOU
   }
-
-
 
   private def indexingControlInternal(dataSetSpec: String, commandString: String): Result = {
     try {
       import eu.delving.sip.DataSetState._
       import eu.delving.sip.DataSetCommand._
       import eu.delving.sip.{DataSetState, DataSetCommand}
+      import eu.delving.sip.DataSetState
+      import eu.delving.sip.DataSetState._
 
       val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
 
@@ -196,14 +213,14 @@ object Datasets {
       val state: DataSetState = dataSet.state
 
       def changeState(state: DataSetState): DataSet = {
-        val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
-        val updatedDataSet = dataSet.copy(state = state, mappings = mappings)
+        val mappings = dataSet.mappings.get.transform((key, map) => map.copy(rec_indexed = 0))
+        val updatedDataSet = dataSet.copy(state = state, mappings = Some(mappings))
         DataSet.save(updatedDataSet)
         updatedDataSet
       }
 
       val response =  command match {
-        case DataSetCommand.DISABLE =>
+        case DISABLE =>
           state match {
             case QUEUED | INDEXING | ERROR | ENABLED =>
               val updatedDataSet = changeState(state = DataSetState.DISABLED)
@@ -239,7 +256,7 @@ object Datasets {
         case _ =>
           throw new RuntimeException
       }
-      new RenderXml(response)
+      new RenderXml(response.toString())
     }
     catch {
       case e: Exception => renderException(e)
@@ -248,14 +265,13 @@ object Datasets {
 
   private def renderException(exception: Exception): Result = {
     import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
-    import play.mvc.results.RenderXml
     log.warn("Problem in controller", exception)
     val errorcode = exception match {
       case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
       case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND
       case _ => DataSetResponseCode.SYSTEM_ERROR
     }
-    new RenderXml(renderDataSetList(responseCode = errorcode, errorMessage = exception.getMessage))
+    renderDataSetListAsXml(responseCode = errorcode, errorMessage = exception.getMessage)
   }
 
   //  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
