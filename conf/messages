@@ -19,6 +19,9 @@
 # permissions and limitations under the Licence.
 #
 
+secure.error=Login incorrect
+secure.logout=You were logged out successfully
+
 _action.OpenInNewWindow=Opens in a new window
 _action.add.annotation=Add annotation
 _action.add.tag=Add a tag
