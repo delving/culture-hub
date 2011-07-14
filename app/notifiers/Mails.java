@@ -20,4 +20,16 @@ public class Mails extends Mailer {
         send(user, activationToken);
     }
 
+    public static void resetPassword(User user, String resetPasswordToken) {
+        setSubject("Reset your password");
+        addRecipient(user.email());
+        ThemeAwareBridge.before();
+        try {
+            setFrom(ThemeAwareBridge.theme().emailTarget().systemFrom());
+        } finally {
+            ThemeAwareBridge.after();
+        }
+        send(user, resetPasswordToken);
+    }
+
 }

@@ -24,6 +24,22 @@
   Error activating your account.
 </p>
 }
+@if(flash.get("resetPasswordEmail") != null && flash.get("resetPasswordEmail") == "true") {
+<p class="success">
+  An e-mail has been sent to you with a link to reset your password
+</p>
+}
+@if(flash.get("resetPasswordError") != null) {
+<p class="error">
+  Error resetting your password: @flash.get("resetPasswordError")
+</p>
+}
+
+@if(flash.get("resetPasswordSuccess") != null && flash.get("resetPasswordSuccess") == "true") {
+<p class="success">
+  Your password has been successfully changed
+</p>
+}
 
 <p>
   This awesome welcome message has been written in a Starbucks in Vienna on a sunny tuesday afternoon.

@@ -27,13 +27,17 @@ GET         /services/administrator/dataset                                  Dat
 GET         /services/administrator/dataset/{dataSetSpec}/{command}          Datasets.secureIndexingControl
 
 # Backwards compatibility with the old portal module
-GET         /portal/                                Portal.index
+GET        /portal/                                                         Portal.index
 
 # User registration
-GET        /registration                            Registration.index
-POST       /registration/register                   Registration.register
-GET        /registration/captcha                    Registration.captcha
-GET        /registration/activate/{activationToken} Registration.activate
+GET        /registration                                                     Registration.index
+POST       /registration/register                                            Registration.register
+GET        /registration/captcha                                             Registration.captcha
+GET        /registration/activate/{activationToken}                          Registration.activate
+GET        /registration/lostPassword                                        Registration.lostPassword
+POST       /registration/resetPasswordEmail                                  Registration.resetPasswordEmail
+GET        /registration/resetPassword/{resetPasswordToken}                  Registration.resetPassword
+POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
 GET         /{user}/?                               Users.index
