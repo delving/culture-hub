@@ -123,7 +123,7 @@ object Datasets extends Controller {
         case "text/xml" | "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
         case _ => DataSetResponseCode.SYSTEM_ERROR
       }
-      new RenderXml(renderDataSetList(responseCode = responseCode))
+      renderDataSetListAsXml(responseCode = responseCode)
     }
     catch {
       case e: Exception => renderException(e)
@@ -190,7 +190,7 @@ object Datasets extends Controller {
     val updatedDataSet : DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE, details = details, facts_hash = hash)
+        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash)
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
@@ -210,11 +210,11 @@ object Datasets extends Controller {
       val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
 
       val command: DataSetCommand = DataSetCommand.valueOf(commandString)
-      val state: DataSetState = dataSet.state
+      val state: DataSetState = dataSet.getDataSetState
 
       def changeState(state: DataSetState): DataSet = {
         val mappings = dataSet.mappings.get.transform((key, map) => map.copy(rec_indexed = 0))
-        val updatedDataSet = dataSet.copy(state = state, mappings = Some(mappings))
+        val updatedDataSet = dataSet.copy(state = state.toString, mappings = Some(mappings))
         DataSet.save(updatedDataSet)
         updatedDataSet
       }
@@ -249,7 +249,7 @@ object Datasets extends Controller {
           state match {
             case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
               DataSet.remove(dataSet)
-              renderDataSetList(dataSets = List(dataSet.copy(state = DataSetState.INCOMPLETE)))
+              renderDataSetList(dataSets = List(dataSet.copy(state = DataSetState.INCOMPLETE.toString)))
             case _ =>
               renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)
           }

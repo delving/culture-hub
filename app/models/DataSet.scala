@@ -17,7 +17,7 @@ import eu.delving.sip.DataSetState
 
 case class DataSet(_id: ObjectId = new ObjectId,
                           spec: String,
-                          state: DataSetState, // imported from sip-core
+                          state: String, // imported from sip-core
                           details: Details,
                           facts_hash: String,
                           source_hash: String = "",
@@ -26,6 +26,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
                           mappings: Option[Map[String, Mapping]] = Some(Map[String, Mapping]())
                           ) {
   import xml.Elem
+
+  def getDataSetState : DataSetState = DataSetState.get(state)
 
   def getHashes : List[String] = {
     val mappingList = mappings.get.values.map(_.mapping_hash).toList
@@ -138,7 +140,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
         throw new RecordParseException("Unable to parse records", e)
       }
     }
-    save(dataSet.copy(state = DataSetState.UPLOADED))
+    save(dataSet.copy(state = DataSetState.UPLOADED.toString))
   }
 
   private def runPullParser(inputStream: InputStream, facts: Facts, dataSet: DataSet, recordSep: String = "record")(codeBlock: String => Unit) {
