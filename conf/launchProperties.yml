@@ -1,0 +1,22 @@
+# This file contains the required properties for CultureHub to start
+# These are checked at application startup and the application will refuse to start if they are not configured / empty
+
+- image.graphicsmagic.cmd
+- image.store.path
+- image.tmp.path
+- iipsrv.url
+- debug
+- portal.theme.file
+- services.harvindexing.prefix
+- services.password
+- services.api.useAccessKey
+- services.pmh.repositoryName
+- services.api.useAccessKey
+- services.pmh.repositoryName
+- services.pmh.adminEmail
+- services.pmh.earliestDateStamp
+- services.pmh.repositoryIdentifier
+- services.pmh.sampleIdentifier
+- services.pmh.responseListSize
+- services.pmh.harvestStepCleanupDelay
+- services.mongo.dbName
