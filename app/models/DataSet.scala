@@ -101,133 +101,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     getSolrServer.commit
   }
 
-  def parseRecords(inputStream: InputStream, dataSet: DataSet) {
-    // todo Manuel
-    import com.mongodb.casbah.MongoCollection
-    HarvestStep.removeFirstHarvestSteps(dataSet.spec)
-    save(dataSet.copy(source_hash = ""))
-    val records: MongoCollection = connection("Records." + dataSet.spec)
-    records.drop()
-    try {
-      import java.io.ByteArrayInputStream
-      import eu.delving.metadata.{Path, Facts}
-      val details: Details = dataSet.details
-      val facts: Facts = Facts.read(new ByteArrayInputStream(details.facts_bytes))
-//      val parser: MongoObjectParser = new MongoObjectParser(inputStream, new Path(facts.getRecordRootPath), new Path(facts.getUniqueElementPath), details.getMetadataFormat.getPrefix, details.getMetadataFormat.getNamespace)
-//      var record: MongoObjectParser.Record = null
-//      var modified: Date = new Date
-//      `object`.put(NAMESPACES, parser.getNamespaces)
-//      var recordCount: Int = 0
-//      while ((({
-//        record = parser.nextRecord; record
-//      })) != null) {
-//        import eu.delving.services.core.MetaRepo
-//        record.getMob.put(MetaRepo.Record.MODIFIED, modified)
-//        record.getMob.put(MetaRepo.Record.DELETED, false)
-//        records.insert(record.getMob)
-//        ({
-//          recordCount += 1; recordCount
-//        })
-//        if (recordCount % 10000 == 0) {
-//          LOG.info(String.format("%d Records read, current count %d", recordCount, records.count))
-//        }
-//      }
-//      LOG.info(String.format("Finally, %d Records read, current count %d", recordCount, records.count))
-//      parser.close
-    }
-    catch {
-      case e: Exception => {
-        import cake.metaRepo.RecordParseException
-        throw new RecordParseException("Unable to parse records", e)
-      }
-    }
-    save(dataSet.copy(state = DataSetState.UPLOADED.toString))
-  }
-
-  private def runPullParser(inputStream: InputStream, facts: Facts, dataSet: DataSet, recordSep: String = "record")(codeBlock: String => Unit) {
-    import xml.pull._
-    import scala.collection.immutable.List
-    import scala.collection.mutable.{ListBuffer}
-    import xml.{Node, MetaData, Elem, XML}
-    import io.Source
-    import eu.delving.metadata.MetadataNamespace
-
-    val namespaces = scala.collection.mutable.Map[String, String]()
-//    nameSpacePrefixSet.foreach(prefix => namespaces(prefix, e))
-
-    for (ns <- MetadataNamespace.values) {
-      namespaces.put(ns.getPrefix, ns.getUri)
-    }
-    val mdFormat: MetadataFormat = dataSet.details.metadataFormat
-    namespaces.put(mdFormat.prefix, mdFormat.namespace)
-
-    val er = new XMLEventReader(Source.fromInputStream(inputStream))
-
-    val sep = if (recordSep.contains(":")) {
-      val list: List[String] = recordSep.split(":").toList
-      RecordSep(list.head, list.last)
-    }
-    else {
-      RecordSep(null, recordSep)
-    }
-
-    var foundRecord = false
-
-    val buffer = new ListBuffer[String]
-
-    val nameSpacePrefixSet = scala.collection.mutable.Set[String]()
-    def addToBuffer(event: XMLEvent) {
-      buffer += backToXml(event)
-    }
-
-    er foreach {
-      event: XMLEvent =>
-        event match {
-          case EvElemStart(sep.pre, sep.label, _, _) =>
-            foundRecord = true
-            addToBuffer(event)
-          case EvElemStart(_, _, attrs: MetaData, _)
-            if foundRecord => addToBuffer(event)
-          case EvElemEnd(sep.pre, sep.label) =>
-            foundRecord = false
-            addToBuffer(event)
-            codeBlock(buffer.mkString(""))
-            buffer.clear()
-          case EvElemEnd(_, _) if foundRecord => addToBuffer(event)
-          case EvText(text: String) if (foundRecord && text.trim.size > 0) =>
-            buffer += text.replaceAll("\\s{2,10}", " ")
-          case _ =>
-        }
-    }
-
-    def backToXml(ev: XMLEvent): String = {
-      ev match {
-        case EvElemStart(pre, label, attrs, scope) =>
-          "<" + writePrefix(pre) + label + attrsToString(attrs) + ">"
-        case EvElemEnd(pre, label) =>
-          "</" + writePrefix(pre) + label + ">"
-        case _ => ""
-      }
-    }
-
-    def writePrefix(pre: String): String = {
-      nameSpacePrefixSet + pre
-      pre match {
-        case null => ""
-        case _ => pre + ":"
-      }
-    }
-
-
-    def attrsToString(attrs: MetaData): String = {
-      attrs.length match {
-        case 0 => ""
-        case _ => attrs.map((m: MetaData) => " " + m.key + "='" + m.value + "'").reduceLeft(_ + _)
-      }
-    }
-
-  }
-
   def getRecordCount(dataSet: DataSet) : Int = getRecordCount(dataSet.spec)
 
   def getRecordCount(spec: String): Int = {
@@ -287,11 +160,11 @@ case class Details(
                           )
 
 case class MetadataRecord(
-                         metadata: Map[String, String], // this is the raw xml data string
+                         metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted
                          uniq: String,
-                         hash: Map[String, String]) //extends MetadataRecord
+                         hash: scala.collection.mutable.Map[String, String]) //extends MetadataRecord
 {
   //  import org.bson.types.ObjectId
   //  import com.mongodb.DBObject

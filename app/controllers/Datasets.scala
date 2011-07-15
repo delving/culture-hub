@@ -1,6 +1,21 @@
 package controllers
 
 import play.mvc.Controller
+import eu.delving.sip.DataSetState
+import java.util.zip.GZIPInputStream
+import util.StaxParser
+import java.io._
+import models._
+import javax.xml.stream.events.XMLEvent
+import collection.mutable.ListBuffer
+import com.mongodb.casbah.MongoCollection
+import com.mongodb.DBObject
+import com.google.common.collect.Multimap
+import com.mongodb.casbah.commons.MongoDBObject
+import java.util.Date
+import eu.delving.metadata.{Hasher, Facts, Path, MetadataNamespace}
+import xsbti.api.Var
+import org.apache.log4j.Logger
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -13,13 +28,10 @@ import play.mvc.Controller
 object Datasets extends Controller {
 
   import play.mvc.results.Result
-  import org.apache.solr.client.solrj.SolrServer
   import play.mvc.Http
   import java.io.{OutputStream, InputStream}
-  import java.util.zip.ZipOutputStream
   import eu.delving.metadata.{Facts, RecordMapping, MetadataModel}
-  import eu.delving.sip.{DataSetInfo, DataSetResponse, DataSetResponseCode, AccessKey}
-  import play.mvc.results.RenderText
+  import eu.delving.sip.{DataSetResponseCode, AccessKey}
   import play.mvc.results.RenderXml
   import org.apache.log4j.Logger
   import cake.ComponentRegistry
@@ -43,28 +55,29 @@ object Datasets extends Controller {
   }
 
   private def renderDataSetList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
-                        dataSets: List[DataSet] = List[DataSet](),
-                        errorMessage: String = "") : Elem = {
+                                dataSets: List[DataSet] = List[DataSet](),
+                                errorMessage: String = ""): Elem = {
     <data-set responseCode={responseCode.toString}>
       <data-set-list>
-        {dataSets.map{ds => ds.toXml}}
-      </data-set-list>
-      {if (responseCode != DataSetResponseCode.THANK_YOU) {
-          <errorMessage>{errorMessage}</errorMessage>
-        }
-      }
+        {dataSets.map {
+        ds => ds.toXml
+      }}
+      </data-set-list>{if (responseCode != DataSetResponseCode.THANK_YOU) {
+      <errorMessage>
+        {errorMessage}
+      </errorMessage>
+    }}
     </data-set>
   }
 
   private def renderDataSetListAsXml(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
-                        dataSets: List[DataSet] = List.empty[DataSet],
-                        errorMessage: String = "") : Result = {
+                                     dataSets: List[DataSet] = List.empty[DataSet],
+                                     errorMessage: String = ""): Result = {
     new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
   }
 
   def listAll(accessKey: String): Result = {
     try {
-      import play.mvc.results.RenderXml
       checkAccessKey(accessKey)
       renderDataSetListAsXml(dataSets = DataSet.findAll)
     }
@@ -73,12 +86,12 @@ object Datasets extends Controller {
     }
   }
 
-//  @RequestMapping(value = Array("/administrator/dataset/{dataSetSpec}/{command}"))
+  //  @RequestMapping(value = Array("/administrator/dataset/{dataSetSpec}/{command}"))
   def secureIndexingControl(dataSetSpec: String, command: String): Result = {
     indexingControlInternal(dataSetSpec, command)
   }
 
-//  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}")) 
+  //  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}"))
   def indexingControl(dataSetSpec: String, command: String, accessKey: String): Result = {
     try {
       checkAccessKey(accessKey)
@@ -101,25 +114,24 @@ object Datasets extends Controller {
     }
   }
 
-//  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
-
+  //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
 
 
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, accessKey: String): Result = {
     try {
-      import play.mvc.results.RenderXml
       import eu.delving.metadata.Hasher
-      import java.util.zip.GZIPInputStream
       checkAccessKey(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
       var hash: String = Hasher.extractHashFromFileName(fileName)
       if (hash == null) {
         throw new RuntimeException("No hash available for file name " + fileName)
       }
+
       val inputStream: InputStream = request.body
+
       val responseCode = fileType match {
         case "text/plain" | "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
-        case "application/x-gzip" | "SOURCE"=> receiveSource(new GZIPInputStream(inputStream), dataSetSpec, hash)
+        case "application/x-gzip" | "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
         case "text/xml" | "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
         case _ => DataSetResponseCode.SYSTEM_ERROR
       }
@@ -143,13 +155,45 @@ object Datasets extends Controller {
   }
 
 
-
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
+
+    import models.salatContext._
+
+    val gZIPInputStream: GZIPInputStream = new GZIPInputStream(inputStream)
+
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
-    DataSet.parseRecords(inputStream, dataSet)
+
+    HarvestStep.removeFirstHarvestSteps(dataSet.spec)
+    DataSet.save(dataSet.copy(source_hash = ""))
+    val records: MongoCollection = connection("Records." + dataSet.spec)
+    records.drop()
+    try {
+      val details: Details = dataSet.details
+
+      val namespaces = scala.collection.mutable.Map[String, String]()
+      for (ns <- MetadataNamespace.values) {
+        namespaces.put(ns.getPrefix, ns.getUri)
+      }
+
+      val mdFormat: MetadataFormat = dataSet.details.metadataFormat
+      namespaces.put(mdFormat.prefix, mdFormat.namespace)
+
+      val newRecords: List[MetadataRecord] = DataSetParser.parse(gZIPInputStream, namespaces, mdFormat, dataSet.details.metadataFormat.prefix, Facts.fromBytes(dataSet.details.facts_bytes))
+
+      println(newRecords.length)
+
+    } catch {
+      case e: Exception => {
+        import cake.metaRepo.RecordParseException
+        throw new RecordParseException("Unable to parse records", e)
+      }
+      case t: Throwable => t.printStackTrace()
+    }
+
+    DataSet.save(dataSet.copy(state = DataSetState.UPLOADED.toString))
 
     val recordCount: Int = DataSet.getRecordCount(dataSetSpec)
 
@@ -157,6 +201,7 @@ object Datasets extends Controller {
       total_records = recordCount,
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
+
     val ds = dataSet.copy(source_hash = hash, details = details)
     DataSet.save(ds)
     DataSetResponseCode.THANK_YOU
@@ -164,7 +209,7 @@ object Datasets extends Controller {
 
   private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.{MetadataFormat, Details}
-    import eu.delving.metadata.{MetadataException, MetadataNamespace}
+    import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
@@ -187,7 +232,7 @@ object Datasets extends Controller {
       facts_bytes = Facts.toBytes(facts)
     )
 
-    val updatedDataSet : DataSet = {
+    val updatedDataSet: DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
         case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details,
@@ -202,9 +247,8 @@ object Datasets extends Controller {
 
   private def indexingControlInternal(dataSetSpec: String, commandString: String): Result = {
     try {
-      import eu.delving.sip.DataSetState._
       import eu.delving.sip.DataSetCommand._
-      import eu.delving.sip.{DataSetState, DataSetCommand}
+      import eu.delving.sip.DataSetCommand
       import eu.delving.sip.DataSetState
       import eu.delving.sip.DataSetState._
 
@@ -220,7 +264,7 @@ object Datasets extends Controller {
         updatedDataSet
       }
 
-      val response =  command match {
+      val response = command match {
         case DISABLE =>
           state match {
             case QUEUED | INDEXING | ERROR | ENABLED =>
@@ -277,22 +321,22 @@ object Datasets extends Controller {
 
   //  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
   def fetchSIP(dataSetSpec: String, accessKey: String, response: Http.Response): Unit = {
-//    try {
-//      import org.apache.commons.httpclient.HttpStatus
-//      checkAccessKey(accessKey)
-//      log.info(String.format("requested %s-sip.zip", dataSetSpec))
-//      response.setContentType("application/zip")
-//      writeSipZip(dataSetSpec, response.getOutputStream, accessKey)
-//      response.setStatus(HttpStatus.OK.value)
-//      log.info(String.format("returned %s-sip.zip", dataSetSpec))
-//    }
-//    catch {
-//      case e: Exception => {
-//        import org.apache.commons.httpclient.HttpStatus
-//        response.setStatus(HttpStatus.BAD_REQUEST.value)
-//        log.warn("Problem building sip.zip", e)
-//      }
-//    }
+    //    try {
+    //      import org.apache.commons.httpclient.HttpStatus
+    //      checkAccessKey(accessKey)
+    //      log.info(String.format("requested %s-sip.zip", dataSetSpec))
+    //      response.setContentType("application/zip")
+    //      writeSipZip(dataSetSpec, response.getOutputStream, accessKey)
+    //      response.setStatus(HttpStatus.OK.value)
+    //      log.info(String.format("returned %s-sip.zip", dataSetSpec))
+    //    }
+    //    catch {
+    //      case e: Exception => {
+    //        import org.apache.commons.httpclient.HttpStatus
+    //        response.setStatus(HttpStatus.BAD_REQUEST.value)
+    //        log.warn("Problem building sip.zip", e)
+    //      }
+    //    }
   }
 
   private def writeSipZip(dataSetSpec: String, outputStream: OutputStream, accessKey: String): Unit = {
@@ -324,23 +368,151 @@ object Datasets extends Controller {
     //    dataSet.save
   }
 
-//  private def writeSourceStream(dataSet: MetaRepo.DataSet, zos: ZipOutputStream, accessKey: String): String = {
-//    import eu.delving.metadata.SourceStream
-//    import org.bson.types.ObjectId
-//    var sourceStream: SourceStream = new SourceStream(zos)
-//    sourceStream.startZipStream(dataSet.getNamespaces.toMap)
-//    var afterId: ObjectId = null
-//    while (true) {
-//      import play.modules.legacyServices.eu.delving.core.MetaRepo.DataSet.RecordFetch
-////      var fetch: MetaRepo.DataSet#RecordFetch = dataSet.getRecords(dataSet.getDetails.getMetadataFormat.getPrefix, RECORD_STREAM_CHUNK, null, afterId, null, accessKey)
-////      if (fetch == null) {
-////        break //todo: break is not supported
-////      }
-//      afterId = fetch.getAfterId
-//      for (record <- fetch.getRecords) {
-//        sourceStream.addRecord(record.getXmlString)
-//      }
-//    }
-//    sourceStream.endZipStream
-//  }
+  //  private def writeSourceStream(dataSet: MetaRepo.DataSet, zos: ZipOutputStream, accessKey: String): String = {
+  //    import eu.delving.metadata.SourceStream
+  //    import org.bson.types.ObjectId
+  //    var sourceStream: SourceStream = new SourceStream(zos)
+  //    sourceStream.startZipStream(dataSet.getNamespaces.toMap)
+  //    var afterId: ObjectId = null
+  //    while (true) {
+  //      import play.modules.legacyServices.eu.delving.core.MetaRepo.DataSet.RecordFetch
+  ////      var fetch: MetaRepo.DataSet#RecordFetch = dataSet.getRecords(dataSet.getDetails.getMetadataFormat.getPrefix, RECORD_STREAM_CHUNK, null, afterId, null, accessKey)
+  ////      if (fetch == null) {
+  ////        break //todo: break is not supported
+  ////      }
+  //      afterId = fetch.getAfterId
+  //      for (record <- fetch.getRecords) {
+  //        sourceStream.addRecord(record.getXmlString)
+  //      }
+  //    }
+  //    sourceStream.endZipStream
+  //  }
+}
+
+object DataSetParser extends StaxParser {
+
+  private val log: Logger = Logger.getLogger(getClass)
+  val hasher: Hasher = new Hasher
+
+  import javax.xml.stream.XMLStreamConstants._
+  import eu.delving.metadata.Tag
+  import scala.collection.mutable.Map
+
+  def parse(inputStream: InputStream, namespaces: scala.collection.mutable.Map[String, String], mdFormat: MetadataFormat, metadataPrefix: String, facts: Facts): List[MetadataRecord] = {
+
+    val records: ListBuffer[MetadataRecord] = new ListBuffer[MetadataRecord]
+
+    var path: Path = new Path
+    val pathWithinRecord: Path = new Path
+    val recordRoot: Path = new Path(facts.getRecordRootPath)
+    val uniqueElement: Path = new Path(facts.getUniqueElementPath)
+    var record: MetadataRecord = null
+
+    val xmlBuffer: StringBuilder = new StringBuilder
+    val valueBuffer: StringBuilder = new StringBuilder
+    var uniqueBuffer: StringBuilder = null
+    var uniqContent: String = null
+
+    parse(inputStream) {
+      case e: Event if e.eventType == START_DOCUMENT =>
+      case e: Event if e.eventType == NAMESPACE => System.out.println("namespace: " + e.input.getName)
+      case e: Event if e.eventType == START_ELEMENT =>
+        path.push(Tag.create(e.input.getName.getPrefix, e.input.getName.getLocalPart))
+        if (record == null && (path == recordRoot)) {
+          record = new MetadataRecord(Map.empty[String, String], new Date(), false, "", Map.empty[String, String])
+          records += record
+        }
+        if (record != null) {
+          pathWithinRecord.push(path.peek)
+          if (valueBuffer.length > 0) {
+            throw new IOException("Content and subtags not permitted")
+          }
+          if (path == uniqueElement) uniqueBuffer = new StringBuilder
+          val prefix: String = e.input.getPrefix
+          if (prefix != null && !e.input.getPrefix.isEmpty) {
+            namespaces.put(e.input.getPrefix, e.input.getNamespaceURI)
+          }
+          if (path != recordRoot) {
+            xmlBuffer.append("<").append(e.input.getPrefixedName)
+            if (e.input.getAttributeCount > 0) {
+              var walk: Int = 0
+              while (walk < e.input.getAttributeCount) {
+                val qName = e.input.getAttributeName(walk)
+                val attrName = qName.getLocalPart
+                if (qName.getPrefix.isEmpty) {
+                  val value = e.input.getAttributeValue(walk)
+                  xmlBuffer.append(' ').append(attrName).append("=\"").append(value).append("\"")
+                }
+                walk += 1
+              }
+            }
+            xmlBuffer.append(">")
+          }
+        }
+      case e: Event if e.eventType == CDATA || e.eventType == CHARACTERS =>
+        if (record != null) {
+          val text = e.input.getText()
+          if (!text.trim.isEmpty) {
+            var walk: Int = 0
+            while (walk < text.length) {
+              val escaped = text.charAt(walk) match {
+                case '&' => "&amp;"
+                case '<' => "&lt;"
+                case '>' => "&gt;"
+                case '"' => "&quot;"
+                case '\'' => "&apos;"
+                case c@_ => c
+              }
+              valueBuffer.append(escaped)
+              walk += 1
+            }
+            if (uniqueBuffer != null) uniqueBuffer.append(text)
+          }
+        }
+      case e: Event if e.eventType == END_ELEMENT =>
+        if (record != null) {
+          if (path == recordRoot) {
+            record.metadata.put(metadataPrefix, xmlBuffer.toString())
+            if (uniqContent != null) record = record.copy(uniq = uniqContent)
+            // TODO
+            // record.hash = createHashToPathMap(record.getValueMap)
+            xmlBuffer.setLength(0)
+            record = null
+            throw new StopException // oh yeah
+          } else {
+            if (valueBuffer.length > 0) {
+              if (uniqueBuffer != null) {
+                val unique: String = uniqueBuffer.toString().trim
+                if (!unique.isEmpty) uniqContent = unique
+                uniqueBuffer = null
+              }
+              val value: String = valueBuffer.toString()
+              xmlBuffer.append(value)
+              // TODO
+              // record.getValueMap.put(pathWithinRecord.toString, value)
+            }
+            xmlBuffer.append("</").append(e.input.getPrefixedName).append(">\n")
+            valueBuffer.setLength(0)
+          }
+          pathWithinRecord.pop()
+        }
+        path.pop()
+      case e: Event if e.eventType == END_DOCUMENT =>
+    }
+    records.toList
+  }
+
+  private def createHashToPathMap(valueMap: Multimap[String, String]): AnyRef = {
+    import scala.collection.JavaConversions._
+    val builder = MongoDBObject.newBuilder
+    for (path <- valueMap.keys().iterator()) {
+      var index: Int = 0
+      for (value <- valueMap.get(path)) {
+        val foo: String = if (index == 0) path else "%s_%d".format(path, index)
+        builder += hasher.getHashString(value) -> foo
+        index += 1
+      }
+    }
+    builder.result
+  }
 }

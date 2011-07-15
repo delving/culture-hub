@@ -23,6 +23,7 @@ require:
     - provided -> magicktiler-lib 0.9-patched
     - provided -> im4java 1.1.0
     - org.apache.solr -> solr-solrj 3.3.0
+    - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     # for testing
     - com.borachio -> borachio_2.8.1 1.1:
         exclude:
