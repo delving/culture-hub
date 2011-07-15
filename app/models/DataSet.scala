@@ -189,8 +189,7 @@ case class MetadataRecord(
   }
 }
 
-object MetadataRecord extends SalatDAO[MetadataRecord, ObjectId](collection = connection("Records")) {
-}
+//object MetadataRecord extends SalatDAO[MetadataRecord, ObjectId](collection = connection("Records"))
 
 case class PmhRequest(
                              verb: PmhVerb,

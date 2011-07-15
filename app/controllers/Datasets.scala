@@ -1,21 +1,16 @@
 package controllers
 
-import play.mvc.Controller
 import eu.delving.sip.DataSetState
 import java.util.zip.GZIPInputStream
 import util.StaxParser
 import java.io._
 import models._
-import javax.xml.stream.events.XMLEvent
-import collection.mutable.ListBuffer
 import com.mongodb.casbah.MongoCollection
-import com.mongodb.DBObject
-import com.google.common.collect.Multimap
-import com.mongodb.casbah.commons.MongoDBObject
 import java.util.Date
 import eu.delving.metadata.{Hasher, Facts, Path, MetadataNamespace}
-import xsbti.api.Var
 import org.apache.log4j.Logger
+import play.mvc
+import mvc.Controller
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -158,6 +153,8 @@ object Datasets extends Controller {
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
 
     import models.salatContext._
+    import org.bson.types.ObjectId
+    import com.novus.salat.dao.SalatDAO
 
     val gZIPInputStream: GZIPInputStream = new GZIPInputStream(inputStream)
 
@@ -168,23 +165,36 @@ object Datasets extends Controller {
 
     HarvestStep.removeFirstHarvestSteps(dataSet.spec)
     DataSet.save(dataSet.copy(source_hash = ""))
-    val records: MongoCollection = connection("Records." + dataSet.spec)
+
+    val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
+    val records: MongoCollection = recordCollection
+
+
+
+    object MDR extends SalatDAO[MetadataRecord, ObjectId](collection = recordCollection)
     records.drop()
+    
     try {
       val details: Details = dataSet.details
 
       val namespaces = scala.collection.mutable.Map[String, String]()
-      for (ns <- MetadataNamespace.values) {
-        namespaces.put(ns.getPrefix, ns.getUri)
-      }
+      for (ns <- MetadataNamespace.values) namespaces.put(ns.getPrefix, ns.getUri)
 
       val mdFormat: MetadataFormat = dataSet.details.metadataFormat
       namespaces.put(mdFormat.prefix, mdFormat.namespace)
 
-      val newRecords: List[MetadataRecord] = DataSetParser.parse(gZIPInputStream, namespaces, mdFormat, dataSet.details.metadataFormat.prefix, Facts.fromBytes(dataSet.details.facts_bytes))
+      val parser = new DataSetParser(gZIPInputStream, namespaces, mdFormat, details.metadataFormat.prefix, Facts.fromBytes(details.facts_bytes))
 
-      println(newRecords.length)
-
+      var continue = true
+      while (continue) {
+        val record = parser.nextRecord()
+        if (record != None) {
+          val toInsert = record.get.copy(modified = new Date(), deleted = false)
+          MDR.insert(toInsert)
+        } else {
+          continue = false
+        }
+      }
     } catch {
       case e: Exception => {
         import cake.metaRepo.RecordParseException
@@ -389,130 +399,144 @@ object Datasets extends Controller {
   //  }
 }
 
-object DataSetParser extends StaxParser {
+// TODO rewrite this into something that looks like scala code
+class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutable.Map[String, String], mdFormat: MetadataFormat, metadataPrefix: String, facts: Facts) extends StaxParser {
 
   private val log: Logger = Logger.getLogger(getClass)
   val hasher: Hasher = new Hasher
 
+  val input = createReader(inputStream)
+
+  var path: Path = new Path
+  val pathWithinRecord: Path = new Path
+  val recordRoot: Path = new Path(facts.getRecordRootPath)
+  val uniqueElement: Path = new Path(facts.getUniqueElementPath)
+
   import javax.xml.stream.XMLStreamConstants._
   import eu.delving.metadata.Tag
   import scala.collection.mutable.Map
+  import scala.collection.mutable.HashMap
+  import scala.collection.mutable.MultiMap
 
-  def parse(inputStream: InputStream, namespaces: scala.collection.mutable.Map[String, String], mdFormat: MetadataFormat, metadataPrefix: String, facts: Facts): List[MetadataRecord] = {
+  def nextRecord(): Option[MetadataRecord] = {
 
-    val records: ListBuffer[MetadataRecord] = new ListBuffer[MetadataRecord]
-
-    var path: Path = new Path
-    val pathWithinRecord: Path = new Path
-    val recordRoot: Path = new Path(facts.getRecordRootPath)
-    val uniqueElement: Path = new Path(facts.getUniqueElementPath)
-    var record: MetadataRecord = null
+    var record: Option[MetadataRecord] = None
+    val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
 
     val xmlBuffer: StringBuilder = new StringBuilder
     val valueBuffer: StringBuilder = new StringBuilder
     var uniqueBuffer: StringBuilder = null
-    var uniqContent: String = null
+    var uniqueContent: String = null
 
-    parse(inputStream) {
-      case e: Event if e.eventType == START_DOCUMENT =>
-      case e: Event if e.eventType == NAMESPACE => System.out.println("namespace: " + e.input.getName)
-      case e: Event if e.eventType == START_ELEMENT =>
-        path.push(Tag.create(e.input.getName.getPrefix, e.input.getName.getLocalPart))
-        if (record == null && (path == recordRoot)) {
-          record = new MetadataRecord(Map.empty[String, String], new Date(), false, "", Map.empty[String, String])
-          records += record
-        }
-        if (record != null) {
-          pathWithinRecord.push(path.peek)
-          if (valueBuffer.length > 0) {
-            throw new IOException("Content and subtags not permitted")
+    var building = true
+
+    while (building) {
+      input.getEventType match {
+        case START_DOCUMENT =>
+        case NAMESPACE => System.out.println("namespace: " + input.getName)
+        case START_ELEMENT =>
+          path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
+          if (record == None && (path == recordRoot)) {
+            record = Some(new MetadataRecord(Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
           }
-          if (path == uniqueElement) uniqueBuffer = new StringBuilder
-          val prefix: String = e.input.getPrefix
-          if (prefix != null && !e.input.getPrefix.isEmpty) {
-            namespaces.put(e.input.getPrefix, e.input.getNamespaceURI)
-          }
-          if (path != recordRoot) {
-            xmlBuffer.append("<").append(e.input.getPrefixedName)
-            if (e.input.getAttributeCount > 0) {
-              var walk: Int = 0
-              while (walk < e.input.getAttributeCount) {
-                val qName = e.input.getAttributeName(walk)
-                val attrName = qName.getLocalPart
-                if (qName.getPrefix.isEmpty) {
-                  val value = e.input.getAttributeValue(walk)
-                  xmlBuffer.append(' ').append(attrName).append("=\"").append(value).append("\"")
+          if (record != None) {
+            pathWithinRecord.push(path.peek)
+            if (valueBuffer.length > 0) {
+              throw new IOException("Content and subtags not permitted")
+            }
+            if (path == uniqueElement) uniqueBuffer = new StringBuilder
+            val prefix: String = input.getPrefix
+            if (prefix != null && !input.getPrefix.isEmpty) {
+              namespaces.put(input.getPrefix, input.getNamespaceURI)
+            }
+            if (path != recordRoot) {
+              xmlBuffer.append("<").append(input.getPrefixedName)
+              if (input.getAttributeCount > 0) {
+                var walk: Int = 0
+                while (walk < input.getAttributeCount) {
+                  val qName = input.getAttributeName(walk)
+                  val attrName = qName.getLocalPart
+                  if (qName.getPrefix.isEmpty) {
+                    val value = input.getAttributeValue(walk)
+                    xmlBuffer.append(' ').append(attrName).append("=\"").append(value).append("\"")
+                  }
+                  walk += 1
                 }
+              }
+              xmlBuffer.append(">")
+            }
+          }
+        case CDATA | CHARACTERS =>
+          if (record != None) {
+            val text = input.getText()
+            if (!text.trim.isEmpty) {
+              var walk: Int = 0
+              while (walk < text.length) {
+                valueBuffer.append(escape(text, walk))
                 walk += 1
               }
+              if (uniqueBuffer != null) uniqueBuffer.append(text)
             }
-            xmlBuffer.append(">")
           }
-        }
-      case e: Event if e.eventType == CDATA || e.eventType == CHARACTERS =>
-        if (record != null) {
-          val text = e.input.getText()
-          if (!text.trim.isEmpty) {
-            var walk: Int = 0
-            while (walk < text.length) {
-              val escaped = text.charAt(walk) match {
-                case '&' => "&amp;"
-                case '<' => "&lt;"
-                case '>' => "&gt;"
-                case '"' => "&quot;"
-                case '\'' => "&apos;"
-                case c@_ => c
+        case END_ELEMENT =>
+          if (record != None) {
+            if (path == recordRoot) {
+              record.get.metadata.put(metadataPrefix, xmlBuffer.toString())
+              if (uniqueContent != null) record = Some(record.get.copy(uniq = uniqueContent))
+              record = Some(record.get.copy(hash = createHashToPathMap(valueMap)))
+              xmlBuffer.setLength(0)
+              building = false
+            } else {
+              if (valueBuffer.length > 0) {
+                if (uniqueBuffer != null) {
+                  val unique: String = uniqueBuffer.toString().trim
+                  if (!unique.isEmpty) uniqueContent = unique
+                  uniqueBuffer = null
+                }
+                val value: String = valueBuffer.toString()
+                xmlBuffer.append(value)
+                valueMap.add(pathWithinRecord.toString, value)
               }
-              valueBuffer.append(escaped)
-              walk += 1
+              xmlBuffer.append("</").append(input.getPrefixedName).append(">\n")
+              valueBuffer.setLength(0)
             }
-            if (uniqueBuffer != null) uniqueBuffer.append(text)
+            pathWithinRecord.pop()
           }
-        }
-      case e: Event if e.eventType == END_ELEMENT =>
-        if (record != null) {
-          if (path == recordRoot) {
-            record.metadata.put(metadataPrefix, xmlBuffer.toString())
-            if (uniqContent != null) record = record.copy(uniq = uniqContent)
-            // TODO
-            // record.hash = createHashToPathMap(record.getValueMap)
-            xmlBuffer.setLength(0)
-            record = null
-            throw new StopException // oh yeah
-          } else {
-            if (valueBuffer.length > 0) {
-              if (uniqueBuffer != null) {
-                val unique: String = uniqueBuffer.toString().trim
-                if (!unique.isEmpty) uniqContent = unique
-                uniqueBuffer = null
-              }
-              val value: String = valueBuffer.toString()
-              xmlBuffer.append(value)
-              // TODO
-              // record.getValueMap.put(pathWithinRecord.toString, value)
-            }
-            xmlBuffer.append("</").append(e.input.getPrefixedName).append(">\n")
-            valueBuffer.setLength(0)
-          }
-          pathWithinRecord.pop()
-        }
-        path.pop()
-      case e: Event if e.eventType == END_DOCUMENT =>
+          path.pop()
+        case END_DOCUMENT =>
+      }
+      if (input.hasNext) {
+        input.next()
+      } else {
+        building = false
+      }
     }
-    records.toList
+    record
   }
 
-  private def createHashToPathMap(valueMap: Multimap[String, String]): AnyRef = {
+  def escape(text: String, walk: Int): String = {
+    text.charAt(walk) match {
+      case '&' => "&amp;"
+      case '<' => "&lt;"
+      case '>' => "&gt;"
+      case '"' => "&quot;"
+      case '\'' => "&apos;"
+      case c@_ => c.toString
+    }
+  }
+
+
+  private def createHashToPathMap(valueMap: MultiMap[String, String]): Map[String, String] = {
     import scala.collection.JavaConversions._
-    val builder = MongoDBObject.newBuilder
-    for (path <- valueMap.keys().iterator()) {
+    val map = new scala.collection.mutable.HashMap[String, String]
+    for (path <- valueMap.keys) {
       var index: Int = 0
-      for (value <- valueMap.get(path)) {
+      valueMap.get(path).get foreach  { value =>
         val foo: String = if (index == 0) path else "%s_%d".format(path, index)
-        builder += hasher.getHashString(value) -> foo
+        map += hasher.getHashString(value) -> foo
         index += 1
       }
     }
-    builder.result
+    map
   }
 }
