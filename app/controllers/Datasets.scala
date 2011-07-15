@@ -57,7 +57,7 @@ object Datasets extends Controller {
   }
 
   private def renderDataSetListAsXml(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
-                        dataSets: List[DataSet] = List[DataSet](),
+                        dataSets: List[DataSet] = List.empty[DataSet],
                         errorMessage: String = "") : Result = {
     new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
   }
@@ -190,7 +190,8 @@ object Datasets extends Controller {
     val updatedDataSet : DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash)
+        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details,
+          facts_hash = hash)
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
@@ -213,8 +214,8 @@ object Datasets extends Controller {
       val state: DataSetState = dataSet.getDataSetState
 
       def changeState(state: DataSetState): DataSet = {
-        val mappings = dataSet.mappings.get.transform((key, map) => map.copy(rec_indexed = 0))
-        val updatedDataSet = dataSet.copy(state = state.toString, mappings = Some(mappings))
+        val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
+        val updatedDataSet = dataSet.copy(state = state.toString, mappings = mappings)
         DataSet.save(updatedDataSet)
         updatedDataSet
       }
@@ -265,7 +266,7 @@ object Datasets extends Controller {
 
   private def renderException(exception: Exception): Result = {
     import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
-    log.warn("Problem in controller", exception)
+    log.info("Problem in controller", exception)
     val errorcode = exception match {
       case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
       case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND

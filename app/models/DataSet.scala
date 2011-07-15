@@ -22,36 +22,37 @@ case class DataSet(_id: ObjectId = new ObjectId,
                           facts_hash: String,
                           source_hash: String = "",
                           downloaded_source_hash: Option[String] = Some(""),
-                          namespaces: Option[Map[String, String]] = Some(Map[String, String]()),
-                          mappings: Option[Map[String, Mapping]] = Some(Map[String, Mapping]())
+                          namespaces: Map[String, String] = Map.empty[String, String],
+                          mappings: Map[String, Mapping] = Map.empty[String, Mapping]
                           ) {
   import xml.Elem
 
   def getDataSetState : DataSetState = DataSetState.get(state)
 
   def getHashes : List[String] = {
-    val mappingList = mappings.get.values.map(_.mapping_hash).toList
+    val mappingList = mappings.values.map(_.mapping_hash).toList
     val hashes: List[String] = facts_hash :: source_hash :: mappingList
     hashes.filterNot(_.isEmpty)
   }
 
   def hasHash(hash: String): Boolean = getHashes.contains(hash)
 
+  // todo update sip-creator with richer info.
   def toXml: Elem = {
     <dataset>
       <spec>{spec}</spec>
       <name>{details.name}</name>
       <state>{state.toString}</state>
       <recordCount>{details.total_records}</recordCount>
-      <uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount>
+      <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
       <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
       <hashes>
         {getHashes.map(hash => <string>{hash}</string>)}
       </hashes>
-      <errorMessage>{details.errorMessage}</errorMessage>
+      <!--errorMessage>{details.errorMessage}</errorMessage>
       <mappings>
-         {mappings.get.values.map{mapping => mapping.toXml}}
-      </mappings>
+         {mappings.values.map{mapping => mapping.toXml}}
+      </mappings-->
     </dataset>
   }
 
@@ -69,7 +70,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
       format = MetadataFormat(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired),
       mapping_hash = hash)
     // remove First Harvest Step
-    this.copy(mappings = Some(this.mappings.get.updated(mapping.getPrefix, newMapping)))
+    this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
   }
 
 }
