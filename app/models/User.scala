@@ -5,6 +5,7 @@ import com.mongodb.casbah.Imports._
 import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
+import play.libs.Crypto
 
 case class User(firstName: String,
                 lastName: String,
@@ -23,7 +24,7 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
   val nobody: User = User("", "", "none@nothing.com", "", "Nobody", false, None, None, false)
 
   def connect(email: String, password: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("email" -> email, "password" -> password))
+    val theOne: Option[User] = User.findOne(MongoDBObject("email" -> email, "password" -> Crypto.passwordHash(password)))
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
@@ -50,13 +51,13 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     User.update(MongoDBObject("email" -> resetUser.email), resetUser, false, false, new WriteConcern())
   }
 
-  def canResetPassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0
+  def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0
 
   def findByResetPasswordToken(resetPasswordToken: String): Option[User] = User.findOne(MongoDBObject("resetPasswordToken" -> resetPasswordToken))
 
-  def resetPassword(resetPasswordToken: String, newPassword: String): Boolean = {
+  def changePassword(resetPasswordToken: String, newPassword: String): Boolean = {
     val user = findByResetPasswordToken(resetPasswordToken).getOrElse(return false)
-    val resetUser = user.copy(password = newPassword, resetPasswordToken = None)
+    val resetUser = user.copy(password = Crypto.passwordHash(newPassword), resetPasswordToken = None)
     User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
   }

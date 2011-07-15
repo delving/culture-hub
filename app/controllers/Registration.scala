@@ -4,6 +4,7 @@ import play.data.validation.{Validation, Required, Email}
 import models.User
 import play.cache.Cache
 import play.libs.Codec
+import play.libs.Crypto
 import notifiers.Mails
 import play.Play
 
@@ -56,7 +57,7 @@ object Registration extends DelvingController {
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(r.firstName, r.lastName, r.email, r.password1, r.displayName, false, Some(activationToken), None, false)
+      val newUser = User(r.firstName, r.lastName, r.email, Crypto.passwordHash(r.password1), r.displayName, false, Some(activationToken), None, false)
       User.insert(newUser)
 
       try {
@@ -106,7 +107,6 @@ object Registration extends DelvingController {
         Validation.addError("email", "No account could be found with this email address", email)
       } else {
         val u = user.get
-        println(u)
         if(!u.isActive) {
           println(user.get.isActive)
           Validation.addError("email", "This account is not active yet. Please activate your account with the link sent in the registration e-mail", email)
@@ -116,7 +116,7 @@ object Registration extends DelvingController {
         Validation.keep()
         lostPassword()
       } else {
-        val resetPasswordToken = if (Play.id == "test") "testActivationToken" else Codec.UUID()
+        val resetPasswordToken = if (Play.id == "test") "testResetPasswordToken" else Codec.UUID()
 
         User.preparePasswordReset(user.get, resetPasswordToken)
         Mails.resetPassword(user.get, resetPasswordToken)
@@ -132,7 +132,7 @@ object Registration extends DelvingController {
       flash += ("resetPasswordError" -> "Reset token not found")
       Action(controllers.Application.index)
     } else {
-      val user = User.canResetPassword(resetPasswordToken.get)
+      val user = User.canChangePassword(resetPasswordToken.get)
       if(user == None) {
         flash += ("resetPasswordError" -> "Error changing your password. Try resetting it again.")
         Action(controllers.Application.index)
@@ -165,7 +165,7 @@ object Registration extends DelvingController {
     } else {
       val user: Option[User] = User.findByResetPasswordToken(resetPasswordToken.get)
       // TODO handle the unlikely case in which this guy can't be found anymore
-      User.resetPassword(resetPasswordToken.get, password1)
+      User.changePassword(resetPasswordToken.get, password1)
       flash += ("resetPasswordSuccess" -> "true")
       Action(controllers.Application.index)
     }
