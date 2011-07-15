@@ -27,13 +27,17 @@ GET         /services/administrator/dataset                                  Dat
 GET         /services/administrator/dataset/{dataSetSpec}/{command}          Datasets.secureIndexingControl
 
 # Backwards compatibility with the old portal module
-GET         /portal/                                Portal.index
+GET        /portal/                                                         Portal.index
 
 # User registration
-GET        /registration                            Registration.index
-POST       /registration/register                   Registration.register
-GET        /registration/captcha                    Registration.captcha
-GET        /registration/activate/{activationToken} Registration.activate
+GET        /registration                                                     Registration.index
+POST       /registration/register                                            Registration.register
+GET        /registration/captcha                                             Registration.captcha
+GET        /registration/activate/{activationToken}                          Registration.activate
+GET        /registration/lostPassword                                        Registration.lostPassword
+POST       /registration/resetPasswordEmail                                  Registration.resetPasswordEmail
+GET        /registration/resetPassword/{resetPasswordToken}                  Registration.resetPassword
+POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
 GET         /{user}/?                               Users.index
@@ -57,9 +61,9 @@ GET        /services/image                          Images.image
 GET        /services/imageView/{image}              Images.view
 GET        /fcgi-bin/iipsrv.fcgi                    Images.iipsrv
 
-# File Upload
-GET         /service/upload                         FileUpload.upload
-POST        /service/uploadFile                     FileUpload.uploadFile
+# Image Upload
+GET         /services/upload                        ImageUpload.upload
+POST        /services/uploadFile                    ImageUpload.uploadFile
 
 # Ignore favicon requests
 GET         /favicon.ico                            404

@@ -1,0 +1,10 @@
+@(name:String, label:String, fieldType:String, prefix:String = "")
+@import views.context._
+
+@fieldName = @{ (if (prefix.length > 0) prefix + "." else "") + name}
+
+<div class="field">
+  <label for="@fieldName">@label</label>
+  <input id="@fieldName" type="@fieldType" name="@fieldName" size="40" value="@params.get(fieldName)">
+  <span class="error">@showError(fieldName)</span>
+</div>
