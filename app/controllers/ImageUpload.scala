@@ -13,9 +13,9 @@ import scala.collection.JavaConversions._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends DelvingController {
+object ImageUpload extends DelvingController {
 
-  import views.FileUpload._
+  import views.ImageUpload._
 
   def upload(): AnyRef = {
     html.uploadFile()

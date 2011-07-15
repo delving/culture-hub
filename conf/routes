@@ -61,9 +61,9 @@ GET        /services/image                          Images.image
 GET        /services/imageView/{image}              Images.view
 GET        /fcgi-bin/iipsrv.fcgi                    Images.iipsrv
 
-# File Upload
-GET         /service/upload                         FileUpload.upload
-POST        /service/uploadFile                     FileUpload.uploadFile
+# Image Upload
+GET         /services/upload                        ImageUpload.upload
+POST        /services/uploadFile                    ImageUpload.uploadFile
 
 # Ignore favicon requests
 GET         /favicon.ico                            404
