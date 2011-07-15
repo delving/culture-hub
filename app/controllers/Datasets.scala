@@ -140,12 +140,16 @@ object Datasets extends Controller {
 
   private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.HarvestStep
+    import com.mongodb.casbah.commons.MongoDBObject._
+    import com.mongodb.WriteConcern
+    import com.mongodb.casbah.commons.MongoDBObject
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
-    HarvestStep.removeFirstHarvestSteps(dataSetSpec)
-    DataSet.save(dataSet.setMapping(mapping = recordMapping, hash = hash))
+    HarvestStep.removeFirstHarvestSteps(dataSetSpec) // todo check if this works
+    val updatedDataSet = dataSet.setMapping(mapping = recordMapping, hash = hash)
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
     DataSetResponseCode.THANK_YOU
   }
 
@@ -250,7 +254,7 @@ object Datasets extends Controller {
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
-    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, true, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
 
     DataSetResponseCode.THANK_YOU
   }
@@ -437,7 +441,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
         case START_ELEMENT =>
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
-            record = Some(new MetadataRecord(Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
+            record = Some(new MetadataRecord(null, Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)

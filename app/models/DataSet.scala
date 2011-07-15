@@ -100,7 +100,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     deleteResponse.getStatus
     getSolrServer.commit
   }
-
   def getRecordCount(dataSet: DataSet) : Int = getRecordCount(dataSet.spec)
 
   def getRecordCount(spec: String): Int = {
@@ -149,6 +148,19 @@ case class MetadataFormat(prefix: String,
                           namespace: String,
                           accessKeyRequired: Boolean = false)
 
+object MetadataFormat {
+
+  def create(prefix: String, accessKeyRequired: Boolean = true) : MetadataFormat = {
+    import eu.delving.metadata.MetadataNamespace
+    import cake.metaRepo.MetaRepoSystemException
+
+    val ns: MetadataNamespace = MetadataNamespace.values().filter(ns => ns.getPrefix == prefix).headOption.getOrElse(
+      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", prefix))
+    )
+    MetadataFormat(ns.getPrefix, ns.getSchema, ns.getUri, accessKeyRequired)
+  }
+}
+
 case class Details(
                           name: String,
                           uploaded_records: Int = 0,
@@ -159,7 +171,7 @@ case class Details(
                           errorMessage: Option[String] = Some("")
                           )
 
-case class MetadataRecord(
+case class MetadataRecord(_id: ObjectId = new ObjectId,
                          metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted
@@ -189,6 +201,7 @@ case class MetadataRecord(
   }
 }
 
+// this object is now removed, objects should be created depending on the collection, see Datasets
 //object MetadataRecord extends SalatDAO[MetadataRecord, ObjectId](collection = connection("Records"))
 
 case class PmhRequest(

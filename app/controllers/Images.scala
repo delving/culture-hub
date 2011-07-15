@@ -35,7 +35,8 @@ object Images extends DelvingController {
     //val smallballs = getPath("image.store.path") + "/" + image + ".tif"
     val smallballs = Play.applicationPath.getAbsolutePath + "/public/images/smallballs.tif"
 
-    html.view(smallballs)
+    if (image.isEmpty || image.equalsIgnoreCase("smallballs")) html.view(smallballs)
+    else html.view(Play.configuration.getProperty("image.store.path") + "/" +  image)
 
   }
 
