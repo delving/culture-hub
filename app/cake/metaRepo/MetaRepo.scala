@@ -41,6 +41,7 @@ trait HarvestStep {
   import org.bson.types.ObjectId
   import java.util.Date
   import com.mongodb.DBObject
+  import models.MetadataRecord
 
   def getId: ObjectId
 
@@ -54,7 +55,7 @@ trait HarvestStep {
 
   def getRecordCount: Int
 
-  def getRecords: List[_ <: Record]
+  def getRecords: List[_ <: MetadataRecord]
 
   def getPmhRequest: PmhRequest
 
@@ -230,7 +231,7 @@ trait MetaConfig {
   import play.Play
   def conf(key: String) = Play.configuration.getProperty(key).trim
 
-  val repositoryName: String = conf("services.pmh.repositoryName ")
+  val repositoryName: String = conf("services.pmh.repositoryName")
   val adminEmail: String = conf("services.pmh.adminEmail")
   val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
   val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")

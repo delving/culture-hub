@@ -11,20 +11,21 @@ import play.mvc.Http
  * @since Jun 16, 2010 12:06:56 AM
  */
 
-class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String = "") extends MetaConfig {
+class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaConfig {
 
   import org.apache.log4j.Logger
   import java.text.SimpleDateFormat
   import org.joda.time.DateTime
   import java.util.Date
   import xml.Elem
-  import collection.mutable.HashMap
   import cake.metaRepo.PmhVerbType.PmhVerb
+  import models.MetadataRecord
+  import scala.collection.JavaConversions._
 
   private val log = Logger.getLogger(getClass);
 
   private val VERB = "verb"
-  private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey")
+  private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
   private[metaRepo] val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
   private[metaRepo] val utcDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
@@ -37,7 +38,7 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
 
     if (!isLegalPmhRequest(getRequestParams(request))) return createErrorResponse("badArgument").toString
 
-    val params = request.params.allSimple().asInstanceOf[Map[String, String]]
+    val params = request.params.allSimple().toMap
 
     def pmhRequest(verb: PmhVerb) : PmhRequestEntry = createPmhRequest(params, verb)
 
@@ -118,7 +119,8 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    val dataSets = metaRepo.getDataSets // todo needs to be implemented
+    import models.DataSet
+    val dataSets = DataSet.findAll
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (dataSets.size == 0) return createErrorResponse("noSetHierarchy")
@@ -131,8 +133,8 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
       <ListSets>
         { for (set <- dataSets) yield
           <set>
-            <setSpec>{set.getSpec}</setSpec>
-            <setName>{set.getDetails.name}</setName>
+            <setSpec>{set.spec}</setSpec>
+            <setName>{set.details.name}</setName>
           </set>
         }
       </ListSets>
@@ -142,6 +144,9 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   /**
    * This method can give back the following Error and Exception conditions: idDoesNotExist, noMetadataFormats.
    */
+
+  val metaRepo = new MetaRepoImpl
+
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
 
     val eseSchema =
@@ -199,8 +204,8 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
       <ListIdentifiers>
         { for (record <- harvestStep.getRecords) yield
         <header status={recordStatus(record)}>
-          <identifier>{setSpec}:{record.getId}</identifier>
-          <datestamp>{record.getModifiedDate}</datestamp>
+          <identifier>{setSpec}:{record._id}</identifier>
+          <datestamp>{record.modified}</datestamp>
           <setSpec>{setSpec}</setSpec>
         </header>
         }
@@ -292,9 +297,9 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
   }
 
   // todo find a way to not show status namespace when not deleted
-  private def recordStatus(record: Record) : String = if (record.isDeleted) "deleted" else ""
+  private def recordStatus(record: MetadataRecord) : String = if (record.deleted) "deleted" else ""
 
-  private def renderRecord(record: Record, metadataPrefix: String, set: String) : Elem = {
+  private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
     val recordAsString = record.getXmlString(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
@@ -303,8 +308,8 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
       val elem = XML.loadString(recordAsString)
       <record>
         <header>
-          <identifier>{set}:{record.getId}</identifier>
-          <datestamp>{printDate(record.getModifiedDate)}</datestamp>
+          <identifier>{set}:{record._id}</identifier>
+          <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
@@ -346,7 +351,7 @@ class OaiPmhService(request: Http.Request, metaRepo: MetaRepo, accessKey: String
 
   def getRequestURL = request.url // todo recreate getRequestURL
 
-  def getRequestParams(request: Http.Request): Map[String, Array[String]] = request.params.all().asInstanceOf[Map[String, Array[String]]]
+  def getRequestParams(request: Http.Request) = request.params.all().toMap
 
   /**
    * This method is used to create all the OAI-PMH error responses to a given OAI-PMH request. The error descriptions have

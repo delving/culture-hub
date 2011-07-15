@@ -144,7 +144,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     import scala.collection.immutable.List
     import scala.collection.mutable.{ListBuffer}
     import eu.delving.metadata.MetadataNamespace
-    import xml._
+    import io.Source
+    import xml.MetaData
 
     val namespaces = scala.collection.mutable.Map[String, String]()
 //    nameSpacePrefixSet.foreach(prefix => namespaces(prefix, e))
@@ -293,7 +294,7 @@ case class Details(
                           errorMessage: Option[String] = Some("")
                           )
 
-case class MetadataRecord(
+case class MetadataRecord(_id: ObjectId = new ObjectId,
                          metadata: Map[String, String], // this is the raw xml data string
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted

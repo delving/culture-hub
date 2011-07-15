@@ -42,14 +42,16 @@ object Services extends DelvingController with HTTPClient {
   }
 
   def oaipmh : Result = {
-    import play.mvc.results.RenderText
-    //    val oaiPmhService = new OaiPmhService()
-    new RenderText("todo")
+    import cake.metaRepo.OaiPmhService
+    import play.mvc.results.{RenderXml}
+    val oaiPmhService = new OaiPmhService(request)
+    new RenderXml(oaiPmhService.parseRequest)
   }
 
   def oaipmhSecured(accessKey: String) : Result = {
-    import play.mvc.results.RenderText
-    //    val oaiPmhService = new OaiPmhService()
-    new RenderText("todo")
+    import cake.metaRepo.OaiPmhService
+    import play.mvc.results.{RenderXml}
+    val oaiPmhService = new OaiPmhService(request, accessKey)
+    new RenderXml(oaiPmhService.parseRequest)
   }
 }
