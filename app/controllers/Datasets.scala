@@ -133,12 +133,16 @@ object Datasets extends Controller {
 
   private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.HarvestStep
+    import com.mongodb.casbah.commons.MongoDBObject._
+    import com.mongodb.WriteConcern
+    import com.mongodb.casbah.commons.MongoDBObject
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
-    HarvestStep.removeFirstHarvestSteps(dataSetSpec)
-    DataSet.save(dataSet.setMapping(mapping = recordMapping, hash = hash))
+    HarvestStep.removeFirstHarvestSteps(dataSetSpec) // todo check if this works
+    val updatedDataSet = dataSet.setMapping(mapping = recordMapping, hash = hash)
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
     DataSetResponseCode.THANK_YOU
   }
 
@@ -195,7 +199,7 @@ object Datasets extends Controller {
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
-    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, true, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
 
     DataSetResponseCode.THANK_YOU
   }

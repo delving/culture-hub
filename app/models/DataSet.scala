@@ -6,7 +6,7 @@ import org.bson.types.ObjectId
 import models.salatContext._
 import com.novus.salat.dao.SalatDAO
 import controllers.SolrServer
-import eu.delving.metadata.{Path, RecordMapping}
+import eu.delving.metadata.{Path, RecordMapping => SipRecordMapping}
 import eu.delving.sip.DataSetState
 
 /**
@@ -58,17 +58,12 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
-  def setMapping(mapping: RecordMapping, hash: String, accessKeyRequired: Boolean = true) : DataSet = {
-    import eu.delving.metadata.MetadataNamespace
+  def setMapping(mapping: SipRecordMapping, hash: String, accessKeyRequired: Boolean = true) : DataSet = {
     import cake.metaRepo.MetaRepoSystemException
+    import eu.delving.metadata.{RecordMapping, MetadataNamespace}
 
-    val ns: Option[MetadataNamespace] = MetadataNamespace.values().filter(ns => ns.getPrefix == mapping.getPrefix).headOption
-    if (ns == None) {
-      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
-    };
-    val newMapping = Mapping(recordMapping = mapping,
-      format = MetadataFormat(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired),
-      mapping_hash = hash)
+    val format: MetadataFormat = MetadataFormat.create(mapping.getPrefix)
+    val newMapping = Mapping(recordMapping = RecordMapping.toXml(mapping), format = format, mapping_hash = hash)
     // remove First Harvest Step
     this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
   }
@@ -148,9 +143,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     import xml.pull._
     import scala.collection.immutable.List
     import scala.collection.mutable.{ListBuffer}
-    import xml.{Node, MetaData, Elem, XML}
-    import io.Source
     import eu.delving.metadata.MetadataNamespace
+    import xml._
 
     val namespaces = scala.collection.mutable.Map[String, String]()
 //    nameSpacePrefixSet.foreach(prefix => namespaces(prefix, e))
@@ -253,7 +247,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 
-case class Mapping(recordMapping: RecordMapping,
+case class Mapping(recordMapping: String,
                    format: MetadataFormat,
                    mapping_hash: String,
                    rec_indexed: Int = 0,
@@ -275,6 +269,19 @@ case class MetadataFormat(prefix: String,
                           schema: String,
                           namespace: String,
                           accessKeyRequired: Boolean = false)
+
+object MetadataFormat {
+
+  def create(prefix: String, accessKeyRequired: Boolean = true) : MetadataFormat = {
+    import eu.delving.metadata.MetadataNamespace
+    import cake.metaRepo.MetaRepoSystemException
+
+    val ns: MetadataNamespace = MetadataNamespace.values().filter(ns => ns.getPrefix == prefix).headOption.getOrElse(
+      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", prefix))
+    )
+    MetadataFormat(ns.getPrefix, ns.getSchema, ns.getUri, accessKeyRequired)
+  }
+}
 
 case class Details(
                           name: String,
