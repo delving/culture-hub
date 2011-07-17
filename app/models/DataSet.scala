@@ -66,7 +66,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     };
-    val newMapping = Mapping(recordMapping = mapping,
+    val newMapping = Mapping(recordMapping = RecordMapping.toXml(mapping),
       format = MetadataFormat(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired),
       mapping_hash = hash)
     // remove First Harvest Step
@@ -100,6 +100,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     deleteResponse.getStatus
     getSolrServer.commit
   }
+  
   def getRecordCount(dataSet: DataSet) : Int = getRecordCount(dataSet.spec)
 
   def getRecordCount(spec: String): Int = {
@@ -125,7 +126,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 
-case class Mapping(recordMapping: RecordMapping,
+case class Mapping(recordMapping: String,
                    format: MetadataFormat,
                    mapping_hash: String,
                    rec_indexed: Int = 0,

@@ -251,7 +251,7 @@ object Datasets extends Controller {
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
-    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, true, false, new WriteConcern())
 
     DataSetResponseCode.THANK_YOU
   }
