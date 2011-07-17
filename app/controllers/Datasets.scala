@@ -171,13 +171,10 @@ object Datasets extends Controller {
     DataSet.save(dataSet.copy(source_hash = ""))
 
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
-    val records: MongoCollection = recordCollection
 
+    object MDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
+    recordCollection.drop()
 
-
-    object MDR extends SalatDAO[MetadataRecord, ObjectId](collection = recordCollection)
-    records.drop()
-    
     try {
       val details: Details = dataSet.details
 
@@ -406,21 +403,20 @@ object Datasets extends Controller {
 // TODO rewrite this into something that looks like scala code
 class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutable.Map[String, String], mdFormat: MetadataFormat, metadataPrefix: String, facts: Facts) extends StaxParser {
 
-  private val log: Logger = Logger.getLogger(getClass)
-  val hasher: Hasher = new Hasher
-
-  val input = createReader(inputStream)
-
-  var path: Path = new Path
-  val pathWithinRecord: Path = new Path
-  val recordRoot: Path = new Path(facts.getRecordRootPath)
-  val uniqueElement: Path = new Path(facts.getUniqueElementPath)
-
   import javax.xml.stream.XMLStreamConstants._
   import eu.delving.metadata.Tag
-  import scala.collection.mutable.Map
   import scala.collection.mutable.HashMap
   import scala.collection.mutable.MultiMap
+
+  private val log: Logger = Logger.getLogger(getClass)
+  private val hasher: Hasher = new Hasher
+
+  private val input = createReader(inputStream)
+
+  private var path: Path = new Path
+  private val pathWithinRecord: Path = new Path
+  private val recordRoot: Path = new Path(facts.getRecordRootPath)
+  private val uniqueElement: Path = new Path(facts.getUniqueElementPath)
 
   def nextRecord(): Option[MetadataRecord] = {
 
@@ -441,7 +437,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
         case START_ELEMENT =>
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
-            record = Some(new MetadataRecord(null, Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
+            record = Some(new MetadataRecord(null, collection.mutable.Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)
@@ -499,7 +495,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
                 }
                 val value: String = valueBuffer.toString()
                 xmlBuffer.append(value)
-                valueMap.add(pathWithinRecord.toString, value)
+                valueMap.addBinding(pathWithinRecord.toString, value)
               }
               xmlBuffer.append("</").append(input.getPrefixedName).append(">\n")
               valueBuffer.setLength(0)
@@ -529,18 +525,17 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
     }
   }
 
-
   private def createHashToPathMap(valueMap: MultiMap[String, String]): Map[String, String] = {
-    import scala.collection.JavaConversions._
-    val map = new scala.collection.mutable.HashMap[String, String]
-    for (path <- valueMap.keys) {
+    val bits: Iterable[collection.mutable.Set[(String, String)]] = for (path <- valueMap.keys) yield {
       var index: Int = 0
-      valueMap.get(path).get foreach  { value =>
+      val innerBits: collection.mutable.Set[(String, String)] = for(value <- valueMap.get(path).get) yield {
         val foo: String = if (index == 0) path else "%s_%d".format(path, index)
-        map += hasher.getHashString(value) -> foo
         index += 1
+        (hasher.getHashString(value), foo)
       }
-    }
-    map
+      innerBits
+    } 
+    bits.flatten.toMap
   }
+
 }

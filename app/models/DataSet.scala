@@ -176,7 +176,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted
                          uniq: String,
-                         hash: scala.collection.mutable.Map[String, String]) //extends MetadataRecord
+                         hash: Map[String, String]) //extends MetadataRecord
 {
   //  import org.bson.types.ObjectId
   //  import com.mongodb.DBObject
