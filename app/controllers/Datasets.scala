@@ -5,7 +5,6 @@ import java.util.zip.GZIPInputStream
 import util.StaxParser
 import java.io._
 import models._
-import com.mongodb.casbah.MongoCollection
 import java.util.Date
 import eu.delving.metadata.{Hasher, Facts, Path, MetadataNamespace}
 import org.apache.log4j.Logger
@@ -68,7 +67,7 @@ object Datasets extends Controller {
   private def renderDataSetListAsXml(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
                                      dataSets: List[DataSet] = List.empty[DataSet],
                                      errorMessage: String = ""): Result = {
-    new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
+    new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString())
   }
 
   def listAll(accessKey: String): Result = {
@@ -140,25 +139,18 @@ object Datasets extends Controller {
 
   private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.HarvestStep
-    import com.mongodb.casbah.commons.MongoDBObject._
-    import com.mongodb.WriteConcern
-    import com.mongodb.casbah.commons.MongoDBObject
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
     HarvestStep.removeFirstHarvestSteps(dataSetSpec) // todo check if this works
     val updatedDataSet = dataSet.setMapping(mapping = recordMapping, hash = hash)
-    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
+    DataSet.updateById(updatedDataSet._id, updatedDataSet)
     DataSetResponseCode.THANK_YOU
   }
 
 
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
-
-    import models.salatContext._
-    import org.bson.types.ObjectId
-    import com.novus.salat.dao.SalatDAO
 
     val gZIPInputStream: GZIPInputStream = new GZIPInputStream(inputStream)
 
@@ -170,10 +162,8 @@ object Datasets extends Controller {
     HarvestStep.removeFirstHarvestSteps(dataSet.spec)
     DataSet.save(dataSet.copy(source_hash = ""))
 
-    val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
-
-    object MDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
-    recordCollection.drop()
+    val records = DataSet.getRecords(dataSet)
+    records.collection.drop()
 
     try {
       val details: Details = dataSet.details
@@ -191,7 +181,7 @@ object Datasets extends Controller {
         val record = parser.nextRecord()
         if (record != None) {
           val toInsert = record.get.copy(modified = new Date(), deleted = false)
-          MDR.insert(toInsert)
+          records.insert(toInsert)
         } else {
           continue = false
         }
@@ -222,8 +212,6 @@ object Datasets extends Controller {
     import models.{MetadataFormat, Details}
     import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
-    import com.mongodb.casbah.commons.MongoDBObject
-    import com.mongodb.WriteConcern
     val dataSet: Option[DataSet] = DataSet.find(dataSetSpec)
     if (dataSet != None && dataSet.get.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
@@ -251,7 +239,7 @@ object Datasets extends Controller {
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
-    DataSet.update(MongoDBObject("_id" -> updatedDataSet._id), updatedDataSet, false, false, new WriteConcern())
+    DataSet.upsertById(updatedDataSet._id, updatedDataSet)
 
     DataSetResponseCode.THANK_YOU
   }
@@ -304,7 +292,7 @@ object Datasets extends Controller {
         case DELETE =>
           state match {
             case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
-              DataSet.remove(dataSet)
+              DataSet.delete(dataSet)
               renderDataSetList(dataSets = List(dataSet.copy(state = DataSetState.INCOMPLETE.toString)))
             case _ =>
               renderDataSetList(responseCode = DataSetResponseCode.STATE_CHANGE_FAILURE)

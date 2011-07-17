@@ -8,6 +8,8 @@ import com.novus.salat.dao.SalatDAO
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
+import com.mongodb.casbah.MongoCollection
+import com.mongodb.WriteConcern
 
 /**
  *
@@ -84,10 +86,27 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
-
-
   def findAll = {
     find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
+  }
+
+  def updateById(id: ObjectId, dataSet: DataSet) {
+    update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
+  }
+
+  def upsertById(id: ObjectId, dataSet: DataSet) {
+    update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
+  }
+
+  def delete(dataSet: DataSet) {
+    connection("Records." + dataSet.spec).drop()
+    remove(dataSet)
+  }
+
+  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] = {
+    val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
+    object MDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
+    MDR
   }
 
   def find(spec: String): Option[DataSet] = {
