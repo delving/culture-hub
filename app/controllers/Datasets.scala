@@ -1,16 +1,16 @@
 package controllers
 
-import eu.delving.sip.DataSetState
 import java.util.zip.GZIPInputStream
 import util.StaxParser
 import java.io._
 import models._
-import com.mongodb.casbah.MongoCollection
-import java.util.Date
 import eu.delving.metadata.{Hasher, Facts, Path, MetadataNamespace}
 import org.apache.log4j.Logger
 import play.mvc
 import mvc.Controller
+import play.libs.IO
+import java.util.{Properties, Date}
+import eu.delving.sip.{DataSetResponse, DataSetState}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -117,7 +117,7 @@ object Datasets extends Controller {
       import eu.delving.metadata.Hasher
       checkAccessKey(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
-      var hash: String = Hasher.extractHashFromFileName(fileName)
+      val hash: String = Hasher.extractHashFromFileName(fileName)
       if (hash == null) {
         throw new RuntimeException("No hash available for file name " + fileName)
       }
@@ -126,6 +126,7 @@ object Datasets extends Controller {
 
       val responseCode = fileType match {
         case "text/plain" | "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
+        case "text/plain" | "HASHES" => return receiveHashes(IO.readUtf8Properties(inputStream), dataSetSpec)
         case "application/x-gzip" | "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
         case "text/xml" | "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
         case _ => DataSetResponseCode.SYSTEM_ERROR
@@ -148,6 +149,36 @@ object Datasets extends Controller {
     val updatedDataSet = dataSet.setMapping(mapping = recordMapping, hash = hash)
     DataSet.updateById(updatedDataSet._id, updatedDataSet)
     DataSetResponseCode.THANK_YOU
+  }
+
+  private def receiveHashes(hashes: Properties, dataSetSpec: String): RenderXml = {
+    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    import scala.collection.JavaConversions.asScalaMap
+    val hashesMap: collection.mutable.Map[String, String] = hashes
+
+    import com.mongodb.casbah.Imports.MongoDBObject
+
+    DataSet.getRecords(dataSet).collection.find(MongoDBObject("uniq" -> 1, "globalHash" -> 1)) foreach {
+      record =>
+        val uniq = record.asInstanceOf[MongoDBObject].getAs[String]("uniq")
+        val hash = record.asInstanceOf[MongoDBObject].getAs[String]("globalHash")
+        if (uniq != None && hash != None) {
+          hashesMap.get(uniq.get) match {
+            case r if r == hash => hashesMap.remove(uniq.get) // we have it
+            case r if r != hash => // we don't have it
+          }
+        }
+    }
+
+    def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
+      <data-set responseCode={responseCode.toString}>
+        <record-list>
+          {missingRecords reduceLeft (_ + ", " + _)}
+        </record-list>
+      </data-set>
+    }
+
+    new RenderXml(renderChangedRecordsList(missingRecords = hashesMap.keys.toList))
   }
 
 
@@ -402,7 +433,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
 
   private val input = createReader(inputStream)
 
-  private var path: Path = new Path
+  private val path: Path = new Path
   private val pathWithinRecord: Path = new Path
   private val recordRoot: Path = new Path(facts.getRecordRootPath)
   private val uniqueElement: Path = new Path(facts.getUniqueElementPath)
@@ -426,7 +457,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
         case START_ELEMENT =>
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
-            record = Some(new MetadataRecord(null, collection.mutable.Map.empty[String, String], new Date(), false, "", Map.empty[String, String]))
+            record = Some(new MetadataRecord(null, collection.mutable.Map.empty[String, String], new Date(), false, "", "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)
@@ -472,7 +503,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
             if (path == recordRoot) {
               record.get.metadata.put(metadataPrefix, xmlBuffer.toString())
               if (uniqueContent != null) record = Some(record.get.copy(uniq = uniqueContent))
-              record = Some(record.get.copy(hash = createHashToPathMap(valueMap)))
+              record = Some(record.get.copy(hash = createHashToPathMap(valueMap), globalHash = hasher.getHashString(xmlBuffer.toString())))
               xmlBuffer.setLength(0)
               building = false
             } else {
@@ -517,13 +548,13 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
   private def createHashToPathMap(valueMap: MultiMap[String, String]): Map[String, String] = {
     val bits: Iterable[collection.mutable.Set[(String, String)]] = for (path <- valueMap.keys) yield {
       var index: Int = 0
-      val innerBits: collection.mutable.Set[(String, String)] = for(value <- valueMap.get(path).get) yield {
+      val innerBits: collection.mutable.Set[(String, String)] = for (value <- valueMap.get(path).get) yield {
         val foo: String = if (index == 0) path else "%s_%d".format(path, index)
         index += 1
         (hasher.getHashString(value), foo)
       }
       innerBits
-    } 
+    }
     bits.flatten.toMap
   }
 

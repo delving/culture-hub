@@ -10,6 +10,8 @@ import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
 import com.mongodb.casbah.MongoCollection
 import com.mongodb.WriteConcern
+import com.mongodb.casbah.commons.MongoDBObject._
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -196,6 +198,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted
                          uniq: String,
+                         globalHash: String, // the hash of the raw content
                          hash: Map[String, String]) //extends MetadataRecord
 {
   //  import org.bson.types.ObjectId
@@ -219,6 +222,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
     metadata.get(metadataPrefix).getOrElse("<dc:title>nothing<dc:title>")
     // todo maybe give back as Elem and check for validity
   }
+
 }
 
 // this object is now removed, objects should be created depending on the collection, see Datasets
