@@ -197,7 +197,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                          metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
                          modified: Date,
                          deleted: Boolean, // if the record has been deleted
-                         uniq: String,
+                         localRecordKey: String, // content fingerprint
                          globalHash: String, // the hash of the raw content
                          hash: Map[String, String]) //extends MetadataRecord
 {

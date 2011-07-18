@@ -10,7 +10,7 @@ import play.mvc
 import mvc.Controller
 import play.libs.IO
 import java.util.{Properties, Date}
-import eu.delving.sip.{DataSetResponse, DataSetState}
+import eu.delving.sip.{DataSetState}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -118,17 +118,18 @@ object Datasets extends Controller {
       checkAccessKey(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
       val hash: String = Hasher.extractHashFromFileName(fileName)
-      if (hash == null) {
+      if (hash == null && fileType != "RECORDSTREAM") {
         throw new RuntimeException("No hash available for file name " + fileName)
       }
 
-      val inputStream: InputStream = request.body
+      val inputStream: InputStream = if(request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
 
       val responseCode = fileType match {
-        case "text/plain" | "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
-        case "text/plain" | "HASHES" => return receiveHashes(IO.readUtf8Properties(inputStream), dataSetSpec)
-        case "application/x-gzip" | "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
-        case "text/xml" | "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
+        case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
+        case "HASHES" => return receiveHashes(IO.readUtf8Properties(inputStream), dataSetSpec)
+        case "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
+        case "RECORDSTREAM" => receiveRecordStream(inputStream, dataSetSpec)
+        case "MAPPING" => receiveMapping(RecordMapping.read(inputStream, metadataModel), dataSetSpec, hash)
         case _ => DataSetResponseCode.SYSTEM_ERROR
       }
       renderDataSetListAsXml(responseCode = responseCode)
@@ -158,13 +159,14 @@ object Datasets extends Controller {
 
     import com.mongodb.casbah.Imports.MongoDBObject
 
-    DataSet.getRecords(dataSet).collection.find(MongoDBObject("uniq" -> 1, "globalHash" -> 1)) foreach {
+    DataSet.getRecords(dataSet).collection.find(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1)) foreach {
       record =>
-        val uniq = record.asInstanceOf[MongoDBObject].getAs[String]("uniq")
+        val localRecordKey = record.asInstanceOf[MongoDBObject].getAs[String]("localRecordKey")
         val hash = record.asInstanceOf[MongoDBObject].getAs[String]("globalHash")
-        if (uniq != None && hash != None) {
-          hashesMap.get(uniq.get) match {
-            case r if r == hash => hashesMap.remove(uniq.get) // we have it
+        if (localRecordKey != None && hash != None) {
+          println(hash.get + " " + localRecordKey.get)
+          hashesMap.get(localRecordKey.get) match {
+            case r if r == hash => hashesMap.remove(localRecordKey.get) // we have it
             case r if r != hash => // we don't have it
           }
         }
@@ -172,19 +174,56 @@ object Datasets extends Controller {
 
     def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
       <data-set responseCode={responseCode.toString}>
-        <record-list>
-          {missingRecords reduceLeft (_ + ", " + _)}
-        </record-list>
+        <changed-records-keys>{missingRecords reduceLeft (_ + ", " + _)}</changed-records-keys>
       </data-set>
     }
 
-    new RenderXml(renderChangedRecordsList(missingRecords = hashesMap.keys.toList))
+    val string: String = renderChangedRecordsList(missingRecords = hashesMap.keys.toList).toString()
+    new RenderXml(string)
+  }
+
+  private def receiveRecordStream(inputStream: InputStream, dataSetSpec: String): DataSetResponseCode = {
+
+    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+
+//    val f: File = new File("/tmp/foo")
+//    f.createNewFile()
+//    IOUtils.copy(inputStream, new FileOutputStream(f))
+
+    try {
+
+      val information = prepareSourceInformation(dataSet)
+
+      val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
+
+      var continue = true
+      while (continue) {
+        val record = parser.nextRecord()
+        if (record != None) {
+          println(record.get.toString)
+
+          // TODO update in mongo
+          
+          val toInsert = record.get.copy(modified = new Date(), deleted = false)
+          println(toInsert)
+          //records.insert(toInsert)
+        } else {
+          continue = false
+        }
+      }
+    } catch {
+      case e: Exception => {
+        import cake.metaRepo.RecordParseException
+        throw new RecordParseException("Unable to parse records", e)
+      }
+      case t: Throwable => t.printStackTrace()
+    }
+
+    DataSetResponseCode.THANK_YOU
   }
 
 
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
-
-    val gZIPInputStream: GZIPInputStream = new GZIPInputStream(inputStream)
 
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
@@ -198,15 +237,10 @@ object Datasets extends Controller {
     records.collection.drop()
 
     try {
-      val details: Details = dataSet.details
 
-      val namespaces = scala.collection.mutable.Map[String, String]()
-      for (ns <- MetadataNamespace.values) namespaces.put(ns.getPrefix, ns.getUri)
+      val information = prepareSourceInformation(dataSet)
 
-      val mdFormat: MetadataFormat = dataSet.details.metadataFormat
-      namespaces.put(mdFormat.prefix, mdFormat.namespace)
-
-      val parser = new DataSetParser(gZIPInputStream, namespaces, mdFormat, details.metadataFormat.prefix, Facts.fromBytes(details.facts_bytes))
+      val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
 
       var continue = true
       while (continue) {
@@ -238,6 +272,19 @@ object Datasets extends Controller {
     val ds = dataSet.copy(source_hash = hash, details = details)
     DataSet.save(ds)
     DataSetResponseCode.THANK_YOU
+  }
+
+  private def prepareSourceInformation(dataSet: DataSet) = {
+    val details: Details = dataSet.details
+
+    val namespaces = scala.collection.mutable.Map[String, String]()
+    for (ns <- MetadataNamespace.values) namespaces.put(ns.getPrefix, ns.getUri)
+
+    val mdFormat: MetadataFormat = dataSet.details.metadataFormat
+    namespaces.put(mdFormat.prefix, mdFormat.namespace)
+
+    (details, namespaces, mdFormat)
+
   }
 
   private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
@@ -502,7 +549,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
           if (record != None) {
             if (path == recordRoot) {
               record.get.metadata.put(metadataPrefix, xmlBuffer.toString())
-              if (uniqueContent != null) record = Some(record.get.copy(uniq = uniqueContent))
+              if (uniqueContent != null) record = Some(record.get.copy(localRecordKey = uniqueContent))
               record = Some(record.get.copy(hash = createHashToPathMap(valueMap), globalHash = hasher.getHashString(xmlBuffer.toString())))
               xmlBuffer.setLength(0)
               building = false
