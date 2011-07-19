@@ -24,6 +24,7 @@ require:
     - provided -> im4java 1.1.0
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
+    - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
     # for testing
     - com.borachio -> borachio_2.8.1 1.1:
         exclude:
@@ -56,6 +57,11 @@ repositories:
          contains:
             - de.micromata.jak -> *
             - com.sun.xml.bind -> *
+    - apache-snapshots:
+         type: iBiblio
+         root: "https://repository.apache.org/content/groups/snapshots-group/"
+         contains:
+            - org.apache.amber -> *
     - novus:
         type: iBiblio
         root: "http://repo.novus.com/snapshots/"

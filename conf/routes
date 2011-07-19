@@ -5,11 +5,14 @@
 # Home page
 GET         /                                       Application.index
 
-# Authentication
+# Form-based authentication
 GET         /login                                  Authentication.login
 POST        /login                                  Authentication.authenticate
 GET         /logout                                 Authentication.logout
 
+# OAuth2
+GET         /authorize                              OAuth2Authenticatior.authenticate
+GET         /token                                  OAuth2TokenEndpoint.token
 
 # Backwards compatibility with the old services module
 GET         /services/                                                       Services.index
