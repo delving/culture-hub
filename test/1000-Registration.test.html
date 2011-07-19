@@ -5,12 +5,12 @@
 
   open('/')
   clickAndWait('link=Register!')
-  type('firstName','Foo')
-  type('lastName','Bar')
-  type('email','foo@bar.com')
-  type('displayName','foo')
-  type('password1','foo')
-  type('password2','foo')
+  type('registration.firstName','Foo')
+  type('registration.lastName','Bar')
+  type('registration.email','foo@bar.com')
+  type('registration.displayName','foo')
+  type('registration.password1','foo')
+  type('registration.password2','foo')
   clickAndWait('css=input[type=submit]')
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
