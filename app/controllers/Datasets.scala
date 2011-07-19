@@ -11,6 +11,7 @@ import mvc.Controller
 import play.libs.IO
 import java.util.{Properties, Date}
 import eu.delving.sip.{DataSetState}
+import models.MetadataRecord
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -122,7 +123,7 @@ object Datasets extends Controller {
         throw new RuntimeException("No hash available for file name " + fileName)
       }
 
-      val inputStream: InputStream = if(request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
+      val inputStream: InputStream = if (request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
 
       val responseCode = fileType match {
         case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
@@ -164,7 +165,6 @@ object Datasets extends Controller {
         val localRecordKey = record.asInstanceOf[MongoDBObject].getAs[String]("localRecordKey")
         val hash = record.asInstanceOf[MongoDBObject].getAs[String]("globalHash")
         if (localRecordKey != None && hash != None) {
-          println(hash.get + " " + localRecordKey.get)
           hashesMap.get(localRecordKey.get) match {
             case r if r == hash => hashesMap.remove(localRecordKey.get) // we have it
             case r if r != hash => // we don't have it
@@ -174,7 +174,9 @@ object Datasets extends Controller {
 
     def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
       <data-set responseCode={responseCode.toString}>
-        <changed-records-keys>{missingRecords reduceLeft (_ + ", " + _)}</changed-records-keys>
+        <changed-records-keys>
+          {missingRecords reduceLeft (_ + ", " + _)}
+        </changed-records-keys>
       </data-set>
     }
 
@@ -186,27 +188,18 @@ object Datasets extends Controller {
 
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
 
-//    val f: File = new File("/tmp/foo")
-//    f.createNewFile()
-//    IOUtils.copy(inputStream, new FileOutputStream(f))
-
     try {
 
       val information = prepareSourceInformation(dataSet)
-
       val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
+      val records = DataSet.getRecords(dataSet)
 
       var continue = true
       while (continue) {
         val record = parser.nextRecord()
         if (record != None) {
-          println(record.get.toString)
-
-          // TODO update in mongo
-          
-          val toInsert = record.get.copy(modified = new Date(), deleted = false)
-          println(toInsert)
-          //records.insert(toInsert)
+          val updatedRecord: MetadataRecord = record.get.copy(modified = new Date(), deleted = false)
+          records.upsertByLocalKey(updatedRecord)
         } else {
           continue = false
         }
@@ -239,7 +232,6 @@ object Datasets extends Controller {
     try {
 
       val information = prepareSourceInformation(dataSet)
-
       val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
 
       var continue = true

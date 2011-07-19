@@ -4,14 +4,14 @@ import java.util.Date
 import cake.metaRepo.PmhVerbType.PmhVerb
 import org.bson.types.ObjectId
 import models.salatContext._
-import com.novus.salat.dao.SalatDAO
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
 import com.mongodb.casbah.MongoCollection
 import com.mongodb.WriteConcern
-import com.mongodb.casbah.commons.MongoDBObject._
 import com.mongodb.casbah.commons.MongoDBObject
+import com.novus.salat._
+import dao.SalatDAO
 
 /**
  *
@@ -105,10 +105,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     remove(dataSet)
   }
 
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] = {
+  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR = {
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
-    object MDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
-    MDR
+    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
+    CollectionMDR
   }
 
   def find(spec: String): Option[DataSet] = {
@@ -225,8 +225,21 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
 }
 
-// this object is now removed, objects should be created depending on the collection, see Datasets
-//object MetadataRecord extends SalatDAO[MetadataRecord, ObjectId](collection = connection("Records"))
+trait MDR { self: SalatDAO[MetadataRecord, ObjectId] =>
+
+  def existsByLocalRecordKey(key: String) = {
+    count(MongoDBObject("localRecordKey" -> key)) > 0
+  }
+
+  def findByLocalRecordKey(key: String) = {
+    findOne(MongoDBObject("localRecordKey" -> key))
+  }
+
+  def upsertByLocalKey(updatedRecord: MetadataRecord) {
+    update(MongoDBObject("localRecordKey" -> updatedRecord.localRecordKey), updatedRecord, true, false, new WriteConcern())
+  }
+}
+
 
 case class PmhRequest(
                              verb: PmhVerb,
