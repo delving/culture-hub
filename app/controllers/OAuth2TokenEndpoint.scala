@@ -28,10 +28,11 @@ import models.User
 
 object OAuth2TokenEndpoint extends Controller {
 
-  // TODO token expiration job
+  val TOKEN_TIMEOUT = 3600
+
   val validTokenMap = new collection.mutable.HashMap[String, Token]
 
-  case class Token(user: User, timeout: Int)
+  case class Token(user: User, issueTime: Long = System.currentTimeMillis())
 
   val security = new ServicesSecurity
 
@@ -62,9 +63,9 @@ object OAuth2TokenEndpoint extends Controller {
 
       // we respond if all the above passed
       val token: String = oauthIssuerImpl.accessToken
-      validTokenMap += (token -> Token(user = user, timeout = 3600))
+      validTokenMap += (token -> Token(user = user))
 
-      val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(token).setExpiresIn("3600").buildJSONMessage()
+      val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(token).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
       new RenderJson(resp.getBody)
     }
     catch {
@@ -84,6 +85,12 @@ object OAuth2TokenEndpoint extends Controller {
 
   @Util def isValidToken(token: String) = {
     validTokenMap.contains(token)
+  }
+
+  @Util def evictExpiredTokens() {
+    validTokenMap foreach {
+      token => if(System.currentTimeMillis() - token._2.issueTime > TOKEN_TIMEOUT * 1000) validTokenMap.remove(token._1)
+    }
   }
 
   @Util def getUserByToken(token: String) = {
