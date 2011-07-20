@@ -23,8 +23,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   val nobody: User = User("", "", "none@nothing.com", "", "Nobody", false, None, None, false)
 
-  def connect(email: String, password: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("email" -> email, "password" -> Crypto.passwordHash(password)))
+  def connect(username: String, password: String): Boolean = {
+    val theOne: Option[User] = User.findOne(MongoDBObject("displayName" -> username, "password" -> Crypto.passwordHash(password)))
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
@@ -33,22 +33,24 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
-  def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
+  def findByUsername(username: String) = User.findOne(MongoDBObject("displayName" -> username))
 
-  def existsWithDisplayName(displayName: String) = User.count(MongoDBObject("displayName" -> displayName)) != 0
+  def existsWithEmail(email: String) = User.count(MongoDBObject("displayName" -> email)) != 0
+
+  def existsWithUsername(displayName: String) = User.count(MongoDBObject("displayName" -> displayName)) != 0
 
   def activateUser(activationToken: String): Boolean = {
     val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return false)
     val activeUser: User = user.copy(isActive = true, activationToken = None)
-    User.update(MongoDBObject("email" -> activeUser.email), activeUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("displayName" -> activeUser.displayName), activeUser, false, false, new WriteConcern())
     // also log the guy in
-    play.mvc.Scope.Session.current().put("username", activeUser.email)
+    play.mvc.Scope.Session.current().put("username", activeUser.displayName)
     true
   }
 
   def preparePasswordReset(user: User, resetPasswordToken: String) {
     val resetUser = user.copy(resetPasswordToken = Some(resetPasswordToken))
-    User.update(MongoDBObject("email" -> resetUser.email), resetUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("displayName" -> resetUser.displayName), resetUser, false, false, new WriteConcern())
   }
 
   def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0

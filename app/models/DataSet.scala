@@ -7,9 +7,9 @@ import models.salatContext._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
-import com.mongodb.casbah.MongoCollection
-import com.mongodb.WriteConcern
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 
@@ -83,8 +83,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   import cake.metaRepo.DataSetNotFoundException
   import com.mongodb.casbah.commons.MongoDBObject
-  import java.io.InputStream
-  import eu.delving.metadata.Facts
 
   def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 

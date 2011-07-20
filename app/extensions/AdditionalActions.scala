@@ -104,35 +104,6 @@ class ObjectIdSerializer extends Serializer[ObjectId] {
   def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toString)) :: Nil)
 }
 
-class RenderText(text: String, status: java.lang.Integer = 200) extends Result {
-  def apply(request: Http.Request, response: Http.Response) {
-    try {
-      setContentTypeIfNotSet(response, "text/plain; charset=" + response.encoding)
-      response.status = status
-      response.out.write(text.getBytes(getEncoding))
-    }
-    catch {
-      case e: Exception => {
-        throw new UnexpectedException(e)
-      }
-    }
-  }
-}
-
-class RenderJson(body: String, status: java.lang.Integer = 200) extends Result {
-  def apply(request: Request, response: Response) {
-    try {
-      val encoding = getEncoding
-      setContentTypeIfNotSet(response, "application/json; charset=" + encoding);
-      response.status = status
-      response.out.write(body.getBytes(encoding));
-    } catch {
-      case e: Exception => throw new UnexpectedException(e);
-    }
-  }
-}
-
-
 class RenderKml(entity: AnyRef) extends Result {
   def apply(request: Request, response: Response) {
     val doc = entity match {

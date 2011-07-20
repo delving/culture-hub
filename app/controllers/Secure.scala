@@ -18,7 +18,7 @@ trait Secure {
   def checkSecurity = {
     session("username") match {
       case Some(username) => {
-        val maybeUser: Option[User] = User.findOne(MongoDBObject("email" -> username))
+        val maybeUser: Option[User] = User.findOne(MongoDBObject("displayName" -> username))
         maybeUser match {
           case Some(user) => {
             renderArgs += "username" -> user
@@ -65,7 +65,7 @@ object Authentication extends Controller {
 
     val remember = request.cookies.get("rememberme")
     if (remember != null && remember.value.indexOf("-") > 0) {
-      var sign: String = remember.value.substring(0, remember.value.indexOf("-"))
+      val sign: String = remember.value.substring(0, remember.value.indexOf("-"))
       val username: String = remember.value.substring(remember.value.indexOf("-") + 1)
       if (Crypto.sign(username) == sign) {
         session.put("username", username)

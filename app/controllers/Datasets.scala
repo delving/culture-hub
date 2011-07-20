@@ -39,13 +39,10 @@ object Datasets extends Controller {
 
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
 
-  private val accessKeyService: AccessKey = ComponentRegistry.accessKey
-
   def secureListAll: Result = {
     try {
       renderDataSetListAsXml(dataSets = DataSet.findAll)
-    }
-    catch {
+    } catch {
       case e: Exception => renderException(e)
     }
   }
@@ -74,7 +71,7 @@ object Datasets extends Controller {
 
   def listAll(accessKey: String): Result = {
     try {
-      checkAccessToken(accessKey)
+      val user = checkAccessToken(accessKey)
       renderDataSetListAsXml(dataSets = DataSet.findAll)
     }
     catch {
@@ -98,7 +95,7 @@ object Datasets extends Controller {
     }
   }
 
-  private def checkAccessToken(accessKey: String) {
+  private def checkAccessToken(accessKey: String): User = {
     import cake.metaRepo.AccessKeyException
     if (accessKey.isEmpty) {
       log.warn("Service Access Key missing")
@@ -108,6 +105,7 @@ object Datasets extends Controller {
       log.warn(String.format("Service Access Key %s invalid!", accessKey))
       throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
     }
+    OAuth2TokenEndpoint.getUserByToken(accessKey)
   }
 
   //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
@@ -116,7 +114,7 @@ object Datasets extends Controller {
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, accessKey: String): Result = {
     try {
       import eu.delving.metadata.Hasher
-      checkAccessToken(accessKey)
+      val user = checkAccessToken(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
       val hash: String = Hasher.extractHashFromFileName(fileName)
       if (hash == null && fileType != "RECORDSTREAM") {
@@ -126,7 +124,7 @@ object Datasets extends Controller {
       val inputStream: InputStream = if (request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
 
       val responseCode = fileType match {
-        case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
+        case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash, user)
         case "HASHES" => return receiveHashes(IO.readUtf8Properties(inputStream), dataSetSpec)
         case "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
         case "RECORDSTREAM" => receiveRecordStream(inputStream, dataSetSpec)
@@ -279,7 +277,7 @@ object Datasets extends Controller {
 
   }
 
-  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
+  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String, user: User): DataSetResponseCode = {
     import models.{MetadataFormat, Details}
     import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
@@ -305,8 +303,7 @@ object Datasets extends Controller {
     val updatedDataSet: DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details,
-          facts_hash = hash)
+        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash)
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }

@@ -16,7 +16,7 @@
 
   # Verify if an error is displayed if the account is not active
   clickAndWait('link=Login')
-  type('username','foo@bar.com')
+  type('username','foo')
   type('password','foo')
   clickAndWait('signin')
   verifyTextPresent('Your account is not yet active. Active it following the link in the mail. ')

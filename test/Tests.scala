@@ -39,7 +39,7 @@ trait TestData {
 trait TestDataUsers extends TestData {
   Yaml[List[Any]]("testUsers.yml").foreach {
     _ match {
-      case u: User => User.insert(u)
+      case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
     }
   }
 }

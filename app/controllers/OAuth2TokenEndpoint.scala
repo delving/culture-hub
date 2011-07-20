@@ -13,9 +13,9 @@ import org.apache.amber.oauth2.as.request.OAuthRequest
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.amber.oauth2.as.validator._
 import play.mvc.results.Result
-import extensions.RenderJson
 import play.mvc.{Util, Controller, Http}
 import models.User
+
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -53,7 +53,7 @@ object OAuth2TokenEndpoint extends Controller {
       }
 
       val user = grantType match {
-        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByEmail(oauthRequest.getUsername).get
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
         // TODO
         case GrantType.REFRESH_TOKEN => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
@@ -66,21 +66,23 @@ object OAuth2TokenEndpoint extends Controller {
       validTokenMap += (token -> Token(user = user))
 
       val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(token).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
-      new RenderJson(resp.getBody)
+      Json(resp.getBody)
     }
     catch {
       case e: OAuthProblemException => {
         val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
-        val response: OAuthResponse = builder.error(e).buildJSONMessage()
-        new RenderJson(response.getBody, HttpServletResponse.SC_BAD_REQUEST)
+        val resp: OAuthResponse = builder.error(e).buildJSONMessage()
+        response.status = 400
+        Json(resp.getBody)
       }
     }
   }
 
   def errorResponse(tokenResponse: String, message: String): Result = {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
-    val response: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
-    new RenderJson(response.getBody, HttpServletResponse.SC_BAD_REQUEST)
+    val resp: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
+    response.status = 400
+    Json(resp.getBody)
   }
 
   @Util def isValidToken(token: String) = {

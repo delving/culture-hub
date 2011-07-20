@@ -47,7 +47,7 @@ object Registration extends DelvingController {
     }
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
-    if (User.existsWithDisplayName(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
+    if (User.existsWithUsername(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
 
     Cache.delete(randomId)
 
@@ -108,7 +108,6 @@ object Registration extends DelvingController {
       } else {
         val u = user.get
         if(!u.isActive) {
-          println(user.get.isActive)
           Validation.addError("email", "This account is not active yet. Please activate your account with the link sent in the registration e-mail", email)
         }
       }
