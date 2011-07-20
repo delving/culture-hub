@@ -6,18 +6,19 @@ import org.apache.amber.oauth2.common.message.OAuthResponse
 import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.error.OAuthError
 import org.apache.amber.oauth2.common.exception.OAuthProblemException
-import play.mvc.results.Result
-import extensions.RenderLiftJson
-import play.mvc.Http
 import org.apache.amber.oauth2.common.validators.OAuthValidator
 import org.apache.amber.oauth2.common.message.types.GrantType
 import org.apache.amber.oauth2.common.utils.OAuthUtils
 import org.apache.amber.oauth2.as.request.OAuthRequest
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.amber.oauth2.as.validator._
+import play.mvc.results.Result
+import extensions.RenderJson
+import play.mvc.{Util, Controller, Http}
+import models.User
 
 /**
- * TokenEndPoint inspired from the Apache Amber examples
+ * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
  *
  * @see http://tools.ietf.org/html/draft-ietf-oauth-v2-18
  * @see https://svn.apache.org/repos/asf/incubator/amber/trunk/oauth-2.0/oauth2-integration-tests/src/test/java/org/apache/amber/oauth2/integration/endpoints/TokenEndpoint.java
@@ -25,55 +26,68 @@ import org.apache.amber.oauth2.as.validator._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAuth2TokenEndpoint extends DelvingController {
+object OAuth2TokenEndpoint extends Controller {
+
+  // TODO token expiration job
+  val validTokenMap = new collection.mutable.HashMap[String, Token]
+
+  case class Token(user: User, timeout: Int)
 
   val security = new ServicesSecurity
 
   def token(): Result = {
-
     val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
+
     try {
       val oauthRequest = new PlayOAuthTokenRequest(request)
 
-      if (GrantType.ASSERTION.toString != oauthRequest.getGrantType) {
-        /* TODO
-        if (!(Common.CLIENT_ID == oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID))) {
-          var response: OAuthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found").buildJSONMessage
-          return Response.status(response.getResponseStatus).entity(response.getBody).build
-        }
-        */
-      }
-      if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE) == GrantType.AUTHORIZATION_CODE.toString) {
-        if (!("foo" == oauthRequest.getParam(OAuth.OAUTH_CODE))) errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid authorization code")
-      } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE) == GrantType.PASSWORD.toString) {
-        if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password")
+      // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
+      if (oauthRequest.getGrantType == null) return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
 
-      } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE) == GrantType.ASSERTION.toString) {
-        // not yet supported
-        // if (!(Common.ASSERTION == oauthRequest.getAssertion)) {
-        errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
-      } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE) == GrantType.REFRESH_TOKEN.toString) {
-        errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password")
+      var grantType: GrantType = null;
+      try {
+        grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
+      } catch {
+        case iae: IllegalArgumentException => return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
       }
 
-      // we respond if all the above is ok
-      val response: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(oauthIssuerImpl.accessToken).setExpiresIn("3600").buildJSONMessage
-      new RenderLiftJson(response.getBody, HttpServletResponse.SC_OK)
+      val user = grantType match {
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByEmail(oauthRequest.getUsername).get
+        // TODO
+        case GrantType.REFRESH_TOKEN => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
+        case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
+        case GrantType.ASSERTION => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
+        case GrantType.NONE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
+      }
+
+      // we respond if all the above passed
+      val token: String = oauthIssuerImpl.accessToken
+      validTokenMap += (token -> Token(user = user, timeout = 3600))
+
+      val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(token).setExpiresIn("3600").buildJSONMessage()
+      new RenderJson(resp.getBody)
     }
     catch {
       case e: OAuthProblemException => {
         val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
-        builder.error(e).buildJSONMessage
-        new RenderLiftJson(builder.buildJSONMessage().getBody, HttpServletResponse.SC_BAD_REQUEST)
+        val response: OAuthResponse = builder.error(e).buildJSONMessage()
+        new RenderJson(response.getBody, HttpServletResponse.SC_BAD_REQUEST)
       }
     }
-    Ok
   }
 
   def errorResponse(tokenResponse: String, message: String): Result = {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
-    builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage
-    new RenderLiftJson(builder.buildJSONMessage().getBody, HttpServletResponse.SC_BAD_REQUEST)
+    val response: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
+    new RenderJson(response.getBody, HttpServletResponse.SC_BAD_REQUEST)
+  }
+
+  @Util def isValidToken(token: String) = {
+    validTokenMap.contains(token)
+  }
+
+  @Util def getUserByToken(token: String) = {
+    validTokenMap.get(token).get.user
   }
 
   /**

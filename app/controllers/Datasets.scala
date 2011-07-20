@@ -74,7 +74,7 @@ object Datasets extends Controller {
 
   def listAll(accessKey: String): Result = {
     try {
-      checkAccessKey(accessKey)
+      checkAccessToken(accessKey)
       renderDataSetListAsXml(dataSets = DataSet.findAll)
     }
     catch {
@@ -90,7 +90,7 @@ object Datasets extends Controller {
   //  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}"))
   def indexingControl(dataSetSpec: String, command: String, accessKey: String): Result = {
     try {
-      checkAccessKey(accessKey)
+      checkAccessToken(accessKey)
       indexingControlInternal(dataSetSpec, command)
     }
     catch {
@@ -98,13 +98,13 @@ object Datasets extends Controller {
     }
   }
 
-  private def checkAccessKey(accessKey: String) {
+  private def checkAccessToken(accessKey: String) {
     import cake.metaRepo.AccessKeyException
     if (accessKey.isEmpty) {
       log.warn("Service Access Key missing")
       throw new AccessKeyException("Access Key missing")
     }
-    else if (!accessKeyService.checkKey(accessKey)) {
+    else if (!OAuth2TokenEndpoint.isValidToken(accessKey)) {
       log.warn(String.format("Service Access Key %s invalid!", accessKey))
       throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
     }
@@ -116,7 +116,7 @@ object Datasets extends Controller {
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, accessKey: String): Result = {
     try {
       import eu.delving.metadata.Hasher
-      checkAccessKey(accessKey)
+      checkAccessToken(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
       val hash: String = Hasher.extractHashFromFileName(fileName)
       if (hash == null && fileType != "RECORDSTREAM") {

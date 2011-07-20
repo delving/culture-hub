@@ -6,18 +6,18 @@ import org.apache.amber.oauth2.common.utils.OAuthUtils
 import org.apache.amber.oauth2.common.message.types.ResponseType
 import org.apache.amber.oauth2.as.validator.{CodeTokenValidator, TokenValidator, CodeValidator}
 import org.apache.amber.oauth2.common.OAuth
-import play.mvc.Http
 import play.mvc.results.Result
 import org.apache.amber.oauth2.as.issuer.{MD5Generator, OAuthIssuerImpl}
 import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.message.OAuthResponse.OAuthErrorResponseBuilder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import play.mvc.{Controller, Http}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class OAuth2Authenticator extends DelvingController {
+object OAuth2Authenticator extends Controller {
 
   val security = new ServicesSecurity
 

@@ -43,7 +43,7 @@ import play.Play
     if (User.count() == 0) {
       Yaml[List[Any]]("initial-data.yml").foreach {
         _ match {
-          case u: User => User.insert(u)
+          case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
         }
       }
     }
