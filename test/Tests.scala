@@ -9,10 +9,10 @@ import org.scalatest.matchers._
 import org.scalatest.Suite
 import models.salatContext._
 import play.test._
-import util.{ThemeHandler, ThemeHandlerComponent}
 import play.libs.OAuth2
 import play.libs.OAuth2.Response
 import test.{TestDataUsers, TestEnvironment, TestData}
+import util.{YamlLoader, ThemeHandler, ThemeHandlerComponent}
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -37,9 +37,10 @@ trait TestData {
  * Loads test users
  */
 trait TestDataUsers extends TestData {
-  Yaml[List[Any]]("testUsers.yml").foreach {
+  YamlLoader.load[List[Any]]("testUsers.yml").foreach {
     _ match {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
+      case _ =>
     }
   }
 }

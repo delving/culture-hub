@@ -1,12 +1,12 @@
 package controllers
 
 import play.data.validation.{Validation, Required, Email}
-import models.User
 import play.cache.Cache
 import play.libs.Codec
 import play.libs.Crypto
 import notifiers.Mails
 import play.Play
+import models.{UserReference, User}
 
 /**
  *
@@ -47,7 +47,7 @@ object Registration extends DelvingController {
     }
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
-    if (User.existsWithUsername(r.displayName)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
+    if (User.existsWithUsername(r.displayName, getNode)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
 
     Cache.delete(randomId)
 
@@ -57,7 +57,8 @@ object Registration extends DelvingController {
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(r.firstName, r.lastName, r.email, Crypto.passwordHash(r.password1), r.displayName, false, Some(activationToken), None, false)
+      // TODO save the node
+      val newUser = User(reference = UserReference(r.displayName, getNode, getUserId(r.displayName)), firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), displayName = r.displayName, isActive = false, activationToken =Some(activationToken), resetPasswordToken = None)
       User.insert(newUser)
 
       try {

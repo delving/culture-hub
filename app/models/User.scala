@@ -7,24 +7,29 @@ import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
 
-case class User(firstName: String,
+/** Unique reference to a user across the CultureHub space **/
+case class UserReference(username: String = "", node: String = "", id: String = "")
+
+object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
+
+case class User(reference: UserReference,
+                firstName: String,
                 lastName: String,
                 email: String,
                 password: String,
                 displayName: String,
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
-                resetPasswordToken: Option[String] = None,
-                isAdmin: Boolean = false) {
+                resetPasswordToken: Option[String] = None) {
   val fullname = firstName + " " + lastName
 }
 
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User("", "", "none@nothing.com", "", "Nobody", false, None, None, false)
+  val nobody: User = User(UserReference("", "", "") ,"", "", "none@nothing.com", "", "Nobody", false, None, None)
 
-  def connect(username: String, password: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("displayName" -> username, "password" -> Crypto.passwordHash(password)))
+  def connect(username: String, password: String, node: String): Boolean = {
+    val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
@@ -33,16 +38,18 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
-  def findByUsername(username: String) = User.findOne(MongoDBObject("displayName" -> username))
+  def findByUsername(username: String, node: String) = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node))
+
+  def findByUserId(id: String) = User.findOne(MongoDBObject("reference.id" -> id))
 
   def existsWithEmail(email: String) = User.count(MongoDBObject("displayName" -> email)) != 0
 
-  def existsWithUsername(displayName: String) = User.count(MongoDBObject("displayName" -> displayName)) != 0
+  def existsWithUsername(displayName: String, node: String) = User.count(MongoDBObject("reference.username" -> displayName, "reference.node" -> node)) != 0
 
   def activateUser(activationToken: String): Boolean = {
     val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return false)
     val activeUser: User = user.copy(isActive = true, activationToken = None)
-    User.update(MongoDBObject("displayName" -> activeUser.displayName), activeUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("reference.id" -> activeUser.reference.id), activeUser, false, false, new WriteConcern())
     // also log the guy in
     play.mvc.Scope.Session.current().put("username", activeUser.displayName)
     true
@@ -50,7 +57,7 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   def preparePasswordReset(user: User, resetPasswordToken: String) {
     val resetUser = user.copy(resetPasswordToken = Some(resetPasswordToken))
-    User.update(MongoDBObject("displayName" -> resetUser.displayName), resetUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("reference.id" -> resetUser.reference.id), resetUser, false, false, new WriteConcern())
   }
 
   def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0

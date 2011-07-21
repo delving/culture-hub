@@ -53,7 +53,7 @@ object OAuth2TokenEndpoint extends Controller {
       }
 
       val user = grantType match {
-        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername).get
         // TODO
         case GrantType.REFRESH_TOKEN => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")

@@ -4,6 +4,7 @@ import play.exceptions.ConfigurationException
 import play.jobs._
 import play.libs.IO
 import play.Play
+import util.YamlLoader
 
 @OnApplicationStart class BootStrap extends Job {
 
@@ -41,9 +42,10 @@ import play.Play
 
     // Import initial data if the database is empty
     if (User.count() == 0) {
-      Yaml[List[Any]]("initial-data.yml").foreach {
+      YamlLoader.load[List[Any]]("initial-data.yml").foreach {
         _ match {
           case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
+          case _ =>
         }
       }
     }

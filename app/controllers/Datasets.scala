@@ -303,7 +303,7 @@ object Datasets extends Controller {
     val updatedDataSet: DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash)
+        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = List(UserAction(user = user.reference, owner = Some(true))), groups = List()))
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }

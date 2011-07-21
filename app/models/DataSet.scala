@@ -7,33 +7,37 @@ import models.salatContext._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
-import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.MongoCollection
 import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
+import com.mongodb.casbah.MongoCollection
 
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 7/8/11 8:12 AM  
  */
 
 case class DataSet(_id: ObjectId = new ObjectId,
-                          spec: String,
-                          state: String, // imported from sip-core
-                          details: Details,
-                          facts_hash: String,
-                          source_hash: String = "",
-                          downloaded_source_hash: Option[String] = Some(""),
-                          namespaces: Map[String, String] = Map.empty[String, String],
-                          mappings: Map[String, Mapping] = Map.empty[String, Mapping]
-                          ) {
+                   spec: String,
+                   state: String, // imported from sip-core
+                   details: Details,
+                   facts_hash: String,
+                   source_hash: String = "",
+                   downloaded_source_hash: Option[String] = Some(""),
+                   namespaces: Map[String, String] = Map.empty[String, String],
+                   mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   access: AccessRight
+                  ) {
+
   import xml.Elem
 
-  def getDataSetState : DataSetState = DataSetState.get(state)
+  def getDataSetState: DataSetState = DataSetState.get(state)
 
-  def getHashes : List[String] = {
+  def getHashes: List[String] = {
     val mappingList = mappings.values.map(_.mapping_hash).toList
     val hashes: List[String] = facts_hash :: source_hash :: mappingList
     hashes.filterNot(_.isEmpty)
@@ -44,14 +48,24 @@ case class DataSet(_id: ObjectId = new ObjectId,
   // todo update sip-creator with richer info.
   def toXml: Elem = {
     <dataset>
-      <spec>{spec}</spec>
-      <name>{details.name}</name>
-      <state>{state.toString}</state>
-      <recordCount>{details.total_records}</recordCount>
+      <spec>
+        {spec}
+      </spec>
+      <name>
+        {details.name}
+      </name>
+      <state>
+        {state.toString}
+      </state>
+      <recordCount>
+        {details.total_records}
+      </recordCount>
       <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
       <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
       <hashes>
-        {getHashes.map(hash => <string>{hash}</string>)}
+        {getHashes.map(hash => <string>
+        {hash}
+      </string>)}
       </hashes>
       <!--errorMessage>{details.errorMessage}</errorMessage>
       <mappings>
@@ -62,7 +76,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
-  def setMapping(mapping: RecordMapping, hash: String, accessKeyRequired: Boolean = true) : DataSet = {
+  def setMapping(mapping: RecordMapping, hash: String, accessKeyRequired: Boolean = true): DataSet = {
     import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
 
@@ -79,7 +93,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
 
   import cake.metaRepo.DataSetNotFoundException
   import com.mongodb.casbah.commons.MongoDBObject
@@ -119,8 +133,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     deleteResponse.getStatus
     getSolrServer.commit
   }
-  
-  def getRecordCount(dataSet: DataSet) : Int = getRecordCount(dataSet.spec)
+
+  def getRecordCount(dataSet: DataSet): Int = getRecordCount(dataSet.spec)
 
   def getRecordCount(spec: String): Int = {
     import com.mongodb.casbah.MongoCollection
@@ -128,6 +142,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val count: Long = records.count
     count.toInt
   }
+
+  protected def getCollection() = collection
 }
 
 //object DataSetStateType extends Enumeration {
@@ -156,9 +172,15 @@ case class Mapping(recordMapping: String,
 
   def toXml: Elem = {
     <mapping>
-      <name>{format.prefix}</name>
-      <rec_indexed>{rec_indexed}</rec_indexed>
-      <indexed>{indexed}</indexed>
+      <name>
+        {format.prefix}
+      </name>
+      <rec_indexed>
+        {rec_indexed}
+      </rec_indexed>
+      <indexed>
+        {indexed}
+      </indexed>
     </mapping>
   }
 }
@@ -170,7 +192,7 @@ case class MetadataFormat(prefix: String,
 
 object MetadataFormat {
 
-  def create(prefix: String, accessKeyRequired: Boolean = true) : MetadataFormat = {
+  def create(prefix: String, accessKeyRequired: Boolean = true): MetadataFormat = {
     import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
 
@@ -192,13 +214,12 @@ case class Details(
                           )
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
-                         metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
-                         modified: Date,
-                         deleted: Boolean, // if the record has been deleted
-                         localRecordKey: String, // content fingerprint
-                         globalHash: String, // the hash of the raw content
-                         hash: Map[String, String]) //extends MetadataRecord
-{
+                          metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
+                          modified: Date,
+                          deleted: Boolean, // if the record has been deleted
+                          localRecordKey: String, // content fingerprint
+                          globalHash: String, // the hash of the raw content
+                          hash: Map[String, String]) { //extends MetadataRecord {
   //  import org.bson.types.ObjectId
   //  import com.mongodb.DBObject
   //
@@ -223,7 +244,8 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
 }
 
-trait MDR { self: SalatDAO[MetadataRecord, ObjectId] =>
+trait MDR {
+  self: SalatDAO[MetadataRecord, ObjectId] =>
 
   def existsByLocalRecordKey(key: String) = {
     count(MongoDBObject("localRecordKey" -> key)) > 0
@@ -245,8 +267,7 @@ case class PmhRequest(
                              from: Option[Date],
                              until: Option[Date],
                              prefix: String
-                             ) // extends PmhRequest
-{
+                             ) { // extends PmhRequest {
   def getVerb: PmhVerb = verb
 
   def getSet: String = set
@@ -258,29 +279,29 @@ case class PmhRequest(
   def getMetadataPrefix: String = prefix
 }
 
-case class HarvestStep(       _id: ObjectId = new ObjectId,
-                              first: Boolean,
-                              exporatopm: Date,
-                              listSize: Int,
-                              cursor: Int,
-                              pmhRequest: PmhRequest,
-                              namespaces: Map[String, String],
-                              error: String,
-                              afterId: ObjectId,
-                              nextId: ObjectId
+case class HarvestStep(_id: ObjectId = new ObjectId,
+                       first: Boolean,
+                       exporatopm: Date,
+                       listSize: Int,
+                       cursor: Int,
+                       pmhRequest: PmhRequest,
+                       namespaces: Map[String, String],
+                       error: String,
+                       afterId: ObjectId,
+                       nextId: ObjectId
                               )
 
 object HarvestStep extends SalatDAO[HarvestStep, ObjectId](collection = harvestStepsCollection) {
 
-//  def getFirstHarvestStep(verb: PmhVerb, set: String, from: Date, until: Date, metadataPrefix: String, accessKey: String): HarvestStep = {
-//
-//  }
-//
-//  def getHarvestStep(resumptionToken: String, accessKey: String): HarvestStep {
-//
-//  }
+  //  def getFirstHarvestStep(verb: PmhVerb, set: String, from: Date, until: Date, metadataPrefix: String, accessKey: String): HarvestStep = {
+  //
+  //  }
+  //
+  //  def getHarvestStep(resumptionToken: String, accessKey: String): HarvestStep {
+  //
+  //  }
 
-//  def removeExpiredHarvestSteps {}
+  //  def removeExpiredHarvestSteps {}
   def removeFirstHarvestSteps(dataSetSpec: String) {
     import com.mongodb.casbah.commons.MongoDBObject
     val step = MongoDBObject("pmhRequest.set," -> dataSetSpec, "first" -> true)
