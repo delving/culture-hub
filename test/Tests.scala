@@ -103,15 +103,43 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
 
   it should "tell if a user has read access" in {
     DataSet.canRead("jimmy", "cultureHub") should be(true)
+    DataSet.canRead("bob", "cultureHub") should be(true)
   }
   it should "tell if a user has create access" in {
     DataSet.canCreate("jimmy", "cultureHub") should be(true)
+    DataSet.canCreate("bob", "cultureHub") should be(false)
   }
   it should "tell if a user has update access" in {
     DataSet.canUpdate("jimmy", "cultureHub") should be(true)
+    DataSet.canUpdate("bob", "cultureHub") should be(false)
   }
   it should "tell if a user has delete access" in {
-    DataSet.canUpdate("jimmy", "cultureHub") should be(true)
+    DataSet.canDelete("jimmy", "cultureHub") should be(true)
+    DataSet.canDelete("bob", "cultureHub") should be(false)
+  }
+  it should "tell if a user owns the object" in {
+    DataSet.owns("jimmy", "cultureHub") should be(true)
+    DataSet.owns("bob", "cultureHub") should be(false)
+  }
+
+  it should "update rights of an existing user" in {
+    DataSet.canCreate("bob", "cultureHub") should be(false)
+    DataSet.canUpdate("bob", "cultureHub") should be(false)
+    DataSet.addAccessRight("bob", "cultureHub", create = true, update = true)
+    DataSet.canCreate("bob", "cultureHub") should be(true)
+    DataSet.canUpdate("bob", "cultureHub") should be(true)
+    DataSet.canRead("bob", "cultureHub") should be(true)
+    DataSet.owns("bob", "cultureHub") should be(false)
+  }
+
+  it should "add rights for a non-existing user" in {
+    DataSet.canRead("jane", "cultureHub") should be(false)
+    DataSet.addAccessRight("jane", "cultureHub", read = true)
+    DataSet.canRead("jane", "cultureHub") should be(true)
+    DataSet.canCreate("jane", "cultureHub") should be(false)
+    DataSet.canUpdate("jane", "cultureHub") should be(false)
+    DataSet.canDelete("jane", "cultureHub") should be(false)
+    DataSet.owns("jane", "cultureHub") should be(false)
   }
 
 }

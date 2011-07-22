@@ -9,6 +9,17 @@
     delete: true
     owner: true
 
+- !!models.UserAction &bobAction
+    user:
+        username: bob
+        node: cultureHub
+        id: "bob#cultureHub"
+    create: false
+    read: true
+    update: false
+    delete: false
+    owner: false
+
 - !!models.Mapping &abmMapping
     recordMapping: "abm"
     format:
@@ -60,3 +71,4 @@
     access:
         users:
           - *jimmyAction
+          - *bobAction
