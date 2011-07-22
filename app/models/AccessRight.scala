@@ -13,8 +13,10 @@ trait AccessControl {
   protected def getCollection: MongoCollection
   protected def getAccessField: String = "access"
 
-  private def users(postfix: String): String = getAccessField + ".users." + postfix
+  private def users(postfix: String = ""): String = if (!postfix.isEmpty) getAccessField + ".users." + postfix else getAccessField + ".users"
   private def id(username: String, node: String) = username + "#" + node
+  private def userRightQuery(userId: String, right: String) = MongoDBObject(users() -> MongoDBObject("$elemMatch" -> MongoDBObject("user.id" -> userId, right -> "true")))
+
 
   def findAccessRight(username: String, node: String): Option[AccessRight] = {
     val userId: String = id(username, node)
@@ -23,48 +25,25 @@ trait AccessControl {
     Option(grater[AccessRight].asObject(dbo))
   }
 
+  def canCreate(username: String, node:String) = getCollection.count(userRightQuery(id(username, node), "create")) > 0
+  def canRead(username: String, node:String) = getCollection.count(userRightQuery(id(username, node), "read")) > 0
+  def canUpdate(username: String, node:String) = getCollection.count(userRightQuery(id(username, node), "update")) > 0
+  def canDelete(username: String, node:String) = getCollection.count(userRightQuery(id(username, node), "delete")) > 0
+  def owns(username: String, node:String) = getCollection.count(userRightQuery(id(username, node), "owner")) > 0
 
-  def canCreate(username: String, node:String) = {
-    val userId: String = id(username, node)
-    val query = MongoDBObject(users("user.id") -> userId, users("create") -> "true")
-    getCollection.count(query) > 0
-  }
-
-  def canRead(username: String, node:String) = {
-    val userId: String = id(username, node)
-    val query = MongoDBObject(users("user.id") -> userId, users("read") -> "true")
-    getCollection.count(query) > 0
-  }
-
-  def canUpdate(username: String, node:String) = {
-    val userId: String = id(username, node)
-    val query = MongoDBObject(users("user.id") -> userId, users("update") -> "true")
-    getCollection.count(query) > 0
-  }
-
-  def canDelete(username: String, node:String) = {
-    val userId: String = id(username, node)
-    val query = MongoDBObject(users("user.id") -> userId, users("delete") -> "true")
-    getCollection.count(query) > 0
-  }
-
-  def owns(username: String, node:String) = {
-    val userId: String = id(username, node)
-    val query = MongoDBObject(users("user.id") -> userId, users("owner") -> "true")
-    getCollection.count(query) > 0
-  }
-
-  def addAccessRight(username: String, node: String, create: Boolean = false, read: Boolean = false, update: Boolean = false, delete: Boolean = false, owns: Boolean = false) {
+  def addAccessRight(username: String, node: String, rights: (String, Boolean)*) {
     val userId: String = id(username, node)
     val query = MongoDBObject(users("user.id") -> userId)
-    val data = MongoDBObject(
-      users("user") -> MongoDBObject("username" -> username, "node" -> node, "id" -> userId),
-      users("create") -> create,
-      users("read") -> read,
-      users("update") -> update,
-      users("delete") -> delete,
-      users("owner") -> owns
-    )
+
+    // TODO FIXME this needs to do some kind of $push I suppose
+    val data = MongoDBObject("access" -> MongoDBObject("users" -> MongoDBObject("user" -> MongoDBObject("username" -> username, "node" -> node, "id" -> userId))))
+
+    def rightObject(right: String, value: Boolean) = MongoDBObject("access" -> MongoDBObject("users" -> MongoDBObject("user" -> MongoDBObject(right -> value.toString))))
+
+    rights foreach {
+      r => rightObject(r._1, r._2)
+    }
+
     getCollection.update(query, data, true, false, new WriteConcern())
   }
 
