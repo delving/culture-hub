@@ -10,20 +10,40 @@ import com.mongodb.casbah.MongoCollection
 trait AccessControl {
 
   protected def getCollection: MongoCollection
-
   protected def getAccessField: String = "access"
 
-  def hasAccess(username: String, node: String, create: Boolean = false, read: Boolean = false, update: Boolean = false, delete: Boolean = false) = {
-    val query = ("users.reference.username" -> username, "reference.node" -> node, "create" -> create, "read" -> read, "update" -> update, "delete" -> delete)
+  private def user(postfix: String): String = getAccessField + ".users." + postfix
+  private def id(username: String, node: String) = username + "#" + node
 
+  def canCreate(username: String, node:String) = {
+    val userId: String = id(username, node)
+    val query = MongoDBObject(user("user.id") -> userId, user("create") -> "true")
+    getCollection.count(query) > 0
   }
 
-  def addUserRight(username: String, node: String, create: Boolean = false, read: Boolean = false, update: Boolean = false, delete: Boolean = false) = {
-
-    true
+  def canRead(username: String, node:String) = {
+    val userId: String = id(username, node)
+    val query = MongoDBObject(user("user.id") -> userId, user("read") -> "true")
+    getCollection.count(query) > 0
   }
 
+  def canUpdate(username: String, node:String) = {
+    val userId: String = id(username, node)
+    val query = MongoDBObject(user("user.id") -> userId, user("update") -> "true")
+    getCollection.count(query) > 0
+  }
 
+  def canDelete(username: String, node:String) = {
+    val userId: String = id(username, node)
+    val query = MongoDBObject(user("user.id") -> userId, user("delete") -> "true")
+    getCollection.count(query) > 0
+  }
+
+  def owns(username: String, node:String) = {
+    val userId: String = id(username, node)
+    val query = MongoDBObject(user("user.id") -> userId, user("owner") -> "true")
+    getCollection.count(query) > 0
+  }
 }
 
 /**Access Rights of an object **/

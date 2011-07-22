@@ -12,7 +12,7 @@ import play.libs.OAuth2
 import play.libs.OAuth2.Response
 import util.{YamlLoader, ThemeHandler, ThemeHandlerComponent}
 import models.{DataSet, AccessRight, PortalTheme, User}
-import test.{TestDataDatasets, TestDataGeneric, TestEnvironment, TestData}
+import test.{TestDataDatasets, TestEnvironment, TestDataGeneric, TestData}
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -51,11 +51,9 @@ trait TestDataDatasets extends TestData {
       }
     }
   } catch {
-    case e:Throwable => e.printStackTrace(); throw(e)
+    case e: Throwable => e.printStackTrace(); throw (e)
   }
 }
-
-
 
 class TestDataLoader extends TestDataGeneric with TestDataDatasets
 
@@ -88,7 +86,7 @@ class OAuth2TokenEndPointTest extends UnitFlatSpec with ShouldMatchers with Test
   it should "be able to authenticate clients" in {
     val cultureHubEndPoint = new OAuth2("http://localhost:9001/authorize", "http://localhost:9001/token", "bob@gmail.com", "secret")
     val response: Response = cultureHubEndPoint.retrieveAccessToken()
-    response.error should be (null)
+    response.error should be(null)
     response.accessToken should not be (null)
   }
 
@@ -96,7 +94,24 @@ class OAuth2TokenEndPointTest extends UnitFlatSpec with ShouldMatchers with Test
     val cultureHubEndPoint = new OAuth2("http://localhost:9001/authorize", "http://localhost:9001/token", "bob@gmail.com", "wrongSecret")
     val response: Response = cultureHubEndPoint.retrieveAccessToken()
     response.error should not be (null)
-    response.accessToken should be (null)
+    response.accessToken should be(null)
 
   }
+}
+
+class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with TestDataDatasets {
+
+  it should "tell if a user has read access" in {
+    DataSet.canRead("jimmy", "cultureHub") should be(true)
+  }
+  it should "tell if a user has create access" in {
+    DataSet.canCreate("jimmy", "cultureHub") should be(true)
+  }
+  it should "tell if a user has update access" in {
+    DataSet.canUpdate("jimmy", "cultureHub") should be(true)
+  }
+  it should "tell if a user has delete access" in {
+    DataSet.canUpdate("jimmy", "cultureHub") should be(true)
+  }
+
 }

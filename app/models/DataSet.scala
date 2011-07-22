@@ -30,8 +30,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    downloaded_source_hash: Option[String] = Some(""),
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   access: AccessRight
-                  ) {
+                   access: AccessRight) {
 
   import xml.Elem
 
@@ -143,7 +142,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
-  protected def getCollection() = collection
+  protected def getCollection = dataSetsCollection
 }
 
 //object DataSetStateType extends Enumeration {
