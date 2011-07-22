@@ -12,9 +12,13 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Raleway', arial;
+    font-family: arial;
     font-weight: normal;
     margin-top: 0;
+}
+
+h2 {
+    border-bottom:  2px solid #ccc;
 }
 
 .container_16 {
@@ -37,7 +41,7 @@ h1, h2, h3, h4, h5, h6 {
 #header h1 {
     color: #fff;
     font-size: 3em;
-
+    font-family: "Raleway", Arial;
     font-weight: normal;
     margin-top: 60px;
     text-align: left;
@@ -96,4 +100,36 @@ li ul li {
 
 .success {
     color: green
+}
+
+.toggle {
+    display: none;
+}
+
+/* FORM ELEMENT STYLES */
+
+form.box {
+    background:  #eaeaea;
+    border: 1px solid #ccc;
+    padding:  1em;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+div.field label {
+    display: block;
+    color: #555;
+
+}
+
+div.field label:after {
+    content:":";
+}
+
+div.field {
+    margin-bottom: 1em;
+}
+input[type=submit] {
+    margin-top: 1em;
 }
