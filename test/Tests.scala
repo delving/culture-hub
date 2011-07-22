@@ -4,15 +4,15 @@ import cake.MetadataModelComponent
 import com.borachio.scalatest.MockFactory
 import com.mongodb.casbah.commons.MongoDBObject
 import eu.delving.metadata.MetadataModel
-import models.{PortalTheme, User}
 import org.scalatest.matchers._
 import org.scalatest.Suite
 import models.salatContext._
 import play.test._
 import play.libs.OAuth2
 import play.libs.OAuth2.Response
-import test.{TestDataUsers, TestEnvironment, TestData}
 import util.{YamlLoader, ThemeHandler, ThemeHandlerComponent}
+import models.{DataSet, AccessRight, PortalTheme, User}
+import test.{TestDataDatasets, TestDataGeneric, TestEnvironment, TestData}
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -33,11 +33,8 @@ trait TestData {
   }
 }
 
-/**
- * Loads test users
- */
-trait TestDataUsers extends TestData {
-  YamlLoader.load[List[Any]]("testUsers.yml").foreach {
+trait TestDataGeneric extends TestData {
+  YamlLoader.load[List[Any]]("testData.yml").foreach {
     _ match {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
       case _ =>
@@ -45,12 +42,27 @@ trait TestDataUsers extends TestData {
   }
 }
 
-class TestDataUsersLoader extends TestDataUsers
+trait TestDataDatasets extends TestData {
+  try {
+    YamlLoader.load[List[Any]]("testDataSets.yml").foreach {
+      _ match {
+        case d: DataSet => DataSet.insert(d)
+        case _ =>
+      }
+    }
+  } catch {
+    case e:Throwable => e.printStackTrace(); throw(e)
+  }
+}
+
+
+
+class TestDataLoader extends TestDataGeneric with TestDataDatasets
 
 /**
  * Test for the ThemeHandler. We use UnitFlatSpec which is a Play version of the FlatSpec
  */
-class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataUsers with TestEnvironment {
+class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with TestEnvironment {
 
   override val themeHandler = new ThemeHandler
 
@@ -70,7 +82,7 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataUs
  * This test is tricky to run. In dev mode, play runs on a single thread so making a request to itself does not work and you
  * get a timeout after one minute. To run this test I fire up another instance on port 9001.
  */
-class OAuth2TokenEndPointTest extends UnitFlatSpec with ShouldMatchers with TestDataUsers with TestEnvironment {
+class OAuth2TokenEndPointTest extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with TestEnvironment {
   override val themeHandler = new ThemeHandler
 
   it should "be able to authenticate clients" in {

@@ -58,6 +58,22 @@ object YamlLoader {
             }
             buffer.toList
           }
+          case n: MappingNode if n.getType.getName == "scala.collection.immutable.Map" => {
+            import scala.collection.JavaConversions._
+            val map = for (node <- n.getValue) yield {
+              val keyNode = node.asInstanceOf[NodeTuple].getKeyNode
+              val valueNode = node.asInstanceOf[NodeTuple].getValueNode
+
+              val value = valueNode match {
+                case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
+                case v: Node if v.isInstanceOf[MappingNode] => super.constructObject(v.asInstanceOf[MappingNode])
+                case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
+              }
+              (keyNode.asInstanceOf[ScalarNode].getValue, value)
+            }
+            map.toMap
+          }
+          case n: ScalarNode if n.getType.getName == "[B" => n.getValue.getBytes("UTF-8")
           case n: MappingNode if n.getType.getName == "java.lang.Object" && n.getTag.getClassName.contains("models.") => {
             // yadaaaaaaaaaaa java-scala generics conversion stupidity
             val theType: Class[AnyRef] = getClassForName(n.getTag.getClassName).asInstanceOf[Class[AnyRef]]

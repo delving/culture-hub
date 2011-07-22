@@ -12,7 +12,7 @@ case class UserReference(username: String = "", node: String = "", id: String = 
 
 object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
 
-case class User(reference: UserReference,
+case class User(reference: UserReference = UserReference("", "", ""),
                 firstName: String,
                 lastName: String,
                 email: String,
