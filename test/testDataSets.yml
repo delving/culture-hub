@@ -1,3 +1,14 @@
+- !!models.UserAction &jimmyAction
+    user:
+        username: jimmy
+        node: cultureHub
+        id: "jimmy#cultureHub"
+    create: true
+    read: true
+    update: true
+    delete: true
+    owner: true
+
 - !!models.Mapping &abmMapping
     recordMapping: "abm"
     format:
@@ -46,3 +57,6 @@
     mappings:
         ? abm
         : *abmMapping
+    access:
+        users:
+          - *jimmyAction

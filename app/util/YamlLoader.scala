@@ -54,7 +54,12 @@ object YamlLoader {
             import scala.collection.JavaConversions._
 
             val buffer: Buffer[Any] = for (node <- n.getValue) yield {
-              node.asInstanceOf[ScalarNode].getValue
+              node match {
+                case n: Node if n.isInstanceOf[ScalarNode] => node.asInstanceOf[ScalarNode].getValue
+                case n: Node if n.isInstanceOf[MappingNode] => super.constructObject(n)
+                case n: Node => throw new RuntimeException("Not yet implemented ==> " + n.getClass)
+              }
+
             }
             buffer.toList
           }
@@ -66,7 +71,7 @@ object YamlLoader {
 
               val value = valueNode match {
                 case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
-                case v: Node if v.isInstanceOf[MappingNode] => super.constructObject(v.asInstanceOf[MappingNode])
+                case v: Node if v.isInstanceOf[MappingNode] => super.constructObject(v)
                 case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
               }
               (keyNode.asInstanceOf[ScalarNode].getValue, value)
