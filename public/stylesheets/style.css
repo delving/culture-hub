@@ -23,6 +23,8 @@ h2 {
 
 .container_16 {
     background: #fff;
+    overflow:  hidden;
+    padding:  10px 0;
 }
 
 #header {
@@ -33,9 +35,8 @@ h2 {
     background: -o-linear-gradient(top, #336699, #81AAd0);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#336699', endColorstr = '#81AAd0');
     -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#336699', endColorstr='#81AAd0')";
-    height: 170px;
+    height: 150px;
     position: relative;
-    margin-bottom: 50px;
 }
 
 #header h1 {
@@ -43,8 +44,55 @@ h2 {
     font-size: 3em;
     font-family: "Raleway", Arial;
     font-weight: normal;
-    margin-top: 60px;
+    margin: 60px 0 0 0;
     text-align: left;
+    padding:  0;
+}
+
+#header #logo {
+    position:absolute;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+#header #user-bar {
+    position: absolute;
+    top: 0px;
+    right: 1em;
+    background: #6699cc;
+    color: #fff;
+    height: 32px;
+    line-height: 32px;
+    padding:  0 1em;
+}
+
+#header #user-bar a:link,
+#header #user-bar a:visited{
+    margin-left: 1em;
+    color: #fff;
+}
+
+#main-nav {
+    background:  #000;
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 20px;
+    /*text-align: right;*/
+}
+#main-nav ul {
+    margin: 0;
+    padding:  0;
+}
+#main-nav ul li {
+    display: inline;
+    margin-right: 2em;
+    padding:  0;
+}
+
+#main-nav ul li a:link,
+#main-nav ul li a:visited{
+    color: #fff;
 }
 
 ul {
@@ -108,6 +156,11 @@ li ul li {
 
 /* FORM ELEMENT STYLES */
 
+form {
+    margin:  0;
+    padding:  0;
+}
+
 form.box {
     background:  #eaeaea;
     border: 1px solid #ccc;
@@ -115,6 +168,16 @@ form.box {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+}
+
+label {
+    display: block;
+    color: #555;
+
+}
+
+label:after {
+    content:":";
 }
 
 div.field label {
@@ -132,4 +195,17 @@ div.field {
 }
 input[type=submit] {
     margin-top: 1em;
+}
+
+#footer {
+    background:  #000;
+    color: #fff;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+}
+
+#footer a:link,
+#footer a:visited {
+    color: #fff;
 }
