@@ -52,6 +52,7 @@ GET         /{user}/collection/{collection}         Collections.collection
 GET         /{user}/object                          Dobjects.list
 GET         /{user}/object/{dobject}                Dobjects.dobject
 GET         /{user}/story                           Stories.list
+GET         /{user}/story/newStory                  Stories.newStory
 GET         /{user}/story/{story}                   Stories.story
 
 # Administration
