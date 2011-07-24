@@ -8,6 +8,11 @@
     node: cultureHub
     id: "jimmy#cultureHub"
 
+- !!models.UserReference &dan
+    username: dan
+    node: cultureHub
+    id: "dan#cultureHub"
+
 - !!models.User
     reference: *bob
     firstName:      Bob
@@ -21,5 +26,13 @@
     firstName:      Jimmy
     lastName:       Hendrix
     email:          jimmy@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.User
+    reference: *dan
+    firstName:      Dan
+    lastName:       Brown
+    email:          dan@gmail.com
     password:       secret
     isActive:       true

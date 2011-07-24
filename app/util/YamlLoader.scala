@@ -1,9 +1,10 @@
 package util
 
 import collection.mutable.Buffer
+import org.yaml.snakeyaml.nodes._
 
 /**
- * Loader for Yaml files, based on the play-scala loader. Adds improved support for type conversion.
+ * Loader for Yaml files, based on the play-scala loader but meant for real-life usage. Adds improved support for type conversion.
  *
  * Rules for working on this class should something go wrong:
  * - make sure the data in mongo is empty
@@ -21,7 +22,7 @@ object YamlLoader {
 
     val constructor = new org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor(classOf[Object], play.Play.classloader) {
 
-      import org.yaml.snakeyaml.nodes._
+      class MoreComplicated extends Exception
 
       override def constructObject(node: Node) = {
 
@@ -36,6 +37,16 @@ object YamlLoader {
 //        println(node.getTag.getValue)
 //        println()
 
+        try {
+          constructScalarObject(node)
+        } catch {
+          case complicated: MoreComplicated => constructMoreComplicated(node)
+          case t => throw new RuntimeException(t)
+        }
+
+      }
+
+      def constructScalarObject(node: Node) = {
         node match {
           case n: ScalarNode if n.getTag.getClassName == "None" => None
           case n: ScalarNode if n.getTag.getClassName == "Some[String]" => Some(n.getValue)
@@ -45,10 +56,17 @@ object YamlLoader {
           case n: ScalarNode if n.getTag.getClassName == "Id[String]" => play.db.anorm.Id(n.getValue)
           case n: ScalarNode if n.getTag.getClassName == "Id[Long]" => play.db.anorm.Id(java.lang.Long.parseLong(n.getValue, 10))
           case n: ScalarNode if n.getTag.getClassName == "Id[Int]" => play.db.anorm.Id(java.lang.Integer.parseInt(n.getValue, 10))
-          case n: ScalarNode if n.getTag.getClassName == "Option[String]" => Some(n.getValue)
 
-          // additional support starts here
+          // TODO probably we also need to do this for other scalar types
+          case n: ScalarNode if n.getType.getName == "scala.Option" && n.getTag.getClassName == "bool" => Some(n.getValue.toBoolean)
+          case n: ScalarNode if n.getTag.getClassName == "Option[String]" => Some(n.getValue)
           case n: ScalarNode if n.getType.getName == "scala.Option" => Option(n.getValue)
+          case _ => throw new MoreComplicated()
+        }
+      }
+
+      def constructMoreComplicated(node: Node): AnyRef = {
+        node match {
           case n: MappingNode if n.getType.getName == "scala.Option" => Option(n.getValue)
           case n: SequenceNode if n.getType.getName == "scala.collection.immutable.List" => {
             import scala.collection.JavaConversions._
@@ -56,7 +74,7 @@ object YamlLoader {
             val buffer: Buffer[Any] = for (node <- n.getValue) yield {
               node match {
                 case n: Node if n.isInstanceOf[ScalarNode] => node.asInstanceOf[ScalarNode].getValue
-                case n: Node if n.isInstanceOf[MappingNode] => super.constructObject(n)
+                case n: Node if n.isInstanceOf[MappingNode] => constructObject(n)
                 case n: Node => throw new RuntimeException("Not yet implemented ==> " + n.getClass)
               }
 
@@ -71,7 +89,7 @@ object YamlLoader {
 
               val value = valueNode match {
                 case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
-                case v: Node if v.isInstanceOf[MappingNode] => super.constructObject(v)
+                case v: Node if v.isInstanceOf[MappingNode] => constructObject(v)
                 case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
               }
               (keyNode.asInstanceOf[ScalarNode].getValue, value)
@@ -83,12 +101,14 @@ object YamlLoader {
             // yadaaaaaaaaaaa java-scala generics conversion stupidity
             val theType: Class[AnyRef] = getClassForName(n.getTag.getClassName).asInstanceOf[Class[AnyRef]]
             n.setType(theType)
-            super.constructObject(n)
+            constructObject(n)
           }
           case _ => super.constructObject(node)
         }
       }
     }
+
+
 
     // this code is here for future reference should we one day need to dive into this madness again.
     //
@@ -111,5 +131,4 @@ object YamlLoader {
       case _ => play.test.Fixtures.loadYaml(name, yamlParser).asInstanceOf[T]
     }
   }
-
 }

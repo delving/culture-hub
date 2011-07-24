@@ -4,11 +4,10 @@ import java.util.Date
 import cake.metaRepo.PmhVerbType.PmhVerb
 import org.bson.types.ObjectId
 import models.salatContext._
+import com.mongodb.casbah.Imports._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.MongoCollection
 import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
@@ -143,6 +142,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   protected def getCollection = dataSetsCollection
+
+  protected def getObjectQuery(id: AnyRef) = MongoDBObject("spec" -> id.toString)
 }
 
 //object DataSetStateType extends Enumeration {

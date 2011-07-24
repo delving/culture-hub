@@ -1,24 +1,44 @@
+- !!models.UserReference &jimmy
+    username: jimmy
+    node: cultureHub
+    id: "jimmy#cultureHub"
+
+- !!models.UserReference &bob
+    username: bob
+    node: cultureHub
+    id: "bob#cultureHub"
+
+- !!models.UserReference &dan
+    username: dan
+    node: cultureHub
+    id: "dan#cultureHub"
+
 - !!models.UserAction &jimmyAction
-    user:
-        username: jimmy
-        node: cultureHub
-        id: "jimmy#cultureHub"
-    create: true
-    read: true
-    update: true
-    delete: true
-    owner: true
+    user: *jimmy
+    create: !!bool "true"
+    read: !!bool "true"
+    update: !!bool "true"
+    delete: !!bool "true"
+    owner: !!bool "true"
 
 - !!models.UserAction &bobAction
-    user:
-        username: bob
-        node: cultureHub
-        id: "bob#cultureHub"
-    create: false
-    read: true
-    update: false
-    delete: false
-    owner: false
+    user: *bob
+    create: !!bool "false"
+    read: !!bool "true"
+    update: !!bool "false"
+    delete: !!bool "false"
+    owner: !!bool "false"
+
+- !!models.Group &buddies
+    user: *jimmy
+    name: Buddies
+    users:
+      - *dan
+    create: !!bool "false"
+    read: !!bool "true"
+    update: !!bool "false"
+    delete: !!bool "false"
+    owner: !!bool "false"
 
 - !!models.Mapping &abmMapping
     recordMapping: "abm"
@@ -70,5 +90,9 @@
         : *abmMapping
     access:
         users:
-          - *jimmyAction
-          - *bobAction
+            ? "jimmy#cultureHub"
+            : *jimmyAction
+            ? "bob#cultureHub"
+            : *bobAction
+        groups:
+          - *buddies
