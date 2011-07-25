@@ -11,6 +11,7 @@ package object salatContext {
   val portalThemeCollection = connection("portalTheme")
   val emailTargetCollection = connection("emailTarget")
   val userCollection = connection("user")
+  val groupCollection = connection("userGroup")
   val userReferenceCollection = connection("userReference")
   val dataSetsCollection = connection("Datasets")
   val harvestStepsCollection = connection("HarvestSteps")

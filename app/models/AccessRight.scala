@@ -1,9 +1,10 @@
 package models
 
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.MongoCollection
 import com.novus.salat.grater
 import salatContext._
+import com.mongodb.casbah.{Imports, MongoCollection}
+import com.novus.salat.dao.SalatDAO
 
 /**
  *
@@ -21,18 +22,34 @@ trait AccessControl {
 
   private def buildId(username: String, node: String) = username + "#" + node
 
-  private def userRightQuery(id: AnyRef, username: String, node: String, right: String) = getObjectQuery(id) ++ MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
+  private def userRightQuery(id: AnyRef, username: String, node: String, right: String) =
+    getObjectQuery(id) ++ MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
 
+  def canCreate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "create")
 
-  def canCreate(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "create")) > 0
+  def canRead(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "read")
 
-  def canRead(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "read")) > 0
+  def canUpdate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "update")
 
-  def canUpdate(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "update")) > 0
+  def canDelete(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "delete")
 
-  def canDelete(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "delete")) > 0
+  def owns(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "owner")
 
-  def owns(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "owner")) > 0
+  def hasRight(id: AnyRef, username: String, node: String, right: String) : Boolean = hasUserRight(id, username, node, right) || hasGroupRight (id, username, node, right)
+
+  def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+   getCollection.count(userRightQuery(id, username, node, right)) > 0
+  }
+
+  def hasGroupRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+    val query = getObjectQuery(id)
+    val access = getCollection.findOne(query, MongoDBObject(getAccessField -> 1)).getOrElse(return false)
+    val groups: Imports.DBObject = access.getAs[DBObject](getAccessField).get.getAs[DBObject]("groups").get
+    val userPath = "users.%s" format(buildId(username, node))
+    val groupQuery = MongoDBObject("id" -> MongoDBObject("$in" -> groups.values.toList), right -> true, userPath -> MongoDBObject("$exists" -> true))
+    println(groupQuery)
+    getCollection.count(groupQuery) > 0
+  }
 
   def addAccessRight(id: AnyRef, username: String, node: String, rights: (String, Boolean)*) {
     val userId: String = buildId(username, node)
@@ -59,8 +76,12 @@ trait AccessControl {
 }
 
 
-/**Access Rights of an object **/
-case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[Group] = List.empty[Group])
+/**
+ * Access Rights of an object
+ * users: map of (key, UserAction) where key == "username#node"
+ * groups: list of key where key == groupname#username#node
+ */
+case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[String] = List.empty[String])
 
 /**A User and his rights **/
 case class UserAction(user: UserReference = UserReference("", "", ""),
@@ -74,12 +95,15 @@ case class UserAction(user: UserReference = UserReference("", "", ""),
 case class Group(
                         user: UserReference,
                         name: String,
-                        users: List[UserReference],
+                        id: String, // group ID composed of name#username#node
+                        users: Map[String, UserReference],
                         create: Option[Boolean] = Some(false),
                         read: Option[Boolean] = Some(false),
                         update: Option[Boolean] = Some(false),
                         delete: Option[Boolean] = Some(false),
                         owner: Option[Boolean] = Some(false))
+
+object Group extends SalatDAO[Group, ObjectId](collection = groupCollection)
 
 /**An organization, yet to be defined further **/
 case class Organization(name: String,

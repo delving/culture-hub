@@ -11,8 +11,8 @@ import play.test._
 import play.libs.OAuth2
 import play.libs.OAuth2.Response
 import util.{YamlLoader, ThemeHandler, ThemeHandlerComponent}
-import models.{DataSet, AccessRight, PortalTheme, User}
-import test.{TestDataDatasets, TestEnvironment, TestDataGeneric, TestData}
+import test.{TestEnvironment, TestDataGeneric, TestData}
+import models._
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -37,25 +37,14 @@ trait TestDataGeneric extends TestData {
   YamlLoader.load[List[Any]]("testData.yml").foreach {
     _ match {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
+      case g: Group => Group.insert(g)
+      case d: DataSet => DataSet.insert(d)
       case _ =>
     }
   }
 }
 
-trait TestDataDatasets extends TestData {
-  try {
-    YamlLoader.load[List[Any]]("testDataSets.yml").foreach {
-      _ match {
-        case d: DataSet => DataSet.insert(d)
-        case _ =>
-      }
-    }
-  } catch {
-    case e: Throwable => e.printStackTrace(); throw (e)
-  }
-}
-
-class TestDataLoader extends TestDataGeneric with TestDataDatasets
+class TestDataLoader extends TestDataGeneric
 
 /**
  * Test for the ThemeHandler. We use UnitFlatSpec which is a Play version of the FlatSpec
@@ -99,7 +88,7 @@ class OAuth2TokenEndPointTest extends UnitFlatSpec with ShouldMatchers with Test
   }
 }
 
-class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with TestDataDatasets {
+class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
   it should "tell if a user has read access" in {
     DataSet.canRead("sffDF", "jimmy", "cultureHub") should be(true)
@@ -140,6 +129,10 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
     DataSet.canUpdate("sffDF", "jane", "cultureHub") should be(false)
     DataSet.canDelete("sffDF", "jane", "cultureHub") should be(false)
     DataSet.owns("sffDF", "jane", "cultureHub") should be(false)
+  }
+
+  it should "tell if a user has read access via a group" in {
+    DataSet.canRead("sffDF", "dan", "cultureHub") should be (true)
   }
 
 }
