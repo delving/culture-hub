@@ -50,6 +50,7 @@ GET         /{user}/label/{label}                   Labels.label
 GET         /{user}/collection                      Collections.list
 GET         /{user}/collection/{collection}         Collections.collection
 GET         /{user}/object                          Dobjects.list
+GET         /{user}/object/add                      Dobjects.add
 GET         /{user}/object/{dobject}                Dobjects.dobject
 GET         /{user}/story                           Stories.list
 GET         /{user}/story/newStory                  Stories.newStory

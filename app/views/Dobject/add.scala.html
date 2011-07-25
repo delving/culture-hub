@@ -1,0 +1,83 @@
+@(user:models.User)
+
+@import views.context._
+
+@main("Add new object for user " + user.fullname ) {
+
+<div class="grid_8 alpha">
+    <h1>Add a new object</h1>
+
+    <form method="post" action="">
+        <div class="field">
+            <label>Name</label>
+            <input type="text" name="objectName" id="objectName"/>
+            <span class="error"></span>
+        </div>
+
+        <div class="field">
+            <label>Description</label>
+            <textarea name="objectDescription" id="objectDescription"></textarea>
+            <span class="error"></span>
+        </div>
+
+        <div class="field">
+            <label>Annotation(s)</label>
+            <select name="annotationType" id="annotationType">
+                <option value="person">person</option>
+                <option value="place">place</option>
+                <option value="event">event</option>
+                <option value="concept">concept</option>
+            </select>
+            <input type="text" name="annotationText" id="annotationText"/>
+            <button id="btnAnnotationAdd">Add Annotation</button>
+            <p>
+                <textarea name="objectAnnotations" id="objectAnnotations">stringPerson (person), stringPlace (place)</textarea>
+            </p>
+            <span class="error"></span>
+        </div>
+
+        <div class="field">
+            <label>Free-text label(s)</label>
+            <input type="text" name="objectLabel" id="objectLabel"/>
+            <span class="error"></span>
+        </div>
+
+        <div class="field">
+            <label>File</label>
+            <input type="file" name="objectFile" id="objectFile"/>
+            <button>Add File</button>
+            <span class="error"></span>
+        </div>
+
+        <div class="field">
+            <label>Visibility</label>
+            <input type="radio" name="objectVisibility" value="private" checked="yes"/>Private
+            <input type="radio" name="objectVisibility" value="published"/>Published
+        </div>
+
+        <div class="field">
+            <input type="submit" value="Add Object"/>
+        </div>
+
+    </form>
+
+</div>
+
+<div class="grid_8 omega">
+
+</div>
+
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+         $("#btnAnnotationAdd").click(function(){
+             var aType = $("#annotationType").val();
+             var aText = $("#annotationText").val();
+             var aExisting = $("#objectAnnotations").val();
+             var aNew = aExisting + ", " + aText + " (" +aType+ ")";
+             $("#objectAnnotations").val(aNew);
+             return false;
+         })
+    });
+</script>
+
+}

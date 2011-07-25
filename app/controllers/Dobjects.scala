@@ -20,4 +20,8 @@ object Dobjects extends DelvingController {
     html.dobject(user = u, name = dobject)
   }
 
+  def add(user: String): AnyRef = {
+    val u = getUser(user)
+    html.add(user = u)
+  }
 }

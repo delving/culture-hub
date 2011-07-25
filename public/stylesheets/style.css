@@ -24,7 +24,6 @@ h2 {
 .container_16 {
     background: #fff;
     overflow:  hidden;
-    padding:  10px 0;
 }
 
 #header {
@@ -176,9 +175,9 @@ label {
 
 }
 
-label:after {
-    content:":";
-}
+/*label:after {*/
+    /*content:":";*/
+/*}*/
 
 div.field label {
     display: block;
@@ -197,11 +196,17 @@ input[type=submit] {
     margin-top: 1em;
 }
 
+textarea {
+    width: 100%;
+    height: 100px;
+}
+
 #footer {
     background:  #000;
     color: #fff;
     height: 32px;
     line-height: 32px;
+    margin-top: 1em;
     text-align: center;
 }
 
