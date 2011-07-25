@@ -80,7 +80,7 @@
 
 - !!models.DataSet
     spec: sffDF
-    state: ENABLEDNDa
+    state: ENABLED
     details:
         name: sffDF
         "uploaded_records": 1679

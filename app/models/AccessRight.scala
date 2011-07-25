@@ -47,8 +47,7 @@ trait AccessControl {
     val groups: Imports.DBObject = access.getAs[DBObject](getAccessField).get.getAs[DBObject]("groups").get
     val userPath = "users.%s" format(buildId(username, node))
     val groupQuery = MongoDBObject("id" -> MongoDBObject("$in" -> groups.values.toList), right -> true, userPath -> MongoDBObject("$exists" -> true))
-    println(groupQuery)
-    getCollection.count(groupQuery) > 0
+    groupCollection.count(groupQuery) > 0
   }
 
   def addAccessRight(id: AnyRef, username: String, node: String, rights: (String, Boolean)*) {
