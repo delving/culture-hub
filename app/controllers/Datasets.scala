@@ -56,9 +56,7 @@ object Datasets extends Controller {
         ds => ds.toXml
       }}
       </data-set-list>{if (responseCode != DataSetResponseCode.THANK_YOU) {
-      <errorMessage>
-        {errorMessage}
-      </errorMessage>
+      <errorMessage>{errorMessage}</errorMessage>
     }}
     </data-set>
   }
@@ -155,6 +153,7 @@ object Datasets extends Controller {
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     import scala.collection.JavaConversions.asScalaMap
     val hashesMap: collection.mutable.Map[String, String] = hashes
+    val hashesMapInitialSize = hashesMap.size
 
     import com.mongodb.casbah.Imports.MongoDBObject
 
@@ -172,9 +171,7 @@ object Datasets extends Controller {
 
     def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
       <data-set responseCode={responseCode.toString}>
-        <changed-records-keys>
-          {missingRecords reduceLeft (_ + ", " + _)}
-        </changed-records-keys>
+        <changed-records-keys>{if(hashesMapInitialSize == hashesMap.size) "all" else missingRecords reduceLeft (_ + ", " + _)}</changed-records-keys>
       </data-set>
     }
 

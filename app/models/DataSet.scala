@@ -52,15 +52,9 @@ case class DataSet(_id: ObjectId = new ObjectId,
       <recordCount>{details.total_records}</recordCount>
       <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
       <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
-      <hashes>
-        {getHashes.map(hash => <string>
-        {hash}
-      </string>)}
-      </hashes>
+      <hashes>{getHashes.map(hash => <string>{hash}</string>)}</hashes>
       <!--errorMessage>{details.errorMessage}</errorMessage>
-      <mappings>
-         {mappings.values.map{mapping => mapping.toXml}}
-      </mappings-->
+      <mappings>{mappings.values.map{mapping => mapping.toXml}}</mappings-->
     </dataset>
   }
 
@@ -164,15 +158,9 @@ case class Mapping(recordMapping: String,
 
   def toXml: Elem = {
     <mapping>
-      <name>
-        {format.prefix}
-      </name>
-      <rec_indexed>
-        {rec_indexed}
-      </rec_indexed>
-      <indexed>
-        {indexed}
-      </indexed>
+      <name>{format.prefix}</name>
+      <rec_indexed>{rec_indexed}</rec_indexed>
+      <indexed>{indexed}</indexed>
     </mapping>
   }
 }
