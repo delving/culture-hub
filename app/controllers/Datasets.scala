@@ -12,6 +12,8 @@ import play.libs.IO
 import java.util.{Properties, Date}
 import eu.delving.sip.{DataSetState}
 import models.MetadataRecord
+import com.novus.salat.dao.SalatDAO
+import org.bson.types.ObjectId
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -180,38 +182,20 @@ object Datasets extends Controller {
   }
 
   private def receiveRecordStream(inputStream: InputStream, dataSetSpec: String): DataSetResponseCode = {
-
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
-
-    try {
-
-      val information = prepareSourceInformation(dataSet)
-      val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
-      val records = DataSet.getRecords(dataSet)
-
-      var continue = true
-      while (continue) {
-        val record = parser.nextRecord()
-        if (record != None) {
-          val updatedRecord: MetadataRecord = record.get.copy(modified = new Date(), deleted = false)
-          records.upsertByLocalKey(updatedRecord)
-        } else {
-          continue = false
-        }
-      }
-    } catch {
-      case e: Exception => {
-        import cake.metaRepo.RecordParseException
-        throw new RecordParseException("Unable to parse records", e)
-      }
-      case t: Throwable => t.printStackTrace()
-    }
-
-    DataSetResponseCode.THANK_YOU
+    def onReceive(records: SalatDAO[MetadataRecord, ObjectId] with MDR) { }
+    def onRecord(records: SalatDAO[MetadataRecord, ObjectId] with MDR, metadataRecord: MetadataRecord) { records.upsertByLocalKey(metadataRecord) }
+    receiveRecords(inputStream, dataSetSpec, "", onReceive, onRecord)
   }
 
-
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
+    def onReceive(records: SalatDAO[MetadataRecord, ObjectId] with MDR) { records.collection.drop() }
+    def onRecord(records: SalatDAO[MetadataRecord, ObjectId] with MDR, metadataRecord: MetadataRecord) { records.insert(metadataRecord) }
+    receiveRecords(inputStream, dataSetSpec, hash, onReceive, onRecord)
+  }
+
+    private def receiveRecords(inputStream: InputStream, dataSetSpec: String, hash: String,
+                             onReceive: SalatDAO[MetadataRecord, ObjectId] with MDR => Unit,
+                             onRecord: (SalatDAO[MetadataRecord, ObjectId] with MDR, MetadataRecord) => Unit): DataSetResponseCode = {
 
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     if (dataSet.hasHash(hash)) {
@@ -222,7 +206,8 @@ object Datasets extends Controller {
     DataSet.save(dataSet.copy(source_hash = ""))
 
     val records = DataSet.getRecords(dataSet)
-    records.collection.drop()
+
+    onReceive(records)
 
     try {
 
@@ -234,7 +219,7 @@ object Datasets extends Controller {
         val record = parser.nextRecord()
         if (record != None) {
           val toInsert = record.get.copy(modified = new Date(), deleted = false)
-          records.insert(toInsert)
+          onRecord(records, toInsert)
         } else {
           continue = false
         }
