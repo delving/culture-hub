@@ -46,18 +46,10 @@ case class DataSet(_id: ObjectId = new ObjectId,
   // todo update sip-creator with richer info.
   def toXml: Elem = {
     <dataset>
-      <spec>
-        {spec}
-      </spec>
-      <name>
-        {details.name}
-      </name>
-      <state>
-        {state.toString}
-      </state>
-      <recordCount>
-        {details.total_records}
-      </recordCount>
+      <spec>{spec}</spec>
+      <name>{details.name}</name>
+      <state>{state.toString}</state>
+      <recordCount>{details.total_records}</recordCount>
       <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
       <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
       <hashes>

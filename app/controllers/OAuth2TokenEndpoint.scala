@@ -53,7 +53,8 @@ object OAuth2TokenEndpoint extends Controller {
       }
 
       val user = grantType match {
-        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername).get
+        // TODO use real node from URL
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername + "#cultureHub").get
         // TODO
         case GrantType.REFRESH_TOKEN => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
@@ -91,7 +92,7 @@ object OAuth2TokenEndpoint extends Controller {
 
   @Util def evictExpiredTokens() {
     validTokenMap foreach {
-      token => if(System.currentTimeMillis() - token._2.issueTime > TOKEN_TIMEOUT * 1000) validTokenMap.remove(token._1)
+      token => if (System.currentTimeMillis() - token._2.issueTime > TOKEN_TIMEOUT * 1000) validTokenMap.remove(token._1)
     }
   }
 
