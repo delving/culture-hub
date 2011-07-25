@@ -2,16 +2,14 @@ package test
 
 import cake.MetadataModelComponent
 import com.borachio.scalatest.MockFactory
-import com.mongodb.casbah.commons.MongoDBObject
 import eu.delving.metadata.MetadataModel
 import org.scalatest.matchers._
 import org.scalatest.Suite
-import models.salatContext._
 import play.test._
 import play.libs.OAuth2
 import play.libs.OAuth2.Response
-import util.{YamlLoader, ThemeHandler, ThemeHandlerComponent}
-import test.{TestEnvironment, TestDataGeneric, TestData}
+import util._
+import test.{TestEnvironment}
 import models._
 
 /**
@@ -21,30 +19,6 @@ trait TestEnvironment extends ThemeHandlerComponent with MetadataModelComponent 
   val metadataModel: MetadataModel = mock[MetadataModel]
   val themeHandler: ThemeHandler = new ThemeHandler // mock[ThemeHandler]
 }
-
-/**
- * Generic TestData set-up. This only makes sure the test database is empty at the beginning of the test run
- */
-trait TestData {
-  // clean everything up when we start
-  connection.getCollectionNames() foreach {
-    collection =>
-      connection.getCollection(collection).remove(MongoDBObject())
-  }
-}
-
-trait TestDataGeneric extends TestData {
-  YamlLoader.load[List[Any]]("testData.yml").foreach {
-    _ match {
-      case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
-      case g: Group => Group.insert(g)
-      case d: DataSet => DataSet.insert(d)
-      case _ =>
-    }
-  }
-}
-
-class TestDataLoader extends TestDataGeneric
 
 /**
  * Test for the ThemeHandler. We use UnitFlatSpec which is a Play version of the FlatSpec
