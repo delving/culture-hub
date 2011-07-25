@@ -17,7 +17,6 @@ case class User(reference: UserReference = UserReference("", "", ""),
                 lastName: String,
                 email: String,
                 password: String,
-                displayName: String,
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
                 resetPasswordToken: Option[String] = None) {
@@ -26,7 +25,7 @@ case class User(reference: UserReference = UserReference("", "", ""),
 
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User(UserReference("", "", "") ,"", "", "none@nothing.com", "", "Nobody", false, None, None)
+  val nobody: User = User(UserReference("", "", ""), "", "", "none@nothing.com", "", false, None, None)
 
   def connect(username: String, password: String, node: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
@@ -51,7 +50,7 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     val activeUser: User = user.copy(isActive = true, activationToken = None)
     User.update(MongoDBObject("reference.id" -> activeUser.reference.id), activeUser, false, false, new WriteConcern())
     // also log the guy in
-    play.mvc.Scope.Session.current().put("username", activeUser.displayName)
+    play.mvc.Scope.Session.current().put("username", activeUser.reference.username)
     true
   }
 

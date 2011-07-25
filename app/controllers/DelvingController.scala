@@ -24,7 +24,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     user map {
       u => {
         renderArgs.put("fullName", u.fullname)
-        renderArgs.put("displayName", u.displayName)
+        renderArgs.put("displayName", u.reference.username)
       }
     }
   }

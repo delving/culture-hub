@@ -13,7 +13,7 @@ object Users extends DelvingController {
 
   def index(user: String) = {
     val u = getUser(user)
-    html.index(username = u.displayName)
+    html.index(username = u.reference.username)
   }
 
 }
