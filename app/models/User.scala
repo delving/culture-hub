@@ -6,6 +6,8 @@ import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
+import views.Collection.html.collection
+import org.omg.CORBA.TIMEOUT
 
 /** Unique reference to a user across the CultureHub space **/
 case class UserReference(username: String = "", node: String = "", id: String = "")
@@ -19,13 +21,16 @@ case class User(reference: UserReference = UserReference("", "", ""),
                 password: String,
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
-                resetPasswordToken: Option[String] = None) {
+                resetPasswordToken: Option[String] = None,
+                accessToken: Option[AccessToken] = None) {
   val fullname = firstName + " " + lastName
 }
 
+case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
+
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User(UserReference("", "", ""), "", "", "none@nothing.com", "", false, None, None)
+  val nobody: User = User(UserReference("", "", ""), "", "", "none@nothing.com", "", false, None, None, None)
 
   def connect(username: String, password: String, node: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
@@ -68,5 +73,23 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     val resetUser = user.copy(password = Crypto.passwordHash(newPassword), resetPasswordToken = None)
     User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
+  }
+
+  def setAccessToken(user: User, token: String) {
+    User.update(MongoDBObject("reference.id" -> user.reference.id), user.copy(accessToken = Some(AccessToken(token = token))), false, false, new WriteConcern())
+  }
+
+  def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
+    val delta = System.currentTimeMillis() - timeout * 1000
+    User.count(MongoDBObject("accessToken.token" -> token, "accessToken.issueTime" -> MongoDBObject("$gt" -> delta))) > 0
+  }
+
+  def findByAccessToken(token: String): Option[User] = {
+    User.findOne(MongoDBObject("accessToken.token" -> token))
+  }
+
+  def evictExpiredAccessTokens(timeout: Long = 3600) {
+    val delta = System.currentTimeMillis() - timeout * 1000
+    User.update(MongoDBObject("accessToken.issueTime" -> MongoDBObject("$lt" -> delta)), MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
   }
 }
