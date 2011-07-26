@@ -39,6 +39,10 @@ class AccessKeyException(s: String, throwable: Throwable) extends Exception(s, t
   def this(s: String) = this(s, null)
 }
 
+class UnauthorizedException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this(s, null)
+}
+
 class BadArgumentException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this(s, null)
 }

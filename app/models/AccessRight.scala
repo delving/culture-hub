@@ -5,6 +5,7 @@ import com.novus.salat.grater
 import salatContext._
 import com.mongodb.casbah.{Imports, MongoCollection}
 import com.novus.salat.dao.SalatDAO
+import views.Collection.html.collection
 
 /**
  *
@@ -25,23 +26,34 @@ trait AccessControl {
   private def buildId(username: String, node: String) = username + "#" + node
 
   def canCreate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "create")
+  def canCreate(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "create")
 
   def canRead(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "read")
+  def canRead(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "read")
 
   def canUpdate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "update")
+  def canUpdate(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node,  "update")
 
   def canDelete(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "delete")
+  def canDelete(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node,  "delete")
 
   def owns(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "owner")
+  def owns(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "owner")
 
   def hasRight(id: AnyRef, username: String, node: String, right: String) : Boolean = hasUserRight(id, username, node, right) || hasGroupRight (id, username, node, right)
+  def hasRight(id: AnyRef, right: String, user: User) : Boolean = hasUserRight(id, user.reference.username, user.reference.node, right) || hasGroupRight (id, user.reference.username, user.reference.node, right)
 
-  def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+  /** find all objects for which the user has a right for (either by direct access or through a group) **/
+  def findAllByRight(username: String, node: String, right: String) = {
+    findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
+  }
+
+  private def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
     val objectQuery = getObjectQuery(id) ++ userRightQuery(username, node, right)
     getCollection.count(objectQuery) > 0
   }
 
-  def hasGroupRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+  private def hasGroupRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
     val query = getObjectQuery(id)
     val access = getCollection.findOne(query, MongoDBObject(getAccessField -> 1)).getOrElse(return false)
     val groups: Imports.DBObject = access.getAs[DBObject](getAccessField).get.getAs[DBObject]("groups").get
@@ -52,11 +64,6 @@ trait AccessControl {
 
   private def userRightQuery(username: String, node: String, right: String) =
     MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
-
-  /** find all objects for which the user has a right for (either by direct access or through a group) **/
-  def findAllByRight(username: String, node: String, right: String) = {
-    findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
-  }
 
   private def findGroupRightObjects(username: String, node: String, right: String) = {
     // find the user this group is in and have the right we look for
