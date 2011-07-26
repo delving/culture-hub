@@ -103,6 +103,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR = {
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
+    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
     CollectionMDR
   }
