@@ -22,7 +22,8 @@ case class User(reference: UserReference = UserReference("", "", ""),
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
                 resetPasswordToken: Option[String] = None,
-                accessToken: Option[AccessToken] = None) {
+                accessToken: Option[AccessToken] = None,
+                refreshToken: Option[String] = None) {
   val fullname = firstName + " " + lastName
 }
 
@@ -75,8 +76,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     true
   }
 
-  def setAccessToken(user: User, token: String) {
-    User.update(MongoDBObject("reference.id" -> user.reference.id), user.copy(accessToken = Some(AccessToken(token = token))), false, false, new WriteConcern())
+  def setOauthTokens(user: User, accessToken: String, refreshToken: String) {
+    User.update(MongoDBObject("reference.id" -> user.reference.id), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
   }
 
   def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
@@ -86,6 +87,10 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
   def findByAccessToken(token: String): Option[User] = {
     User.findOne(MongoDBObject("accessToken.token" -> token))
+  }
+
+  def findByRefreshToken(token: String): Option[User] = {
+    User.findOne(MongoDBObject("refreshToken" -> token))
   }
 
   def evictExpiredAccessTokens(timeout: Long = 3600) {
