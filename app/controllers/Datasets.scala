@@ -14,6 +14,7 @@ import eu.delving.sip.{DataSetState}
 import models.MetadataRecord
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
+import com.mongodb.{DBObject, BasicDBObject}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -105,7 +106,7 @@ object Datasets extends Controller {
       log.warn(String.format("Service Access Key %s invalid!", accessKey))
       throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
     }
-    OAuth2TokenEndpoint.getUserByToken(accessKey)
+    OAuth2TokenEndpoint.getUserByToken(accessKey).get
   }
 
   //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
@@ -155,29 +156,30 @@ object Datasets extends Controller {
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
     import scala.collection.JavaConversions.asScalaMap
     val hashesMap: collection.mutable.Map[String, String] = hashes
-    val hashesMapInitialSize = hashesMap.size
 
     import com.mongodb.casbah.Imports.MongoDBObject
 
-    DataSet.getRecords(dataSet).collection.find(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1)) foreach {
-      record =>
-        val localRecordKey = record.asInstanceOf[MongoDBObject].getAs[String]("localRecordKey")
-        val hash = record.asInstanceOf[MongoDBObject].getAs[String]("globalHash")
-        if (localRecordKey != None && hash != None) {
-          hashesMap.get(localRecordKey.get) match {
-            case r if r == hash => hashesMap.remove(localRecordKey.get) // we have it
-            case r if r != hash => // we don't have it
+    val status: Iterator[String] = for(record: DBObject <- DataSet.getRecords(dataSet).collection.find(MongoDBObject(), MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))) yield {
+        val localRecordKey = record.asInstanceOf[BasicDBObject].getString("localRecordKey")
+        val hash = record.asInstanceOf[BasicDBObject].getString("globalHash")
+        if(hashesMap.contains(localRecordKey)) {
+          hashesMap.get(localRecordKey).get match {
+            case h if h == hash => ""
+            case h if h != hash => println(h); localRecordKey // we don't have it
           }
-        }
+      } else ""
     }
+    val changed = status filterNot (status => status.isEmpty)
+    val allAreMissing = hashes.size == changed.size && !changed.isEmpty
+    val noneIsMissing = changed.isEmpty
+    val changedRecordKeys = if(allAreMissing) "all" else if (noneIsMissing) "none" else changed reduceLeft (_ + ", " + _)
 
-    def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
+    def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: String, errorMessage: String = ""): Elem = {
       <data-set responseCode={responseCode.toString}>
-        <changed-records-keys>{if(hashesMapInitialSize == hashesMap.size) "all" else missingRecords reduceLeft (_ + ", " + _)}</changed-records-keys>
+        <changed-records-keys>{missingRecords}</changed-records-keys>
       </data-set>
     }
-
-    val string: String = renderChangedRecordsList(missingRecords = hashesMap.keys.toList).toString()
+    val string: String = renderChangedRecordsList(missingRecords = changedRecordKeys).toString()
     new RenderXml(string)
   }
 
