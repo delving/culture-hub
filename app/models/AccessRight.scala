@@ -14,16 +14,15 @@ trait AccessControl {
 
   protected def getCollection: MongoCollection
 
-  protected def getObjectQuery(id: AnyRef): MongoDBObject
+  protected def getObjectIdField: String
+
+  protected def getObjectQuery(id: AnyRef): MongoDBObject = MongoDBObject(getObjectIdField -> id.toString)
 
   protected def getAccessField: String = "access"
 
   private def users(postfix: String = ""): String = if (!postfix.isEmpty) getAccessField + ".users." + postfix else getAccessField + ".users"
 
   private def buildId(username: String, node: String) = username + "#" + node
-
-  private def userRightQuery(id: AnyRef, username: String, node: String, right: String) =
-    getObjectQuery(id) ++ MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
 
   def canCreate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "create")
 
@@ -38,7 +37,8 @@ trait AccessControl {
   def hasRight(id: AnyRef, username: String, node: String, right: String) : Boolean = hasUserRight(id, username, node, right) || hasGroupRight (id, username, node, right)
 
   def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
-   getCollection.count(userRightQuery(id, username, node, right)) > 0
+    val objectQuery = getObjectQuery(id) ++ userRightQuery(username, node, right)
+    getCollection.count(objectQuery) > 0
   }
 
   def hasGroupRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
@@ -50,6 +50,28 @@ trait AccessControl {
     groupCollection.count(groupQuery) > 0
   }
 
+  private def userRightQuery(username: String, node: String, right: String) =
+    MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
+
+  /** find all objects for which the user has a right for (either by direct access or through a group) **/
+  def findAllByRight(username: String, node: String, right: String) = {
+    findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
+  }
+
+  private def findGroupRightObjects(username: String, node: String, right: String) = {
+    // find the user this group is in and have the right we look for
+    val userPath = "users.%s" format(buildId(username, node))
+    val groupQuery = MongoDBObject(userPath -> MongoDBObject("$exists" -> true), right -> true)
+    val groupsWithRight: List[Imports.DBObject] = groupCollection.find(groupQuery, MongoDBObject("id" -> 1)).toList
+
+    // find the records that have this group in it
+    getCollection.find(MongoDBObject("%s.groups".format(getAccessField) -> MongoDBObject("$in" -> groupsWithRight)))
+  }
+
+  private def findUserRightObjects(username: String, node: String, right: String) = {
+    getCollection.find(userRightQuery(username, node, right))
+  }
+
   def addAccessRight(id: AnyRef, username: String, node: String, rights: (String, Boolean)*) {
     val userId: String = buildId(username, node)
     val query: MongoDBObject = getObjectQuery(id)
@@ -59,7 +81,7 @@ trait AccessControl {
       val path: String = "%s.users.%s".format(getAccessField, buildId(username, node))
       val maybeAction = getCollection.findOne(actionQuery, MongoDBObject(path -> 1))
       val action = maybeAction match {
-        case Some(action) => action.getAs[DBObject](getAccessField).get.getAs[DBObject]("users").get.getAs[DBObject](userId).get
+        case Some(a) => a.getAs[DBObject](getAccessField).get.getAs[DBObject]("users").get.getAs[DBObject](userId).get
         case None => grater[UserAction].asDBObject(UserAction(UserReference(username, node, userId)))
       }
       rights foreach {

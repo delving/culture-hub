@@ -43,18 +43,25 @@ GET        /registration/resetPassword/{resetPasswordToken}                  Reg
 POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
-GET         /{user}/?                               Users.index
-GET         /{user}/profile                         Profiles.index
-GET         /{user}/label                           Labels.list
-GET         /{user}/label/{label}                   Labels.label
-GET         /{user}/collection                      Collections.list
-GET         /{user}/collection/{collection}         Collections.collection
-GET         /{user}/object                          Dobjects.list
-GET         /{user}/object/add                      Dobjects.add
-GET         /{user}/object/{dobject}                Dobjects.dobject
-GET         /{user}/story                           Stories.list
-GET         /{user}/story/newStory                  Stories.newStory
-GET         /{user}/story/{story}                   Stories.story
+GET         /{user}/?                                                        Users.index
+GET         /{user}/profile                                                  Profiles.index
+GET         /{user}/label                                                    Labels.list
+GET         /{user}/label/{label}                                            Labels.label
+GET         /{user}/collection                                               Collections.list
+GET         /{user}/collection/{collection}                                  Collections.collection
+GET         /{user}/object                                                   Dobjects.list
+GET         /{user}/object/add                                               Dobjects.add
+GET         /{user}/object/{dobject}                                         Dobjects.dobject
+GET         /{user}/story                                                    Stories.list
+GET         /{user}/story/newStory                                           Stories.newStory
+GET         /{user}/story/{story}                                            Stories.story
+
+GET         /{user}/dataset                                                  Datasets.listAll
+GET         /{user}/dataset/{dataSetSpec}/{command}                          Datasets.indexingControl
+POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       Datasets.acceptFile
+POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      Datasets.fetchSIP
+GET         /{user}/admin/dataset                                            Datasets.secureListAll
+GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    Datasets.secureIndexingControl
 
 # Administration
 GET        /admin/themes                            admin.Themes.index

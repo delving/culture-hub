@@ -88,6 +88,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
   }
 
+  def findAllForUser(user: User) = {
+    val dataSetCursor = DataSet.findAllByRight(user.reference.username, user.reference.node, "read")
+    (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
+  }
+
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
   }
@@ -128,9 +133,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
+  // access control
+
   protected def getCollection = dataSetsCollection
 
-  protected def getObjectQuery(id: AnyRef) = MongoDBObject("spec" -> id.toString)
+  protected def getObjectIdField = "spec"
 }
 
 //object DataSetStateType extends Enumeration {

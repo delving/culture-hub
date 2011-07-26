@@ -16,6 +16,7 @@ import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import com.mongodb.{DBObject, BasicDBObject}
 
+
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
  *
@@ -30,7 +31,7 @@ object Datasets extends Controller {
   import play.mvc.Http
   import java.io.{OutputStream, InputStream}
   import eu.delving.metadata.{Facts, RecordMapping, MetadataModel}
-  import eu.delving.sip.{DataSetResponseCode, AccessKey}
+  import eu.delving.sip.{DataSetResponseCode}
   import play.mvc.results.RenderXml
   import org.apache.log4j.Logger
   import cake.ComponentRegistry
@@ -42,9 +43,11 @@ object Datasets extends Controller {
 
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
 
-  def secureListAll: Result = {
+  def secureListAll(accessKey: String): Result = {
     try {
-      renderDataSetListAsXml(dataSets = DataSet.findAll)
+      val user = checkAccessToken(accessKey)
+      val dataSets = DataSet.findAllForUser(user)
+      renderDataSetListAsXml(dataSets = dataSets)
     } catch {
       case e: Exception => renderException(e)
     }
@@ -73,7 +76,8 @@ object Datasets extends Controller {
   def listAll(accessKey: String): Result = {
     try {
       val user = checkAccessToken(accessKey)
-      renderDataSetListAsXml(dataSets = DataSet.findAll)
+      val dataSets = DataSet.findAllForUser(user)
+      renderDataSetListAsXml(dataSets = dataSets)
     }
     catch {
       case e: Exception => renderException(e)
@@ -287,7 +291,7 @@ object Datasets extends Controller {
     val updatedDataSet: DataSet = {
       import eu.delving.sip.DataSetState
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(user.reference.id -> UserAction(user = user.reference, owner = Some(true))), groups = List()))
+        case None => DataSet(spec = dataSetSpec,state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(user.reference.id -> UserAction(user = user.reference, create = Some(true), read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
         case _ => dataSet.get.copy(facts_hash = hash, details = details)
       }
     }
