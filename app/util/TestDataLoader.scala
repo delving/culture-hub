@@ -2,7 +2,7 @@ package util
 
 import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject._
-import models.{DataSet, Group, User}
+import models.{DataSet, UserGroup, User}
 import com.mongodb.casbah.commons.MongoDBObject
 
 /**
@@ -25,7 +25,7 @@ trait TestDataGeneric extends TestData {
   YamlLoader.load[List[Any]]("testData.yml").foreach {
     _ match {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
-      case g: Group => Group.insert(g)
+      case g: UserGroup => UserGroup.insert(g)
       case d: DataSet => DataSet.insert(d)
       case _ =>
     }

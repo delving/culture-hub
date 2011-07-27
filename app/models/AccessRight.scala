@@ -25,9 +25,6 @@ trait AccessControl {
 
   private def buildId(username: String, node: String) = username + "#" + node
 
-  def canCreate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "create")
-  def canCreate(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "create")
-
   def canRead(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "read")
   def canRead(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "read")
 
@@ -93,7 +90,7 @@ trait AccessControl {
       }
       rights foreach {
         right => right._1 match {
-          case "create" | "read" | "update" | "delete" | "owner" => action.put(right._1, right._2)
+          case "read" | "update" | "delete" | "owner" => action.put(right._1, right._2)
           case _ => throw new RuntimeException("Invalid access right '%s'" format (right._1))
         }
       }
@@ -113,27 +110,24 @@ case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAc
 
 /**A User and his rights **/
 case class UserAction(user: UserReference = UserReference("", "", ""),
-                      create: Option[Boolean] = Some(false),
                       read: Option[Boolean] = Some(false),
                       update: Option[Boolean] = Some(false),
                       delete: Option[Boolean] = Some(false),
                       owner: Option[Boolean] = Some(false))
 
 /**A group and its rights **/
-case class Group(
-                        user: UserReference,
-                        name: String,
-                        id: String, // group ID composed of name#username#node
-                        users: Map[String, UserReference],
-                        create: Option[Boolean] = Some(false),
-                        read: Option[Boolean] = Some(false),
-                        update: Option[Boolean] = Some(false),
-                        delete: Option[Boolean] = Some(false),
-                        owner: Option[Boolean] = Some(false))
+case class UserGroup(user: UserReference,
+                 name: String,
+                 id: String, // group ID composed of name#username#node
+                 users: Map[String, UserReference],
+                 read: Option[Boolean] = Some(false),
+                 update: Option[Boolean] = Some(false),
+                 delete: Option[Boolean] = Some(false),
+                 owner: Option[Boolean] = Some(false))
 
-object Group extends SalatDAO[Group, ObjectId](collection = groupCollection)
+object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollection)
 
 /**An organization, yet to be defined further **/
 case class Organization(name: String,
                         public: Boolean,
-                        groups: List[Group])
+                        groups: List[UserGroup])

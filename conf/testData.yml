@@ -39,7 +39,6 @@
 
 - !!models.UserAction &jimmyAction
     user: *jimmy
-    create: !!bool "true"
     read: !!bool "true"
     update: !!bool "true"
     delete: !!bool "true"
@@ -47,20 +46,18 @@
 
 - !!models.UserAction &bobAction
     user: *bob
-    create: !!bool "false"
     read: !!bool "true"
     update: !!bool "false"
     delete: !!bool "false"
     owner: !!bool "false"
 
-- !!models.Group &buddies
+- !!models.UserGroup &buddies
     user: *jimmy
     name: Buddies
     id: "Buddies#jimmy#cultureHub"
     users:
       ? "dan#cultureHub"
       : *dan
-    create: !!bool "false"
     read: !!bool "true"
     update: !!bool "false"
     delete: !!bool "false"

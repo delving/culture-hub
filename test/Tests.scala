@@ -68,10 +68,6 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
     DataSet.canRead("sffDF", "jimmy", "cultureHub") should be(true)
     DataSet.canRead("sffDF", "bob", "cultureHub") should be(true)
   }
-  it should "tell if a user has create access" in {
-    DataSet.canCreate("sffDF", "jimmy", "cultureHub") should be(true)
-    DataSet.canCreate("sffDF", "bob", "cultureHub") should be(false)
-  }
   it should "tell if a user has update access" in {
     DataSet.canUpdate("sffDF", "jimmy", "cultureHub") should be(true)
     DataSet.canUpdate("sffDF", "bob", "cultureHub") should be(false)
@@ -86,10 +82,10 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
   }
 
   it should "update rights of an existing user" in {
-    DataSet.canCreate("sffDF", "bob", "cultureHub") should be(false)
+    DataSet.canDelete("sffDF", "bob", "cultureHub") should be(false)
     DataSet.canUpdate("sffDF", "bob", "cultureHub") should be(false)
-    DataSet.addAccessRight("sffDF", "bob", "cultureHub", "create" -> true, "update" -> true)
-    DataSet.canCreate("sffDF", "bob", "cultureHub") should be(true)
+    DataSet.addAccessRight("sffDF", "bob", "cultureHub", "delete" -> true, "update" -> true)
+    DataSet.canDelete("sffDF", "bob", "cultureHub") should be(true)
     DataSet.canUpdate("sffDF", "bob", "cultureHub") should be(true)
     DataSet.canRead("sffDF", "bob", "cultureHub") should be(true)
     DataSet.owns("sffDF", "bob", "cultureHub") should be(false)
@@ -99,7 +95,6 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
     DataSet.canRead("sffDF", "jane", "cultureHub") should be(false)
     DataSet.addAccessRight("sffDF", "jane", "cultureHub", "read" -> true)
     DataSet.canRead("sffDF", "jane", "cultureHub") should be(true)
-    DataSet.canCreate("sffDF", "jane", "cultureHub") should be(false)
     DataSet.canUpdate("sffDF", "jane", "cultureHub") should be(false)
     DataSet.canDelete("sffDF", "jane", "cultureHub") should be(false)
     DataSet.owns("sffDF", "jane", "cultureHub") should be(false)

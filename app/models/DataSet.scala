@@ -12,6 +12,7 @@ import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
+import views.Collection.html.collection
 
 /**
  *
