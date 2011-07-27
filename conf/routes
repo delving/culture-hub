@@ -67,6 +67,10 @@ POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      Dat
 GET         /{user}/admin/dataset                                            Datasets.secureListAll
 GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    Datasets.secureIndexingControl
 
+GET         /users/list                                                      Users.listAsTokens
+
+
+
 # Portal Administration
 GET        /admin/themes                            admin.Themes.index
 GET        /admin/themes/list                       admin.Themes.list

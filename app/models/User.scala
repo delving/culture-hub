@@ -7,7 +7,6 @@ import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
 import views.Collection.html.collection
-import org.omg.CORBA.TIMEOUT
 
 /** Unique reference to a user across the CultureHub space **/
 case class UserReference(username: String = "", node: String = "", id: String = "")
@@ -31,7 +30,7 @@ case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis
 
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User(UserReference("", "", ""), "", "", "none@nothing.com", "", false, None, None, None)
+  val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
   def connect(username: String, password: String, node: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
@@ -40,6 +39,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     }
     true
   }
+
+  def findAllIdName: List[DBObject] = User.collection.find(MongoDBObject(), MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)).toList
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
