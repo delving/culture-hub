@@ -63,7 +63,7 @@ trait AccessControl {
     MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
 
   private def findGroupRightObjects(username: String, node: String, right: String) = {
-    // find the user this group is in and have the right we look for
+    // find the groups this user is in and have the right we look for
     val userPath = "users.%s" format(buildId(username, node))
     val groupQuery = MongoDBObject(userPath -> MongoDBObject("$exists" -> true), right -> true)
     val groupsWithRight: List[Imports.DBObject] = groupCollection.find(groupQuery, MongoDBObject("id" -> 1)).toList
@@ -116,7 +116,8 @@ case class UserAction(user: UserReference = UserReference("", "", ""),
                       owner: Option[Boolean] = Some(false))
 
 /**A group and its rights **/
-case class UserGroup(user: UserReference,
+case class UserGroup(
+                 user: UserReference,
                  name: String,
                  id: String, // group ID composed of name#username#node
                  users: Map[String, UserReference],
@@ -125,7 +126,12 @@ case class UserGroup(user: UserReference,
                  delete: Option[Boolean] = Some(false),
                  owner: Option[Boolean] = Some(false))
 
-object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollection)
+object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollection) {
+
+  def findByUser(userId: String) = {
+    find(MongoDBObject("user.id" -> userId)).toList
+  }
+}
 
 /**An organization, yet to be defined further **/
 case class Organization(name: String,

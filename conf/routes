@@ -56,6 +56,10 @@ GET         /{user}/story                                                    Sto
 GET         /{user}/story/newStory                                           Stories.newStory
 GET         /{user}/story/{story}                                            Stories.story
 
+GET         /{user}/admin/?                                                  user.Admin.index
+GET         /{user}/admin/groups                                             user.Admin.groupList
+GET         /{user}/admin/groups/new                                         user.Admin.groupNew
+
 GET         /{user}/dataset                                                  Datasets.listAll
 GET         /{user}/dataset/{dataSetSpec}/{command}                          Datasets.indexingControl
 POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       Datasets.acceptFile
@@ -63,7 +67,7 @@ POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      Dat
 GET         /{user}/admin/dataset                                            Datasets.secureListAll
 GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    Datasets.secureIndexingControl
 
-# Administration
+# Portal Administration
 GET        /admin/themes                            admin.Themes.index
 GET        /admin/themes/list                       admin.Themes.list
 POST       /admin/themes/reload                     admin.Themes.reload

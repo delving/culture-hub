@@ -97,7 +97,7 @@ trait ParameterCheck {
     Continue
   }
 
-  object Allowed {
+@Util object Allowed {
     def apply(string: String): Option[String] = {
       FORBIDDEN map {
         f => if (string.contains(f)) {
