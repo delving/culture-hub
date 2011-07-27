@@ -25,9 +25,6 @@ object Users extends DelvingController {
     case class Token(id: String, name: String)
 
     val userTokens: List[Token] = for(u: DBObject <- User.findAllIdName) yield {
-      println(u.toString)
-      println(u.toString)
-      println(u.toString)
       Token(id = u.get("reference").asInstanceOf[DBObject].get("id").toString, name = u.get("firstName") + " " + u.get("lastName"))
     }
 

@@ -93,7 +93,10 @@ var methods = {
     remove: function(item) {
         this.data("tokenInputObject").remove(item);
         return this;
-    }
+    },
+    get: function() {
+    	return this.data("tokenInputObject").getTokens();
+   	}
 }
 
 // Expose the .tokenInput function to jQuery as a plugin
@@ -223,6 +226,7 @@ $.TokenList = function (input, url_or_data, settings) {
                     if(!$(this).val().length) {
                         if(selected_token) {
                             delete_token($(selected_token));
+                            hidden_input.change();
                         } else if(previous_token.length) {
                             select_token($(previous_token.get(0)));
                         }
@@ -241,7 +245,8 @@ $.TokenList = function (input, url_or_data, settings) {
                 case KEY.NUMPAD_ENTER:
                 case KEY.COMMA:
                   if(selected_dropdown_item) {
-                    add_token($(selected_dropdown_item).data("tokeninput"));
+                      add_token($(selected_dropdown_item).data("tokeninput"));
+                      hidden_input.change();
                     return false;
                   }
                   break;
@@ -380,6 +385,10 @@ $.TokenList = function (input, url_or_data, settings) {
             }
         });
     }
+    
+    this.getTokens = function() {
+   		return saved_tokens;
+   	}
 
     //
     // Private functions
@@ -423,6 +432,7 @@ $.TokenList = function (input, url_or_data, settings) {
             .appendTo(this_token)
             .click(function () {
                 delete_token($(this).parent());
+                hidden_input.change();
                 return false;
             });
 
@@ -470,8 +480,10 @@ $.TokenList = function (input, url_or_data, settings) {
         }
 
         // Insert the new tokens
-        insert_token(item);
-        checkTokenLimit();
+        if(settings.tokenLimit == null || token_count < settings.tokenLimit) {
+            insert_token(item);
+            checkTokenLimit();
+        }
 
         // Clear input box
         input_box.val("");
@@ -620,6 +632,7 @@ $.TokenList = function (input, url_or_data, settings) {
                 })
                 .mousedown(function (event) {
                     add_token($(event.target).closest("li").data("tokeninput"));
+                    hidden_input.change();
                     return false;
                 })
                 .hide();

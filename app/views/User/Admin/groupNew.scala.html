@@ -5,15 +5,15 @@
 
 @userMain("New group") {
 
-<form class="form" action="/@userName/admin/groups/create" method="POST">
+<form class="form" id="groupForm" action="/@userName/admin/groups/create" method="POST">
 
   <div>
     <div>
-      @textField("name", "Name")
+      @textField("name", "Name", "value: name")
     </div>
     <div>
       <!-- this should appear in a box next to the previous field, with the label next to the tickbox -->
-      @checkboxField("read", "Can view repositories")
+      @checkboxField(name = "read", label = "Can view repositories")
       @checkboxField("update", "Can update repositories")
       @checkboxField("delete", "Can delete repositories")
     </div>
@@ -22,7 +22,7 @@
   <div>
     <div>
         <label for="members">Members</label>
-        <input type="text" id="members" name="members" />
+        <input type="text" id="members" name="members" data-bind="tags: members"/>
     </div>
     <div>
       <label for="repositories">Repositories</label>
@@ -30,15 +30,30 @@
     </div>
   </div>
 
-  <input type="submit" value="Save group">
 
 </form>
+<input class="saveButton" id="saveButton" type="button" value="Save group">
 
 <script type="text/javascript">
   $(document).ready(function() {
       $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
       $("#repositories").tokenInput([{id: "1", name: "Foo"}, {id: "2", name: "Bar"}]);
-  });
+
+    var groupModel = {
+      name: ko.observable(),
+      read: ko.observable(),
+      update: ko.observable(),
+      delete: ko.observable(),
+      members: ko.observableArray()
+    };
+
+    ko.applyBindings(groupModel, document.getElementById('groupForm'));
+
+    $('#saveButton').click(function() {
+      console.log(ko.mapping.toJS(groupModel));
+    });
+
+  })
 </script>
 
 
