@@ -3,13 +3,17 @@
 @import views.context._
 
 @main("List of collections for user " + user.fullname ) {
-
+    <div class="grid_8 alpha">
         <h1>All the collections of @user.fullname</h1>
         <ul>
           <li>Foos</li>
           <li>Bars</li>
           <li>Bazs</li>
         </ul>
-
-
+    </div>
+    <div class="grid_8 omega">
+        @if(renderArgs.get("displayName") != null) {
+                 <a href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
+        }
+    </div>
 }

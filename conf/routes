@@ -43,18 +43,19 @@ GET        /registration/resetPassword/{resetPasswordToken}                  Reg
 POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
-GET         /{user}/?                                                        Users.index
-GET         /{user}/profile                                                  Profiles.index
-GET         /{user}/label                                                    Labels.list
-GET         /{user}/label/{label}                                            Labels.label
-GET         /{user}/collection                                               Collections.list
-GET         /{user}/collection/{collection}                                  Collections.collection
-GET         /{user}/object                                                   Dobjects.list
-GET         /{user}/object/add                                               Dobjects.add
-GET         /{user}/object/{dobject}                                         Dobjects.dobject
-GET         /{user}/story                                                    Stories.list
-GET         /{user}/story/newStory                                           Stories.newStory
-GET         /{user}/story/{story}                                            Stories.story
+GET         /{user}/?                               Users.index
+GET         /{user}/profile                         Profiles.index
+GET         /{user}/label                           Labels.list
+GET         /{user}/label/{label}                   Labels.label
+GET         /{user}/collection                      Collections.list
+GET         /{user}/collection/add                  Collections.add
+GET         /{user}/collection/{collection}         Collections.collection
+GET         /{user}/object                          Dobjects.list
+GET         /{user}/object/add                      Dobjects.add
+GET         /{user}/object/{dobject}                Dobjects.dobject
+GET         /{user}/story                           Stories.list
+GET         /{user}/story/add                       Stories.add
+GET         /{user}/story/{story}                   Stories.story
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/groups                                             user.Admin.groupList
