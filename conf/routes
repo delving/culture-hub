@@ -48,13 +48,13 @@ GET         /{user}/profile                         Profiles.index
 GET         /{user}/label                           Labels.list
 GET         /{user}/label/{label}                   Labels.label
 GET         /{user}/collection                      Collections.list
-POST        /{user}/collection/add                  Collections.add
+GET         /{user}/collection/add                  Collections.add
 GET         /{user}/collection/{collection}         Collections.collection
 GET         /{user}/object                          Dobjects.list
-POST        /{user}/object/add                      Dobjects.add
+GET         /{user}/object/add                      Dobjects.add
 GET         /{user}/object/{dobject}                Dobjects.dobject
 GET         /{user}/story                           Stories.list
-POST        /{user}/story/add                       Stories.add
+GET         /{user}/story/add                       Stories.add
 GET         /{user}/story/{story}                   Stories.story
 
 GET         /{user}/admin/?                                                  user.Admin.index
