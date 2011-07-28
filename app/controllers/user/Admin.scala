@@ -5,6 +5,7 @@ import play.mvc.Before
 import controllers.{UserAuthentication, Secure, DelvingController}
 import play.mvc.results.Result
 import models.UserGroup
+import reflect.BeanInfo
 
 /**
  *
@@ -22,7 +23,6 @@ object Admin extends DelvingController with UserAuthentication with Secure {
     Continue
   }
 
-
   def index: Html = {
     html.index()
   }
@@ -34,6 +34,31 @@ object Admin extends DelvingController with UserAuthentication with Secure {
 
   def groupNew: Html = {
     html.groupNew()
+  }
+
+  @BeanInfo case class GroupModel(name: String, readRight: Boolean = false, updateRight: Boolean, deleteRight: Boolean , members: List[Member])
+  @BeanInfo case class Member(id: String, name: String)
+
+
+  def groupLoad(user: String, name: String): Result = {
+    // TODO
+    Ok
+  }
+
+  def groupSubmit(user: String, name: String, data: String): Result = {
+
+    import sjson.json._
+    import sjson.json.DefaultProtocol._
+
+    val serializer = Serializer.SJSON
+
+    println(data)
+
+    val model: GroupModel = serializer.in[GroupModel](data)
+
+    println(model)
+
+    Ok
   }
 
 }

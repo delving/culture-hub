@@ -16,6 +16,9 @@ require:
     - net.liftweb -> lift-json-ext_2.8.1 2.3:
         exclude:
             - org.scala-lang -> *
+    - net.debasishg -> sjson_2.8.1 0.12:
+        exclude:
+            - org.scala-lang -> *
     - com.thebuzzmedia -> imgscalr-lib 3.1
     - de.micromata.jak -> JavaAPIforKml 2.2.0
     - com.thoughtworks.xstream -> xstream 1.3
@@ -45,6 +48,8 @@ repositories:
             - org.scalaj.*
             - com.borachio.*
             - org.specs2.*
+            - net.debasishg.*
+            - net.databinder.*
     - theBuzzMedia:
         type: iBiblio
         root: "http://maven.thebuzzmedia.com"

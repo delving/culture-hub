@@ -9,7 +9,6 @@ import play.test._
 import play.libs.OAuth2
 import play.libs.OAuth2.Response
 import util._
-import test.{TestEnvironment}
 import models._
 
 /**

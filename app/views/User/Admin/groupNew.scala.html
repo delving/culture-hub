@@ -29,8 +29,6 @@
       <input type="text" id="repositories" name="repositories" />
     </div>
   </div>
-
-
 </form>
 <input class="saveButton" id="saveButton" type="button" value="Save group">
 
@@ -51,6 +49,7 @@
 
     $('#saveButton').click(function() {
       console.log(ko.mapping.toJS(groupModel));
+      $.postKOJson('/@userName/admin/groups/submit', groupModel)
     });
 
   })
