@@ -31,8 +31,7 @@ require:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
     # delving dependencies
-    - provided -> sip-core 0.2.9-SNAPSHOT
-    - provided -> metameta 0.2.9-SNAPSHOT
+    - provided -> sip-core 0.3.1-SNAPSHOT
     # remove later
     - com.google.collections -> google-collections 1.0
 

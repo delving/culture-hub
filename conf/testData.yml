@@ -1,21 +1,44 @@
-- !!models.UserReference &jimmy
-    username: jimmy
-    node: cultureHub
-    id: "jimmy#cultureHub"
-
 - !!models.UserReference &bob
     username: bob
     node: cultureHub
     id: "bob#cultureHub"
+
+- !!models.UserReference &jimmy
+    username: jimmy
+    node: cultureHub
+    id: "jimmy#cultureHub"
 
 - !!models.UserReference &dan
     username: dan
     node: cultureHub
     id: "dan#cultureHub"
 
+- !!models.User
+    reference: *bob
+    firstName:      Bob
+    lastName:       Marley
+    email:          bob@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.User
+    reference: *jimmy
+    firstName:      Jimmy
+    lastName:       Hendrix
+    email:          jimmy@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.User
+    reference: *dan
+    firstName:      Dan
+    lastName:       Brown
+    email:          dan@gmail.com
+    password:       secret
+    isActive:       true
+
 - !!models.UserAction &jimmyAction
     user: *jimmy
-    create: !!bool "true"
     read: !!bool "true"
     update: !!bool "true"
     delete: !!bool "true"
@@ -23,18 +46,18 @@
 
 - !!models.UserAction &bobAction
     user: *bob
-    create: !!bool "false"
     read: !!bool "true"
     update: !!bool "false"
     delete: !!bool "false"
     owner: !!bool "false"
 
-- !!models.Group &buddies
+- !!models.UserGroup &buddies
     user: *jimmy
     name: Buddies
+    id: "Buddies#jimmy#cultureHub"
     users:
-      - *dan
-    create: !!bool "false"
+      ? "dan#cultureHub"
+      : *dan
     read: !!bool "true"
     update: !!bool "false"
     delete: !!bool "false"
@@ -54,18 +77,18 @@
 
 - !!models.DataSet
     spec: sffDF
-    state: enabled
+    state: ENABLED
     details:
         name: sffDF
         "uploaded_records": 1679
         "total_records": 1679
         "deleted_records": 0
         errorMessage:
-#        metadataformat:
-#            prefix: raw
-#            namespace: "http://delving.eu/namespaces/raw"
-#            schema: "http://delving.eu/namespaces/raw/schema.xsd"
-#            accessKeyRequired: true
+        metadataFormat:
+            prefix: raw
+            namespace: "http://delving.eu/namespaces/raw"
+            schema: "http://delving.eu/namespaces/raw/schema.xsd"
+            accessKeyRequired: !!bool "true"
         "facts_bytes": "awEAAHNwZWM9c2ZmS0wKZG93bmxvYWRlZFNvdXJjZT1mYWxzZQpyZWNvcmRSb290UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQKcmVjb3JkQ291bnQ9MTY3OQp1bmlxdWVFbGVtZW50UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQvZGM6aWRlbnRpZmllcgpuYW1lPXNmZktMCmNvbGxlY3Rpb25UeXBlPWFsbApuYW1lc3BhY2VQcmVmaXg9cmF3Cmxhbmd1YWdlPW5vCmNvdW50cnk9bm9yd2F5CnByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKZGF0YVByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKcmlnaHRzPWh0dHA6Ly93d3cuZXVyb3BlYW5hLmV1L3JpZ2h0cy91bmtub3duLwp0eXBlPUlNQUdFCg=="
     "facts_hash": 6376A11D42819F2F08035E9EEAF46E9B
     "source_hash": 61F0D46F76B01E0CCAD7286234F30B6A
@@ -95,4 +118,4 @@
             ? "bob#cultureHub"
             : *bobAction
         groups:
-          - *buddies
+          - "Buddies#jimmy#cultureHub"

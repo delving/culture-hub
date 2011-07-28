@@ -11,6 +11,8 @@ package object context {
   def errors = validation.errorsMap()
   def showError(key: String) = Validation.error(key)
 
+  def userName = renderArgs.get("displayName")
+
 
 }
 

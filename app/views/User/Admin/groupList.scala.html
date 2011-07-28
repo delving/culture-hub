@@ -1,0 +1,17 @@
+@(groups: List[models.UserGroup])
+
+@import views.context._
+
+@userMain("Groups") {
+
+<h1>Groups</h1>
+
+<ul>
+  @for(group <- groups) {
+  <li>@group.name (Remove)</li>
+  }
+</ul>
+
+<p><a href="/@userName/admin/groups/new">New group</a></p>
+
+}

@@ -42,12 +42,8 @@ import util.YamlLoader
 
     // Import initial data if the database is empty
     if (User.count() == 0) {
-      YamlLoader.load[List[Any]]("initial-data.yml").foreach {
-        _ match {
-          case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
-          case _ =>
-        }
-      }
+      new util.TestDataLoader
+
     }
   }
 

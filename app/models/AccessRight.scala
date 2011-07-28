@@ -1,9 +1,11 @@
 package models
 
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.MongoCollection
 import com.novus.salat.grater
 import salatContext._
+import com.mongodb.casbah.{Imports, MongoCollection}
+import com.novus.salat.dao.SalatDAO
+import views.Collection.html.collection
 
 /**
  *
@@ -13,7 +15,9 @@ trait AccessControl {
 
   protected def getCollection: MongoCollection
 
-  protected def getObjectQuery(id: AnyRef): MongoDBObject
+  protected def getObjectIdField: String
+
+  protected def getObjectQuery(id: AnyRef): MongoDBObject = MongoDBObject(getObjectIdField -> id.toString)
 
   protected def getAccessField: String = "access"
 
@@ -21,18 +25,56 @@ trait AccessControl {
 
   private def buildId(username: String, node: String) = username + "#" + node
 
-  private def userRightQuery(id: AnyRef, username: String, node: String, right: String) = getObjectQuery(id) ++ MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
+  def canRead(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "read")
+  def canRead(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "read")
 
+  def canUpdate(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "update")
+  def canUpdate(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node,  "update")
 
-  def canCreate(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "create")) > 0
+  def canDelete(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "delete")
+  def canDelete(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node,  "delete")
 
-  def canRead(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "read")) > 0
+  def owns(id: AnyRef, username: String, node: String) = hasRight(id, username, node, "owner")
+  def owns(id: AnyRef, user: User) = hasRight(id, user.reference.username, user.reference.node, "owner")
 
-  def canUpdate(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "update")) > 0
+  def hasRight(id: AnyRef, username: String, node: String, right: String) : Boolean = hasUserRight(id, username, node, right) || hasGroupRight (id, username, node, right)
+  def hasRight(id: AnyRef, right: String, user: User) : Boolean = hasUserRight(id, user.reference.username, user.reference.node, right) || hasGroupRight (id, user.reference.username, user.reference.node, right)
 
-  def canDelete(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "delete")) > 0
+  /** find all objects for which the user has a right for (either by direct access or through a group) **/
+  def findAllByRight(username: String, node: String, right: String) = {
+    findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
+  }
 
-  def owns(id: AnyRef, username: String, node: String) = getCollection.count(userRightQuery(id, username, node, "owner")) > 0
+  private def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+    val objectQuery = getObjectQuery(id) ++ userRightQuery(username, node, right)
+    getCollection.count(objectQuery) > 0
+  }
+
+  private def hasGroupRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
+    val query = getObjectQuery(id)
+    val access = getCollection.findOne(query, MongoDBObject(getAccessField -> 1)).getOrElse(return false)
+    val groups: Imports.DBObject = access.getAs[DBObject](getAccessField).get.getAs[DBObject]("groups").get
+    val userPath = "users.%s" format(buildId(username, node))
+    val groupQuery = MongoDBObject("id" -> MongoDBObject("$in" -> groups.values.toList), right -> true, userPath -> MongoDBObject("$exists" -> true))
+    groupCollection.count(groupQuery) > 0
+  }
+
+  private def userRightQuery(username: String, node: String, right: String) =
+    MongoDBObject("%s.users.%s.%s".format(getAccessField, buildId(username, node), right) -> true)
+
+  private def findGroupRightObjects(username: String, node: String, right: String) = {
+    // find the groups this user is in and have the right we look for
+    val userPath = "users.%s" format(buildId(username, node))
+    val groupQuery = MongoDBObject(userPath -> MongoDBObject("$exists" -> true), right -> true)
+    val groupsWithRight: List[Imports.DBObject] = groupCollection.find(groupQuery, MongoDBObject("id" -> 1)).toList
+
+    // find the records that have this group in it
+    getCollection.find(MongoDBObject("%s.groups".format(getAccessField) -> MongoDBObject("$in" -> groupsWithRight)))
+  }
+
+  private def findUserRightObjects(username: String, node: String, right: String) = {
+    getCollection.find(userRightQuery(username, node, right))
+  }
 
   def addAccessRight(id: AnyRef, username: String, node: String, rights: (String, Boolean)*) {
     val userId: String = buildId(username, node)
@@ -43,12 +85,12 @@ trait AccessControl {
       val path: String = "%s.users.%s".format(getAccessField, buildId(username, node))
       val maybeAction = getCollection.findOne(actionQuery, MongoDBObject(path -> 1))
       val action = maybeAction match {
-        case Some(action) => action.getAs[DBObject](getAccessField).get.getAs[DBObject]("users").get.getAs[DBObject](userId).get
+        case Some(a) => a.getAs[DBObject](getAccessField).get.getAs[DBObject]("users").get.getAs[DBObject](userId).get
         case None => grater[UserAction].asDBObject(UserAction(UserReference(username, node, userId)))
       }
       rights foreach {
         right => right._1 match {
-          case "create" | "read" | "update" | "delete" | "owner" => action.put(right._1, right._2)
+          case "read" | "update" | "delete" | "owner" => action.put(right._1, right._2)
           case _ => throw new RuntimeException("Invalid access right '%s'" format (right._1))
         }
       }
@@ -59,29 +101,39 @@ trait AccessControl {
 }
 
 
-/**Access Rights of an object **/
-case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[Group] = List.empty[Group])
+/**
+ * Access Rights of an object
+ * users: map of (key, UserAction) where key == "username#node"
+ * groups: list of key where key == groupname#username#node
+ */
+case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[String] = List.empty[String])
 
 /**A User and his rights **/
 case class UserAction(user: UserReference = UserReference("", "", ""),
-                      create: Option[Boolean] = Some(false),
                       read: Option[Boolean] = Some(false),
                       update: Option[Boolean] = Some(false),
                       delete: Option[Boolean] = Some(false),
                       owner: Option[Boolean] = Some(false))
 
 /**A group and its rights **/
-case class Group(
-                        user: UserReference,
-                        name: String,
-                        users: List[UserReference],
-                        create: Option[Boolean] = Some(false),
-                        read: Option[Boolean] = Some(false),
-                        update: Option[Boolean] = Some(false),
-                        delete: Option[Boolean] = Some(false),
-                        owner: Option[Boolean] = Some(false))
+case class UserGroup(
+                 user: UserReference,
+                 name: String,
+                 id: String, // group ID composed of name#username#node
+                 users: Map[String, UserReference],
+                 read: Option[Boolean] = Some(false),
+                 update: Option[Boolean] = Some(false),
+                 delete: Option[Boolean] = Some(false),
+                 owner: Option[Boolean] = Some(false))
+
+object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollection) {
+
+  def findByUser(userId: String) = {
+    find(MongoDBObject("user.id" -> userId)).toList
+  }
+}
 
 /**An organization, yet to be defined further **/
 case class Organization(name: String,
                         public: Boolean,
-                        groups: List[Group])
+                        groups: List[UserGroup])

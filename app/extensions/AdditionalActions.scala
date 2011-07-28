@@ -75,7 +75,6 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
 
 }
 
-
 class RenderLiftJson(data: AnyRef, status: java.lang.Integer = 200) extends Result {
   def apply(request: Request, response: Response) {
     implicit val formats = new DefaultFormats {
@@ -84,6 +83,10 @@ class RenderLiftJson(data: AnyRef, status: java.lang.Integer = 200) extends Resu
     response.status = status
     new RenderJson(write(data))(request, response)
   }
+}
+
+object RenderLiftJson {
+  def apply(data: AnyRef, status: java.lang.Integer = 200) = new RenderLiftJson(data, status)
 }
 
 class ObjectIdSerializer extends Serializer[ObjectId] {
