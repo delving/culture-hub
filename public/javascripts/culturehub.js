@@ -10,7 +10,7 @@ function initializeElements() {
  * KnockoutJS binder for the jQuery tokenInput plugin
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-ko.bindingHandlers.tags = {
+ko.bindingHandlers.tokens = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         viewModel.lock = false;
         var modelValue = valueAccessor();

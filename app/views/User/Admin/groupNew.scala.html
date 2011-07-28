@@ -13,16 +13,16 @@
     </div>
     <div>
       <!-- this should appear in a box next to the previous field, with the label next to the tickbox -->
-      @checkboxField(name = "read", label = "Can view repositories")
-      @checkboxField("update", "Can update repositories")
-      @checkboxField("delete", "Can delete repositories")
+      @checkboxField(name = "read", label = "Can view repositories", "checked: readRight")
+      @checkboxField("update", "Can update repositories", "checked: updateRight")
+      @checkboxField("delete", "Can delete repositories", "checked: deleteRight")
     </div>
   </div>
 
   <div>
     <div>
         <label for="members">Members</label>
-        <input type="text" id="members" name="members" data-bind="tags: members"/>
+        <input type="text" id="members" name="members" data-bind="tokens: members"/>
     </div>
     <div>
       <label for="repositories">Repositories</label>
@@ -41,9 +41,9 @@
 
     var groupModel = {
       name: ko.observable(),
-      read: ko.observable(),
-      update: ko.observable(),
-      delete: ko.observable(),
+      readRight: ko.observable(),
+      updateRight: ko.observable(),
+      deleteRight: ko.observable(),
       members: ko.observableArray()
     };
 
@@ -55,7 +55,4 @@
 
   })
 </script>
-
-
-
 }
