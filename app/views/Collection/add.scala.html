@@ -1,0 +1,152 @@
+@(user:models.User)
+
+@import views.context._
+@import views.tags.html._
+
+@main("Create new collection for user " + user.fullname ) {
+<style>
+
+</style>
+<h1>Create a new Collection</h1>
+
+<form method="post" action="" id="newStory">
+    <div class="grid_8 alpha">
+        <h2>Collection Information</h2>
+        <span id="required-note">* Required Fields</span>
+
+        <div class="field">
+            <label for="name" class="required">Name</label>
+
+            <div class="inputs">
+                <input type="text" class="textinput" name="name" id="name" value=""/>
+                <span class="error"></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="description" class="required">Description</label>
+
+            <div class="inputs">
+                <textarea name="description" class="textinput" id="description"></textarea>
+                <span class="error"></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="annotations">Annotation(s)</label>
+
+            <div class="inputs">
+                <select id="annotationType">
+                    <option>Person</option>
+                    <option>Place</option>
+                    <option>Event</option>
+                    <option>Concept</option>
+                </select>
+                <input type="text" class="textinput" id="annotationText"/>
+
+                <input type="button" name="add-annotations-button" id="add-annotation-button" value="Add Annotation"/>
+                <span class="error"></span>
+
+                <p>
+
+                <div id="annotations" class="display-box">
+                    [TODO: populate with above form elements in the form of
+                    <i>annotationText (annotationType)</i> with knockout.js]
+                </div>
+                </p>
+
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="label">Free-text label(s)</label>
+
+            <div class="inputs">
+                <input type="text" class="textinput" name="label" id="label"/>
+                <span class="help">(Separate multiple labels by a comma: label1, label2, ... )</span>
+                <span class="error"></span>
+
+            </div>
+
+        </div>
+        <div class="field">
+            <label for="public">Public</label>
+
+            <div class="input">
+                <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
+
+                <input type="radio" value="1" id="public-1" name="public">Public
+
+            </div>
+        </div>
+    </div>
+
+    <div class="grid_8 omega">
+        <h2>Add objects to your collection</h2>
+        <button id="addObject">Add an Object</button>
+                <div id="annotations" class="display-box">
+                    [TODO: populate with objects selected with above button]
+                </div>
+    </div>
+
+    <div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
+        <div id="objects-list">
+        <table>
+            <tbody>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        <div class="actions">
+            <button>Add selected object(s)</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" language="javascript">
+    $("#addObject").click(function(event) {
+        $("#objects-dialogue").dialog();
+        event.preventDefault();
+    })
+</script>
+
+}

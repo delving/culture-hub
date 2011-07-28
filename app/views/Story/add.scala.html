@@ -1,0 +1,91 @@
+@(user:models.User)
+
+@import views.context._
+@import views.tags.html._
+
+@main("Create new story for user " + user.fullname ) {
+
+    <h1>Create a new Story</h1>
+
+    <form method="post" action="" id="newStory">
+
+        <div class="grid_16 alpha">
+
+            <h2>Story Metadata</h2>
+
+            <div class="field">
+                <label for="name">Name</label>
+                <div class="inputs">
+                <input type="text" class="textinput" name="name" id="name" value=""/>
+                <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="description">Description</label>
+                <div class="inputs">
+                <textarea class="textinput" name="description" id="description"></textarea>
+                    <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="annotation">Annotation(s)</label>
+                <div class="inputs">
+                <select id="annotationType">
+                    <option>Person</option>
+                    <option>Place</option>
+                    <option>Event</option>
+                    <option>Concept</option>
+                </select>
+                <input type="text" class="textinput"  name="annotation" id="annotation" />
+                <button id="annotationAdd">Add</button>
+                    <span class="error"></span>
+                </div>
+                <p>
+
+                <div id="annotations" class="display-box">
+                    <p class="developers-note">
+                    [TODO: populate with above form elements in the form of
+                    <i>annotationText (annotationType)</i> with knockout.js]
+                    </p>
+                </div>
+                </p>
+            </div>
+
+        <div class="field">
+            <label for="public">Public</label>
+
+            <div class="inputs">
+                <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
+
+                <input type="radio" value="1" id="public-1" name="public">Public
+
+            </div>
+        </div>
+
+        <div class="field">
+             <div class="inputs">
+                  <button>Add Section</button>
+             </div>
+            <p class="developers-note">
+                When clicking "Add Section" check must be done to see if the story Name and Description are filled in.
+                The "Add Section" button can be visually disabled until those values are filled in.
+            </p>
+        </div>
+
+
+        <h2>Story Sections and Pages</h2>
+
+        <p>There are no sections</p>
+        </div>
+
+        <!--<div class="grid_8 omega">-->
+            <!--<h2>Story Objects</h2>-->
+            <!--<a href="">Add new object</a>-->
+        <!--</div>-->
+
+
+    </form>
+
+}
