@@ -6,7 +6,6 @@ import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
 import eu.delving.metadata.{MetadataModelImpl, RecordDefinition}
-import views.Collection.html.collection
 
 /**
  *
