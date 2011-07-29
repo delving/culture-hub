@@ -89,7 +89,6 @@ object RenderLiftJson {
 trait LiftJson {
 
   implicit val formats = new DefaultFormats {
-    override val typeHints = FullTypeHints(List())
     override val parameterNameReader = PlayParameterNameReader
   } + new ObjectIdSerializer
 

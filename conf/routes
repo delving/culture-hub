@@ -59,9 +59,10 @@ GET         /{user}/story/{story}                   Stories.story
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/groups                                             user.Admin.groupList
-GET         /{user}/admin/groups/new                                         user.Admin.groupNew
+GET         /{user}/admin/groups/new                                         user.Admin.groupUpdate
+GET         /{user}/admin/groups/update/{name}                               user.Admin.groupUpdate
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
-GET         /{user}/admin/groups/{name}/load                                 user.Admin.groupLoad
+GET         /{user}/admin/groups/load/{name}                                 user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  Datasets.listAll
 GET         /{user}/dataset/{dataSetSpec}/{command}                          Datasets.indexingControl
