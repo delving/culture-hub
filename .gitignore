@@ -7,7 +7,7 @@ test-result
 /modules
 /lib
 target/
-extras/solr-server/solr/*/data/
-extras/solr-server/work/
+extras/servlet-server/solr/*/data/
+extras/servlet-server/work/
 legacyServices/lib/*.jar
 /precompiled

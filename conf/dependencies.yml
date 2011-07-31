@@ -13,7 +13,7 @@ require:
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
-    - net.liftweb -> lift-json-ext_2.8.1 2.3:
+    - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
         exclude:
             - org.scala-lang -> *
     - com.thebuzzmedia -> imgscalr-lib 3.1
@@ -31,8 +31,7 @@ require:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
     # delving dependencies
-    - provided -> sip-core 0.2.9-SNAPSHOT
-    - provided -> metameta 0.2.9-SNAPSHOT
+    - provided -> sip-core 0.3.1-SNAPSHOT
     # remove later
     - com.google.collections -> google-collections 1.0
 
@@ -46,6 +45,8 @@ repositories:
             - org.scalaj.*
             - com.borachio.*
             - org.specs2.*
+            - net.debasishg.*
+            - net.databinder.*
     - theBuzzMedia:
         type: iBiblio
         root: "http://maven.thebuzzmedia.com"

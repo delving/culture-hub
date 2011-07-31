@@ -7,17 +7,24 @@ import models._
 import eu.delving.metadata.{Hasher, Facts, Path, MetadataNamespace}
 import org.apache.log4j.Logger
 import play.mvc
-import mvc.Controller
+import mvc.{Before, Controller}
 import play.libs.IO
 import java.util.{Properties, Date}
 import eu.delving.sip.{DataSetState}
 import models.MetadataRecord
+import com.novus.salat.dao.SalatDAO
+import org.bson.types.ObjectId
+import com.mongodb.{DBObject, BasicDBObject}
+import eu.delving.sip.DataSetState
+import eu.delving.sip.DataSetState._
+import cake.metaRepo.{AccessKeyException, UnauthorizedException}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
  *
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt<bernhardt.manuel@gmail.com>
  * @since 7/7/11 12:04 AM  
  */
 
@@ -27,21 +34,43 @@ object Datasets extends Controller {
   import play.mvc.Http
   import java.io.{OutputStream, InputStream}
   import eu.delving.metadata.{Facts, RecordMapping, MetadataModel}
-  import eu.delving.sip.{DataSetResponseCode, AccessKey}
+  import eu.delving.sip.{DataSetResponseCode}
   import play.mvc.results.RenderXml
   import org.apache.log4j.Logger
   import cake.ComponentRegistry
   import models.DataSet
   import xml.Elem
 
+  private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val RECORD_STREAM_CHUNK: Int = 1000
   private val log: Logger = Logger.getLogger(getClass)
 
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
 
-  def secureListAll: Result = {
+  private var connectedUser: Option[User] = None;
+
+  def getUser(): User = {
+    if (connectedUser == None) throw new AccessKeyException("No access token provided")
+    connectedUser.get
+  }
+
+  @Before def setUser(): Result = {
+    val accessToken: String = params.get("accessKey")
+    if (accessToken == null || accessToken.isEmpty) {
+      log.warn("Service Access Key missing")
+      renderException(new AccessKeyException("No access token provided"))
+    } else if (!OAuth2TokenEndpoint.isValidToken(accessToken)) {
+      log.warn(String.format("Service Access Key %s invalid!", accessToken))
+      renderException(new AccessKeyException(String.format("Access Key %s not accepted", accessToken)))
+    }
+    connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
+    Continue
+  }
+
+  def secureListAll(): Result = {
     try {
-      renderDataSetListAsXml(dataSets = DataSet.findAll)
+      val dataSets = DataSet.findAllForUser(getUser())
+      renderDataSetListAsXml(dataSets = dataSets)
     } catch {
       case e: Exception => renderException(e)
     }
@@ -56,9 +85,7 @@ object Datasets extends Controller {
         ds => ds.toXml
       }}
       </data-set-list>{if (responseCode != DataSetResponseCode.THANK_YOU) {
-      <errorMessage>
-        {errorMessage}
-      </errorMessage>
+      <errorMessage>{errorMessage}</errorMessage>
     }}
     </data-set>
   }
@@ -69,10 +96,10 @@ object Datasets extends Controller {
     new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
   }
 
-  def listAll(accessKey: String): Result = {
+  def listAll(): Result = {
     try {
-      val user = checkAccessToken(accessKey)
-      renderDataSetListAsXml(dataSets = DataSet.findAll)
+      val dataSets = DataSet.findAllForUser(getUser())
+      renderDataSetListAsXml(dataSets = dataSets)
     }
     catch {
       case e: Exception => renderException(e)
@@ -81,13 +108,7 @@ object Datasets extends Controller {
 
   //  @RequestMapping(value = Array("/administrator/dataset/{dataSetSpec}/{command}"))
   def secureIndexingControl(dataSetSpec: String, command: String): Result = {
-    indexingControlInternal(dataSetSpec, command)
-  }
-
-  //  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}"))
-  def indexingControl(dataSetSpec: String, command: String, accessKey: String): Result = {
     try {
-      checkAccessToken(accessKey)
       indexingControlInternal(dataSetSpec, command)
     }
     catch {
@@ -95,17 +116,14 @@ object Datasets extends Controller {
     }
   }
 
-  private def checkAccessToken(accessKey: String): User = {
-    import cake.metaRepo.AccessKeyException
-    if (accessKey.isEmpty) {
-      log.warn("Service Access Key missing")
-      throw new AccessKeyException("Access Key missing")
+  //  @RequestMapping(value = Array("/dataset/{dataSetSpec}/{command}"))
+  def indexingControl(dataSetSpec: String, command: String): Result = {
+    try {
+      indexingControlInternal(dataSetSpec, command)
     }
-    else if (!OAuth2TokenEndpoint.isValidToken(accessKey)) {
-      log.warn(String.format("Service Access Key %s invalid!", accessKey))
-      throw new AccessKeyException(String.format("Access Key %s not accepted", accessKey))
+    catch {
+      case e: Exception => renderException(e)
     }
-    OAuth2TokenEndpoint.getUserByToken(accessKey)
   }
 
   //  @RequestMapping(value = Array("/dataset/submit/{dataSetSpec}/{fileType}/{fileName}"), method = Array(RequestMethod.POST))
@@ -114,7 +132,6 @@ object Datasets extends Controller {
   def acceptFile(dataSetSpec: String, fileType: String, fileName: String, accessKey: String): Result = {
     try {
       import eu.delving.metadata.Hasher
-      val user = checkAccessToken(accessKey)
       log.info(String.format("accept type %s for %s: %s", fileType, dataSetSpec, fileName))
       val hash: String = Hasher.extractHashFromFileName(fileName)
       if (hash == null && fileType != "RECORDSTREAM") {
@@ -124,7 +141,7 @@ object Datasets extends Controller {
       val inputStream: InputStream = if (request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
 
       val responseCode = fileType match {
-        case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash, user)
+        case "FACTS" => receiveFacts(Facts.read(inputStream), dataSetSpec, hash)
         case "HASHES" => return receiveHashes(IO.readUtf8Properties(inputStream), dataSetSpec)
         case "SOURCE" => receiveSource(inputStream, dataSetSpec, hash)
         case "RECORDSTREAM" => receiveRecordStream(inputStream, dataSetSpec)
@@ -142,6 +159,7 @@ object Datasets extends Controller {
   private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.HarvestStep
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    if(!DataSet.canUpdate(dataSetSpec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
@@ -158,65 +176,48 @@ object Datasets extends Controller {
 
     import com.mongodb.casbah.Imports.MongoDBObject
 
-    DataSet.getRecords(dataSet).collection.find(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1)) foreach {
-      record =>
-        val localRecordKey = record.asInstanceOf[MongoDBObject].getAs[String]("localRecordKey")
-        val hash = record.asInstanceOf[MongoDBObject].getAs[String]("globalHash")
-        if (localRecordKey != None && hash != None) {
-          hashesMap.get(localRecordKey.get) match {
-            case r if r == hash => hashesMap.remove(localRecordKey.get) // we have it
-            case r if r != hash => // we don't have it
+    val status: Iterator[String] = for(record: DBObject <- DataSet.getRecords(dataSet).collection.find(MongoDBObject(), MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))) yield {
+        val localRecordKey = record.asInstanceOf[BasicDBObject].getString("localRecordKey")
+        val hash = record.asInstanceOf[BasicDBObject].getString("globalHash")
+        if(hashesMap.contains(localRecordKey)) {
+          hashesMap.get(localRecordKey).get match {
+            case h if h == hash => ""
+            case h if h != hash => println(h); localRecordKey // we don't have it
           }
-        }
+      } else ""
     }
+    val changed = status filterNot (status => status.isEmpty)
+    val allAreMissing = hashes.size == changed.size && !changed.isEmpty
+    val noneIsMissing = changed.isEmpty
+    val changedRecordKeys = if(allAreMissing) "all" else if (noneIsMissing) "none" else changed reduceLeft (_ + ", " + _)
 
-    def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: List[String] = List[String](), errorMessage: String = ""): Elem = {
+    def renderChangedRecordsList(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU, missingRecords: String, errorMessage: String = ""): Elem = {
       <data-set responseCode={responseCode.toString}>
-        <changed-records-keys>
-          {missingRecords reduceLeft (_ + ", " + _)}
-        </changed-records-keys>
+        <changed-records-keys>{missingRecords}</changed-records-keys>
       </data-set>
     }
-
-    val string: String = renderChangedRecordsList(missingRecords = hashesMap.keys.toList).toString()
+    val string: String = renderChangedRecordsList(missingRecords = changedRecordKeys).toString()
     new RenderXml(string)
   }
 
   private def receiveRecordStream(inputStream: InputStream, dataSetSpec: String): DataSetResponseCode = {
-
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
-
-    try {
-
-      val information = prepareSourceInformation(dataSet)
-      val parser = new DataSetParser(inputStream, information._2, information._3, information._1.metadataFormat.prefix, Facts.fromBytes(information._1.facts_bytes))
-      val records = DataSet.getRecords(dataSet)
-
-      var continue = true
-      while (continue) {
-        val record = parser.nextRecord()
-        if (record != None) {
-          val updatedRecord: MetadataRecord = record.get.copy(modified = new Date(), deleted = false)
-          records.upsertByLocalKey(updatedRecord)
-        } else {
-          continue = false
-        }
-      }
-    } catch {
-      case e: Exception => {
-        import cake.metaRepo.RecordParseException
-        throw new RecordParseException("Unable to parse records", e)
-      }
-      case t: Throwable => t.printStackTrace()
-    }
-
-    DataSetResponseCode.THANK_YOU
+    def onReceive(records: SalatDAO[MetadataRecord, ObjectId] with MDR) { }
+    def onRecord(records: SalatDAO[MetadataRecord, ObjectId] with MDR, metadataRecord: MetadataRecord) { records.upsertByLocalKey(metadataRecord) }
+    receiveRecords(inputStream, dataSetSpec, "", onReceive, onRecord)
   }
 
-
   private def receiveSource(inputStream: InputStream, dataSetSpec: String, hash: String): DataSetResponseCode = {
+    def onReceive(records: SalatDAO[MetadataRecord, ObjectId] with MDR) { records.collection.drop() }
+    def onRecord(records: SalatDAO[MetadataRecord, ObjectId] with MDR, metadataRecord: MetadataRecord) { records.insert(metadataRecord) }
+    receiveRecords(inputStream, dataSetSpec, hash, onReceive, onRecord)
+  }
+
+  private def receiveRecords(inputStream: InputStream, dataSetSpec: String, hash: String,
+                             onReceive: SalatDAO[MetadataRecord, ObjectId] with MDR => Unit,
+                             onRecord: (SalatDAO[MetadataRecord, ObjectId] with MDR, MetadataRecord) => Unit): DataSetResponseCode = {
 
     val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    if(!DataSet.canUpdate(dataSet.spec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
     }
@@ -225,7 +226,8 @@ object Datasets extends Controller {
     DataSet.save(dataSet.copy(source_hash = ""))
 
     val records = DataSet.getRecords(dataSet)
-    records.collection.drop()
+
+    onReceive(records)
 
     try {
 
@@ -237,7 +239,7 @@ object Datasets extends Controller {
         val record = parser.nextRecord()
         if (record != None) {
           val toInsert = record.get.copy(modified = new Date(), deleted = false)
-          records.insert(toInsert)
+          onRecord(records, toInsert)
         } else {
           continue = false
         }
@@ -277,7 +279,7 @@ object Datasets extends Controller {
 
   }
 
-  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String, user: User): DataSetResponseCode = {
+  private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.{MetadataFormat, Details}
     import eu.delving.metadata.MetadataNamespace
     import cake.metaRepo.MetaRepoSystemException
@@ -301,10 +303,17 @@ object Datasets extends Controller {
     )
 
     val updatedDataSet: DataSet = {
-      import eu.delving.sip.DataSetState
+
+      // TODO we need to check if it is possible to create a dataSet, once the SIP-creator will support this
+
       dataSet match {
-        case None => DataSet(spec = dataSetSpec, state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = List(UserAction(user = user.reference, owner = Some(true))), groups = List()))
-        case _ => dataSet.get.copy(facts_hash = hash, details = details)
+        case None => {
+          DataSet(spec = dataSetSpec,state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(getUser().reference.id -> UserAction(user = getUser().reference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
+        }
+        case _ => {
+          if(!DataSet.canUpdate(dataSetSpec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
+          dataSet.get.copy(facts_hash = hash, details = details)
+        }
       }
     }
     DataSet.upsertById(updatedDataSet._id, updatedDataSet)
@@ -316,10 +325,9 @@ object Datasets extends Controller {
     try {
       import eu.delving.sip.DataSetCommand._
       import eu.delving.sip.DataSetCommand
-      import eu.delving.sip.DataSetState
-      import eu.delving.sip.DataSetState._
 
       val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+      val user = getUser()
 
       val command: DataSetCommand = DataSetCommand.valueOf(commandString)
       val state: DataSetState = dataSet.getDataSetState
@@ -329,6 +337,15 @@ object Datasets extends Controller {
         val updatedDataSet = dataSet.copy(state = state.toString, mappings = mappings)
         DataSet.save(updatedDataSet)
         updatedDataSet
+      }
+
+      try {
+        command match {
+          case DISABLE | INDEX | REINDEX => if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+          case DELETE => if(!DataSet.canDelete(dataSet.spec, user)) { throw new UnauthorizedException("You do not have the necessary rights to delete this data set") }
+        }
+      } catch {
+        case e: Exception => renderException(e)
       }
 
       val response = command match {
@@ -381,6 +398,7 @@ object Datasets extends Controller {
     val errorcode = exception match {
       case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
       case x if x.isInstanceOf[DataSetNotFoundException] => DataSetResponseCode.DATA_SET_NOT_FOUND
+      case x if x.isInstanceOf[UnauthorizedException] => DataSetResponseCode.UNAUTHORIZED
       case _ => DataSetResponseCode.SYSTEM_ERROR
     }
     renderDataSetListAsXml(responseCode = errorcode, errorMessage = exception.getMessage)

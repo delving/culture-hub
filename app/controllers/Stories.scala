@@ -18,7 +18,10 @@ object Stories extends DelvingController {
   def story(user: String, story: String): AnyRef = {
     val u = getUser(user)
     html.story(user = u, name = story)
-
   }
 
+  def add(user: String): AnyRef = {
+    val u = getUser(user)
+    html.add(user = u)
+  }
 }

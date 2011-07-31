@@ -3,7 +3,7 @@
 @import views.context._
 
 @main("List of stories for user " + user.fullname ) {
-
+    <div class="grid_8 alpha">
         <h1>All the stories of @user.fullname</h1>
         <ul>
           <li>Foos</li>
@@ -11,5 +11,12 @@
           <li>Bazs</li>
         </ul>
 
+
+    </div>
+    <div class="grid_8 omega">
+        @if(renderArgs.get("displayName") != null) {
+                 <a href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
+        }
+    </div>
 
 }

@@ -20,6 +20,8 @@ import models.User
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
  *
+ * TODO the spec has the concept of expired tokens, which means we can't simply evict expired access tokens but need to keep them someplace in order to be able to tell the client that the token is expired.
+ *
  * @see http://tools.ietf.org/html/draft-ietf-oauth-v2-18
  * @see https://svn.apache.org/repos/asf/incubator/amber/trunk/oauth-2.0/oauth2-integration-tests/src/test/java/org/apache/amber/oauth2/integration/endpoints/TokenEndpoint.java
  *
@@ -29,10 +31,6 @@ import models.User
 object OAuth2TokenEndpoint extends Controller {
 
   val TOKEN_TIMEOUT = 3600
-
-  val validTokenMap = new collection.mutable.HashMap[String, Token]
-
-  case class Token(user: User, issueTime: Long = System.currentTimeMillis())
 
   val security = new ServicesSecurity
 
@@ -53,19 +51,39 @@ object OAuth2TokenEndpoint extends Controller {
       }
 
       val user = grantType match {
-        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername).get
+        // TODO use real node from URL
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername + "#cultureHub").get
+        case GrantType.REFRESH_TOKEN => {
+          val maybeUser = User.findByRefreshToken(oauthRequest.getRefreshToken)
+          if(maybeUser == None) {
+             return errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token")
+          } else {
+            maybeUser.get
+          }
+        }
         // TODO
-        case GrantType.REFRESH_TOKEN => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.ASSERTION => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
         case GrantType.NONE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
       }
 
-      // we respond if all the above passed
-      val token: String = oauthIssuerImpl.accessToken
-      validTokenMap += (token -> Token(user = user))
+      var accessToken: String = null;
+      var refreshToken: String = null;
 
-      val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(token).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
+      if (grantType == GrantType.REFRESH_TOKEN) {
+        accessToken = oauthIssuerImpl.accessToken
+        refreshToken = oauthIssuerImpl.refreshToken
+        User.setOauthTokens(user, accessToken, refreshToken)
+      } else {
+        accessToken = if(user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
+        refreshToken = if(user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
+        // save only if this is new
+        if(user.accessToken == None) {
+          User.setOauthTokens(user, accessToken, refreshToken)
+        }
+      }
+
+      val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
       Json(resp.getBody)
     }
     catch {
@@ -86,18 +104,14 @@ object OAuth2TokenEndpoint extends Controller {
   }
 
   @Util def isValidToken(token: String) = {
-    validTokenMap.contains(token)
+    User.isValidAccessToken(token, TOKEN_TIMEOUT)
   }
 
   @Util def evictExpiredTokens() {
-    validTokenMap foreach {
-      token => if(System.currentTimeMillis() - token._2.issueTime > TOKEN_TIMEOUT * 1000) validTokenMap.remove(token._1)
-    }
+    User.evictExpiredAccessTokens(TOKEN_TIMEOUT)
   }
 
-  @Util def getUserByToken(token: String) = {
-    validTokenMap.get(token).get.user
-  }
+  @Util def getUserByToken(token: String) = User.findByAccessToken(token)
 
   /**
    * Play wrapper for the OAuth token request

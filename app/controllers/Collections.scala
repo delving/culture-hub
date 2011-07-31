@@ -20,4 +20,8 @@ object Collections extends DelvingController {
 
   }
 
+  def add(user: String): AnyRef = {
+    val u = getUser(user)
+    html.add(user = u)
+  }
 }

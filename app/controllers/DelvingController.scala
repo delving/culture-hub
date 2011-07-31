@@ -4,11 +4,11 @@ import extensions.AdditionalActions
 import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{PortalTheme, User}
 import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
+import models.{UserReference, PortalTheme, User}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -24,7 +24,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     user map {
       u => {
         renderArgs.put("fullName", u.fullname)
-        renderArgs.put("displayName", u.displayName)
+        renderArgs.put("displayName", u.reference.username)
       }
     }
   }
@@ -34,6 +34,8 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
+  @Util def getUserReference = UserReference(username = connectedUser, node = getNode, id = getUserId(connectedUser))
+
   @Util def getUser(displayName: String): User = {
     User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
   }
@@ -42,14 +44,13 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
    */
   @Util def getPath(key: String): File = {
-    val imageStorePath = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
-    val imageStore = new File(imageStorePath)
-    if (!imageStore.exists()) {
-      throw new RuntimeException("Could not find path %s for key %s" format (imageStore.getAbsolutePath, key))
+    val path = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
+    val store = new File(path)
+    if (!store.exists()) {
+      throw new RuntimeException("Could not find path %s for key %s" format (store.getAbsolutePath, key))
     }
-    imageStore
+    store
   }
-
 }
 
 
@@ -97,7 +98,7 @@ trait ParameterCheck {
     Continue
   }
 
-  object Allowed {
+@Util object Allowed {
     def apply(string: String): Option[String] = {
       FORBIDDEN map {
         f => if (string.contains(f)) {
@@ -112,7 +113,7 @@ trait ParameterCheck {
     "object", "profile", "map", "graph", "label", "collection",
     "story", "user", "service", "services", "portal", "api", "index",
     "add", "edit", "save", "delete", "update", "create", "search",
-    "image", "fcgi-bin", "upload", "admin", "registration")
+    "image", "fcgi-bin", "upload", "admin", "registration", "users")
 
 }
 

@@ -6,6 +6,7 @@ import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
+import views.Collection.html.collection
 
 /** Unique reference to a user across the CultureHub space **/
 case class UserReference(username: String = "", node: String = "", id: String = "")
@@ -17,16 +18,19 @@ case class User(reference: UserReference = UserReference("", "", ""),
                 lastName: String,
                 email: String,
                 password: String,
-                displayName: String,
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
-                resetPasswordToken: Option[String] = None) {
+                resetPasswordToken: Option[String] = None,
+                accessToken: Option[AccessToken] = None,
+                refreshToken: Option[String] = None) {
   val fullname = firstName + " " + lastName
 }
 
+case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
+
 object User extends SalatDAO[User, ObjectId](collection = userCollection) {
 
-  val nobody: User = User(UserReference("", "", "") ,"", "", "none@nothing.com", "", "Nobody", false, None, None)
+  val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
   def connect(username: String, password: String, node: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
@@ -35,6 +39,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     }
     true
   }
+
+  def findAllIdName: List[DBObject] = User.collection.find(MongoDBObject(), MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)).toList
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
@@ -51,7 +57,7 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     val activeUser: User = user.copy(isActive = true, activationToken = None)
     User.update(MongoDBObject("reference.id" -> activeUser.reference.id), activeUser, false, false, new WriteConcern())
     // also log the guy in
-    play.mvc.Scope.Session.current().put("username", activeUser.displayName)
+    play.mvc.Scope.Session.current().put("username", activeUser.reference.username)
     true
   }
 
@@ -69,5 +75,27 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     val resetUser = user.copy(password = Crypto.passwordHash(newPassword), resetPasswordToken = None)
     User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
+  }
+
+  def setOauthTokens(user: User, accessToken: String, refreshToken: String) {
+    User.update(MongoDBObject("reference.id" -> user.reference.id), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
+  }
+
+  def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
+    val delta = System.currentTimeMillis() - timeout * 1000
+    User.count(MongoDBObject("accessToken.token" -> token, "accessToken.issueTime" -> MongoDBObject("$gt" -> delta))) > 0
+  }
+
+  def findByAccessToken(token: String): Option[User] = {
+    User.findOne(MongoDBObject("accessToken.token" -> token))
+  }
+
+  def findByRefreshToken(token: String): Option[User] = {
+    User.findOne(MongoDBObject("refreshToken" -> token))
+  }
+
+  def evictExpiredAccessTokens(timeout: Long = 3600) {
+    val delta = System.currentTimeMillis() - timeout * 1000
+    User.update(MongoDBObject("accessToken.issueTime" -> MongoDBObject("$lt" -> delta)), MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
   }
 }

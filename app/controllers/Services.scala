@@ -13,7 +13,7 @@ object Services extends DelvingController with HTTPClient {
   // todo change this with the real portal skins and functionality etc
   def index(user: String) = {
     val u = getUser(user)
-    html.index(username = u.displayName)
+    html.index(username = u.reference.username)
   }
 
   def solrSearchProxy : Result  = {

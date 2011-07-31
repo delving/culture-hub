@@ -4,15 +4,15 @@ import java.util.Date
 import cake.metaRepo.PmhVerbType.PmhVerb
 import org.bson.types.ObjectId
 import models.salatContext._
+import com.mongodb.casbah.Imports._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
 import eu.delving.sip.DataSetState
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.MongoCollection
 import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
+import views.Collection.html.collection
 
 /**
  *
@@ -47,29 +47,15 @@ case class DataSet(_id: ObjectId = new ObjectId,
   // todo update sip-creator with richer info.
   def toXml: Elem = {
     <dataset>
-      <spec>
-        {spec}
-      </spec>
-      <name>
-        {details.name}
-      </name>
-      <state>
-        {state.toString}
-      </state>
-      <recordCount>
-        {details.total_records}
-      </recordCount>
+      <spec>{spec}</spec>
+      <name>{details.name}</name>
+      <state>{state.toString}</state>
+      <recordCount>{details.total_records}</recordCount>
       <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
       <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
-      <hashes>
-        {getHashes.map(hash => <string>
-        {hash}
-      </string>)}
-      </hashes>
+      <hashes>{getHashes.map(hash => <string>{hash}</string>)}</hashes>
       <!--errorMessage>{details.errorMessage}</errorMessage>
-      <mappings>
-         {mappings.values.map{mapping => mapping.toXml}}
-      </mappings-->
+      <mappings>{mappings.values.map{mapping => mapping.toXml}}</mappings-->
     </dataset>
   }
 
@@ -103,6 +89,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
   }
 
+  def findAllForUser(user: User) = {
+    val dataSetCursor = DataSet.findAllByRight(user.reference.username, user.reference.node, "read")
+    (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
+  }
+
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
   }
@@ -118,6 +109,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR = {
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
+    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
     CollectionMDR
   }
@@ -142,7 +134,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
+  // access control
+
   protected def getCollection = dataSetsCollection
+
+  protected def getObjectIdField = "spec"
 }
 
 //object DataSetStateType extends Enumeration {
@@ -171,15 +167,9 @@ case class Mapping(recordMapping: String,
 
   def toXml: Elem = {
     <mapping>
-      <name>
-        {format.prefix}
-      </name>
-      <rec_indexed>
-        {rec_indexed}
-      </rec_indexed>
-      <indexed>
-        {indexed}
-      </indexed>
+      <name>{format.prefix}</name>
+      <rec_indexed>{rec_indexed}</rec_indexed>
+      <indexed>{indexed}</indexed>
     </mapping>
   }
 }

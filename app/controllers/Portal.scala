@@ -12,7 +12,7 @@ object Portal extends DelvingController {
   // todo change this with the real portal skins etc
   def index(user: String) = {
     val u = getUser(user)
-    html.index(username = u.displayName)
+    html.index(username = u.reference.username)
   }
 
 }
