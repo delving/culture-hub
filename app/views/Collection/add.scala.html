@@ -50,8 +50,11 @@
                 <p>
 
                 <div id="annotations" class="display-box">
-                    [TODO: populate with above form elements in the form of
-                    <i>annotationText (annotationType)</i> with knockout.js]
+                    <p class="developers-note ui-state-error ui-corner-all">
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                        [TODO: populate with above form elements in the form of
+                        <i>annotationText (annotationType)</i> with knockout.js]
+                    </p>
                 </div>
                 </p>
 
@@ -84,8 +87,11 @@
     <div class="grid_8 omega">
         <h2>Add objects to your collection</h2>
         <button id="addObject">Add an Object</button>
-                <div id="annotations" class="display-box">
-                    [TODO: populate with objects selected with above button]
+                <div id="objects" class="display-box">
+                    <p class="developers-note ui-state-error ui-corner-all">
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                        [TODO: populate with objects selected with above button]
+                    </p>
                 </div>
     </div>
 
@@ -147,6 +153,19 @@
         $("#objects-dialogue").dialog();
         event.preventDefault();
     })
+    var viewModel = {
+
+    }
+
+   var annotation = function (name, type) {
+       this.name = name;
+       this.type = type;
+       this.remove = function(){
+            viewModel.annotations.remove(this)
+       }
+    }
+
+
 </script>
 
 }

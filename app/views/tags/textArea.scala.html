@@ -6,7 +6,7 @@
 <div class="field">
     <label for="@fieldName">@label</label>
     <div class="inputs">
-        <input id="@fieldName" type="checkbox" name="@fieldName" size="40" value="@params.get(fieldName)" data-bind="@dataBind">
+        <textarea class="textinput" id="@fieldName" value="@params.get(fieldName)" data-bind="@dataBind"></textarea>
         <span class="error">@showError(fieldName)</span>
     </div>
 </div>
