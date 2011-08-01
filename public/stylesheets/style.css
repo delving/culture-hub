@@ -233,9 +233,13 @@ label, div.label {
     width: 200px;
 }
 
+label:after {
+content:":";
+}
+
 label.required:after {
     color: #777777;
-    content: " *";
+    content: ": *";
     font-size: 14px;
     font-weight: normal;
 }
