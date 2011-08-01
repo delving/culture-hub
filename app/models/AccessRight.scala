@@ -117,9 +117,9 @@ case class UserAction(user: UserReference = UserReference("", "", ""),
 
 /**A group and its rights **/
 case class UserGroup(
+                 _id: ObjectId = new ObjectId,
                  user: UserReference,
                  name: String,
-                 id: String, // group ID composed of name#username#node
                  users: Map[String, UserReference],
                  read: Option[Boolean] = Some(false),
                  update: Option[Boolean] = Some(false),

@@ -4,15 +4,19 @@ import play.templates.Html
 import play.mvc.Before
 import controllers.{UserAuthentication, Secure, DelvingController}
 import play.mvc.results.Result
-import models.UserGroup
-import reflect.BeanInfo
+import org.bson.types.ObjectId
+import com.mongodb.casbah.query.Imports
+import extensions.{RenderLiftJson, LiftJson}
+import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.WriteConcern
+import models.{User, UserReference, UserGroup}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends DelvingController with UserAuthentication with Secure {
+object Admin extends DelvingController with UserAuthentication with Secure with LiftJson {
 
   import views.User.Admin._
 
@@ -32,33 +36,67 @@ object Admin extends DelvingController with UserAuthentication with Secure {
     html.groupList(groups = userGroups)
   }
 
-  def groupNew: Html = {
-    html.groupNew()
+  def groupUpdate(name: String): Html = {
+    html.group(name)
   }
 
-  @BeanInfo case class GroupModel(name: String, readRight: Boolean = false, updateRight: Boolean, deleteRight: Boolean , members: List[Member])
-  @BeanInfo case class Member(id: String, name: String)
+  case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member])
 
+  case class Member(id: String, name: String)
 
   def groupLoad(user: String, name: String): Result = {
-    // TODO
-    Ok
+
+    def makeMembers(users: Map[String, UserReference]): Seq[Member] = (for (u: UserReference <- users.values) yield {
+      val user = User.findOne(MongoDBObject("reference.id" -> u.id)) // MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)
+      Member(u.id, user.get.fullname)
+    }).toList
+
+    // load by name and user
+    val ref = getUserReference
+    val maybeGroup: Option[UserGroup] = UserGroup.findOne(MongoDBObject("name" -> name)) // , "user" -> MongoDBObject("id" -> ref.id, "node" -> ref.node, "username" -> ref.username)
+    maybeGroup match {
+      case Some(group) => {
+        val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users))
+        RenderLiftJson(groupModel)
+      }
+      case None => RenderLiftJson(GroupModel(None, "", Some(false), Some(false), Some(false), List()))
+    }
+
   }
 
-  def groupSubmit(user: String, name: String, data: String): Result = {
+  def groupSubmit(data: String): Result = {
 
-    import sjson.json._
-    import sjson.json.DefaultProtocol._
+    // /!\ warning:
+    // lift-json is fragile to say the least. it also is one of the few libraries that exist out there and that works without having to do insane amounts of mambo-jumbo to get things to work
+    // with custom types (such as a BSON ObjectId)
+    // if the json string that you want to deserialize into a case class does not contain *all* of the parameters necessary for the construction of the case class, lift-json
+    // will fail silently and leave you with an instance where all members are null, None, or empty. so make sure you always provide everything or madness will ensue.
 
-    val serializer = Serializer.SJSON
+    def makeUsers(group: GroupModel): Map[String, UserReference] = (for (m: Member <- group.members) yield {
+      val ref: Array[String] = m.id.split('#')
+      (m.id, UserReference(ref(0), ref(1), m.id))
+    }).toMap
 
-    println(data)
 
-    val model: GroupModel = serializer.in[GroupModel](data)
+    val group: GroupModel = in[GroupModel](data)
+    val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
 
-    println(model)
-
-    Ok
+    val persistedGroup = group._id match {
+      case None => {
+        // new guy
+        val inserted: Option[Imports.ObjectId] = UserGroup.insert(userGroup)
+        // TODO handle the case where inserted == None, i.e. something went wrong on the backend.
+        group.copy(_id = inserted)
+      }
+      case Some(id) => {
+        // updated guy
+        // TODO handle the case when something goes wrong on the backend
+        // TODO for cases where we update only some fields, we need to do a merge of the persisted document and the changed field values by updated only those fields that we are touching in the view
+        UserGroup.update(MongoDBObject("_id" -> id), userGroup, false, false, new WriteConcern())
+        group
+      }
+    }
+    RenderLiftJson(persistedGroup)
   }
 
 }

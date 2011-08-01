@@ -13,10 +13,7 @@ require:
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
-    - net.liftweb -> lift-json-ext_2.8.1 2.3:
-        exclude:
-            - org.scala-lang -> *
-    - net.debasishg -> sjson_2.8.1 0.12:
+    - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
         exclude:
             - org.scala-lang -> *
     - com.thebuzzmedia -> imgscalr-lib 3.1

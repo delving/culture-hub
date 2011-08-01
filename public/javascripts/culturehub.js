@@ -8,7 +8,7 @@ function initializeElements() {
 
 /**
  * Post knockoutJS form data as JSON string, into a parameter called "data"
- * 
+ *
  * @param url the URL to submit to
  * @param viewModel the data object
  * @param onSuccess the success callback to run after successful execution
@@ -23,6 +23,37 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure) {
         dataType: 'json'
     }).success(onSuccess).error(onFailure);
 };
+
+/**
+ * Loads an object via JSON into a view model
+ * @param url where to load the object from
+ * @param viewModel the view model to update
+ * @param scope the scope for the view model binding
+ */
+function load(url, viewModel, scope) {
+    $.get(url, function(data) {
+        updateViewModel(data, viewModel, scope);
+    });
+}
+
+/**
+ * Updates a view model given a javascript object
+ * @param data the data object
+ * @param viewModel the knockoutJS viewModel
+ * @param scope the scope of the model binding
+ */
+function updateViewModel(data, viewModel, scope) {
+    if (ko.mapping.isMapped(viewModel)) {
+        ko.mapping.updatefromJSON(viewModel, data)
+    } else {
+        $.extend(viewModel, ko.mapping.fromJS(data));
+        if (typeof scope !== 'undefined') {
+            ko.applyBindings(viewModel, scope);
+        } else {
+            ko.applyBindings(viewModel);
+        }
+    }
+}
 
 
 /**

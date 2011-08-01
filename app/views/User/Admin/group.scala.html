@@ -1,4 +1,4 @@
-@()
+@(name: String = "")
 
 @import views.context._
 @import views.tags.html._
@@ -21,12 +21,12 @@
 
   <div>
     <div>
-        <label for="members">Members</label>
-        <input type="text" id="members" name="members" data-bind="tokens: members"/>
+      <label for="members">Members</label>
+      <input type="text" id="members" name="members" data-bind="tokens: members"/>
     </div>
     <div>
       <label for="repositories">Repositories</label>
-      <input type="text" id="repositories" name="repositories" />
+      <input type="text" id="repositories" name="repositories"/>
     </div>
   </div>
 </form>
@@ -34,24 +34,23 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-      $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
-      $("#repositories").tokenInput([{id: "1", name: "Foo"}, {id: "2", name: "Bar"}]);
+    $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
+    $("#repositories").tokenInput([
+      {id: "1", name: "Foo"},
+      {id: "2", name: "Bar"}
+    ]);
 
-    var groupModel = {
-      name: ko.observable(),
-      readRight: ko.observable(),
-      updateRight: ko.observable(),
-      deleteRight: ko.observable(),
-      members: ko.observableArray()
-    };
+    var groupModel = {};
 
-    ko.applyBindings(groupModel, document.getElementById('groupForm'));
+    var scope = document.getElementById('groupForm');
+
+    load('/@userName/admin/groups/load/@name', groupModel, scope);
 
     $('#saveButton').click(function() {
-      console.log(ko.mapping.toJS(groupModel));
-      $.postKOJson('/@userName/admin/groups/submit', groupModel)
+      $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
+        updateViewModel(groupModel, data, scope)
+      })
     });
-
   })
 </script>
 }

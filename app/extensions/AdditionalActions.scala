@@ -2,16 +2,14 @@ package extensions
 
 import play.classloading.enhancers.LocalvariablesNamesEnhancer
 import play.mvc.Http.{Response, Request}
-import net.liftweb.json.Serialization._
 import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
 import models.User
 import org.bson.types.ObjectId
-import net.liftweb.json._
-import play.mvc.Http
-import play.exceptions.UnexpectedException
 import net.liftweb.json
+import json._
+import json.Serialization._
 
 /**
  *
@@ -20,9 +18,8 @@ import net.liftweb.json
 
 // glue for lift-json
 object PlayParameterNameReader extends ParameterNameReader {
-  def lookupParameterNames(constructor: Constructor[_]) = {
-    Set(LocalvariablesNamesEnhancer.lookupParameterNames(constructor).toArray(new Array[String](1)): _*)
-  }
+  import scala.collection.JavaConversions._
+  def lookupParameterNames(constructor: Constructor[_]) = LocalvariablesNamesEnhancer.lookupParameterNames(constructor)
 }
 
 /**
@@ -87,6 +84,22 @@ class RenderLiftJson(data: AnyRef, status: java.lang.Integer = 200) extends Resu
 
 object RenderLiftJson {
   def apply(data: AnyRef, status: java.lang.Integer = 200) = new RenderLiftJson(data, status)
+}
+
+trait LiftJson {
+
+  implicit val formats = new DefaultFormats {
+    override val parameterNameReader = PlayParameterNameReader
+  } + new ObjectIdSerializer
+
+  def in[T <: AnyRef](data: String)(implicit formats: Formats, mf: Manifest[T]): T = {
+    Serialization.read[T](data)
+  }
+
+  def out[T <: AnyRef](data: T)(implicit formats: Formats): String = {
+    Serialization.write[T](data)
+  }
+
 }
 
 class ObjectIdSerializer extends Serializer[ObjectId] {
