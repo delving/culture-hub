@@ -76,7 +76,7 @@ h2 {
     background: #000;
     height: 32px;
     line-height: 32px;
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
     /*text-align: right;*/
 }
 
@@ -141,6 +141,16 @@ li ul li {
 
 .sidebar ul li a:hover {
     background-color: #eee;
+}
+
+ul.inline {
+    margin: 0;
+    padding: 0;
+}
+
+ul.inline li {
+    display: inline-block;
+    list-style:  none;
 }
 
 .error {
@@ -222,7 +232,8 @@ div.field {
     position: relative;
 }
 
-label, div.label {
+div.field label,
+div.field div.label {
     color: #444444;
     display: block;
     /*float: left;*/
@@ -330,6 +341,49 @@ span.help {
 .object img {
     float: left;
     margin-right: 10px;
+}
+
+/* SEARCH FORM */
+
+#search {
+    background:  #eaeaea;
+    margin-bottom: 2em;
+}
+#search form {
+    margin:  .5em 0;
+}
+
+#search form .textinput {
+    width: 400px;
+}
+
+/* SEARCH RESULTS */
+
+#search-results h4 {
+    margin:  0;
+}
+
+#search-results .result {
+    background: #fff;
+    border-bottom:  1px dotted #ccc;
+    margin-bottom: 1em;
+}
+
+#search-results .result label {
+    display: inline;
+    margin-right: .5em;
+}
+
+#search-results .result .options {
+    display: block;
+    background:  #fff;
+}
+
+#search-results .result img {
+    /*display: inline;*/
+    float: left;
+    margin:  0 1em 0 0;
+    width: 55px;
 }
 
 #footer a:link,
