@@ -1,0 +1,44 @@
+@(title:String="")
+
+@import views.context._
+
+@main("Search Results") {
+
+<div class="grid_12 alpha">
+
+    <h2>Search Results Page</h2>
+
+    <div id="search-results">
+
+        @for(i <- 0 until 21) {
+        <div class="result grid_4 alpha">
+            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+            <h4><a href="">Title_@i</a></h4>
+            <label>Owner</label><a href="">User Name</a><br/>
+            <label>Date created</label>11-07-2011
+                <span class="options">
+                    <input type="checkbox" value="@i"/>
+                </span>
+        </div>
+        }
+
+    </div>
+
+</div>
+
+<div class="grid_4 omega">
+    <h2>Options</h2>
+
+    <p>
+        Add <strong>selected</strong> objects to a collection
+    </p>
+    <select id="collection-name" name="collection-name">
+        <option value="">Collection 1</option>
+        <option value="">Collection 2</option>
+        <option value="">Collection 3</option>
+        <option value="">Collection 4</option>
+    </select>
+    <button>Add Objects</button>
+</div>
+
+}
