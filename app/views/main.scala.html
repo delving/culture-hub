@@ -1,18 +1,8 @@
-@(title: String = "")(body: => Html)
+@(title: String = "", isCurrent: String = "")(body: => Html)
 
 @import views.context._
 
-@header(title) {
-
-    <div id="main-nav" class="grid_16">
-        <ul class="push_4 omega">
-            <li><a href="@action(controllers.Application.index)">Home</a></li>
-            <li><a href="">Users</a></li>
-            <li><a href="">Objects</a></li>
-            <li><a href="">Collections</a></li>
-            <li><a href="">Stories</a></li>
-        </ul>
-    </div>
+@header(title, isCurrent) {
 
     <div class="clear"></div>
 

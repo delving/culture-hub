@@ -17,11 +17,11 @@ object Collections extends DelvingController {
   def collection(user: String, collection: String): AnyRef = {
     val u = getUser(user)
     html.collection(user = u, name = collection)
-
   }
 
   def add(user: String): AnyRef = {
     val u = getUser(user)
     html.add(user = u)
   }
+
 }

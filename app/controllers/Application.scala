@@ -12,7 +12,9 @@ object Application extends DelvingController {
   import views.Application._
 
   def index = {
-    html.index(title = "Howdy!")
+    html.index(
+      title = "Howdy!"
+    )
   }
 
 }
