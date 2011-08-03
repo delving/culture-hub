@@ -20,6 +20,7 @@ object Services extends DelvingController with HTTPClient {
     import org.apache.commons.httpclient.methods.GetMethod
     import org.apache.commons.httpclient.{HttpClient, HttpMethod}
     import play.mvc.results.{RenderJson, RenderXml, RenderBinary}
+
     val solrQueryString: String = request.querystring
 
     val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr/core0", solrQueryString)
@@ -42,15 +43,17 @@ object Services extends DelvingController with HTTPClient {
   }
 
   def oaipmh : Result = {
-    import cake.metaRepo.OaiPmhService
     import play.mvc.results.{RenderXml}
+    import cake.metaRepo.OaiPmhService
+
     val oaiPmhService = new OaiPmhService(request)
     new RenderXml(oaiPmhService.parseRequest)
   }
 
   def oaipmhSecured(accessKey: String) : Result = {
-    import cake.metaRepo.OaiPmhService
     import play.mvc.results.{RenderXml}
+    import cake.metaRepo.OaiPmhService
+
     val oaiPmhService = new OaiPmhService(request, accessKey)
     new RenderXml(oaiPmhService.parseRequest)
   }

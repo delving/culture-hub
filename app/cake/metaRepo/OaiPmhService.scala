@@ -18,9 +18,9 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
   import org.joda.time.DateTime
   import java.util.Date
   import xml.Elem
-  import cake.metaRepo.PmhVerbType.PmhVerb
   import models.MetadataRecord
   import scala.collection.JavaConversions._
+  import cake.metaRepo.PmhVerbType.PmhVerb
 
   private val log = Logger.getLogger(getClass);
 
@@ -35,6 +35,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   def parseRequest : String = {
     import cake.metaRepo.PmhVerbType.PmhVerb
+    import models._
 
     if (!isLegalPmhRequest(getRequestParams(request))) return createErrorResponse("badArgument").toString
 
@@ -60,7 +61,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
       case mnf  : MappingNotFoundException => createErrorResponse("cannotDisseminateFormat", mnf)
       case rpe  : RecordParseException => createErrorResponse("cannotDisseminateFormat", rpe)
       case rtnf : ResumptionTokenNotFoundException => createErrorResponse("badResumptionToken", rtnf)
-//    another option:    createErrorResponse("noRecordsMatch")
+      case nrm  : RecordNotFoundException => createErrorResponse("noRecordsMatch")
       case e    : Exception => createErrorResponse("badArgument", e)
     }
     response.toString()
@@ -120,7 +121,8 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
     import models.DataSet
-    val dataSets = DataSet.findAll
+    // todo add checking for accessKeys and see if is valid
+    val dataSets = DataSet.findAll(false)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (dataSets.size == 0) return createErrorResponse("noSetHierarchy")
@@ -145,9 +147,11 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
    * This method can give back the following Error and Exception conditions: idDoesNotExist, noMetadataFormats.
    */
 
+  // todo remove this one
   val metaRepo = new MetaRepoImpl
 
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
+    import models.DataSet
 
     val eseSchema =
       <metadataFormat>
@@ -157,12 +161,14 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
        </metadataFormat>
 
     // if no identifier present list all formats
-    val identifier = pmhRequestEntry.pmhRequestItem.identifier.split(":").last
+    val identifier = pmhRequestEntry.pmhRequestItem.identifier
+    val identifierSpec = identifier.split(":").head
 
     // otherwise only list the formats available for the identifier
-    val metadataFormats = if (identifier.isEmpty) metaRepo.getMetadataFormats else metaRepo.getMetadataFormats(identifier, pmhRequestEntry.pmhRequestItem.accessKey)
+    val hasAccessKey: Boolean = pmhRequestEntry.pmhRequestItem.accessKey.isEmpty
+    val metadataFormats = if (identifier.isEmpty) DataSet.getMetadataFormats(false) else DataSet.getMetadataFormats(identifierSpec, pmhRequestEntry.pmhRequestItem.accessKey)
 
-    def formatRequest() : Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{getRequestURL}</request>
+    def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{getRequestURL}</request>
                                     else <request verb="ListMetadataFormats">{getRequestURL}</request>
 
     val elem =
@@ -174,12 +180,12 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
       <ListMetadataFormats>
        {for (format <- metadataFormats) yield
         <metadataFormat>
-          <metadataPrefix>{format.getPrefix}</metadataPrefix>
-          <schema>{format.getSchema}</schema>
-          <metadataNamespace>{format.getNamespace}</metadataNamespace>
+          <metadataPrefix>{format.prefix}</metadataPrefix>
+          <schema>{format.schema}</schema>
+          <metadataNamespace>{format.namespace}</metadataNamespace>
        </metadataFormat>
         }
-        {eseSchema}
+        {if (metadataFormats.filter(_.prefix.equalsIgnoreCase("ese")).isEmpty) eseSchema}
       </ListMetadataFormats>
     </OAI-PMH>
     elem
@@ -219,19 +225,21 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     val harvestStep: HarvestStep = getHarvestStep(pmhRequestEntry)
     val pmhObject = harvestStep.getPmhRequest
 
-    var elem : Elem =
-    <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-     <responseDate>{currentDate}</responseDate>
-     <request verb="ListRecords" from={printDate(pmhObject.getFrom)} until={printDate(pmhObject.getUntil)}
-              metadataPrefix={pmhObject.getMetadataPrefix}>{getRequestURL}</request>
-     <ListRecords>
-            {for (record <- harvestStep.getRecords) yield
-              renderRecord(record, pmhObject.getMetadataPrefix, pmhObject.getSet)
-            }
-       {renderResumptionToken(harvestStep)}
-     </ListRecords>
-    </OAI-PMH>
+    val elem: Elem =
+      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+        <responseDate>
+          {currentDate}
+        </responseDate>
+        <request verb="ListRecords" from={printDate(pmhObject.getFrom)} until={printDate(pmhObject.getUntil)}
+                 metadataPrefix={pmhObject.getMetadataPrefix}>
+          {getRequestURL}
+        </request>
+        <ListRecords>
+          {for (record <- harvestStep.getRecords) yield
+          renderRecord(record, pmhObject.getMetadataPrefix, pmhObject.getSet)}{renderResumptionToken(harvestStep)}
+        </ListRecords>
+      </OAI-PMH>
     // todo enable later again
 //    for (entry <- harvestStep.getNamespaces.toMap.entrySet()) {
 //      import xml.{Null, UnprefixedAttribute}
@@ -241,6 +249,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
+    import models.DataSet
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
@@ -248,19 +257,26 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    val record = metaRepo.getRecord(identifier, metadataFormat, pmhRequest.accessKey)
-    if (record == null) return createErrorResponse("idDoesNotExist")
+    val record: MetadataRecord = {
+      val mdRecord = DataSet.getRecord(identifier, metadataFormat, pmhRequest.accessKey)
+      if (mdRecord == None) return createErrorResponse("idDoesNotExist")
+      else mdRecord.get
+    }
 
-    var elem : Elem =
-    <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
-      <request verb="GetRecord" identifier={identifier}
-               metadataPrefix={metadataFormat}>{getRequestURL}</request>
-      <GetRecord>
-        {renderRecord(record, metadataFormat, identifier.split(":").head)}
-     </GetRecord>
-    </OAI-PMH>
+    val elem: Elem =
+      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+        <responseDate>
+          {currentDate}
+        </responseDate>
+        <request verb="GetRecord" identifier={identifier}
+                 metadataPrefix={metadataFormat}>
+          {getRequestURL}
+        </request>
+        <GetRecord>
+          {renderRecord(record, metadataFormat, identifier.split(":").head)}
+        </GetRecord>
+      </OAI-PMH>
     // todo enable later again
 //    for (entry <- record.getNamespaces.toMap.entrySet) {
 //      import xml.{Null, UnprefixedAttribute}
@@ -284,6 +300,8 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   private[metaRepo] def getDate(dateString: String): Date = {
     import java.text.ParseException
+    import models.BadArgumentException
+
     if (dateString.isEmpty) return null
     val date = try {
       import java.text.ParseException
@@ -301,7 +319,8 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
-    val recordAsString = record.getXmlString(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    // todo add transform into any metadata format
+    val recordAsString = record.getXmlStringAsRecord().replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
@@ -313,7 +332,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-{elem}
+        {elem}
         </metadata>
       </record>
     } catch {
@@ -376,7 +395,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
       case "idDoesNotExist" => <error code="idDoesNotExist">The value of the identifier argument is unknown or illegal in this repository.</error>
       case "noMetadataFormats" => <error code="noMetadataFormats">There are no metadata formats available for the specified item.</error>
       case "noRecordsMatch" => <error code="noRecordsMatch">The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.</error>
-      case "noSetHierarchy" => <error code="noSetHierarchy">This repository does not support sets</error> // Should never be used. We only use sets
+      case "noSetHierarchy" => <error code="noSetHierarchy">This repository does not support sets or no sets are publicly available for this repository.</error> // Should never be used. We only use sets
       case _ => <error code="unknown">Unknown Error Corde</error> // should never happen.
     }}
 </OAI-PMH>
@@ -385,4 +404,28 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
   case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String, accessKey: String)
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String)
 
+}
+
+object PmhVerbType extends Enumeration {
+
+  case class PmhVerb(command: String) extends Val(command)
+
+  val LIST_SETS = PmhVerb("ListSets")
+  val List_METADATA_FORMATS = PmhVerb("ListMetadataFormats")
+  val LIST_IDENTIFIERS = PmhVerb("ListIdentifiers")
+  val LIST_RECORDS = PmhVerb("ListRecords")
+  val GET_RECORD = PmhVerb("GetRecord")
+  val IDENTIFY = PmhVerb("Identify")
+}
+
+trait MetaConfig {
+
+  import play.Play
+  def conf(key: String) = Play.configuration.getProperty(key).trim
+
+  val repositoryName: String = conf("services.pmh.repositoryName")
+  val adminEmail: String = conf("services.pmh.adminEmail")
+  val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
+  val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
+  val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
 }
