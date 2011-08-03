@@ -1,15 +1,55 @@
 #!/bin/sh
 
-echo ================================
-echo Installing play in ../play-1.2.2
-echo ================================
+## uncomment the lines below to install the default play version. For now we need a patched version
+
+#echo ================================
+#echo Installing play in ../play-1.2.2
+#echo ================================
+#echo
+#echo
+
+#cd ..
+#wget http://download.playframework.org/releases/play-1.2.2.zip
+#unzip play-1.2.2.zip
+#cd play-1.2.2
+
+# Starting with the patched version
+
+echo =========================
+echo Cloning play into ../play
+echo =========================
 echo
 echo
 
 cd ..
-wget http://download.playframework.org/releases/play-1.2.2.zip
-unzip play-1.2.2.zip
-cd play-1.2.2
+git clone git://github.com/playframework/play.git --depth 1
+cd play
+git checkout 1.2.x
+cd ..
+
+echo
+echo
+echo ================
+echo Patching play...
+echo ================
+echo
+echo
+
+cd play
+git apply ../play-services/binder-patch.patch
+cd ..
+
+echo
+echo
+echo =================
+echo Compiling play...
+echo =================
+echo
+echo
+
+cd play/framework
+ant
+cd ../../play-services
 
 echo
 echo
@@ -19,10 +59,19 @@ echo ========================
 echo
 echo
 
-./play install scala-0.9.1
+../play/play install scala-0.9.1
 
-cd ..
+echo
+echo
+echo ======================
+echo Resolving dependencies
+echo ======================
+echo
+echo
 
-echo =============================================================
-echo Done! Add play-1.2.2 to your path in order to run play easily
-echo =============================================================
+../play/play dependencies --sync
+
+echo =========================================
+echo Done! Run the application with "../play/play run" or when in your path just "play run"
+echo =========================================
+
