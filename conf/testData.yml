@@ -54,7 +54,7 @@
 - !!models.UserGroup &buddies
     user: *jimmy
     name: Buddies
-    id: "Buddies#jimmy#cultureHub"
+    #id: "Buddies#jimmy#cultureHub"
     users:
       ? "dan#cultureHub"
       : *dan
