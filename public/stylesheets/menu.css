@@ -19,7 +19,7 @@ ul.menu-h li { /* horizontal menu */
 }
 
 ul.menu-h li.current {
-    border-bottom:  4px solid #ff9900;
+    border-bottom:  4px solid firebrick;
 }
 
 
@@ -38,17 +38,17 @@ ul.menu-h  ul {
 	top: 32px;
 	left: 0;
 	float: left;
-	width: 180px;
+	width: 200px;
 	z-index: 99999;
 }
 
 ul.menu-h ul.right {
-	left: -45px;
+	left: -40px;
 }
 
 /* The sub menu list element is given a minimum width */
 ul.menu-h ul li {
-	min-width: 120px;
+	min-width: 150px;
     border-top:  1px solid #555;
 }
 
