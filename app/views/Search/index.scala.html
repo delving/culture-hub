@@ -4,24 +4,58 @@
 
 @main("Search Results") {
 
-<div class="grid_12 alpha">
+<div class="grid_12 alpha" id="search-results">
 
-    <h2>Search Results Page</h2>
+    <h2>Search Results for: <span>[query]</span></h2>
 
-    <div id="search-results">
+    <div class="results-nav">
+        <div class="results-count">
+            Found: <span>12358</span> results
+        </div>
+        <div class="results-pager">
+            <ul>
+                <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
+                <li><span>1</span><span class="pipe"> | </span></li>
+                <li><a href="#">2</a><span class="pipe"> | </span></li>
+                <li><a href="#">3</a><span class="pipe"> | </span></li>
+                <li><a href="#">4</a><span class="pipe"> | </span></li>
+                <li><a href="#">5</a><span class="pipe"> | </span></li>
+                <li><a href="#">6</a><span class="pipe"> | </span></li>
+                <li><a href="#">7</a><span class="pipe"> | </span></li>
+                <li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>
+            </ul>
+        </div>
+    </div>
 
-        @for(i <- 0 until 21) {
-        <div class="result grid_4 alpha">
-            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-            <h4><a href="">Title_@i</a></h4>
-            <label>Owner</label><a href="">User Name</a><br/>
-            <label>Date created</label>11-07-2011
+    @for(i <- 0 until 16) {
+    <div class="result">
+        <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+        <h4><a href="">Title_@i</a></h4>
+        <!--<label>Owner</label><a href="">User Name</a><br/>-->
+        <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
                 <span class="options">
                     <input type="checkbox" value="@i"/>
                 </span>
-        </div>
-        }
+    </div>
+    }
 
+    <div class="results-nav">
+        <div class="results-count">
+            Found: <span>12358</span> results
+        </div>
+        <div class="results-pager">
+            <ul>
+                <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
+                <li><span>1</span><span class="pipe"> | </span></li>
+                <li><a href="#">2</a><span class="pipe"> | </span></li>
+                <li><a href="#">3</a><span class="pipe"> | </span></li>
+                <li><a href="#">4</a><span class="pipe"> | </span></li>
+                <li><a href="#">5</a><span class="pipe"> | </span></li>
+                <li><a href="#">6</a><span class="pipe"> | </span></li>
+                <li><a href="#">7</a><span class="pipe"> | </span></li>
+                <li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>
+            </ul>
+        </div>
     </div>
 
 </div>
