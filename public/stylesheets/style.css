@@ -368,6 +368,11 @@ span.help {
 
 /* SEARCH RESULTS */
 
+/*#col-right {*/
+    /*background:  #ccc;*/
+    /*height: 100%;*/
+/*}*/
+
 #search-results h2 {
     border-bottom:  4px solid firebrick;
     font-weight: bold;
@@ -418,6 +423,17 @@ span.help {
 #search-results h4 {
     font-weight: bold;
     margin: 0;
+}
+
+#search-results h4 a:link,
+#search-results h4 a:visited{
+    color: #000;
+    text-decoration: none;
+}
+
+#search-results h4 a:hover {
+    color: #0066cc;
+    text-decoration: underline;
 }
 
 #search-results .result {
