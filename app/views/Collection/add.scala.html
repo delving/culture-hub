@@ -47,7 +47,7 @@
                 <input type="button" name="add-annotations-button" id="add-annotation-button" value="Add Annotation"/>
                 <span class="error"></span>
 
-                <p>
+
 
                 <div id="annotations" class="display-box">
                     <p class="developers-note ui-state-error ui-corner-all">
@@ -56,7 +56,7 @@
                         <i>annotationText (annotationType)</i> with knockout.js]
                     </p>
                 </div>
-                </p>
+
 
             </div>
         </div>
@@ -75,7 +75,7 @@
         <div class="field">
             <label for="public">Public</label>
 
-            <div class="input">
+            <div class="inputs">
                 <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
 
                 <input type="radio" value="1" id="public-1" name="public">Public
@@ -86,13 +86,17 @@
 
     <div class="grid_8 omega">
         <h2>Add objects to your collection</h2>
+        <div class="field">
+            <div class="inputs">
         <button id="addObject">Add an Object</button>
+                </div>
                 <div id="objects" class="display-box">
                     <p class="developers-note ui-state-error ui-corner-all">
                         <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
                         [TODO: populate with objects selected with above button]
                     </p>
                 </div>
+        </div>
     </div>
 
     <div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
