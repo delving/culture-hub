@@ -123,17 +123,36 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     CollectionMDR
   }
 
-  def getRecord(identifier: String, metadataFormat: String, accessKey: String): Option[MetadataRecord] = {
-    import org.bson.types.ObjectId
+  def parseIdentifier(identifier: String): RecordIdentifier = {
     val parsedId = identifier.split(":")
     // throw exception for illegal id construction
+    if (parsedId.length != 2) throw new RecordNotFoundException("Unable to parse record identifier %s".format(identifier))
     val spec = parsedId.head
     val recordId = parsedId.last
     val ds: Option[DataSet] = find(spec)
-    val record: Option[MetadataRecord] = getRecords(ds.get).findOneByID(new ObjectId(recordId))
-    // throw RecordNotFoundException
-    transFormXml(metadataFormat, ds.get, record.get)
-    record
+    // if none throw exception
+    if (ds == None) throw new DataSetNotFoundException("Unable to find collection with spec %s".format(spec))
+    RecordIdentifier(recordId, spec, ds.get, identifier)
+  }
+
+  def getMappedRecord(mdRecord: MetadataRecord, recId: RecordIdentifier, metadataFormat: String, accessKey: String, sourceMetadataFormat: String = "raw"): String = {
+    if (mdRecord.metadata.keySet.contains(metadataFormat))
+      "<record>%s</record>".format(mdRecord.getXmlString(metadataFormat))
+    else
+      transFormXml(metadataFormat, recId.dataSet, mdRecord)
+  }
+
+  def getMappedRecord(identifier: String, metadataFormat: String, accessKey: String, sourceMetadataFormat: String): String = {
+    val recordId: RecordIdentifier = parseIdentifier(identifier)
+    val sourceRecord: MetadataRecord = getRecord(recordId, metadataFormat, accessKey, sourceMetadataFormat)
+    getMappedRecord(sourceRecord, recordId, metadataFormat, accessKey, sourceMetadataFormat)
+  }
+
+  def getRecord(recordId: RecordIdentifier, metadataFormat: String, accessKey: String, sourceMetadataFormat: String = "raw"): MetadataRecord = {
+    import org.bson.types.ObjectId
+    val record: Option[MetadataRecord] = getRecords(recordId.dataSet).findOneByID(new ObjectId(recordId.identifier))
+    if(record == None) throw new RecordNotFoundException("Could not find record %s in dataset %s".format(recordId.identifier, recordId.spec))
+    record.get
   }
 
   def find(spec: String): Option[DataSet] = {
@@ -393,3 +412,5 @@ class RecordParseException(s: String, throwable: Throwable) extends Exception(s,
 class ResumptionTokenNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
 }
+
+case class RecordIdentifier(identifier: String, spec: String, dataSet: DataSet, rawId: String)
