@@ -4,15 +4,15 @@
 
 @main("Search Results") {
 
-<div class="grid_12" id="search-results">
+<div class="grid_12" id="items">
 
     <h2>Search Results for: <span>[query]</span></h2>
 
-    <div class="results-nav">
-        <div class="results-count">
+    <div class="item-nav">
+        <div class="item-count">
             Found: <span>12358</span> results
         </div>
-        <div class="results-pager">
+        <div class="item-pager">
             <ul>
                 <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
                 <li><span>1</span><span class="pipe"> | </span></li>
@@ -28,22 +28,25 @@
     </div>
 
     @for(i <- 0 until 16) {
-    <div class="result">
+
+    <div class="item two-col">
         <img src='@asset("/public/images/dummy-object.png")' width="84"/>
         <h4><a href="">Title_@i</a></h4>
         <!--<label>Owner</label><a href="">User Name</a><br/>-->
-        <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
-                <span class="options">
-                    <input type="checkbox" value="@i"/>
-                </span>
+        <span class="description">
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+        </span>
+        <span class="options">
+            <input type="checkbox" value="@i"/>
+        </span>
     </div>
     }
 
-    <div class="results-nav">
-        <div class="results-count">
+    <div class="item-nav">
+        <div class="item-count">
             Found: <span>12358</span> results
         </div>
-        <div class="results-pager">
+        <div class="item-pager">
             <ul>
                 <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
                 <li><span>1</span><span class="pipe"> | </span></li>
@@ -60,8 +63,14 @@
 
 </div>
 
-<div class="grid_4" id="col-right">
-    <h2>Options</h2>
+<div class="grid_4 sidebar">
+
+    <div class="container">
+    <h3>Options</h3>
+
+    <label>Sort by</label>
+    <img src='@asset("/public/images/icon-object.png")' width="16"/>Object
+    <img src='@asset("/public/images/icon-collection.png")' width="16"/>Collection
 
     <p>
         Add <strong>selected</strong> objects to a collection
@@ -73,6 +82,9 @@
         <option value="">Collection 4</option>
     </select>
     <button>Add Objects</button>
+    </div>
+
+
 </div>
 
 }

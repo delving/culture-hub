@@ -5,8 +5,8 @@
 
 @main("Register!" ) {
 
-<h2>Register to CultureHub!</h2>
-<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST">
+<h1 class="grid_16">Register to CultureHub!</h2>
+<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST" class="grid_16">
 
   @if(!errors.isEmpty()) {
   <p class="error">

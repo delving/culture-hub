@@ -38,7 +38,7 @@ ul.menu-h  ul {
 	top: 32px;
 	left: 0;
 	float: left;
-	width: 200px;
+	/*width: 200px;*/
 	z-index: 99999;
 }
 

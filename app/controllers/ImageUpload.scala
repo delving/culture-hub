@@ -41,7 +41,7 @@ object ImageUpload extends DelvingController {
       tiler.setWorkingDirectory(imageTmpDir)
       tiler.setTileFormat(ImageFormat.JPEG);
       tiler.setJPEGCompressionQuality(75);
-      tiler.setBackgroundColor("#ffffffff");
+      tiler.setBackgroundColor("#ffffff");
       tiler.setGeneratePreviewHTML(false);
 
       // working around http://code.google.com/p/magicktiler/issues/detail?id=4
