@@ -10,9 +10,9 @@ package cake.metaRepo
 
 class MetaRepoImpl {
 
-  import cake.metaRepo.PmhVerbType.PmhVerb
   import java.util.Date
   import models.{MetadataRecord, DataSet}
+  import cake.metaRepo.PmhVerbType.PmhVerb
 
   def createDataSet(spec: String): DataSet = null
 
@@ -33,40 +33,4 @@ class MetaRepoImpl {
   def removeExpiredHarvestSteps {}
 
   def getRecord(identifier: String, metadataFormat: String, accessKey: String): MetadataRecord = null
-}
-
-class AccessKeyException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class UnauthorizedException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class BadArgumentException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class DataSetNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class HarvindexingException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class MappingNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class MetaRepoSystemException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class RecordParseException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}
-
-class ResumptionTokenNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
 }

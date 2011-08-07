@@ -211,29 +211,3 @@ trait DataSet {
   }
 
 }
-
-// from here complete
-
-object PmhVerbType extends Enumeration {
-
-  case class PmhVerb(command: String) extends Val(command)
-
-  val LIST_SETS = PmhVerb("ListSets")
-  val List_METADATA_FORMATS = PmhVerb("ListMetadataFormats")
-  val LIST_IDENTIFIERS = PmhVerb("ListIdentifiers")
-  val LIST_RECORDS = PmhVerb("ListRecords")
-  val GET_RECORD = PmhVerb("GetRecord")
-  val IDENTIFY = PmhVerb("Identify")
-}
-
-trait MetaConfig {
-
-  import play.Play
-  def conf(key: String) = Play.configuration.getProperty(key).trim
-
-  val repositoryName: String = conf("services.pmh.repositoryName")
-  val adminEmail: String = conf("services.pmh.adminEmail")
-  val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
-  val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
-  val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
-}

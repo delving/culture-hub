@@ -17,7 +17,6 @@ import org.bson.types.ObjectId
 import com.mongodb.{DBObject, BasicDBObject}
 import eu.delving.sip.DataSetState
 import eu.delving.sip.DataSetState._
-import cake.metaRepo.{AccessKeyException, UnauthorizedException}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator
@@ -28,7 +27,7 @@ import cake.metaRepo.{AccessKeyException, UnauthorizedException}
  * @since 7/7/11 12:04 AM  
  */
 
-object Datasets extends Controller {
+object SipCreatorEndPoint extends Controller {
 
   import play.mvc.results.Result
   import play.mvc.Http
@@ -93,7 +92,9 @@ object Datasets extends Controller {
   private def renderDataSetListAsXml(responseCode: DataSetResponseCode = DataSetResponseCode.THANK_YOU,
                                      dataSets: List[DataSet] = List.empty[DataSet],
                                      errorMessage: String = ""): Result = {
-    new RenderXml(renderDataSetList(responseCode, dataSets, errorMessage).toString)
+    val apiOutput: String = renderDataSetList(responseCode, dataSets, errorMessage).toString
+    log.info(apiOutput)
+    new RenderXml(apiOutput)
   }
 
   def listAll(): Result = {
@@ -246,7 +247,6 @@ object Datasets extends Controller {
       }
     } catch {
       case e: Exception => {
-        import cake.metaRepo.RecordParseException
         throw new RecordParseException("Unable to parse records", e)
       }
       case t: Throwable => t.printStackTrace()
@@ -282,7 +282,6 @@ object Datasets extends Controller {
   private def receiveFacts(facts: Facts, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.{MetadataFormat, Details}
     import eu.delving.metadata.MetadataNamespace
-    import cake.metaRepo.MetaRepoSystemException
     val dataSet: Option[DataSet] = DataSet.find(dataSetSpec)
     if (dataSet != None && dataSet.get.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
@@ -393,7 +392,6 @@ object Datasets extends Controller {
   }
 
   private def renderException(exception: Exception): Result = {
-    import cake.metaRepo.{DataSetNotFoundException, AccessKeyException}
     log.info("Problem in controller", exception)
     val errorcode = exception match {
       case x if x.isInstanceOf[AccessKeyException] => DataSetResponseCode.ACCESS_KEY_FAILURE
@@ -405,7 +403,7 @@ object Datasets extends Controller {
   }
 
   //  @RequestMapping(value = Array("/dataset/fetch/{dataSetSpec}-sip.zip"), method = Array(RequestMethod.GET))
-  def fetchSIP(dataSetSpec: String, accessKey: String, response: Http.Response): Unit = {
+  def fetchSIP(dataSetSpec: String, accessKey: String, response: Http.Response) {
     //    try {
     //      import org.apache.commons.httpclient.HttpStatus
     //      checkAccessKey(accessKey)
@@ -424,7 +422,7 @@ object Datasets extends Controller {
     //    }
   }
 
-  private def writeSipZip(dataSetSpec: String, outputStream: OutputStream, accessKey: String): Unit = {
+  private def writeSipZip(dataSetSpec: String, outputStream: OutputStream, accessKey: String) {
     //    import java.util.zip.{ZipEntry, ZipOutputStream}
     //    var dataSet: MetaRepo.DataSet = metaRepo.getDataSet(dataSetSpec)
     //    if (dataSet == null) {

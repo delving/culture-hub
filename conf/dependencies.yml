@@ -10,6 +10,8 @@ require:
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
+     # commented out while the snapshot is broken. Added the working version to provided instead
+     # provided fix had unwanted side-effects so reverted
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
@@ -30,6 +32,13 @@ require:
         exclude:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
+    # provided dependencies
+#    - provided -> salat-core_2.8.1 0.0.8-SNAPSHOT:
+#        exclude:
+#            - org.scala-lang -> scala-library
+#    - provided -> salat-util_2.8.1 0.0.8-SNAPSHOT:
+#        exclude:
+#            - org.scala-lang -> scala-library
     # delving dependencies
     - provided -> sip-core 0.3.1-SNAPSHOT
     # remove later

@@ -1,7 +1,6 @@
 package models
 
 import java.util.Date
-import cake.metaRepo.PmhVerbType.PmhVerb
 import org.bson.types.ObjectId
 import models.salatContext._
 import com.mongodb.casbah.Imports._
@@ -12,7 +11,7 @@ import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
-import views.Collection.html.collection
+import cake.metaRepo.PmhVerbType.PmhVerb
 
 /**
  *
@@ -61,9 +60,16 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
+  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[MetadataFormat] = {
+    val metadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
+    if (publicCollectionsOnly)
+      metadataFormats.filter(!_.accessKeyRequired)
+    else
+      metadataFormats
+  }
+
   def setMapping(mapping: RecordMapping, hash: String, accessKeyRequired: Boolean = true): DataSet = {
     import eu.delving.metadata.MetadataNamespace
-    import cake.metaRepo.MetaRepoSystemException
 
     val ns: Option[MetadataNamespace] = MetadataNamespace.values().filter(ns => ns.getPrefix == mapping.getPrefix).headOption
     if (ns == None) {
@@ -80,13 +86,16 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
 
-  import cake.metaRepo.DataSetNotFoundException
   import com.mongodb.casbah.commons.MongoDBObject
 
   def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
-  def findAll = {
-    find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
+  def findAll(publicCollectionsOnly: Boolean = true) = {
+    val allDateSets: List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
+    if (publicCollectionsOnly)
+      allDateSets.filter(ds => !ds.details.metadataFormat.accessKeyRequired || ds.mappings.forall(ds => ds._2.format.accessKeyRequired == false))
+    else
+      allDateSets
   }
 
   def findAllForUser(user: User) = {
@@ -114,6 +123,19 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     CollectionMDR
   }
 
+  def getRecord(identifier: String, metadataFormat: String, accessKey: String): Option[MetadataRecord] = {
+    import org.bson.types.ObjectId
+    val parsedId = identifier.split(":")
+    // throw exception for illegal id construction
+    val spec = parsedId.head
+    val recordId = parsedId.last
+    val ds: Option[DataSet] = find(spec)
+    val record: Option[MetadataRecord] = getRecords(ds.get).findOneByID(new ObjectId(recordId))
+    // throw RecordNotFoundException
+    transFormXml(metadataFormat, ds.get, record.get)
+    record
+  }
+
   def find(spec: String): Option[DataSet] = {
     findOne(MongoDBObject("spec" -> spec))
   }
@@ -134,6 +156,32 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
+  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[MetadataFormat] = {
+    val metadataFormats = findAll(publicCollectionsOnly).flatMap{
+      ds =>
+        ds.getMetadataFormats(publicCollectionsOnly)
+    }
+    metadataFormats.toList.distinct
+  }
+
+  def getMetadataFormats(spec: String, accessKey: String): List[MetadataFormat] = {
+    // todo add accessKey checker
+    val accessKeyIsValid: Boolean = true
+    find(spec) match {
+      case ds: Some[DataSet] => ds.get.getMetadataFormats(accessKeyIsValid)
+      case None => List[MetadataFormat]()
+    }
+  }
+
+  def transFormXml(prefix: String, dataSet: DataSet, record: MetadataRecord): String = {
+    import eu.delving.sip.MappingEngine
+    import scala.collection.JavaConversions.asJavaMap
+    val mapping = dataSet.mappings.get(prefix)
+    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
+    val mappedRecord: String = engine.executeMapping(record.getXmlString())
+    mappedRecord
+  }
   // access control
 
   protected def getCollection = dataSetsCollection
@@ -183,7 +231,6 @@ object MetadataFormat {
 
   def create(prefix: String, accessKeyRequired: Boolean = true): MetadataFormat = {
     import eu.delving.metadata.MetadataNamespace
-    import cake.metaRepo.MetaRepoSystemException
 
     val ns: MetadataNamespace = MetadataNamespace.values().filter(ns => ns.getPrefix == prefix).headOption.getOrElse(
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", prefix))
@@ -227,8 +274,13 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   //  def getFingerprint: Map[String, Integer]
 
   def getXmlString(metadataPrefix: String = "raw"): String = {
-    metadata.get(metadataPrefix).getOrElse("<dc:title>nothing<dc:title>")
-    // todo maybe give back as Elem and check for validity
+    val xmlString: Option[String] = metadata.get(metadataPrefix)
+    if (xmlString == None) throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
+    xmlString.get
+  }
+
+  def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {
+    "<record>%s</record>".format(getXmlString(metadataPrefix))
   }
 
 }
@@ -256,7 +308,10 @@ case class PmhRequest(
                              from: Option[Date],
                              until: Option[Date],
                              prefix: String
-                             ) { // extends PmhRequest {
+                             ) {
+
+
+  // extends PmhRequest {
   def getVerb: PmhVerb = verb
 
   def getSet: String = set
@@ -296,4 +351,45 @@ object HarvestStep extends SalatDAO[HarvestStep, ObjectId](collection = harvestS
     val step = MongoDBObject("pmhRequest.set," -> dataSetSpec, "first" -> true)
     remove(step)
   }
+}
+
+
+class AccessKeyException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class UnauthorizedException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class BadArgumentException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class DataSetNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class HarvindexingException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class MappingNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class RecordNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class MetaRepoSystemException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class RecordParseException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class ResumptionTokenNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
 }
