@@ -4,7 +4,38 @@
 
 @main("Object " + name + " of user " + user.fullname ) {
 
-        <h1>Object "@name"</h1>
+   <div class="grid_12">
+      <h1>Object <span>"@name"</span></h1>
+      <div  class="item-display" style="min-width: 220px;">
+           <img src='@asset("/public/images/dummy-object.png")' width="220"/>
+           <label>Name</label><span>Object Name Goes Here</span>
+          <label>Owner</label><span>Object Owner Goes Here</span>
+          <label>Description</label><span>Object Description Goes Here. Object Description Goes Here. Object Description Goes Here. Object Description Goes Here</span>
+          <label>Annotation(s)</label><span>Object Annotation(s) Go Here</span>
+          <label>Date created</label><span>Creation Date Goes Here</span>
+      </div>
+
+
+   </div>
+
+   <div class="grid_4">
+       <div class="container">
+           <h3>Options</h3>
+
+           <p>
+               Add object to a collection
+           </p>
+           <select id="collection-name" name="collection-name">
+               <option value="">Collection 1</option>
+               <option value="">Collection 2</option>
+               <option value="">Collection 3</option>
+               <option value="">Collection 4</option>
+           </select>
+           <button>Add Objects</button>
+       </div>
+
+   </div>
+
 
 
 

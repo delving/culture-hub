@@ -29,6 +29,9 @@
             <h4><a href="">Title_@i</a></h4>
             <!--<label>Owner</label><a href="">User Name</a><br/>-->
             <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
+            @if(renderArgs.get("displayName") != null) {
+                <span class="options"><a href>Edit Collection</a></span>
+            }
         </div>
         }
     </div>

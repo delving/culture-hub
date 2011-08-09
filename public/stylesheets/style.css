@@ -23,6 +23,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
     border-bottom: 4px solid firebrick;
 }
+
 h2 {
     border-bottom: 2px solid #ccc;
 }
@@ -51,7 +52,7 @@ h2 span {
 
 #header h1 {
     background: transparent url(../images/delving-swing.png) center left no-repeat;
-    border-bottom:  none;
+    border-bottom: none;
     font-size: 64px;
     font-weight: bold;
     height: 100px;
@@ -140,16 +141,16 @@ h2 span {
     background-color: #eee;
 }
 
-.sidebar .container {
-    border:  1px solid #ccc;
-    background:  #eaeaea;
-    padding:  4px;
+.container {
+    border: 1px solid #ccc;
+    background: #eaeaea;
+    padding: 4px;
 }
 
-.sidebar .container h3 {
+.container h3 {
     text-transform: uppercase;
-    background:  #fff;
-    border-bottom:  4px solid firebrick;
+    background: #fff;
+    border-bottom: 4px solid firebrick;
 }
 
 ul.inline {
@@ -195,6 +196,7 @@ label {
     color: #555;
 
 }
+
 #required-note {
     color: #777777;
     display: block;
@@ -244,33 +246,41 @@ input.textinput, select, textarea {
     font-size: 1.1em;
     padding: 3px;
 }
+
 select {
-    padding:  2px;
+    padding: 2px;
 }
+
 .inputs textarea {
     width: 98%;
+}
+
+input.textdisplay {
+    border: none;
 }
 
 input[type=submit],
 input[type=button],
 input[type=file],
 button {
-    border:  1px solid #777;
+    border: 1px solid #777;
     background: #999;
     color: #fff;
     font-size: 1.1em;
     font-weight: bold;
-    padding:  2px 6px;
+    padding: 2px 6px;
     border-radius: 2px;
 }
+
 input[type=file] {
-    background:  #fff;
+    background: #fff;
 }
+
 input[type=submit]:hover,
 input[type=button]:hover,
 input[type=file]:hover,
 button:hover {
-    border:  1px solid #000;
+    border: 1px solid #000;
 }
 
 .display-box {
@@ -324,17 +334,17 @@ span.help {
 
 /* list */
 
-.object {
-    clear: both;
-    margin-bottom: 10px;
-    background: #fff;
-    overflow: hidden;
-}
+/*.object {*/
+/*clear: both;*/
+/*margin-bottom: 10px;*/
+/*background: #fff;*/
+/*overflow: hidden;*/
+/*}*/
 
-.object img {
-    float: left;
-    margin-right: 10px;
-}
+/*.object img {*/
+/*float: left;*/
+/*margin-right: 10px;*/
+/*}*/
 
 /* SEARCH FORM */
 
@@ -355,15 +365,15 @@ span.help {
 /* SEARCH RESULTS */
 
 /*#col-right {*/
-    /*background:  #ccc;*/
-    /*height: 100%;*/
+/*background:  #ccc;*/
+/*height: 100%;*/
 /*}*/
 
 #items h2 {
-    border-bottom:  4px solid firebrick;
+    border-bottom: 4px solid firebrick;
     font-weight: bold;
     text-transform: uppercase;
-    margin:  0;
+    margin: 0;
 }
 
 #items h2 span {
@@ -374,8 +384,8 @@ span.help {
 /* RESULTS NAVIGATION/PAGER */
 
 .item-nav {
-    border-bottom:  4px solid #000;
-    padding:  10px 5px;
+    border-bottom: 4px solid #000;
+    padding: 10px 5px;
     margin-bottom: 1em;
 }
 
@@ -387,6 +397,7 @@ span.help {
     display: inline;
     float: right;
 }
+
 .item-pager ul,
 .item-pager ul li {
     display: inline;
@@ -405,7 +416,7 @@ span.help {
 }
 
 .item-pager .pipe {
-  padding: 0 2px 0 2px;
+    padding: 0 2px 0 2px;
 }
 
 /* RESULT ITEM */
@@ -413,10 +424,19 @@ span.help {
 .item h4 {
     font-weight: bold;
     margin: 0;
+    padding: 0 20px 0 0;
+}
+
+.item .collection {
+    background: transparent url(../images/icon-collection.png) top right no-repeat;
+}
+
+.item .object {
+    background: transparent url(../images/icon-object.png) top right no-repeat
 }
 
 .item h4 a:link,
-.item h4 a:visited{
+.item h4 a:visited {
     color: #000;
     text-decoration: none;
 }
@@ -464,6 +484,32 @@ span.help {
     display: block;
 }
 
+.item-display img {
+    float: left;
+    margin: 0 10px 0 0;
+}
+
+.row {
+    border-bottom: 1px dotted #555;
+    display: block;
+    height: 21px;
+    line-height: 21px;
+    margin-bottom: 4px;
+
+}
+
+.row label {
+    clear: left;
+    float: left;
+    font-weight: bold;
+    margin-right: 10px;
+    width: 100px;
+    text-align: right;
+}
+
+.row span {
+    display: block
+}
 
 p.developers-note,
 div.developers-note,
@@ -473,4 +519,164 @@ span.developers-note {
     border: 1px solid #ccc;
     padding: .5em;
     margin: .5em 0;
+}
+
+/* TABLE STYLES */
+table {
+    border-collapse: separate;
+    border-spacing: 1px;
+    font-size: 1em;
+    margin: 0 0 10px 0;
+}
+
+thead th {
+    border-bottom: 4px solid #000;
+    font-size: 1em;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0;
+    padding: 0 5px;
+}
+
+thead th span {
+    color: #888;
+}
+
+tbody th {
+    text-align: right;
+    min-width: 120px;
+}
+
+tbody th,
+tbody td {
+    padding: 4px 6px;
+    vertical-align: top;
+    line-height: 1.5em;
+}
+
+/* COMMENTS */
+ul.comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.comment {
+    color: #555;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+li.comment:hover {
+    background: #eaeaea;
+}
+
+li.comment .avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+li.comment .content {
+    display: table-cell;
+    vertical-align: top;
+    width: 75%;
+}
+
+li.comment .date {
+    color: #b22222;
+    font-weight: bold;
+}
+
+li.comment .user {
+    font-weight: bold;
+}
+
+.comment p {
+    margin: 0;
+}
+
+/* DUI BUTTONS AND TOOLBAR */
+
+.dui-button {
+    outline: 0;
+    margin: 0 4px 0 0;
+    padding: .4em 1em;
+    text-decoration: none !important;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+    zoom: 1;
+}
+
+.dui-button .ui-icon {
+    position: absolute;
+    top: 50%;
+    margin-top: -8px;
+    left: 50%;
+    margin-left: -8px;
+}
+
+a.dui-button {
+    float: left;
+}
+
+/* remove extra button width in IE */
+button.dui-button {
+    width: auto;
+    overflow: visible;
+}
+
+.dui-button-icon-left {
+    padding-left: 2.1em;
+}
+
+.dui-button-icon-right {
+    padding-right: 2.1em;
+}
+
+.dui-button-icon-left .ui-icon {
+    right: auto;
+    left: .2em;
+    margin-left: 0;
+}
+
+.dui-button-icon-right .ui-icon {
+    left: auto;
+    right: .2em;
+    margin-left: 0;
+}
+
+.dui-button-icon-solo {
+    display: block;
+    width: 8px;
+    text-indent: -9999px;
+}
+
+/* solo icon buttons must have block properties for the text-indent to work */
+
+.dui-buttonset {
+    float: left;
+}
+
+.dui-buttonset .dui-button {
+    float: left;
+}
+
+.dui-buttonset-single .dui-button,
+.dui-buttonset-multi .dui-button {
+    margin-right: -1px;
+}
+
+.dui-toolbar {
+    padding: .5em;
+    margin: 0;
+}
+
+.dui-toolbar .dui-buttonset {
+    margin-right: 1.5em;
+    padding-left: 1px;
+}
+
+.dui-toolbar .dui-button {
+    font-size: 1em;
 }

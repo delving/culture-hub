@@ -3,8 +3,32 @@
  */
 function initializeElements() {
     $(".saveButton").button();
-}
 
+    //all hover and click logic for dui-buttons
+    $(".dui-button:not(.ui-state-disabled)")
+        .hover(
+            function() {
+                $(this).addClass("ui-state-hover");
+            },
+            function() {
+                $(this).removeClass("ui-state-hover");
+            }
+        )
+        .mousedown(function() {
+            $(this).parents('.dui-buttonset-single:first').find(".dui-button.ui-state-active").removeClass("ui-state-active");
+            if ($(this).is('.ui-state-active.dui-button-toggleable, .dui-buttonset-multi .ui-state-active')) {
+                $(this).removeClass("ui-state-active");
+            }
+            else {
+                $(this).addClass("ui-state-active");
+            }
+        })
+        .mouseup(function() {
+            if (! $(this).is('.dui-button-toggleable, .dui-buttonset-single .dui-button,  .dui-buttonset-multi .dui-button')) {
+                $(this).removeClass("ui-state-active");
+            }
+        });
+}
 
 /**
  * Post knockoutJS form data as JSON string, into a parameter called "data"

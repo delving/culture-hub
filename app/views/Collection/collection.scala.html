@@ -3,9 +3,126 @@
 @import views.context._
 
 @main("Collection " + name + " of user " + user.fullname ) {
+<div class="grid_16">
+    <h1>Collection <span>"@name"</span></h1>
+</div>
+<div class="grid_8">
+<div class="dui-buttonset dui-buttonset-single">
+	<button class="dui-button ui-state-default ui-priority-primary ui-corner-left">Comment</button>
+	<button class="dui-button ui-state-default ui-priority-primary">Label</button>
+	<button class="dui-button ui-state-default ui-priority-primary">Share</button>
+	<button class="dui-button ui-state-default ui-priority-primary ui-corner-right">Collaborate</button>
+</div>
+<div class="clear"></div>
+    <div class="collection-items">
+        <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/carousel-ie/skin.css")'/>
+        <script id='jquery-carousel' src='@asset("/public/javascripts/jquery.jcarousel.min.js")' type='text/javascript'></script>
+        <ul id="itemcarousel" class="jcarousel-skin-ie7">
+            <li><img src="http://static.flickr.com/66/199481236_dc98b5abb3_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/75/199481072_b4a0d09597_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/57/199481087_33ae73a8de_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/77/199481108_4359e6b971_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/58/199481143_3c148d9dd3_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/72/199481203_ad4cdcf109_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/58/199481218_264ce20da0_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/69/199481255_fdfe885f87_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/60/199480111_87d4cb3e38_s.jpg" width="75" height="75" alt=""/></li>
+            <li><img src="http://static.flickr.com/70/229228324_08223b70fa_s.jpg" width="75" height="75" alt=""/></li>
+        </ul>
+    </div>
 
-        <h1>Collection "@name"</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ultricies euismod sem vitae pretium. Quisque congue, nulla a elementum dapibus, tortor neque feugiat est, vitae placerat enim tortor id diam. Nullam dignissim pulvinar viverra. Donec pulvinar urna et quam dapibus pulvinar eget id libero.</p>
+
+    <p>Sed libero odio, pharetra ut ultrices quis, molestie in libero. Vestibulum odio diam, feugiat vehicula molestie ac, aliquam vitae velit. Nullam iaculis nisi ac velit molestie vitae facilisis nisl placerat. Donec pellentesque, lacus mattis ultrices congue, elit dolor mattis elit, at vestibulum mi arcu id dui. Aenean eu enim id purus ultrices hendrerit. Sed sollicitudin egestas mauris vitae blandit.</p>
+
+</div>
+<div class="grid_8">
+
+    <div class="item-info">
+        <h2>Collection Information</h2>
+
+        <table>
+            <!--<thead>-->
+            <!--<tr>-->
+            <!--<th colspan="2">Collection Information</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <tbody>
+            <tr>
+                <th scope="row">Owner</th>
+                <td>Owner name</td>
+            </tr>
+            <tr>
+                <th scope="row">Date Created</th>
+                <td>xx-xx-xxxx</td>
+            </tr>
+            <tr>
+                <th scope="row">Date Modified</th>
+                <td>xx-xx-xxxx</td>
+            </tr>
+            <tr>
+                <th scope="row">Collaborator(s)</th>
+                <td><a href="#">Collaborator Name</a>, <a href="#">Collaborator Name</a>,
+                    <a href="#">Collaborator Name</a>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Annotation(s)</th>
+                <td>
+                    <span class="annotation">Annotation (person), Annotation (place), Annotation (event)</span>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Free-text Label(s)</th>
+                <td>
+                    @for(i <- 0 until 16) {
+                    <span class="label"><a href="#">label_@i</a></span>&nbsp;
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Followed by</th>
+                <td>
+                    @for(i <- 0 until 12) {
+                    <span class="label"><a href="#">user_@i</a></span>&nbsp;
+                    }
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="comments">
+        <h2>Comments</h2>
+        <ul class="comment-list">
+            @for(i <- 0 until 4) {
+            <li class="comment">
+                <!--<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>-->
+                <div class="content">
+
+                    <p>
+                        Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.
+                    </p>
+                    <span class="user"><a href="#">Username</a></span>
+                    <span class="date">xx-xx-xxxx</span>
+
+                </div>
+            </li>
+
+            }
+        </ul>
+        <div class="inputs">
+            <textarea class="textinput" id="collection-comment" name="collection-comment"></textarea>
+            <button type="button" class="dui-button ui-state-default ui-corner-all">Add Comment</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    jQuery(document).ready(function() {
+        jQuery('#itemcarousel').jcarousel();
 
 
+    });
 
+</script>
 }

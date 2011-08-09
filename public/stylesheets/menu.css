@@ -33,23 +33,28 @@ ul.menu-h a { /* the link style of menu */
 
  /* The sub menu is hidden by default and its position is places right under the parent menu*/
 ul.menu-h  ul {
+    background:  #555;
 	display: none;
 	position: absolute;
 	top: 32px;
-	left: 0;
+	/*left: -20px;*/
 	float: left;
 	/*width: 200px;*/
 	z-index: 99999;
+    padding: 0;
+    margin:  0;
 }
 
-ul.menu-h ul.right {
-	left: -40px;
-}
+/*ul.menu-h ul.right {*/
+	/*left: -40px;*/
+/*}*/
 
 /* The sub menu list element is given a minimum width */
 ul.menu-h ul li {
-	min-width: 150px;
-    border-top:  1px solid #555;
+	width: 100%;
+    border-top:  1px solid #888;
+    position: relative;
+    float: left;
 }
 
 ul.menu-h ul a {
