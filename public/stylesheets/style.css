@@ -16,16 +16,16 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: Helvetica, Arial, sans-serif;
     font-weight: normal;
-    margin-top: 0;
+    margin: 10px 0;
     padding: 0 5px
 }
 
 h1 {
-    border-bottom: 4px solid firebrick;
+    border-bottom: 2px solid #b22222;
 }
 
 h2 {
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid #555;
 }
 
 h1 span,
@@ -351,6 +351,7 @@ span.help {
 #search {
     background: #eaeaea;
     margin-bottom: 2em;
+    border:  1px solid #ccc;
     /*padding:  10px;*/
 }
 
@@ -370,7 +371,7 @@ span.help {
 /*}*/
 
 #items h2 {
-    border-bottom: 4px solid firebrick;
+    border-bottom: 5px solid firebrick;
     font-weight: bold;
     text-transform: uppercase;
     margin: 0;
@@ -384,7 +385,7 @@ span.help {
 /* RESULTS NAVIGATION/PAGER */
 
 .item-nav {
-    border-bottom: 4px solid #000;
+    border-bottom: 5px solid #000;
     padding: 10px 5px;
     margin-bottom: 1em;
 }
@@ -545,6 +546,7 @@ thead th span {
 tbody th {
     text-align: right;
     min-width: 120px;
+    font-size: 1.1em;
 }
 
 tbody th,
@@ -595,12 +597,22 @@ li.comment .user {
     margin: 0;
 }
 
+#add-comment-dialog {
+    display: none;
+}
+
+/* LABELS */
+
+#add-label-dialog {
+    display: none;
+}
+
 /* DUI BUTTONS AND TOOLBAR */
 
 .dui-button {
     outline: 0;
     margin: 0 4px 0 0;
-    padding: .4em 1em;
+    padding: 3px 1em;
     text-decoration: none !important;
     cursor: pointer;
     position: relative;
@@ -656,6 +668,7 @@ button.dui-button {
 
 .dui-buttonset {
     float: left;
+    margin-bottom: 10px;
 }
 
 .dui-buttonset .dui-button {
@@ -680,3 +693,5 @@ button.dui-button {
 .dui-toolbar .dui-button {
     font-size: 1em;
 }
+
+
