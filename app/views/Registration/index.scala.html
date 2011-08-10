@@ -5,8 +5,9 @@
 
 @main("Register!" ) {
 
-<h2>Register to CultureHub!</h2>
-<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST">
+        <div class="grid_16">
+<h1>Register to CultureHub!</h1>
+<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST" class="grid_16">
 
   @if(!errors.isEmpty()) {
   <p class="error">
@@ -35,5 +36,5 @@
     <input type="submit" value="Register!">
   </div>
 </form>
-
+</div>
 }
