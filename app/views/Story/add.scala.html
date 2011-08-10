@@ -4,55 +4,56 @@
 @import views.tags.html._
 
 @main("Create new story for user " + user.fullname ) {
+<form method="post" action="" id="newStory">
+    <div class="grid_12">
+        <h1>Create a new Story</h1>
 
-    <h1>Create a new Story</h1>
+        <h2>Story Metadata</h2>
+        <span class="required-note">* Required Fields</span>
 
-    <form method="post" action="" id="newStory">
+        <div class="field">
+            <label for="name" class="required">Name</label>
 
-        <div class="grid_16 alpha">
-
-            <h2>Story Metadata</h2>
-
-            <div class="field">
-                <label for="name">Name</label>
-                <div class="inputs">
+            <div class="inputs">
                 <input type="text" class="textinput" name="name" id="name" value=""/>
                 <span class="error"></span>
-                </div>
             </div>
+        </div>
 
-            <div class="field">
-                <label for="description">Description</label>
-                <div class="inputs">
+        <div class="field">
+            <label for="description" class="required">Description</label>
+
+            <div class="inputs">
                 <textarea class="textinput" name="description" id="description"></textarea>
-                    <span class="error"></span>
-                </div>
+                <span class="error"></span>
             </div>
+        </div>
 
-            <div class="field">
-                <label for="annotation">Annotation(s)</label>
-                <div class="inputs">
+        <div class="field">
+            <label for="annotation">Annotation(s)</label>
+
+            <div class="inputs">
                 <select id="annotationType">
                     <option>Person</option>
                     <option>Place</option>
                     <option>Event</option>
                     <option>Concept</option>
                 </select>
-                <input type="text" class="textinput"  name="annotation" id="annotation" />
+                <input type="text" class="textinput" name="annotation" id="annotation"/>
                 <button id="annotationAdd">Add</button>
-                    <span class="error"></span>
-                </div>
-                <p>
+                <span class="error"></span>
+            </div>
+            <p>
 
-                <div id="annotations" class="display-box">
-                    <p class="developers-note ui-state-error ui-corner-all">
-                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+            <div id="annotations" class="display-box">
+                <p class="developers-note ui-state-error ui-corner-all">
+                    <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
                     [TODO: populate with above form elements in the form of
                     <i>annotationText (annotationType)</i> with knockout.js]
-                    </p>
-                </div>
                 </p>
             </div>
+            </p>
+        </div>
 
         <div class="field">
             <label for="public">Public</label>
@@ -66,28 +67,148 @@
         </div>
 
         <div class="field">
-             <div class="inputs">
-                  <button>Add Section</button>
-             </div>
+            <div class="inputs">
+                <button>Add Page(s)</button>
+            </div>
             <p class="developers-note ui-state-error ui-corner-all">
-                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                When clicking "Add Section" check must be done to see if the story Name and Description are filled in.
-                The "Add Section" button can be visually disabled until those values are filled in.
+                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                When clicking "Add Page(s)" check must be done to see if the story Name and Description are filled in.
+                The "Add Pages(s)" button can be visually disabled until those values are filled in.
             </p>
         </div>
+    </div>
 
+    <div class="grid_4">
+        <h3>Creating a story</h3>
 
-        <h2>Story Sections and Pages</h2>
+        <p>
+            A <strong>story</strong> can be created from objects in a <strong>collection</strong>.
+        </p>
+        <ol>
+            <li>Enter a story name and short description, and optionally add annotations</li>
+            <li>Once you have the above meta-data for the story you can add a page.</li>
+        </ol>
+    </div>
 
-        <p>There are no sections</p>
+    <div class="grid_12">
+        <h2>Story Pages</h2>
+
+        <p>There are no pages</p>
+        <button>Create a new page</button>
+
+        <div id="page-form">
+            <span class="required-note">* Required Fields</span>
+
+            <div class="field">
+                <label for="page-title" class="required">Title</label>
+
+                <div class="inputs">
+                    <input type="text" class="textinput" name="page-title" id="page-title" value=""/>
+                    <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="page-text" class="required">Free Text</label>
+
+                <div class="inputs">
+                    <textarea class="textinput" name="page-text" id="page-text"></textarea>
+                    <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="inputs">
+                    <select id="collection-name" name="collection-name">
+                        <option value="">Collection 1</option>
+                        <option value="">Collection 2</option>
+                        <option value="">Collection 3</option>
+                        <option value="">Collection 4</option>
+                    </select>
+                    <button id="addObject">Add an image from this collection</button>
+                </div>
+                <div id="objects" class="display-box">
+                    <p class="developers-note ui-state-error ui-corner-all">
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                        [TODO: populate with objects selected with above button]
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <div class="inputs">
+                <button type="submit">Add Page</button>
+            </div>
         </div>
 
-        <!--<div class="grid_8 omega">-->
-            <!--<h2>Story Objects</h2>-->
-            <!--<a href="">Add new object</a>-->
-        <!--</div>-->
+    </div>
 
+    <div class="grid_4">
+        <h3>Creating a story page</h3>
+        <ol>
+            <li>Enter a story name and short description, and optionally add annotations</li>
+            <li>Once you have the above meta-data for the story you can add a page.</li>
+        </ol>
+    </div>
 
-    </form>
+</form>
 
+<div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
+    <div id="objects-list">
+        <table>
+            <tbody>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="actions">
+        <button>Add selected object(s)</button>
+    </div>
+</div>
+
+<script type="text/javascript" language="javascript">
+    $("#addObject").click(function(event) {
+        $("#objects-dialogue").dialog({modal: true});
+        event.preventDefault();
+    })
+</script>
 }
