@@ -11,7 +11,7 @@ POST        /login                                  Authentication.authenticate
 GET         /logout                                 Authentication.logout
 
 # OAuth2
-GET         /authorize                              OAuth2Authenticatior.authenticate
+GET         /authorize                              OAuth2Authenticator.authenticate
 GET         /token                                  OAuth2TokenEndpoint.token
 
 # Backwards compatibility with the old services module
@@ -22,12 +22,12 @@ GET         /services/api/open-search                                        Ser
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
 GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
-GET         /services/dataset                                                Datasets.listAll
-GET         /services/dataset/{dataSetSpec}/{command}                        Datasets.indexingControl
-POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     Datasets.acceptFile
-POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    Datasets.fetchSIP
-GET         /services/administrator/dataset                                  Datasets.secureListAll
-GET         /services/administrator/dataset/{dataSetSpec}/{command}          Datasets.secureIndexingControl
+GET         /services/dataset                                                SipCreatorEndPoint.listAll
+GET         /services/dataset/{dataSetSpec}/{command}                        SipCreatorEndPoint.indexingControl
+POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     SipCreatorEndPoint.acceptFile
+POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    SipCreatorEndPoint.fetchSIP
+GET         /services/administrator/dataset                                  SipCreatorEndPoint.secureListAll
+GET         /services/administrator/dataset/{dataSetSpec}/{command}          SipCreatorEndPoint.secureIndexingControl
 
 # Backwards compatibility with the old portal module
 GET        /portal/                                                         Portal.index
@@ -67,12 +67,12 @@ GET         /{user}/admin/groups/update/{name}                               use
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
 GET         /{user}/admin/groups/load/{name}                                 user.Admin.groupLoad
 
-GET         /{user}/dataset                                                  Datasets.listAll
-GET         /{user}/dataset/{dataSetSpec}/{command}                          Datasets.indexingControl
-POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       Datasets.acceptFile
-POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      Datasets.fetchSIP
-GET         /{user}/admin/dataset                                            Datasets.secureListAll
-GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    Datasets.secureIndexingControl
+GET         /{user}/dataset                                                  SipCreatorEndPoint.listAll
+GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl
+POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       SipCreatorEndPoint.acceptFile
+POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      SipCreatorEndPoint.fetchSIP
+GET         /{user}/admin/dataset                                            SipCreatorEndPoint.secureListAll
+GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    SipCreatorEndPoint.secureIndexingControl
 
 GET         /users/list                                                      Users.listAsTokens
 
