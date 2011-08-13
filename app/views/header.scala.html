@@ -51,7 +51,7 @@
     <div id="user-bar">
         <ul class="menu-h">
         @if(renderArgs.get("displayName") != null) {
-            <li><a href="">Hi @renderArgs.get("fullName")<img src='@asset("/public/images/nav-down.png")'/></a>
+            <li class="main"><a href="">Hi @renderArgs.get("fullName")</a>
                 <ul class="right">
                     <li><a class="" href='/@renderArgs.get("displayName")/profile'><span>Your Profile</span></a></li>
                     <li><a class="" href='/@renderArgs.get("displayName")/object'><span>Your Objects</span></a></li>

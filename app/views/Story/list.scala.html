@@ -3,17 +3,23 @@
 @import views.context._
 
 @main("List of stories for user " + user.fullname ) {
-    <div class="grid_8 alpha">
-        <h1>All the stories of @user.fullname</h1>
-        <ul>
-          <li>Foos</li>
-          <li>Bars</li>
-          <li>Bazs</li>
-        </ul>
+    <div class="grid_12">
+        <h1>All the stories of <span>@user.fullname</span></h1>
+        @for(i <- 0 until 6) {
 
+        <div class="item three-col">
+            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+            <h4><a href="">Title_@i</a></h4>
+            <!--<label>Owner</label><a href="">User Name</a><br/>-->
+            <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
+            @if(renderArgs.get("displayName") != null) {
+                <span class="options"><a href>Edit Story</a></span>
+            }
+        </div>
+        }
 
     </div>
-    <div class="grid_8 omega">
+    <div class="grid_4">
         @if(renderArgs.get("displayName") != null) {
                  <a href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
         }

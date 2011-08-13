@@ -139,3 +139,46 @@ ko.bindingHandlers.tokens = {
                 delete viewModel.lock;
             }
 };
+
+if (typeof Delving === 'undefined') {
+    Delving = {};
+}
+
+/**
+ * Add the TinyMCE WYSIWG editor to a page.
+ * Default is to add to all textareas.
+ *
+ * @param {Object} [params] Parameters to pass to TinyMCE, these override the
+ * defaults.
+ */
+Delving.wysiwyg = function (params) {
+    // Default parameters
+    initParams = {
+        convert_urls: false,
+        mode: "textareas", // All textareas
+        theme: "advanced",
+        editor_selector : "mceEditor",
+        editor_deselector : "mceNoEditor",
+        theme_advanced_toolbar_location: "top",
+        force_br_newlines: false,
+        forced_root_block: 'p', // Needed for 3.x
+        remove_linebreaks: true,
+        fix_content_duplication: false,
+        fix_list_elements: true,
+        valid_child_elements: "ul[li],ol[li]",
+        theme_advanced_buttons1: "bold,italic,underline,justifyleft,justifycenter,justifyright,bullist,numlist,link,formatselect,code",
+        theme_advanced_buttons2: "",
+        theme_advanced_buttons3: "",
+        theme_advanced_toolbar_align: "left"
+    };
+
+    // Overwrite default params with user-passed ones.
+    for (var attribute in params) {
+        // Account for annoying scripts that mess with prototypes.
+        if (params.hasOwnProperty(attribute)) {
+            initParams[attribute] = params[attribute];
+        }
+    }
+
+    tinyMCE.init(initParams);
+};
