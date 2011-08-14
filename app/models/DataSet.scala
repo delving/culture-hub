@@ -6,12 +6,12 @@ import models.salatContext._
 import com.mongodb.casbah.Imports._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
-import eu.delving.sip.DataSetState
 import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
+import eu.delving.sip.{IndexDocument, DataSetState}
 
 /**
  *
@@ -87,6 +87,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
 
   import com.mongodb.casbah.commons.MongoDBObject
+  import eu.delving.sip.IndexDocument
+  import org.apache.solr.common.SolrInputDocument
 
   def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
@@ -132,8 +134,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val ds: Option[DataSet] = find(spec)
     val record: Option[MetadataRecord] = getRecords(ds.get).findOneByID(new ObjectId(recordId))
     // throw RecordNotFoundException
-    transFormXml(metadataFormat, ds.get, record.get)
-    record
+    if (record == None) throw new RecordNotFoundException("Unable to find record for " + identifier)
+    if (record.get.rawMetadata.contains(metadataFormat))
+      record
+    else {
+      val mappedRecord = record.get
+      val solrDoc: IndexDocument = transFormXml(metadataFormat, ds.get, mappedRecord)
+      Some(mappedRecord.copy(mappedMetadata = Map[String, IndexDocument](metadataFormat -> solrDoc)))
+    }
   }
 
   def find(spec: String): Option[DataSet] = {
@@ -142,9 +150,74 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def deleteFromSolr(dataSet: DataSet) {
     import org.apache.solr.client.solrj.response.UpdateResponse
-    val deleteResponse: UpdateResponse = getSolrServer.deleteByQuery("europeana_collectionName:" + dataSet.spec)
+    val deleteResponse: UpdateResponse = getSolrServer.deleteByQuery("delving_spec:" + dataSet.spec)
     deleteResponse.getStatus
     getSolrServer.commit
+  }
+
+  def createSolrInputDocument(indexDoc: IndexDocument): SolrInputDocument = {
+    import scala.collection.JavaConversions._
+
+    val doc = new SolrInputDocument
+    indexDoc.getMap.entrySet().foreach {
+      entry =>
+        import org.apache.solr.common.SolrInputField
+        val unMungedKey = entry.getKey // todo later unmunge the key with namespaces.replaceAll("_", ":")
+        entry.getValue.foreach(
+          value =>
+            doc.addField(unMungedKey, value.toString)
+        )
+    }
+    doc
+  }
+
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataRecord, format: String) {
+    import scala.collection.JavaConversions._
+
+    inputDoc.addField("delving_pmhId", "%s_%s".format(dataSet.spec, record._id.toString))
+    inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
+    inputDoc.addField("delving_currentFormat", format)
+    dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
+    dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
+
+
+    val europeanaUri = "europeana_uri"
+    if (inputDoc.containsKey(europeanaUri))
+      inputDoc.addField("id", inputDoc.getField(europeanaUri).getValues.headOption.getOrElse("empty"))
+    else if (!record.localRecordKey.isEmpty)
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record.localRecordKey))
+    else
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record._id.toString))
+    // todo add more elements: hasDigitalObject. etc
+  }
+
+  def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
+    import eu.delving.sip.MappingEngine
+    import scala.collection.JavaConversions.asJavaMap
+    val salatDAO = getRecords(dataSet)
+    val mapping = dataSet.mappings.get(metadataFormatForIndexing)
+    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
+    val counter: (Int, Int) = salatDAO.find(MongoDBObject()).foldLeft((0, 0)) {
+      (recordsProcessed, record) => {
+        if ((recordsProcessed._1 + recordsProcessed._2) % 1000 == 0)
+          println("another 1000 indexed") // todo add support for breaking
+        val mappingDoc = engine.executeMapping(record.getXmlString())
+        mappingDoc match {
+          case indexDoc: IndexDocument => {
+            val doc: SolrInputDocument = createSolrInputDocument(indexDoc)
+            addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
+            println(doc)
+            getStreamingUpdateServer.add(doc)
+            (recordsProcessed._1 + 1, recordsProcessed._2)
+          }
+          case _ => // catching null
+            (recordsProcessed._1, recordsProcessed._2 + 1)
+        }
+      }
+    }
+    getStreamingUpdateServer.commit()
+    counter
   }
 
   def getRecordCount(dataSet: DataSet): Int = getRecordCount(dataSet.spec)
@@ -173,13 +246,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
-  def transFormXml(prefix: String, dataSet: DataSet, record: MetadataRecord): String = {
+  def transFormXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
     import eu.delving.sip.MappingEngine
     import scala.collection.JavaConversions.asJavaMap
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
-    val mappedRecord: String = engine.executeMapping(record.getXmlString())
+    val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
   // access control
@@ -250,14 +323,15 @@ case class Details(
                           )
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
-                          metadata: scala.collection.mutable.Map[String, String], // this is the raw xml data string
+                          rawMetadata: Map[String, String], // this is the raw xml data string
+                          mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
                           modified: Date,
                           deleted: Boolean, // if the record has been deleted
                           localRecordKey: String, // content fingerprint
                           globalHash: String, // the hash of the raw content
                           hash: Map[String, String]) { //extends MetadataRecord {
   //  import org.bson.types.ObjectId
-  //  import com.mongodb.DBObject
+  //  import com.mongodb.DBOject
   //
   //  def getId: ObjectId
   //
@@ -274,9 +348,23 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   //  def getFingerprint: Map[String, Integer]
 
   def getXmlString(metadataPrefix: String = "raw"): String = {
-    val xmlString: Option[String] = metadata.get(metadataPrefix)
-    if (xmlString == None) throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
-    xmlString.get
+    if (rawMetadata.contains(metadataPrefix)) {
+      rawMetadata.get(metadataPrefix).get
+    }
+    else if (mappedMetadata.contains(metadataPrefix)) {
+      import scala.collection.JavaConversions._
+      val indexDocument = mappedMetadata.get(metadataPrefix).get
+      indexDocument.getMap.entrySet().foldLeft("")(
+        (output, indexDoc) => {
+          val unMungedKey = indexDoc.getKey // todo later unmunge the key with namespaces.replaceAll("_", ":")
+          output + indexDoc.getValue.map(value => {
+            "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
+          }).mkString
+        }
+      )
+    }
+    else
+      throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
   }
 
   def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {

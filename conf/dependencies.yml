@@ -40,7 +40,7 @@ require:
 #        exclude:
 #            - org.scala-lang -> scala-library
     # delving dependencies
-    - provided -> sip-core 0.3.1-SNAPSHOT
+    - provided -> sip-core 0.3.2-SNAPSHOT
     # remove later
     - com.google.collections -> google-collections 1.0
 

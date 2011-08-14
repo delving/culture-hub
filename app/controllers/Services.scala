@@ -23,6 +23,7 @@ object Services extends DelvingController with HTTPClient {
 
     val solrQueryString: String = request.querystring
 
+    // todo add proper dependency for the solr url here
     val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr/core0", solrQueryString)
     val method: HttpMethod = new GetMethod(solrServerUrl)
 

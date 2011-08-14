@@ -147,9 +147,6 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
    * This method can give back the following Error and Exception conditions: idDoesNotExist, noMetadataFormats.
    */
 
-  // todo remove this one
-  val metaRepo = new MetaRepoImpl
-
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
     import models.DataSet
 
@@ -285,6 +282,10 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     elem
   }
 
+
+  // todo remove this one
+  val metaRepo = new MetaRepoImpl
+
   private def getHarvestStep(pmhRequestEntry: PmhRequestEntry) : HarvestStep = {
     if (!pmhRequestEntry.resumptionToken.isEmpty)
       metaRepo.getHarvestStep(pmhRequestEntry.resumptionToken, pmhRequestEntry.pmhRequestItem.accessKey)
@@ -320,7 +321,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
     // todo add transform into any metadata format
-    val recordAsString = record.getXmlStringAsRecord().replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val recordAsString = record.getXmlStringAsRecord(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML

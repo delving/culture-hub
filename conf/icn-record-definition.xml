@@ -27,72 +27,54 @@
         <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
         <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
         <namespace prefix="icn" uri="http://www.icn.nl/" schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"/>
-
     </namespaces>
     <!--
     sortable            => default false; action index also with sort_ prefix in fieldname
     searchField         => add content of field to each field specified in the list
-    fulldoc             => default true; when set to false the field will no be displayed in the full view
-    briefdoc            => default false; if true store with prefix summ_; if false store with prefix md_* (this means that the fieldContents are not stored)
     housekeeping        => default false; this field can never be mapped and its value is only used in back-end processes
     facetPrefix         => this is the prefix used during Solr Query construction for multivalued search
                            If facetPrefix is non-empty store this field with prefix facet_ to enable its use as facet.
     facetName           => this is the name used for the facet
     fieldType           => default text; this value is used to determine the fieldType for the Solr search Engine
-
-    Validation
-
     multivalued         => default = true; check if field name appears multiple times.
-
-
     -->
     <root localName="record">
-         <!-- Category ICN-->
         <field prefix="icn" localName="creatorYearOfBirth">
-            <validation>
-                <converter multipleOutput="true" call=".extractYear()"/>
-            </validation>
+            <converter multipleOutput="true" call=".extractYear()"/>
         </field>
         <field prefix="icn" localName="technique">
-            <validation>
-                <options>
-                    <string>Schilderkunst</string>
-                    <string>Prentkunst</string>
-                    <string>Fotografie</string>
-                    <string>Tekeningen</string>
-                    <string>Beeldhouwkunst</string>
-                    <string>Textiel</string>
-                    <string>Film/Video/DVD</string>
-                    <string>Anders:</string>
-                </options>
-            </validation>
+            <options>
+                <string>Schilderkunst</string>
+                <string>Prentkunst</string>
+                <string>Fotografie</string>
+                <string>Tekeningen</string>
+                <string>Beeldhouwkunst</string>
+                <string>Textiel</string>
+                <string>Film/Video/DVD</string>
+                <string>Anders:</string>
+            </options>
         </field>
         <field prefix="icn" localName="material" facetPrefix="mtr" facetName="materiaal"/>
         <field prefix="icn" localName="location"/>
         <field prefix="icn" localName="province"/>
         <field prefix="icn" localName="collectionPart" facetPrefix="cpart" facetName="collPart"/>
-        <!-- Category ICN_RESEARCH -->
         <field prefix="icn" localName="acquisitionMeans">
-            <validation>
-                <options>
-                    <string>aankoop</string>
-                    <string>schenking</string>
-                    <string>bruikleen</string>
-                    <string>ruil</string>
-                    <string>opdracht</string>
-                    <string>opdracht derden</string>
-                    <string>opdracht museum</string>
-                    <string>legaat</string>
-                    <string>overdracht</string>
-                    <string>successieregeling</string>
-                    <string>vondst</string>
-                    <string>onbekend:</string>
-                </options>
-            </validation>
+            <options>
+                <string>aankoop</string>
+                <string>schenking</string>
+                <string>bruikleen</string>
+                <string>ruil</string>
+                <string>opdracht</string>
+                <string>opdracht derden</string>
+                <string>opdracht museum</string>
+                <string>legaat</string>
+                <string>overdracht</string>
+                <string>successieregeling</string>
+                <string>vondst</string>
+                <string>onbekend:</string>
+            </options>
         </field>
-        <field prefix="icn" localName="collectionType">
-            <validation factName="collectionType"/>
-        </field>
+        <field prefix="icn" localName="collectionType" factName="collectionType"/>
         <field prefix="icn" localName="acquisitionYear"/>
         <field prefix="icn" localName="purchasePrice"/>
         <field prefix="icn" localName="acquiredWithHelpFrom"/>
@@ -135,53 +117,101 @@
         <field prefix="dcterms" localName="tableOfContents" searchField="description"/>
         <field prefix="dcterms" localName="temporal" searchField="what,subject"/>
         <field prefix="dcterms" localName="rightsHolder"/>
-        <field prefix="europeana" localName="collectionName" systemField="true" fulldoc="false"/>
-        <field prefix="europeana" localName="collectionTitle" fulldoc="false" facetName="collection" facetPrefix="col">
-        <!--<field prefix="europeana" localName="collectionTitle" fulldoc="false">-->
-            <validation factName="name" requiredGroup="Collection Title"/>
-        </field>
-        <field prefix="europeana" localName="country" fulldoc="false"> <!-- facetPrefix="count"-->
-            <validation requiredGroup="Country" factName="country"/>
-        </field>
-        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" fulldoc="true" briefdoc="true">
-            <validation requiredGroup="Data Provider" factName="dataProvider"/>
-        </field>
-        <field prefix="europeana" localName="isShownAt" fulldoc="true" fieldType="string">
-            <validation url="true" requiredGroup="Shown-at or Shown-by"/>
-        </field>
-        <field prefix="europeana" localName="isShownBy" fulldoc="true" fieldType="string">
-            <validation url="true" requiredGroup="Shown-at or Shown-by"/>
-        </field>
-        <field prefix="europeana" localName="language" fieldType="string" facetName="language" searchField="language">
-            <validation requiredGroup="Language" factName="language"/>
-        </field>
-        <field prefix="europeana" localName="object" briefdoc="true">
-            <validation object="true" url="true"/>
-        </field>
-        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider">
-            <validation requiredGroup="Provider" factName="provider"/>
-        </field>
-        <field prefix="europeana" localName="rights"> <!-- add enum class for this later-->
-            <validation requiredGroup="Rights" factName="rights"/>
-        </field>
+        <field prefix="europeana" localName="collectionName" systemField="true"/>
+        <field prefix="europeana" localName="collectionTitle" facetName="collection" facetPrefix="col" factName="name"/>
+        <field prefix="europeana" localName="country" factName="country"/>
+        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" factName="dataProvider"/>
+        <field prefix="europeana" localName="isShownAt" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
+        <field prefix="europeana" localName="language" fieldType="string" facetName="language" searchField="language" factName="language"/>
+        <field prefix="europeana" localName="object"/>
+        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider" factName="provider"/>
+        <field prefix="europeana" localName="rights" factName="rights"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="europeana" localName="type" fieldType="string" facetPrefix="tp" facetName="type">
-            <validation type="true" multivalued="false" factName="type" requiredGroup="Type"/>
-        </field>
-        <field prefix="europeana" localName="unstored" fieldType="text" fulldoc="false">
-            <description>This field is not stored only indexed </description>
-        </field>
-        <field prefix="europeana" localName="uri" briefdoc="true">
-            <validation id="true" multivalued="false" requiredGroup="URI">
-                <converter call=".toId(spec)"/>
-            </validation>
+        <field prefix="europeana" localName="type" fieldType="string" facetPrefix="tp" facetName="type" factName="type"/>
+        <field prefix="europeana" localName="unstored" fieldType="text"/>
+        <field prefix="europeana" localName="uri" identifierField="true">
+            <converter call=".toId(spec)"/>
         </field>
         <field prefix="europeana" localName="userTag" searchField="usertags"/>
         <field prefix="europeana" localName="hasDigitalObject" systemField="true" facetPrefix="hdo"/>
-        <field prefix="europeana" localName="year" fulldoc="false" fieldType="string" facetPrefix="year">
-            <validation>
-                <converter multipleOutput="true" call=".extractYear()"/>
-            </validation>
+        <field prefix="europeana" localName="year" fieldType="string" facetPrefix="year">
+            <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
+    <views>
+        <view name="full">
+            <view-field name="dc_title" prefix="dc" localName="title"/>
+            <view-field name="dc_creator" prefix="dc" localName="creator"/>
+            <view-field name="icn_creatorYearOfBirth" prefix="icn" localName="creatorYearOfBirth"/>
+            <view-field name="dc_date">
+                <field-ref prefix="dc" localName="date"/>
+                <field-ref prefix="dcterms" localName="created"/>
+                <field-ref prefix="dcterms" localName="issued"/>
+            </view-field>
+            <view-field name="dc_type" prefix="dc" localName="type"/>
+            <view-field name="dc_format">
+                <field-ref prefix="dc" localName="format"/>
+                <field-ref prefix="dcterms" localName="extent"/>
+                <field-ref prefix="dcterms" localName="medium"/>
+            </view-field>
+            <view-field name="dc_language" prefix="dc" localName="language"/>
+            <view-field name="dc_description" prefix="dc" localName="description"/>
+            <view-field name="dc_subject">
+                <field-ref prefix="dc" localName="subject"/>
+                <field-ref prefix="dcterms" localName="temporal"/>
+                <field-ref prefix="dcterms" localName="spatial"/>
+                <field-ref prefix="dcterms" localName="coverage"/>
+            </view-field>
+            <view-field name="dc_identifier" prefix="dc" localName="identifier"/>
+            <view-field name="dc_source" prefix="dc" localName="source"/>
+            <view-field name="dc_rights" prefix="dc" localName="rights"/>
+            <view-field name="dc_publisher" prefix="dc" localName="publisher"/>
+            <view-field name="dc_provider" prefix="europeana" localName="dataProvider"/>
+            <view-field name="dc_relation">
+                <field-ref prefix="dc" localName="relation"/>
+                <field-ref prefix="dcterms" localName="references"/>
+                <field-ref prefix="dcterms" localName="isReferencedBy"/>
+                <field-ref prefix="dcterms" localName="isReplacedBy"/>
+                <field-ref prefix="dcterms" localName="isRequiredBy"/>
+                <field-ref prefix="dcterms" localName="isPartOf"/>
+                <field-ref prefix="dcterms" localName="hasPart"/>
+                <field-ref prefix="dcterms" localName="replaces"/>
+                <field-ref prefix="dcterms" localName="requires"/>
+                <field-ref prefix="dcterms" localName="isVersionOf"/>
+                <field-ref prefix="dcterms" localName="hasVersion"/>
+                <field-ref prefix="dcterms" localName="conformsTo"/>
+                <field-ref prefix="dcterms" localName="hasFormat"/>
+            </view-field>
+            <view-field name="dcterms_provenance" prefix="dcterms" localName="provenance"/>
+            <view-field name="icn_technique" prefix="icn" localName="technique"/>
+            <view-field name="icn_material" prefix="icn" localName="material"/>
+            <view-field name="icn_location" prefix="icn" localName="location"/>
+            <view-field name="icn_province" prefix="icn" localName="province"/>
+            <view-field name="icn_collectionPart" prefix="icn" localName="collectionPart"/>
+            <!--<#if (user??) && (user.role=="ROLE_RESEARCH_USER" || user.role=="ROLE_ADMINISTRATOR" || user.role=="ROLE_GOD" )>-->
+            <view-field name="icn_acquisitionMeans" prefix="icn" localName="acquisitionMeans"/>
+            <view-field name="icn_acquisitionYear" prefix="icn" localName="acquisitionYear"/>
+            <view-field name="icn_acquiredWithHelpFrom" prefix="icn" localName="acquiredWithHelpFrom"/>
+            <view-field name="icn_purchasePrice" prefix="icn" localName="purchasePrice"/>
+            <view-field name="icn_physicalState" prefix="icn" localName="physicalState"/>
+            <!--</#if>-->
+        </view>
+        <view name="brief">
+        </view>
+    </views>
+    <validation>
+        assert record.'europeana:collectionTitle'
+        assert record.'europeana:country'
+        assert record.'europeana:dataProvider'
+        assert record.'europeana:provider'
+        assert record.'europeana:language'
+        assert record.'europeana:rights'
+        assert record.'europeana:type'
+        assert record.'europeana:uri'
+        assert record.'europeana:isShownAt' || record.'europeana:isShownBy'
+        assert isUrl(record.'europeana:isShownAt')
+        assert isOption(record.'icn:acquisitionMeans')
+        assert isUnique(record.'europeana:uri')
+    </validation>
 </record-definition>

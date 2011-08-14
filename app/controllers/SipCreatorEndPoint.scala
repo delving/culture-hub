@@ -509,7 +509,8 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
         case START_ELEMENT =>
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
-            record = Some(new MetadataRecord(null, collection.mutable.Map.empty[String, String], new Date(), false, "", "", Map.empty[String, String]))
+            import eu.delving.sip.IndexDocument
+            record = Some(new MetadataRecord(null, Map.empty[String, String], Map.empty[String, IndexDocument], new Date(), false, "", "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)
@@ -553,7 +554,7 @@ class DataSetParser(inputStream: InputStream, namespaces: scala.collection.mutab
         case END_ELEMENT =>
           if (record != None) {
             if (path == recordRoot) {
-              record.get.metadata.put(metadataPrefix, xmlBuffer.toString())
+              record = Some(record.get.copy(rawMetadata = record.get.rawMetadata.updated(metadataPrefix, xmlBuffer.toString())))
               if (uniqueContent != null) record = Some(record.get.copy(localRecordKey = uniqueContent))
               record = Some(record.get.copy(hash = createHashToPathMap(valueMap), globalHash = hasher.getHashString(xmlBuffer.toString())))
               xmlBuffer.setLength(0)

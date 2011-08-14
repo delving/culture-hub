@@ -12,7 +12,7 @@ trait SolrServer {
 
   import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
 
-  private val url = "http://localhost:8983/solr"
+  private val url = "http://localhost:8983/solr/core2"
   private val solrServer = new CommonsHttpSolrServer( url )
   solrServer.setSoTimeout(1000)  // socket read timeout
   solrServer.setConnectionTimeout(100)
@@ -35,5 +35,5 @@ trait SolrServer {
 
   def getSolrServer = solrServer
 
-  def getstreamingUpdateServer = streamingUpdateServer
+  def getStreamingUpdateServer = streamingUpdateServer
 }

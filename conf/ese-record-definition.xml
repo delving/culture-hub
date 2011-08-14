@@ -45,53 +45,59 @@
         <field prefix="dcterms" localName="spatial" searchField="where,location,subject"/>
         <field prefix="dcterms" localName="tableOfContents" searchField="description"/>
         <field prefix="dcterms" localName="temporal" searchField="what,subject"/>
-        <field prefix="europeana" localName="collectionName" systemField="true" fulldoc="false">
-            <validation requiredGroup="Collection Name" factName="name"/>
-        </field>
-        <field prefix="europeana" localName="collectionTitle" systemField="true" fulldoc="false">
-            <validation requiredGroup="Collection Title" factName="name"/>
-        </field>
-        <field prefix="europeana" localName="country" systemField="true" fulldoc="false"> <!-- facetPrefix="count"-->
-            <validation requiredGroup="Country" factName="country"/>
-        </field>
-        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" systemField="true" fulldoc="true" briefdoc="true">
-            <validation requiredGroup="Data Provider" factName="dataProvider"/>
-        </field>
-        <field prefix="europeana" localName="isShownAt" fulldoc="true" fieldType="string">
-            <validation url="true" requiredGroup="Shown-at or Shown-by"/>
-        </field>
-        <field prefix="europeana" localName="isShownBy" fulldoc="true" fieldType="string">
-            <validation url="true" requiredGroup="Shown-at or Shown-by"/>
-        </field>
-        <field prefix="europeana" localName="language" fieldType="string" facetName="language" searchField="language">
-            <validation requiredGroup="Language" factName="language"/>
-        </field>
-        <field prefix="europeana" localName="object" briefdoc="true">
-            <validation object="true" url="true"/>
-        </field>
-        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider">
-            <validation requiredGroup="Provider" factName="provider"/>
-        </field>
-        <field prefix="europeana" localName="rights">
-            <validation requiredGroup="Rights" factName="rights"/>
-        </field>
+        <field prefix="europeana" localName="collectionName" systemField="true" fulldoc="false" factName="name"/>
+        <field prefix="europeana" localName="collectionTitle" systemField="true" fulldoc="false" factName="name"/>
+        <field prefix="europeana" localName="country" systemField="true" fulldoc="false" factName="country"/>
+        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" systemField= "true" fulldoc="true"
+               briefdoc="true" factName="dataProvider"/>
+        <field prefix="europeana" localName="isShownAt" fulldoc="true" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fulldoc="true" fieldType="string"/>
+        <field prefix="europeana" localName="language" fieldType="string" facetName="language" searchField="language" factName="language"/>
+        <field prefix="europeana" localName="object" briefdoc="true"/>
+        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider" factName="provider"/>
+        <field prefix="europeana" localName="rights" factName="rights"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="europeana" localName="type" fieldType="string" facetPrefix="tp" facetName="type">
-            <validation type="true" factName="type" requiredGroup="Type"/>
-        </field>
-        <field prefix="europeana" localName="unstored" fieldType="text" fulldoc="false">
-            <description>This field is not stored only indexed </description>
-        </field>
-        <field prefix="europeana" localName="uri" briefdoc="true">
-            <validation id="true" requiredGroup="URI">
+        <field prefix="europeana" localName="type" fieldType="string" facetPrefix="tp" facetName="type" factName="type"/>
+        <field prefix="europeana" localName="unstored" fieldType="text" fulldoc="false"/>
+        <field prefix="europeana" localName="uri" briefdoc="true" identifierField="true">
                 <converter call=".toId(spec)"/>
-            </validation>
         </field>
         <field prefix="europeana" localName="userTag" searchField="usertags"/>
         <field prefix="europeana" localName="year" fulldoc="false" fieldType="string" facetPrefix="year">
-            <validation>
-                <converter multipleOutput="true" call=".extractYear()"/>
-            </validation>
+            <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
+    <views>
+        <view name="brief">
+            <view-field name="creator" prefix="dc" localName="creator"/>
+            <view-field name="description">
+                <field-ref localName="description"/>
+            </view-field>
+            <view-field name="language">
+                <field-ref prefix="europeana" localName="language"/>
+                <field-ref prefix="dc" localName="language"/>
+            </view-field>
+        </view>
+        <view name="full">
+            <view-field name="creator" prefix="dc" localName="creator"/>
+            <view-field name="description">
+                <field-ref localName="description"/>
+            </view-field>
+            <view-field name="language">
+                <field-ref prefix="europeana" localName="language"/>
+                <field-ref prefix="dc" localName="language"/>
+            </view-field>
+        </view>
+    </views>
+    <validation>
+        assert record.'europeana:collectionTitle'
+        assert record.'europeana:country'
+        assert record.'europeana:dataProvider'
+        assert record.'europeana:provider'
+        assert record.'europeana:language'
+        assert record.'europeana:rights'
+        assert record.'europeana:type'
+        assert record.'europeana:uri'
+        assert record.'europeana:isShownAt' || record.'europeana:isShownBy'
+    </validation>
 </record-definition>
