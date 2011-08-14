@@ -31,5 +31,7 @@
   <cores adminPath="/admin/cores" defaultCoreName="core01">
     <core name="core0" instanceDir="core0" />
     <core name="core1" instanceDir="core1" />
+    <core name="core2" instanceDir="core2" />
+    <core name="core3" instanceDir="core3" />
   </cores>
 </solr>
