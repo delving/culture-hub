@@ -124,3 +124,66 @@ class DataSetSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric 
     outputCount should equal ((3, 0))
   }
 }
+
+class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers  {
+
+  import eu.delving.sip.MappingEngine
+  import io.Source
+
+  val record =
+            """<priref>6389</priref>
+                <dimension.unit>cm</dimension.unit>
+                <dimension.unit>cm</dimension.unit>
+                <dimension.unit>cm</dimension.unit>
+                <dimension.unit>cm</dimension.unit>
+                <dimension.precision>2x</dimension.precision>
+                <dimension.precision>2x</dimension.precision>
+                <dimension.precision>2x</dimension.precision>
+                <dimension.precision>2x</dimension.precision>
+                <dimension.type>hoogte</dimension.type>
+                <dimension.type>lengte</dimension.type>
+                <dimension.type>hoogte</dimension.type>
+                <dimension.type>lengte</dimension.type>
+                <dimension.value>77</dimension.value>
+                <dimension.value>54</dimension.value>
+                <dimension.value>57</dimension.value>
+                <dimension.value>65</dimension.value>
+                <collection>toegepaste kunst</collection>
+                <collection>stadsgeschiedenis</collection>
+                <collection>onedele metalen</collection>
+                <object_name>wandluster</object_name>
+                <object_number>10000</object_number>
+                <reproduction.reference>o108.jpg</reproduction.reference>
+                <reproduction.identifier_URL>\\onedelemetalen\\o108.jpg</reproduction.identifier_URL>
+                <techniek.vrije.tekst>ijzer, gesmeed, gegoten, verguld</techniek.vrije.tekst>
+                <title>Vier wandlusters</title>
+                <creator>Anoniem</creator>
+                <creator.date_of_birth.start>?</creator.date_of_birth.start>
+                <production.date.start>1780</production.date.start>
+                <production.date.end>1799</production.date.end>
+                <acquisition.method>schilder</acquisition.method>
+                <acquisition.date>1947</acquisition.date>
+                <association.subject/>
+                <association.subject>bestuurders (Utrecht)</association.subject>
+                <priref>6389</priref>
+                """
+
+  val mappingString = Source.fromInputStream(getClass.getResourceAsStream("/sample_icn_mapping.xml"), "utf-8").getLines().mkString
+
+  import scala.collection.JavaConversions.asJavaMap
+  val engine: MappingEngine = new MappingEngine(mappingString, asJavaMap(Map[String,String]()))
+
+  it should "should run over 1000 entries fast" in {
+    for (i <- 0 to 10) {
+      var now: Long = System.currentTimeMillis
+      val doc = engine.executeMapping(record)
+//      println(engine.toString)
+      val total_time = System.currentTimeMillis() - now
+      println("Mapping time per iteration: " + total_time)
+//      println(doc.toString)
+    }
+    println(engine.toString)
+  }
+
+}
+

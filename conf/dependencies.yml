@@ -10,8 +10,6 @@ require:
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
-     # commented out while the snapshot is broken. Added the working version to provided instead
-     # provided fix had unwanted side-effects so reverted
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
@@ -33,7 +31,9 @@ require:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
     # delving dependencies
-    - eu.delving -> sip-core 0.3.2-SNAPSHOT
+    - eu.delving -> sip-core 0.3.2-SNAPSHOT:
+        exclude:
+            - cglib -> *
     # remove later
     - com.google.collections -> google-collections 1.0
 
@@ -70,9 +70,15 @@ repositories:
         root: "http://repo.novus.com/snapshots/"
         contains:
             - com.novus.*
-    - delving:
+    - delving-snapshot:
         type: iBiblio
         root: "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
+    - delving-releases:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/releases"
         contains:
             - eu.delving.*
             - eu.europeana.*
