@@ -4,12 +4,12 @@ import play.templates.Html
 import play.mvc.Before
 import controllers.{UserAuthentication, Secure, DelvingController}
 import play.mvc.results.Result
-import org.bson.types.ObjectId
 import com.mongodb.casbah.query.Imports
 import extensions.{RenderLiftJson, LiftJson}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
 import models.{User, UserReference, UserGroup}
+import org.bson.types.ObjectId
 
 /**
  *
@@ -59,7 +59,7 @@ object Admin extends DelvingController with UserAuthentication with Secure with 
         val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users))
         RenderLiftJson(groupModel)
       }
-      case None => RenderLiftJson(GroupModel(None, "", Some(false), Some(false), Some(false), List()))
+      case None => RenderLiftJson(GroupModel(Some(new ObjectId()), "", Some(false), Some(false), Some(false), List()))
     }
 
   }
