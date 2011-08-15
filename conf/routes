@@ -65,7 +65,7 @@ GET         /{user}/admin/groups                                             use
 GET         /{user}/admin/groups/new                                         user.Admin.groupUpdate
 GET         /{user}/admin/groups/update/{name}                               user.Admin.groupUpdate
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
-GET         /{user}/admin/groups/load/{name}                                 user.Admin.groupLoad
+GET         /{user}/admin/groups/load/{name}?                                 user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  SipCreatorEndPoint.listAll
 GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl

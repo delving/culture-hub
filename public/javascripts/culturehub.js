@@ -31,7 +31,7 @@ function initializeElements() {
 }
 
 /**
- * Post knockoutJS form data as JSON string, into a parameter called "data"
+ * Post knockoutJS form data as JSON string, into a parameter called "data". Deserializes mapping from the mapping plugin.
  *
  * @param url the URL to submit to
  * @param viewModel the data object
@@ -42,7 +42,7 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure) {
     return jQuery.ajax({
         type: 'POST',
         url: url,
-        data: {data: ko.toJSON(viewModel) },
+        data: {data: ko.mapping.toJSON(viewModel) },
         contentType: 'application/x-www-form-urlencoded; charset=utf-8',
         dataType: 'json'
     }).success(onSuccess).error(onFailure);
