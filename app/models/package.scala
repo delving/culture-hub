@@ -20,7 +20,6 @@ package object salatContext {
   val MONGO_ID: String = "_id" // mongo identifier we use
 
   implicit val ctx = new Context {
-    override val typeHintStrategy = TypeHintStrategy(when = TypeHintFrequency.Always)
     val name = Some("PlaySalatContext")
   }
   ctx.registerClassLoader(Play.classloader)
