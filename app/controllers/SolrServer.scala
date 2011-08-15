@@ -14,7 +14,7 @@ trait SolrServer {
 
   private val url = "http://localhost:8983/solr/core2"
   private val solrServer = new CommonsHttpSolrServer( url )
-  solrServer.setSoTimeout(1000)  // socket read timeout
+  solrServer.setSoTimeout(10000)  // socket read timeout
   solrServer.setConnectionTimeout(100)
   solrServer.setDefaultMaxConnectionsPerHost(100)
   solrServer.setMaxTotalConnections(100)
@@ -25,7 +25,7 @@ trait SolrServer {
   solrServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
   private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 5000, 30)
-  streamingUpdateServer.setSoTimeout(1000)  // socket read timeout
+  streamingUpdateServer.setSoTimeout(10000)  // socket read timeout
   streamingUpdateServer.setConnectionTimeout(100)
   streamingUpdateServer.setDefaultMaxConnectionsPerHost(100)
   streamingUpdateServer.setMaxTotalConnections(100)

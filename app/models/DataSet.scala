@@ -86,6 +86,19 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
 
+  def findCollectionForIndexing() : Option[DataSet] = {
+    import eu.delving.sip.DataSetState._
+    val allDateSets: List[DataSet] = find(MongoDBObject("state" -> INDEXING.toString)).sort(MongoDBObject("name" -> 1)).toList
+    if (allDateSets.length < 3)
+      {
+        val queuedIndexing = find(MongoDBObject("state" -> QUEUED.toString)).sort(MongoDBObject("name" -> 1)).toList
+        println(queuedIndexing.length)
+        queuedIndexing.headOption
+      }
+    else
+      None
+  }
+
   import com.mongodb.casbah.commons.MongoDBObject
   import eu.delving.sip.IndexDocument
   import org.apache.solr.common.SolrInputDocument
@@ -111,6 +124,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def upsertById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
+  }
+
+  def updateState(dataSet: DataSet, state: DataSetState) {
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
   }
 
   def delete(dataSet: DataSet) {
@@ -150,9 +167,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def deleteFromSolr(dataSet: DataSet) {
     import org.apache.solr.client.solrj.response.UpdateResponse
-    val deleteResponse: UpdateResponse = getSolrServer.deleteByQuery("delving_spec:" + dataSet.spec)
+    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery("delving_spec:" + dataSet.spec)
     deleteResponse.getStatus
-    getSolrServer.commit
+    getStreamingUpdateServer.commit
   }
 
   def createSolrInputDocument(indexDoc: IndexDocument): SolrInputDocument = {
@@ -161,7 +178,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val doc = new SolrInputDocument
     indexDoc.getMap.entrySet().foreach {
       entry =>
-        import org.apache.solr.common.SolrInputField
         val unMungedKey = entry.getKey // todo later unmunge the key with namespaces.replaceAll("_", ":")
         entry.getValue.foreach(
           value =>
@@ -191,33 +207,69 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add more elements: hasDigitalObject. etc
   }
 
+  def getStateWithSpec(spec: String): String = getWithSpec(spec).state
+
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
     import scala.collection.JavaConversions.asJavaMap
     val salatDAO = getRecords(dataSet)
+    DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
-    val counter: (Int, Int) = salatDAO.find(MongoDBObject()).foldLeft((0, 0)) {
-      (recordsProcessed, record) => {
-        if ((recordsProcessed._1 + recordsProcessed._2) % 1000 == 0)
-          println("another 1000 indexed") // todo add support for breaking
-        val mappingDoc = engine.executeMapping(record.getXmlString())
-        mappingDoc match {
-          case indexDoc: IndexDocument => {
-            val doc: SolrInputDocument = createSolrInputDocument(indexDoc)
-            addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
-            println(doc)
-            getStreamingUpdateServer.add(doc)
-            (recordsProcessed._1 + 1, recordsProcessed._2)
-          }
-          case _ => // catching null
-            (recordsProcessed._1, recordsProcessed._2 + 1)
+    val cursor = salatDAO.find(MongoDBObject())
+    var state = getStateWithSpec(dataSet.spec)
+    for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
+      println(cursor.numSeen)
+      if (cursor.numSeen % 250 == 0) {
+        state = getStateWithSpec(dataSet.spec)
+      }
+      // very fast
+//      val doc = new SolrInputDocument
+//      doc.addField("id", record._id)
+//      doc.addField("text_value", record.getXmlString())
+//      for (i <- 0 to 100) doc.addField("dummy", i.toString)
+//      getStreamingUpdateServer.add(doc)
+      // very slow
+      engine.executeMapping(record.getXmlString()) match {
+        case indexDoc: IndexDocument => {
+          println(indexDoc.toString)
+          val doc = createSolrInputDocument(indexDoc)
+          addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
+          getStreamingUpdateServer.add(doc)
         }
+        case _ => // catching null
       }
     }
-    getStreamingUpdateServer.commit()
-    counter
+
+//    val counter: (Int, Int) = cursor.foldLeft((0, 0)) {
+//      (recordsProcessed, record) => {
+//        if (recordsProcessed._1 % 50 == 0)
+//          println("Indexeded %d records, and discarded %d".format(recordsProcessed._1, recordsProcessed._2))
+//        //          if (continueIndexing(dataSet.spec)) return (0,0) // todo find a more elegant method for breaking
+//        val mappingDoc = engine.executeMapping(record.getXmlString())
+//        //        mappingDoc match {
+//        //          case IndexDocument => {
+//        //            val doc: SolrInputDocument = createSolrInputDocument(mappingDoc)
+//        //            addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
+//        //            getStreamingUpdateServer.add(doc)
+//        //            (recordsProcessed._1 + 1, recordsProcessed._2)
+//        //          }
+//        //          case _ => // catching null
+//        //            (recordsProcessed._1, recordsProcessed._2 + 1)
+//        //        }
+//        (recordsProcessed._1 + 1, recordsProcessed._2)
+//      }
+//    }
+    state match {
+      case "INDEXING" =>
+        DataSet.updateState(dataSet, DataSetState.ENABLED)
+        getStreamingUpdateServer.commit()
+      case _ =>
+//        getStreamingUpdateServer.rollback() // todo find out what this does
+        DataSet.deleteFromSolr(dataSet)
+    }
+    (1, 0)
   }
 
   def getRecordCount(dataSet: DataSet): Int = getRecordCount(dataSet.spec)

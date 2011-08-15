@@ -252,8 +252,6 @@ object SipCreatorEndPoint extends Controller {
       case t: Throwable => t.printStackTrace()
     }
 
-    DataSet.save(dataSet.copy(state = DataSetState.UPLOADED.toString))
-
     val recordCount: Int = DataSet.getRecordCount(dataSetSpec)
 
     val details = dataSet.details.copy(
@@ -261,7 +259,7 @@ object SipCreatorEndPoint extends Controller {
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
 
-    val ds = dataSet.copy(source_hash = hash, details = details)
+    val ds = dataSet.copy(source_hash = hash, details = details, state = DataSetState.UPLOADED.toString)
     DataSet.save(ds)
     DataSetResponseCode.THANK_YOU
   }
