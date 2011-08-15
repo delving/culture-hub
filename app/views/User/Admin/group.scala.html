@@ -30,7 +30,7 @@
     </div>
   </div>
 </form>
-<input class="saveButton" id="saveButton" type="button" value="Save group">
+<input class="saveButton" id="saveButton" type="button" data-bind="enable: name().length > 0" value="Save group">
 
 <script type="text/javascript">
   $(document).ready(function() {
