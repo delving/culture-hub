@@ -52,9 +52,7 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     if (request.format == "json") {
       new RenderJson(write(arg))(request, response)
     } else if (request.format == "xml") {
-      val doc = <response>
-        {net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}
-      </response>
+      val doc = <response>{net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}</response>
       new RenderXml(doc.toString())(request, response)
     } else if (request.format == "kml") {
       new RenderKml(arg)(request, response)
