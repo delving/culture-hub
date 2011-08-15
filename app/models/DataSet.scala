@@ -221,7 +221,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     var state = getStateWithSpec(dataSet.spec)
     for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
       println(cursor.numSeen)
-      if (cursor.numSeen % 250 == 0) {
+      if (cursor.numSeen % 100 == 0) {
         state = getStateWithSpec(dataSet.spec)
       }
       // very fast
@@ -233,7 +233,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       // very slow
       engine.executeMapping(record.getXmlString()) match {
         case indexDoc: IndexDocument => {
-          println(indexDoc.toString)
           val doc = createSolrInputDocument(indexDoc)
           addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
           getStreamingUpdateServer.add(doc)
@@ -267,8 +266,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
         getStreamingUpdateServer.commit()
       case _ =>
 //        getStreamingUpdateServer.rollback() // todo find out what this does
+        println("deleting dataset from solr " + dataSet.spec)
         DataSet.deleteFromSolr(dataSet)
     }
+    println(engine.toString)
     (1, 0)
   }
 

@@ -32,15 +32,8 @@ require:
         exclude:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
-    # provided dependencies
-#    - provided -> salat-core_2.8.1 0.0.8-SNAPSHOT:
-#        exclude:
-#            - org.scala-lang -> scala-library
-#    - provided -> salat-util_2.8.1 0.0.8-SNAPSHOT:
-#        exclude:
-#            - org.scala-lang -> scala-library
     # delving dependencies
-    - provided -> sip-core 0.3.2-SNAPSHOT
+    - eu.delving -> sip-core 0.3.2-SNAPSHOT
     # remove later
     - com.google.collections -> google-collections 1.0
 
@@ -77,8 +70,14 @@ repositories:
         root: "http://repo.novus.com/snapshots/"
         contains:
             - com.novus.*
+    - delving:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"
         contains:
-          - provided -> *
+            - provided -> *
