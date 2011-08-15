@@ -40,6 +40,11 @@ object Admin extends DelvingController with UserAuthentication with Secure with 
     html.group(name)
   }
 
+  // Optional fields with custom types are BROKEN with lift-json 2.4-M3 (and any other version)
+  // see if someone provides a fix or workaround here:
+  // http://groups.google.com/group/liftweb/browse_thread/thread/ed532423bbd908eb#
+  private val dummyObjectId = new ObjectId("47cc67093475061e3d95369d")
+
   case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member])
 
   case class Member(id: String, name: String)
@@ -59,7 +64,7 @@ object Admin extends DelvingController with UserAuthentication with Secure with 
         val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users))
         RenderLiftJson(groupModel)
       }
-      case None => RenderLiftJson(GroupModel(Some(new ObjectId()), "", Some(false), Some(false), Some(false), List()))
+      case None => RenderLiftJson(GroupModel(Some(dummyObjectId), "", Some(false), Some(false), Some(false), List()))
     }
 
   }
@@ -82,7 +87,7 @@ object Admin extends DelvingController with UserAuthentication with Secure with 
     val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
 
     val persistedGroup = group._id match {
-      case None => {
+      case Some(id) if id == dummyObjectId => {
         // new guy
         val inserted: Option[Imports.ObjectId] = UserGroup.insert(userGroup)
         // TODO handle the case where inserted == None, i.e. something went wrong on the backend.
