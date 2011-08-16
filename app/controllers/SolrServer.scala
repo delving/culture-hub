@@ -7,9 +7,13 @@ package controllers
  */
 
 trait SolrServer {
-
   // todo: later move to cake pattern type trait and instantiation
 
+  def getSolrServer = SolrServer.solrServer
+  def getStreamingUpdateServer = SolrServer.streamingUpdateServer
+}
+
+object SolrServer {
   import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
 
   private val url = "http://localhost:8983/solr/core2"
@@ -33,7 +37,5 @@ trait SolrServer {
   streamingUpdateServer.setAllowCompression(false)
   streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
-  def getSolrServer = solrServer
 
-  def getStreamingUpdateServer = streamingUpdateServer
 }

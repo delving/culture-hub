@@ -25,6 +25,8 @@ require:
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
+    # TODO this gets overriden by play
+    - org.codehaus.groovy -> groovy-all 1.8.1
     # for testing
     - com.borachio -> borachio_2.8.1 1.1:
         exclude:

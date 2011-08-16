@@ -171,7 +171,7 @@ class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers  {
   val mappingString = Source.fromInputStream(getClass.getResourceAsStream("/sample_icn_mapping.xml"), "utf-8").getLines().mkString
 
   import scala.collection.JavaConversions.asJavaMap
-  val engine: MappingEngine = new MappingEngine(mappingString, asJavaMap(Map[String,String]()))
+  val engine: MappingEngine = new MappingEngine(mappingString, asJavaMap(Map[String,String]()), play.Play.classloader)
 
   it should "should run over 1000 entries fast" in {
     for (i <- 0 to 10) {

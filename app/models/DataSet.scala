@@ -135,6 +135,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     remove(dataSet)
   }
 
+  // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR = {
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
@@ -212,15 +213,18 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
     import scala.collection.JavaConversions.asJavaMap
+    println(dataSet.spec)
     val salatDAO = getRecords(dataSet)
     DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces), play.Play.classloader.getParent)
     val cursor = salatDAO.find(MongoDBObject())
     var state = getStateWithSpec(dataSet.spec)
     for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
       println(cursor.numSeen)
+      println(record._id)
+      println(record.localRecordKey)
       if (cursor.numSeen % 100 == 0) {
         state = getStateWithSpec(dataSet.spec)
       }
@@ -231,7 +235,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 //      for (i <- 0 to 100) doc.addField("dummy", i.toString)
 //      getStreamingUpdateServer.add(doc)
       // very slow
-      engine.executeMapping(record.getXmlString()) match {
+      val s0 = System.currentTimeMillis()
+      val mapping = engine.executeMapping(record.getXmlString())
+//      println("mapping in: %s".format(System.currentTimeMillis() - s0))
+      val s1 = System.currentTimeMillis()
+      mapping match {
         case indexDoc: IndexDocument => {
           val doc = createSolrInputDocument(indexDoc)
           addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
@@ -239,6 +247,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
         }
         case _ => // catching null
       }
+//      println("processing in: %s".format(System.currentTimeMillis() - s1))
     }
 
 //    val counter: (Int, Int) = cursor.foldLeft((0, 0)) {
@@ -304,7 +313,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     import scala.collection.JavaConversions.asJavaMap
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces))
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces), play.Play.classloader)
     val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
