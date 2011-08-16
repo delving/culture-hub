@@ -38,6 +38,10 @@ Run the test mode via
 
     play test -Xss4m -Duser=youruser
 
+Run in prod mode (for use with Sip-Creator) via
+
+    play start -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:SoftRefLRUPolicyMSPerMB=1 -XX:MaxPermSize=128m -Xms512m -Xmx512m -Xss4m --%prod
+
 Then you can access the test dashboard on `http://localhost:9000/@tests`
 
 ### Running Apache Solr
