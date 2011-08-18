@@ -6,6 +6,7 @@ import salatContext._
 import com.mongodb.casbah.{Imports, MongoCollection}
 import com.novus.salat.dao.SalatDAO
 import views.Collection.html.collection
+import com.mongodb.DBCursor
 
 /**
  *
@@ -41,9 +42,10 @@ trait AccessControl {
   def hasRight(id: AnyRef, right: String, user: User) : Boolean = hasUserRight(id, user.reference.username, user.reference.node, right) || hasGroupRight (id, user.reference.username, user.reference.node, right)
 
   /** find all objects for which the user has a right for (either by direct access or through a group) **/
-  def findAllByRight(username: String, node: String, right: String) = {
-    findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
-  }
+  def findAllByRight(username: String, node: String, right: String): Iterator[DBObject] = findUserRightObjects(username, node, right) ++ findGroupRightObjects(username, node, right)
+
+  def findAllByRight(user: UserReference, right: String): Iterator[DBObject] = findAllByRight(user.username, user.node, right)
+
 
   private def hasUserRight(id: AnyRef, username: String, node: String, right: String): Boolean = {
     val objectQuery = getObjectQuery(id) ++ userRightQuery(username, node, right)
@@ -72,9 +74,8 @@ trait AccessControl {
     getCollection.find(MongoDBObject("%s.groups".format(getAccessField) -> MongoDBObject("$in" -> groupsWithRight)))
   }
 
-  private def findUserRightObjects(username: String, node: String, right: String) = {
-    getCollection.find(userRightQuery(username, node, right))
-  }
+  private def findUserRightObjects(username: String, node: String, right: String) = getCollection.find(userRightQuery(username, node, right))
+
 
   def addAccessRight(id: AnyRef, username: String, node: String, rights: (String, Boolean)*) {
     val userId: String = buildId(username, node)
@@ -118,6 +119,7 @@ case class UserAction(user: UserReference = UserReference("", "", ""),
 /**A group and its rights **/
 case class UserGroup(
                  _id: ObjectId = new ObjectId,
+                 id: String, // temporary, name#user#node, decide what to do with this
                  user: UserReference,
                  name: String,
                  users: Map[String, UserReference],
@@ -131,6 +133,10 @@ object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollect
   def findByUser(userId: String) = {
     find(MongoDBObject("user.id" -> userId)).toList
   }
+
+  /** all repositories (collections) for this group **/
+  def getRepositories(id: String): List[Repository] = DataSet.find(MongoDBObject("access.groups" -> id)).toList
+
 }
 
 /**An organization, yet to be defined further **/

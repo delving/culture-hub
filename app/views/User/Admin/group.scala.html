@@ -28,7 +28,7 @@
     </div>
     <div>
       <label for="repositories">Repositories</label>
-      <input type="text" id="repositories" name="repositories"/>
+      <input type="text" id="repositories" name="repositories" data-bind="tokens: repositories"/>
     </div>
   </div>
 </form>
@@ -37,10 +37,7 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
-    $("#repositories").tokenInput([
-      {id: "1", name: "Foo"},
-      {id: "2", name: "Bar"}
-    ]);
+    $("#repositories").tokenInput("@action(controllers.Repositories.listAsTokens)");
 
     var groupModel = {};
 

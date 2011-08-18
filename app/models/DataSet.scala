@@ -12,6 +12,7 @@ import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
+import views.Collection.html.collection
 
 /**
  *
@@ -22,6 +23,8 @@ import eu.delving.sip.{IndexDocument, DataSetState}
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
+                   node: String,
+                   description: Option[String] = Some(""),
                    state: String, // imported from sip-core
                    details: Details,
                    facts_hash: String,
@@ -29,9 +32,11 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    downloaded_source_hash: Option[String] = Some(""),
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   access: AccessRight) {
+                   access: AccessRight) extends Repository {
 
   import xml.Elem
+
+  val name = spec
 
   def getDataSetState: DataSetState = DataSetState.get(state)
 
@@ -115,6 +120,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def findAllForUser(user: User) = {
     val dataSetCursor = DataSet.findAllByRight(user.reference.username, user.reference.node, "read")
+    (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
+  }
+
+  def findAllByOwner(owner: UserReference) = {
+    val dataSetCursor = DataSet.findAllByRight(owner.username, owner.node, "owner")
     (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
   }
 

@@ -305,7 +305,8 @@ object SipCreatorEndPoint extends Controller {
 
       dataSet match {
         case None => {
-          DataSet(spec = dataSetSpec,state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(getUser().reference.id -> UserAction(user = getUser().reference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
+          // TODO fetch correct node
+          DataSet(spec = dataSetSpec, node = "cultureHub", state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(getUser().reference.id -> UserAction(user = getUser().reference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
         }
         case _ => {
           if(!DataSet.canUpdate(dataSetSpec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)

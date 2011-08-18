@@ -7,9 +7,9 @@ import play.mvc.results.Result
 import com.mongodb.casbah.query.Imports
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
-import models.{User, UserReference, UserGroup}
 import org.bson.types.ObjectId
 import com.codahale.jerkson.Json._
+import models._
 
 /**
  *
@@ -47,14 +47,16 @@ object Admin extends DelvingController with UserAuthentication with Secure {
       Member(u.id, user.get.fullname)
     }).toList
 
+    def getRepositories(group: String) = for(repo <- UserGroup.getRepositories(group + "#" + user + "#" + getNode)) yield Repository(repo._id.toString, repo.name)
+
     // load by name and user
     val maybeGroup: Option[UserGroup] = UserGroup.findOne(MongoDBObject("name" -> name)) // , "user" -> MongoDBObject("id" -> ref.id, "node" -> ref.node, "username" -> ref.username)
     maybeGroup match {
       case Some(group) => {
-        val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users))
+        val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users), getRepositories(group.name))
         Json(groupModel)
       }
-      case None => Json(GroupModel(None, "", Some(false), Some(false), Some(false), List()))
+      case None => Json(GroupModel(None, "", Some(false), Some(false), Some(false), List(), List()))
     }
 
   }
@@ -67,8 +69,16 @@ object Admin extends DelvingController with UserAuthentication with Secure {
       (m.id, UserReference(ref(0), ref(1), m.id))
     }).toMap
 
+    def makeRepositories(group: GroupModel): List[models.Repository] = {
+      val ids = for (repo <- group.repositories) yield new ObjectId(repo.id)
+      DataSet.find(MongoDBObject("_id" -> MongoDBObject("$in" -> ids))).toList
+    }
+
     val group: GroupModel = parse[GroupModel](data)
-    val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
+    val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), id = group.name + "#" + connectedUser + "#" + getNode, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
+
+    // TODO add group to repositories, remove from removed, etc.
+    println(makeRepositories(group))
 
     val persistedGroup = group._id match {
       case None => {
@@ -90,6 +100,8 @@ object Admin extends DelvingController with UserAuthentication with Secure {
 
 }
 
-case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member])
+case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member], repositories: Seq[Repository])
 
 case class Member(id: String, name: String)
+
+case class Repository(id: String, name: String)

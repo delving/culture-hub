@@ -18,6 +18,8 @@ import models.{UserReference, PortalTheme, User}
 
 trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
+  case class Token(id: String, name: String)
+
   @Before def setConnectedUser() {
 
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
