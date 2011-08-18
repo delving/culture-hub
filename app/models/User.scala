@@ -6,10 +6,10 @@ import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
-import views.Collection.html.collection
+import org.codehaus.jackson.annotate.JsonCreator
 
 /** Unique reference to a user across the CultureHub space **/
-case class UserReference(username: String = "", node: String = "", id: String = "")
+case class UserReference @JsonCreator() (username: String = "", node: String = "", id: String = "")
 
 object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
 

@@ -41,7 +41,7 @@ cd play
 git apply ../play-services/binder-patch.patch
 
 # http://play.lighthouseapp.com/projects/74274/tickets/32-all-case-classes-get-an-additional-default-empty-constructor-preventing-json-deserializer-from-working
-git apply ../play-services/constructor-patch.patch
+# git apply ../play-services/constructor-patch.patch
 
 git apply ../play-services/error-display-patch.patch
 
