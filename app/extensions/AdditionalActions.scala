@@ -29,10 +29,11 @@ object PlayParameterNameReader extends ParameterNameReader {
 /**
  * This trait provides additional actions that can be used in controllers
  */
+object DelvingJson extends com.codahale.jerkson.Json
+
 trait AdditionalActions {
 
   // this is where we setup out Jackson module for custom de/serialization
-  object DelvingJson extends Json
   val mapper = DelvingJson.mapper
   val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
   module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
