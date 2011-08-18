@@ -80,22 +80,25 @@ object Admin extends DelvingController with UserAuthentication with Secure {
     // TODO add group to repositories, remove from removed, etc.
     println(makeRepositories(group))
 
-    val persistedGroup = group._id match {
+    val persistedGroup: Option[GroupModel] = group._id match {
       case None => {
         // new guy
         val inserted: Option[Imports.ObjectId] = UserGroup.insert(userGroup)
-        // TODO handle the case where inserted == None, i.e. something went wrong on the backend.
-        group.copy(_id = inserted)
+        if(inserted != None) Some(group.copy(_id = inserted)) else None
       }
       case Some(id) => {
         // updated guy
         // TODO handle the case when something goes wrong on the backend
         // TODO for cases where we update only some fields, we need to do a merge of the persisted document and the changed field values by updated only those fields that we are touching in the view
         UserGroup.update(MongoDBObject("_id" -> id), userGroup, false, false, new WriteConcern())
-        group
+        Some(group)
       }
     }
-    Json(persistedGroup)
+
+    persistedGroup match {
+      case Some(theGroup) => Json(group)
+      case None => Error("UserGroup could not be saved")
+    }
   }
 
 }
