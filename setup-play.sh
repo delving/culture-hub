@@ -37,6 +37,7 @@ echo
 
 cd play
 git apply ../play-services/binder-patch.patch
+git apply ../play-services/error-display-patch.patch
 cd ..
 
 echo
@@ -59,7 +60,14 @@ echo ========================
 echo
 echo
 
-../play/play install scala-0.9.1
+# until we have a new release we use the latest version
+# ../play/play install scala-0.9.1
+
+mkdir modules
+cd modules
+git clone git://github.com/playframework/play-scala.git --depth 1
+cd play-scala
+ant -Dplay.path=../../../play
 
 echo
 echo
