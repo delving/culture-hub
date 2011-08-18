@@ -74,7 +74,9 @@ mkdir modules
 cd modules
 git clone git://github.com/playframework/play-scala.git --depth 1
 cd play-scala
+git apply ../../jvm-args-patch.patch
 ant -Dplay.path=../../../play
+cd ../../
 
 echo
 echo
