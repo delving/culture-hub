@@ -6,10 +6,13 @@ import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
 import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
 import models.User
-import org.bson.types.ObjectId
 import net.liftweb.json
 import json._
 import json.Serialization._
+import com.codahale.jerkson.util.CaseClassSigParser
+import org.codehaus.jackson.map.module.SimpleModule
+import org.codehaus.jackson.Version
+import org.bson.types.ObjectId
 
 /**
  *
@@ -27,13 +30,25 @@ object PlayParameterNameReader extends ParameterNameReader {
  */
 trait AdditionalActions {
 
-  def Json(data: AnyRef) = new RenderLiftJson(data)
+  // this is where we setup out Jackson module for custom de/serialization
+  val mapper = com.codahale.jerkson.Json.mapper
+  val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
+  module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
+  module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
+  mapper.registerModule(module)
+
+  import com.codahale.jerkson.Json._
+
+  // this is where we set our classLoader for jerkson
+  CaseClassSigParser.setClassLoader(play.Play.classloader)
+
+  def Json(data: AnyRef): Result = new RenderJson(generate(data))
 
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 
   def RenderKml(entity: AnyRef) = new RenderKml(entity)
-
 }
+
 
 /**
  * Experimental action to generically render an object as json, xml or html depending on the requested format.
@@ -52,6 +67,8 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     if (request.format == "json") {
       new RenderJson(write(arg))(request, response)
     } else if (request.format == "xml") {
+      // TODO for now we still have lift-json here because we want to use the XML extraction
+      // but maybe there is another way to achieve this
       val doc = <response>{net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}</response>
       new RenderXml(doc.toString())(request, response)
     } else if (request.format == "kml") {
@@ -68,54 +85,6 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     }
   }
 
-}
-
-class RenderLiftJson(data: AnyRef, status: java.lang.Integer = 200) extends Result {
-  def apply(request: Request, response: Response) {
-    implicit val formats = new DefaultFormats {
-      override val parameterNameReader = PlayParameterNameReader
-    } + new ObjectIdSerializer
-    response.status = status
-    new RenderJson(write(data))(request, response)
-  }
-}
-
-object RenderLiftJson {
-  def apply(data: AnyRef, status: java.lang.Integer = 200) = new RenderLiftJson(data, status)
-}
-
-trait LiftJson {
-
-  implicit val formats = new DefaultFormats {
-    override val parameterNameReader = PlayParameterNameReader
-  } + new ObjectIdSerializer
-
-  def in[T <: AnyRef](data: String)(implicit formats: Formats, mf: Manifest[T]): T = {
-    Serialization.read[T](data)
-  }
-
-  def out[T <: AnyRef](data: T)(implicit formats: Formats): String = {
-    Serialization.write[T](data)
-  }
-
-}
-
-class ObjectIdSerializer extends Serializer[ObjectId] {
-  private val ObjectIdClass = classOf[ObjectId]
-
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ObjectId] = {
-    case (TypeInfo(ObjectIdClass, _), json) => json match {
-      case JObject(JField("$oid", JString(s)) :: Nil) if (ObjectId.isValid(s)) =>
-        new ObjectId(s)
-      case x => throw new MappingException("Can't convert " + x + " to ObjectId")
-    }
-  }
-
-  def serialize(implicit formats: Formats): PartialFunction[Any, JValue] = {
-    case x: ObjectId => objectIdAsJValue(x)
-  }
-
-  def objectIdAsJValue(oid: ObjectId): JValue = JObject(JField("$oid", JString(oid.toString)) :: Nil)
 }
 
 class RenderKml(entity: AnyRef) extends Result {

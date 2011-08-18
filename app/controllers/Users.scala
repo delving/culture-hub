@@ -2,7 +2,7 @@ package controllers
 
 import models.User
 import com.mongodb.DBObject
-import extensions.RenderLiftJson
+import com.codahale.jerkson.Json._
 import play.mvc.results.Result
 
 /**
@@ -28,7 +28,7 @@ object Users extends DelvingController {
       Token(id = u.get("reference").asInstanceOf[DBObject].get("id").toString, name = u.get("firstName") + " " + u.get("lastName"))
     }
 
-    RenderLiftJson(userTokens)
+    Json(generate(userTokens))
 
   }
 
