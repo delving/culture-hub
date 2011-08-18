@@ -7,6 +7,8 @@
 
 <form class="form" id="groupForm" action="/@userName/admin/groups/create" method="POST">
 
+  <!-- TODO needs some Eric-foo to actually look nice -->
+  <div id="result" style="display: none;" align="center"></div>
   <div>
     <div>
       @textField("name", "Name", "value: name")
@@ -48,7 +50,12 @@
 
     $('#saveButton').click(function() {
       $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
-        updateViewModel(groupModel, data, scope)
+        updateViewModel(groupModel, data, scope);
+        $('#result').html('Group saved');
+        $('#result').show().fadeOut('1000');
+      }, function(jqXHR, textStatus, errorThrown) {
+        $('#result').html('Error saving group, please try again');
+        $('#result').show().fadeOut('1000');
       })
     });
   })
