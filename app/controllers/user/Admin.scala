@@ -21,7 +21,7 @@ object Admin extends DelvingController with UserAuthentication with Secure {
   import views.User.Admin._
 
   @Before def checkUser(): Result = {
-    if (connectedUser == null || connectedUser != params.get("user")) {
+    if (connectedUser != params.get("user")) {
       return Forbidden("You do not have access here")
     }
     Continue

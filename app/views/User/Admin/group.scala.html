@@ -49,10 +49,10 @@
       $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
         updateViewModel(groupModel, data, scope);
         $('#result').html('Group saved');
-        $('#result').show().fadeOut('1000');
+        $('#result').show().fadeOut('3000');
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving group, please try again');
-        $('#result').show().fadeOut('1000');
+        $('#result').show().fadeOut('3000');
       })
     });
   })

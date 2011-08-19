@@ -13,7 +13,8 @@ case class UserReference @JsonCreator() (username: String = "", node: String = "
 
 object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
 
-case class User(reference: UserReference = UserReference("", "", ""),
+case class User(_id: ObjectId = new ObjectId,
+                reference: UserReference = UserReference("", "", ""),
                 firstName: String,
                 lastName: String,
                 email: String,

@@ -30,10 +30,10 @@ GET         /services/administrator/dataset                                  Sip
 GET         /services/administrator/dataset/{dataSetSpec}/{command}          SipCreatorEndPoint.secureIndexingControl
 
 # Backwards compatibility with the old portal module
-GET        /portal/                                                         Portal.index
+GET        /portal/                                                          Portal.index
 
 # Search results
-GET        /search                                                         Search.index
+GET        /search                                                           Search.index
 
 # User registration
 GET        /registration                                                     Registration.index
@@ -46,26 +46,29 @@ GET        /registration/resetPassword/{resetPasswordToken}                  Reg
 POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
-GET         /{user}/?                               Users.index
-GET         /{user}/profile                         Profiles.index
-GET         /{user}/label                           Labels.list
-GET         /{user}/label/{label}                   Labels.label
-GET         /{user}/collection                      Collections.list
-GET         /{user}/collection/add                  Collections.add
-GET         /{user}/collection/{collection}         Collections.collection
-GET         /{user}/object                          Dobjects.list
-GET         /{user}/object/add                      Dobjects.add
-GET         /{user}/object/{dobject}                Dobjects.dobject
-GET         /{user}/story                           Stories.list
-GET         /{user}/story/add                       Stories.add
-GET         /{user}/story/{story}                   Stories.story
+GET         /{user}/?                                                        Users.index
+GET         /{user}/profile                                                  Profiles.index
+GET         /{user}/label                                                    Labels.list
+GET         /{user}/label/{label}                                            Labels.label
+GET         /{user}/collection                                               Collections.list
+GET         /{user}/collection/add                                           Collections.add
+GET         /{user}/collection/{collection}                                  Collections.collection
+GET         /{user}/object                                                   Dobjects.list
+GET         /{user}/object/add                                               user.Objects.objectUpdate
+GET         /{user}/object/update/{id}                                       user.Objects.objectUpdate
+POST        /{user}/object/submit                                            user.Objects.objectSubmit
+GET         /{user}/object/load/{id}?                                        Dobjects.load
+GET         /{user}/object/{dobject}                                         Dobjects.dobject
+GET         /{user}/story                                                    Stories.list
+GET         /{user}/story/add                                                Stories.add
+GET         /{user}/story/{story}                                            Stories.story
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/groups                                             user.Admin.groupList
 GET         /{user}/admin/groups/new                                         user.Admin.groupUpdate
 GET         /{user}/admin/groups/update/{name}                               user.Admin.groupUpdate
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
-GET         /{user}/admin/groups/load/{name}?                                 user.Admin.groupLoad
+GET         /{user}/admin/groups/load/{name}?                                user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  SipCreatorEndPoint.listAll
 GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl
@@ -75,29 +78,29 @@ GET         /{user}/admin/dataset                                            Sip
 GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    SipCreatorEndPoint.secureIndexingControl
 
 GET         /users/list                                                      Users.listAsTokens
-
+GET         /repositories/list                                               Repositories.listAsTokens
 
 
 # Portal Administration
-GET        /admin/themes                            admin.Themes.index
-GET        /admin/themes/list                       admin.Themes.list
-POST       /admin/themes/reload                     admin.Themes.reload
+GET        /admin/themes                                                     admin.Themes.index
+GET        /admin/themes/list                                                admin.Themes.list
+POST       /admin/themes/reload                                              admin.Themes.reload
 
 # Image Cache and Viewer
-GET        /services/image                          Images.image
-GET        /services/imageView/{image}              Images.view
-GET        /fcgi-bin/iipsrv.fcgi                    Images.iipsrv
+GET        /services/image                                                   Images.image
+GET        /services/imageView/{image}                                       Images.view
+GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
 
 # Image Upload
-GET         /services/upload                        ImageUpload.upload
-POST        /services/uploadFile                    ImageUpload.uploadFile
+GET         /services/upload                                                 ImageUpload.upload
+POST        /services/uploadFile                                             ImageUpload.uploadFile
 
 # Ignore favicon requests
-GET         /favicon.ico                            404
+GET         /favicon.ico                                                     404
 
 # Map static resources from the /app/public folder to the /public path
-GET         /public/                                staticDir:public
+GET         /public/                                                         staticDir:public
 
 
 # Catch all
-*           /{controller}/{action}                  {controller}.{action}
+*           /{controller}/{action}                                           {controller}.{action}

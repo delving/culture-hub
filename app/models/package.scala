@@ -14,6 +14,8 @@ package object salatContext {
   val groupCollection = connection("userGroup")
   val userReferenceCollection = connection("userReference")
   val dataSetsCollection = connection("Datasets")
+  val objectsCollection = connection("Objects") // the user contributed objects
+  val userCollectionsCollection = connection("userCollection") // the collections made by users
   val harvestStepsCollection = connection("HarvestSteps")
 
   val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved

@@ -12,6 +12,7 @@ package object context {
   def showError(key: String) = Validation.error(key)
 
   def userName = renderArgs.get("displayName")
+  def fullName = renderArgs.get("fullName")
 
 
 }

@@ -1,34 +1,31 @@
-@(user:models.User)
+@(id: String = "")
 
 @import views.context._
 @import views.tags.html._
 
-@main("Add new object for user " + user.fullname ) {
+@main("Add new object for user " + fullName) {
 
 <div class="grid_8">
     <h1>Add a new object</h1>
 
-    <form method="post" action="">
+    <form id="objectForm" method="post" action="">
 
         @textField("name", "Name", "value: name")
-
         @textArea("description", "Description", "value: description")
 
         <div class="field">
-            <label for="annotation">Annotation</label>
+            <label>Label</label>
 
             <div class="inputs">
-                <select name="annotationType" id="annotationType">
+                <select name="labelType" id="labelType">
                     <option value="person">person</option>
                     <option value="place">place</option>
                     <option value="event">event</option>
                     <option value="concept">concept</option>
                 </select>
-                <input type="text" class="textinput" name="annotationText" id="annotationText"/>
+                <input type="text" class="textinput" name="labelText" id="labelText"/>
             </div>
         </div>
-
-        @textField("label", "Label", "value: label", "Separate multiple labels by a comma")
 
         <div class="field">
             <label for="collection">Add to collection</label>
@@ -61,18 +58,40 @@
             </div>
         </div>
 
-        <div class="field">
-            <div class="inputs">
-            <input type="submit" value="Add Object"/>
-            </div>
-        </div>
-
     </form>
+
+    <div class="field">
+        <div class="inputs">
+        <input id="saveButton" type="submit" value="Add Object" data-bind="enable: name().length > 0"  />
+        </div>
+    </div>
+
 
 </div>
 
 <div class="grid_8">
 
 </div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var objectModel = {};
+
+    var scope = document.getElementById('objectForm');
+
+    load('/@userName/object/load/@id', objectModel, scope);
+
+    $('#saveButton').click(function() {
+      $.postKOJson('/@userName/object/submit', objectModel, function(data) {
+        updateViewModel(objectModel, data, scope);
+        $('#result').html('Object saved');
+        $('#result').show().fadeOut('3000');
+      }, function(jqXHR, textStatus, errorThrown) {
+        $('#result').html('Error saving object, please try again');
+        $('#result').show().fadeOut('3000');
+      })
+    });
+  })
+</script>
 
 }
