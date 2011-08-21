@@ -13,7 +13,7 @@ import com.codahale.jerkson.util.CaseClassSigParser
 import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.Version
 import org.bson.types.ObjectId
-import com.codahale.jerkson.Json
+import com.codahale.jerkson.Json._
 
 /**
  *
@@ -29,20 +29,14 @@ object PlayParameterNameReader extends ParameterNameReader {
 /**
  * This trait provides additional actions that can be used in controllers
  */
-object DelvingJson extends com.codahale.jerkson.Json {
-  def getMapper = mapper
-}
-
 trait AdditionalActions {
 
   // this is where we setup out Jackson module for custom de/serialization
-  val mapper = DelvingJson.getMapper
+  val mapper = com.codahale.jerkson.Json.mapper
   val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
   module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
   module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
   mapper.registerModule(module)
-
-  import com.codahale.jerkson.Json._
 
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
