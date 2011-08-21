@@ -6,10 +6,10 @@ import controllers.{UserAuthentication, Secure, DelvingController}
 import play.mvc.results.Result
 import com.mongodb.casbah.query.Imports
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.codahale.jerkson.Json._
 import models._
+import com.mongodb.WriteConcern
 
 /**
  *
@@ -58,7 +58,6 @@ object Admin extends DelvingController with UserAuthentication with Secure {
       }
       case None => Json(GroupModel(None, "", Some(false), Some(false), Some(false), List(), List()))
     }
-
   }
 
 
@@ -77,8 +76,26 @@ object Admin extends DelvingController with UserAuthentication with Secure {
     val group: GroupModel = parse[GroupModel](data)
     val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), id = group.name + "#" + connectedUser + "#" + getNode, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
 
-    // TODO add group to repositories, remove from removed, etc.
-    println(makeRepositories(group))
+    val repositories = makeRepositories(group)
+
+    for(dataSet <- DataSet.findAllByOwner(getUserReference)) {
+      val traversedHasGroup: Boolean = dataSet.access.groups.contains(userGroup.id)
+      val updatedHasGroup: Boolean = !repositories.filter(r => r._id == dataSet._id).isEmpty
+
+      val newGroups =
+        if(traversedHasGroup && !updatedHasGroup) {
+          // was removed
+          Some(dataSet.access.groups.filterNot(_ == userGroup.id))
+      } else if(!traversedHasGroup && updatedHasGroup) {
+          // was added
+          Some(dataSet.access.groups ++ List(userGroup.id))
+      } else {
+          // nothing changed
+          None
+      }
+
+      newGroups.foreach(g => DataSet.updateGroups(dataSet, g))
+    }
 
     val persistedGroup: Option[GroupModel] = group._id match {
       case None => {
@@ -91,7 +108,7 @@ object Admin extends DelvingController with UserAuthentication with Secure {
         // TODO handle the case when something goes wrong on the backend
         val existingGroup = UserGroup.findOneByID(id)
         if(existingGroup == None) Error("UserGroup with id %s does not exist".format(id))
-        val updatedGroup = existingGroup.get.copy(name = userGroup.name, read = userGroup.read, update = userGroup.update, delete = userGroup.delete, owner = userGroup.owner)
+        val updatedGroup = existingGroup.get.copy(name = userGroup.name, users = userGroup.users, read = userGroup.read, update = userGroup.update, delete = userGroup.delete, owner = userGroup.owner)
         UserGroup.update(MongoDBObject("_id" -> id), updatedGroup, false, false, new WriteConcern())
         Some(group)
       }

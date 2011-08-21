@@ -12,7 +12,6 @@ import dao.SalatDAO
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
-import views.Collection.html.collection
 
 /**
  *
@@ -138,6 +137,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def updateState(dataSet: DataSet, state: DataSetState) {
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
+  }
+
+  def updateGroups(dataSet: DataSet, groups: List[String]) {
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("access.groups" -> groups)), false, false, new WriteConcern())
   }
 
   def delete(dataSet: DataSet) {
