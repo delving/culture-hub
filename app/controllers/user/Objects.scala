@@ -22,19 +22,17 @@ object Objects extends DelvingController with UserAuthentication with Secure {
   def objectUpdate(id: String): Html = html.add(id)
 
   def objectSubmit(data: String): Result = {
-    println(data)
-
     val objectModel: ObjectModel = parse[ObjectModel](data)
-    val `object` = Object(name = objectModel.name, description = objectModel.description, user = getUserReference)
-
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = Object.insert(`object`)
+        val inserted: Option[ObjectId] = Object.insert(Object(name = objectModel.name, description = objectModel.description, user = getUserReference))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
         // TODO handle the case when something goes wrong on the backend
-        // TODO for cases where we update only some fields visible in the view, we need to do a merge of the persisted document and the changed field values by updated only those fields that we are touching in the view
-        Object.update(MongoDBObject("_id" -> id), `object`, false, false, new WriteConcern())
+        val existingObject = Object.findOneByID(id)
+        if(existingObject == None) Error("Object with id %s not found".format(id))
+        val updatedObject = existingObject.get.copy(name = objectModel.name, description = objectModel.description, user = getUserReference)
+        Object.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
         Some(objectModel)
     }
 

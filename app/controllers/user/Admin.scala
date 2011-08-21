@@ -89,8 +89,10 @@ object Admin extends DelvingController with UserAuthentication with Secure {
       case Some(id) => {
         // updated guy
         // TODO handle the case when something goes wrong on the backend
-        // TODO for cases where we update only some fields, we need to do a merge of the persisted document and the changed field values by updated only those fields that we are touching in the view
-        UserGroup.update(MongoDBObject("_id" -> id), userGroup, false, false, new WriteConcern())
+        val existingGroup = UserGroup.findOneByID(id)
+        if(existingGroup == None) Error("UserGroup with id %s does not exist".format(id))
+        val updatedGroup = existingGroup.get.copy(name = userGroup.name, read = userGroup.read, update = userGroup.update, delete = userGroup.delete, owner = userGroup.owner)
+        UserGroup.update(MongoDBObject("_id" -> id), updatedGroup, false, false, new WriteConcern())
         Some(group)
       }
     }
