@@ -10,6 +10,8 @@ import org.bson.types.ObjectId
 import com.codahale.jerkson.Json._
 import models._
 import com.mongodb.WriteConcern
+import com.novus.salat.dao.SalatDAOUpdateError._
+import com.novus.salat.dao.SalatDAOUpdateError
 
 /**
  *
@@ -105,12 +107,15 @@ object Admin extends DelvingController with UserAuthentication with Secure {
       }
       case Some(id) => {
         // updated guy
-        // TODO handle the case when something goes wrong on the backend
         val existingGroup = UserGroup.findOneByID(id)
         if(existingGroup == None) Error("UserGroup with id %s does not exist".format(id))
         val updatedGroup = existingGroup.get.copy(name = userGroup.name, users = userGroup.users, read = userGroup.read, update = userGroup.update, delete = userGroup.delete, owner = userGroup.owner)
-        UserGroup.update(MongoDBObject("_id" -> id), updatedGroup, false, false, new WriteConcern())
-        Some(group)
+        try {
+          UserGroup.update(MongoDBObject("_id" -> id), updatedGroup, false, false, new WriteConcern())
+          Some(group)
+        } catch {
+          case e: SalatDAOUpdateError => None
+        }
       }
     }
 

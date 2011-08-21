@@ -9,6 +9,7 @@ import models.Object
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
+import com.novus.salat.dao.SalatDAOUpdateError
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -32,8 +33,12 @@ object Objects extends DelvingController with UserAuthentication with Secure {
         val existingObject = Object.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
         val updatedObject = existingObject.get.copy(name = objectModel.name, description = objectModel.description, user = getUserReference)
-        Object.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
-        Some(objectModel)
+        try {
+          Object.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
+          Some(objectModel)
+        } catch {
+          case e: SalatDAOUpdateError => None
+        }
     }
 
     persistedObject match {
