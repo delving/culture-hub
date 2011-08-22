@@ -68,7 +68,7 @@ function load(url, viewModel, scope) {
  */
 function updateViewModel(data, viewModel, scope) {
     if (ko.mapping.isMapped(viewModel)) {
-        ko.mapping.updatefromJSON(viewModel, data)
+        ko.mapping.updateFromJS(viewModel, data)
     } else {
         $.extend(viewModel, ko.mapping.fromJS(data));
         if (typeof scope !== 'undefined') {

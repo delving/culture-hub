@@ -21,7 +21,7 @@ import org.scala_tools.time.Imports._
 
 object Objects extends DelvingController with UserAuthentication with Secure {
 
-  def objectUpdate(id: String): Html = html.add(id)
+  def objectUpdate(id: String): Html = html.add(Option(id))
 
   def objectSubmit(data: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)

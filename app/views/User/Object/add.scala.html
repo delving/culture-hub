@@ -1,12 +1,12 @@
-@(id: String = "")
+@(id: Option[String] = None)
 
 @import views.context._
 @import views.tags.html._
 
-@main("Add new object for user " + fullName) {
+@main(if(id == None) "Add new object for user " + fullName else "Update object for user " + fullName) {
 
 <div class="grid_8">
-    <h1>Add a new object</h1>
+    <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
 
     <form id="objectForm" method="post" action="">
 
@@ -58,13 +58,14 @@
             </div>
         </div>
 
+        <div class="field">
+            <div class="inputs">
+            <input id="saveButton" type="submit" value="Save Object" />
+            </div>
+        </div>
+
     </form>
 
-    <div class="field">
-        <div class="inputs">
-        <input id="saveButton" type="submit" value="Add Object" data-bind="enable: name().length > 0"  />
-        </div>
-    </div>
 
 
 </div>
@@ -77,20 +78,25 @@
   $(document).ready(function() {
     var objectModel = {};
 
-    var scope = document.getElementById('objectForm');
-
-    load('/@userName/object/load/@id', objectModel, scope);
-
-    $('#saveButton').click(function() {
+    $('#saveButton').click(function(event) {
+      event.preventDefault();
       $.postKOJson('/@userName/object/submit', objectModel, function(data) {
-        updateViewModel(objectModel, data, scope);
-        $('#result').html('Object saved');
-        $('#result').show().fadeOut('3000');
+          updateViewModel(data, objectModel, scope);
+          if('@id.getOrElse("")'.length == 0) {
+            window.location.href = '/@userName/object/' + objectModel.id()
+          } else {
+          $('#result').html('Object saved');
+          $('#result').show().fadeOut('3000');
+        }
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving object, please try again');
         $('#result').show().fadeOut('3000');
       })
     });
+
+    var scope = document.getElementById('objectForm');
+
+    load('/@userName/object/load/@id.getOrElse("")', objectModel, scope);
   })
 </script>
 
