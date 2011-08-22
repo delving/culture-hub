@@ -7,10 +7,9 @@ import play.mvc.results.Result
 import com.mongodb.casbah.query.Imports
 import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
-import com.codahale.jerkson.Json._
 import models._
 import com.mongodb.WriteConcern
-import com.novus.salat.dao.SalatDAOUpdateError._
+import extensions.CHJson._
 import com.novus.salat.dao.SalatDAOUpdateError
 
 /**

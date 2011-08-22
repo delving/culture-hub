@@ -13,7 +13,6 @@ import com.codahale.jerkson.util.CaseClassSigParser
 import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.Version
 import org.bson.types.ObjectId
-import com.codahale.jerkson.Json._
 
 /**
  *
@@ -26,22 +25,23 @@ object PlayParameterNameReader extends ParameterNameReader {
   def lookupParameterNames(constructor: Constructor[_]) = LocalvariablesNamesEnhancer.lookupParameterNames(constructor)
 }
 
+object CHJson extends com.codahale.jerkson.Json {
+  // this is where we setup out Jackson module for custom de/serialization
+  val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
+  module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
+  module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
+  mapper.registerModule(module)
+}
+
 /**
  * This trait provides additional actions that can be used in controllers
  */
 trait AdditionalActions {
 
-  // this is where we setup out Jackson module for custom de/serialization
-  val mapper = com.codahale.jerkson.Json.mapper
-  val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
-  module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
-  module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
-  mapper.registerModule(module)
-
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
 
-  def Json(data: AnyRef): Result = new RenderJson(generate(data))
+  def Json(data: AnyRef): Result = new RenderJson(CHJson.generate(data))
 
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 

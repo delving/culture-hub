@@ -2,7 +2,7 @@ package controllers
 
 import models.User
 import com.mongodb.DBObject
-import com.codahale.jerkson.Json._
+import extensions.CHJson._
 import play.mvc.results.Result
 
 /**

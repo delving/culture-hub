@@ -4,7 +4,7 @@ import play.templates.Html
 import views.User.Object._
 import play.mvc.results.Result
 import controllers.{ObjectModel, Secure, UserAuthentication, DelvingController}
-import com.codahale.jerkson.Json._
+import extensions.CHJson._
 import models.Object
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
