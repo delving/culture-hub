@@ -55,10 +55,11 @@ GET         /{user}/collection/add                                           Col
 GET         /{user}/collection/{collection}                                  Collections.collection
 GET         /{user}/object                                                   Dobjects.list
 GET         /{user}/object/add                                               user.Objects.objectUpdate
+GET         /{user}/object/{id}                                              Dobjects.view
 GET         /{user}/object/update/{id}                                       user.Objects.objectUpdate
 POST        /{user}/object/submit                                            user.Objects.objectSubmit
 GET         /{user}/object/load/{id}?                                        Dobjects.load
-GET         /{user}/object/{dobject}                                         Dobjects.dobject
+GET         /{user}/object/{dobject}                                         Dobjects.view
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                Stories.add
 GET         /{user}/story/{story}                                            Stories.story

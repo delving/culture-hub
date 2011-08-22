@@ -1,28 +1,20 @@
-@(user: models.User, name: String)
+@(dobject: models.Object)
 
 @import views.context._
 
-@main("Object " + name + " of user " + user.fullname ) {
+@main("Object " + dobject.name + " of user " + browsedFullName) {
 
    <div class="grid_8">
-      <h1>Object <span>"@name"</span></h1>
+      <h1>Object <span>"@dobject.name"</span></h1>
       <div  class="item-display clearfix" style="min-width: 220px;">
-           <img src='@asset("/public/images/dummy-object.png")' width="220"/>
-           <label>Name</label><span>Object Name Goes Here</span>
-          <label>Owner</label><span>Object Owner Goes Here</span>
+          <img src='@asset("/public/images/dummy-object.png")' width="220"/>
+          <label>Name</label><span>@dobject.name</span>
+          <label>Owner</label><span>@dobject.user.username</span>
           <label>Annotation(s)</label><span>Object Annotation(s) Go Here</span>
-          <label>Date created</label><span>Creation Date Goes Here</span>
+          <label>Date created</label><span>@niceTime(dobject._id.getTime)</span>
       </div>
       <h2>Description</h2>
-      <p>
-          Just the good ol' boys, never meanin' no harm. Beats all you've ever saw, been in trouble with the law since the day they was born. Straight'nin' the curve, flat'nin' the hills. Someday the mountain might get 'em, but the law never will. Makin' their way, the only way they know how, that's just a little bit more than the law will allow. Just good ol' boys, wouldn't change if they could, fightin' the system like a true modern day Robin Hood.
-      </p>
-       <p>
-           Hey there where ya goin', not exactly knowin', who says you have to call just one place home. He's goin' everywhere, B.J. McKay and his best friend Bear. He just keeps on movin', ladies keep improvin', every day is better than the last. New dreams and better scenes, and best of all I don't pay property tax. Rollin' down to Dallas, who's providin' my palace, off to New Orleans or who knows where. Places new and ladies, too, I'm B.J. McKay and this is my best friend Bear.
-       </p>
-       <p>
-            Top Cat! The most effectual Top Cat! Who's intellectual close friends get to call him T.C., providing it's with dignity. Top Cat! The indisputable leader of the gang. He's the boss, he's a pip, he's the championship. He's the most tip top, Top Cat.
-      </p>
+      <p>@niceText(dobject.description.getOrElse("No description available"))</p>
    </div>
 
    <div class="grid_8">

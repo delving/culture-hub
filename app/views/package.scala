@@ -1,6 +1,9 @@
 package views {
 
 import play.data.validation.Validation
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import play.templates.JavaExtensions
 
 package object context {
 
@@ -13,6 +16,12 @@ package object context {
 
   def userName = renderArgs.get("displayName")
   def fullName = renderArgs.get("fullName")
+
+  def browsedUserName = renderArgs.get("browsedDisplayName")
+  def browsedFullName = renderArgs.get("browsedFullName")
+
+  def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
+  def niceText(text: String) = JavaExtensions.nl2br(text)
 
 
 }

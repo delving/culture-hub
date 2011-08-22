@@ -10,6 +10,7 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
 import com.novus.salat.dao.SalatDAOUpdateError
+import org.scala_tools.time.Imports._
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -26,18 +27,18 @@ object Objects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = Object.insert(Object(name = objectModel.name, description = objectModel.description, user = getUserReference))
+        val inserted: Option[ObjectId] = Object.insert(Object(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
-        // TODO handle the case when something goes wrong on the backend
         val existingObject = Object.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(name = objectModel.name, description = objectModel.description, user = getUserReference)
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference)
         try {
           Object.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           Some(objectModel)
         } catch {
           case e: SalatDAOUpdateError => None
+          case _ => None
         }
     }
 

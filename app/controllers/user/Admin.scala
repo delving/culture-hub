@@ -114,6 +114,7 @@ object Admin extends DelvingController with UserAuthentication with Secure {
           Some(group)
         } catch {
           case e: SalatDAOUpdateError => None
+          case _ => None
         }
       }
     }

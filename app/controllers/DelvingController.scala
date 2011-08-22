@@ -21,15 +21,29 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   case class Token(id: String, name: String)
 
   @Before def setConnectedUser() {
-
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
-    user map {
+    user foreach {
       u => {
         renderArgs.put("fullName", u.fullname)
         renderArgs.put("displayName", u.reference.username)
       }
     }
   }
+
+  @Before def setBrowsedUser() {
+    Option(params.get("user")) foreach {
+      userName =>
+        val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
+        user foreach {
+          u => {
+            // todo
+            renderArgs.put("browsedFullName", u.fullname)
+            renderArgs.put("browsedDisplayName", user)
+          }
+        }
+    }
+  }
+
 
   // TODO
   @Util def getNode = "cultureHub"

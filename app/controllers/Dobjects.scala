@@ -2,7 +2,7 @@ package controllers
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import org.codehaus.jackson.annotate.JsonCreator
+import models.UserReference
 
 /**
  *
@@ -19,9 +19,15 @@ object Dobjects extends DelvingController {
     html.list(user = u)
   }
 
-  def dobject(user: String, dobject: String): AnyRef = {
-    val u = getUser(user)
-    html.dobject(user = u, name = dobject)
+  def view(user: String, id: String): AnyRef = {
+    id match {
+      case null => NotFound
+      case objectId if !ObjectId.isValid(objectId) => NotFound("Invalid object id %s".format(id))
+      case objectId =>
+        val o = models.Object.findOneByID(new ObjectId(id)) // TODO access rights
+        if (o == None) NotFound("Object with id %s was not found".format(id))
+        html.dobject(dobject = o.get)
+    }
   }
 
   def load(id: String): Result = {
@@ -30,14 +36,15 @@ object Dobjects extends DelvingController {
       case objectId if !ObjectId.isValid(objectId) => Error("Invalid object id %s".format(objectId))
       case objectId =>
         val o = models.Object.findOneByID(new ObjectId(id)) // TODO access rights
-        if (o == None) NotFound("Object with id " + id + " was not found")
-        Json(ObjectModel(Some(o.get._id), o.get.name, o.get.description))
+        if (o == None) NotFound("Object with id %s was not found".format(id))
+        val dobject = o.get
+        Json(ObjectModel(Some(dobject._id), dobject.name, dobject.description, dobject.user))
     }
   }
 }
 
-case class ObjectModel(id: Option[ObjectId] = None, name: String = "", description: Option[String] = Some(""))
+case class ObjectModel(id: Option[ObjectId] = None, name: String = "", description: Option[String] = Some(""), owner: UserReference)
 
 object ObjectModel {
-  val empty: ObjectModel = ObjectModel(name = "")
+  val empty: ObjectModel = ObjectModel(name = "", owner = UserReference("", ""))
 }
