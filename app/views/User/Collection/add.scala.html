@@ -7,7 +7,7 @@
 
 <h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1>
 
-<form method="post" action="" id="newCollection">
+<form method="post" action="" id="collectionForm">
     <div class="grid_8">
         <h2>Collection Information</h2>
         <span id="required-note">* Required Fields</span>
@@ -44,14 +44,18 @@
 
         <div class="field">
             <label for="public">Public</label>
-
             <div class="inputs">
                 <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
-
                 <input type="radio" value="1" id="public-1" name="public">Public
-
             </div>
         </div>
+
+        <div class="field">
+            <div class="inputs">
+              <input id="saveButton" type="submit" value="Save Collection" />
+            </div>
+        </div>
+
     </div>
 
     <div class="grid_8">
@@ -120,6 +124,7 @@
             <button>Add selected object(s)</button>
         </div>
     </div>
+
 </form>
 
 <script type="text/javascript" language="javascript">
@@ -127,7 +132,29 @@
         $("#objects-dialogue").dialog();
         event.preventDefault();
     });
-    
+
+    var collectionModel = {}
+
+    $('#saveButton').click(function(event) {
+      event.preventDefault();
+      $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
+          updateViewModel(data, collectionModel, scope);
+          if('@id.getOrElse("")'.length == 0) {
+            window.location.href = '/@userName/collection/' + collectionModel.id()
+          } else {
+          $('#result').html('Collection saved');
+          $('#result').show().fadeOut('3000');
+        }
+      }, function(jqXHR, textStatus, errorThrown) {
+        $('#result').html('Error saving collection, please try again');
+        $('#result').show().fadeOut('3000');
+      })
+    });
+
+    var scope = document.getElementById('collectionForm');
+
+    load('/@userName/collection/load/@id.getOrElse("")', collectionModel, scope);
+
     var viewModel = {
 
     }

@@ -2,7 +2,7 @@ package controllers
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import models.{DObject, UserCollection}
+import models.UserCollection
 
 /**
  * 

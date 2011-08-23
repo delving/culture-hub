@@ -2,9 +2,8 @@ package controllers
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import play.mvc.Util
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{UserCollection, Object, UserReference}
+import models.{DObject, UserCollection, UserReference}
 
 /**
  *
@@ -12,7 +11,7 @@ import models.{UserCollection, Object, UserReference}
  * @author Sjoerd Siebinga <sjoerd@delving.eu>
  */
 
-object Dobjects extends DelvingController {
+object DObjects extends DelvingController {
 
   import views.Dobject._
 
@@ -22,28 +21,20 @@ object Dobjects extends DelvingController {
   }
 
   def view(user: String, id: String): AnyRef = {
-    loadObject(id) match {
+    DObject.findById(id) match {
         case None => NotFound
         case Some(anObject) => html.dobject(dobject = anObject)
       }
   }
 
   def load(id: String): Result = {
-    loadObject(id) match {
+    DObject.findById(id) match {
         case None => Json(ObjectModel.empty)
         case Some(anObject) => {
           val collections = ObjectModel.objectIdListToCollections(anObject.collections)
           Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user, collections))
         }
       }
-  }
-
-  @Util def loadObject(id: String): Option[Object] = {
-    id match {
-      case null => None
-      case objectId if !ObjectId.isValid(objectId) => None
-      case objectId => models.Object.findOneByID(new ObjectId(id)) // TODO access rights
-    }
   }
 }
 

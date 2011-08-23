@@ -46,24 +46,33 @@ GET        /registration/resetPassword/{resetPasswordToken}                  Reg
 POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
+
 GET         /{user}/?                                                        Users.index
+
 GET         /{user}/profile                                                  Profiles.index
+
 GET         /{user}/label                                                    Labels.list
 GET         /{user}/label/{label}                                            Labels.label
+
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/writeable                                     Collections.listWriteableAsTokens
 GET         /{user}/collection/add                                           user.Collections.collectionUpdate
+GET         /{user}/collection/update/{id}                                   user.Collections.collectionUpdate
+POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
+GET         /{user}/collection/load/{id}?                                    Collections.load
 GET         /{user}/collection/{collection}                                  Collections.collection
+
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.Objects.objectUpdate
 GET         /{user}/object/{id}                                              DObjects.view
 GET         /{user}/object/update/{id}                                       user.Objects.objectUpdate
 POST        /{user}/object/submit                                            user.Objects.objectSubmit
 GET         /{user}/object/load/{id}?                                        DObjects.load
-GET         /{user}/object/{dobject}                                         DObjects.view
+
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                Stories.add
 GET         /{user}/story/{story}                                            Stories.story
+
 GET         /{user}/repositories/writeable                                   Repositories.listWriteableAsTokens
 
 GET         /{user}/admin/?                                                  user.Admin.index

@@ -5,15 +5,24 @@ import com.novus.salat.dao.SalatDAO
 import salatContext._
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
+import org.joda.time.DateTime
+import com.mongodb.casbah.commons.conversions.scala._
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class UserCollection(_id: ObjectId, name: String, node: String, description: Option[String], access: AccessRight) extends Repository
+case class UserCollection(_id: ObjectId = new ObjectId,
+                          TS_update: DateTime,
+                          name: String,
+                          node: String,
+                          description: Option[String],
+                          access: AccessRight) extends Repository
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](collection = userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
+
+  RegisterJodaTimeConversionHelpers()
 
   protected def getCollection = userCollectionsCollection
 
