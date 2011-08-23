@@ -5,8 +5,6 @@ import com.novus.salat.grater
 import salatContext._
 import com.mongodb.casbah.{Imports, MongoCollection}
 import com.novus.salat.dao.SalatDAO
-import views.Collection.html.collection
-import com.mongodb.DBCursor
 
 /**
  *
@@ -107,7 +105,10 @@ trait AccessControl {
  * users: map of (key, UserAction) where key == "username#node"
  * groups: list of key where key == groupname#username#node
  */
-case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[String] = List.empty[String])
+case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[String] = List.empty[String]) {
+  def getOwnerIDs: List[String] = (for(uA <- users.values.filter(userAction => userAction.owner == Some(true))) yield uA.user.id).toList
+  def getOwners: List[User] = User.find(MongoDBObject("_id" -> MongoDBObject("$in" -> getOwnerIDs))).toList
+}
 
 /**A User and his rights **/
 case class UserAction(user: UserReference = UserReference("", "", ""),

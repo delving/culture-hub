@@ -1,12 +1,12 @@
-@(user:models.User, name: String)
+@(collection: models.UserCollection)
 
 @import views.context._
 
-@main("Collection " + name + " of user " + user.fullname ) {
+@main("Collection " + collection.name + " of user " + browsedFullName) {
 
 <div class="grid_8">
 
-    <h1>Collection <span>"@name"</span></h1>
+    <h1>Collection <span>"@collection.name"</span></h1>
 
     <div class="item-info">
 
@@ -14,7 +14,7 @@
             <tbody>
             <tr>
                 <th scope="row">Owner</th>
-                <td>Owner name</td>
+                <td>@collection.access.getOwners</td>
             </tr>
             <tr>
                 <th scope="row">Date Created</th>
