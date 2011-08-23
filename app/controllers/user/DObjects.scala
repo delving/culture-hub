@@ -5,7 +5,7 @@ import views.User.Object._
 import play.mvc.results.Result
 import controllers.{ObjectModel, Secure, UserAuthentication, DelvingController}
 import extensions.CHJson._
-import models.Object
+import models.DObject
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
@@ -19,7 +19,7 @@ import org.scala_tools.time.Imports._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Objects extends DelvingController with UserAuthentication with Secure {
+object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def objectUpdate(id: String): Html = html.add(Option(id))
 
@@ -27,14 +27,14 @@ object Objects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = Object.insert(Object(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference, collections = objectModel.getCollections))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference, collections = objectModel.getCollections))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
-        val existingObject = Object.findOneByID(id)
+        val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
         val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference, collections = objectModel.getCollections)
         try {
-          Object.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
+          DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           Some(objectModel)
         } catch {
           case e: SalatDAOUpdateError => None

@@ -12,14 +12,14 @@ import org.joda.time.DateTime
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class Object(_id: ObjectId = new ObjectId,
+case class DObject(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
                   name: String,
                   description: Option[String] = None,
                   user: UserReference,
                   collections: List[ObjectId])
 
-object Object extends SalatDAO[Object, ObjectId](objectsCollection) {
+object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) {
 
   RegisterJodaTimeConversionHelpers()
 
