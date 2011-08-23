@@ -52,6 +52,8 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def getUserReference = UserReference(username = connectedUser, node = getNode, id = getUserId(connectedUser))
 
+  @Util def getUserReference(username: String) = UserReference(username, getNode, getUserId(username))
+
   @Util def getUser(displayName: String): User = {
     User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
   }
@@ -74,7 +76,7 @@ trait FormatResolver {
   self: Controller =>
 
   // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
-  val supportedFormats = List("html", "xml", "json", "kml")
+  val supportedFormats = List("html", "xml", "json", "kml", "token")
 
   @Before(priority = 1)
   def setFormat(): AnyRef = {

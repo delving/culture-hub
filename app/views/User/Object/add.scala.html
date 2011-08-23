@@ -31,11 +31,7 @@
             <label for="collection">Add to collection</label>
 
             <div class="inputs">
-                <select name="collection" id="collection">
-                    <option value="collection 1">Collection 1</option>
-                    <option value="collection 2">Collection 2</option>
-                    <option value="collection 3">Collection 3</option>
-                </select>
+              <input type="text" id="collection" name="repositories" data-bind="tokens: collections"/>
             </div>
         </div>
 
@@ -76,6 +72,9 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
+
+    $("#collections").tokenInput('/@userName/collections/writeable');
+
     var objectModel = {};
 
     $('#saveButton').click(function(event) {

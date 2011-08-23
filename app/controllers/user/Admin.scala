@@ -64,20 +64,10 @@ object Admin extends DelvingController with UserAuthentication with Secure {
 
   def groupSubmit(data: String): Result = {
 
-    def makeUsers(group: GroupModel): Map[String, UserReference] = (for (m: Member <- group.members) yield {
-      val ref: Array[String] = m.id.split('#')
-      (m.id, UserReference(ref(0), ref(1), m.id))
-    }).toMap
-
-    def makeRepositories(group: GroupModel): List[models.Repository] = {
-      val ids = for (repo <- group.repositories) yield new ObjectId(repo.id)
-      DataSet.find(MongoDBObject("_id" -> MongoDBObject("$in" -> ids))).toList
-    }
-
     val group: GroupModel = parse[GroupModel](data)
-    val userGroup = UserGroup(user = getUserReference, name = group.name, users = makeUsers(group), id = group.name + "#" + connectedUser + "#" + getNode, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
+    val userGroup = UserGroup(user = getUserReference, name = group.name, users = group.getUsers, id = group.name + "#" + connectedUser + "#" + getNode, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
 
-    val repositories = makeRepositories(group)
+    val repositories = group.getRepositories
 
     for(dataSet <- DataSet.findAllByOwner(getUserReference)) {
       val traversedHasGroup: Boolean = dataSet.access.groups.contains(userGroup.id)
@@ -127,7 +117,20 @@ object Admin extends DelvingController with UserAuthentication with Secure {
 
 }
 
-case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member], repositories: Seq[Repository])
+case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member], repositories: Seq[Repository]) {
+
+  def getUsers: Map[String, UserReference] = (for (m: Member <- members) yield {
+    val ref: Array[String] = m.id.split('#')
+    (m.id, UserReference(ref(0), ref(1), m.id))
+  }).toMap
+
+  def getRepositories: List[models.Repository] = {
+    val ids = for (repo <- repositories) yield new ObjectId(repo.id)
+    DataSet.find(MongoDBObject("_id" -> MongoDBObject("$in" -> ids))).toList
+  }
+
+
+}
 
 case class Member(id: String, name: String)
 

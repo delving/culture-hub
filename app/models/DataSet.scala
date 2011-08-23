@@ -118,12 +118,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def findAllForUser(user: User) = {
-    val dataSetCursor = DataSet.findAllByRight(user.reference.username, user.reference.node, "read")
+    val dataSetCursor = findAllByRight(user.reference.username, user.reference.node, "read")
     (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
   }
 
   def findAllByOwner(owner: UserReference) = {
-    val dataSetCursor = DataSet.findAllByRight(owner.username, owner.node, "owner")
+    val dataSetCursor = findAllByRight(owner.username, owner.node, "owner")
     (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
   }
 

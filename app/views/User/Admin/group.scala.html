@@ -37,7 +37,7 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
-    $("#repositories").tokenInput("@action(controllers.Repositories.listAsTokens)");
+    $("#repositories").tokenInput('/@userName/repositories/writeable');
 
     var groupModel = {};
 

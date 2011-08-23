@@ -16,7 +16,8 @@ case class Object(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
                   name: String,
                   description: Option[String] = None,
-                  user: UserReference)
+                  user: UserReference,
+                  collections: List[ObjectId])
 
 object Object extends SalatDAO[Object, ObjectId](objectsCollection) {
 
