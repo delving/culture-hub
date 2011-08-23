@@ -1,35 +1,19 @@
-@(user:models.User)
+@(id: Option[String] = None)
 
 @import views.context._
 @import views.tags.html._
 
-@main("Create new collection for user " + user.fullname ) {
+@main(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
 
+<h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1></h1>
 
-<h1 class="grid_16">Create a new Collection</h1>
-
-<form method="post" action="" id="newStory">
+<form method="post" action="" id="newCollection">
     <div class="grid_8">
         <h2>Collection Information</h2>
         <span id="required-note">* Required Fields</span>
 
-        <div class="field">
-            <label for="name" class="required">Name</label>
-
-            <div class="inputs">
-                <input type="text" class="textinput" name="name" id="name" value=""/>
-                <span class="error"></span>
-            </div>
-        </div>
-
-        <div class="field">
-            <label for="description" class="required">Description</label>
-
-            <div class="inputs">
-                <textarea name="description" class="textinput" id="description"></textarea>
-                <span class="error"></span>
-            </div>
-        </div>
+        @textField("name", "Name", "value: name")
+        @textArea("description", "Description", "value: description")
 
         <div class="field">
             <label for="annotations">Annotation(s)</label>
@@ -46,8 +30,6 @@
                 <input type="button" name="add-annotations-button" id="add-annotation-button" value="Add Annotation"/>
                 <span class="error"></span>
 
-
-
                 <div id="annotations" class="display-box">
                     <p class="developers-note ui-state-error ui-corner-all">
                         <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
@@ -60,17 +42,6 @@
             </div>
         </div>
 
-        <div class="field">
-            <label for="label">Free-text label(s)</label>
-
-            <div class="inputs">
-                <input type="text" class="textinput" name="label" id="label"/>
-                <span class="help">(Separate multiple labels by a comma: label1, label2, ... )</span>
-                <span class="error"></span>
-
-            </div>
-
-        </div>
         <div class="field">
             <label for="public">Public</label>
 

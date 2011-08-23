@@ -2,6 +2,7 @@ package controllers
 
 import play.mvc.results.Result
 import models.UserCollection
+import org.bson.types.ObjectId
 
 /**
  * 
@@ -22,16 +23,11 @@ object Collections extends DelvingController {
     html.collection(user = u, name = collection)
   }
 
-  def add(user: String): AnyRef = {
-    val u = getUser(user)
-    html.add(user = u)
-  }
-
   /** list all user collections the connected user can write to as tokens **/
   def listWriteableAsTokens: Result = {
     val userCollections = for(userCollection <- UserCollection.findAllWriteable(getUserReference)) yield Token(userCollection._id.toString, userCollection.name)
     Json(userCollections)
   }
-
-
 }
+
+case class CollectionModel(id: Option[ObjectId] = None, name: String, description: Option[String] = Some(""))

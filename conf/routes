@@ -52,7 +52,7 @@ GET         /{user}/label                                                    Lab
 GET         /{user}/label/{label}                                            Labels.label
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/writeable                                     Collections.listWriteableAsTokens
-GET         /{user}/collection/add                                           Collections.add
+GET         /{user}/collection/add                                           user.Collections.collectionUpdate
 GET         /{user}/collection/{collection}                                  Collections.collection
 GET         /{user}/object                                                   Dobjects.list
 GET         /{user}/object/add                                               user.Objects.objectUpdate
