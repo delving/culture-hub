@@ -19,7 +19,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                   user: UserReference,
                   collections: List[ObjectId])
 
-object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) {
+object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resolver[DObject] {
 
   RegisterJodaTimeConversionHelpers()
 

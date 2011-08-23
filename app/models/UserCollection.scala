@@ -13,7 +13,7 @@ import com.mongodb.casbah.Imports._
 
 case class UserCollection(_id: ObjectId, name: String, node: String, description: Option[String], access: AccessRight) extends Repository
 
-object UserCollection extends SalatDAO[UserCollection, ObjectId](collection = userCollectionsCollection) with AccessControl {
+object UserCollection extends SalatDAO[UserCollection, ObjectId](collection = userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
 
   protected def getCollection = userCollectionsCollection
 

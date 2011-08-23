@@ -5,7 +5,7 @@
 
 @main(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
 
-<h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1></h1>
+<h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1>
 
 <form method="post" action="" id="newCollection">
     <div class="grid_8">
@@ -126,7 +126,8 @@
     $("#addObject").click(function(event) {
         $("#objects-dialogue").dialog();
         event.preventDefault();
-    })
+    });
+    
     var viewModel = {
 
     }
