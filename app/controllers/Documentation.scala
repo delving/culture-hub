@@ -5,7 +5,6 @@ import java.io.File
 import play.Play
 import org.pegdown.PegDownProcessor
 import play.libs.IO
-import play.templates.Html
 import play.mvc.results.RenderBinary
 
 /**
@@ -17,11 +16,12 @@ object Documentation extends Controller {
 
   import views.Documentation._
 
-  def index = page("home")
+  def index = page("home", null)
 
-  def page(id: String): AnyRef = {
-    val page: File = new File(Play.applicationPath, "documentation/help/" + id + ".markdown")
-    if (!page.exists()) return NotFound("Could not find page '%s'".format(id))
+  def page(id: String, category: String): AnyRef = {
+    val cat = if(category == null) "" else category + "/"
+    val page: File = new File(Play.applicationPath, "documentation/help/" + cat + id + ".markdown")
+    if (!page.exists()) return NotFound("Could not find page '%s'".format(cat + id))
 
     val markup = IO.readContentAsString(page)
     val converted = toHTML(markup)

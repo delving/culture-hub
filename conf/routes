@@ -6,7 +6,8 @@
 GET         /                                       Application.index
 
 GET         /documentation/?                        Documentation.index
-GET         /documentation/{page}                   Documentation.page
+GET         /documentation/{id}                     Documentation.page
+GET         /documentation/{category}/{id}          Documentation.page
 GET         /documentation/images/{name}            Documentation.image
 
 
