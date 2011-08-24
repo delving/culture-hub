@@ -106,8 +106,8 @@ trait AccessControl {
  * groups: list of key where key == groupname#username#node
  */
 case class AccessRight(users: Map[String, UserAction] = Map.empty[String, UserAction], groups: List[String] = List.empty[String]) {
+  def getOwners: List[User] = User.find(MongoDBObject("reference.id" -> MongoDBObject("$in" -> getOwnerIDs))).toList
   def getOwnerIDs: List[String] = (for(uA <- users.values.filter(userAction => userAction.owner == Some(true))) yield uA.user.id).toList
-  def getOwners: List[User] = User.find(MongoDBObject("_id" -> MongoDBObject("$in" -> getOwnerIDs))).toList
 }
 
 /**A User and his rights **/
@@ -129,7 +129,7 @@ case class UserGroup(
                  delete: Option[Boolean] = Some(false),
                  owner: Option[Boolean] = Some(false))
 
-object UserGroup extends SalatDAO[UserGroup, ObjectId](collection = groupCollection) {
+object UserGroup extends SalatDAO[UserGroup, ObjectId](groupCollection) {
 
   def findByUser(userId: String) = {
     find(MongoDBObject("user.id" -> userId)).toList
