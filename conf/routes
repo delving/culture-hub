@@ -63,10 +63,10 @@ GET         /{user}/collection/load/{id}?                                    Col
 GET         /{user}/collection/{id}                                          Collections.view
 
 GET         /{user}/object                                                   DObjects.list
-GET         /{user}/object/add                                               user.Objects.objectUpdate
+GET         /{user}/object/add                                               user.DObjects.objectUpdate
 GET         /{user}/object/{id}                                              DObjects.view
-GET         /{user}/object/update/{id}                                       user.Objects.objectUpdate
-POST        /{user}/object/submit                                            user.Objects.objectSubmit
+GET         /{user}/object/update/{id}                                       user.DObjects.objectUpdate
+POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 GET         /{user}/object/load/{id}?                                        DObjects.load
 
 GET         /{user}/story                                                    Stories.list
