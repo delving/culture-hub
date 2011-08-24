@@ -88,7 +88,7 @@ echo ======================
 echo
 echo
 
-../play/play dependencies --sync
+../play/play dependencies
 
 echo =========================================
 echo Done! Run the application with "../play/play run" or when in your path just "play run"
