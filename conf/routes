@@ -60,7 +60,7 @@ GET         /{user}/label                                                    Lab
 GET         /{user}/label/{label}                                            Labels.label
 
 GET         /{user}/collection                                               Collections.list
-GET         /{user}/collection/writeable                                     Collections.listWriteableAsTokens
+GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/add                                           user.Collections.collectionUpdate
 GET         /{user}/collection/update/{id}                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
@@ -78,7 +78,7 @@ GET         /{user}/story                                                    Sto
 GET         /{user}/story/add                                                Stories.add
 GET         /{user}/story/{story}                                            Stories.story
 
-GET         /{user}/repositories/writeable                                   Repositories.listWriteableAsTokens
+GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/groups                                             user.Admin.groupList
@@ -94,7 +94,7 @@ POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      Sip
 GET         /{user}/admin/dataset                                            SipCreatorEndPoint.secureListAll
 GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    SipCreatorEndPoint.secureIndexingControl
 
-GET         /users/list                                                      Users.listAsTokens
+GET         /users/search                                                    Users.listAsTokens
 
 # Portal Administration
 GET        /admin/themes                                                     admin.Themes.index

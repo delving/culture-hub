@@ -20,7 +20,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           description: Option[String],
                           access: AccessRight) extends Repository
 
-object UserCollection extends SalatDAO[UserCollection, ObjectId](collection = userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
+object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -37,7 +37,7 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](collection = us
     val ownedCursor = findAllByRight(user.username, user.node, "owner")
     val updateCursor = findAllByRight(user.username, user.node, "update")
     val all = ownedCursor ++ updateCursor
-    (for(uc <- all) yield grater[UserCollection].asObject(uc)).toList
+    (for(uc <- all) yield grater[UserCollection].asObject(uc)).toList.distinct
   }
 
 }

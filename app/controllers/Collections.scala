@@ -35,8 +35,8 @@ object Collections extends DelvingController {
   }
 
   /**list all user collections the connected user can write to as tokens **/
-  def listWriteableAsTokens: Result = {
-    val userCollections = for (userCollection <- UserCollection.findAllWriteable(getUserReference)) yield Token(userCollection._id.toString, userCollection.name)
+  def listWriteableAsTokens(q: String): Result = {
+    val userCollections = for (userCollection <- UserCollection.findAllWriteable(getUserReference).filter(c => c.name.toLowerCase contains(q))) yield Token(userCollection._id.toString, userCollection.name)
     Json(userCollections)
   }
 }

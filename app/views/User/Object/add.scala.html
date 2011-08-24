@@ -16,22 +16,34 @@
         <div class="field">
             <label>Label</label>
 
-            <div class="inputs">
-                <select name="labelType" id="labelType">
-                    <option value="person">person</option>
-                    <option value="place">place</option>
-                    <option value="event">event</option>
-                    <option value="concept">concept</option>
-                </select>
-                <input type="text" class="textinput" name="labelText" id="labelText"/>
+            <div id="labels">
+              <ul>
+                <li><a href="#person">Person</a></li>
+                <li><a href="#place">Place</a></li>
+                <li><a href="#event">Event</a></li>
+                <li><a href="#concept">Concept</a></li>
+              </ul>
+              <div id="person">
+                <input type="text" class="textinput" name="labelText" id="personInput"/>
+              </div>
+              <div id="place">
+                <input type="text" class="textinput" name="labelText" id="placeInput"/>
+              </div>
+              <div id="event">
+                <input type="text" class="textinput" name="labelText" id="eventInput"/>
+              </div>
+              <div id="concept">
+                <input type="text" class="textinput" name="labelText" id="conceptInput"/>
+              </div>
             </div>
+
         </div>
 
         <div class="field">
             <label for="collection">Add to collection</label>
 
             <div class="inputs">
-              <input type="text" id="collection" name="repositories" data-bind="tokens: collections"/>
+              <input type="text" id="collection" name="repositories" data-bind="tokens: collections" />
             </div>
         </div>
 
@@ -73,7 +85,9 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
-    $("#collections").tokenInput('/@userName/collections/writeable');
+    $('#labels').tabs();
+
+    $("#collection").tokenInput('/@userName/collection/writeable/search');
 
     var objectModel = {};
 

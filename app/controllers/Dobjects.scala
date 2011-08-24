@@ -47,7 +47,7 @@ object ObjectModel {
   val empty: ObjectModel = ObjectModel(name = "", owner = UserReference("", ""), collections = List())
 
   def objectIdListToCollections(collectionIds: List[ObjectId]) = {
-    (for (userCollection: UserCollection <- UserCollection.find(MongoDBObject("_id" -> MongoDBObject("$in" -> collectionIds)), MongoDBObject("_id" -> 1, "name" -> 1)))
+    (for (userCollection: UserCollection <- UserCollection.find(MongoDBObject("_id" -> MongoDBObject("$in" -> collectionIds))))
     yield Collection(userCollection._id.toString, userCollection.name)).toList
   }
 
