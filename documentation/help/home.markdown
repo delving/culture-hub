@@ -15,3 +15,7 @@ This is number one
 ## Part two
 
 And the fun has just begun
+
+## Part three
+
+![An image](/documentation/images/logo)

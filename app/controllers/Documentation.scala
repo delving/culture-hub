@@ -6,6 +6,7 @@ import play.Play
 import org.pegdown.PegDownProcessor
 import play.libs.IO
 import play.templates.Html
+import play.mvc.results.RenderBinary
 
 /**
  *
@@ -19,7 +20,7 @@ object Documentation extends Controller {
   def index = page("home")
 
   def page(id: String): AnyRef = {
-    val page: File = new File(Play.applicationPath, "documentation/" + id + ".markdown")
+    val page: File = new File(Play.applicationPath, "documentation/help/" + id + ".markdown")
     if (!page.exists()) return NotFound("Could not find page '%s'".format(id))
 
     val markup = IO.readContentAsString(page)
@@ -27,6 +28,12 @@ object Documentation extends Controller {
     val title = getTitle(markup)
 
     html.page(title = title, html = converted)
+  }
+
+  def image(name: String): AnyRef = {
+    val image: File = new File(Play.applicationPath, "documentation/images/" + name + ".png")
+    if(!image.exists()) return NotFound
+    new RenderBinary(image)
   }
 
   private def getTitle(markup: String): String = if (markup.length == 0) "" else markup.split("\n")(0).substring(2).trim

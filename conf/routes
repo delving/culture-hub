@@ -7,6 +7,7 @@ GET         /                                       Application.index
 
 GET         /documentation/?                        Documentation.index
 GET         /documentation/{page}                   Documentation.page
+GET         /documentation/images/{name}            Documentation.image
 
 
 # Form-based authentication
