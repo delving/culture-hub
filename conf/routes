@@ -5,6 +5,10 @@
 # Home page
 GET         /                                       Application.index
 
+GET         /documentation/?                        Documentation.index
+GET         /documentation/{page}                   Documentation.page
+
+
 # Form-based authentication
 GET         /login                                  Authentication.login
 POST        /login                                  Authentication.authenticate
