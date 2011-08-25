@@ -8,14 +8,13 @@ package object salatContext {
 
   val connection: MongoDB = MongoConnection()(Play.configuration.getProperty("db.mongo.name"))
 
-  val portalThemeCollection = connection("portalTheme")
-  val emailTargetCollection = connection("emailTarget")
-  val userCollection = connection("user")
-  val groupCollection = connection("userGroup")
-  val userReferenceCollection = connection("userReference")
+  val userCollection = connection("Users")
+  val groupCollection = connection("Groups")
+  val portalThemeCollection = connection("PortalThemes")
+  val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
   val dataSetsCollection = connection("Datasets")
-  val objectsCollection = connection("Objects") // the user contributed objects
-  val userCollectionsCollection = connection("userCollections") // the collections made by users
+  val objectsCollection = connection("UserObjects") // the user contributed objects
+  val userCollectionsCollection = connection("UserCollections") // the collections made by users
   val harvestStepsCollection = connection("HarvestSteps")
 
   val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved

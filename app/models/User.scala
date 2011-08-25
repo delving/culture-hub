@@ -6,12 +6,6 @@ import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
-import org.codehaus.jackson.annotate.JsonCreator
-
-/** Unique reference to a user across the CultureHub space **/
-case class UserReference @JsonCreator() (username: String = "", node: String = "", id: String = "")
-
-object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
 
 case class User(_id: ObjectId = new ObjectId,
                 reference: UserReference = UserReference("", "", ""),
@@ -27,9 +21,13 @@ case class User(_id: ObjectId = new ObjectId,
   val fullname = firstName + " " + lastName
 }
 
+/** Unique reference to a user across the CultureHub space **/
+case class UserReference(username: String = "", node: String = "", id: String = "")
+
+/** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
-object User extends SalatDAO[User, ObjectId](collection = userCollection) {
+object User extends SalatDAO[User, ObjectId](userCollection) {
 
   val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 

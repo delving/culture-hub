@@ -15,6 +15,7 @@ import com.mongodb.casbah.commons.conversions.scala._
 
 case class UserCollection(_id: ObjectId = new ObjectId,
                           TS_update: DateTime,
+                          user: ObjectId,
                           name: String,
                           node: String,
                           description: Option[String],

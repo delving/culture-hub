@@ -10,6 +10,7 @@ import play.mvc.results.Result
 import play.templates.Html
 import play.i18n.Messages
 import com.mongodb.casbah.commons.MongoDBObject
+import play.mvc.Scope.Session
 
 trait Secure {
   self: DelvingController =>
@@ -52,16 +53,19 @@ class InactiveUserException extends Exception
 
 trait Security {
   def authenticate(username: String, password: String): Boolean
+  def onAuthenticated(username: String, session: Session)
 }
 
 object Authentication extends Controller {
 
+  private val authSec = getSecurity.newInstance.asInstanceOf[ { def authenticate(username: String, password: String): Boolean }]
+
+  private val onAuthSec = getSecurity.newInstance.asInstanceOf[ { def onAuthenticated(username: String, session: Session) }]
+
   import views.Authentication._
 
-  def login():AnyRef = {
-    if(session("username").isDefined) {
-      Redirect("/")
-    }
+  def login(): AnyRef = {
+    if(session("username").isDefined) Redirect("/")
 
     val remember = request.cookies.get("rememberme")
     if (remember != null && remember.value.indexOf("-") > 0) {
@@ -73,7 +77,7 @@ object Authentication extends Controller {
       }
     }
     flash.keep("url")
-      html.login(title = "Login")
+    html.login(title = "Login")
   }
 
   def authenticate(): AnyRef = {
@@ -87,13 +91,13 @@ object Authentication extends Controller {
     if (Validation.hasErrors) {
       loginError()
     } else {
-      val sec = getSecurity.newInstance.asInstanceOf[ {def authenticate(username: String, password: String): Boolean}]
       try {
-        if (sec.authenticate(username, password)) {
+        if (authSec.authenticate(username, password)) {
           if (remember) {
             response.setCookie("rememberme", Crypto.sign(username) + "-" + username, "30d")
           }
           session.put("username", username)
+          onAuthSec.onAuthenticated(username, session)
           redirectToOriginalURL
         } else {
           loginError()
@@ -102,7 +106,6 @@ object Authentication extends Controller {
         case iue: InactiveUserException => userNotActiveError()
         case _ => loginError()
       }
-
     }
   }
 

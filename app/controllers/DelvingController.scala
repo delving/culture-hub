@@ -9,6 +9,7 @@ import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
 import models.{UserReference, PortalTheme, User}
+import org.bson.types.ObjectId
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -44,6 +45,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
   }
 
+  val connectedUserId = getUserMongoId(connectedUser)
 
   // TODO
   @Util def getNode = "cultureHub"
@@ -56,6 +58,12 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def getUser(displayName: String): User = {
     User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
+  }
+
+  @Util def getUserMongoId(username: String): ObjectId = {
+    val id: String = session.get("connectedUserId")
+    if(!ObjectId.isValid(id)) throw new RuntimeException("Invalid ID '%s' stored in session for user '%s'" format(id, username))
+    new ObjectId(id)
   }
 
   /**
