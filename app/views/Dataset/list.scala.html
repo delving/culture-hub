@@ -1,0 +1,19 @@
+@(dataSets: List[models.DataSet])
+
+@import views.context._
+
+@main("Data Sets") {
+
+<div class="grid_8">
+
+  <h1>Ingested collections</h1>
+
+  <ul>
+    @for(ds <- dataSets) {
+    <li>@ds.name</li>
+    }
+  </ul>
+
+</div>
+
+}

@@ -161,7 +161,7 @@ object SipCreatorEndPoint extends Controller {
 
   private def receiveMapping(recordMapping: RecordMapping, dataSetSpec: String, hash: String): DataSetResponseCode = {
     import models.HarvestStep
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    val dataSet: DataSet = DataSet.findBySpec(dataSetSpec)
     if(!DataSet.canUpdate(dataSetSpec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
@@ -173,7 +173,7 @@ object SipCreatorEndPoint extends Controller {
   }
 
   private def receiveHashes(hashes: Properties, dataSetSpec: String): RenderXml = {
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    val dataSet: DataSet = DataSet.findBySpec(dataSetSpec)
     import scala.collection.JavaConversions.asScalaMap
     val hashesMap: collection.mutable.Map[String, String] = hashes
 
@@ -219,7 +219,7 @@ object SipCreatorEndPoint extends Controller {
                              onReceive: SalatDAO[MetadataRecord, ObjectId] with MDR => Unit,
                              onRecord: (SalatDAO[MetadataRecord, ObjectId] with MDR, MetadataRecord) => Unit): DataSetResponseCode = {
 
-    val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+    val dataSet: DataSet = DataSet.findBySpec(dataSetSpec)
     if(!DataSet.canUpdate(dataSet.spec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
     if (dataSet.hasHash(hash)) {
       return DataSetResponseCode.GOT_IT_ALREADY
@@ -332,7 +332,7 @@ object SipCreatorEndPoint extends Controller {
       import eu.delving.sip.DataSetCommand._
       import eu.delving.sip.DataSetCommand
 
-      val dataSet: DataSet = DataSet.getWithSpec(dataSetSpec)
+      val dataSet: DataSet = DataSet.findBySpec(dataSetSpec)
       val user = getUser()
 
       val command: DataSetCommand = DataSetCommand.valueOf(commandString)

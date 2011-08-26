@@ -9,6 +9,7 @@ import eu.delving.metadata.{Path, RecordMapping}
 import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
@@ -97,18 +98,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     if (allDateSets.length < 3)
       {
         val queuedIndexing = find(MongoDBObject("state" -> QUEUED.toString)).sort(MongoDBObject("name" -> 1)).toList
-        println(queuedIndexing.length)
         queuedIndexing.headOption
       }
     else
       None
   }
 
-  import com.mongodb.casbah.commons.MongoDBObject
   import eu.delving.sip.IndexDocument
   import org.apache.solr.common.SolrInputDocument
 
-  def getWithSpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
+  def findBySpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
   def findAll(publicCollectionsOnly: Boolean = true) = {
     val allDateSets: List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
@@ -220,7 +219,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add more elements: hasDigitalObject. etc
   }
 
-  def getStateWithSpec(spec: String): String = getWithSpec(spec).state
+  def getStateWithSpec(spec: String): String = findBySpec(spec).state
 
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
@@ -386,15 +385,15 @@ object MetadataFormat {
   }
 }
 
-case class Details(
-                          name: String,
-                          uploaded_records: Int = 0,
-                          total_records: Int = 0,
-                          deleted_records: Int = 0,
-                          metadataFormat: MetadataFormat,
-                          facts_bytes: Array[Byte],
-                          errorMessage: Option[String] = Some("")
-                          )
+case class Details(name: String,
+                   uploaded_records: Int = 0,
+                   total_records: Int = 0,
+                   deleted_records: Int = 0,
+                   metadataFormat: MetadataFormat,
+                   facts_bytes: Array[Byte],
+                   facts: MongoDBObject = MongoDBObject(),
+                   errorMessage: Option[String] = Some("")
+                  )
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string

@@ -8,7 +8,7 @@ import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
-import models.{UserReference, PortalTheme, User}
+import models.{PortalTheme, User}
 import org.bson.types.ObjectId
 
 /**

@@ -88,7 +88,9 @@ GET         /{user}/admin/groups/update/{name}                               use
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
 GET         /{user}/admin/groups/load/{name}?                                user.Admin.groupLoad
 
-GET         /{user}/dataset                                                  SipCreatorEndPoint.listAll
+GET         /{user}/dataset                                                  DataSets.list
+GET         /{user}/dataset/{spec}                                           DataSets.view
+GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
 GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl
 POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       SipCreatorEndPoint.acceptFile
 POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      SipCreatorEndPoint.fetchSIP
