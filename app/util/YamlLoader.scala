@@ -2,6 +2,7 @@ package util
 
 import collection.mutable.Buffer
 import org.yaml.snakeyaml.nodes._
+import org.bson.types.ObjectId
 
 /**
  * Loader for Yaml files, based on the play-scala loader but meant for real-life usage. Adds improved support for type conversion.
@@ -56,6 +57,8 @@ object YamlLoader {
           case n: ScalarNode if n.getTag.getClassName == "Id[String]" => play.db.anorm.Id(n.getValue)
           case n: ScalarNode if n.getTag.getClassName == "Id[Long]" => play.db.anorm.Id(java.lang.Long.parseLong(n.getValue, 10))
           case n: ScalarNode if n.getTag.getClassName == "Id[Int]" => play.db.anorm.Id(java.lang.Integer.parseInt(n.getValue, 10))
+
+          case n: ScalarNode if n.getTag.getClassName == "ObjectId" => new org.bson.types.ObjectId(n.getValue)
 
           // TODO probably we also need to do this for other scalar types
           case n: ScalarNode if n.getType.getName == "scala.Option" && n.getTag.getClassName == "bool" => Some(n.getValue.toBoolean)

@@ -14,7 +14,8 @@
     id: "dan#cultureHub"
 
 - !!models.User
-    reference: *bob
+    _id:            4e5679a80364ae80333ab939
+    reference:      *bob
     firstName:      Bob
     lastName:       Marley
     email:          bob@gmail.com
@@ -22,7 +23,8 @@
     isActive:       true
 
 - !!models.User
-    reference: *jimmy
+    _id:            4e5679a80364ae80333ab93a
+    reference:      *jimmy
     firstName:      Jimmy
     lastName:       Hendrix
     email:          jimmy@gmail.com
@@ -30,7 +32,8 @@
     isActive:       true
 
 - !!models.User
-    reference: *dan
+    _id:            4e5679a80364ae80333ab93b
+    reference:      *dan
     firstName:      Dan
     lastName:       Brown
     email:          dan@gmail.com
@@ -52,9 +55,8 @@
     owner: !!bool "false"
 
 - !!models.UserGroup &buddies
-    user: *jimmy
+    user: 4e5679a80364ae80333ab93a
     name: Buddies
-    id: "Buddies#jimmy#cultureHub"
     users:
       ? "dan#cultureHub"
       : *dan
@@ -80,6 +82,7 @@
     spec: Verzetsmuseum
     node: cultureHub
     state: ENABLED
+    user: 4e5679a80364ae80333ab939 # bob
     details:
         name: Verzetsmuseum
         "uploaded_records": 1679
