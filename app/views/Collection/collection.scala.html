@@ -18,11 +18,11 @@
             </tr>
             <tr>
                 <th scope="row">Date Created</th>
-                <td>xx-xx-xxxx</td>
+                <td>@niceTime(collection._id.getTime)</td>
             </tr>
             <tr>
                 <th scope="row">Date Modified</th>
-                <td>xx-xx-xxxx</td>
+                <td>@niceTime(collection.TS_update)</td>
             </tr>
             <tr>
                 <th scope="row">Collaborator(s)</th>
@@ -48,10 +48,7 @@
             </tbody>
         </table>
         <h2>Description</h2>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ultricies euismod sem vitae pretium. Quisque congue, nulla a elementum dapibus, tortor neque feugiat est, vitae placerat enim tortor id diam. Nullam dignissim pulvinar viverra. Donec pulvinar urna et quam dapibus pulvinar eget id libero.</p>
-
-        <p>Sed libero odio, pharetra ut ultrices quis, molestie in libero. Vestibulum odio diam, feugiat vehicula molestie ac, aliquam vitae velit. Nullam iaculis nisi ac velit molestie vitae facilisis nisl placerat. Donec pellentesque, lacus mattis ultrices congue, elit dolor mattis elit, at vestibulum mi arcu id dui. Aenean eu enim id purus ultrices hendrerit. Sed sollicitudin egestas mauris vitae blandit.</p>
+        <p>@niceText(collection.description.getOrElse("No description available"))</p>
 
     </div>
 

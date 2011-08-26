@@ -21,6 +21,7 @@ package object context {
   def browsedFullName = renderArgs.get("browsedFullName")
 
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
+  def niceTime(timestamp: DateTime) = timestamp.toString(DateTimeFormat.fullDateTime())
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
