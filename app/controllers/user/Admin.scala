@@ -33,7 +33,7 @@ object Admin extends DelvingController with UserAuthentication with Secure {
   }
 
   def groupList: Html = {
-    val userGroups = UserGroup.findByUser(getUserId(connectedUser))
+    val userGroups = UserGroup.findByUser(connectedUserId)
     html.groupList(groups = userGroups)
   }
 
@@ -65,28 +65,28 @@ object Admin extends DelvingController with UserAuthentication with Secure {
   def groupSubmit(data: String): Result = {
 
     val group: GroupModel = parse[GroupModel](data)
-    val userGroup = UserGroup(user = getUserReference, name = group.name, users = group.getUsers, id = group.name + "#" + connectedUser + "#" + getNode, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
+    val userGroup = UserGroup(user = connectedUserId, name = group.name, users = group.getUsers, read = group.readRight, update = group.updateRight, delete = group.deleteRight, owner = Some(false))
 
-    val repositories = group.getRepositories
+//    val repositories = group.getRepositories
 
-    for(dataSet <- DataSet.findAllByOwner(getUserReference)) {
-      val traversedHasGroup: Boolean = dataSet.access.groups.contains(userGroup.id)
-      val updatedHasGroup: Boolean = !repositories.filter(r => r._id == dataSet._id).isEmpty
-
-      val newGroups =
-        if(traversedHasGroup && !updatedHasGroup) {
-          // was removed
-          Some(dataSet.access.groups.filterNot(_ == userGroup.id))
-      } else if(!traversedHasGroup && updatedHasGroup) {
-          // was added
-          Some(dataSet.access.groups ++ List(userGroup.id))
-      } else {
-          // nothing changed
-          None
-      }
-
-      newGroups.foreach(g => DataSet.updateGroups(dataSet, g))
-    }
+//    for(dataSet <- DataSet.findAllByOwner(getUserReference)) {
+//      val traversedHasGroup: Boolean = dataSet.access.groups.contains(userGroup._id) // TODO change type of access.groups
+//      val updatedHasGroup: Boolean = !repositories.filter(r => r._id == dataSet._id).isEmpty
+//
+//      val newGroups =
+//        if(traversedHasGroup && !updatedHasGroup) {
+//          // was removed
+//          Some(dataSet.access.groups.filterNot(_ == userGroup._id)) // TODO change type of access.groups
+//      } else if(!traversedHasGroup && updatedHasGroup) {
+//          // was added
+//          Some(dataSet.access.groups ++ List(userGroup._id))
+//      } else {
+//          // nothing changed
+//          None
+//      }
+//
+//      newGroups.foreach(g => DataSet.updateGroups(dataSet, g))
+//    }
 
     val persistedGroup: Option[GroupModel] = group._id match {
       case None => {

@@ -23,6 +23,7 @@ import eu.delving.sip.{IndexDocument, DataSetState}
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    node: String,
+                   user: ObjectId,
                    description: Option[String] = Some(""),
                    state: String, // imported from sip-core
                    details: Details,
@@ -122,10 +123,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
   }
 
-  def findAllByOwner(owner: UserReference) = {
-    val dataSetCursor = findAllByRight(owner.username, owner.node, "owner")
-    (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
-  }
+  def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user" -> owner)).toList
+
 
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())

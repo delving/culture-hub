@@ -18,8 +18,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           user: ObjectId,
                           name: String,
                           node: String,
-                          description: Option[String],
-                          access: AccessRight) extends Repository
+                          description: Option[String]) extends Repository
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
 
@@ -28,6 +27,8 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
   protected def getCollection = userCollectionsCollection
 
   protected def getObjectIdField = "_id"
+
+  def findByUser(user: ObjectId) = UserCollection.find(MongoDBObject("_id" -> user)).toList
 
   def findAllByOwner(owner: UserReference) = {
     val userCollectionCursor = findAllByRight(owner.username, owner.node, "owner")

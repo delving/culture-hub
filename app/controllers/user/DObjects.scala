@@ -27,12 +27,12 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference, collections = objectModel.getCollections))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = connectedUserId, collections = objectModel.getCollections))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = getUserReference, collections = objectModel.getCollections)
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user = connectedUserId, collections = objectModel.getCollections)
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           Some(objectModel)

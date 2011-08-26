@@ -4,7 +4,6 @@ import play.data.validation.Validation
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
-import models.User
 
 package object context {
 
@@ -24,7 +23,7 @@ package object context {
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
-  implicit def userListToString(users: List[User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
+  implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 
 }
 

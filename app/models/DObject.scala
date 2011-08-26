@@ -14,10 +14,15 @@ import org.joda.time.DateTime
 
 case class DObject(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
+                  user: ObjectId,
                   name: String,
                   description: Option[String] = None,
-                  user: UserReference,
-                  collections: List[ObjectId])
+                  collections: List[ObjectId]) {
+
+  // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
+  def userFullName = User.findOneByID(user).get.fullname
+
+}
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resolver[DObject] {
 

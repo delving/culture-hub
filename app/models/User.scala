@@ -21,7 +21,7 @@ case class User(_id: ObjectId = new ObjectId,
   val fullname = firstName + " " + lastName
 }
 
-/** Unique reference to a user across the CultureHub space **/
+/** Unique reference to a user across the CultureHub space. This is useful to lookup users based on their username **/
 case class UserReference(username: String = "", node: String = "", id: String = "")
 
 /** OAuth2 Access token **/

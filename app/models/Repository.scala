@@ -17,5 +17,5 @@ trait Repository {
   val description: Option[String]
   // val organization: String
   // val organizationNode: String
-  val access: AccessRight
+//  val access: AccessRight
 }

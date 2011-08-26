@@ -9,7 +9,7 @@
       <div  class="item-display clearfix" style="min-width: 220px;">
           <img src='@asset("/public/images/dummy-object.png")' width="220"/>
           <label>Name</label><span>@dobject.name</span>
-          <label>Owner</label><span>@dobject.user.username</span>
+          <label>Owner</label><span>@browsedFullName</span>
           <label>Date created</label><span>@niceTime(dobject._id.getTime)</span>
       </div>
       <h2>Description</h2>

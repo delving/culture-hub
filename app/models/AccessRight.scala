@@ -120,8 +120,7 @@ case class UserAction(user: UserReference = UserReference("", "", ""),
 /**A group and its rights **/
 case class UserGroup(
                  _id: ObjectId = new ObjectId,
-                 id: String, // temporary, name#user#node, decide what to do with this
-                 user: UserReference,
+                 user: ObjectId,
                  name: String,
                  users: Map[String, UserReference],
                  read: Option[Boolean] = Some(false),
@@ -131,9 +130,8 @@ case class UserGroup(
 
 object UserGroup extends SalatDAO[UserGroup, ObjectId](groupCollection) {
 
-  def findByUser(userId: String) = {
-    find(MongoDBObject("user.id" -> userId)).toList
-  }
+  def findByUser(userId: ObjectId) = find(MongoDBObject("user" -> userId)).toList
+
 
   /** all repositories (collections) for this group **/
   def getRepositories(id: String): List[Repository] = DataSet.find(MongoDBObject("access.groups" -> id)).toList

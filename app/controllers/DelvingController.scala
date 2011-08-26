@@ -52,13 +52,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
-  @Util def getUserReference = UserReference(username = connectedUser, node = getNode, id = getUserId(connectedUser))
-
-  @Util def getUserReference(username: String) = UserReference(username, getNode, getUserId(username))
-
-  @Util def getUser(displayName: String): User = {
-    User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
-  }
+  @Util def getUser(displayName: String): User = User.findOne(MongoDBObject("_id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
 
   @Util def getUserMongoId(username: String): ObjectId = {
     val id: String = session.get("connectedUserId")

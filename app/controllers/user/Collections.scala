@@ -31,8 +31,8 @@ object Collections extends DelvingController with UserAuthentication with Secure
             name = CollectionModel.name,
             node = getNode,
             user = connectedUserId,
-            description = CollectionModel.description,
-            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
+            description = CollectionModel.description))
+//            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(CollectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = UserCollection.findOneByID(id)

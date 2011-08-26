@@ -38,13 +38,13 @@ object DObjects extends DelvingController {
   }
 }
 
-case class ObjectModel(id: Option[ObjectId] = None, name: String = "", description: Option[String] = Some(""), owner: UserReference, collections: List[Collection]) {
+case class ObjectModel(id: Option[ObjectId] = None, name: String = "", description: Option[String] = Some(""), owner: ObjectId, collections: List[Collection]) {
   def getCollections: List[ObjectId] = for(collection <- collections) yield new ObjectId(collection.id)
 }
 
 object ObjectModel {
 
-  val empty: ObjectModel = ObjectModel(name = "", owner = UserReference("", ""), collections = List())
+  val empty: ObjectModel = ObjectModel(name = "", owner = new ObjectId(), collections = List())
 
   def objectIdListToCollections(collectionIds: List[ObjectId]) = {
     (for (userCollection: UserCollection <- UserCollection.find(MongoDBObject("_id" -> MongoDBObject("$in" -> collectionIds))))

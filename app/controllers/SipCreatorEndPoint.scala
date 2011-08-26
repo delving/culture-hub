@@ -53,6 +53,8 @@ object SipCreatorEndPoint extends Controller {
     connectedUser.get
   }
 
+  def getUserId = getUser()._id
+
   @Before def setUser(): Result = {
     val accessToken: String = params.get("accessKey")
     if (accessToken == null || accessToken.isEmpty) {
@@ -306,7 +308,13 @@ object SipCreatorEndPoint extends Controller {
       dataSet match {
         case None => {
           // TODO fetch correct node
-          DataSet(spec = dataSetSpec, node = "cultureHub", state = DataSetState.INCOMPLETE.toString, details = details, facts_hash = hash, access = AccessRight(users = Map(getUser().reference.id -> UserAction(user = getUser().reference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
+          DataSet(spec = dataSetSpec,
+            node = "cultureHub",
+            user = getUserId,
+            state = DataSetState.INCOMPLETE.toString,
+            details = details,
+            facts_hash = hash,
+            access = AccessRight(users = Map(getUser().reference.id -> UserAction(user = getUser().reference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))), groups = List()))
         }
         case _ => {
           if(!DataSet.canUpdate(dataSetSpec, getUser())) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
