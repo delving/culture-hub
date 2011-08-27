@@ -6,13 +6,13 @@ import models.salatContext._
 import com.mongodb.casbah.Imports._
 import controllers.SolrServer
 import eu.delving.metadata.{Path, RecordMapping}
-import com.mongodb.WriteConcern
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
+import com.mongodb.{BasicDBObject, WriteConcern}
 
 /**
  *
@@ -391,7 +391,7 @@ case class Details(name: String,
                    deleted_records: Int = 0,
                    metadataFormat: MetadataFormat,
                    facts_bytes: Array[Byte],
-                   facts: MongoDBObject = MongoDBObject(),
+                   facts: BasicDBObject = new BasicDBObject(),
                    errorMessage: Option[String] = Some("")
                   )
 
