@@ -5,6 +5,7 @@ import java.io.File
 import xml.{Node, XML}
 import play.exceptions.ConfigurationException
 import play.mvc.results.Result
+import play.templates.Html
 
 /**
  *
@@ -17,7 +18,7 @@ object DataSets extends DelvingController {
 
   import views.User.Dataset._
 
-  def dataSetUpdate(spec: String): Result = Ok
+  def dataSetUpdate(spec: String): Html = html.facts(spec, factDefinitionList)
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
     val file = new File("conf/fact-definition-list.xml")
@@ -32,12 +33,12 @@ object DataSets extends DelvingController {
       node \ "prompt" text,
       node \ "toolTip" text,
       (node \ "automatic" text).equalsIgnoreCase("true"),
-      (for(option <- (node \ "options" \ "string")) yield (option text)).toList
+      for(option <- (node \ "options" \ "string")) yield (option text)
     )
   }
 
 }
 
-case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: List[String]) {
+case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
   def hasOptions = !options.isEmpty
 }

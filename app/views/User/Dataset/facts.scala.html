@@ -1,11 +1,19 @@
-@(spec: String = "")
+@(spec: String = "", factDefinitions: Seq[controllers.user.FactDefinition])
 
 @import views.context._
+@import views.tags.html._
 
 @main("Update facts") {
 
 <div class="grid_8">
-  Some
+
+  @for(factDef <- factDefinitions) {
+    @if(factDef.hasOptions) {
+      @staticSelectField(factDef.name, factDef.prompt, factDef.options.map(opt => (opt, opt)), factDef.tooltip)
+    } else {
+      @textField(factDef.name, factDef.prompt, factDef.name, factDef.tooltip)
+    }
+  }
 
 </div>
 }
