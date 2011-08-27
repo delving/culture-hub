@@ -55,7 +55,7 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure) {
  * @param scope the scope for the view model binding
  */
 function load(url, viewModel, scope) {
-    $.get(url, function(data) {
+    $.getJSON(url, {}, function(data) {
         updateViewModel(data, viewModel, scope);
     });
 }

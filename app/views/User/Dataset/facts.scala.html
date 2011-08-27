@@ -34,7 +34,7 @@
       event.preventDefault();
       $.postKOJson('/@userName/dataset/@spec/facts', factsModel, function(data) {
           updateViewModel(data, factsModel, scope);
-          window.location.href = '/@userName/dataset/@spec'
+          window.location.href = '/@userName/dataset/@spec/facts'
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving facts, please try again');
         $('#result').show().fadeOut('3000');

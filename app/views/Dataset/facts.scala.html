@@ -1,0 +1,15 @@
+@(dataSet: models.DataSet, facts: Seq[controllers.Fact])
+
+@import views.context._
+
+@main("Facts of Data Set " + dataSet.name + " of user " + browsedFullName) {
+
+<div class="grid_8">
+  <h1>Facts for Data Set <span>"@dataSet.spec"</span></h1>
+
+  @for(fact <- facts) {
+  <strong>@fact.prompt</strong> @fact.value <br>
+  }
+
+</div>
+}

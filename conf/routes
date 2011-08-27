@@ -90,7 +90,7 @@ GET         /{user}/admin/groups/load/{name}?                                use
 
 GET         /{user}/dataset                                                  DataSets.list
 GET         /{user}/dataset/{spec}                                           DataSets.view
-GET         /{user}/dataset/{spec}/facts                                     DataSets.factsLoad
+GET         /{user}/dataset/{spec}/facts                                     DataSets.facts
 POST        /{user}/dataset/{spec}/facts                                     user.DataSets.factsSubmit
 GET         /{user}/dataset/{spec}/facts/update                              user.DataSets.factsUpdate
 

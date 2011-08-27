@@ -2,7 +2,6 @@ package controllers
 
 import play.templates.Html
 import models.DataSet
-import play.mvc.results.Result
 import com.mongodb.casbah.Implicits._
 import java.io.File
 import play.exceptions.ConfigurationException
@@ -26,18 +25,25 @@ object DataSets extends DelvingController {
   }
 
   def view(spec: String): Html = {
-    // TODO check if connected user has access
+   // TODO check if connected user has access
     val dataSet = DataSet.findBySpec(spec)
     html.view(dataSet)
   }
 
-  def factsLoad(spec: String): Result = {
+  def facts(spec: String): AnyRef = {
     // TODO check if connected user has access
     val dataSet = DataSet.findBySpec(spec)
     val initialFacts = (factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, AnyRef]
     val storedFacts = (for (fact <- dataSet.details.facts) yield (fact._1, fact._2)).toMap[String, AnyRef]
     val facts = initialFacts ++ storedFacts
-    Json(facts)
+
+    val describedFacts = for(factDef <- factDefinitionList) yield Fact(factDef.name, factDef.prompt, facts(factDef.name).toString)
+
+    request.format match {
+      case "html" => html.facts(dataSet, describedFacts)
+      case "json" => Json(facts)
+      case _ => BadRequest
+    }
   }
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
@@ -62,3 +68,5 @@ object DataSets extends DelvingController {
 case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
   def hasOptions = !options.isEmpty
 }
+
+case class Fact(name: String, prompt: String, value: String)
