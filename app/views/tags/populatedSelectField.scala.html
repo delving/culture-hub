@@ -1,4 +1,4 @@
-@(name:String, label:String, options: Seq[(String, String)], help: String = "")(implicit prefix: String = "")
+@(name:String, label:String, options: Seq[(String, String)], dataBind: String = "", help: String = "")(implicit prefix: String = "")
 @import views.context._
 
 @fieldName = @{ (if (prefix.length > 0) prefix + "." else "") + name}
@@ -6,7 +6,7 @@
 <div class="field">
     <label for="@fieldName">@label</label>
     <div class="inputs">
-        <select id="@fieldName" name="@name">
+        <select id="@fieldName" name="@name" data-bind="@dataBind">
         @for(option <- options) {
         <option value="@option._1">@option._2</option>
         }
@@ -15,3 +15,6 @@
         <span class="help">@help</span>
     </div>
 </div>
+<script type="text/javascript">
+
+</script>

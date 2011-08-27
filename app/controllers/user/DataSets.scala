@@ -1,44 +1,30 @@
 package controllers.user
 
-import controllers.DelvingController
-import java.io.File
-import xml.{Node, XML}
-import play.exceptions.ConfigurationException
 import play.mvc.results.Result
-import play.templates.Html
+import extensions.CHJson
+import models.DataSet
+import scala.collection.JavaConversions._
+import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.{BasicDBObject, WriteConcern}
+import controllers.{Secure, UserAuthentication, DelvingController}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSets extends DelvingController {
-
-  lazy val factDefinitionList = parseFactDefinitionList
+object DataSets extends DelvingController with UserSecured {
 
   import views.User.Dataset._
 
-  def dataSetUpdate(spec: String): Html = html.facts(spec, factDefinitionList)
+  def factsUpdate(spec: String): AnyRef = if(spec.isEmpty) BadRequest else html.facts(spec, controllers.DataSets.factDefinitionList)
 
-  private def parseFactDefinitionList: Seq[FactDefinition] = {
-    val file = new File("conf/fact-definition-list.xml")
-    if (!file.exists()) throw new ConfigurationException("Fact definition configuration file not found!")
-    val xml = XML.loadFile(file)
-    for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
+  def factsSubmit(data: String): Result = {
+    val facts = CHJson.parse[Map[String, String]](data)
+    val spec: String = facts("spec")
+    val factsObject = new BasicDBObject(facts)
+    DataSet.update(MongoDBObject("spec" -> spec), MongoDBObject("$set" -> MongoDBObject("details.facts" -> factsObject)), false, false, new WriteConcern())
+    Ok
   }
-
-  private def parseFactDefinition(node: Node) = {
-    FactDefinition(
-      node \ "@name" text,
-      node \ "prompt" text,
-      node \ "toolTip" text,
-      (node \ "automatic" text).equalsIgnoreCase("true"),
-      for(option <- (node \ "options" \ "string")) yield (option text)
-    )
-  }
-
 }
 
-case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
-  def hasOptions = !options.isEmpty
-}

@@ -17,16 +17,9 @@ import com.novus.salat.dao.SalatDAOUpdateError
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends DelvingController with UserAuthentication with Secure {
+object Admin extends DelvingController with UserSecured {
 
   import views.User.Admin._
-
-  @Before def checkUser(): Result = {
-    if (connectedUser != params.get("user")) {
-      return Forbidden("You do not have access here")
-    }
-    Continue
-  }
 
   def index: Html = {
     html.index()

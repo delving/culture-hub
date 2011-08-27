@@ -133,6 +133,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
   }
 
+  def updateBySpec(spec: String, dataSet: DataSet) {
+    update(MongoDBObject("spec" -> dataSet.spec), dataSet, false, false, new WriteConcern())
+  }
+
   def updateState(dataSet: DataSet, state: DataSetState) {
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
   }
