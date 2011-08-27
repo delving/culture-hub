@@ -23,7 +23,10 @@ package object salatContext {
   implicit val ctx = new Context {
     val name = Some("PlaySalatContext")
   }
-  ctx.registerClassLoader(Play.classloader)
+
+  def initSalat() {
+    ctx.registerClassLoader(Play.classloader)
+  }
 }
 
 }
