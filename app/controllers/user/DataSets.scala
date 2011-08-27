@@ -1,11 +1,10 @@
 package controllers.user
 
 import controllers.DelvingController
-import play.mvc.results.Result
-import com.mongodb.casbah.commons.MongoDBObject
 import java.io.File
-import play.exceptions.ConfigurationException
 import xml.{Node, XML}
+import play.exceptions.ConfigurationException
+import play.mvc.results.Result
 
 /**
  *
@@ -14,8 +13,7 @@ import xml.{Node, XML}
 
 object DataSets extends DelvingController {
 
-  // done once, at object instantiation time
-  parseFactDefinitionList
+  lazy val factDefinitionList = parseFactDefinitionList
 
   import views.User.Dataset._
 
@@ -25,12 +23,7 @@ object DataSets extends DelvingController {
     val file = new File("conf/fact-definition-list.xml")
     if (!file.exists()) throw new ConfigurationException("Fact definition configuration file not found!")
     val xml = XML.loadFile(file)
-
-    val factDefinitionList = xml \ "fact-definition"
-
-    for (e <- factDefinitionList) yield e match {
-      case <fact-definition>{_*}</fact-definition> => parseFactDefinition(e)
-    }
+    for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
   }
 
   private def parseFactDefinition(node: Node) = {
@@ -38,8 +31,8 @@ object DataSets extends DelvingController {
       node \ "@name" text,
       node \ "prompt" text,
       node \ "toolTip" text,
-      (node \ "automatic" text) toBoolean,
-      (for(option <- node \ "options") yield (option \ "string" text)).toList
+      (node \ "automatic" text).equalsIgnoreCase("true"),
+      (for(option <- (node \ "options" \ "string")) yield (option text)).toList
     )
   }
 
