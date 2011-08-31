@@ -2,7 +2,7 @@ package util
 
 import collection.mutable.Buffer
 import org.yaml.snakeyaml.nodes._
-import org.bson.types.ObjectId
+import com.mongodb.BasicDBObject
 
 /**
  * Loader for Yaml files, based on the play-scala loader but meant for real-life usage. Adds improved support for type conversion.
@@ -59,6 +59,7 @@ object YamlLoader {
           case n: ScalarNode if n.getTag.getClassName == "Id[Int]" => play.db.anorm.Id(java.lang.Integer.parseInt(n.getValue, 10))
 
           case n: ScalarNode if n.getTag.getClassName == "ObjectId" => new org.bson.types.ObjectId(n.getValue)
+          case n: ScalarNode if n.getType.getName == "org.joda.time.DateTime" => new org.joda.time.DateTime(n.getValue)
 
           // TODO probably we also need to do this for other scalar types
           case n: ScalarNode if n.getType.getName == "scala.Option" && n.getTag.getClassName == "bool" => Some(n.getValue.toBoolean)
@@ -84,20 +85,10 @@ object YamlLoader {
             }
             buffer.toList
           }
-          case n: MappingNode if n.getType.getName == "scala.collection.immutable.Map" => {
+          case n: MappingNode if n.getType.getName == "scala.collection.immutable.Map" => constructMap(n)
+          case n: MappingNode if n.getType.getName == "com.mongodb.BasicDBObject" => {
             import scala.collection.JavaConversions._
-            val map = for (node <- n.getValue) yield {
-              val keyNode = node.asInstanceOf[NodeTuple].getKeyNode
-              val valueNode = node.asInstanceOf[NodeTuple].getValueNode
-
-              val value = valueNode match {
-                case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
-                case v: Node if v.isInstanceOf[MappingNode] => constructObject(v)
-                case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
-              }
-              (keyNode.asInstanceOf[ScalarNode].getValue, value)
-            }
-            map.toMap
+            new BasicDBObject(constructMap(n))
           }
           case n: ScalarNode if n.getType.getName == "[B" => n.getValue.getBytes("UTF-8")
           case n: MappingNode if n.getType.getName == "java.lang.Object" && n.getTag.getClassName.contains("models.") => {
@@ -109,6 +100,23 @@ object YamlLoader {
           case _ => super.constructObject(node)
         }
       }
+
+      def constructMap(n: MappingNode) = {
+        import scala.collection.JavaConversions._
+        val map = for (node <- n.getValue) yield {
+          val keyNode = node.asInstanceOf[NodeTuple].getKeyNode
+          val valueNode = node.asInstanceOf[NodeTuple].getValueNode
+
+          val value = valueNode match {
+            case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
+            case v: Node if v.isInstanceOf[MappingNode] => constructObject(v)
+            case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
+          }
+          (keyNode.asInstanceOf[ScalarNode].getValue, value)
+        }
+        map.toMap
+      }
+
     }
 
 
