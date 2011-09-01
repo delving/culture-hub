@@ -381,15 +381,12 @@ case class Mapping(recordMapping: String,
                    errorMessage: Option[String] = Some(""),
                    indexed: Boolean = false) {
 
-  import xml.Elem
-
-  def toXml: Elem = {
+  def toXml =
     <mapping>
       <name>{format.prefix}</name>
       <rec_indexed>{rec_indexed}</rec_indexed>
       <indexed>{indexed}</indexed>
     </mapping>
-  }
 }
 
 case class RecordDefinition(prefix: String,
@@ -399,7 +396,7 @@ case class RecordDefinition(prefix: String,
 
 object RecordDefinition {
 
-  private val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
+  val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
 
   lazy val recordDefinitions = parseRecordDefinitions
 

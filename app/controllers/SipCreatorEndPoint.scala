@@ -16,7 +16,7 @@ import extensions.AdditionalActions
 import scala.util.matching.Regex
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
-import java.io.{File, InputStream}
+import java.io._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -193,24 +193,44 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   }
 
   def fetchSIP(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec)))
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec), 404))
 
     val zipOut = new ZipOutputStream(response.out)
 
     zipOut.putNextEntry(new ZipEntry("dataset-facts.txt"))
-    IO.writeContent(dataSet.details.getFactsAsText, zipOut)
+    writeContent(dataSet.details.getFactsAsText, zipOut)
     zipOut.closeEntry()
 
     zipOut.putNextEntry(new ZipEntry("fact-definition-list.xml"))
-    IO.writeContent(IO.readContentAsString(new File("conf/fact-definition-list.xml")), zipOut)
+    writeContent(IO.readContentAsString(new File("conf/fact-definition-list.xml")), zipOut)
     zipOut.closeEntry()
 
-    // TODO record definitions
-    // TODO records
-    // TODO mappings
+    for(prefix <- dataSet.mappings.keySet) {
+      val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
+      zipOut.putNextEntry(new ZipEntry(recordDefinition))
+      writeContent(IO.readContentAsString(new File("conf/" + recordDefinition)), zipOut)
+      zipOut.closeEntry()
+    }
+
+    val records = DataSet.getRecords(dataSet)
+
+    for(mapping <- dataSet.mappings) {
+      zipOut.putNextEntry(new ZipEntry("mapping-%s.xml".format(mapping._1)))
+      writeContent(mapping._2.toXml.toString(), zipOut)
+      zipOut.closeEntry()
+    }
+
+    zipOut.close()
 
     Ok
 
+  }
+
+  private def writeContent(content: String, out: OutputStream) {
+    val printWriter = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
+    printWriter.println(content)
+    printWriter.flush()
+    out.flush
   }
 
 }
