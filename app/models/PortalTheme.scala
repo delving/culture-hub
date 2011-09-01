@@ -5,7 +5,7 @@ import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
-import eu.delving.metadata.{MetadataModelImpl, RecordDefinition}
+import eu.delving.metadata.MetadataModelImpl
 
 /**
  *
@@ -31,7 +31,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        homePage:                            Option[String] = Some(""),
                        metadataPrefix:                      Option[String] = Some("")) {
 
-  def getRecordDefinition: RecordDefinition = {
+  def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
     try {
       // getRecordDefinition should be in the interface
       ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)

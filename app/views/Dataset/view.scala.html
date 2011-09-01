@@ -1,4 +1,4 @@
-@(dataSet: models.DataSet)
+@(dataSet: models.DataSet, facts: Seq[controllers.Fact])
 
 @import views.context._
 
@@ -6,6 +6,10 @@
 
 <div class="grid_8">
   <h1>Data Set <span>"@dataSet.spec"</span></h1>
+
+  @for(fact <- facts) {
+  <strong>@fact.prompt</strong> @fact.value <br>
+  }
 
 
 </div>

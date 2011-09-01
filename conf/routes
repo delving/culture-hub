@@ -89,18 +89,18 @@ POST        /{user}/admin/groups/submit                                      use
 GET         /{user}/admin/groups/load/{name}?                                user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  DataSets.list
-GET         /{user}/dataset/{spec}                                           DataSets.view
-GET         /{user}/dataset/{spec}/facts                                     DataSets.facts
-POST        /{user}/dataset/{spec}/facts                                     user.DataSets.factsSubmit
-GET         /{user}/dataset/{spec}/facts/update                              user.DataSets.factsUpdate
+GET         /{user}/dataset/new                                              user.DataSets.dataSetUpdate
+GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
+POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
+GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
 
-GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl
-POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       SipCreatorEndPoint.acceptFile
-POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      SipCreatorEndPoint.fetchSIP
-GET         /{user}/admin/dataset                                            SipCreatorEndPoint.secureListAll
-GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    SipCreatorEndPoint.secureIndexingControl
 
-GET         /users/search                                                    Users.listAsTokens
+GET         /{user}/dataset/sip-creator/list                                SipCreatorEndPoint.listAll
+POST        /{user}/dataset/sip-creator/submit/{spec}                       SipCreatorEndPoint.acceptFileList
+POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}            SipCreatorEndPoint.acceptFile
+GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                SipCreatorEndPoint.fetchSIP
+
+GET         /users/search                                                   Users.listAsTokens
 
 # Portal Administration
 GET        /admin/themes                                                     admin.Themes.index

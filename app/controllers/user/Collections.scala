@@ -10,7 +10,7 @@ import com.novus.salat.dao.SalatDAOUpdateError
 import extensions.CHJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import org.scala_tools.time.Imports._
-import models.{UserAction, AccessRight, UserCollection}
+import models.UserCollection
 
 /**
  * Manipulation of user collections

@@ -45,7 +45,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
   }
 
-  val connectedUserId = getUserMongoId(connectedUser)
+  @Util def connectedUserId = getUserMongoId(connectedUser)
 
   // TODO
   @Util def getNode = "cultureHub"

@@ -4,8 +4,8 @@ import java.util.Date
 import org.bson.types.ObjectId
 import models.salatContext._
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.Implicits._
 import controllers.SolrServer
-import eu.delving.metadata.{Path, RecordMapping}
 import com.novus.salat._
 import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
@@ -13,6 +13,12 @@ import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
 import com.mongodb.{BasicDBObject, WriteConcern}
+import com.mongodb.casbah.commons.conversions.scala._
+import org.joda.time.DateTime
+import java.io.File
+import play.exceptions.ConfigurationException
+import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
+import xml.{NodeSeq, Node, XML}
 
 /**
  *
@@ -28,45 +34,29 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    description: Option[String] = Some(""),
                    state: String, // imported from sip-core
                    details: Details,
-                   facts_hash: String,
-                   source_hash: String = "",
-                   downloaded_source_hash: Option[String] = Some(""),
+                   lastUploaded: DateTime,
+                   hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
                    access: AccessRight) extends Repository {
-
-  import xml.Elem
 
   val name = spec
 
   def getDataSetState: DataSetState = DataSetState.get(state)
 
-  def getHashes: List[String] = {
-    val mappingList = mappings.values.map(_.mapping_hash).toList
-    val hashes: List[String] = facts_hash :: source_hash :: mappingList
-    hashes.filterNot(_.isEmpty)
+  def getUser: User = User.findOneByID(user).get // orElse we are in trouble
+
+  def getFacts: Map[String, String] = {
+    val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]
+    val storedFacts = (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
+    initialFacts ++ storedFacts
   }
 
-  def hasHash(hash: String): Boolean = getHashes.contains(hash)
-
-  // todo update sip-creator with richer info.
-  def toXml: Elem = {
-    <dataset>
-      <spec>{spec}</spec>
-      <name>{details.name}</name>
-      <state>{state.toString}</state>
-      <recordCount>{details.total_records}</recordCount>
-      <!--uploadedRecordCount>{details.uploaded_records}</uploadedRecordCount-->
-      <recordsIndexed deprecated="This item will be removed later. See mappings">0</recordsIndexed>
-      <hashes>{getHashes.map(hash => <string>{hash}</string>)}</hashes>
-      <!--errorMessage>{details.errorMessage}</errorMessage>
-      <mappings>{mappings.values.map{mapping => mapping.toXml}}</mappings-->
-    </dataset>
-  }
+  def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
 
   def hasDetails: Boolean = details != null
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[MetadataFormat] = {
+  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
     val metadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
     if (publicCollectionsOnly)
       metadataFormats.filter(!_.accessKeyRequired)
@@ -74,23 +64,47 @@ case class DataSet(_id: ObjectId = new ObjectId,
       metadataFormats
   }
 
-  def setMapping(mapping: RecordMapping, hash: String, accessKeyRequired: Boolean = true): DataSet = {
+  def getAllNamespaces: Map[String, String] = {
+    val metadataNamespaces = (for (ns <- MetadataNamespace.values) yield (ns.getPrefix, ns.getUri)).toMap[String, String]
+    val mdFormatNamespaces = Map(details.metadataFormat.prefix -> details.metadataFormat.namespace)
+    metadataNamespaces ++ mdFormatNamespaces
+  }
+
+  def setMapping(mapping: RecordMapping, accessKeyRequired: Boolean = true): DataSet = {
     import eu.delving.metadata.MetadataNamespace
 
     val ns: Option[MetadataNamespace] = MetadataNamespace.values().filter(ns => ns.getPrefix == mapping.getPrefix).headOption
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
-    };
-    val newMapping = Mapping(recordMapping = RecordMapping.toXml(mapping),
-      format = MetadataFormat(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired),
-      mapping_hash = hash)
+    }
+    val newMapping = Mapping(recordMapping = RecordMapping.toXml(mapping), format = RecordDefinition(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired))
     // remove First Harvest Step
     this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
   }
-
 }
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
+
+  RegisterJodaTimeConversionHelpers()
+
+  lazy val factDefinitionList = parseFactDefinitionList
+
+  private def parseFactDefinitionList: Seq[FactDefinition] = {
+    val file = new File("conf/fact-definition-list.xml")
+    if (!file.exists()) throw new ConfigurationException("Fact definition configuration file not found!")
+    val xml = XML.loadFile(file)
+    for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
+  }
+
+  private def parseFactDefinition(node: Node) = {
+    FactDefinition(
+      node \ "@name" text,
+      node \ "prompt" text,
+      node \ "toolTip" text,
+      (node \ "automatic" text).equalsIgnoreCase("true"),
+      for (option <- (node \ "options" \ "string")) yield (option text)
+    )
+  }
 
   def findCollectionForIndexing() : Option[DataSet] = {
     import eu.delving.sip.DataSetState._
@@ -107,7 +121,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   import eu.delving.sip.IndexDocument
   import org.apache.solr.common.SolrInputDocument
 
-  def findBySpec(spec: String): DataSet = find(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
+  // FIXME: this assumes that the spec is unique accross all users
+  def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec))
+
+  def retrieveBySpec(spec: String): DataSet = findBySpec(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
   def findAll(publicCollectionsOnly: Boolean = true) = {
     val allDateSets: List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
@@ -145,6 +162,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("access.groups" -> groups)), false, false, new WriteConcern())
   }
 
+  def addHash(dataSet: DataSet, key: String, hash: String) {
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject(("hashes." + key) -> hash)))
+  }
+
   def delete(dataSet: DataSet) {
     connection("Records." + dataSet.spec).drop()
     remove(dataSet)
@@ -164,7 +185,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // throw exception for illegal id construction
     val spec = parsedId.head
     val recordId = parsedId.last
-    val ds: Option[DataSet] = find(spec)
+    val ds: Option[DataSet] = findBySpec(spec)
     val record: Option[MetadataRecord] = getRecords(ds.get).findOneByID(new ObjectId(recordId))
     // throw RecordNotFoundException
     if (record == None) throw new RecordNotFoundException("Unable to find record for " + identifier)
@@ -175,10 +196,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       val solrDoc: IndexDocument = transFormXml(metadataFormat, ds.get, mappedRecord)
       Some(mappedRecord.copy(mappedMetadata = Map[String, IndexDocument](metadataFormat -> solrDoc)))
     }
-  }
-
-  def find(spec: String): Option[DataSet] = {
-    findOne(MongoDBObject("spec" -> spec))
   }
 
   def deleteFromSolr(dataSet: DataSet) {
@@ -223,7 +240,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add more elements: hasDigitalObject. etc
   }
 
-  def getStateWithSpec(spec: String): String = findBySpec(spec).state
+  def getStateWithSpec(spec: String): String = findBySpec(spec).get.state
 
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
@@ -306,7 +323,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[MetadataFormat] = {
+  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
     val metadataFormats = findAll(publicCollectionsOnly).flatMap{
       ds =>
         ds.getMetadataFormats(publicCollectionsOnly)
@@ -314,12 +331,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     metadataFormats.toList.distinct
   }
 
-  def getMetadataFormats(spec: String, accessKey: String): List[MetadataFormat] = {
+  def getMetadataFormats(spec: String, accessKey: String): List[RecordDefinition] = {
     // todo add accessKey checker
     val accessKeyIsValid: Boolean = true
-    find(spec) match {
+    findBySpec(spec) match {
       case ds: Some[DataSet] => ds.get.getMetadataFormats(accessKeyIsValid)
-      case None => List[MetadataFormat]()
+      case None => List[RecordDefinition]()
     }
   }
 
@@ -339,6 +356,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   protected def getObjectIdField = "spec"
 }
 
+case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
+  def hasOptions = !options.isEmpty
+}
+
 //object DataSetStateType extends Enumeration {
 //
 //  case class DataSetState1(state: String) extends Val(state)
@@ -355,8 +376,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 
 case class Mapping(recordMapping: String,
-                   format: MetadataFormat,
-                   mapping_hash: String,
+                   format: RecordDefinition,
                    rec_indexed: Int = 0,
                    errorMessage: Option[String] = Some(""),
                    indexed: Boolean = false) {
@@ -372,20 +392,36 @@ case class Mapping(recordMapping: String,
   }
 }
 
-case class MetadataFormat(prefix: String,
+case class RecordDefinition(prefix: String,
                           schema: String,
                           namespace: String,
                           accessKeyRequired: Boolean = false)
 
-object MetadataFormat {
+object RecordDefinition {
 
-  def create(prefix: String, accessKeyRequired: Boolean = true): MetadataFormat = {
+  private val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
+
+  lazy val recordDefinitions = parseRecordDefinitions
+
+  private def parseRecordDefinitions: List[RecordDefinition] = {
+    val conf = new File("conf/")
+    val definitionContent = for(f <- conf.listFiles().filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))) yield XML.loadFile(f)
+    definitionContent flatMap { parseRecordDefinition(_) } toList
+  }
+
+  private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
+    val prefix = node \ "@prefix" text
+    val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find {_.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
+    Some(RecordDefinition(recordDefinitionNamespace \ "@prefix" text, recordDefinitionNamespace \ "@schema" text, recordDefinitionNamespace \ "@uri" text))
+  }
+
+  def create(prefix: String, accessKeyRequired: Boolean = true): RecordDefinition = {
     import eu.delving.metadata.MetadataNamespace
 
     val ns: MetadataNamespace = MetadataNamespace.values().filter(ns => ns.getPrefix == prefix).headOption.getOrElse(
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", prefix))
     )
-    MetadataFormat(ns.getPrefix, ns.getSchema, ns.getUri, accessKeyRequired)
+    RecordDefinition(ns.getPrefix, ns.getSchema, ns.getUri, accessKeyRequired)
   }
 }
 
@@ -393,11 +429,22 @@ case class Details(name: String,
                    uploaded_records: Int = 0,
                    total_records: Int = 0,
                    deleted_records: Int = 0,
-                   metadataFormat: MetadataFormat,
-                   facts_bytes: Array[Byte],
+                   metadataFormat: RecordDefinition,
                    facts: BasicDBObject = new BasicDBObject(),
                    errorMessage: Option[String] = Some("")
-                  )
+                  ) {
+
+  def getFactsAsText: String = {
+    import com.mongodb.casbah.Implicits._
+    val builder = new StringBuilder
+    facts foreach {
+      fact => builder.append(fact._1).append("=").append(fact._2).append("\n")
+    }
+    builder.toString()
+  }
+
+
+}
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string

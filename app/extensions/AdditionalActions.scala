@@ -13,6 +13,7 @@ import com.codahale.jerkson.util.CaseClassSigParser
 import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.Version
 import org.bson.types.ObjectId
+import play.mvc.Controller
 
 /**
  *
@@ -36,7 +37,7 @@ object CHJson extends com.codahale.jerkson.Json {
 /**
  * This trait provides additional actions that can be used in controllers
  */
-trait AdditionalActions {
+trait AdditionalActions { self: Controller =>
 
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
@@ -46,6 +47,11 @@ trait AdditionalActions {
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 
   def RenderKml(entity: AnyRef) = new RenderKml(entity)
+
+  def TextError(why: String, status: Int = 500) = {
+    response.status = new java.lang.Integer(status)
+    Text(why)
+  }
 }
 
 
