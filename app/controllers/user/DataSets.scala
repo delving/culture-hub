@@ -55,7 +55,8 @@ object DataSets extends DelvingController with UserSecured {
             facts = factsObject,
             metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
           ),
-          mappings = buildMappings(dataSet.recordDefinitions)
+          mappings = buildMappings(dataSet.recordDefinitions),
+          hints = Array()
         )
       )
     }

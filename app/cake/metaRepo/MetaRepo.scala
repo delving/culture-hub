@@ -1,5 +1,7 @@
 package cake.metaRepo
 
+import org.joda.time.DateTime
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -39,13 +41,12 @@ trait MetaRepo {
 trait HarvestStep {
 
   import org.bson.types.ObjectId
-  import java.util.Date
   import com.mongodb.DBObject
   import models.MetadataRecord
 
   def getId: ObjectId
 
-  def getExpiration: Date
+  def getExpiration: DateTime
 
   def getListSize: Int
 
@@ -77,16 +78,15 @@ trait HarvestStep {
 // implemented
 trait PmhRequest {
 
-  import java.util.Date
   import cake.metaRepo.PmhVerbType.PmhVerb
 
   def getVerb: PmhVerb
 
   def getSet: String
 
-  def getFrom: Date
+  def getFrom: DateTime
 
-  def getUntil: Date
+  def getUntil: DateTime
 
   def getMetadataPrefix: String
 }

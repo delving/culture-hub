@@ -3,7 +3,7 @@ package controllers
 import models._
 import play.mvc
 import mvc.{Before, Controller}
-import java.util.Date
+import org.scala_tools.time.Imports._
 import eu.delving.sip.DataSetState
 import play.mvc.results.Result
 import eu.delving.metadata.{RecordMapping, MetadataModel}
@@ -18,6 +18,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
 import java.io._
 import com.mongodb.casbah.commons.MongoDBObject
+import org.apache.commons.io.IOUtils
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -128,8 +129,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val actionResult: Either[String, String] = kind match {
       case "mapping" if extension == "xml" => receiveMapping(dataSet, RecordMapping.read(inputStream, metadataModel), spec, hash)
-      case "hints"   if extension == "txt" => Left("not yet implemented")
-      case "source"  if extension == "xml.gz" => receiveSource(dataSet, inputStream, spec)
+      case "hints"   if extension == "txt" => receiveHints(dataSet, inputStream)
+      case "source"  if extension == "xml.gz" => receiveSource(dataSet, inputStream)
       case "valid"   if extension == "bit" => Left("not yet implemented")
       case _ => return TextError("Unknown file type %s".format(kind))
     }
@@ -152,7 +153,13 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Right("Good news everybody")
   }
 
-  private def receiveSource(dataSet: DataSet, inputStream: InputStream, spec: String): Either[String, String] = {
+  private def receiveHints(dataSet: DataSet, inputStream: InputStream) = {
+    val updatedDataSet = dataSet.copy(hints = IO.readContent(inputStream))
+    DataSet.save(updatedDataSet)
+    Right("Allright")
+  }
+
+  private def receiveSource(dataSet: DataSet, inputStream: InputStream): Either[String, String] = {
 //    if(!DataSet.canUpdate(dataSet.spec, getConnectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
 
     HarvestStep.removeFirstHarvestSteps(dataSet.spec)
@@ -168,7 +175,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       while (continue) {
         val record = parser.nextRecord()
         if (record != None) {
-          val toInsert = record.get.copy(modified = new Date(), deleted = false)
+          val toInsert = record.get.copy(modified = DateTime.now, deleted = false)
           records.insert(toInsert)
         } else {
           continue = false
@@ -178,7 +185,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       case t: Throwable => return Left("Error parsing records: " + t.getMessage)
     }
 
-    val recordCount: Int = DataSet.getRecordCount(spec)
+    val recordCount: Int = DataSet.getRecordCount(dataSet.spec)
 
     val details = dataSet.details.copy(
       total_records = recordCount,
@@ -195,62 +202,67 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val zipOut = new ZipOutputStream(response.out)
 
-    zipOut.putNextEntry(new ZipEntry("dataset-facts.txt"))
-    writeContent(dataSet.details.getFactsAsText, zipOut)
-    zipOut.closeEntry()
+    writeEntry("dataset-facts.txt", zipOut) { out =>
+      writeContent(dataSet.details.getFactsAsText, out)
+    }
 
-    zipOut.putNextEntry(new ZipEntry("fact-definition-list.xml"))
-    writeContent(IO.readContentAsString(new File("conf/fact-definition-list.xml")), zipOut)
-    zipOut.closeEntry()
+    writeEntry("fact-definition-list.xml", zipOut) { out =>
+      writeContent(IO.readContentAsString(new File("conf/fact-definition-list.xml")), out)
+    }
+
+    writeEntry("hints.txt", zipOut) { out =>
+      IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
+    }
 
     for(prefix <- dataSet.mappings.keySet) {
       val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
-      zipOut.putNextEntry(new ZipEntry(recordDefinition))
-      writeContent(IO.readContentAsString(new File("conf/" + recordDefinition)), zipOut)
-      zipOut.closeEntry()
+      writeEntry(recordDefinition, zipOut) { out =>
+        writeContent(IO.readContentAsString(new File("conf/" + recordDefinition)), out)
+      }
     }
 
     val records = DataSet.getRecords(dataSet)
 
-    val pw = new PrintWriter(new OutputStreamWriter(zipOut, "utf-8"))
+    writeEntry("records.xml", zipOut) { out =>
+      val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
 
-    zipOut.putNextEntry(new ZipEntry("records.xml"))
-    val builder = new StringBuilder
-    builder.append("<delving-sip-source ")
-    for(ns <- dataSet.namespaces) {
-      builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2))
-      builder.append(" ")
-    }
-    builder.append(">")
-    write(builder.toString(), pw, zipOut)
+      val builder = new StringBuilder
+      builder.append("<delving-sip-source ")
+      for(ns <- dataSet.namespaces) builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+      builder.append(">")
+      write(builder.toString(), pw, out)
 
-    var count = 0
-    for(record <- records.find(MongoDBObject())) {
-      pw.println("<input>")
-      pw.println(record.getXmlString())
-      pw.println("</input>")
+      var count = 0
+      for(record <- records.find(MongoDBObject())) {
+        pw.println("<input>")
+        pw.println(record.getXmlString())
+        pw.println("</input>")
 
-      if(count % 100 == 0) {
-        pw.flush()
-        zipOut.flush()
+        if(count % 100 == 0) {
+          pw.flush()
+          out.flush()
+        }
+        count += 1
       }
-      count += 1
+      write("</delving-sip-source>", pw, out)
     }
-
-    write("</delving-sip-source>", pw, zipOut)
-
-    zipOut.closeEntry()
 
     for(mapping <- dataSet.mappings) {
-      zipOut.putNextEntry(new ZipEntry("mapping-%s.xml".format(mapping._1)))
-      writeContent(mapping._2.toXml.toString(), zipOut)
-      zipOut.closeEntry()
+      writeEntry("mapping-%s.xml".format(mapping._1), zipOut) { out =>
+        writeContent(mapping._2.toXml.toString(), out)
+      }
     }
 
     zipOut.close()
 
     Ok
+  }
 
+  private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
+    out.putNextEntry(new ZipEntry(name))
+    f(out)
+    out.flush()
+    out.closeEntry()
   }
 
   private def writeContent(content: String, out: OutputStream) {

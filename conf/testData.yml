@@ -119,6 +119,7 @@
     mappings:
         ? icn
         : *icnMapping
+    hints: ""
     access:
         users:
             ? "jimmy#cultureHub"
@@ -231,7 +232,7 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"
 
 - !!models.MetadataRecord
   rawMetadata:
@@ -336,7 +337,7 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"
 
 - !!models.MetadataRecord
   rawMetadata:
@@ -441,4 +442,4 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"

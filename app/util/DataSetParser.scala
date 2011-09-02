@@ -2,12 +2,12 @@ package util
 
 import eu.delving.metadata.{Path, Hasher, Facts}
 import models.{MetadataRecord, RecordDefinition}
-import java.util.Date
 import java.io.{IOException, InputStream}
 import javax.xml.stream.XMLStreamConstants._
 import eu.delving.metadata.Tag
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MultiMap
+import org.scala_tools.time.Imports._
 
 
 /**
@@ -47,7 +47,7 @@ class DataSetParser(inputStream: InputStream, namespaces: Map[String, String], m
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
             import eu.delving.sip.IndexDocument
-            record = Some(new MetadataRecord(null, Map.empty[String, String], Map.empty[String, IndexDocument], new Date(), false, "", "", Map.empty[String, String]))
+            record = Some(new MetadataRecord(null, Map.empty[String, String], Map.empty[String, IndexDocument], DateTime.now, false, "", "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)

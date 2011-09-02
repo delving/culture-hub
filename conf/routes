@@ -88,11 +88,11 @@ GET         /{user}/admin/groups/update/{name}                               use
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
 GET         /{user}/admin/groups/load/{name}?                                user.Admin.groupLoad
 
-GET         /{user}/dataset                                                  DataSets.list
+GET         /{user}/dataset/?                                                DataSets.list
 GET         /{user}/dataset/new                                              user.DataSets.dataSetUpdate
 GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
-GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
+GET         /{user}/dataset/{spec}                                           DataSets.dataSet
 POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
 POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
 POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable

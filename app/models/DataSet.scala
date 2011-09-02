@@ -38,6 +38,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   hints: Array[Byte] = Array.empty[Byte],
                    access: AccessRight) extends Repository {
 
   val name = spec
@@ -446,7 +447,7 @@ case class Details(name: String,
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string
                           mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
-                          modified: Date,
+                          modified: DateTime,
                           deleted: Boolean, // if the record has been deleted
                           localRecordKey: String, // content fingerprint
                           globalHash: String, // the hash of the raw content
