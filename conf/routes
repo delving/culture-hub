@@ -93,7 +93,10 @@ GET         /{user}/dataset/new                                              use
 GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
 GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
-
+POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
+POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
+POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
+POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
 GET         /{user}/dataset/sip-creator/list                                SipCreatorEndPoint.listAll
 POST        /{user}/dataset/sip-creator/submit/{spec}                       SipCreatorEndPoint.acceptFileList

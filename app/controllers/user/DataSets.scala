@@ -9,6 +9,7 @@ import controllers.{DataSetModel, DelvingController}
 import org.scala_tools.time.Imports._
 import eu.delving.sip.DataSetState
 import models._
+import eu.delving.sip.DataSetState._
 
 /**
  *
@@ -30,7 +31,7 @@ object DataSets extends DelvingController with UserSecured {
     val factsObject = new BasicDBObject(dataSet.facts)
 
     def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
-      (for(recordDef <- recordDefinitions) yield {
+      (for (recordDef <- recordDefinitions) yield {
         (recordDef, Mapping(recordMapping = "", format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
       }).toMap[String, Mapping]
     }
@@ -58,8 +59,73 @@ object DataSets extends DelvingController with UserSecured {
         )
       )
     }
-
     Ok
   }
+
+  def index(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.getDataSetState match {
+      case DISABLED | UPLOADED =>
+        changeState(dataSet, DataSetState.QUEUED)
+        Ok
+      case _ => Error("DataSet cannot be indexed in the current state")
+    }
+  }
+
+  def reIndex(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.getDataSetState match {
+      case ENABLED =>
+        changeState(dataSet, DataSetState.QUEUED)
+        Ok
+      case _ => Error("DataSet cannot be re-indexed in the current state")
+    }
+
+  }
+
+  def disable(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.getDataSetState match {
+      case QUEUED | INDEXING | ERROR | ENABLED =>
+        val updatedDataSet = changeState(dataSet, DataSetState.DISABLED)
+        DataSet.deleteFromSolr(updatedDataSet)
+        Ok
+      case _ => Error("DataSet cannot be disabled in the current state")
+    }
+  }
+
+  def delete(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.getDataSetState match {
+      case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
+        DataSet.delete(dataSet)
+        Ok
+      case _ => Error("DataSet cannot be deleted in the current state")
+    }
+  }
+
+  private def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
+    val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
+    val updatedDataSet = dataSet.copy(state = state.toString, mappings = mappings)
+    DataSet.save(updatedDataSet)
+    updatedDataSet
+  }
+
 }
 

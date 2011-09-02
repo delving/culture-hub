@@ -17,6 +17,7 @@ import scala.util.matching.Regex
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
 import java.io._
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -45,19 +46,16 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val accessToken: String = params.get("accessKey")
     if (accessToken == null || accessToken.isEmpty) {
       log.warn("Service Access Key missing")
-      TextError("No access token provided", 401)
+      return TextError("No access token provided", 401)
     } else if (!OAuth2TokenEndpoint.isValidToken(accessToken)) {
       log.warn("Service Access Key %s invalid!".format(accessToken))
-      TextError(("Access Key %s not accepted".format(accessToken)), 401)
+      return TextError(("Access Key %s not accepted".format(accessToken)), 401)
     }
     connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
     Continue
   }
 
-  def getConnectedUser: User = {
-    if (connectedUser == None) throw new AccessKeyException("No access token provided")
-    connectedUser.get
-  }
+  def getConnectedUser: User = connectedUser.getOrElse(throw new AccessKeyException("No access token provided"))
 
   def getConnectedUserId = getConnectedUser._id
 
@@ -214,6 +212,35 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val records = DataSet.getRecords(dataSet)
 
+    val pw = new PrintWriter(new OutputStreamWriter(zipOut, "utf-8"))
+
+    zipOut.putNextEntry(new ZipEntry("records.xml"))
+    val builder = new StringBuilder
+    builder.append("<delving-sip-source ")
+    for(ns <- dataSet.namespaces) {
+      builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2))
+      builder.append(" ")
+    }
+    builder.append(">")
+    write(builder.toString(), pw, zipOut)
+
+    var count = 0
+    for(record <- records.find(MongoDBObject())) {
+      pw.println("<input>")
+      pw.println(record.getXmlString())
+      pw.println("</input>")
+
+      if(count % 100 == 0) {
+        pw.flush()
+        zipOut.flush()
+      }
+      count += 1
+    }
+
+    write("</delving-sip-source>", pw, zipOut)
+
+    zipOut.closeEntry()
+
     for(mapping <- dataSet.mappings) {
       zipOut.putNextEntry(new ZipEntry("mapping-%s.xml".format(mapping._1)))
       writeContent(mapping._2.toXml.toString(), zipOut)
@@ -228,9 +255,13 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
   private def writeContent(content: String, out: OutputStream) {
     val printWriter = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
-    printWriter.println(content)
-    printWriter.flush()
-    out.flush
+    write(content, printWriter, out)
+  }
+
+  private def write(content: String, pw: PrintWriter, out: OutputStream) {
+    pw.println(content)
+    pw.flush()
+    out.flush()
   }
 
 }

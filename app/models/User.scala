@@ -86,6 +86,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) {
   }
 
   def findByAccessToken(token: String): Option[User] = {
+    if(play.Play.mode == play.Play.Mode.DEV && token == "TEST") return User.findOne(MongoDBObject("reference.username" -> "bob"))
     User.findOne(MongoDBObject("accessToken.token" -> token))
   }
 
