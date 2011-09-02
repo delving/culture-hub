@@ -13,12 +13,11 @@ import models.DataSet
 import models.HarvestStep
 import util.DataSetParser
 import extensions.AdditionalActions
-import scala.util.matching.Regex
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
-import java.io._
 import com.mongodb.casbah.commons.MongoDBObject
 import org.apache.commons.io.IOUtils
+import java.io._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -29,7 +28,7 @@ import org.apache.commons.io.IOUtils
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt<bernhardt.manuel@gmail.com>
- * @since 7/7/11 12:04 AM  
+ * @since 7/7/11 12:04 AM
  */
 
 object SipCreatorEndPoint extends Controller with AdditionalActions {
@@ -39,7 +38,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   private val log: Logger = Logger.getLogger(getClass)
 
   // HASH__type[_prefix].extension
-  private val FileName = new Regex("""([^_]*)__([^._]*)_?([^.]*).(.*)""")
+  private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private var connectedUser: Option[User] = None;
 
@@ -97,12 +96,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse(return Error("DataSet with spec %s not found".format(spec)))
     val fileList: String = request.params.get("body")
-    val lines = fileList.split('\n')
+    val lines = fileList split('\n')
 
     def fileRequired(fileName: String): Option[String] = {
-      val split = fileName.split("__")
-      val hash = split(0)
-      val name = split(1)
+      val Array(hash, name) = fileName split("__")
       val maybeHash = dataSet.hashes.get(name)
       maybeHash match {
         case Some(storedHash) if hash != storedHash => Some(fileName)
@@ -111,10 +108,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     }
 
-    val requiredFiles: Seq[String] = lines flatMap fileRequired
-    val builder: StringBuilder = new StringBuilder
-    requiredFiles foreach { f => builder.append(f).append("\n") }
-    Text(builder.toString())
+    val requiredFiles = (lines flatMap fileRequired) mkString ("\n")
+    Text(requiredFiles)
   }
 
 
@@ -131,7 +126,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       case "mapping" if extension == "xml" => receiveMapping(dataSet, RecordMapping.read(inputStream, metadataModel), spec, hash)
       case "hints"   if extension == "txt" => receiveHints(dataSet, inputStream)
       case "source"  if extension == "xml.gz" => receiveSource(dataSet, inputStream)
-      case "valid"   if extension == "bit" => Left("not yet implemented")
+      case "validation"   if extension == "int" => receiveInvalidRecords(dataSet, prefix, inputStream)
       case _ => return TextError("Unknown file type %s".format(kind))
     }
 
@@ -142,6 +137,15 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
       case Left(houston) => TextError(houston)
     }
+  }
+
+  private def receiveInvalidRecords(dataSet: DataSet, prefix: String, inputStream: InputStream) = {
+    val dis = new DataInputStream(inputStream)
+    val howMany = dis.readInt()
+    val invalidIndexes: List[Int] = (for(i <- 1 to howMany) yield dis.readInt()).toList
+    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes))
+    DataSet.save(updatedDataSet)
+    Right("All clear")
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecordMapping, spec: String, hash: String): Either[String, String] = {

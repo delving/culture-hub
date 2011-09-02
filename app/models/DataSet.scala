@@ -5,6 +5,7 @@ import org.bson.types.ObjectId
 import models.salatContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.Implicits._
+import org.scala_tools.time.Imports._
 import controllers.SolrServer
 import com.novus.salat._
 import dao.SalatDAO
@@ -14,7 +15,6 @@ import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.{IndexDocument, DataSetState}
 import com.mongodb.{BasicDBObject, WriteConcern}
 import com.mongodb.casbah.commons.conversions.scala._
-import org.joda.time.DateTime
 import java.io.File
 import play.exceptions.ConfigurationException
 import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
@@ -39,6 +39,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
                    hints: Array[Byte] = Array.empty[Byte],
+                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]],
                    access: AccessRight) extends Repository {
 
   val name = spec
@@ -447,8 +448,8 @@ case class Details(name: String,
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string
                           mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
-                          modified: DateTime,
-                          deleted: Boolean, // if the record has been deleted
+                          modified: DateTime = DateTime.now,
+                          deleted: Boolean = false, // if the record has been deleted
                           localRecordKey: String, // content fingerprint
                           globalHash: String, // the hash of the raw content
                           hash: Map[String, String]) { //extends MetadataRecord {

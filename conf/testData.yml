@@ -120,6 +120,9 @@
         ? icn
         : *icnMapping
     hints: ""
+    invalidRecords:
+      ? dummy
+      : [5, 66]
     access:
         users:
             ? "jimmy#cultureHub"

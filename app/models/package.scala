@@ -6,7 +6,9 @@ import com.mongodb.casbah.{MongoDB, MongoConnection}
 
 package object salatContext {
 
-  val connection: MongoDB = MongoConnection()(Play.configuration.getProperty("db.mongo.name"))
+  val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.mongo.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
+
+  val connection: MongoDB = MongoConnection()(connectionName)
 
   val userCollection = connection("Users")
   val groupCollection = connection("Groups")

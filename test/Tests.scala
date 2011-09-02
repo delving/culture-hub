@@ -108,7 +108,7 @@ class AccessControlSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
 class DataSetSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with BeforeAndAfterAll {
   import models.DataSet
 
-  val ds = DataSet.find("Verzetsmuseum").get
+  val ds = DataSet.findBySpec("Verzetsmuseum").get
 
   override def beforeAll() {
     DataSet.deleteFromSolr(ds)

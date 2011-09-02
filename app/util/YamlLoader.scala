@@ -110,6 +110,7 @@ object YamlLoader {
           val value = valueNode match {
             case v: Node if v.isInstanceOf[ScalarNode] => valueNode.asInstanceOf[ScalarNode].getValue
             case v: Node if v.isInstanceOf[MappingNode] => constructObject(v)
+            case v: Node if v.isInstanceOf[SequenceNode] => constructMoreComplicated(v)
             case v: Node => throw new RuntimeException("Not yet implemented ==> " + v.getClass)
           }
           (keyNode.asInstanceOf[ScalarNode].getValue, value)
