@@ -11,13 +11,13 @@ import org.apache.log4j.Logger
 import cake.ComponentRegistry
 import models.DataSet
 import models.HarvestStep
-import util.DataSetParser
 import extensions.AdditionalActions
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
 import com.mongodb.casbah.commons.MongoDBObject
 import org.apache.commons.io.IOUtils
 import java.io._
+import util.SimpleDataSetParser
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -96,6 +96,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse(return Error("DataSet with spec %s not found".format(spec)))
     val fileList: String = request.params.get("body")
+
+    log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
+
     val lines = fileList split('\n')
 
     def fileRequired(fileName: String): Option[String] = {
@@ -114,7 +117,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
 
   def acceptFile(spec: String, fileName: String): Result = {
-    log.info(String.format("Accept file %s for %s", fileName, spec))
+    log.info(String.format("Accepting file %s for DataSet %s", fileName, spec))
     val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec)))
 
     val FileName(hash, kind, prefix, extension) = fileName
@@ -173,11 +176,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     try {
 
-      val parser = new DataSetParser(inputStream, dataSet.getAllNamespaces, dataSet.details.metadataFormat, dataSet.details.metadataFormat.prefix, null) // TODO
+      val parser = new SimpleDataSetParser(inputStream, dataSet)
 
       var continue = true
       while (continue) {
-        val record = parser.nextRecord()
+        val record = parser.nextRecord
         if (record != None) {
           val toInsert = record.get.copy(modified = DateTime.now, deleted = false)
           records.insert(toInsert)
