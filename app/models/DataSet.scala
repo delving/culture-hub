@@ -449,26 +449,12 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string
                           mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
                           modified: DateTime = DateTime.now,
+                          validOutputFormats: List[String] = List.empty[String],
                           deleted: Boolean = false, // if the record has been deleted
-                          localRecordKey: String, // content fingerprint
+                          localRecordKey: String, // the unique element value
                           globalHash: String, // the hash of the raw content
-                          hash: Map[String, String]) { //extends MetadataRecord {
-  //  import org.bson.types.ObjectId
-  //  import com.mongodb.DBOject
-  //
-  //  def getId: ObjectId
-  //
-  //  def getUnique: String
-  //
-  //  def getModifiedDate: Date
-  //
-  //  def isDeleted: Boolean
-  //
-  //  def getNamespaces: DBObject
-  //
-  //  def getHash: DBObject
-  //
-  //  def getFingerprint: Map[String, Integer]
+                          hash: Map[String, String] // the hash for each field, for duplicate detection
+                         ) {
 
   def getXmlString(metadataPrefix: String = "raw"): String = {
     if (rawMetadata.contains(metadataPrefix)) {

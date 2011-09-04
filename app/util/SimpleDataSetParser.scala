@@ -22,6 +22,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
   def nextRecord: Option[MetadataRecord] = {
 
     var hasParsedOne = false
+    var recordCounter = 0
     var inRecord = false
     val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
     val path = new Path()
@@ -35,7 +36,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var record: MetadataRecord = null
 
     while (!hasParsedOne) {
-      if(!parser.hasNext()) return None
+      if (!parser.hasNext()) return None
       parser.next() match {
         case EvElemStart(_, "delving-sip-source", _, scope) =>
           val namespaces = collection.mutable.Map.empty[String, String]
@@ -48,10 +49,12 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           inRecord = false
           record = MetadataRecord(
             rawMetadata = Map("raw" -> recordXml.toString()),
-            localRecordKey = "",
+            validOutputFormats = getValidMappings(dataSet, recordCounter),
+            localRecordKey = "", // TODO this should be sent from the client
             globalHash = hasher.getHashString(recordXml.toString()),
             hash = createHashToPathMap(valueMap))
           recordXml.clear()
+          recordCounter += 1
           hasParsedOne = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) =>
           if (inRecord) {
@@ -74,20 +77,14 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
       }
     }
     Option(record)
-
   }
 
-  private def elemStartToString(start: EvElemStart): String = {
-    val builder = new StringBuilder()
-    builder.append("<").append(prefix(start.pre)).append(start.label).append(start.attrs.toString()).append(">")
-    builder.toString()
-  }
+  private def getValidMappings(dataSet: DataSet, index: Int): List[String] =
+    (for (valid <- dataSet.invalidRecords if (!valid._2.contains(index))) yield valid._1).toList
 
-  private def elemEndToString(end: EvElemEnd): String = {
-    val builder = new StringBuilder
-    builder.append("</").append(prefix(end.pre)).append(end.label).append(">")
-    builder.toString()
-  }
+  private def elemStartToString(start: EvElemStart): String = "<%s%s%s>".format(prefix(start.pre), start.label, start.attrs.toString())
+
+  private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
 
   private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
 
