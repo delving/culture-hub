@@ -10,6 +10,7 @@ import models.{MetadataRecord, DataSet}
 import org.scala_tools.time.Imports._
 
 /**
+ * Parses an incoming stream of records formatted according to the Delving SIP source format.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
