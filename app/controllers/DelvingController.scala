@@ -156,7 +156,7 @@ trait ThemeAware {
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
   }
 
-  @After
+  @Finally
   def cleanup() {
     themeThreadLocal.remove()
     lookupThreadLocal.remove()
