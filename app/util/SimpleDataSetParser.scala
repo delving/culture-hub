@@ -35,6 +35,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     val fieldValueXml = new StringBuilder()
 
     var record: MetadataRecord = null
+    var recordId: String = null
 
     while (!hasParsedOne) {
       if (!parser.hasNext()) return None
@@ -44,17 +45,20 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           extractNamespaces(scope, namespaces)
           val updatedDataSet = dataSet.copy(namespaces = namespaces.toMap)
           DataSet.save(updatedDataSet)
-        case EvElemStart(pre, "input", _, _) =>
+        case EvElemStart(pre, "input", attrs, _) =>
           inRecord = true
+          val mayId = attrs("id").headOption
+          if(mayId != None) recordId = mayId.get.text
         case EvElemEnd(_, "input") =>
           inRecord = false
           record = MetadataRecord(
             rawMetadata = Map("raw" -> recordXml.toString()),
             validOutputFormats = getValidMappings(dataSet, recordCounter),
-            localRecordKey = "", // TODO this should be sent from the client
+            localRecordKey = recordId,
             globalHash = hasher.getHashString(recordXml.toString()),
             hash = createHashToPathMap(valueMap))
           recordXml.clear()
+          recordId = null
           recordCounter += 1
           hasParsedOne = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) =>
