@@ -30,11 +30,13 @@ object Admin extends DelvingController with UserSecured {
     html.groupList(groups = userGroups)
   }
 
-  def groupUpdate(name: String): Html = {
-    html.group(name)
+  def groupUpdate(id: String): Html = {
+    html.group(Option(id))
   }
 
-  def groupLoad(user: String, name: String): Result = {
+  def groupLoad(user: String, id: String): Result = {
+
+
 
     def makeMembers(users: Map[String, UserReference]): Seq[Member] = (for (u: UserReference <- users.values) yield {
       val user = User.findOne(MongoDBObject("reference.id" -> u.id)) // MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)
@@ -44,7 +46,7 @@ object Admin extends DelvingController with UserSecured {
     def getRepositories(group: String) = for(repo <- UserGroup.getRepositories(group + "#" + user + "#" + getNode)) yield Repository(repo._id.toString, repo.name)
 
     // load by name and user
-    val maybeGroup: Option[UserGroup] = UserGroup.findOne(MongoDBObject("name" -> name)) // , "user" -> MongoDBObject("id" -> ref.id, "node" -> ref.node, "username" -> ref.username)
+    val maybeGroup: Option[UserGroup] = UserGroup.findById(id) // , "user" -> MongoDBObject("id" -> ref.id, "node" -> ref.node, "username" -> ref.username)
     maybeGroup match {
       case Some(group) => {
         val groupModel = GroupModel(Some(group._id), group.name, group.read, group.update, group.delete, makeMembers(group.users), getRepositories(group.name))
@@ -81,11 +83,11 @@ object Admin extends DelvingController with UserSecured {
 //      newGroups.foreach(g => DataSet.updateGroups(dataSet, g))
 //    }
 
-    val persistedGroup: Option[GroupModel] = group._id match {
+    val persistedGroup: Option[GroupModel] = group.id match {
       case None => {
         // new guy
         val inserted: Option[Imports.ObjectId] = UserGroup.insert(userGroup)
-        if(inserted != None) Some(group.copy(_id = inserted)) else None
+        if(inserted != None) Some(group.copy(id = inserted)) else None
       }
       case Some(id) => {
         // updated guy
@@ -103,14 +105,14 @@ object Admin extends DelvingController with UserSecured {
     }
 
     persistedGroup match {
-      case Some(theGroup) => Json(group)
+      case Some(theGroup) => Json(theGroup)
       case None => Error("UserGroup could not be saved")
     }
   }
 
 }
 
-case class GroupModel(_id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member], repositories: Seq[Repository]) {
+case class GroupModel(id: Option[ObjectId] = None, name: String, readRight: Option[Boolean] = Some(false), updateRight: Option[Boolean] = Some(false), deleteRight: Option[Boolean] = Some(false), members: Seq[Member], repositories: Seq[Repository]) {
 
   def getUsers: Map[String, UserReference] = (for (m: Member <- members) yield {
     val ref: Array[String] = m.id.split('#')

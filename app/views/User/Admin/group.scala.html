@@ -1,4 +1,4 @@
-@(name: String = "")
+@(id: Option[String] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -43,13 +43,12 @@
 
     var scope = document.getElementById('groupForm');
 
-    load('/@userName/admin/groups/load/@name', groupModel, scope);
+    load('/@userName/admin/groups/load/@id', groupModel, scope);
 
     $('#saveButton').click(function() {
       $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
-        updateViewModel(groupModel, data, scope);
-        $('#result').html('Group saved');
-        $('#result').show().fadeOut('3000');
+        updateViewModel(data, groupModel, scope);
+        window.location.href = '/@userName/admin/groups'; //+ groupModel.id();
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving group, please try again');
         $('#result').show().fadeOut('3000');

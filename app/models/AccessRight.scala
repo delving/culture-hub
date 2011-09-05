@@ -128,7 +128,7 @@ case class UserGroup(
                  delete: Option[Boolean] = Some(false),
                  owner: Option[Boolean] = Some(false))
 
-object UserGroup extends SalatDAO[UserGroup, ObjectId](groupCollection) {
+object UserGroup extends SalatDAO[UserGroup, ObjectId](groupCollection) with Resolver[UserGroup] {
 
   def findByUser(userId: ObjectId) = find(MongoDBObject("user" -> userId)).toList
 
