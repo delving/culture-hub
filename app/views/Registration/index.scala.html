@@ -15,13 +15,12 @@
   </p>
   }
 
-  @{implicit val prefix = "registration"}
-  @textField("firstName", "First name")
-  @textField("lastName", "Last name")
-  @textField("email", "E-mail")
-  @textField("displayName", "User name")
-  @passwordField("password1", "Password")
-  @passwordField("password2", "Password (repeat)")
+  @textField("registration.firstName", "First name")
+  @textField("registration.lastName", "Last name")
+  @textField("registration.email", "E-mail")
+  @textField("registration.displayName", "User name")
+  @passwordField("registration.password1", "Password")
+  @passwordField("registration.password2", "Password (repeat)")
 
   <div class="field">
     <label for="code">Please type the code below: </label>

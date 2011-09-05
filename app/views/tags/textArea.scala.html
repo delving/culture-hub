@@ -1,12 +1,10 @@
-@(name:String, label:String, dataBind: String = "")(implicit prefix: String = "")
+@(name:String, label:String, dataBind: String = "")
 @import views.context._
 
-@fieldName = @{ (if (prefix.length > 0) prefix + "." else "") + name}
-
 <div class="field">
-    <label for="@fieldName">@label</label>
+    <label for="@name">@label</label>
     <div class="inputs">
-        <textarea class="textinput" id="@fieldName" value="@params.get(fieldName)" data-bind="@dataBind"></textarea>
-        <span class="error">@showError(fieldName)</span>
+        <textarea class="textinput" id="@name" value="@params.get(name)" data-bind="@dataBind"></textarea>
+        <span class="error">@showError(name)</span>
     </div>
 </div>
