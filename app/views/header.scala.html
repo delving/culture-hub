@@ -50,8 +50,8 @@
 
     <div id="user-bar">
         <ul class="menu-h">
-        @if(renderArgs.get("displayName") != null) {
-            <li class="main"><a href="">Hi @renderArgs.get("fullName")</a>
+        @if(userName != null) {
+            <li class="main"><a href="">Hi @fullName</a>
                 <ul class="right">
                     <li><a class="" href='/@userName/profile'><span>Your Profile</span></a></li>
                     <li><a class="" href='/@userName/object'><span>Your Objects</span></a></li>
