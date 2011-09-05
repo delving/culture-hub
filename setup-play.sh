@@ -38,12 +38,12 @@ echo
 cd play
 
 # http://play.lighthouseapp.com/projects/57987/tickets/970-binder-does-not-pass-suffix-to-custom-typebinder-s-when-binding-a-bean
-git apply ../play-services/binder-patch.patch
+git apply ../culture-hub/binder-patch.patch
 
 # http://play.lighthouseapp.com/projects/74274/tickets/32-all-case-classes-get-an-additional-default-empty-constructor-preventing-json-deserializer-from-working
-git apply ../play-services/constructor-patch.patch
+git apply ../culture-hub/constructor-patch.patch
 
-git apply ../play-services/error-display-patch.patch
+git apply ../culture-hub/error-display-patch.patch
 
 cd ..
 
@@ -57,7 +57,7 @@ echo
 
 cd play/framework
 ant
-cd ../../play-services
+cd ../../culture-hub
 
 echo
 echo
