@@ -4,6 +4,7 @@ import play.data.validation.Validation
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
+import play.mvc.Http
 
 package object context {
 
@@ -23,6 +24,8 @@ package object context {
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
   def niceTime(timestamp: DateTime) = timestamp.toString(DateTimeFormat.fullDateTime())
   def niceText(text: String) = JavaExtensions.nl2br(text)
+
+  def isCurrent(controller: String) = Http.Request.current().controller == controller
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 

@@ -1,4 +1,4 @@
-@(title:String = "", isCurrent: String = "")(body: => Html)
+@(title:String = "")(body: => Html)
 @import views.context._
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -41,11 +41,11 @@
 <div id="top-nav">
 
     <ul class="menu-h">
-        <li class="current"><a href="@action(controllers.Application.index)"><span>Home</span></a></li>
-        <li><a class="" href=""><span>Users</span></a></li>
-        <li><a class="" href=""><span>Objects</span></a></li>
-        <li><a class="" href=""><span>Collections</span></a></li>
-        <li><a class="" href=""><span>Stories</span></a></li>
+        <li class='@if(isCurrent("Application")) {current}'><a href="@action(controllers.Application.index)"><span>Home</span></a></li>
+        <li><a class='@if(isCurrent("Users")) {current}' href=""><span>Users</span></a></li>
+        <li><a class='@if(isCurrent("Objects")) {current}' href=""><span>Objects</span></a></li>
+        <li><a class='@if(isCurrent("Collections")) {current}' href=""><span>Collections</span></a></li>
+        <li><a class='@if(isCurrent("Stories")) {current}' href=""><span>Stories</span></a></li>
     </ul>
 
     <div id="user-bar">
@@ -53,11 +53,11 @@
         @if(renderArgs.get("displayName") != null) {
             <li class="main"><a href="">Hi @renderArgs.get("fullName")</a>
                 <ul class="right">
-                    <li><a class="" href='/@renderArgs.get("displayName")/profile'><span>Your Profile</span></a></li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/object'><span>Your Objects</span></a></li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/collection'><span>Your Collections</span></a>
+                    <li><a class="" href='/@userName/profile'><span>Your Profile</span></a></li>
+                    <li><a class="" href='/@userName/object'><span>Your Objects</span></a></li>
+                    <li><a class="" href='/@userName/collection'><span>Your Collections</span></a>
                     </li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/story'><span>Your Stories</span></a></li>
+                    <li><a class="" href='/@userName/story'><span>Your Stories</span></a></li>
                     <li><a class="" href="/logout"><span>Logout</span></a></li>
                 </ul>
             </li>
