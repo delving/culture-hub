@@ -47,7 +47,7 @@ class DataSetParser(inputStream: InputStream, namespaces: Map[String, String], m
           path.push(Tag.create(input.getName.getPrefix, input.getName.getLocalPart))
           if (record == None && (path == recordRoot)) {
             import eu.delving.sip.IndexDocument
-            record = Some(new MetadataRecord(null, Map.empty[String, String], Map.empty[String, IndexDocument], DateTime.now, false, "", "", Map.empty[String, String]))
+            record = Some(new MetadataRecord(null, Map.empty[String, String], Map.empty[String, IndexDocument], DateTime.now, List.empty[String], false, "", "", Map.empty[String, String]))
           }
           if (record != None) {
             pathWithinRecord.push(path.peek)
