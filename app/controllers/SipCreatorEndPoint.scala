@@ -65,7 +65,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val dataSetsXml = <data-set-list>
       {dataSets.map {
       ds =>
-        <dataset>
+        <data-set>
           <spec>{ds.spec}</spec>
           <name>{ds.details.name}</name>
           <ownership>
@@ -75,7 +75,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
           </ownership>
           <state>{ds.state.toString}</state>
           <recordCount>{ds.details.total_records}</recordCount>
-        </dataset>
+        </data-set>
       }
     }
     </data-set-list>
@@ -241,7 +241,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
       var count = 0
       for(record <- records.find(MongoDBObject())) {
-        pw.println("<input>")
+        pw.println("""<input id="%s">""".format(record.localRecordKey))
         pw.println(record.getXmlString())
         pw.println("</input>")
 
