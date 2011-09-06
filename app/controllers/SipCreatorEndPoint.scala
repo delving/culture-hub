@@ -2,10 +2,10 @@ package controllers
 
 import models._
 import play.mvc
+import mvc.results.{RenderBinary, Result}
 import mvc.{Before, Controller}
 import org.scala_tools.time.Imports._
 import eu.delving.sip.DataSetState
-import play.mvc.results.Result
 import eu.delving.metadata.{RecordMapping, MetadataModel}
 import org.apache.log4j.Logger
 import cake.ComponentRegistry
@@ -207,7 +207,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def fetchSIP(spec: String): Result = {
     val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec), 404))
 
-    val zipOut = new ZipOutputStream(response.out)
+    val name = "%s-sip".format(spec)
+    val tmpFile = File.createTempFile(name, "zip")
+    tmpFile.deleteOnExit()
+
+    val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
 
     writeEntry("dataset-facts.txt", zipOut) { out =>
       writeContent(dataSet.details.getFactsAsText, out)
@@ -262,7 +266,13 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     zipOut.close()
 
-    Ok
+    val tmpFileReader = new FileInputStream(tmpFile)
+    try {
+      return new RenderBinary(tmpFileReader, name + ".zip", tmpFile.length())
+    } finally {
+      tmpFileReader.close()
+      tmpFile.delete()
+    }
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
