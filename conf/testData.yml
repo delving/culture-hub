@@ -78,6 +78,55 @@
     indexed: true
 
 - !!models.DataSet
+    spec: EmptyCollection
+    node: cultureHub
+    state: CREATED
+    user: 4e5679a80364ae80333ab939 # bob
+    lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
+    details:
+        name: Empty Collection
+        "uploaded_records": 0
+        "total_records": 0
+        "deleted_records": 0
+        errorMessage:
+        metadataFormat:
+            prefix: raw
+            namespace: "http://delving.eu/namespaces/raw"
+            schema: "http://delving.eu/namespaces/raw/schema.xsd"
+            accessKeyRequired: !!bool "true"
+        facts:
+            spec: EmptyCollection
+    hashes: !!map { }
+    namespaces:
+        ? raw
+        : "http://delving.eu/namespaces/raw"
+        ? dc
+        : "http://purl.org/dc/elements/1.1/"
+        ? dcterms
+        : "http://purl.org/dc/terms/"
+        ? europeana
+        : "http://www.europeana.eu/schemas/ese/"
+        ? ese
+        : "http://www.europeana.eu/schemas/ese/"
+        ? icn
+        : "http://www.icn.nl/"
+        ? abm
+        : "http://to_be_decided/abm/"
+    mappings:
+        ? icn
+        : *icnMapping
+    hints: ""
+    invalidRecords: !!map { }
+    access:
+        users:
+            ? "jimmy#cultureHub"
+            : *jimmyAction
+            ? "bob#cultureHub"
+            : *bobAction
+        groups:
+          - "Buddies#jimmy#cultureHub"
+
+- !!models.DataSet
     spec: Verzetsmuseum
     node: cultureHub
     state: ENABLED
@@ -131,6 +180,9 @@
             : *bobAction
         groups:
           - "Buddies#jimmy#cultureHub"
+
+
+
 
 - !!models.MetadataRecord
   rawMetadata:
