@@ -31,6 +31,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    node: String,
                    user: ObjectId,
+                   lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
                    state: String, // imported from sip-core
                    details: Details,
@@ -47,6 +48,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
   def getDataSetState: DataSetState = DataSetState.get(state)
 
   def getUser: User = User.findOneByID(user).get // orElse we are in trouble
+
+  def getLockedBy: Option[User] = if(lockedBy == None) None else User.findOneByID(lockedBy.get)
 
   def getFacts: Map[String, String] = {
     val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]

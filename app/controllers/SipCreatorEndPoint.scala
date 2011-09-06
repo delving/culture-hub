@@ -65,14 +65,21 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val dataSetsXml = <data-set-list>
       {dataSets.map {
       ds =>
+        val user = ds.getUser
+        val lockedBy = ds.getLockedBy
         <data-set>
           <spec>{ds.spec}</spec>
           <name>{ds.details.name}</name>
           <ownership>
-            <username>{ds.getUser.reference.username}</username>
-            <fullname>{ds.getUser.fullname}</fullname>
-            <email>{ds.getUser.email}</email>
-          </ownership>
+            <username>{user.reference.username}</username>
+            <fullname>{user.fullname}</fullname>
+            <email>{user.email}</email>
+          </ownership>{if (lockedBy != None) {
+          <lockedBy>
+            <username>{lockedBy.get.reference.username}</username>
+            <fullname>{lockedBy.get.fullname}</fullname>
+            <email>{lockedBy.get.email}</email>
+          </lockedBy>}}
           <state>{ds.state.toString}</state>
           <recordCount>{ds.details.total_records}</recordCount>
         </data-set>
