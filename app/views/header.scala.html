@@ -1,0 +1,117 @@
+@(title:String = "", isCurrent: String = "")(body: => Html)
+@import views.context._
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="description" content=""/>
+    <meta name="keywords" content=""/>
+
+    <title>@title</title>
+    <!--<link rel="stylesheet" type="text/css" href="@asset("/public/stylesheets/960.css")"/>-->
+    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/grid-fluid.css")'/>
+    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/custom-theme/jquery-ui-1.8.14.custom.css")'/>
+    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/jquery.fileupload-ui.css")'/>
+    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input.css")'/>
+    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input-facebook.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/style.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/menu.css")'/>
+
+    <script id='jquery' src='@asset("/public/javascripts/jquery-1.6.2.min.js")' type='text/javascript'></script>
+    <script id='jquery-ui' src='@asset("/public/javascripts/jquery-ui-1.8.13.custom.min.js")' type='text/javascript'></script>
+    <script id='jquery-iframe-transport' src='@asset("/public/javascripts/jquery.iframe-transport.js")' type='text/javascript'></script>
+    <script id='jquery-fileupload' src='@asset("/public/javascripts/jquery.fileupload.js")' type='text/javascript'></script>
+    <script id='jquery-fileupload-ui' src='@asset("/public/javascripts/jquery.fileupload-ui.js")' type='text/javascript'></script>
+    <script id='jquery-template' src='@asset("/public/javascripts/jquery.tmpl.min.js")' type='text/javascript'></script>
+    <script id='knockoutJS' src='@asset("/public/javascripts/knockout-1.2.1.js")' type='text/javascript'></script>
+    <script id='knockoutJS-mapping' src='@asset("/public/javascripts/knockout.mapping-latest.js")' type='text/javascript'></script>
+    <script id='jquery-form' src='@asset("/public/javascripts/jquery.form.js")' type='text/javascript'></script>
+    <script id='jquery-tokeninput' src='@asset("/public/javascripts/jquery.tokeninput-1.5.0.js")' type='text/javascript'></script>
+    <script id='culturehub' src='@asset("/public/javascripts/culturehub.js")' type='text/javascript'></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            initializeElements();
+        });
+    </script>
+
+</head>
+<body>
+
+<div id="top-nav">
+
+    <ul class="menu-h">
+        <li class="current"><a href="@action(controllers.Application.index)"><span>Home</span></a></li>
+        <li><a class="" href=""><span>Users</span></a></li>
+        <li><a class="" href=""><span>Objects</span></a></li>
+        <li><a class="" href=""><span>Collections</span></a></li>
+        <li><a class="" href=""><span>Stories</span></a></li>
+    </ul>
+
+    <div id="user-bar">
+        <ul class="menu-h">
+        @if(renderArgs.get("displayName") != null) {
+            <li class="main"><a href="">Hi @renderArgs.get("fullName")</a>
+                <ul class="right">
+                    <li><a class="" href='/@renderArgs.get("displayName")/profile'><span>Your Profile</span></a></li>
+                    <li><a class="" href='/@renderArgs.get("displayName")/object'><span>Your Objects</span></a></li>
+                    <li><a class="" href='/@renderArgs.get("displayName")/collection'><span>Your Collections</span></a>
+                    </li>
+                    <li><a class="" href='/@renderArgs.get("displayName")/story'><span>Your Stories</span></a></li>
+                    <li><a class="" href="/logout"><span>Logout</span></a></li>
+                </ul>
+            </li>
+            } else {
+            <li><a href="/login">Login</a></li>
+            <li><a href="@action(controllers.Registration.index)">Register</a></li>
+            <li><a href="@action(controllers.Registration.lostPassword)">Lost password</a></li>
+
+            }
+        </ul>
+    </div>
+
+</div>
+
+<div id="header">
+    <div class="container_16">
+        <div class="grid_16">
+            <!--<div id="logo"><img src='@asset("/public/images/logo.png")'/></div>-->
+            <!--<h1 class="grid_12 push_4 omega">DELVING Play Services</h1>-->
+            <h1>Delving Play-Ground</h1>
+        </div>
+    </div>
+</div>
+
+<div id="body">
+    <div class="container_16">
+        <!--<div class="grid_16">-->
+        @body
+        <!--</div>-->
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container_16">
+        <div class="grid_4">
+            <h3>Play / Scala Links</h3>
+            <ul class="menu-v">
+                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/home" target="_blank">Play Scala Documentation</a></li>
+                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/templates" target="_blank">Scala Templates Documentation</a></li>
+                <li><a href="http://playcheatsheet.appspot.com/show/ArtemMedeu/armed/play-cheatsheets" target="_blank">Play Cheatsheet</a></li>
+            </ul>
+
+        </div>
+        <div class="grid_4">
+            <h3>Javascript Links</h3>
+            <ul class="menu-v">
+                <li><a href="http://docs.jquery.com/Main_Page" target="_blank">jQuery Documentation</a></li>
+                <li><a href="http://jqueryui.com/demos/" target="_blank">jQueryUI Documentation</a></li>
+                <li><a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">Knockout.js Documentation</a></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

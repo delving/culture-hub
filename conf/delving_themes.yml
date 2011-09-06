@@ -1,0 +1,48 @@
+- !!models.PortalTheme
+    name: norvegiana
+    templateDir: norvegiana
+    isDefault: true
+    baseUrl: norvegiana2.delving.org
+    displayName: Kulturnett.no
+    defaultLanguage: no
+    colorScheme: azure
+    solrSelectUrl: "http://localhost:8983/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: username@email.com
+        exceptionTo: username@email.com
+        feedbackTo: username@email.com
+        registerTo: username@email.com
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+    hiddenQueryFilter:
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    homePage:
+    metadataPrefix:
+
+- !!models.PortalTheme
+    name: friesmuseum
+    templateDir: friesmuseum
+    baseUrl: localhost
+    displayName: Fries Museum
+    defaultLanguage: no
+    colorScheme: azure
+    solrSelectUrl: "http://localhost:8983/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: username@email.com
+        exceptionTo: username@email.com
+        feedbackTo: username@email.com
+        registerTo: username@email.com
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+        - dc.title
+        - dc.creator
+    hiddenQueryFilter: Fries Museum
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    homePage:
+    metadataPrefix: icn

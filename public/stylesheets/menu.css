@@ -1,0 +1,125 @@
+/******************************************/
+/* HORIZONTAL MENU                        */
+/******************************************/
+
+ul.menu-h { /* menu ul style */
+	list-style: none;
+	margin: 0 1em;
+    padding:  0;
+    display: inline;
+}
+
+ul.menu-h li { /* horizontal menu */
+    display: inline-block;
+    height: 28px;
+    list-style: none;
+	position: relative;
+    border-bottom:  4px solid #000;
+}
+
+ul.menu-h li.current {
+    border-bottom:  4px solid firebrick;
+}
+ul.menu-h li.main {
+    background: transparent url(../images/nav-down.png) right no-repeat;
+    padding-right: 20px;
+}
+
+ul.menu-h a { /* the link style of menu */
+	color: #eaeaea;
+	display: block;
+	/*line-height: 38px;*/
+	padding: 0 10px;
+	text-decoration: none;
+}
+
+ /* The sub menu is hidden by default and its position is places right under the parent menu*/
+ul.menu-h  ul {
+    background:  #555;
+	display: none;
+	position: absolute;
+	top: 32px;
+	/*left: -20px;*/
+	float: left;
+	/*width: 200px;*/
+	z-index: 99999;
+    padding: 0;
+    margin:  0;
+}
+
+/*ul.menu-h ul.right {*/
+	/*left: -40px;*/
+/*}*/
+
+/* The sub menu list element is given a minimum width */
+ul.menu-h ul li {
+	width: 100%;
+    border-top:  1px solid #888;
+    position: relative;
+    float: left;
+}
+
+ul.menu-h ul a {
+	background: #000;
+	line-height: 1em;
+	padding: 10px;
+	/*width: 160px;*/
+	height: auto;
+    text-decoration: none;
+}
+
+ul.menu-h ul a img {
+    border: none;
+}
+
+/*#top-nav li:hover {*/
+    /*border-bottom:  4px solid firebrick;*/
+/*}*/
+
+ul.menu-h li:hover > a,
+ul.menu-h li.main:hover > a,
+ul.menu-h ul :hover > a {
+	background: #333;
+	color: #fff;
+}
+ul.menu-h li:hover > ul {
+	display: block;
+}
+
+/* When the mouse is over a list (li) element with unordered-list (ul) element inside then show it. The position when its shown is defined in the previous block of CSS*/
+ul.menu-h li:hover > ul {
+	display: block;
+}
+
+/* Styles the anchor (a) tag when mouse over */
+ul.menu-h li:hover > a,
+ul.menu-h ul :hover > a {
+	background: #333;
+	color: #fff;
+}
+
+/******************************************/
+/* VERTICAL MENU                          */
+/******************************************/
+
+ul.menu-v { /* menu ul style */
+	list-style: none;
+	margin: 0;
+    padding:  0;
+    width: 100%;
+}
+
+ul.menu-v li {
+    border-bottom: 1px solid #eaeaea;
+        padding: 2px 4px;
+}
+
+ul.menu-v li:hover {
+    background:  #ddd;
+}
+
+ul.menu-v li a {
+    text-decoration: none;
+text-shadow: 1px 1px 0px #ffffff;
+filter: dropshadow(color=#ffffff, offx=1, offy=1);
+}

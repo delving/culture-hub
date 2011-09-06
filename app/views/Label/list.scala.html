@@ -1,0 +1,15 @@
+@(user:models.User)
+
+@import views.context._
+
+@main("List of labels for user " + user.fullname ) {
+
+        <h1>All the labels of @user.fullname</h1>
+        <ul>
+          <li>Foo</li>
+          <li>Bar</li>
+          <li>Baz</li>
+        </ul>
+
+
+}

@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.delving</groupId>
+    <artifactId>fastcgi</artifactId>
+    <packaging>war</packaging>
+    <version>1.0</version>
+    <name>jfastcgi webapp</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.jfastcgi</groupId>
+            <artifactId>jfastcgi</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>fastcgi</finalName>
+    </build>
+</project>

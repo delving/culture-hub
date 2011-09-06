@@ -1,0 +1,102 @@
+# Application dependencies
+
+# Note about scala dependencies: Play-Scala comes with Scala packaged in, therefore we need to exclude the scala dependencies
+# from those artifacts
+
+require:
+    - play
+    - play -> scala 0.9.1
+    - commons-httpclient -> commons-httpclient 3.1
+    - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
+        exclude:
+            - org.scala-lang -> *
+    - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
+        exclude:
+            - org.scala-lang -> scala-library
+    - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
+        exclude:
+            - org.scala-lang -> *
+    - com.thebuzzmedia -> imgscalr-lib 3.1
+    - de.micromata.jak -> JavaAPIforKml 2.2.0
+    - com.thoughtworks.xstream -> xstream 1.3
+    - xpp3 -> xpp3_min 1.1.4c
+    - provided -> magicktiler-lib 0.9-patched
+    - provided -> im4java 1.1.0
+    - org.apache.solr -> solr-solrj 3.3.0
+    - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
+    - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
+    - provided -> jerkson_2.8.1 0.4.1-SNAPSHOT-patched
+    - org.codehaus.jackson -> jackson-mapper-asl 1.8.3
+
+    # uncomment when https://github.com/codahale/jerkson/pull/25 is accepted & released
+    #- com.codahale -> jerkson_2.8.1 0.4.0:
+    #    exclude:
+    #        - org.scala-lang -> scala-library
+
+    # for testing
+    - com.borachio -> borachio_2.8.1 1.1:
+        exclude:
+            - org.scala-lang -> scala-library
+            - org.scalatest -> *
+    # delving dependencies
+    - eu.delving -> sip-core 0.3.2-SNAPSHOT:
+        exclude:
+            - cglib -> *
+    # remove later
+    - com.google.collections -> google-collections 1.0
+
+
+repositories:
+    - scala-tools:
+        type: iBiblio
+        root: "http://scala-tools.org/repo-releases/"
+        contains:
+            - com.mongodb.casbah.*
+            - org.scalaj.*
+            - com.borachio.*
+            - org.specs2.*
+            - net.debasishg.*
+            - net.databinder.*
+    - theBuzzMedia:
+        type: iBiblio
+        root: "http://maven.thebuzzmedia.com"
+        contains:
+            - com.thebuzzmedia.*
+#    - codahale:
+#        type: iBiblio
+#        root: "http://repo.codahale.com/"
+#        contains:
+#            - com.codahale.*
+    - java-net:
+         type: iBiblio
+         root: "http://download.java.net/maven/2/"
+         contains:
+            - de.micromata.jak -> *
+            - com.sun.xml.bind -> *
+    - apache-snapshots:
+         type: iBiblio
+         root: "https://repository.apache.org/content/groups/snapshots-group/"
+         contains:
+            - org.apache.amber -> *
+    - novus:
+        type: iBiblio
+        root: "http://repo.novus.com/snapshots/"
+        contains:
+            - com.novus.*
+    - delving-snapshot:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
+    - delving-releases:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/releases"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
+    - provided:
+        type: local
+        artifact: "${application.path}/lib-extra/[module]-[revision].jar"
+        contains:
+          - provided -> *

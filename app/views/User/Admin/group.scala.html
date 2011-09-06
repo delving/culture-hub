@@ -1,0 +1,56 @@
+@(name: String = "")
+
+@import views.context._
+@import views.tags.html._
+
+@userMain("New group") {
+
+<form class="form" id="groupForm" action="/@userName/admin/groups/create" method="POST">
+
+  <div>
+    <div>
+      @textField("name", "Name", "value: name")
+    </div>
+    <div>
+      <!-- this should appear in a box next to the previous field, with the label next to the tickbox -->
+      @checkboxField(name = "read", label = "Can view repositories", "checked: readRight")
+      @checkboxField("update", "Can update repositories", "checked: updateRight")
+      @checkboxField("delete", "Can delete repositories", "checked: deleteRight")
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <label for="members">Members</label>
+      <input type="text" id="members" name="members" data-bind="tokens: members"/>
+    </div>
+    <div>
+      <label for="repositories">Repositories</label>
+      <input type="text" id="repositories" name="repositories"/>
+    </div>
+  </div>
+</form>
+<input class="saveButton" id="saveButton" type="button" data-bind="enable: name().length > 0" value="Save group">
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
+    $("#repositories").tokenInput([
+      {id: "1", name: "Foo"},
+      {id: "2", name: "Bar"}
+    ]);
+
+    var groupModel = {};
+
+    var scope = document.getElementById('groupForm');
+
+    load('/@userName/admin/groups/load/@name', groupModel, scope);
+
+    $('#saveButton').click(function() {
+      $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
+        updateViewModel(groupModel, data, scope)
+      })
+    });
+  })
+</script>
+}

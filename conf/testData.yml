@@ -1,0 +1,437 @@
+- !!models.UserReference &bob
+    username: bob
+    node: cultureHub
+    id: "bob#cultureHub"
+
+- !!models.UserReference &jimmy
+    username: jimmy
+    node: cultureHub
+    id: "jimmy#cultureHub"
+
+- !!models.UserReference &dan
+    username: dan
+    node: cultureHub
+    id: "dan#cultureHub"
+
+- !!models.User
+    reference: *bob
+    firstName:      Bob
+    lastName:       Marley
+    email:          bob@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.User
+    reference: *jimmy
+    firstName:      Jimmy
+    lastName:       Hendrix
+    email:          jimmy@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.User
+    reference: *dan
+    firstName:      Dan
+    lastName:       Brown
+    email:          dan@gmail.com
+    password:       secret
+    isActive:       true
+
+- !!models.UserAction &jimmyAction
+    user: *jimmy
+    read: !!bool "true"
+    update: !!bool "true"
+    delete: !!bool "true"
+    owner: !!bool "true"
+
+- !!models.UserAction &bobAction
+    user: *bob
+    read: !!bool "true"
+    update: !!bool "false"
+    delete: !!bool "false"
+    owner: !!bool "false"
+
+- !!models.UserGroup &buddies
+    user: *jimmy
+    name: Buddies
+#    id: "Buddies#jimmy#cultureHub"
+    users:
+      ? "dan#cultureHub"
+      : *dan
+    read: !!bool "true"
+    update: !!bool "false"
+    delete: !!bool "false"
+    owner: !!bool "false"
+
+- !!models.Mapping &icnMapping
+    recordMapping: "<record-mapping prefix=\"icn\">\n  <records-normalized>0</records-normalized>\n  <records-discarded>0</records-discarded>\n  <normalize-time>0</normalize-time>\n  <facts>\n    <entry>\n      <string>spec</string>\n      <string>Verzetsmuseum</string>\n    </entry>\n    <entry>\n      <string>recordCount</string>\n      <string>8319</string>\n    </entry>\n    <entry>\n      <string>recordRootPath</string>\n      <string>/adlibXML/recordList/record</string>\n    </entry>\n    <entry>\n      <string>collectionType</string>\n      <string>all</string>\n    </entry>\n    <entry>\n      <string>dataProvider</string>\n      <string>Verzetsmuseum</string>\n    </entry>\n    <entry>\n      <string>rights</string>\n      <string>http://creativecommons.org/publicdomain/mark/1.0/</string>\n    </entry>\n    <entry>\n      <string>provider</string>\n      <string>Verzetsmuseum</string>\n    </entry>\n    <entry>\n      <string>type</string>\n      <string>IMAGE</string>\n    </entry>\n    <entry>\n      <string>uniqueElementPath</string>\n      <string>/adlibXML/recordList/record/object_number</string>\n    </entry>\n    <entry>\n      <string>country</string>\n      <string>netherlands</string>\n    </entry>\n    <entry>\n      <string>downloadedSource</string>\n      <string>false</string>\n    </entry>\n    <entry>\n      <string>name</string>\n      <string>Verzetsmuseum</string>\n    </entry>\n    <entry>\n      <string>namespacePrefix</string>\n      <string>raw</string>\n    </entry>\n    <entry>\n      <string>language</string>\n      <string>nl</string>\n    </entry>\n  </facts>\n  <field-mappings>\n    <entry>\n      <string>/record/icn:collectionType</string>\n      <field-mapping>\n        <groovy-code>\n          <string>icn.collectionType collectionType</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:collectionPart</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.administration_name * {</string>\n          <string>icn.collectionPart it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:format</string>\n      <field-mapping>\n        <groovy-code>\n          <string>(input.dimension_free + input.dimension_notes + input.dimension_part + input.dimension_precision + input.dimension_type + input.dimension_unit + input.dimension_value) * {</string>\n          <string>dc.format it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:coverage</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.production_place * {</string>\n          <string>dc.coverage it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:country</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.country country</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:type</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.object_name * {</string>\n          <string>dc.type it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:subject</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.object_category * {</string>\n          <string>dc.subject it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:source</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.institution_name * {</string>\n          <string>dc.source it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:physicalState</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.condition * {</string>\n          <string>icn.physicalState it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:acquisitionYear</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.acquisition_date * {</string>\n          <string>icn.acquisitionYear it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:provider</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.provider provider</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:material</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.material * {</string>\n          <string>icn.material it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:isShownBy</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.reproduction_reference * {</string>\n          <string>String itt = it.replaceAll(&quot; &quot;,&quot;_&quot;).replaceAll(&quot;JPG\\$&quot;, &quot;jpg&quot;);</string>\n          <string>europeana.object &quot;http://verzetsmuseum.delving.org/images/VM/${itt}.jpg&quot;</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:creatorYearOfBirth</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.creator_date_of_birth.extractYear() * {</string>\n          <string>icn.creatorYearOfBirth it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:acquiredWithHelpFrom</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.acquisition_funding_source * {</string>\n          <string>icn.acquiredWithHelpFrom it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:language</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.language language</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:identifier</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.object_number * {</string>\n          <string>dc.identifier it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:object</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.reproduction_reference * {</string>\n          <string>String itt = it.replaceAll(&quot; &quot;,&quot;_&quot;).replaceAll(&quot;JPG\\$&quot;, &quot;jpg&quot;);</string>\n          <string>europeana.object &quot;http://verzetsmuseum.delving.org/images/VM/${itt}.jpg&quot;</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:uri</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.object_number.toId(spec) * {</string>\n          <string>europeana.uri it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:title</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.title * {</string>\n          <string>dc.title it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:dataProvider</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.dataProvider dataProvider</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:purchasePrice</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.acquisition_price_value * {</string>\n          <string>icn.purchasePrice it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:type</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.type type</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/icn:acquisitionMeans</string>\n      <field-mapping>\n        <dictionary class=\"tree-map\">\n          <no-comparator/>\n          <entry>\n            <string>Aankoop</string>\n            <string>aankoop</string>\n          </entry>\n          <entry>\n            <string>bruikleen</string>\n            <string>bruikleen</string>\n          </entry>\n          <entry>\n            <string>schenking</string>\n            <string>schenking</string>\n          </entry>\n        </dictionary>\n        <groovy-code>\n          <string>input.acquisition_method * {</string>\n          <string>icn.acquisitionMeans icn_acquisitionMeans_lookup(it)</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:date</string>\n      <field-mapping>\n        <groovy-code>\n          <string>int dateValueCount = input.production_date_start.size()</string>\n          <string>for (int walk=0; walk&lt;dateValueCount; walk++) {</string>\n          <string>s = (String)input.production_date_start[walk]</string>\n          <string>e = (String)input.production_date_end[walk]</string>\n          <string>if (s == e) {</string>\n          <string>dc.date s</string>\n          <string>}</string>\n          <string>else {</string>\n          <string>dc.date &quot;${s} - ${e}&quot;</string>\n          <string>}</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:collectionTitle</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.collectionTitle name</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:isShownAt</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.object_number.toId(spec) * {</string>\n          <string>europeana.isShownAt &quot;http://verzetsmuseum.delving.org/portal/object/${it}.html&quot;</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:rights</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.institution_name * {</string>\n          <string>dc.rights it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/dc:creator</string>\n      <field-mapping>\n        <groovy-code>\n          <string>input.creator * {</string>\n          <string>dc.creator it</string>\n          <string>}</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n    <entry>\n      <string>/record/europeana:rights</string>\n      <field-mapping>\n        <groovy-code>\n          <string>europeana.rights rights</string>\n        </groovy-code>\n      </field-mapping>\n    </entry>\n  </field-mappings>\n</record-mapping>"
+    #recordMapping: "icn"
+    format:
+        prefix: "icn"
+        namespace: "http://abmu.org/abm"
+        schema: "http://abmu.org/abm.xsd"
+        accessKeyRequired: false
+    "mapping_hash": "78B05C28A250BB02C3F84A0612B8D7F0"
+    "rec_indexed": 3
+    errorMessage:
+    indexed: true
+
+- !!models.DataSet
+    spec: Verzetsmuseum
+    state: ENABLED
+    details:
+        name: Verzetsmuseum
+        "uploaded_records": 1679
+        "total_records": 1679
+        "deleted_records": 0
+        errorMessage:
+        metadataFormat:
+            prefix: raw
+            namespace: "http://delving.eu/namespaces/raw"
+            schema: "http://delving.eu/namespaces/raw/schema.xsd"
+            accessKeyRequired: !!bool "true"
+        "facts_bytes": "awEAAHNwZWM9c2ZmS0wKZG93bmxvYWRlZFNvdXJjZT1mYWxzZQpyZWNvcmRSb290UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQKcmVjb3JkQ291bnQ9MTY3OQp1bmlxdWVFbGVtZW50UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQvZGM6aWRlbnRpZmllcgpuYW1lPXNmZktMCmNvbGxlY3Rpb25UeXBlPWFsbApuYW1lc3BhY2VQcmVmaXg9cmF3Cmxhbmd1YWdlPW5vCmNvdW50cnk9bm9yd2F5CnByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKZGF0YVByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKcmlnaHRzPWh0dHA6Ly93d3cuZXVyb3BlYW5hLmV1L3JpZ2h0cy91bmtub3duLwp0eXBlPUlNQUdFCg=="
+    "facts_hash": 6376A11D42819F2F08035E9EEAF46E9B
+    "source_hash": 61F0D46F76B01E0CCAD7286234F30B6A
+    "downloaded_source_hash": 61F0D46F76B01E0CCAD7286234F30B6B
+    namespaces:
+        ? raw
+        : "http://delving.eu/namespaces/raw"
+        ? dc
+        : "http://purl.org/dc/elements/1.1/"
+        ? dcterms
+        : "http://purl.org/dc/terms/"
+        ? europeana
+        : "http://www.europeana.eu/schemas/ese/"
+        ? ese
+        : "http://www.europeana.eu/schemas/ese/"
+        ? icn
+        : "http://www.icn.nl/"
+        ? abm
+        : "http://to_be_decided/abm/"
+    mappings:
+        ? icn
+        : *icnMapping
+    access:
+        users:
+            ? "jimmy#cultureHub"
+            : *jimmyAction
+            ? "bob#cultureHub"
+            : *bobAction
+        groups:
+          - "Buddies#jimmy#cultureHub"
+
+- !!models.MetadataRecord
+  rawMetadata:
+    ? raw
+    : "<priref>1</priref>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.time>16:14:27</edit.time>\n<edit.time>15:45:34</edit.time>\n<edit.time>11:55:25</edit.time>\n<edit.time>16:16:41</edit.time>\n<edit.name>d.terpstra</edit.name>\n<edit.name>d.terpstra</edit.name>\n<edit.name>alina</edit.name>\n<edit.name>alina</edit.name>\n<input.name>Conversie AIS</input.name>\n<association.subject>Heerenveen</association.subject>\n<association.subject>Hemelum</association.subject>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2007-11-19</edit.date>\n<edit.date>2007-11-07</edit.date>\n<input.date>2005-02-08</input.date>\n<acquisition.method>schenking</acquisition.method>\n<production.place>Friesland</production.place>\n<acquisition.source>Yntema</acquisition.source>\n<free_field.content>ja</free_field.content>\n<free_field.type>Geïllustreerd</free_field.type>\n<acquisition.date>1979</acquisition.date>\n<valuation.value.currency>EUR</valuation.value.currency>\n<condition>matig</condition>\n<title>Archiefmap van Iede Boukes Yntema, slachtoffer verzet</title>\n<valuation.date>2004</valuation.date>\n<valuation.value>100.00</valuation.value>\n<location>ARCH</location>\n<association.period.date.start>1945-03-17</association.period.date.start>\n<related_object.notes>VM000008 VM000009</related_object.notes>\n<number_of_parts>1</number_of_parts>\n<object_name>map</object_name>\n<location.default>ARCH</location.default>\n<object_number>00001</object_number>\n<institution.code>1023</institution.code>\n<content.motif.specific>PERSONEN/YNTEMA, IEDE BOUKES SLACHTOFFER</content.motif.specific>\n<content.motif.general>verzet</content.motif.general>\n<production.date.notes>1902 Hemelum</production.date.notes>\n<dimension.notes>-</dimension.notes>\n<institution.place></institution.place>\n<description>Slachtoffer verzet</description>\n<institution.name>Verzetsmuseum Friesland</institution.name>\n<administration_name>Objecten</administration_name>\n<percentH>J</percentH>\n"
+  mappedMetadata:
+    ? dummy
+    : "bla"
+  modified: !!timestamp "2011-08-14T10:19:20.835Z"
+  deleted: !!bool "false"
+  localRecordKey: "00001"
+  globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
+  hash:
+        ? 5CEBCDDB8BAC5072F71E55108DB1A488
+        : "/record/edit.time_3"
+        ? 350A6F898603A87EE74D1BD9F551A13A
+        : "/record/location.default"
+        ? B42242280053A3AF6BC291255283467A
+        : "/record/association.subject.type/text_5"
+        ? E8CFDA6ADB08AA9256333B5E30BD61F7
+        : "/record/acquisition.source"
+        ? 52ABCDA8C8B847FD6B047FA6466FA439
+        : "/record/edit.source"
+        ? 1F2ECFF6431746345AB8E3F6D110A24C
+        : "/record/association.subject"
+        ? 914A23F72F590809D3FE431573ECB71F
+        : "/record/edit.name_1"
+        ? A76EBED919D1196EE7A2BA5EC84A0836
+        : "/record/production.place"
+        ? 467FE391C1F781D54CCDA8214DB6AEF4
+        : "/record/related_object.notes"
+        ? 705D3624009ADF671E3BAC9A09D2C4A3
+        : "/record/edit.time_1"
+        ? 6090A08E36E314F60D96507046CA54A8
+        : "/record/administration_name"
+        ? 0DF3BACF802F6AD110224C574FFB2B25
+        : "/record/association.subject_1"
+        ? FF44570ACA8241914870AFBC310CDB85
+        : "/record/percentH"
+        ? B8B4B727D6F5D1B61FFF7BE687F7970F
+        : "/record/valuation.date"
+        ? FB6FEE7AA61456DE3DBC3C9766563DEA
+        : "/record/institution.name"
+        ? 78B0AB14BC1A57B00BFAD10F38A977B9
+        : "/record/acquisition.method"
+        ? 336D5EBC5436534E61D16E63DDFCA327
+        : "/record/dimension.notes"
+        ? 159BC4C435B700CF696EEFFC312F8271
+        : "/record/content.motif.specific"
+        ? B479D5DC756BF502FF502487F471B8A8
+        : "/record/association.subject.type/text"
+        ? AE4935A3019BB09D9230927F587FF426
+        : "/record/association.period.date.start"
+        ? E23BD543BC4BFEA4249103E8A74CF4E5
+        : "/record/edit.time_2"
+        ? E4536C6FE4EF9E377EF42EE562626ECF
+        : "/record/input.name"
+        ? 798CEBCCB32617AD94123450FD137104
+        : "/record/acquisition.date"
+        ? DCE3ACB8C8D878B51E78536FF30D7AAB
+        : "/record/edit.name"
+        ? 996DFB007BA9E5517E4D649E85D10108
+        : "/record/association.subject.type/text_2"
+        ? EC284C72ADC65A294B89C6F4650FC024
+        : "/record/association.subject.type/text_3"
+        ? D13C1BA6D2345D922F04FBF95A0E4C05
+        : "/record/free_field.type"
+        ? A055562BDB59AD8BA9CC680367308118
+        : "/record/valuation.value.currency"
+        ? 00E80114B2225D54251A7BD38C90BC6B
+        : "/record/association.subject.type/text_4"
+        ? 98ECE83D5D56BD9CF4B377F056992EA5
+        : "/record/association.subject.type/text_1"
+        ? E817999FC47961F80062DADFEB0CAF58
+        : "/record/edit.date"
+        ? CE5140DF15D046A66883807D18D0264B
+        : "/record/institution.code"
+        ? A5D837F89CB372E64AD14D9011C3790E
+        : "/record/valuation.value"
+        ? BF5CCB36F75F70F4773F532310726DA6
+        : "/record/title"
+        ? DF1746F7A8263104B19CA0F0EEAB994A
+        : "/record/description"
+        ? 80F710B9D4BB8F71E2183DFF6245DB9F
+        : "/record/production.date.notes"
+        ? 47C69E10325C4DE39C6B99FE41023F6D
+        : "/record/edit.time"
+        ? C4CA4238A0B923820DCC509A6F75849B
+        : "/record/number_of_parts"
+        ? C6C3A5A2A56882D33520FFB1619D3581
+        : "/record/edit.date_2"
+        ? A78C5BF69B40D464B954EF76815C6FA0
+        : "/record/free_field.content"
+        ? 372A0733C93FD3BFA45094D25F1F5C0A
+        : "/record/content.motif.general"
+        ? DE1B50E0A4B64131490B340B2A15A6A6
+        : "/record/condition"
+        ? 1D78DC8ED51214E518B5114FE24490AE
+        : "/record/object_name"
+        ? 4C68CEA7E58591B579FD074BCDAFF740
+        : "/record/object_number"
+        ? 3BA0EFFF643D508A36D18EDAC179E128
+        : "/record/edit.date_1"
+        ? DC62C8A3563DC5BF9C99D321943FC584
+        ?: "/record/input.date"
+
+- !!models.MetadataRecord
+  rawMetadata:
+    ? raw
+    : "<priref>2</priref>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.time>16:14:27</edit.time>\n<edit.time>15:45:34</edit.time>\n<edit.time>11:55:25</edit.time>\n<edit.time>16:16:41</edit.time>\n<edit.name>d.terpstra</edit.name>\n<edit.name>d.terpstra</edit.name>\n<edit.name>alina</edit.name>\n<edit.name>alina</edit.name>\n<input.name>Conversie AIS</input.name>\n<association.subject>Heerenveen</association.subject>\n<association.subject>Hemelum</association.subject>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2007-11-19</edit.date>\n<edit.date>2007-11-07</edit.date>\n<input.date>2005-02-08</input.date>\n<acquisition.method>schenking</acquisition.method>\n<production.place>Friesland</production.place>\n<acquisition.source>Yntema</acquisition.source>\n<free_field.content>ja</free_field.content>\n<free_field.type>Geïllustreerd</free_field.type>\n<acquisition.date>1979</acquisition.date>\n<valuation.value.currency>EUR</valuation.value.currency>\n<condition>matig</condition>\n<title>Archiefmap van Iede Boukes Yntema, slachtoffer verzet</title>\n<valuation.date>2004</valuation.date>\n<valuation.value>100.00</valuation.value>\n<location>ARCH</location>\n<association.period.date.start>1945-03-17</association.period.date.start>\n<related_object.notes>VM000008 VM000009</related_object.notes>\n<number_of_parts>1</number_of_parts>\n<object_name>map</object_name>\n<location.default>ARCH</location.default>\n<object_number>00002</object_number>\n<institution.code>1023</institution.code>\n<content.motif.specific>PERSONEN/YNTEMA, IEDE BOUKES SLACHTOFFER</content.motif.specific>\n<content.motif.general>verzet</content.motif.general>\n<production.date.notes>1902 Hemelum</production.date.notes>\n<dimension.notes>-</dimension.notes>\n<institution.place></institution.place>\n<description>Slachtoffer verzet</description>\n<institution.name>Verzetsmuseum Friesland</institution.name>\n<administration_name>Objecten</administration_name>\n<percentH>J</percentH>\n"
+  mappedMetadata:
+    ? dummy
+    : "bla"
+  modified: !!timestamp "2011-08-14T10:19:20.835Z"
+  deleted: !!bool "false"
+  localRecordKey: "00002"
+  globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
+  hash:
+        ? 5CEBCDDB8BAC5072F71E55108DB1A488
+        : "/record/edit.time_3"
+        ? 350A6F898603A87EE74D1BD9F551A13A
+        : "/record/location.default"
+        ? B42242280053A3AF6BC291255283467A
+        : "/record/association.subject.type/text_5"
+        ? E8CFDA6ADB08AA9256333B5E30BD61F7
+        : "/record/acquisition.source"
+        ? 52ABCDA8C8B847FD6B047FA6466FA439
+        : "/record/edit.source"
+        ? 1F2ECFF6431746345AB8E3F6D110A24C
+        : "/record/association.subject"
+        ? 914A23F72F590809D3FE431573ECB71F
+        : "/record/edit.name_1"
+        ? A76EBED919D1196EE7A2BA5EC84A0836
+        : "/record/production.place"
+        ? 467FE391C1F781D54CCDA8214DB6AEF4
+        : "/record/related_object.notes"
+        ? 705D3624009ADF671E3BAC9A09D2C4A3
+        : "/record/edit.time_1"
+        ? 6090A08E36E314F60D96507046CA54A8
+        : "/record/administration_name"
+        ? 0DF3BACF802F6AD110224C574FFB2B25
+        : "/record/association.subject_1"
+        ? FF44570ACA8241914870AFBC310CDB85
+        : "/record/percentH"
+        ? B8B4B727D6F5D1B61FFF7BE687F7970F
+        : "/record/valuation.date"
+        ? FB6FEE7AA61456DE3DBC3C9766563DEA
+        : "/record/institution.name"
+        ? 78B0AB14BC1A57B00BFAD10F38A977B9
+        : "/record/acquisition.method"
+        ? 336D5EBC5436534E61D16E63DDFCA327
+        : "/record/dimension.notes"
+        ? 159BC4C435B700CF696EEFFC312F8271
+        : "/record/content.motif.specific"
+        ? B479D5DC756BF502FF502487F471B8A8
+        : "/record/association.subject.type/text"
+        ? AE4935A3019BB09D9230927F587FF426
+        : "/record/association.period.date.start"
+        ? E23BD543BC4BFEA4249103E8A74CF4E5
+        : "/record/edit.time_2"
+        ? E4536C6FE4EF9E377EF42EE562626ECF
+        : "/record/input.name"
+        ? 798CEBCCB32617AD94123450FD137104
+        : "/record/acquisition.date"
+        ? DCE3ACB8C8D878B51E78536FF30D7AAB
+        : "/record/edit.name"
+        ? 996DFB007BA9E5517E4D649E85D10108
+        : "/record/association.subject.type/text_2"
+        ? EC284C72ADC65A294B89C6F4650FC024
+        : "/record/association.subject.type/text_3"
+        ? D13C1BA6D2345D922F04FBF95A0E4C05
+        : "/record/free_field.type"
+        ? A055562BDB59AD8BA9CC680367308118
+        : "/record/valuation.value.currency"
+        ? 00E80114B2225D54251A7BD38C90BC6B
+        : "/record/association.subject.type/text_4"
+        ? 98ECE83D5D56BD9CF4B377F056992EA5
+        : "/record/association.subject.type/text_1"
+        ? E817999FC47961F80062DADFEB0CAF58
+        : "/record/edit.date"
+        ? CE5140DF15D046A66883807D18D0264B
+        : "/record/institution.code"
+        ? A5D837F89CB372E64AD14D9011C3790E
+        : "/record/valuation.value"
+        ? BF5CCB36F75F70F4773F532310726DA6
+        : "/record/title"
+        ? DF1746F7A8263104B19CA0F0EEAB994A
+        : "/record/description"
+        ? 80F710B9D4BB8F71E2183DFF6245DB9F
+        : "/record/production.date.notes"
+        ? 47C69E10325C4DE39C6B99FE41023F6D
+        : "/record/edit.time"
+        ? C4CA4238A0B923820DCC509A6F75849B
+        : "/record/number_of_parts"
+        ? C6C3A5A2A56882D33520FFB1619D3581
+        : "/record/edit.date_2"
+        ? A78C5BF69B40D464B954EF76815C6FA0
+        : "/record/free_field.content"
+        ? 372A0733C93FD3BFA45094D25F1F5C0A
+        : "/record/content.motif.general"
+        ? DE1B50E0A4B64131490B340B2A15A6A6
+        : "/record/condition"
+        ? 1D78DC8ED51214E518B5114FE24490AE
+        : "/record/object_name"
+        ? 4C68CEA7E58591B579FD074BCDAFF740
+        : "/record/object_number"
+        ? 3BA0EFFF643D508A36D18EDAC179E128
+        : "/record/edit.date_1"
+        ? DC62C8A3563DC5BF9C99D321943FC584
+        ?: "/record/input.date"
+
+- !!models.MetadataRecord
+  rawMetadata:
+    ? raw
+    : "<priref>2</priref>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.source>collect&gt;intern</edit.source>\n<edit.time>16:14:27</edit.time>\n<edit.time>15:45:34</edit.time>\n<edit.time>11:55:25</edit.time>\n<edit.time>16:16:41</edit.time>\n<edit.name>d.terpstra</edit.name>\n<edit.name>d.terpstra</edit.name>\n<edit.name>alina</edit.name>\n<edit.name>alina</edit.name>\n<input.name>Conversie AIS</input.name>\n<association.subject>Heerenveen</association.subject>\n<association.subject>Hemelum</association.subject>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<association.subject.type option=\"GEOKEYW\" value=\"GEOKEYW\"><text language=\"0\">geography</text>\n<text language=\"1\">geografie</text>\n<text language=\"2\">géographie</text>\n<text language=\"3\">Geografie</text>\n<text language=\"4\">جغرافي</text>\n<text language=\"6\">γεωγραφία</text>\n</association.subject.type>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2009-04-15</edit.date>\n<edit.date>2007-11-19</edit.date>\n<edit.date>2007-11-07</edit.date>\n<input.date>2005-02-08</input.date>\n<acquisition.method>schenking</acquisition.method>\n<production.place>Friesland</production.place>\n<acquisition.source>Yntema</acquisition.source>\n<free_field.content>ja</free_field.content>\n<free_field.type>Geïllustreerd</free_field.type>\n<acquisition.date>1979</acquisition.date>\n<valuation.value.currency>EUR</valuation.value.currency>\n<condition>matig</condition>\n<title>Archiefmap van Iede Boukes Yntema, slachtoffer verzet</title>\n<valuation.date>2004</valuation.date>\n<valuation.value>100.00</valuation.value>\n<location>ARCH</location>\n<association.period.date.start>1945-03-17</association.period.date.start>\n<related_object.notes>VM000008 VM000009</related_object.notes>\n<number_of_parts>1</number_of_parts>\n<object_name>map</object_name>\n<location.default>ARCH</location.default>\n<object_number>00003</object_number>\n<institution.code>1023</institution.code>\n<content.motif.specific>PERSONEN/YNTEMA, IEDE BOUKES SLACHTOFFER</content.motif.specific>\n<content.motif.general>verzet</content.motif.general>\n<production.date.notes>1902 Hemelum</production.date.notes>\n<dimension.notes>-</dimension.notes>\n<institution.place></institution.place>\n<description>Slachtoffer verzet</description>\n<institution.name>Verzetsmuseum Friesland</institution.name>\n<administration_name>Objecten</administration_name>\n<percentH>J</percentH>\n"
+  mappedMetadata:
+    ? dummy
+    : "bla"
+  modified: !!timestamp "2011-08-14T10:19:20.835Z"
+  deleted: !!bool "false"
+  localRecordKey: "00003"
+  globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
+  hash:
+        ? 5CEBCDDB8BAC5072F71E55108DB1A488
+        : "/record/edit.time_3"
+        ? 350A6F898603A87EE74D1BD9F551A13A
+        : "/record/location.default"
+        ? B42242280053A3AF6BC291255283467A
+        : "/record/association.subject.type/text_5"
+        ? E8CFDA6ADB08AA9256333B5E30BD61F7
+        : "/record/acquisition.source"
+        ? 52ABCDA8C8B847FD6B047FA6466FA439
+        : "/record/edit.source"
+        ? 1F2ECFF6431746345AB8E3F6D110A24C
+        : "/record/association.subject"
+        ? 914A23F72F590809D3FE431573ECB71F
+        : "/record/edit.name_1"
+        ? A76EBED919D1196EE7A2BA5EC84A0836
+        : "/record/production.place"
+        ? 467FE391C1F781D54CCDA8214DB6AEF4
+        : "/record/related_object.notes"
+        ? 705D3624009ADF671E3BAC9A09D2C4A3
+        : "/record/edit.time_1"
+        ? 6090A08E36E314F60D96507046CA54A8
+        : "/record/administration_name"
+        ? 0DF3BACF802F6AD110224C574FFB2B25
+        : "/record/association.subject_1"
+        ? FF44570ACA8241914870AFBC310CDB85
+        : "/record/percentH"
+        ? B8B4B727D6F5D1B61FFF7BE687F7970F
+        : "/record/valuation.date"
+        ? FB6FEE7AA61456DE3DBC3C9766563DEA
+        : "/record/institution.name"
+        ? 78B0AB14BC1A57B00BFAD10F38A977B9
+        : "/record/acquisition.method"
+        ? 336D5EBC5436534E61D16E63DDFCA327
+        : "/record/dimension.notes"
+        ? 159BC4C435B700CF696EEFFC312F8271
+        : "/record/content.motif.specific"
+        ? B479D5DC756BF502FF502487F471B8A8
+        : "/record/association.subject.type/text"
+        ? AE4935A3019BB09D9230927F587FF426
+        : "/record/association.period.date.start"
+        ? E23BD543BC4BFEA4249103E8A74CF4E5
+        : "/record/edit.time_2"
+        ? E4536C6FE4EF9E377EF42EE562626ECF
+        : "/record/input.name"
+        ? 798CEBCCB32617AD94123450FD137104
+        : "/record/acquisition.date"
+        ? DCE3ACB8C8D878B51E78536FF30D7AAB
+        : "/record/edit.name"
+        ? 996DFB007BA9E5517E4D649E85D10108
+        : "/record/association.subject.type/text_2"
+        ? EC284C72ADC65A294B89C6F4650FC024
+        : "/record/association.subject.type/text_3"
+        ? D13C1BA6D2345D922F04FBF95A0E4C05
+        : "/record/free_field.type"
+        ? A055562BDB59AD8BA9CC680367308118
+        : "/record/valuation.value.currency"
+        ? 00E80114B2225D54251A7BD38C90BC6B
+        : "/record/association.subject.type/text_4"
+        ? 98ECE83D5D56BD9CF4B377F056992EA5
+        : "/record/association.subject.type/text_1"
+        ? E817999FC47961F80062DADFEB0CAF58
+        : "/record/edit.date"
+        ? CE5140DF15D046A66883807D18D0264B
+        : "/record/institution.code"
+        ? A5D837F89CB372E64AD14D9011C3790E
+        : "/record/valuation.value"
+        ? BF5CCB36F75F70F4773F532310726DA6
+        : "/record/title"
+        ? DF1746F7A8263104B19CA0F0EEAB994A
+        : "/record/description"
+        ? 80F710B9D4BB8F71E2183DFF6245DB9F
+        : "/record/production.date.notes"
+        ? 47C69E10325C4DE39C6B99FE41023F6D
+        : "/record/edit.time"
+        ? C4CA4238A0B923820DCC509A6F75849B
+        : "/record/number_of_parts"
+        ? C6C3A5A2A56882D33520FFB1619D3581
+        : "/record/edit.date_2"
+        ? A78C5BF69B40D464B954EF76815C6FA0
+        : "/record/free_field.content"
+        ? 372A0733C93FD3BFA45094D25F1F5C0A
+        : "/record/content.motif.general"
+        ? DE1B50E0A4B64131490B340B2A15A6A6
+        : "/record/condition"
+        ? 1D78DC8ED51214E518B5114FE24490AE
+        : "/record/object_name"
+        ? 4C68CEA7E58591B579FD074BCDAFF740
+        : "/record/object_number"
+        ? 3BA0EFFF643D508A36D18EDAC179E128
+        : "/record/edit.date_1"
+        ? DC62C8A3563DC5BF9C99D321943FC584
+        ?: "/record/input.date"

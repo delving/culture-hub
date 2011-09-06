@@ -1,0 +1,289 @@
+@(user:models.User)
+
+@import views.context._
+@import views.tags.html._
+
+@main("Create new story for user " + user.fullname ) {
+
+<div class="grid_16">
+    <h1>Create a new Story</h1>
+</div>
+
+<div class="grid_4 suffix_1">
+    <h3>Step 1: Story Information</h3>
+
+    <p>
+        A <strong>story</strong> can be created from objects in a
+        <strong>collection</strong>. So before you can compose a story, you must have
+        a collection.
+    </p>
+    <ol>
+        <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
+        <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
+        <li>Once you have completed the above steps you can start adding pages to your story</li>
+    </ol>
+</div>
+
+<div class="grid_11">
+
+    <h2>Story Information</h2>
+    <span class="required-note">* Required Fields</span>
+
+    <div class="field">
+        <label for="name" class="required">Name</label>
+
+        <div class="inputs">
+            <input type="text" class="textinput" name="name" id="name" value=""/>
+            <span class="error"></span>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="description" class="required">Description</label>
+
+        <div class="inputs">
+            <textarea class="textinput mceNoEditor" name="description" id="description"></textarea>
+            <span class="error"></span>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="annotation">Annotation(s)</label>
+
+        <div class="inputs">
+            <select id="annotationType">
+                <option>Person</option>
+                <option>Place</option>
+                <option>Event</option>
+                <option>Concept</option>
+            </select>
+            <input type="text" class="textinput" name="annotation" id="annotation"/>
+            <button id="annotationAdd">Add</button>
+            <span class="error"></span>
+        </div>
+        <p>
+
+        <div id="annotations" class="display-box">
+            <p class="developers-note ui-state-error ui-corner-all">
+                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                [TODO: populate with above form elements in the form of
+                <i>annotationText (annotationType)</i> with knockout.js]
+            </p>
+        </div>
+        </p>
+    </div>
+
+    <div class="field">
+        <label for="public">Publication Status</label>
+
+        <div class="inputs">
+            <input type="radio" checked="checked" value="0" id="public-0" name="public"> Private
+
+            <input type="radio" value="1" id="public-1" name="public"> Public
+
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="inputs">
+            <button id="btn-add-pages">Add Page(s)</button>
+        </div>
+        <p class="developers-note ui-state-error ui-corner-all">
+            <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+            When clicking "Add Page(s)" check must be done to see if the story Name and Description are filled in.
+            The "Add Pages(s)" button can be visually disabled until those values are filled in.
+        </p>
+    </div>
+</div>
+
+<div class="clear"></div>
+
+<div id="story-pages" style="display: none">
+
+    <div class="grid_4 suffix_1">
+        <h3>Step 2: Story Pages</h3>
+        <ol>
+            <li>Enter a page title</li>
+            <li></li>
+        </ol>
+    </div>
+    <div class="grid_11">
+        <h2>Story Pages</h2>
+
+        <p id="no-pages-found">No pages found</p>
+
+        <div id="page-list" style="display:none;">
+            <ul class="page-list">
+                @for(i <- 0 until 4) {
+                <li id="@i">
+                    <div class="page-info">
+                        <span class="left">
+                            <span class="page-title">Page Test @i</span>
+                        </span>
+                        <span class="right">
+                            <span class="page-edit"><a class="edit" href="">Edit</a></span>
+                            <span class="page-delete"><a class="delete" href="">Delete</a></span>
+                        </span>
+                    </div>
+                </li>
+                }
+            </ul>
+            <div class="clear"></div>
+            <p class="developers-note ui-state-error ui-corner-all">
+                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                Pages in the above list should be 'draggable' to re-order. Clicking on 'Edit' would fill and show the form below.
+                Clicking 'Delete' removes the page.
+            </p>
+        </div>
+
+        <div class="field">
+            <div class="inputs">
+                <button id="btn-add-page">Add a new page</button>
+            </div>
+        </div>
+
+        <div id="form-add-page" class="page-form" style="display: none;">
+
+            <h3>New Page</h3>
+            <span class="required-note">* Required Fields</span>
+
+            <div class="field">
+                <label for="page-title" class="required">Title</label>
+
+                <div class="inputs">
+                    <input type="text" class="textinput" name="page-title" id="page-title" value=""/>
+                    <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="page-text" class="required">Free Text</label>
+
+                <div class="inputs">
+                    <textarea class="textinput mceEditor" name="page-text" id="page-text"></textarea>
+                    <span class="error"></span>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="inputs">
+                    <select id="collection-name" name="collection-name">
+                        <option value="">Collection 1</option>
+                        <option value="">Collection 2</option>
+                        <option value="">Collection 3</option>
+                        <option value="">Collection 4</option>
+                    </select>
+                    <button id="addObject">Add an image from this collection</button>
+                </div>
+                <div id="objects" class="display-box">
+                    <p class="developers-note ui-state-error ui-corner-all">
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                        [TODO: populate with objects selected with above button]
+                    </p>
+                </div>
+            </div>
+            <div class="field">
+                <div class="inputs">
+                    <button type="submit">Save Page</button>
+                </div>
+            </div>
+            <p class="developers-note ui-state-error ui-corner-all">
+                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                Saving the page adds it to a list where it currently says: "No pages found". If there were pages that area would
+                look <button onclick="$('#no-pages-found').hide();$('#page-list').show('slow');">something like this</button>
+            </p>
+        </div>
+
+    </div>
+
+</div>
+<!-- // story-pages -->
+
+<div class="grid_16" id="save-story">
+    <div class="fields">
+        <div class="inputs">
+            <button>Save Story</button>
+        </div>
+    </div>
+</div>
+
+<div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
+    <div id="objects-list">
+        <table>
+            <tbody>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="{object-id}"/></td>
+                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+                <td><h4>Object Name</h4></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="actions">
+        <button>Add selected object(s)</button>
+    </div>
+</div>
+<script id='delving-wysiyg' src='@asset("/public/javascripts/tiny_mce/tiny_mce.js")' type='text/javascript'></script>
+<script type="text/javascript" language="javascript">
+    //<![CDATA[
+
+    $(document).ready(function() {
+
+        $("#addObject").click(function(event) {
+            $("#objects-dialogue").dialog({modal: true});
+            event.preventDefault();
+        })
+
+        $("#btn-add-pages").click(function() {
+            $("#story-pages").show("slow");
+        })
+
+        $("#btn-add-page").click(function() {
+            $("#form-add-page").show("slow");
+        })
+
+
+    });
+
+    $(window).load(function() {
+        Delving.wysiwyg();
+    });
+
+    //]]>
+</script>
+}

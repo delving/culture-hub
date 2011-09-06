@@ -1,56 +1,13 @@
-# use glob syntax.
-syntax: glob
-*.ser
-*.class
-*~
-*.bak
-*.off
-*.old
-.DS_Store
-
-# logs
-derby.log
-
-# eclipse conf file
-.settings
-.classpath
-.project
-.manager
-
-# building
-target
-null
-tmp*
-dist
-test-output
-
-# sbt
-target
-lib_managed
-src_managed
-project/boot
-
-# other scm
-.svn
-.CVS
-.hg*
-
-# switch to regexp syntax.
-#  syntax: regexp
-#  ^\.pc/
-
-# IntelliJ
+tmp
+*.pyc
+test-result
 *.iml
-*.ipr
-*.iws
+.DS_Store
 .idea
-.idea/*
-
-# Pax Runner (for easy OSGi launching)
-runner
-
-# Properties
-default.props 
-
-# SipCreator files
-SipCreatorGUI.xml
+/modules
+/lib
+target/
+extras/servlet-server/solr/*/data/
+extras/servlet-server/work/
+legacyServices/lib/*.jar
+/precompiled

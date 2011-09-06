@@ -1,0 +1,21 @@
+@(title: String = "", isCurrent: String = "")(body: => Html)
+
+@import views.context._
+
+@header(title, isCurrent) {
+
+<div class="grid_16" id="search">
+
+        <form method="get" action="@action(controllers.Search.index)" class="grid_12 alpha push_4">
+            <input type="text" class="textinput" id="query" name="query"/>
+            <button type="submit" class="dui-button ui-state-default">Search</button>
+        </form>
+
+
+</div>
+
+<!--<div id="content">-->
+@body
+<!--</div>-->
+
+}

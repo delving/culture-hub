@@ -1,0 +1,40 @@
+@(randomId:String)
+
+@import views.context._
+@import views.tags.html._
+
+@main("Register!" ) {
+
+        <div class="grid_16">
+<h1>Register to CultureHub!</h1>
+<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST" class="grid_16">
+
+  @if(!errors.isEmpty()) {
+  <p class="error">
+    Error creating your account, please check the errors marked in red
+  </p>
+  }
+
+  @{implicit val prefix = "registration"}
+  @textField("firstName", "First name")
+  @textField("lastName", "Last name")
+  @textField("email", "E-mail")
+  @textField("displayName", "User name")
+  @passwordField("password1", "Password")
+  @passwordField("password2", "Password (repeat)")
+
+  <div class="field">
+    <label for="code">Please type the code below: </label>
+    <img src="@action(controllers.Registration.captcha(randomId))">
+    <br>
+    <input type="text" name="code" id="code" size="18" value="">
+    <input type="hidden" name="randomID" value="@randomId">
+    <span class="error">@showError("code")</span>
+  </div>
+
+  <div>
+    <input type="submit" value="Register!">
+  </div>
+</form>
+</div>
+}

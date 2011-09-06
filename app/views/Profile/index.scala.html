@@ -1,0 +1,11 @@
+@(user:models.User)
+
+@import views.context._
+
+@main("Profile of user " + user.fullname ) {
+<h2 class="grid_16">Profile page for: <span>@user.fullname</span></h2>
+<div id="profile" class=""></div>
+
+
+
+}
