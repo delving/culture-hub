@@ -141,6 +141,7 @@
     : "bla"
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
+  validOutputFormats: ["ese", "icn"]
   localRecordKey: "00001"
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
@@ -247,6 +248,7 @@
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
   localRecordKey: "00002"
+  validOutputFormats: ["ese", "icn"]
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
         ? 5CEBCDDB8BAC5072F71E55108DB1A488
@@ -351,6 +353,7 @@
     : "bla"
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
+  validOutputFormats: ["ese", "icn"]
   localRecordKey: "00003"
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
