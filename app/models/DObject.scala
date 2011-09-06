@@ -14,13 +14,13 @@ import org.joda.time.DateTime
 
 case class DObject(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
-                  user: ObjectId,
+                  user_id: ObjectId,
                   name: String,
                   description: Option[String] = None,
                   collections: List[ObjectId]) {
 
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
-  def userFullName = User.findOneByID(user).get.fullname
+  def userFullName = User.findOneByID(user_id).get.fullname
 
 }
 
@@ -28,5 +28,5 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
 
   RegisterJodaTimeConversionHelpers()
 
-  def findByUser(user: UserReference) = find(MongoDBObject("user.username" -> user.username, "user.node" -> user.node))
+  def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
 }

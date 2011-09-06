@@ -62,103 +62,82 @@
         <h2>Add objects to your collection</h2>
         <div class="field">
             <div class="inputs">
-        <button id="addObject">Add an Object</button>
-                </div>
-                <div id="objects" class="display-box">
-                    <p class="developers-note ui-state-error ui-corner-all">
-                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                        [TODO: populate with objects selected with above button]
-                    </p>
-                </div>
+              <button id="addObject">Add an Object</button>
+            </div>
+            <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
         </div>
     </div>
 
-    <div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
-        <div id="objects-list">
-        <table>
-            <tbody>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
-        <div class="actions">
-            <button>Add selected object(s)</button>
-        </div>
+    <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
+      <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
     </div>
 
 </form>
 
+<script type="text/html" id="availableObjectsList">
+  <table>
+      <tbody>
+      {{each availableObjects()}}
+      <tr>${id}
+          <td><input type="checkbox" value="${id}" data-bind="checked: selectedObjects()"/></td>
+          <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+          <td><h4>${name}</h4></td>
+      </tr>
+      {{/each}}
+      </tbody>
+  </table>
+</script>
+
+<script type="text/html" id="objectsList">
+  lalala
+  {{each(i, d) objects()}} AAAA ${i}
+  {{/each}}
+</script>
+
 <script type="text/javascript" language="javascript">
   $(document).ready(function() {
-    $("#addObject").click(function(event) {
-        $("#objects-dialogue").dialog();
-        event.preventDefault();
+
+    var collectionModel = {
+      selectedObjects: ko.observableArray()
+    };
+
+    var collectionFormScope = document.getElementById('collectionForm');
+
+    $('#objects-dialogue').dialog({
+      autoOpen: false,
+      buttons: {
+        "Add selected objects": function() {
+          $.each(collectionModel.selectedObjects(), function(index, element) {
+            var obj = $.grep(collectionModel.availableObjects(), function(searchedElement, searchedIndex) {
+              return searchedElement.id() == element
+            });
+            // FIXME so the object is added nicely to the array, but never displayed. http://groups.google.com/group/knockoutjs/t/424ae9b49923b3ca
+            collectionModel.objects().push(ko.toJS(obj[0]));
+          });
+          $(this).dialog('close');
+        }
+      }
     });
 
-    var collectionModel = {}
+    $("#addObject").click(function(event) {
+        event.preventDefault();
+        $("#objects-dialogue").dialog('open');
+    });
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
       $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
-          updateViewModel(data, collectionModel, scope);
-          if('@id.getOrElse("")'.length == 0) {
-            window.location.href = '/@userName/collection/' + collectionModel.id()
-          } else {
-          $('#result').html('Collection saved');
-          $('#result').show().fadeOut('3000');
-        }
+        updateViewModel(data, collectionModel);
+        window.location.href = '/@userName/collection/' + collectionModel.id()
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving collection, please try again');
         $('#result').show().fadeOut('3000');
       })
     });
 
-    var scope = document.getElementById('collectionForm');
+    load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
 
-    load('/@userName/collection/load/@id.getOrElse("")', collectionModel, scope);
-
-    var viewModel = {
-
-    }
+    var viewModel = { };
 
    var annotation = function (name, type) {
        this.name = name;

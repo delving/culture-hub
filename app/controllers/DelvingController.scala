@@ -32,16 +32,13 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   }
 
   @Before def setBrowsedUser() {
-    Option(params.get("user")) foreach {
-      userName =>
-        val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
-        user foreach {
-          u => {
-            // todo
-            renderArgs.put("browsedFullName", u.fullname)
-            renderArgs.put("browsedDisplayName", user)
-          }
-        }
+    Option(params.get("user")) foreach { userName =>
+      val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
+      user foreach { u =>
+        renderArgs.put("browsedFullName", u.fullname)
+        renderArgs.put("browsedDisplayName", u.reference.username)
+        renderArgs.put("browsedUserId", u._id)
+      }
     }
   }
 
@@ -59,6 +56,14 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     if(!ObjectId.isValid(id)) throw new RuntimeException("Invalid ID '%s' stored in session for user '%s'" format(id, username))
     new ObjectId(id)
   }
+
+  @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
+
+  @Util def browsedUserId: ObjectId = renderArgs.get("browsedUserId", classOf[ObjectId])
+
+  @Util def browsedFullName: String = renderArgs.get("browsedFullName", classOf[String])
+
+
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
