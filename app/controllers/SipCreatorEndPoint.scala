@@ -273,12 +273,13 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     zipOut.close()
 
-    val tmpFileReader = new FileInputStream(tmpFile)
     try {
-      return new RenderBinary(tmpFileReader, name + ".zip", tmpFile.length())
+      new RenderBinary(tmpFile, name + ".zip")
     } finally {
-      tmpFileReader.close()
       tmpFile.delete()
+
+      val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
+      DataSet.save(updatedDataSet)
     }
   }
 
