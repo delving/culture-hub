@@ -276,7 +276,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     try {
       new RenderBinary(tmpFile, name + ".zip")
     } finally {
-      tmpFile.delete()
+      // FIXME make a job that cleans this up
+//      tmpFile.delete()
 
       val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
       DataSet.save(updatedDataSet)
