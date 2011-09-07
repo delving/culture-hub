@@ -42,7 +42,7 @@
 
     <div class="field">
       <div class="inputs">
-        <button id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0">Add Page(s)</button>
+        <button id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
       </div>
     </div>
 </div>
@@ -100,14 +100,9 @@
             </div>
             <div class="field">
                 <div class="inputs">
-                    <button type="submit">Save Page</button>
+                    <button type="submit" data-bind="click: saveCurrentPage">Save Page</button>
                 </div>
             </div>
-            <p class="developers-note ui-state-error ui-corner-all">
-                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                Saving the page adds it to a list where it currently says: "No pages found". If there were pages that area would
-                look <button onclick="$('#no-pages-found').hide();$('#page-list').show('slow');">something like this</button>
-            </p>
         </div>
 
     </div>
@@ -204,17 +199,27 @@
 
 
 <script type="text/javascript" language="javascript">
+
     $(document).ready(function() {
 
       var storyModel = {
         currentPage: ko.observable(),
+        addPages: function() {
+          saveStory();
+          $("#story-pages").show("slow");
+        },
         addPage: function() {
-          this.currentPage = ko.observable({
-            title: ko.observable(""),
-            text: ko.observable(""),
+          this.currentPage = {
+            title: ko.observable(),
+            text: ko.observable(),
             objects: ko.observableArray()
-          });
-          this.pages.push(ko.toJS(this.currentPage()));
+          };
+          $("#form-add-page").show("slow");
+        },
+        saveCurrentPage: function() {
+          this.pages.push(ko.toJS(storyModel.currentPage));
+          // TODO submit to server
+          $("#form-add-page").hide("slow");
         }
       };
       load('/@userName/story/load/@id.getOrElse("")', storyModel);
@@ -225,20 +230,20 @@
           event.preventDefault();
       });
 
-      $("#btn-add-pages").click(function() {
-          $("#story-pages").show("slow");
-      });
 
-      $("#btn-add-page").click(function() {
-          $("#form-add-page").show("slow");
-      });
-
-
+      function saveStory(onSaved) {
+        $.postKOJson('/@userName/story/submit', storyModel, function(data) {
+          updateViewModel(data, storyModel);
+          if(onSaved !== undefined && onSaved.isFunction()) onSaved.call()
+        }, function(jqXHR, textStatus, errorThrown) {
+          $('#result').html('Error saving collection, please try again');
+          $('#result').show().fadeOut('3000');
+        })
+      }
     });
 
     $(window).load(function() {
         Delving.wysiwyg();
     });
-
 </script>
 }

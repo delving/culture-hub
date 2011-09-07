@@ -5,6 +5,7 @@ import controllers.{Secure, UserAuthentication, DelvingController}
 import org.bson.types.ObjectId
 import play.templates.Html
 import views.User.Story._
+import extensions.CHJson._
 import models.{UserCollection, Status, Story}
 
 /**
@@ -25,7 +26,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
         val storyVM = StoryViewModel(id = Some(story._id),
           description = story.description,
           name = story.name,
-          visibility = story.visibility,
+          visibility = story.visibility.toString,
           pages = for (p <- story.pages) yield PageViewModel(p.title, p.text, for (o <- p.objects) yield o.dobject_id),
           collections = collectionVMs)
 
@@ -35,14 +36,18 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
   def storyUpdate(id: String): Html = html.story(Option(id))
 
-  def storySubmit: Result = Ok
+  def storySubmit(data: String): Result = {
+    val storyVM = parse[StoryViewModel](data)
+    
+    Json(data)
+  }
 
 }
 
 case class StoryViewModel(id: Option[ObjectId] = None,
                           name: String = "",
                           description: String = "",
-                          visibility: Status.Value = Status.Private,
+                          visibility: String = Status.Private.toString,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           collections: List[CollectionViewModel] = List.empty[CollectionViewModel])
 
