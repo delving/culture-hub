@@ -28,6 +28,7 @@ import play.mvc.Http
 import scala.collection.JavaConversions._
 import cake.MetadataModelComponent
 import models.PortalTheme
+import play.exceptions.ConfigurationException
 
 trait ThemeHandlerComponent {
   this: MetadataModelComponent =>
@@ -69,11 +70,16 @@ class ThemeHandler {
         PortalTheme.insert(_)
       }
     } else {
-      themeList = readThemesFromDatabase()
+      try {
+        themeList = readThemesFromDatabase()
+      } catch {
+        case t: Throwable =>
+          log.error("Error reading Themes from the database.", t)
+      }
     }
 
     if(!getDefaultTheme.isDefined) {
-      throw new RuntimeException("No default theme could be found!") // this should be some kind of custom startup exception
+      throw new ConfigurationException("No default theme could be found!")
     }
   }
 
