@@ -2,7 +2,7 @@
     name: norvegiana
     templateDir: norvegiana
     isDefault: true
-    baseUrl: norvegiana2.delving.org
+    subdomain: norvegiana
     displayName: Kulturnett.no
     defaultLanguage: no
     colorScheme: azure
@@ -25,7 +25,7 @@
 - !!models.PortalTheme
     name: friesmuseum
     templateDir: friesmuseum
-    baseUrl: localhost
+    subdomain: friesmuseum
     displayName: Fries Museum
     defaultLanguage: no
     colorScheme: azure

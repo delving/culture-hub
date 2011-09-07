@@ -42,6 +42,10 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
   }
 
+  @Before(priority = 1) def setPortalTheme() {
+    renderArgs.put("theme", theme)
+  }
+
   @Util def connectedUserId = getUserMongoId(connectedUser)
 
   // TODO

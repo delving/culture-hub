@@ -19,7 +19,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        isDefault:                           Boolean = false,
                        localiseQueryKeys:                   List[String] = List(),
                        hiddenQueryFilter:                   Option[String] = Some(""),
-                       baseUrl:                             String,
+                       subdomain:                           Option[String] = None,
                        displayName:                         String,
                        googleAnalyticsTrackingCode:         Option[String] = Some(""),
                        addThisTrackingCode:                 Option[String] = Some(""),
