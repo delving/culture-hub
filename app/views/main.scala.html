@@ -1,8 +1,8 @@
-@(title: String = "")(body: => Html)
+@(title: String = "", bodyId: String = "")(body: => Html)
 
 @import views.context._
 
-@header(title) {
+@header(title, bodyId) {
 
 <div class="grid_16" id="search">
 

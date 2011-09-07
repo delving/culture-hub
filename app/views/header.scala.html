@@ -1,4 +1,4 @@
-@(title:String = "")(body: => Html)
+@(title:String = "", bodyId: String = "")(body: => Html)
 @import views.context._
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -36,8 +36,11 @@
     </script>
 
 </head>
+@if(bodyId.length == 0) {
 <body>
-
+} else {
+<body id="@bodyId">
+}
 <div id="top-nav">
 
     <ul class="menu-h">
