@@ -15,7 +15,7 @@ import com.mongodb.casbah.commons.conversions.scala._
 
 case class UserCollection(_id: ObjectId = new ObjectId,
                           TS_update: DateTime,
-                          user: ObjectId,
+                          user_id: ObjectId,
                           name: String,
                           node: String,
                           description: Option[String]) extends Repository
@@ -28,7 +28,7 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
 
   protected def getObjectIdField = "_id"
 
-  def findByUser(user: ObjectId) = UserCollection.find(MongoDBObject("_id" -> user)).toList
+  def findByUser(user: ObjectId) = UserCollection.find(MongoDBObject("user_id" -> user)).toList
 
   def findAllByOwner(owner: UserReference) = {
     val userCollectionCursor = findAllByRight(owner.username, owner.node, "owner")

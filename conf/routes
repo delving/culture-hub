@@ -70,13 +70,16 @@ GET         /{user}/collection/{id}                                          Col
 
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.objectUpdate
-GET         /{user}/object/{id}                                              DObjects.view
 GET         /{user}/object/update/{id}                                       user.DObjects.objectUpdate
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 GET         /{user}/object/load/{id}?                                        DObjects.load
+GET         /{user}/object/{id}                                              DObjects.view
 
 GET         /{user}/story                                                    Stories.list
-GET         /{user}/story/add                                                Stories.add
+GET         /{user}/story/add                                                user.Stories.storyUpdate
+GET         /{user}/story/update/{id}                                        user.Stories.storyUpdate
+POST        /{user}/story/submit                                             user.Stories.storySubmit
+GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{story}                                            Stories.story
 
 GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
