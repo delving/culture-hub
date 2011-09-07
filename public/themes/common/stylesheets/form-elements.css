@@ -1,0 +1,138 @@
+/* FORM ELEMENT STYLES */
+
+form {
+    margin: 0;
+    padding: 0;
+}
+
+form.box {
+    background: #eaeaea;
+    border: 1px solid #ccc;
+    padding: 1em;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+label {
+    display: block;
+    color: #555;
+
+}
+
+.required-note {
+    color: #777777;
+    display: block;
+    font-size: 1em;
+}
+
+div.field {
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: 10px;
+    overflow: hidden;
+    padding-bottom: 10px;
+    position: relative;
+}
+
+div.field label,
+div.field div.label {
+    color: #444444;
+    display: block;
+    /*float: left;*/
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    text-align: left;
+    width: 200px;
+}
+
+div.field label:after {
+    content: ":";
+}
+
+div.field label.required:after {
+    color: #777777;
+    content: ": *";
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.field .inputs {
+    /*float: left;*/
+    overflow: hidden;
+    width: 100%;
+}
+
+input.textinput, select, textarea {
+    background-color: #FFFFFF !important;
+    border: 1px solid #DDDAD3;
+    font-size: 1.1em;
+    padding: 3px;
+}
+
+select {
+    padding: 2px;
+}
+
+.inputs textarea {
+    width: 100%;
+    min-height: 150px;
+}
+
+input.textdisplay {
+    border: none;
+}
+
+input[type=submit],
+input[type=button],
+input[type=file],
+button {
+    border: 1px solid #777;
+    background: #999;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+input[type=file] {
+    background: #fff;
+}
+
+input[type=submit]:hover,
+input[type=button]:hover,
+input[type=file]:hover,
+button:hover {
+    border: 1px solid #000;
+}
+
+.display-box {
+    background: #eaeaea;
+    border: 1px solid #ccc;
+    padding: .5em;
+    margin-top: 10px;
+}
+
+ul#labels {
+    margin: 0;
+    padding: 0;
+}
+
+ul#labels li {
+    background: #fff;
+    padding: 4px;
+    list-style: none;
+    margin: 0 .5em .5em 0;
+    display: inline-block;
+    height: 24px;
+    line-height: 24px;
+}
+
+span.help {
+    display: block;
+    color: #555;
+    font-size: .9em;
+    margin-top: .5em;
+}
+

@@ -1,0 +1,29 @@
+#hub-navigation a,
+#login-registration a,
+#user-navigation a {
+  margin: 0;
+  padding:  0;
+}
+
+#hub-navigation span.pipe,
+#login-registration span.pipe,
+#user-navigation span.pipe {
+    display: inline-block;
+    margin: 0 8px;
+}
+
+.item-pager a:link,
+.item-pager a:visited {
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.item-pager a:hover {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.item-pager .pipe {
+    padding: 0 2px 0 2px;
+}

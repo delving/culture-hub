@@ -2,8 +2,8 @@
 
 @import views.context._
 
-@main("List of objects for user " + user.fullname ) {
-<div class="grid_12" id="items">
+@header("List of objects for user " + user.fullname ) {
+<div class="grid_12 alpha" id="items">
     <h2>All the objects of <span>@user.fullname</span></h2>
 
     <div class="item-nav">
@@ -11,19 +11,21 @@
             Found: <span>58</span> objects
         </div>
         <div class="item-pager">
-            <ul>
-                <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
-                <li><span>1</span><span class="pipe"> | </span></li>
-                <li><a href="#">2</a><span class="pipe"> | </span></li>
-                <li><a href="#">3</a><span class="pipe"> | </span></li>
-                <li><a href="#">4</a><span class="pipe"> | </span></li>
-                <li><a href="#">5</a><span class="pipe"> | </span></li>
-                <li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>
-            </ul>
+            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
+            <span>1</span><span class="pipe"> | </span>
+            <a href="#">2</a><span class="pipe"> | </span>
+            <a href="#">3</a><span class="pipe"> | </span>
+            <a href="#">4</a><span class="pipe"> | </span>
+            <a href="#">5</a><span class="pipe"> | </span>
+            <a href="#">6</a><span class="pipe"> | </span>
+            <a href="#">7</a><span class="pipe"> | </span>
+            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
         </div>
     </div>
 
-    @for(i <- 0 until 16) {
+    <div class="clear"></div>
+
+    @for(i <- 0 until 15) {
 
     <div class="item three-col">
         <img src='@asset("/public/images/dummy-object.png")' width="84"/>
@@ -34,7 +36,7 @@
     }
 </div>
 
-<div class="grid_4">
+<div class="grid_4 omega">
     <a href='/@userName/object/add'>Add new object</a>
 </div>
 
