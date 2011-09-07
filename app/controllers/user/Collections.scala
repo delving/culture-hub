@@ -23,13 +23,13 @@ object Collections extends DelvingController with UserAuthentication with Secure
 
   def load(id: String): Result = {
     // TODO access rights
-    val availableObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
+    val allObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
     UserCollection.findById(id) match {
-      case None => Json(CollectionAddModel.empty.copy(availableObjects = availableObjects))
+      case None => Json(CollectionAddModel.empty.copy(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, availableObjects = availableObjects, objects = objects))
+        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains))))
       }
     }
   }
@@ -78,6 +78,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
 case class CollectionAddModel(id: Option[ObjectId] = None,
                               name: String, description: Option[String] = Some(""),
                               objects: List[ObjectModel] = List.empty[ObjectModel],
+                              allObjects: List[ObjectModel] = List.empty[ObjectModel],
                               availableObjects: List[ObjectModel] = List.empty[ObjectModel])
 
 object CollectionAddModel {

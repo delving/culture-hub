@@ -78,7 +78,7 @@
   <table>
       <tbody>
       {{each availableObjects()}}
-      <tr>${id}
+      <tr>
           <td><input type="checkbox" value="${id}" data-bind="checked: selectedObjects()"/></td>
           <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
           <td><h4>${name}</h4></td>
@@ -90,9 +90,9 @@
 
 <script type="text/html" id="objectsList">
   <ul>
-  {{each objects()}}
+  {{each(i, object) objects()}}
   <li>
-    ${name}
+    ${name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
   </li>
   {{/each}}
   </ul>
@@ -102,7 +102,11 @@
   $(document).ready(function() {
 
     var collectionModel = {
-      selectedObjects: ko.observableArray()
+      selectedObjects: ko.observableArray(),
+      removeObject: function(object) {
+        this.availableObjects.push(object);
+        this.objects.remove(object);
+      }
     };
 
     var collectionFormScope = document.getElementById('collectionForm');
@@ -110,12 +114,15 @@
     $('#objects-dialogue').dialog({
       autoOpen: false,
       buttons: {
-        "Add selected objects": function() {
+        "Save selected objects": function() {
+          collectionModel.objects.removeAll();
           $.each(collectionModel.selectedObjects(), function(index, element) {
-            var obj = $.grep(collectionModel.availableObjects(), function(searchedElement, searchedIndex) {
+            var objs = $.grep(collectionModel.availableObjects(), function(searchedElement, searchedIndex) {
               return searchedElement.id() == element
             });
-            collectionModel.objects.push(ko.toJS(obj[0]));
+            var obj = ko.toJS(objs[0]);
+            collectionModel.objects.push(obj);
+            collectionModel.availableObjects.remove(obj)
           });
           $(this).dialog('close');
         }
