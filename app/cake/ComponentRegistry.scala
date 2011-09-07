@@ -49,15 +49,10 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
   //  metaRepo.setResponseListSize(Play.configuration.getProperty("services.pmh.responseListSize").trim)
   //  metaRepo.setHarvestStepSecondsToLive(180)
 
+  // FIXME this way of initializing things does not allow for a very good exception handling. if something goes wrong in startup we get an ClassNotDefFound in clients of the ComponentRegistry
   val themeHandler: ThemeHandler = new ThemeHandler
   themeHandler.startup()
 
   play.data.binding.Binder.register(classOf[scala.collection.immutable.List[String]], new ScalaListTypeBinder)
   play.data.binding.Binder.register(classOf[org.bson.types.ObjectId], new ObjectIdTypeBinder)
 }
-
-
-//// =======================
-//val warmer = ComponentRegistry.warmer
-//warmer.trigger
-
