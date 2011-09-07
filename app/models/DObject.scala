@@ -29,4 +29,7 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
   RegisterJodaTimeConversionHelpers()
 
   def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
+
+  // TODO index the collections field
+  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
 }

@@ -89,9 +89,13 @@
 </script>
 
 <script type="text/html" id="objectsList">
-  lalala
-  {{each(i, d) objects()}} AAAA ${i}
+  <ul>
+  {{each objects()}}
+  <li>
+    ${name}
+  </li>
   {{/each}}
+  </ul>
 </script>
 
 <script type="text/javascript" language="javascript">
@@ -111,8 +115,7 @@
             var obj = $.grep(collectionModel.availableObjects(), function(searchedElement, searchedIndex) {
               return searchedElement.id() == element
             });
-            // FIXME so the object is added nicely to the array, but never displayed. http://groups.google.com/group/knockoutjs/t/424ae9b49923b3ca
-            collectionModel.objects().push(ko.toJS(obj[0]));
+            collectionModel.objects.push(ko.toJS(obj[0]));
           });
           $(this).dialog('close');
         }

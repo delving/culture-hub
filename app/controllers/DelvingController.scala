@@ -154,7 +154,7 @@ trait ThemeAware {
 
   implicit def lookup = lookupThreadLocal.get()
 
-  @Before(priority = 2)
+  @Before(priority = 0)
   def setTheme() {
     val portalTheme = themeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
