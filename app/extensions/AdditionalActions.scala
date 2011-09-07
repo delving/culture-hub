@@ -10,34 +10,48 @@ import net.liftweb.json
 import json._
 import json.Serialization._
 import com.codahale.jerkson.util.CaseClassSigParser
-import org.codehaus.jackson.map.module.SimpleModule
-import org.codehaus.jackson.Version
 import org.bson.types.ObjectId
 import play.mvc.Controller
+import org.codehaus.jackson.map.annotate.JsonCachable
+import org.codehaus.jackson.`type`.JavaType
+import org.codehaus.jackson.map._
+import org.codehaus.jackson.map.Module.SetupContext
+import org.codehaus.jackson.{JsonParser, JsonGenerator, Version}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-// glue for lift-json
+// glue for lift-json, still used in some places
 object PlayParameterNameReader extends ParameterNameReader {
+
   import scala.collection.JavaConversions._
+
   def lookupParameterNames(constructor: Constructor[_]) = LocalvariablesNamesEnhancer.lookupParameterNames(constructor)
 }
 
+
 object CHJson extends com.codahale.jerkson.Json {
   // this is where we setup out Jackson module for custom de/serialization
-  val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
-  module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
-  module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
+  val module: Module = new Module() {
+    def getModuleName = "Delving"
+    def version() = Version.unknownVersion()
+    def setupModule(ctx: SetupContext) {
+      ctx.addDeserializers(new AdditionalScalaDeserializers)
+      ctx.addSerializers(new AdditionalScalaSerializers)
+    }
+  }
   mapper.registerModule(module)
 }
+
+
 
 /**
  * This trait provides additional actions that can be used in controllers
  */
-trait AdditionalActions { self: Controller =>
+trait AdditionalActions {
+  self: Controller =>
 
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
@@ -74,7 +88,9 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     } else if (request.format == "xml") {
       // TODO for now we still have lift-json here because we want to use the XML extraction
       // but maybe there is another way to achieve this
-      val doc = <response>{net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}</response>
+      val doc = <response>
+        {net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}
+      </response>
       new RenderXml(doc.toString())(request, response)
     } else if (request.format == "kml") {
       new RenderKml(arg)(request, response)
