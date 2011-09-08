@@ -27,6 +27,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
       u => {
         renderArgs.put("fullName", u.fullname)
         renderArgs.put("displayName", u.reference.username)
+        renderArgs.put("userId", u._id)
       }
     }
   }
@@ -46,7 +47,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     renderArgs.put("theme", theme)
   }
 
-  @Util def connectedUserId = getUserMongoId(connectedUser)
+  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   // TODO
   @Util def getNode = "cultureHub"
@@ -54,12 +55,6 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   @Util def getUserId(username: String): String = username + "#" + getNode
 
   @Util def getUser(displayName: String): User = User.findOne(MongoDBObject("_id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
-
-  @Util def getUserMongoId(username: String): ObjectId = {
-    val id: String = session.get("connectedUserId")
-    if(!ObjectId.isValid(id)) throw new RuntimeException("Invalid ID '%s' stored in session for user '%s'" format(id, username))
-    new ObjectId(id)
-  }
 
   @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
 
