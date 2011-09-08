@@ -6,28 +6,28 @@ function initializeElements() {
 
     //all hover and click logic for dui-buttons
     $(".dui-button:not(.ui-state-disabled)")
-        .hover(
+            .hover(
             function() {
                 $(this).addClass("ui-state-hover");
             },
             function() {
                 $(this).removeClass("ui-state-hover");
             }
-        )
-        .mousedown(function() {
-            $(this).parents('.dui-buttonset-single:first').find(".dui-button.ui-state-active").removeClass("ui-state-active");
-            if ($(this).is('.ui-state-active.dui-button-toggleable, .dui-buttonset-multi .ui-state-active')) {
-                $(this).removeClass("ui-state-active");
-            }
-            else {
-                $(this).addClass("ui-state-active");
-            }
-        })
-        .mouseup(function() {
-            if (! $(this).is('.dui-button-toggleable, .dui-buttonset-single .dui-button,  .dui-buttonset-multi .dui-button')) {
-                $(this).removeClass("ui-state-active");
-            }
-        });
+    )
+            .mousedown(function() {
+                $(this).parents('.dui-buttonset-single:first').find(".dui-button.ui-state-active").removeClass("ui-state-active");
+                if ($(this).is('.ui-state-active.dui-button-toggleable, .dui-buttonset-multi .ui-state-active')) {
+                    $(this).removeClass("ui-state-active");
+                }
+                else {
+                    $(this).addClass("ui-state-active");
+                }
+            })
+            .mouseup(function() {
+                if (! $(this).is('.dui-button-toggleable, .dui-buttonset-single .dui-button,  .dui-buttonset-multi .dui-button')) {
+                    $(this).removeClass("ui-state-active");
+                }
+            });
 }
 
 /**
@@ -77,6 +77,38 @@ function updateViewModel(data, viewModel, scope) {
             ko.applyBindings(viewModel);
         }
     }
+}
+
+
+// ~~~ object handling functions
+
+/**
+ * Handles object addition from an object selection box
+ * @param objects the observable array in which objects are stored
+ * @param selectedObjectIds the observable array containing the checked object IDs
+ * @param availableObjects the objects the user still has available for selection
+ */
+function addSelectedObjects(objects, selectedObjectIds, availableObjects) {
+    $.each(selectedObjectIds(), function(index, selectedId) {
+        var objs = $.grep(availableObjects(), function(searchedElement, searchedIndex) {
+            return elementIdMatch(selectedId, searchedElement);
+        });
+        var obj = ko.toJS(objs[0]);
+        objects.push(obj);
+        availableObjects.remove(function(item) {
+            return elementIdMatch(obj.id, item);
+        });
+    });
+    selectedObjectIds.removeAll();
+}
+
+/**
+ * Checks if an element has a given ID
+ * @param id the ID to match against
+ * @param element the element - may or may not be a mapped knockout object
+ */
+function elementIdMatch(id, element) {
+    return id === ko.toJS(element).id;
 }
 
 

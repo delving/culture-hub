@@ -62,6 +62,7 @@ GET         /{user}/label/{label}                                            Lab
 
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
+GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/add                                           user.Collections.collectionUpdate
 GET         /{user}/collection/update/{id}                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit

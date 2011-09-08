@@ -71,6 +71,7 @@
         </div>
 
         <div id="form-add-page" class="page-form" style="display: none;">
+          <form id="pageForm" action="">
 
             <h3>New Page</h3>
             <span class="required-note">* Required Fields</span>
@@ -88,21 +89,17 @@
 
             <div class="field">
                 <div class="inputs">
-                    <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsText: 'name', optionsValue: 'id', value: currentPage.selectedCollection"></select>
-                    <button id="addObject">Add an image from this collection</button>
+                    <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+                    <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0">Add an image from this collection</button>
                 </div>
-                <div id="objects" class="display-box">
-                  <p class="developers-note ui-state-error ui-corner-all">
-                      <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                      [TODO: populate with objects selected with above button]
-                  </p>
-                </div>
+                <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
             </div>
             <div class="field">
                 <div class="inputs">
                     <button type="submit" data-bind="click: saveCurrentPage">Save Page</button>
                 </div>
             </div>
+          </form>
         </div>
 
     </div>
@@ -118,60 +115,35 @@
     </div>
 </div>
 
-<div class="objects-container" id="objects-dialogue" style="display: none;" title="Select Object(s)">
-    <div id="objects-list">
-        <table>
-            <tbody>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="{object-id}"/></td>
-                <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-                <td><h4>Object Name</h4></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="actions">
-        <button>Add selected object(s)</button>
-    </div>
+<div class="objects-container" id="objects-dialogue" title="Select Object(s)">
+  <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
 </div>
 
 <script id='delving-wysiyg' src='@asset("/public/javascripts/tiny_mce/tiny_mce.js")' type='text/javascript'></script>
 
+<script type="text/html" id="availableObjectsList">
+  <table>
+      <tbody>
+      {{each(i, object) currentPage.availableObjects()}}
+      <tr>
+          <td><input type="checkbox" value="${object.id}" data-bind="checked: currentPage.selectedObjectIds()" /></td>
+          <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+          <td><h4>${object.name}</h4></td>
+      </tr>
+      {{/each}}
+      </tbody>
+  </table>
+</script>
+
+<script type="text/html" id="objectsList">
+  <ul>
+  {{each(i, object) currentPage.objects()}}
+  <li>
+    ${object.name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
+  </li>
+  {{/each}}
+  </ul>
+</script>
 
 <script type="text/html" id="pageList">
   <ul class="page-list">
@@ -201,33 +173,67 @@
 <script type="text/javascript" language="javascript">
 
     $(document).ready(function() {
-
       var storyModel = {
-        currentPage: ko.observable(),
+        currentPage: {
+          title: ko.observable(),
+          text: ko.observable(),
+          objects: ko.observableArray(),
+          selectedCollection: ko.observable(),
+          availableObjects: ko.observableArray(),
+          selectedObjectIds: ko.observableArray()
+        },
         addPages: function() {
           saveStory();
           $("#story-pages").show("slow");
         },
         addPage: function() {
-          this.currentPage = {
-            title: ko.observable(),
-            text: ko.observable(),
-            objects: ko.observableArray()
-          };
+          storyModel.currentPage.title("");
+          storyModel.currentPage.text("");
+          storyModel.currentPage.objects([]);
+          storyModel.currentPage.selectedCollection([]);
+          storyModel.currentPage.availableObjects([]);
+          storyModel.currentPage.selectedObjectIds([]);
           $("#form-add-page").show("slow");
+        },
+        removeObject: function(object) {
+          storyModel.currentPage.objects.remove(object);
+          storyModel.currentPage.availableObjects.push(object);
         },
         saveCurrentPage: function() {
           this.pages.push(ko.toJS(storyModel.currentPage));
           // TODO submit to server
+          $('#pageForm').resetForm();
           $("#form-add-page").hide("slow");
+        },
+        collectionChanged: function() {
+          storyModel.currentPage.availableObjects.removeAll();
+          if($('#collection-name').val().length > 0) {
+            $.getJSON('/@userName/collection/' + $('#collection-name').val() + '/objects', {}, function(data) {
+              $.each(data, function(index, obj) {
+                if(storyModel.currentPage.objects.indexOf(obj) < 0) {
+                  storyModel.currentPage.availableObjects.push(obj);
+                }
+              });
+            });
+          }
         }
       };
       load('/@userName/story/load/@id.getOrElse("")', storyModel);
 
+      $('#objects-dialogue').dialog({
+        autoOpen: false,
+        modal: true,
+        buttons: {
+          "Save selected objects": function() {
+            addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
+            $(this).dialog('close');
+          }
+        }
+      });
 
       $("#addObject").click(function(event) {
-          $("#objects-dialogue").dialog({modal: true});
-          event.preventDefault();
+        event.preventDefault();
+        $("#objects-dialogue").dialog('open');
       });
 
 

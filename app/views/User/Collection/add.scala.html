@@ -112,16 +112,8 @@
     $('#objects-dialogue').dialog({
       autoOpen: false,
       buttons: {
-        "Save selected objects": function() {
-          collectionModel.objects.removeAll();
-          $.each(collectionModel.selectedObjects(), function(index, element) {
-            var objs = $.grep(collectionModel.availableObjects(), function(searchedElement, searchedIndex) {
-              return searchedElement.id() == element
-            });
-            var obj = ko.toJS(objs[0]);
-            collectionModel.objects.push(obj);
-            collectionModel.availableObjects.remove(obj);
-          });
+        "Add selected objects": function() {
+          addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects);
           $(this).dialog('close');
         }
       }
