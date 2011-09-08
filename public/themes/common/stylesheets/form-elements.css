@@ -64,7 +64,7 @@ div.field label.required:after {
 }
 
 input.textinput, select, textarea {
-    background-color: #FFFFFF !important;
+    background-color: #FFFFFF;
     border: 1px solid #DDDAD3;
     font-size: 1.1em;
     padding: 3px;

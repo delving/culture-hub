@@ -156,6 +156,36 @@ p {
     line-height: 64px;
 }
 
+#search input[type="text"]{
+    background: transparent url(../images/bg-search-input.png) 0 0 no-repeat;
+    border: none;
+    height: 40px;
+    line-height: 40px;
+    margin: 0 10px 0 0;
+    padding: 0 10px;
+    width: 430px;
+}
+
+#search input[type="submit"] {
+    background: transparent url(../images/bg-button-states.png) 0 0 no-repeat;
+    border:  none;
+    color: #fff;
+    font-weight: normal;
+    height: 32px;
+    margin: 0 10px 0 0;
+    padding: 0 5px;
+    width: 82px;
+
+}
+
+#search input[type="submit"]:hover {
+    background: transparent url(../images/bg-button-states.png) 0 -32px no-repeat;
+}
+
+#search input[type="submit"]:active {
+    background: transparent url(../images/bg-button-states.png) 0 -64px no-repeat;
+}
+
 /* result page */
 
 .item-nav {
