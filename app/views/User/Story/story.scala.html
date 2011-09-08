@@ -70,37 +70,7 @@
             </div>
         </div>
 
-        <div id="form-add-page" class="page-form" style="display: none;">
-          <form id="pageForm" action="">
-
-            <h3>New Page</h3>
-            <span class="required-note">* Required Fields</span>
-
-            @textField("title", "Title", "value: currentPage.title, valueUpdate: 'afterkeydown'")
-
-            <div class="field">
-                <label for="page-text" class="required">Free Text</label>
-
-                <div class="inputs">
-                    <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="value: currentPage.text"></textarea>
-                    <span class="error"></span>
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="inputs">
-                    <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-                    <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0">Add an image from this collection</button>
-                </div>
-                <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
-            </div>
-            <div class="field">
-                <div class="inputs">
-                    <button type="submit" data-bind="click: saveCurrentPage">Save Page</button>
-                </div>
-            </div>
-          </form>
-        </div>
+        <div id="form-add-page" class="page-form" style="display: none;" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
 
     </div>
 
@@ -120,6 +90,45 @@
 </div>
 
 <script id='delving-wysiyg' src='@asset("/public/javascripts/tiny_mce/tiny_mce.js")' type='text/javascript'></script>
+
+<script type="text/html" id="pageTemplate">
+  <form id="${$item.action}PageForm" action="">
+
+    <h3>${$item.action} Page</h3>
+    <span class="required-note">* Required Fields</span>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <div class="inputs">
+        <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown' " />
+        <span class="error"></span>
+        <span class="help"></span>
+      </div>
+    </div>
+
+    <div class="field">
+        <label for="page-text" class="required">Free Text</label>
+        <div class="inputs">
+            <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+            <span class="error"></span>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="inputs">
+            <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+            <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0">Add an image from this collection</button>
+        </div>
+        <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
+    </div>
+    <div class="field">
+        <div class="inputs">
+            <button type="submit" data-bind="click: saveCurrentPage">Save Page</button>
+        </div>
+    </div>
+  </form>
+
+</script>
 
 <script type="text/html" id="availableObjectsList">
   <table>
@@ -154,7 +163,7 @@
                   <span class="page-title">${page.title}</span>
               </span>
               <span class="right">
-                  <span class="page-edit"><a class="edit" href="">Edit</a></span>
+                  <span class="page-edit"><a class="edit" href="#" data-bind="click: function(page) { storyModel.editPage(page) }">Edit</a></span>
                   <span class="page-delete"><a class="delete" href="">Delete</a></span>
               </span>
           </div>
@@ -163,7 +172,7 @@
   </ul>
   <div class="clear"></div>
   <p class="developers-note ui-state-error ui-corner-all">
-    <span style="float: left; margin-right: 0.3em" class="ui-icon ui-icon-alert"></span>
+    <span class="ui-icon ui-icon-alert"></span>
     Pages in the above list should be 'draggable' to re-order. Clicking on 'Edit' would fill and show the form below.
     Clicking 'Delete' removes the page.
   </p>
@@ -175,6 +184,7 @@
     $(document).ready(function() {
       var storyModel = {
         currentPage: {
+          isNew: ko.observable(false),
           title: ko.observable(),
           text: ko.observable(),
           objects: ko.observableArray(),
@@ -187,6 +197,7 @@
           $("#story-pages").show("slow");
         },
         addPage: function() {
+          storyModel.currentPage.isNew(true);
           storyModel.currentPage.title("");
           storyModel.currentPage.text("");
           storyModel.currentPage.objects([]);
@@ -194,6 +205,15 @@
           storyModel.currentPage.availableObjects([]);
           storyModel.currentPage.selectedObjectIds([]);
           $("#form-add-page").show("slow");
+        },
+        editPage: function(page) {
+          storyModel.currentPage.isNew(false);
+          storyModel.currentPage.title(page.title);
+          storyModel.currentPage.text(page.text);
+          storyModel.currentPage.objects(page.objects);
+          storyModel.currentPage.selectedCollection([]);
+          storyModel.currentPage.selectedObjectIds([]);
+          storyModel.currentPage.availableObjects([]);
         },
         removeObject: function(object) {
           storyModel.currentPage.objects.remove(object);

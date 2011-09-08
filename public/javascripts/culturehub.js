@@ -177,6 +177,47 @@ if (typeof Delving === 'undefined') {
 }
 
 /**
+ * KnockoutJS binder for TinyMCE
+ */
+ko.bindingHandlers.tinymce = {
+    init: function (element, valueAccessor, allBindingsAccessor, context) {
+        var options = allBindingsAccessor().tinymceOptions || {};
+        var modelValue = valueAccessor();
+
+        //handle edits made in the editor
+        options.setup = function (ed) {
+            ed.onChange.add(function (ed, l) {
+                if (ko.isWriteableObservable(modelValue)) {
+                    modelValue(l.content);
+                }
+            });
+        };
+
+        //handle destroying an editor (based on what jQuery plugin does)
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+            $(element).parent().find("span.mceEditor,div.mceEditor").each(function (i, node) {
+                var ed = tinyMCE.get(node.id.replace(/_parent$/, ""));
+                if (ed) {
+                    ed.remove();
+                }
+            });
+        });
+
+        setTimeout(function() {
+            //$(element).tinymce(options);
+            Delving.wysiwyg(options);
+        }, 0);
+
+    },
+    update: function (element, valueAccessor, allBindingsAccessor, context) {
+        //handle programmatic updates to the observable
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        $(element).html(value);
+    }
+};
+
+
+/**
  * Add the TinyMCE WYSIWG editor to a page.
  * Default is to add to all textareas.
  *
