@@ -3,6 +3,7 @@ package models
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import salatContext._
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time.DateTime
@@ -32,4 +33,6 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
 
   // TODO index the collections field
   def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
+
+  def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
 }

@@ -15,13 +15,14 @@ case class Story(_id: ObjectId = new ObjectId,
                  name: String,
                  description: String,
                  user_id: ObjectId,
-                 visibility: Status.Value,
+                 visibility: String, // Visibility.Value
+                 isDraft: Boolean,
                  pages: List[Page])
 
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Resolver[Story]
 
 @EnumAs(strategy = EnumStrategy.BY_VALUE)
-object Status extends Enumeration {
+object Visibility extends Enumeration {
   val Private, Public = Value
 }
 

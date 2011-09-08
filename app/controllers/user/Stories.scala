@@ -1,12 +1,13 @@
 package controllers.user
 
 import play.mvc.results.Result
-import controllers.{Secure, UserAuthentication, DelvingController}
 import org.bson.types.ObjectId
 import play.templates.Html
 import views.User.Story._
 import extensions.CHJson._
-import models.{UserCollection, Status, Story}
+import models._
+import com.mongodb.casbah.commons.MongoDBObject
+import controllers.{ObjectModel, Secure, UserAuthentication, DelvingController}
 
 /**
  *
@@ -27,7 +28,11 @@ object Stories extends DelvingController with UserAuthentication with Secure {
           description = story.description,
           name = story.name,
           visibility = story.visibility.toString,
-          pages = for (p <- story.pages) yield PageViewModel(p.title, p.text, for (o <- p.objects) yield o.dobject_id),
+          isDraft = story.isDraft,
+          pages = for (p <- story.pages) yield PageViewModel(title = p.title, text = p.text, objects = {
+            val objects = DObject.findAllWithIds(p.objects map { _.dobject_id})
+            (objects map { o => ObjectModel(id = Some(o._id), name = o.name, description = o.description, owner = o.user_id) }).toList
+          }),
           collections = collectionVMs)
 
         Json(storyVM)
@@ -38,8 +43,24 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
-    
-    Json(data)
+    val pages = for(page <- storyVM.pages) yield {
+      Page(page.title, page.text, for(o <- page.objects) yield PageObject(o.id.get))
+    }
+
+    val persistedStory = storyVM.id match {
+      case None =>
+        val visibility = Visibility.withName(storyVM.visibility)
+        val story = Story(name = storyVM.name, description = storyVM.description, user_id = connectedUserId, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
+        val inserted = Story.insert(story)
+        storyVM.copy(id = inserted)
+      case Some(id) =>
+        val savedStory = Story.findOneByID(id).getOrElse(return Error("Story with ID %s not found".format(id)))
+        val updatedStory = savedStory.copy(name = storyVM.name, description = storyVM.description, visibility = storyVM.visibility, pages = pages)
+        Story.save(updatedStory)
+        storyVM
+    }
+
+    Json(persistedStory)
   }
 
 }
@@ -47,10 +68,11 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 case class StoryViewModel(id: Option[ObjectId] = None,
                           name: String = "",
                           description: String = "",
-                          visibility: String = Status.Private.toString,
+                          visibility: String = Visibility.Private.toString,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
+                          isDraft: Boolean = true,
                           collections: List[CollectionViewModel] = List.empty[CollectionViewModel])
 
-case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectId] = List.empty[ObjectId])
+case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectModel] = List.empty[ObjectModel])
 
 case class CollectionViewModel(id: ObjectId, name: String)

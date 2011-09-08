@@ -110,7 +110,7 @@
 <div class="grid_16" id="save-story">
     <div class="fields">
         <div class="inputs">
-            <button>Save Story</button>
+            <button data-bind="click: saveTheStory">Save Story</button>
         </div>
     </div>
 </div>
@@ -201,9 +201,12 @@
         },
         saveCurrentPage: function() {
           this.pages.push(ko.toJS(storyModel.currentPage));
-          // TODO submit to server
-          $('#pageForm').resetForm();
-          $("#form-add-page").hide("slow");
+          saveStory(function() {
+            $('#pageForm').resetForm();
+            $("#form-add-page").hide("slow");
+          }, function() {
+            // TODO yell, cry. be desperate
+          });
         },
         collectionChanged: function() {
           storyModel.currentPage.availableObjects.removeAll();
@@ -216,6 +219,13 @@
               });
             });
           }
+        },
+        saveTheStory: function() {
+          saveStory(function() {
+            // TODO redirect to story view
+          }, function() {
+            // TODO yell, shout, be desperate
+          }, false);
         }
       };
       load('/@userName/story/load/@id.getOrElse("")', storyModel);
@@ -224,7 +234,7 @@
         autoOpen: false,
         modal: true,
         buttons: {
-          "Save selected objects": function() {
+          "Add selected objects": function() {
             addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
             $(this).dialog('close');
           }
@@ -237,13 +247,14 @@
       });
 
 
-      function saveStory(onSaved) {
+      function saveStory(onSuccess, onFailure, isDraft) {
+        var draft = typeof isDraft === 'undefined' ? false : isDraft;
+        storyModel.isDraft(draft);
         $.postKOJson('/@userName/story/submit', storyModel, function(data) {
           updateViewModel(data, storyModel);
-          if(onSaved !== undefined && onSaved.isFunction()) onSaved.call()
+          if(onSuccess !== undefined && typeof onSuccess === 'function') onSuccess.call();
         }, function(jqXHR, textStatus, errorThrown) {
-          $('#result').html('Error saving collection, please try again');
-          $('#result').show().fadeOut('3000');
+          if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
         })
       }
     });
