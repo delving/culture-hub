@@ -48,19 +48,45 @@
 
     <h2><span>Recent Collections</span></h2>
     <div class="collections-container">
+        @for(i <- 1 until 4) {
 
+        <div class="item one-col">
+            <img src='@asset("/public/images/dummy-object.png")' width="50"/>
+
+            <h4 class="collection"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></h4>
+                <span class="user">Lipsum, Bertrand</span><span class="date">2011-08-04 </span>
+
+        </div>
+
+        }
     </div>
 
     <h2><span>Recent Stories</span></h2>
     <div class="stories-container">
+         @for(i <- 1 until 4) {
 
+        <div class="item one-col">
+            <img src='@asset("/public/images/dummy-object.png")' width="50"/>
+
+            <h4 class="collection"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></h4>
+                <span class="user">Lipsum, Bertrand</span><span class="date">2011-08-04 </span>
+
+        </div>
+
+        }
     </div>
 </div>
 
 <div class="grid_8 omega">
    <h2><span>Recent Objects</span></h2>
     <div class="objects-container">
+        @for(i <- 0 until 12) {
 
+        <div class="item clean">
+            <img src='@asset("/public/images/dummy-object.png")' width="100"/>
+        </div>
+
+        }
     </div>
 </div>
 }

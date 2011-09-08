@@ -34,29 +34,59 @@ body:before {
 
 /* end sticky footer code! */
 
+/* typography */
+
+h2 {
+    clear: both;
+    margin:  20px 0 20px 0;
+    padding:  0;
+}
+
+h2 span {
+    background:  #CC3333;
+    color: #fff;
+    display: inline-block;
+    font-weight: normal;
+    padding:  0 10px;
+}
+
 /* basic page layout */
 
 #page {
     min-height: 200px;
+    /*padding: 20px 0;*/
 }
 
-#header-top .container_16 {
-    background:  #fff;
+#header-top  {
+    background:  #272911;
+    border-bottom:  1px solid #4a4d32;
     line-height: 42px;
     overflow:  hidden;
 }
 
-#header-main .container_16 {
-    background:  #555;
+#header-main {
+    background:  #60652A url(../images/bg-header.png) repeat-x top left;
     height: 140px;
 }
 
-#home #header-main .container_16 {
-    height: 400px;
+#header-main .container_16 {
+    background: transparent url(../images/bg-main.png) no-repeat  right -150px;
+    height: 140px;
 }
 
-#footer .container_16 {
-    background:  #555;
+
+#home #header-main {
+    height: 350px;
+}
+
+#home #header-main .container_16 {
+    background: transparent url(../images/bg-main.png) no-repeat bottom right;
+    height: 350px;
+}
+
+
+#footer {
+    background:  #60652A;
     height: 200px;
 }
 
@@ -67,10 +97,18 @@ body:before {
 /* Name / Branding */
 
 #branding h1 {
-    font-family: Times, "Times New Roman", serif;
+    background: transparent url(../images/bg-name.png) no-repeat top left;
     color: #fff;
-    margin: 10px 0 0 0;
+    font: 42px arial;
+    margin: 40px 0 0 0;
     padding:  0;
+}
+
+#branding h1 span {
+    display: inline-block;
+    text-align: center;
+    width: 335px;
+    /*margin-left: 20px;*/
 }
 
 #header-text {
@@ -84,23 +122,32 @@ body:before {
 #home #header-text {
     display: block;
     color: #fff;
-    width: 50%;
-    margin-top: 50px;
+    font-size: 13px;
+    width: 40%;
+    margin-top: 30px;
 }
 
 /* User bar navigation */
 
-#header-user-bar .container_16 {
-    background: #ccc;
+#header-user-bar  {
+    background: #272911;
+    border-bottom:  1px solid #4a4d32;
     overflow:  hidden;
     line-height: 42px;
     /*margin:  0;*/
 }
 
+#user-name {
+    color: #fff;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
 /* Search */
 
-#search .container_16 {
-    background:  #ccc;
+#search {
+    background:  #CFD0BF;
     height: 64px;
     line-height: 64px;
 }
@@ -108,7 +155,7 @@ body:before {
 /* result page */
 
 .item-nav {
-    border-bottom: 5px solid #000;
+    border-bottom: 1px solid #CFD0BF;
     padding: 10px 0;
     margin-bottom: 1em;
 }
@@ -129,6 +176,18 @@ body:before {
 
 /* RESULT ITEM */
 
+/* homepage lists */
+
+#home .item .user,
+#home .item .date {
+    display: inline-block;
+    background: #00679A;
+    background: #555;
+    color: #fff;
+    font-size: smaller;
+    padding: 0 4px;
+    margin-right: 1px;
+}
 .item h4 {
     font-weight: bold;
     margin: 0;
@@ -145,7 +204,7 @@ body:before {
 
 .item h4 a:link,
 .item h4 a:visited {
-    color: #000;
+    color: #0066cc;
     text-decoration: none;
 }
 
@@ -155,7 +214,7 @@ body:before {
 }
 
 .item {
-    border-bottom: 1px dotted #ccc;
+    /*border-bottom: 1px dotted #ccc;*/
     display: block;
 }
 
@@ -166,7 +225,7 @@ body:before {
 
     .two-col {
         float: left;
-        margin: 0 1% 1em 1%;
+        margin: 0 2% 1em 0;
         width: 48%;
     }
 
@@ -192,7 +251,7 @@ body:before {
     /*display: inline;*/
     float: left;
     margin: 0 1em 1em 0;
-    width: 85px;
+    /*width: 85px;*/
 }
 
 .item .description {
