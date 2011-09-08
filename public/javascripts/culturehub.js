@@ -79,6 +79,26 @@ function updateViewModel(data, viewModel, scope) {
     }
 }
 
+// ~~~ common dialogs
+
+function confirmDeletion(elementSelector, onDelete) {
+    $(elementSelector).dialog({
+			resizable: false,
+			height:140,
+			modal: true,
+			buttons: {
+				"Delete": function() {
+                    if(typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+
+}
+
 
 // ~~~ object handling functions
 
@@ -111,6 +131,8 @@ function elementIdMatch(id, element) {
     return id === ko.toJS(element).id;
 }
 
+
+// ~~~ KnockoutJS binders
 
 /**
  * KnockoutJS binder for the jQuery tokenInput plugin
