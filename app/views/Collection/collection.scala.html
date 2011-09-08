@@ -2,9 +2,9 @@
 
 @import views.context._
 
-@main("Collection " + collection.name + " of user " + browsedFullName) {
+@header("Collection " + collection.name + " of user " + browsedFullName) {
 
-<div class="grid_8">
+<div class="grid_8 alpha">
 
     <h1>Collection <span>"@collection.name"</span></h1>
 
@@ -54,7 +54,7 @@
 
 </div>
 
-<div class="grid_8">
+<div class="grid_8 omega">
 
     <div class="dui-buttonset dui-buttonset-single">
         <button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>

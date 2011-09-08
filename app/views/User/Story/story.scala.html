@@ -3,47 +3,56 @@
 @import views.context._
 @import views.tags.html._
 
-@main(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
+@header(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
 
-<div class="grid_16">
+<div class="grid_16 alpha">
     <h1>@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>
 
-<div class="grid_4 suffix_1">
+<div class="grid_5 alpha suffix_1">
     <h3>Step 1: Story Information</h3>
 
-    <p>
-        A <strong>story</strong> can be created from objects in a
-        <strong>collection</strong>. So before you can compose a story, you must have
-        a collection.
-    </p>
-    <ol>
-        <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
-        <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
-        <li>Once you have completed the above steps you can start adding pages to your story</li>
-    </ol>
+    <div class="container">
+        <div class="head"></div>
+        <div class="body">
+
+            <p>
+                A <strong>story</strong> can be created from objects in a
+                <strong>collection</strong>. So before you can compose a story, you must have
+                a collection.
+            </p>
+            <ol>
+                <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
+                <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
+                <li>Once you have completed the above steps you can start adding pages to your story</li>
+            </ol>
+        </div>
+        <div class="foot"></div>
+    </div>
+
 </div>
 
-<div class="grid_11">
+<div class="grid_10 omega">
 
     <h2>Story Information</h2>
     <span class="required-note">* Required Fields</span>
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
+    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", "required")
     @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'")
 
     <div class="field">
-      <label for="public">Publication Status</label>
-      <div class="inputs">
-          <input type="radio" checked="checked" value="0" id="public-0" name="public"> Private
-          <input type="radio" value="1" id="public-1" name="public"> Public
-      </div>
+        <label for="public">Publication Status</label>
+
+        <div class="inputs">
+            <input type="radio" checked="checked" value="0" id="public-0" name="public"> Private
+            <input type="radio" value="1" id="public-1" name="public"> Public
+        </div>
     </div>
 
     <div class="field">
-      <div class="inputs">
-        <button id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
-      </div>
+        <div class="inputs">
+            <button id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
+        </div>
     </div>
 </div>
 
@@ -51,17 +60,25 @@
 
 <div id="story-pages" style="display: none">
 
-    <div class="grid_4 suffix_1">
+    <div class="grid_5 alpha suffix_1">
+
         <h3>Step 2: Story Pages</h3>
-        <ol>
-            <li>Enter a page title</li>
-            <li></li>
-        </ol>
+
+        <div class="container">
+            <div class="head"></div>
+            <div class="body">
+                <ol>
+                    <li>Enter a page title</li>
+                    <li></li>
+                </ol>
+            </div>
+        </div>
     </div>
-    <div class="grid_11">
+    <div class="grid_10 omega">
         <h2>Story Pages</h2>
 
         <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
+
         <div id="page-list" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
         <div class="field">
@@ -92,10 +109,10 @@
                     <button id="addObject">Add an image from this collection</button>
                 </div>
                 <div id="objects" class="display-box">
-                  <p class="developers-note ui-state-error ui-corner-all">
-                      <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                      [TODO: populate with objects selected with above button]
-                  </p>
+                    <p class="developers-note ui-state-error ui-corner-all">
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                        [TODO: populate with objects selected with above button]
+                    </p>
                 </div>
             </div>
             <div class="field">
@@ -110,7 +127,7 @@
 </div>
 <!-- // story-pages -->
 
-<div class="grid_16" id="save-story">
+<div class="grid_16 alpha" id="save-story">
     <div class="fields">
         <div class="inputs">
             <button>Save Story</button>
@@ -172,12 +189,11 @@
 
 <script id='delving-wysiyg' src='@asset("/public/javascripts/tiny_mce/tiny_mce.js")' type='text/javascript'></script>
 
-
 <script type="text/html" id="pageList">
-  <ul class="page-list">
-      {{each(i, page) pages()}}
-      <li id="page-${i}">
-          <div class="page-info">
+    <ul class="page-list">
+        {{each(i, page) pages()}}
+        <li id="page-${i}">
+            <div class="page-info">
               <span class="left">
                   <span class="page-title">${page.title}</span>
               </span>
@@ -185,61 +201,63 @@
                   <span class="page-edit"><a class="edit" href="">Edit</a></span>
                   <span class="page-delete"><a class="delete" href="">Delete</a></span>
               </span>
-          </div>
-      </li>
-      {{/each}}
-  </ul>
-  <div class="clear"></div>
-  <p class="developers-note ui-state-error ui-corner-all">
-    <span style="float: left; margin-right: 0.3em" class="ui-icon ui-icon-alert"></span>
-    Pages in the above list should be 'draggable' to re-order. Clicking on 'Edit' would fill and show the form below.
-    Clicking 'Delete' removes the page.
-  </p>
-</script>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+    <div class="clear"></div>
+    <p class="developers-note ui-state-error ui-corner-all">
+        <span class="ui-icon ui-icon-alert"></span>
+        Pages in the above list should be 'draggable' to re-order. Clicking on 'Edit' would fill and show the form below.
+        Clicking 'Delete' removes the page.
+    </p>
 
+</script>
 
 <script type="text/javascript" language="javascript">
 
     $(document).ready(function() {
 
-      var storyModel = {
-        currentPage: ko.observable(),
-        addPages: function() {
-          saveStory();
-          $("#story-pages").show("slow");
-        },
-        addPage: function() {
-          this.currentPage = {
-            title: ko.observable(),
-            text: ko.observable(),
-            objects: ko.observableArray()
-          };
-          $("#form-add-page").show("slow");
-        },
-        saveCurrentPage: function() {
-          this.pages.push(ko.toJS(storyModel.currentPage));
-          // TODO submit to server
-          $("#form-add-page").hide("slow");
+        var storyModel = {
+            currentPage: ko.observable(),
+            addPages: function() {
+                saveStory();
+                $("#story-pages").show("slow");
+            },
+            addPage: function() {
+                this.currentPage = {
+                    title: ko.observable(),
+                    text: ko.observable(),
+                    objects: ko.observableArray()
+                };
+                $("#form-add-page").show("slow");
+            },
+            saveCurrentPage: function() {
+                this.pages.push(ko.toJS(storyModel.currentPage));
+                // TODO submit to server
+                $("#form-add-page").hide("slow");
+            }
+        };
+        load('/@userName/story/load/@id.getOrElse("")', storyModel);
+
+
+        $("#addObject").click(function(event) {
+            $("#objects-dialogue").dialog({modal: true});
+            event.preventDefault();
+        });
+
+
+        function saveStory(onSaved) {
+            $.postKOJson('/@userName/story/submit', storyModel, function(data) {
+                updateViewModel(data, storyModel);
+                if (onSaved !== undefined && onSaved.isFunction()) {
+                    onSaved.call()
+                }
+            }, function(jqXHR, textStatus, errorThrown) {
+                $('#result').html('Error saving collection, please try again');
+                $('#result').show().fadeOut('3000');
+            })
         }
-      };
-      load('/@userName/story/load/@id.getOrElse("")', storyModel);
-
-
-      $("#addObject").click(function(event) {
-          $("#objects-dialogue").dialog({modal: true});
-          event.preventDefault();
-      });
-
-
-      function saveStory(onSaved) {
-        $.postKOJson('/@userName/story/submit', storyModel, function(data) {
-          updateViewModel(data, storyModel);
-          if(onSaved !== undefined && onSaved.isFunction()) onSaved.call()
-        }, function(jqXHR, textStatus, errorThrown) {
-          $('#result').html('Error saving collection, please try again');
-          $('#result').show().fadeOut('3000');
-        })
-      }
     });
 
     $(window).load(function() {

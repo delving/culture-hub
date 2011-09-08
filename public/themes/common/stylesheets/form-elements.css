@@ -136,3 +136,75 @@ span.help {
     margin-top: .5em;
 }
 
+/* page form styles ********/
+
+.page-form {
+    background:  #fffff0;
+    padding:  10px;
+}
+
+#page-list {
+    overflow:  hidden;
+}
+
+.page-list {
+    line-height: 2em;
+    margin: 1em 0;
+    padding: 0;
+    list-style: none outside none;
+}
+
+.page-list li {
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
+    clear: both;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.page-list li .left {
+    display: block;
+    float: left;
+    width: 60%;
+}
+
+.page-list li .right {
+    display: block;
+    float: right;
+    font-size: 88%;
+    padding: 4px 0;
+    text-align: right;
+    width: 30%;
+}
+
+.add,
+.delete,
+.error,
+.success,
+.edit {
+    background-position: 12px 50%;
+    background-repeat: no-repeat;
+    padding-left: 32px;
+    text-decoration: none;
+}
+
+.page-edit a {
+    color: #3388CC;
+    text-decoration: none;
+        display: inline-block;
+}
+
+.page-delete a {
+    color: red;
+    text-decoration: none;
+        display: inline-block;
+}
+
+.edit {
+    background-image: url("../images/pencil_go.gif");
+}
+
+.delete {
+    background-image: url("../images/delete.gif");
+}
+

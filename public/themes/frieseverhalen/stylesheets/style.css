@@ -50,6 +50,10 @@ h2 span {
     padding:  0 10px;
 }
 
+p {
+    margin:  0;
+}
+
 /* basic page layout */
 
 #page {
@@ -287,3 +291,109 @@ h2 span {
 .row span {
     display: block
 }
+
+/* containers */
+
+.container {
+    background:  #E7E8DF;
+    border:  1px solid #E7E8DF;
+    border-radius: 4px;
+}
+
+.container .head,
+.container .body {
+    padding:  4px 10px;
+}
+
+/* TABLE STYLES */
+table {
+    border-collapse: separate;
+    border-spacing: 1px;
+    font-size: 1em;
+    margin: 0 0 10px 0;
+}
+
+thead th {
+    border-bottom: 4px solid #000;
+    font-size: 1em;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0;
+    padding: 0 5px;
+}
+
+thead th span {
+    color: #888;
+}
+
+tbody th {
+    text-align: right;
+    min-width: 120px;
+    font-size: 1.1em;
+}
+
+tbody th,
+tbody td {
+    padding: 4px 6px;
+    vertical-align: top;
+    line-height: 1.5em;
+}
+
+
+table.mceLayout {
+    width: 100% !important;
+}
+
+
+/* COMMENTS */
+ul.comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.comment {
+    color: #555;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+li.comment:hover {
+    background: #eaeaea;
+}
+
+li.comment .avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+li.comment .content {
+    display: table-cell;
+    vertical-align: top;
+    width: 75%;
+}
+
+li.comment .date {
+    color: #b22222;
+    font-weight: bold;
+}
+
+li.comment .user {
+    font-weight: bold;
+}
+
+.comment p {
+    margin: 0;
+}
+
+#add-comment-dialog {
+    display: none;
+}
+
+/* LABELS */
+
+#add-label-dialog {
+    display: none;
+}
+
+

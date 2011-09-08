@@ -1,0 +1,87 @@
+
+/* DUI BUTTONS AND TOOLBAR */
+
+.dui-button {
+    outline: 0;
+    margin: 0 4px 0 0;
+    padding: 3px 1em;
+    text-decoration: none !important;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+    zoom: 1;
+}
+
+.dui-button .ui-icon {
+    position: absolute;
+    top: 50%;
+    margin-top: -8px;
+    left: 50%;
+    margin-left: -8px;
+}
+
+a.dui-button {
+    float: left;
+}
+
+/* remove extra button width in IE */
+button.dui-button {
+    width: auto;
+    overflow: visible;
+}
+
+.dui-button-icon-left {
+    padding-left: 2.1em;
+}
+
+.dui-button-icon-right {
+    padding-right: 2.1em;
+}
+
+.dui-button-icon-left .ui-icon {
+    right: auto;
+    left: .2em;
+    margin-left: 0;
+}
+
+.dui-button-icon-right .ui-icon {
+    left: auto;
+    right: .2em;
+    margin-left: 0;
+}
+
+.dui-button-icon-solo {
+    display: block;
+    width: 8px;
+    text-indent: -9999px;
+}
+
+/* solo icon buttons must have block properties for the text-indent to work */
+
+.dui-buttonset {
+    float: left;
+    margin-bottom: 10px;
+}
+
+.dui-buttonset .dui-button {
+    float: left;
+}
+
+.dui-buttonset-single .dui-button,
+.dui-buttonset-multi .dui-button {
+    margin-right: -1px;
+}
+
+.dui-toolbar {
+    padding: .5em;
+    margin: 0;
+}
+
+.dui-toolbar .dui-buttonset {
+    margin-right: 1.5em;
+    padding-left: 1px;
+}
+
+.dui-toolbar .dui-button {
+    font-size: 1em;
+}
