@@ -163,7 +163,7 @@
                   <span class="page-title">${page.title}</span>
               </span>
               <span class="right">
-                  <span class="page-edit"><a class="edit" href="#" data-bind="click: function(page) { storyModel.editPage(page) }">Edit</a></span>
+                  <span class="page-edit"><a class="edit" href="#" data-bind="click: function() { this.editPage(page) }">Edit</a></span>
                   <span class="page-delete"><a class="delete" href="">Delete</a></span>
               </span>
           </div>
@@ -185,6 +185,7 @@
       var storyModel = {
         currentPage: {
           isNew: ko.observable(false),
+          pageRef: ko.observable(),
           title: ko.observable(),
           text: ko.observable(),
           objects: ko.observableArray(),
@@ -208,19 +209,29 @@
         },
         editPage: function(page) {
           storyModel.currentPage.isNew(false);
-          storyModel.currentPage.title(page.title);
-          storyModel.currentPage.text(page.text);
-          storyModel.currentPage.objects(page.objects);
+          storyModel.currentPage.pageRef(page),
+          storyModel.currentPage.title(page.title());
+          storyModel.currentPage.text(page.text());
+          storyModel.currentPage.objects(page.objects());
           storyModel.currentPage.selectedCollection([]);
           storyModel.currentPage.selectedObjectIds([]);
           storyModel.currentPage.availableObjects([]);
+          $("#form-add-page").show("slow");
         },
         removeObject: function(object) {
           storyModel.currentPage.objects.remove(object);
           storyModel.currentPage.availableObjects.push(object);
         },
         saveCurrentPage: function() {
-          this.pages.push(ko.toJS(storyModel.currentPage));
+          if(storyModel.currentPage.isNew()) {
+            this.pages.push(ko.toJS(storyModel.currentPage));
+          } else {
+            // find the page and update it
+            var p = ko.toJS(storyModel.currentPage);
+            storyModel.currentPage.pageRef().title(p.title);
+            storyModel.currentPage.pageRef().text(p.text);
+            storyModel.currentPage.pageRef().objects(p.objects);
+          }
           saveStory(function() {
             $('#pageForm').resetForm();
             $("#form-add-page").hide("slow");
