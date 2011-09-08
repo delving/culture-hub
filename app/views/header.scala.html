@@ -1,21 +1,23 @@
 @(title:String = "", bodyId: String = "")(body: => Html)
 @import views.context._
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
 
     <title>@title</title>
-    <!--<link rel="stylesheet" type="text/css" href="@asset("/public/stylesheets/960.css")"/>-->
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/grid-fluid.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/common.css")'/>
+
     <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/custom-theme/jquery-ui-1.8.14.custom.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/jquery.fileupload-ui.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input-facebook.css")'/>
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/style.css")'/>
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/menu.css")'/>
+
+    <link rel="stylesheet" type="text/css" href='@asset("/public/themes/frieseverhalen/stylesheets/style.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset("/public/themes/frieseverhalen/stylesheets/links.css")'/>
+
+
 
     <script id='jquery' src='@asset("/public/javascripts/jquery-1.6.2.min.js")' type='text/javascript'></script>
     <script id='jquery-ui' src='@asset("/public/javascripts/jquery-ui-1.8.13.custom.min.js")' type='text/javascript'></script>
@@ -41,76 +43,125 @@
 } else {
 <body id="@bodyId">
 }
-<div id="top-nav">
 
-    <ul class="menu-h">
-        <li class='@if(isCurrent("Application")) {current}'><a href="@action(controllers.Application.index)"><span>Home</span></a></li>
-        <li><a class='@if(isCurrent("Users")) {current}' href=""><span>Users</span></a></li>
-        <li><a class='@if(isCurrent("Objects")) {current}' href=""><span>Objects</span></a></li>
-        <li><a class='@if(isCurrent("Collections")) {current}' href=""><span>Collections</span></a></li>
-        <li><a class='@if(isCurrent("Stories")) {current}' href=""><span>Stories</span></a></li>
-    </ul>
+<div id="wrapper">
 
-    <div id="user-bar">
-        <ul class="menu-h">
+    <div id="header">
+
+        <div id="header-top">
+            <div class="container_16">
+                <div class="grid_10" id="hub-navigation">
+                    <a class='@if(isCurrent("Application")) {current}' href="@action(controllers.Application.index)"><span>Home</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Users")) {current}' href="#"><span>Users</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Objects")) {current}' href="#"><span>Objects</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Collections")) {current}' href="#"><span>Collections</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Stories")) {current}' href="#"><span>Stories</span></a>
+
+                </div>
+                <div class="grid_6" id="login-registration">
+
+                    @if(userName == null) {
+
+                    <a href="/login"><span>Login</span></a><span class="pipe">|</span>
+                    <a href="@action(controllers.Registration.index)"><span>Register</span></a><span class="pipe">|</span>
+                    <a href="@action(controllers.Registration.lostPassword)"><span>Forgot Password</span></a>
+
+                    } else {
+
+                    <a href="/logout"><span>Logout</span></a>
+
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
         @if(userName != null) {
-            <li class="main"><a href="">Hi @fullName</a>
-                <ul class="right">
-                    <li><a class="" href='/@userName/profile'><span>Your Profile</span></a></li>
-                    <li><a class="" href='/@userName/object'><span>Your Objects</span></a></li>
-                    <li><a class="" href='/@userName/collection'><span>Your Collections</span></a>
-                    </li>
-                    <li><a class="" href='/@userName/story'><span>Your Stories</span></a></li>
-                    <li><a class="" href="/logout"><span>Logout</span></a></li>
-                </ul>
-            </li>
-            } else {
-            <li><a href="/login">Login</a></li>
-            <li><a href="@action(controllers.Registration.index)">Register</a></li>
-            <li><a href="@action(controllers.Registration.lostPassword)">Lost password</a></li>
 
-            }
-        </ul>
+        <div id="header-user-bar">
+            <div class="container_16">
+                <div class="grid_16" id="user-navigation">
+                    <span id="user-name">Hi @fullName</span>
+                    <a href='/@userName/profile'><span>Your Profile</span></a><span class="pipe">|</span>
+                    <a href='/@userName/object'><span>Your Objects</span></a><span class="pipe">|</span>
+                    <a href='/@userName/collection'><span>Your Collections</span></a><span class="pipe">|</span>
+                    <a href='/@userName/story'><span>Your Stories</span></a>
+                </div>
+            </div>
+        </div>
+
+        }
+
+        <div id="header-main">
+            <div class="container_16">
+                <div class="grid_16" id="branding">
+                    <h1><span>@themeDisplayName</span></h1>
+
+                    <div id="header-text">
+                        <p>This is the development environment for the uber-cool and amazing Delving Play-Ground - a precursor for Culture-Hub. This is a place where objects come to life through
+                            contextual grouping in 'collections' and through story-telling. We believe that every object tells a story, but that story depends on context. So
+                            one object may be able to tell a different story depending on its context.</p>
+
+                        <p>
+                            <a href="@action(controllers.Registration.index)">Register</a> or
+                            <a href="/login">login</a> and start adding and grouping objects. You can work on your own collections and stories or collaborate with other users to create collections and tell stories.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="header-bot">
+            <div class="container_16">
+                <div class="grid_16">
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
-</div>
+    <div id="search">
+        <div class="container_16">
+            <div class="grid_16">
 
-<div id="header">
-    <div class="container_16">
-        <div class="grid_16">
-            <!--<div id="logo"><img src='@asset("/public/images/logo.png")'/></div>-->
-            <!--<h1 class="grid_12 push_4 omega">DELVING Play Services</h1>-->
-            <h1>Delving Play-Ground</h1>
+                <form method="get" action="@action(controllers.Search.index)" class="grid_12 alpha push_4">
+                    <p>
+                    <input type="text" class="textinput" id="query" name="query"/>
+                    <button type="submit" class="dui-button ui-state-default">Search</button>
+                    </p>
+                </form>
+
+            </div>
         </div>
     </div>
-</div>
 
-<div id="body">
-    <div class="container_16">
-        <!--<div class="grid_16">-->
-        @body
-        <!--</div>-->
+    <div id="page">
+
+        <div id="messages-container">
+            <div class="container_16">
+                <div class="grid_16">
+                    @body
+                </div>
+            </div>
+        </div>
+
+        <div id="page-main">
+            <div class="container_16">
+                <div class="grid_16">
+
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>
 
 <div id="footer">
     <div class="container_16">
-        <div class="grid_4">
-            <h3>Play / Scala Links</h3>
-            <ul class="menu-v">
-                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/home" target="_blank">Play Scala Documentation</a></li>
-                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/templates" target="_blank">Scala Templates Documentation</a></li>
-                <li><a href="http://playcheatsheet.appspot.com/show/ArtemMedeu/armed/play-cheatsheets" target="_blank">Play Cheatsheet</a></li>
-            </ul>
-
-        </div>
-        <div class="grid_4">
-            <h3>Javascript Links</h3>
-            <ul class="menu-v">
-                <li><a href="http://docs.jquery.com/Main_Page" target="_blank">jQuery Documentation</a></li>
-                <li><a href="http://jqueryui.com/demos/" target="_blank">jQueryUI Documentation</a></li>
-                <li><a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">Knockout.js Documentation</a></li>
-            </ul>
+        <div class="grid_16">
 
         </div>
     </div>

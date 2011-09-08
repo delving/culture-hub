@@ -38,6 +38,7 @@ package object context {
 
   def themeName = theme.name
   def themeTemplateDir = theme.templateDir
+  def themeDisplayName = theme.displayName
 
 }
 

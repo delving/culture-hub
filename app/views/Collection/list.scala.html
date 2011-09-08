@@ -2,23 +2,23 @@
 
 @import views.context._
 
-@main("List of collections for user " + user.fullname ) {
-<div class="grid_12" id="items">
-        <h2>All the collections of <span>@user.fullname</span></h2>
+@header("List of collections") {
+<div class="grid_12 alpha" id="items">
+        <h2>All the collections of <span>[ user name from url goes here ]</span></h2>
         <div class="item-nav">
             <div class="item-count">
                 Found: <span>6</span> collections
             </div>
             <!--<div class="item-pager">-->
-                <!--<ul>-->
-                    <!--<li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>-->
-                    <!--<li><span>1</span><span class="pipe"> | </span></li>-->
-                    <!--<li><a href="#">2</a><span class="pipe"> | </span></li>-->
-                    <!--<li><a href="#">3</a><span class="pipe"> | </span></li>-->
-                    <!--<li><a href="#">4</a><span class="pipe"> | </span></li>-->
-                    <!--<li><a href="#">5</a><span class="pipe"> | </span></li>-->
-                    <!--<li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>-->
-                <!--</ul>-->
+                <!--<span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>-->
+                <!--<span>1</span><span class="pipe"> | </span>-->
+                <!--<a href="#">2</a><span class="pipe"> | </span>-->
+                <!--<a href="#">3</a><span class="pipe"> | </span>-->
+                <!--<a href="#">4</a><span class="pipe"> | </span>-->
+                <!--<a href="#">5</a><span class="pipe"> | </span>-->
+                <!--<a href="#">6</a><span class="pipe"> | </span>-->
+                <!--<a href="#">7</a><span class="pipe"> | </span>-->
+                <!--<a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>-->
             <!--</div>-->
         </div>
 
@@ -35,7 +35,7 @@
         </div>
         }
     </div>
-    <div class="grid_4">
+    <div class="grid_4 omega">
         @if(renderArgs.get("displayName") != null) {
                  <a href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
         }

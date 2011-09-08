@@ -3,33 +3,39 @@
 @import views.context._
 @import views.tags.html._
 
-@main(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
+@header(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
 
-<div class="grid_16">
+<div class="grid_16 alpha">
     <h1>@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>
 
-<div class="grid_4 suffix_1">
+<div class="grid_5 alpha suffix_1">
     <h3>Step 1: Story Information</h3>
+    <div class="container">
+          <div class="head"></div>
+          <div class="body">
 
-    <p>
-        A <strong>story</strong> can be created from objects in a
-        <strong>collection</strong>. So before you can compose a story, you must have
-        a collection.
-    </p>
-    <ol>
-        <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
-        <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
-        <li>Once you have completed the above steps you can start adding pages to your story</li>
-    </ol>
+              <p>
+                  A <strong>story</strong> can be created from objects in a
+                  <strong>collection</strong>. So before you can compose a story, you must have
+                  a collection.
+              </p>
+              <ol>
+                  <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
+                  <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
+                  <li>Once you have completed the above steps you can start adding pages to your story</li>
+              </ol>
+          </div>
+          <div class="foot"></div>
+      </div>
 </div>
 
-<div class="grid_11">
+<div class="grid_10 omega">
 
     <h2>Story Information</h2>
     <span class="required-note">* Required Fields</span>
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
+    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", "required")
     @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'")
 
     <div class="field">
@@ -51,14 +57,19 @@
 
 <div id="story-pages" style="display: none">
 
-    <div class="grid_4 suffix_1">
+    <div class="grid_5 alpha suffix_1">
         <h3>Step 2: Story Pages</h3>
-        <ol>
-            <li>Enter a page title</li>
-            <li></li>
-        </ol>
+        <div class="container">
+            <div class="head"></div>
+            <div class="body">
+                <ol>
+                    <li>Enter a page title</li>
+                    <li></li>
+                </ol>
+            </div>
+        </div>
     </div>
-    <div class="grid_11">
+    <div class="grid_10 omega">
         <h2>Story Pages</h2>
 
         <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
@@ -77,7 +88,7 @@
 </div>
 <!-- // story-pages -->
 
-<div class="grid_16" id="save-story">
+<div class="grid_16 alpha" id="save-story">
     <div class="fields">
         <div class="inputs">
             <button data-bind="click: saveTheStory">Save Story</button>

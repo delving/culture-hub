@@ -1,0 +1,399 @@
+body {
+    background:  #fff;
+    font: 15px/1.5 Arial,Helvetica,sans-serif;
+    margin:  0;
+}
+
+.container_16 {
+    position: relative;
+    min-width: 960px;
+}
+
+/* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
+
+html, body {height: 100%;}
+
+#wrapper {min-height: 100%;}
+
+#page {overflow:auto;
+	padding-bottom: 200px;}  /* must be same height as the footer */
+
+#footer {position: relative;
+	margin-top: -200px; /* negative value of footer height */
+	height: 200px;
+	clear:both;}
+
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;/
+}
+
+/* end sticky footer code! */
+
+/* typography */
+
+h2 {
+    clear: both;
+    margin:  20px 0 20px 0;
+    padding:  0;
+}
+
+h2 span {
+    background:  #CC3333;
+    color: #fff;
+    display: inline-block;
+    font-weight: normal;
+    padding:  0 10px;
+}
+
+p {
+    margin:  0;
+}
+
+/* basic page layout */
+
+#page {
+    min-height: 200px;
+    /*padding: 20px 0;*/
+}
+
+#header-top  {
+    background:  #272911;
+    border-bottom:  1px solid #4a4d32;
+    line-height: 42px;
+    overflow:  hidden;
+}
+
+#header-main {
+    background:  #60652A url(../images/bg-header.png) repeat-x top left;
+    height: 140px;
+}
+
+#header-main .container_16 {
+    background: transparent url(../images/bg-main.png) no-repeat  right -150px;
+    height: 140px;
+}
+
+
+#home #header-main {
+    height: 350px;
+}
+
+#home #header-main .container_16 {
+    background: transparent url(../images/bg-main.png) no-repeat bottom right;
+    height: 350px;
+}
+
+
+#footer {
+    background:  #60652A;
+    height: 200px;
+}
+
+#login-registration {
+    text-align: right;
+}
+
+/* Name / Branding */
+
+#branding h1 {
+    background: transparent url(../images/bg-name.png) no-repeat top left;
+    color: #fff;
+    font: 42px arial;
+    margin: 40px 0 0 0;
+    padding:  0;
+}
+
+#branding h1 span {
+    display: inline-block;
+    text-align: center;
+    width: 335px;
+    /*margin-left: 20px;*/
+}
+
+#header-text {
+    display: none;
+}
+
+#header-text a {
+    color: pink;
+}
+
+#home #header-text {
+    display: block;
+    color: #fff;
+    font-size: 13px;
+    width: 40%;
+    margin-top: 30px;
+}
+
+/* User bar navigation */
+
+#header-user-bar  {
+    background: #272911;
+    border-bottom:  1px solid #4a4d32;
+    overflow:  hidden;
+    line-height: 42px;
+    /*margin:  0;*/
+}
+
+#user-name {
+    color: #fff;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+/* Search */
+
+#search {
+    background:  #CFD0BF;
+    height: 64px;
+    line-height: 64px;
+}
+
+/* result page */
+
+.item-nav {
+    border-bottom: 1px solid #CFD0BF;
+    padding: 10px 0;
+    margin-bottom: 1em;
+}
+
+.item-count {
+    display: inline;
+}
+
+.item-pager {
+    display: inline;
+    float: right;
+}
+
+.items {
+    clear: both;
+
+}
+
+/* RESULT ITEM */
+
+/* homepage lists */
+
+#home .item .user,
+#home .item .date {
+    display: inline-block;
+    background: #00679A;
+    background: #555;
+    color: #fff;
+    font-size: smaller;
+    padding: 0 4px;
+    margin-right: 1px;
+}
+.item h4 {
+    font-weight: bold;
+    margin: 0;
+    padding: 0 20px 0 0;
+}
+
+.item .collection {
+    background: transparent url(../images/icon-collection.png) top right no-repeat;
+}
+
+.item .object {
+    background: transparent url(../images/icon-object.png) top right no-repeat
+}
+
+.item h4 a:link,
+.item h4 a:visited {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.item h4 a:hover {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.item {
+    /*border-bottom: 1px dotted #ccc;*/
+    display: block;
+}
+
+    .one-col {
+        clear: both;
+        padding: 0 1% 1em 1%;
+    }
+
+    .two-col {
+        float: left;
+        margin: 0 2% 1em 0;
+        width: 48%;
+    }
+
+    .three-col {
+        float: left;
+        margin: 0 1% 1em 1%;
+        width: 31.33%;
+    }
+.item.clean {
+    border:  none;
+}
+.item label {
+    display: inline;
+    margin-right: .5em;
+}
+
+.item .options {
+    display: block;
+    background: #fff;
+}
+
+.item img {
+    /*display: inline;*/
+    float: left;
+    margin: 0 1em 1em 0;
+    /*width: 85px;*/
+}
+
+.item .description {
+    display: block;
+    font-size: smaller;
+}
+
+.item-display img {
+    float: left;
+    margin: 0 10px 0 0;
+}
+
+
+
+.row {
+    border-bottom: 1px dotted #555;
+    display: block;
+    height: 21px;
+    line-height: 21px;
+    margin-bottom: 4px;
+
+}
+
+.row label {
+    clear: left;
+    float: left;
+    font-weight: bold;
+    margin-right: 10px;
+    width: 100px;
+    text-align: right;
+}
+
+.row span {
+    display: block
+}
+
+/* containers */
+
+.container {
+    background:  #E7E8DF;
+    border:  1px solid #E7E8DF;
+    border-radius: 4px;
+}
+
+.container .head,
+.container .body {
+    padding:  4px 10px;
+}
+
+/* TABLE STYLES */
+table {
+    border-collapse: separate;
+    border-spacing: 1px;
+    font-size: 1em;
+    margin: 0 0 10px 0;
+}
+
+thead th {
+    border-bottom: 4px solid #000;
+    font-size: 1em;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0;
+    padding: 0 5px;
+}
+
+thead th span {
+    color: #888;
+}
+
+tbody th {
+    text-align: right;
+    min-width: 120px;
+    font-size: 1.1em;
+}
+
+tbody th,
+tbody td {
+    padding: 4px 6px;
+    vertical-align: top;
+    line-height: 1.5em;
+}
+
+
+table.mceLayout {
+    width: 100% !important;
+}
+
+
+/* COMMENTS */
+ul.comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.comment {
+    color: #555;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+li.comment:hover {
+    background: #eaeaea;
+}
+
+li.comment .avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+li.comment .content {
+    display: table-cell;
+    vertical-align: top;
+    width: 75%;
+}
+
+li.comment .date {
+    color: #b22222;
+    font-weight: bold;
+}
+
+li.comment .user {
+    font-weight: bold;
+}
+
+.comment p {
+    margin: 0;
+}
+
+#add-comment-dialog {
+    display: none;
+}
+
+/* LABELS */
+
+#add-label-dialog {
+    display: none;
+}
+
+

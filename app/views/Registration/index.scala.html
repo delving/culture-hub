@@ -3,37 +3,38 @@
 @import views.context._
 @import views.tags.html._
 
-@main("Register!" ) {
+@header("Register!" ) {
 
-        <div class="grid_16">
-<h1>Register to CultureHub!</h1>
-<form id="registrationForm" action="@action(controllers.Registration.register())" method="POST" class="grid_16">
 
-  @if(!errors.isEmpty()) {
-  <p class="error">
-    Error creating your account, please check the errors marked in red
-  </p>
-  }
+    <h1>Register for <span>@themeDisplayName</span></h1>
 
-  @textField("registration.firstName", "First name")
-  @textField("registration.lastName", "Last name")
-  @textField("registration.email", "E-mail")
-  @textField("registration.displayName", "User name")
-  @passwordField("registration.password1", "Password")
-  @passwordField("registration.password2", "Password (repeat)")
+    <form id="registrationForm" action="@action(controllers.Registration.register())" method="POST" class="grid_16">
 
-  <div class="field">
-    <label for="code">Please type the code below: </label>
-    <img src="@action(controllers.Registration.captcha(randomId))">
-    <br>
-    <input type="text" name="code" id="code" size="18" value="">
-    <input type="hidden" name="randomID" value="@randomId">
-    <span class="error">@showError("code")</span>
-  </div>
+        @if(!errors.isEmpty()) {
+        <p class="error">
+            Error creating your account, please check the errors marked in red
+        </p>
+        }
 
-  <div>
-    <input type="submit" value="Register!">
-  </div>
-</form>
-</div>
+        @textField("registration.firstName", "First name")
+        @textField("registration.lastName", "Last name")
+        @textField("registration.email", "E-mail")
+        @textField("registration.displayName", "User name")
+        @passwordField("registration.password1", "Password")
+        @passwordField("registration.password2", "Password (repeat)")
+
+        <div class="field">
+            <label for="code">Please type the code below: </label>
+            <img src="@action(controllers.Registration.captcha(randomId))">
+            <br>
+            <input type="text" name="code" id="code" size="18" value="">
+            <input type="hidden" name="randomID" value="@randomId">
+            <span class="error">@showError("code")</span>
+        </div>
+
+        <div>
+            <input type="submit" value="Register!">
+        </div>
+    </form>
+
 }
