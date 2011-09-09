@@ -112,7 +112,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     def fileRequired(fileName: String): Option[String] = {
       val Array(hash, name) = fileName split("__")
-      val maybeHash = dataSet.hashes.get(name.replaceAll(".", DOT_PLACEHOLDER))
+      val maybeHash = dataSet.hashes.get(name.replaceAll("\\.", DOT_PLACEHOLDER))
       maybeHash match {
         case Some(storedHash) if hash != storedHash => Some(fileName)
         case Some(storedHash) if hash == storedHash => None
