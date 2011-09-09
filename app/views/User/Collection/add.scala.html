@@ -8,13 +8,13 @@
 <h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1>
 
 <form method="post" action="" id="collectionForm">
-    <div class="grid_8">
+    <div class="grid_8 alpha">
         <h2>Collection Information</h2>
         <span id="required-note">* Required Fields</span>
 
         @textField("name", "Name", "value: name")
         @textArea("description", "Description", "value: description")
-
+        @labelField("label", "Label", "value: label")
         <div class="field">
             <label for="annotations">Annotation(s)</label>
 
@@ -25,9 +25,11 @@
                     <option>Event</option>
                     <option>Concept</option>
                 </select>
+
                 <input type="text" class="textinput" id="annotationText"/>
 
-                <input type="button" name="add-annotations-button" id="add-annotation-button" value="Add Annotation"/>
+                <button class="add label-add" type="button" name="add-annotations-button" id="add-annotation-button">Add Annotation</button>
+
                 <span class="error"></span>
 
                 <div id="annotations" class="display-box">
@@ -38,115 +40,112 @@
                     </p>
                 </div>
 
-
             </div>
         </div>
 
         <div class="field">
             <label for="public">Public</label>
+
             <div class="inputs">
                 <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
                 <input type="radio" value="1" id="public-1" name="public">Public
             </div>
         </div>
 
-        <div class="field">
-            <div class="inputs">
-              <input id="saveButton" type="submit" value="Save Collection" />
-            </div>
-        </div>
-
     </div>
 
-    <div class="grid_8">
+
         <h2>Add objects to your collection</h2>
-        <div class="field">
-            <div class="inputs">
-              <button id="addObject">Add an Object</button>
-            </div>
+
+        <div class="actions">
+                <button class="add image-add" id="addObject">Add an Object</button>
             <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
         </div>
-    </div>
+
 
     <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
-      <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+        <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+    </div>
+
+    <div class="actions">
+            <button class="save collection-save" id="saveButton" type="submit">Save Collection</button>
     </div>
 
 </form>
-
+</div>
 <script type="text/html" id="availableObjectsList">
-  <table>
-      <tbody>
-      {{each availableObjects()}}
-      <tr>
-          <td><input type="checkbox" value="${id}" data-bind="checked: selectedObjects()"/></td>
-          <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
-          <td><h4>${name}</h4></td>
-      </tr>
-      {{/each}}
-      </tbody>
-  </table>
+    <table>
+        <tbody>
+        {{each availableObjects()}}
+        <tr>
+            <td><input type="checkbox" value="${id}" data-bind="checked: selectedObjects()"/></td>
+            <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
+            <td><h4>${name}</h4></td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </script>
 
 <script type="text/html" id="objectsList">
-  <ul>
-  {{each(i, object) objects()}}
-  <li>
-    ${name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
-  </li>
-  {{/each}}
-  </ul>
+    <ul>
+        {{each(i, object) objects()}}
+        <li>
+            ${name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
+        </li>
+        {{/each}}
+    </ul>
 </script>
 
 <script type="text/javascript" language="javascript">
-  $(document).ready(function() {
+    $(document).ready(function() {
 
-    var collectionModel = {
-      selectedObjects: ko.observableArray(),
-      removeObject: function(object) {
-        this.availableObjects.push(object);
-        this.objects.remove(object);
-      }
-    };
+        var collectionModel = {
+            selectedObjects: ko.observableArray(),
+            removeObject: function(object) {
+                this.availableObjects.push(object);
+                this.objects.remove(object);
+            }
+        };
 
-    $('#objects-dialogue').dialog({
-      autoOpen: false,
-      buttons: {
-        "Add selected objects": function() {
-          addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects);
-          $(this).dialog('close');
+        $('#objects-dialogue').dialog({
+            autoOpen: false,
+            buttons: {
+                "Add selected objects": function() {
+                    addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects);
+                    $(this).dialog('close');
+                }
+            }
+        });
+
+        $("#addObject").click(function(event) {
+            event.preventDefault();
+            $("#objects-dialogue").dialog('open');
+        });
+
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
+                updateViewModel(data, collectionModel);
+                window.location.href = '/@userName/collection/' + collectionModel.id()
+            }, function(jqXHR, textStatus, errorThrown) {
+                $('#result').html('Error saving collection, please try again');
+                $('#result').show().fadeOut('3000');
+            })
+        });
+
+        load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
+
+        var viewModel = { };
+
+        var annotation = function (name, type) {
+            this.name = name;
+            this.type = type;
+            this.remove = function() {
+                viewModel.annotations.remove(this)
+            }
         }
-      }
     });
-
-    $("#addObject").click(function(event) {
-        event.preventDefault();
-        $("#objects-dialogue").dialog('open');
-    });
-
-    $('#saveButton').click(function(event) {
-      event.preventDefault();
-      $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
-        updateViewModel(data, collectionModel);
-        window.location.href = '/@userName/collection/' + collectionModel.id()
-      }, function(jqXHR, textStatus, errorThrown) {
-        $('#result').html('Error saving collection, please try again');
-        $('#result').show().fadeOut('3000');
-      })
-    });
-
-    load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
-
-    var viewModel = { };
-
-   var annotation = function (name, type) {
-       this.name = name;
-       this.type = type;
-       this.remove = function(){
-            viewModel.annotations.remove(this)
-       }
-    }
-  });
 </script>
 
 }
