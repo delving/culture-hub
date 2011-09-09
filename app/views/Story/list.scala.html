@@ -2,9 +2,15 @@
 
 @import views.context._
 
-@header("List of stories for user " + user.fullname ) {
-    <div class="grid_12">
-        <h1>All the stories of <span>@user.fullname</span></h1>
+@header("Browse Stories") {
+    <div class="grid_12 alpha">
+
+        @if(browsedUserName != null) {
+            <h2>All stories owned by: <span>@browsedUserName</span></h2>
+        } else {
+            <h2>Browse Stories</h2>
+        }
+
         @for(i <- 0 until 6) {
 
         <div class="item three-col">
@@ -19,9 +25,11 @@
         }
 
     </div>
-    <div class="grid_4">
+    <div class="grid_4 omega">
         @if(renderArgs.get("displayName") != null) {
-                 <a href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
+            <div class="actions ar">
+                 <a class="add story-add" href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
+            </div>
         }
     </div>
 
