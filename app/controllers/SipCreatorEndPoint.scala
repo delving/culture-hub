@@ -37,6 +37,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
   private val log: Logger = Logger.getLogger(getClass)
 
+  val DOT_PLACEHOLDER = "--"
+
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
@@ -110,7 +112,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     def fileRequired(fileName: String): Option[String] = {
       val Array(hash, name) = fileName split("__")
-      val maybeHash = dataSet.hashes.get(name)
+      val maybeHash = dataSet.hashes.get(name.replaceAll(".", DOT_PLACEHOLDER))
       maybeHash match {
         case Some(storedHash) if hash != storedHash => Some(fileName)
         case Some(storedHash) if hash == storedHash => None
@@ -142,10 +144,14 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     actionResult match {
       case Right(ok) => {
-        DataSet.addHash(dataSet, fileName.split("__")(1), hash)
+        DataSet.addHash(dataSet, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
+        log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
         Ok
       }
-      case Left(houston) => TextError(houston)
+      case Left(houston) => {
+        log.info("Error accepting file %s for DataSet %: %s".format(fileName, spec, houston))
+        TextError(houston)
+      }
     }
   }
 
@@ -196,7 +202,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         }
       }
     } catch {
-      case t: Throwable => return Left("Error parsing records: " + t.getMessage)
+      case t: Throwable => {
+        t.printStackTrace()
+        return Left("Error parsing records: " + t.getMessage)
+      }
     }
 
     val recordCount: Int = DataSet.getRecordCount(dataSet.spec)

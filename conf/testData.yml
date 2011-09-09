@@ -169,9 +169,7 @@
         ? icn
         : *icnMapping
     hints: ""
-    invalidRecords:
-      ? dummy
-      : [5, 66]
+    invalidRecords: !!map { }
     access:
         users:
             ? "jimmy#cultureHub"
