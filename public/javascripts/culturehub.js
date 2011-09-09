@@ -37,12 +37,14 @@ function initializeElements() {
  * @param viewModel the data object
  * @param onSuccess the success callback to run after successful execution
  * @param onFailure the failure callback to run on error
+ * @param additionalData an additional object with data, directly extended into what is sent to the server
  */
-$.postKOJson = function (url, viewModel, onSuccess, onFailure) {
+$.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
+    var data = typeof additionalData === 'undefined' ? { data: ko.mapping.toJSON(viewModel) } : $.extend({ data: ko.mapping.toJSON(viewModel) }, additionalData);
     return jQuery.ajax({
         type: 'POST',
         url: url,
-        data: {data: ko.mapping.toJSON(viewModel) },
+        data: data,
         contentType: 'application/x-www-form-urlencoded; charset=utf-8',
         dataType: 'json'
     }).success(onSuccess).error(onFailure);

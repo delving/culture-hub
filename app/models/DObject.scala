@@ -18,6 +18,8 @@ case class DObject(_id: ObjectId = new ObjectId,
                   user_id: ObjectId,
                   name: String,
                   description: Option[String] = None,
+                  files: Seq[StoredFile] = Seq.empty[StoredFile],
+                  thumbnail_id: Option[ObjectId] = None,
                   collections: List[ObjectId]) {
 
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere

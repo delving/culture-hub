@@ -1,4 +1,4 @@
-@(id: Option[String] = None)
+@(id: Option[String] = None, uid: String)
 
 @import views.context._
 @import views.tags.html._
@@ -8,7 +8,7 @@
 <div class="grid_8">
     <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
 
-    <form id="objectForm" method="post" action="">
+  <form id="objectForm" method="post" action="">
 
         @textField("name", "Name", "value: name")
         @textArea("description", "Description", "value: description")
@@ -47,16 +47,6 @@
             </div>
         </div>
 
-        <div class="field" for="objectFile">
-            <label>File</label>
-
-            <div class="inputs">
-                <input type="file" name="objectFile" id="objectFile"/>
-                <button>Add File</button>
-                <span class="error"></span>
-            </div>
-        </div>
-
         <div class="field" for="objectVisibility">
             <label>Public</label>
 
@@ -67,14 +57,19 @@
         </div>
 
         <div class="field">
+            <label>File</label>
+            <div class="inputs">
+              <div id="fileupload" class="grid_16"></div>
+            </div>
+        </div>
+
+        <div class="field">
             <div class="inputs">
             <input id="saveButton" type="submit" value="Save Object" />
             </div>
         </div>
 
-    </form>
-
-
+  </form>
 
 </div>
 
@@ -88,6 +83,14 @@
     $('#labels').tabs();
 
     $("#collection").tokenInput('/@userName/collection/writeable/search');
+
+    $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
+    initUploadWidget();
+    $('#fileupload').fileupload({
+      url: '@action(controllers.FileStore.uploadFile(uid))',
+      autoUpload: true
+    });
+
 
     var objectModel = {};
 
@@ -104,7 +107,7 @@
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving object, please try again');
         $('#result').show().fadeOut('3000');
-      })
+      }, {uid: '@uid'})
     });
 
     var scope = document.getElementById('objectForm');

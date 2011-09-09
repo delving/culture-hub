@@ -102,17 +102,21 @@ POST        /{user}/dataset/{spec}/reindex                                   use
 POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
 POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
-GET         /{user}/dataset/sip-creator/list                                SipCreatorEndPoint.listAll
-POST        /{user}/dataset/sip-creator/submit/{spec}                       SipCreatorEndPoint.acceptFileList
-POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}            SipCreatorEndPoint.acceptFile
-GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                SipCreatorEndPoint.fetchSIP
+GET         /{user}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
+POST        /{user}/dataset/sip-creator/submit/{spec}                        SipCreatorEndPoint.acceptFileList
+POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
+GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
 
-GET         /users/search                                                   Users.listAsTokens
+GET         /users/search                                                    Users.listAsTokens
 
 # Portal Administration
 GET        /admin/themes                                                     admin.Themes.index
 GET        /admin/themes/list                                                admin.Themes.list
 POST       /admin/themes/reload                                              admin.Themes.reload
+
+# File Store
+GET        /file/{id}                                                        FileStore.get
+POST       /file/upload/{uid}                                                FileStore.fileUpload
 
 # Image Cache and Viewer
 GET        /services/image                                                   Images.image

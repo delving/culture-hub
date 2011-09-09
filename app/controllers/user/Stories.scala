@@ -43,13 +43,11 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
-    val pages = for(page <- storyVM.pages) yield {
-      Page(page.title, page.text, for(o <- page.objects) yield PageObject(o.id.get))
-    }
+    val pages = storyVM.pages map {page => Page(page.title, page.text, page.objects map { o => PageObject(o.id.get) }) }
+    val visibility = Visibility.withName(storyVM.visibility)
 
     val persistedStory = storyVM.id match {
       case None =>
-        val visibility = Visibility.withName(storyVM.visibility)
         val story = Story(name = storyVM.name, description = storyVM.description, user_id = connectedUserId, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)

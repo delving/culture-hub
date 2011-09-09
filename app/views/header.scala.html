@@ -24,6 +24,7 @@
     <script id='jquery-iframe-transport' src='@asset("/public/javascripts/jquery.iframe-transport.js")' type='text/javascript'></script>
     <script id='jquery-fileupload' src='@asset("/public/javascripts/jquery.fileupload.js")' type='text/javascript'></script>
     <script id='jquery-fileupload-ui' src='@asset("/public/javascripts/jquery.fileupload-ui.js")' type='text/javascript'></script>
+    <script id='jquery-upload' src='@asset("/public/javascripts/upload.js")' type='text/javascript'></script>
     <script id='jquery-template' src='@asset("/public/javascripts/jquery.tmpl.min.js")' type='text/javascript'></script>
     <script id='knockoutJS' src='@asset("/public/javascripts/knockout-1.2.1.js")' type='text/javascript'></script>
     <script id='knockoutJS-mapping' src='@asset("/public/javascripts/knockout.mapping-latest.js")' type='text/javascript'></script>
@@ -36,6 +37,40 @@
             initializeElements();
         });
     </script>
+
+    <script type="text/html" id="uploadFileTemplate">
+      <form action="" method="POST" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+          <label class="fileinput-button">
+            <span>Add files...</span>
+            <input type="file" name="files[]" multiple="true"/>
+          </label>
+          <button type="submit" class="start">Start upload</button>
+          <button type="reset" class="cancel">Cancel upload</button>
+          <button type="button" class="delete">Delete files</button>
+        </div>
+      </form>
+      <div class="fileupload-content">
+        <table class="files"></table>
+        <div class="fileupload-progressbar"></div>
+      </div>
+    </script>
+
+  <script type="text/html" id="simpleUploadFileTemplate">
+    <form action="" method="POST" enctype="multipart/form-data">
+      <div class="fileupload-buttonbar">
+        <label class="fileinput-button">
+          <span>Add files...</span>
+          <input type="file" name="files[]" multiple="true"/>
+        </label>
+      </div>
+    </form>
+    <div class="fileupload-content">
+      <table class="files"></table>
+      <div class="fileupload-progressbar"></div>
+    </div>
+  </script>
+
 
 </head>
 @if(bodyId.length == 0) {

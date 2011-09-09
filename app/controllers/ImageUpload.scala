@@ -5,10 +5,10 @@ import at.ait.dme.magicktiler.image.ImageFormat
 import at.ait.dme.magicktiler.{TilingException, TilesetInfo, MagickTiler}
 import org.apache.commons.io.FileUtils
 import java.io.File
-import play.data.Upload
 import scala.collection.JavaConversions._
 
 /**
+ * Controller taking care of image uploading for tiling
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -29,7 +29,7 @@ object ImageUpload extends DelvingController {
       imageTmpDir.mkdirs()
     }
 
-    val uploads: java.util.List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[Upload]]
+    val uploads: java.util.List[play.data.Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
 
     val uploadedFiles = for (upload <- uploads) yield {
       val name: String = upload.getFileName
@@ -73,5 +73,3 @@ object ImageUpload extends DelvingController {
   }
 
 }
-
-case class FileUploadResponse(name: String, size: Long, url: String = "", thumbnail_url: String = "", delete_url: String = "", delete_type: String = "DELETE", error: String = null)
