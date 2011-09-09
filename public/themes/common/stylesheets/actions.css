@@ -1,0 +1,73 @@
+/* Actions */
+
+div.actions {
+    margin-bottom: 10px;
+    padding:  10px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.actions a {
+    background-color: #eeeee0;
+    padding: 10px 10px 10px 34px;
+    border-radius: 4px;
+}
+
+.actions.ar {
+    text-align: right;
+}
+
+.add,
+.delete,
+.error,
+.success,
+.edit,
+.save,
+.submit {
+    background-position: 12px 50%;
+    background-repeat: no-repeat;
+    padding-left: 32px;
+    padding-right: 16px;
+    text-decoration: none;
+}
+
+.edit {
+    background-image: url("../images/pencil_go.gif");
+}
+
+.delete {
+    background-image: url("../images/delete.gif");
+}
+
+.save {
+    background-image:  url("../images/disk.png");
+}
+
+.submit {
+    background-image:  url("../images/page_white_go.png");
+}
+
+.page-add {
+    background-image:  url("../images/page_add.gif");
+}
+
+.page-save {
+    background-image:  url("../images/page_save.png");
+}
+
+.image-add {
+    background-image:  url("../images/image_add.png");
+}
+
+.story-add {
+    background-image:  url("../images/book_add.png");
+}
+
+.collection-add {
+    background-image:  url("../images/folder_add.gif");
+}
+
+.label-add {
+    background-image:  url("../images/tag_blue_add.png");
+}
+
