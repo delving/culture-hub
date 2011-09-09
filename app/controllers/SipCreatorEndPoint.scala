@@ -220,7 +220,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
 
-    writeEntry("dataset-facts.txt", zipOut) { out =>
+    writeEntry("dataset_facts.txt", zipOut) { out =>
       writeContent(dataSet.details.getFactsAsText, out)
     }
 
@@ -266,7 +266,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     }
 
     for(mapping <- dataSet.mappings) {
-      writeEntry("mapping-%s.xml".format(mapping._1), zipOut) { out =>
+      writeEntry("mapping_%s.xml".format(mapping._1), zipOut) { out =>
         writeContent(mapping._2.toXml.toString(), out)
       }
     }
