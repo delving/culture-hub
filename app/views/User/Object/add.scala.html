@@ -91,7 +91,6 @@
       autoUpload: true
     });
 
-
     var objectModel = {};
 
     $('#saveButton').click(function(event) {
@@ -112,8 +111,18 @@
 
     var scope = document.getElementById('objectForm');
 
-    load('/@userName/object/load/@id.getOrElse("")', objectModel, scope);
-  })
+    load('/@userName/object/load/@id.getOrElse("")', objectModel, scope, function() {
+      var files = ko.toJS(objectModel.files);
+      var fu = $('#fileupload').data('fileupload');
+      fu._adjustMaxNumberOfFiles(-files.length);
+      fu._renderDownload(files)
+          .appendTo($('#fileupload .files'))
+          .fadeIn(function () {
+              // Fix for IE7 and lower:
+              $(this).show();
+          });
+    });
+  });
 </script>
 
 }

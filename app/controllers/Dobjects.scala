@@ -1,9 +1,9 @@
 package controllers
 
 import play.mvc.results.Result
-import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import models.{DObject, UserCollection}
+import org.bson.types.ObjectId
 
 /**
  *
@@ -36,22 +36,26 @@ object DObjects extends DelvingController {
 
   def load(id: String): Result = {
     DObject.findById(id) match {
-        case None => Json(ObjectModel.empty)
+        case None => Json(ObjectModel())
         case Some(anObject) => {
           val collections = ObjectModel.objectIdListToCollections(anObject.collections)
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections))
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
         }
       }
   }
 }
 
-case class ObjectModel(id: Option[ObjectId] = None, name: String = "", description: Option[String] = Some(""), owner: ObjectId, collections: List[Collection] = List.empty[Collection]) {
+case class ObjectModel(id: Option[ObjectId] = None,
+                       name: String = "",
+                       description: Option[String] = Some(""),
+                       owner: ObjectId = new ObjectId(),
+                       collections: List[Collection] = List.empty[Collection],
+                       files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
+
   def getCollections: List[ObjectId] = for(collection <- collections) yield new ObjectId(collection.id)
 }
 
 object ObjectModel {
-
-  val empty: ObjectModel = ObjectModel(name = "", owner = new ObjectId())
 
   def objectIdListToCollections(collectionIds: List[ObjectId]) = {
     (for (userCollection: UserCollection <- UserCollection.find(MongoDBObject("_id" -> MongoDBObject("$in" -> collectionIds))))
