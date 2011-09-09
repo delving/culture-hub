@@ -6,7 +6,7 @@
 @header(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
 
 <div class="grid_16 alpha">
-    <h1>@if(id == None) { Create a new story } else { Update a story }</h1>
+    <h1 class="emphasize">@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>
 
 <div class="grid_5 alpha suffix_1">
@@ -134,7 +134,7 @@
     </div>
     <div class="field">
         <div class="inputs">
-            <button class="save page-save" type="submit" data-bind="click: saveCurrentPage">Save Page</button>
+            <button class="save page-save"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
         </div>
     </div>
   </form>
@@ -147,7 +147,7 @@
       {{each(i, object) currentPage.availableObjects()}}
       <tr>
           <td><input type="checkbox" value="${object.id}" data-bind="checked: currentPage.selectedObjectIds()" /></td>
-          <td><img src='@asset("/public/images/dummy-object.png")' width="50" /></td>
+          <td><img src='@asset("/public/images/dummy-object.png")' width="50" alt="${object.name}"/></td>
           <td><h4>${object.name}</h4></td>
       </tr>
       {{/each}}
@@ -261,6 +261,7 @@
             $("#form-add-page").hide("slow");
           }, function() {
             // TODO yell, cry. be desperate
+              alert("fpp");
           });
         },
         collectionChanged: function() {
