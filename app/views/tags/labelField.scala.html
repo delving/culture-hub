@@ -1,0 +1,19 @@
+@(name:String, label:String, dataBind: String = "", value: String = "")
+@import views.context._
+
+@fieldValue = @{ if (value.length > 0) value else params.get(name) }
+
+<div class="field">
+    <label for="@name">@label</label>
+    <div class="inputs">
+        <select id="annotationType">
+            <option value="Person">Person</option>
+            <option value="Place">Place</option>
+            <option value="Event">Event</option>
+            <option value="Concept">Concept</option>
+        </select>
+        <input type="text" class="textinput" id="@name" name="@name" maxlength="40" value="@fieldValue" data-bind="@dataBind"/>
+        <button class="add label-add" name="add-annotations-button" id="add-annotation-button">Add Annotation</button>
+        <span class="error">@showError(name)</span>
+    </div>
+</div>

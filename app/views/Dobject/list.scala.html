@@ -2,9 +2,14 @@
 
 @import views.context._
 
-@header("List of objects for user " + user.fullname ) {
+@header("List of objects for user " + browsedUserName ) {
 <div class="grid_12 alpha" id="items">
-    <h2>All the objects of <span>@user.fullname</span></h2>
+
+    @if(browsedUserName != null) {
+        <h2>Browse objects owned by: <span>@browsedUserName</span></h2>
+    } else {
+        <h2>Browse objects</h2>
+    }
 
     <div class="item-nav">
         <div class="item-count">
@@ -36,8 +41,5 @@
     }
 </div>
 
-<div class="grid_4 omega">
-    <a href='/@userName/object/add'>Add new object</a>
-</div>
 
 }

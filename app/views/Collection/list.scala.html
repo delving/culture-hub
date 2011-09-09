@@ -3,8 +3,15 @@
 @import views.context._
 
 @header("List of collections") {
+
 <div class="grid_12 alpha" id="items">
-        <h2>All the collections of <span>[ user name from url goes here ]</span></h2>
+
+        @if(browsedUserName!=null) {
+            <h2>Browse collections owned by: <span>@browsedUserName</span></h2>
+        } else {
+            <h2>Browse collections</h2>
+        }
+
         <div class="item-nav">
             <div class="item-count">
                 Found: <span>6</span> collections
@@ -25,7 +32,7 @@
         @for(i <- 0 until 6) {
 
         <div class="item three-col">
-            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+            <img src='@asset("/public/images/dummy-object.png")' width="84" alt=""/>
             <h4><a href="">Title_@i</a></h4>
             <!--<label>Owner</label><a href="">User Name</a><br/>-->
             <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
@@ -37,7 +44,9 @@
     </div>
     <div class="grid_4 omega">
         @if(renderArgs.get("displayName") != null) {
-                 <a href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
+            <div class="actions ar">
+                 <a class="add collection-add" href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
+            </div>
         }
     </div>
 }

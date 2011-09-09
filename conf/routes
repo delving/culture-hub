@@ -53,6 +53,10 @@ POST       /registration/newPassword                                         Reg
 
 # Delving URL scheme
 
+GET         /collection                                                      Collections.list
+GET         /object                                                          DObjects.list
+GET         /story                                                           Stories.list
+
 GET         /{user}/?                                                        Users.index
 
 GET         /{user}/profile                                                  Profiles.index

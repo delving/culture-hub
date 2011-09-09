@@ -1,5 +1,5 @@
 body {
-    background:  #fff;
+    background:  #60652A;
     font: 15px/1.5 Arial,Helvetica,sans-serif;
     margin:  0;
 }
@@ -11,54 +11,71 @@ body {
 
 /* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
 
-html, body {height: 100%;}
+/*html, body {height: 100%;}*/
 
-#wrapper {min-height: 100%;}
+/*#wrapper {min-height: 100%;}*/
 
-#page {overflow:auto;
-	padding-bottom: 200px;}  /* must be same height as the footer */
+/*#page {overflow:auto;*/
+	/*padding-bottom: 200px;}  *//* must be same height as the footer */
 
-#footer {position: relative;
-	margin-top: -200px; /* negative value of footer height */
-	height: 200px;
-	clear:both;}
+/*#footer {position: relative;*/
+	/*margin-top: -200px; *//* negative value of footer height */
+	/*height: 200px;*/
+	/*clear:both;}*/
 
 /*Opera Fix*/
-body:before {
-	content:"";
-	height:100%;
-	float:left;
-	width:0;
-	margin-top:-32767px;/
-}
+/*body:before {*/
+	/*content:"";*/
+	/*height:100%;*/
+	/*float:left;*/
+	/*width:0;*/
+	/*margin-top:-32767px;/*/
+/*}*/
 
 /* end sticky footer code! */
 
 /* typography */
 
+h1 {
+    color: #CC3333;
+    font-size: 150%;
+}
+
 h2 {
-    clear: both;
-    margin:  20px 0 20px 0;
-    padding:  0;
+    color: #CC3333;
+    font-size: 135%;
 }
 
-h2 span {
-    background:  #CC3333;
-    color: #fff;
-    display: inline-block;
-    font-weight: normal;
-    padding:  0 10px;
+h3 {
+    color: #ff0033;
+    font-size: 115%;
 }
 
-p {
-    margin:  0;
+h4 {
+    font-size: 100%;
 }
+
+/*p {*/
+    /*margin:  0;*/
+/*}*/
 
 /* basic page layout */
 
 #page {
+    background-color: #fff;
     min-height: 200px;
-    margin-bottom: 20px;
+    overflow: hidden;
+    padding:  20px 0;
+    clear: both;
+}
+
+#page .container_16 .grid_16 {
+    clear: both;
+}
+
+#page #messages-container {
+    background:  #fff;
+    display: none;
 }
 
 #header-top  {
@@ -152,10 +169,10 @@ p {
 
 #search {
     background:  #CFD0BF;
-    height: 64px;
-    line-height: 64px;
+    height: 75px;
+    line-height: 70px;
+    text-align: center;
 }
-
 #search input[type="text"]{
     background: transparent url(../images/bg-search-input.png) 0 0 no-repeat;
     border: none;

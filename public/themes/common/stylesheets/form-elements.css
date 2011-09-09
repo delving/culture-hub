@@ -115,48 +115,6 @@ button[disabled] {
     filter:alpha(opacity=40)
 }
 
-/* Actions */
 
-div.actions {
-    margin-bottom: 10px;
-    padding:  10px 0;
-    overflow: hidden;
-    position: relative;
-}
 
-.add,
-.delete,
-.error,
-.success,
-.edit,
-.save {
-    background-position: 12px 50%;
-    background-repeat: no-repeat;
-    padding-left: 32px;
-    padding-right: 16px;
-    text-decoration: none;
-}
 
-.edit {
-    background-image: url("../images/pencil_go.gif");
-}
-
-.delete {
-    background-image: url("../images/delete.gif");
-}
-
-.save {
-    background-image:  url("../images/disk.png");
-}
-
-.page-add {
-    background-image:  url("../images/page_add.gif");
-}
-
-.image-add {
-    background-image:  url("../images/image_add.png");
-}
-
-.page-save {
-    background-image:  url("../images/page_save.png");
-}
