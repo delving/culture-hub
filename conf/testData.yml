@@ -145,11 +145,17 @@
             accessKeyRequired: !!bool "true"
         facts:
             spec: Verzetsmuseum
-    hashes:
-        ? "source_hash"
-        : 61F0D46F76B01E0CCAD7286234F30B6A
-        ? "downloaded_source_hash"
-        : 61F0D46F76B01E0CCAD7286234F30B6B
+            downloadedSource: false
+            name: Verzetsmuseum
+            collectionType: all
+            namespacePrefix: raw
+            language: nl
+            country: netherlands
+            provider: Verzetsmuseum
+            dataProvider: Verzetsmuseum
+            rights: "http://creativecommons.org/publicdomain/mark/1.0/"
+            type: IMAGE
+    hashes: !!map { }
     namespaces:
         ? raw
         : "http://delving.eu/namespaces/raw"
