@@ -3,7 +3,7 @@
 @import views.context._
 @import views.tags.html._
 
-@main(if(id == None) "Add new object for user " + fullName else "Update object for user " + fullName) {
+@header(if(id == None) "Add new object for user " + fullName else "Update object for user " + fullName) {
 
 <div class="grid_8">
     <h1>@if(id == None) { Add a new object } else { Update an object }</h1>

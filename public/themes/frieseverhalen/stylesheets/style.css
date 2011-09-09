@@ -58,7 +58,7 @@ p {
 
 #page {
     min-height: 200px;
-    /*padding: 20px 0;*/
+    margin-bottom: 20px;
 }
 
 #header-top  {
@@ -425,5 +425,37 @@ li.comment .user {
 #add-label-dialog {
     display: none;
 }
+
+/* form-elements.css over-rides */
+
+input[type=submit],
+input[type=button],
+input[type=file],
+button {
+    background-color: #cfd0bf;
+    color: #555;
+}
+
+input[type=file] {
+    background: #fff;
+}
+
+input[type=submit]:hover,
+input[type=button]:hover,
+input[type=file]:hover,
+button:hover{
+    background-color: #454727;
+    color: #fff;
+}
+
+button[disabled] {
+    background-color: #cfd0bf;
+    color: #555;
+    cursor: default;
+    opacity:0.4;
+    filter:alpha(opacity=40)
+}
+
+
 
 

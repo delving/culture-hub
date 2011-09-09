@@ -39,7 +39,7 @@ div.field div.label {
     color: #444444;
     display: block;
     /*float: left;*/
-    font-size: 1.1em;
+    /*font-size: 1.1em;*/
     font-weight: bold;
     margin-bottom: 0.5em;
     text-align: left;
@@ -66,7 +66,7 @@ div.field label.required:after {
 input.textinput, select, textarea {
     background-color: #FFFFFF;
     border: 1px solid #DDDAD3;
-    font-size: 1.1em;
+    /*font-size: 1.1em;*/
     padding: 3px;
 }
 
@@ -75,7 +75,7 @@ select {
 }
 
 .inputs textarea {
-    width: 100%;
+    width: 98.5%;
     min-height: 150px;
 }
 
@@ -87,13 +87,14 @@ input[type=submit],
 input[type=button],
 input[type=file],
 button {
-    border: 1px solid #777;
-    background: #999;
+    border: none;
+    background-color: #999;
     color: #fff;
-    font-size: 1.1em;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 2px;
+    /*font-size: 1.1em;*/
+    /*font-weight: bold;*/
+    padding: 2px 10px;
+    border-radius: 4px;
+    height: 30px;
 }
 
 input[type=file] {
@@ -103,101 +104,37 @@ input[type=file] {
 input[type=submit]:hover,
 input[type=button]:hover,
 input[type=file]:hover,
-button:hover {
-    border: 1px solid #000;
+button:hover{
+    background-color: #555;
 }
 
-.display-box {
-    background: #eaeaea;
-    border: 1px solid #ccc;
-    padding: .5em;
-    margin-top: 10px;
+button[disabled] {
+    background-color: #888;
+    cursor: default;
+    opacity:0.4;
+    filter:alpha(opacity=40)
 }
 
-ul#labels {
-    margin: 0;
-    padding: 0;
-}
+/* Actions */
 
-ul#labels li {
-    background: #fff;
-    padding: 4px;
-    list-style: none;
-    margin: 0 .5em .5em 0;
-    display: inline-block;
-    height: 24px;
-    line-height: 24px;
-}
-
-span.help {
-    display: block;
-    color: #555;
-    font-size: .9em;
-    margin-top: .5em;
-}
-
-/* page form styles ********/
-
-.page-form {
-    background:  #fffff0;
-    padding:  10px;
-}
-
-#page-list {
-    overflow:  hidden;
-}
-
-.page-list {
-    line-height: 2em;
-    margin: 1em 0;
-    padding: 0;
-    list-style: none outside none;
-}
-
-.page-list li {
-    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
-    clear: both;
-    display: block;
-    margin: 0;
-    padding: 0;
-}
-
-.page-list li .left {
-    display: block;
-    float: left;
-    width: 60%;
-}
-
-.page-list li .right {
-    display: block;
-    float: right;
-    font-size: 88%;
-    padding: 4px 0;
-    text-align: right;
-    width: 30%;
+div.actions {
+    margin-bottom: 10px;
+    padding:  10px 0;
+    overflow: hidden;
+    position: relative;
 }
 
 .add,
 .delete,
 .error,
 .success,
-.edit {
+.edit,
+.save {
     background-position: 12px 50%;
     background-repeat: no-repeat;
     padding-left: 32px;
+    padding-right: 16px;
     text-decoration: none;
-}
-
-.page-edit a {
-    color: #3388CC;
-    text-decoration: none;
-        display: inline-block;
-}
-
-.page-delete a {
-    color: red;
-    text-decoration: none;
-        display: inline-block;
 }
 
 .edit {
@@ -208,3 +145,18 @@ span.help {
     background-image: url("../images/delete.gif");
 }
 
+.save {
+    background-image:  url("../images/disk.png");
+}
+
+.page-add {
+    background-image:  url("../images/page_add.gif");
+}
+
+.image-add {
+    background-image:  url("../images/image_add.png");
+}
+
+.page-save {
+    background-image:  url("../images/page_save.png");
+}

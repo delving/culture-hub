@@ -35,7 +35,7 @@
     <h2>Story Information</h2>
     <span class="required-note">* Required Fields</span>
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", "required")
+    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
     @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'")
 
     <div class="field">
@@ -46,17 +46,16 @@
       </div>
     </div>
 
-    <div class="field">
-      <div class="inputs">
-        <button id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
-      </div>
+    <div class="actions">
+        <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
     </div>
+
 </div>
 
 <div class="clear"></div>
 
 <div id="story-pages" style="display: none">
-
+    <hr/>
     <div class="grid_5 alpha suffix_1">
         <h3>Step 2: Story Pages</h3>
         <div class="container">
@@ -75,10 +74,8 @@
         <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
         <div id="page-list" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-        <div class="field">
-            <div class="inputs">
-                <button id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
-            </div>
+        <div class="actions">
+                <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
         </div>
 
         <div id="form-add-page" class="page-form" style="display: none;" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
@@ -89,10 +86,9 @@
 <!-- // story-pages -->
 
 <div class="grid_16 alpha" id="save-story">
-    <div class="fields">
-        <div class="inputs">
-            <button data-bind="click: saveTheStory">Save Story</button>
-        </div>
+<hr/>
+    <div class="actions">
+            <button class="save" data-bind="click: saveTheStory">Save Story</button>
     </div>
 </div>
 
@@ -132,13 +128,13 @@
     <div class="field">
         <div class="inputs">
             <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
+            <button class="add image-add" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
         </div>
         <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
     </div>
     <div class="field">
         <div class="inputs">
-            <button type="submit" data-bind="click: saveCurrentPage">Save Page</button>
+            <button class="save page-save" type="submit" data-bind="click: saveCurrentPage">Save Page</button>
         </div>
     </div>
   </form>
