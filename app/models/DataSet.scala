@@ -380,19 +380,11 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 
-case class Mapping(recordMapping: String,
+case class Mapping(recordMapping: String = "",
                    format: RecordDefinition,
                    rec_indexed: Int = 0,
                    errorMessage: Option[String] = Some(""),
-                   indexed: Boolean = false) {
-
-  def toXml =
-    <mapping>
-      <name>{format.prefix}</name>
-      <rec_indexed>{rec_indexed}</rec_indexed>
-      <indexed>{indexed}</indexed>
-    </mapping>
-}
+                   indexed: Boolean = false)
 
 case class RecordDefinition(prefix: String,
                           schema: String,
