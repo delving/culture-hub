@@ -1,8 +1,8 @@
 @(username:String)
+@import views.context._
+@header("User " + username) {
 
-@main("User " + username) {
-
-<h1>@username's stuff</h1>
+<h1>@browsedUserName's page</h1>
 <ul>
   <li><a href="@action(controllers.Profiles.index(username))">Profile</a></li>
   <li><a href="@action(controllers.Labels.list(username))">Labels</a></li>
