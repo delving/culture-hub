@@ -26,6 +26,8 @@ package object context {
   def browsedUserName = renderArgs.get("browsedDisplayName")
   def browsedFullName = renderArgs.get("browsedFullName")
 
+  def connectedIsBrowsed = userName == browsedUserName
+
   // ~~~ url building
   def paginationUrl: String = {
     val query = Option(params.get("query")) getOrElse ""
