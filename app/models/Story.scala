@@ -5,6 +5,7 @@ import models.salatContext._
 import org.bson.types.ObjectId
 import com.novus.salat.EnumStrategy
 import com.novus.salat.annotations.raw.EnumAs
+import org.joda.time.DateTime
 
 /**
  * 
@@ -12,6 +13,7 @@ import com.novus.salat.annotations.raw.EnumAs
  */
 
 case class Story(_id: ObjectId = new ObjectId,
+                 TS_update: DateTime,
                  name: String,
                  description: String,
                  user_id: ObjectId,

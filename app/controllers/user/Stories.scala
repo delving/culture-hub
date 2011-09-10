@@ -6,7 +6,7 @@ import play.templates.Html
 import views.User.Story._
 import extensions.CHJson._
 import models._
-import com.mongodb.casbah.commons.MongoDBObject
+import org.scala_tools.time.Imports._
 import controllers.{ObjectModel, Secure, UserAuthentication, DelvingController}
 
 /**
@@ -48,12 +48,12 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
     val persistedStory = storyVM.id match {
       case None =>
-        val story = Story(name = storyVM.name, description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
+        val story = Story(name = storyVM.name, TS_update = DateTime.now, description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)
       case Some(id) =>
         val savedStory = Story.findOneByID(id).getOrElse(return Error("Story with ID %s not found".format(id)))
-        val updatedStory = savedStory.copy(name = storyVM.name, description = storyVM.description, visibility = storyVM.visibility, pages = pages)
+        val updatedStory = savedStory.copy(TS_update = DateTime.now, name = storyVM.name, description = storyVM.description, visibility = storyVM.visibility, pages = pages)
         Story.save(updatedStory)
         storyVM
     }
