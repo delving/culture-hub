@@ -1,12 +1,12 @@
 package models
 
-import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import salatContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time.DateTime
+import com.novus.salat.dao.{SalatMongoCursor, SalatDAO}
 
 /**
  * 
@@ -37,4 +37,21 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
   def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
 
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
+
+  def findAll() = find(MongoDBObject())
+
+  implicit def cursorWithPage(cursor: SalatMongoCursor[DObject]) = new {
+
+    /**
+     * Returns a page and the total page count
+     * @param page the page number
+     * @param pageSize optional size of the page, defaults to 20
+     */
+    def page(page: Int, pageSize: Int = 20) = {
+      val c = cursor.skip((page - 1) * pageSize).limit(20)
+      (c.toList, c.count)
+    }
+
+  }
+
 }

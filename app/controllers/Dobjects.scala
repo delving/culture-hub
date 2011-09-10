@@ -16,16 +16,16 @@ object DObjects extends DelvingController {
   import views.Dobject._
 
   def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
-    val u = if(user == None) None else {
-      getUser(user.get)
-    }
 
     // TODO access rights
-    val objects = Map("availableObjects" -> DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)})
+    val objectsPage = user match {
+      case Some(u) => DObject.findByUser(browsedUserId).page(page)
+      case None => DObject.findAll().page(page)
+    }
 
     request.format match {
-      case "html" => html.list(page = page, count = 58)
-      case "json" => Json(objects)
+      case "html" => html.list(objects = objectsPage._1 map { o => ShortObject(o._id, o.name, o.description.getOrElse(""), "") }, page = page, count = objectsPage._2)
+      case "json" => Json(objectsPage._1)
     }
   }
 
@@ -46,6 +46,13 @@ object DObjects extends DelvingController {
       }
   }
 }
+
+// ~~~ list page models
+
+case class ShortObject(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String)
+
+
+// ~~~ view models
 
 case class ObjectModel(id: Option[ObjectId] = None,
                        name: String = "",

@@ -10,13 +10,10 @@ import net.liftweb.json
 import json._
 import json.Serialization._
 import com.codahale.jerkson.util.CaseClassSigParser
-import org.bson.types.ObjectId
 import play.mvc.Controller
-import org.codehaus.jackson.map.annotate.JsonCachable
-import org.codehaus.jackson.`type`.JavaType
 import org.codehaus.jackson.map._
 import org.codehaus.jackson.map.Module.SetupContext
-import org.codehaus.jackson.{JsonParser, JsonGenerator, Version}
+import org.codehaus.jackson.Version
 
 /**
  *

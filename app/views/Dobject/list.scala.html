@@ -1,4 +1,4 @@
-@(page: Int, count: Int)
+@(objects: List[controllers.ShortObject], page: Int, count: Int)
 
 @import views.context._
 @import views.tags.html._
@@ -22,13 +22,13 @@
 
     <div class="clear"></div>
 
-    @for(i <- 0 until 15) {
+    @for(o <- objects) {
 
     <div class="item three-col">
         <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-        <h4><a href="">Title_@i</a></h4>
+        <h4><a href="">@o.name</a></h4>
         <!--<label>Owner</label><a href="">User Name</a><br/>-->
-        <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
+        <span class="description">@o.shortDescription</span>
     </div>
     }
 </div>
