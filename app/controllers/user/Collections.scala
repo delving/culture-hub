@@ -29,7 +29,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
       case None => Json(CollectionAddModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
+        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_object_id))
       }
     }
   }
@@ -40,14 +40,6 @@ object Collections extends DelvingController with UserAuthentication with Secure
   def collectionSubmit(data: String): Result = {
 
     val collectionModel: CollectionAddModel = parse[CollectionAddModel](data)
-    val selectedThumbnail: Option[ObjectId] = collectionModel.thumbnail
-    val thumbnail = selectedThumbnail match {
-      case Some(thumbnailObject) => DObject.findOneByID(thumbnailObject) match {
-        case Some(t) => t.thumbnail_id
-        case None => None
-      }
-      case None => None
-    }
 
     val persistedUserCollection = collectionModel.id match {
       case None =>
@@ -58,13 +50,13 @@ object Collections extends DelvingController with UserAuthentication with Secure
             user_id = connectedUserId,
             userName = connectedUser,
             description = collectionModel.description,
-            thumbnail_id = thumbnail))
+            thumbnail_object_id = collectionModel.thumbnail))
 //            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = UserCollection.findOneByID(id)
         if (existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedUserCollection = existingObject.get.copy(TS_update = DateTime.now, name = collectionModel.name, description = collectionModel.description, thumbnail_id = thumbnail)
+        val updatedUserCollection = existingObject.get.copy(TS_update = DateTime.now, name = collectionModel.name, description = collectionModel.description, thumbnail_object_id = collectionModel.thumbnail)
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)

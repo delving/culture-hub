@@ -18,7 +18,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           user_id: ObjectId,
                           userName: String,
                           name: String,
-                          thumbnail_id: Option[ObjectId] = None,
+                          thumbnail_object_id: Option[ObjectId] = None, // points to the object of which we take the thumbnail
                           node: String,
                           description: Option[String]) extends Repository
 

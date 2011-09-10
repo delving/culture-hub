@@ -4,14 +4,14 @@ import play.templates.Html
 import views.User.Object._
 import play.mvc.results.Result
 import extensions.CHJson._
-import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.WriteConcern
 import com.novus.salat.dao.SalatDAOUpdateError
 import org.scala_tools.time.Imports._
 import play.libs.Codec
 import controllers._
 import models.{Label, DObject}
+import com.mongodb.WriteConcern
+import com.mongodb.casbah.Imports._
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -28,9 +28,9 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     val files = FileStore.fetchFilesForUID(uid)
 
-    val thumbnail = findThumbnailCandidate(files) match {
-      case Some(f) => FileStore.makeThumbnail(f.id)
-      case None => None
+    def makeThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
+        case Some(f) => FileStore.makeThumbnail(objectId, f.id)
+        case None => None
     }
 
     val labels = {
@@ -45,14 +45,21 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, thumbnail_id = thumbnail, labels = labels))
-        if(inserted != None) Some(objectModel.copy(id = inserted)) else None
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, labels = labels))
+        inserted match {
+          case Some(iid) => {
+            makeThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
+            Some(objectModel.copy(id = inserted))
+          }
+          case None => None
+        }
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, thumbnail_id = thumbnail, labels = labels)
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = makeThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
+          makeThumbnail(id)
           Some(objectModel)
         } catch {
           case e: SalatDAOUpdateError => None

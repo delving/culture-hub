@@ -4,8 +4,9 @@ import play.data.validation.Validation
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
-import play.mvc.Http
 import models.PortalTheme
+import play.mvc.Http
+import org.bson.types.ObjectId
 
 package object context {
 
@@ -33,6 +34,8 @@ package object context {
     val query = Option(params.get("query")) getOrElse ""
     request.path + "?query=%s&page=".format(query)
   }
+
+  def thumbnailUrl(thumbnail: ObjectId) = "/thumbnail/%s".format(thumbnail)
 
   // ~~~ template helpers
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())

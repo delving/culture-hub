@@ -17,7 +17,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                   userName: String,
                   name: String,
                   description: Option[String] = None,
-                  thumbnail_id: Option[ObjectId] = None,
+                  thumbnail_file_id: Option[ObjectId] = None, // pointer to the file selected as the thumbnail. This is _not_ helping to fetch the thumbnail, which is retrieved using the ID of the object
                   files: Seq[StoredFile] = Seq.empty[StoredFile],
                   collections: List[ObjectId],
                   labels: List[ObjectId]) {
@@ -31,5 +31,9 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
 
   // TODO index the collections field
   def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
+
+  def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
+    update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_id" -> thumbnail_id)) , false, false)
+  }
 
 }

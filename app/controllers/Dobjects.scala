@@ -24,7 +24,7 @@ object DObjects extends DelvingController {
     }
 
     request.format match {
-      case "html" => html.list(objects = objectsPage._1 map { o => ShortObject(o._id, o.name, o.description.getOrElse(""), makeThumbnailUrl(o.thumbnail_id), o.userName) }, page = page, count = objectsPage._2)
+      case "html" => html.list(objects = objectsPage._1 map { o => ShortObject(o._id, o.name, o.description.getOrElse(""), makeThumbnailUrl(Some(o._id)), o.userName) }, page = page, count = objectsPage._2)
       case "json" => Json(objectsPage._1)
     }
   }

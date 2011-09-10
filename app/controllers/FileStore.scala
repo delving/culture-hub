@@ -7,9 +7,8 @@ import play.mvc.results.{RenderBinary, Result}
 import play.mvc.Util
 import com.mongodb.casbah.gridfs.{GridFS}
 import models.StoredFile
-import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
-import com.thebuzzmedia.imgscalr.Scalr
+import java.io.File
+import scala.io.Source
 
 /**
  * Common controller for handling files, no matter from where.
@@ -18,6 +17,8 @@ import com.thebuzzmedia.imgscalr.Scalr
  */
 
 object FileStore extends DelvingController {
+
+  val emptyThumbnail = "/public/images/dummy-object.png"
 
   val fileStore = MongoConnection().getDB("fileStore")
   val fs = GridFS(fileStore)
@@ -41,16 +42,28 @@ object FileStore extends DelvingController {
     if (!ObjectId.isValid(id)) return Error("Invalid ID " + id)
     val oid = new ObjectId(id)
     val file = fs.findOne(oid) getOrElse (return NotFound("Could not find file with ID " + id))
-
     new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
   }
 
-  @Util def makeThumbnail(id: ObjectId, width: Int = 220) = {
-    val image = fs.find(id)
+  def getThumbnail(id: String): Result = {
+    if (!ObjectId.isValid(id)) return Error("Invalid ID " + id)
+    val oid = new ObjectId(id)
+    fs.findOne(MongoDBObject("image_id" -> oid)) match {
+      case Some(file) => new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
+      case None => {
+        new RenderBinary(new File(play.Play.applicationPath + emptyThumbnail), "dummy-object.png")
+      }
+    }
+
+  }
+
+  @Util def makeThumbnail(objectId: ObjectId, fileId: ObjectId, width: Int = 220) = {
+    val image = fs.find(fileId)
     val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
     val thumbnail = fs.createFile(thumbnailStream)
     thumbnail.filename = image.filename
     thumbnail.contentType = "image/jpeg"
+    thumbnail.put("image_id", objectId)
     thumbnail.save
     thumbnail._id
   }
