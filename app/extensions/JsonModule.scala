@@ -60,7 +60,7 @@ class ScalaEnumerationSerializer extends JsonSerializer[Enumeration#Value] {
 class ScalaEnumerationDeserializer(config: DeserializationConfig, javaType: JavaType, provider: DeserializerProvider) extends JsonDeserializer[Enumeration#Value] {
 
   implicit def class2companion(clazz: Class[_]) = new {
-    def companionClass: Class[_] = Class.forName(if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName))
+    def companionClass: Class[_] = play.Play.classloader.loadClass(if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName))
     def companionObject = companionClass.getField("MODULE$").get(null)
   }
 
