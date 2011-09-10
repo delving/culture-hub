@@ -108,7 +108,7 @@ h4 {
 
 #footer {
     background:  #60652A;
-    height: 200px;
+    min-height: 100px;
 }
 
 #login-registration {
@@ -503,6 +503,17 @@ table.list tr:nth-child(even){
 
 table.list tr:hover {
     background:  #fff;
+}
+
+ul.inline {
+    margin: 0;
+    padding: 0;
+}
+
+ul.inline li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 10px 10px 0;
 }
 
 
