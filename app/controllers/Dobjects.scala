@@ -49,7 +49,10 @@ object DObjects extends DelvingController {
 
 // ~~~ list page models
 
-case class ShortObject(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String)
+case class ShortObject(id: ObjectId,
+                       name: String,
+                       shortDescription: String,
+                       thumbnailUrl: String)
 
 
 // ~~~ view models

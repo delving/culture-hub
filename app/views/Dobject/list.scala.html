@@ -15,7 +15,7 @@
         <div class="item-count">
             Found: <span>@count</span> objects
         </div>
-        <div class="item-pager">
+        <div class="item-pagers">
           <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
         </div>
     </div>
@@ -25,9 +25,8 @@
     @for(o <- objects) {
 
     <div class="item three-col">
-        <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-        <h4><a href="">@o.name</a></h4>
-        <!--<label>Owner</label><a href="">User Name</a><br/>-->
+        <img src='@asset("/public/images/dummy-object.png")' width="100" alt="@o.name"/>
+        <h4><a href="@o.id">@o.name</a></h4>
         <span class="description">@o.shortDescription</span>
     </div>
     }
