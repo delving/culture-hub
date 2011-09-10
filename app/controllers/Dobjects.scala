@@ -24,7 +24,7 @@ object DObjects extends DelvingController {
     }
 
     request.format match {
-      case "html" => html.list(objects = objectsPage._1 map { o => ShortObject(o._id, o.name, o.description.getOrElse(""), "") }, page = page, count = objectsPage._2)
+      case "html" => html.list(objects = objectsPage._1 map { o => ShortObject(o._id, o.name, o.description.getOrElse(""), "", o.userName) }, page = page, count = objectsPage._2)
       case "json" => Json(objectsPage._1)
     }
   }
@@ -49,7 +49,7 @@ object DObjects extends DelvingController {
 
 // ~~~ list page models
 
-case class ShortObject(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String)
+case class ShortObject(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String, userName: String)
 
 
 // ~~~ view models

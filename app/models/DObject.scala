@@ -24,6 +24,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
   def userFullName = User.findOneByID(user_id).get.fullname
+  def userName = User.findOneByID(user_id).get.reference.username
 
 }
 
