@@ -18,9 +18,11 @@ import models.{StoredFile, PortalTheme, User}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
+// TODO find a better place for these
+case class Token(id: String, name: String)
+case class LabelModel(labelType: String, value: String)
 
-  case class Token(id: String, name: String)
+trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
   @Before(priority = 0) def setConnectedUser() {
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))

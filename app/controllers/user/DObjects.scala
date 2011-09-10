@@ -4,7 +4,6 @@ import play.templates.Html
 import views.User.Object._
 import play.mvc.results.Result
 import extensions.CHJson._
-import models.DObject
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.WriteConcern
@@ -12,6 +11,7 @@ import com.novus.salat.dao.SalatDAOUpdateError
 import org.scala_tools.time.Imports._
 import play.libs.Codec
 import controllers._
+import models.{Label, DObject}
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -33,14 +33,24 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case None => None
     }
 
+    val labels = {
+      for(l <- objectModel.labels) yield {
+        Label.findOne(MongoDBObject("labelType" -> l.labelType, "value" -> l.value)) match {
+          case Some(label) => label._id
+          // TODO better error handling
+          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, labelType = l.labelType, value = l.value)).get
+        }
+      }
+    }
+
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, thumbnail_id = thumbnail))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, thumbnail_id = thumbnail, labels = labels))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, thumbnail_id = thumbnail)
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, thumbnail_id = thumbnail, labels = labels)
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           Some(objectModel)

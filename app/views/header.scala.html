@@ -52,20 +52,44 @@
       </div>
     </script>
 
-  <script type="text/html" id="simpleUploadFileTemplate">
-    <form action="" method="post" enctype="multipart/form-data">
-      <div class="fileupload-buttonbar">
-        <label class="fileinput-button">
-          <span>Add files...</span>
-          <input type="file" name="files[]" multiple="true"/>
-        </label>
+    <script type="text/html" id="simpleUploadFileTemplate">
+      <form action="" method="post" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+          <label class="fileinput-button">
+            <span>Add files...</span>
+            <input type="file" name="files[]" multiple="true"/>
+          </label>
+        </div>
+      </form>
+      <div class="fileupload-content">
+        <table class="files"></table>
+        <div class="fileupload-progressbar"></div>
       </div>
-    </form>
-    <div class="fileupload-content">
-      <table class="files"></table>
-      <div class="fileupload-progressbar"></div>
-    </div>
-  </script>
+    </script>
+
+    <-- Eventually replace this with something else -->
+    <script type="text/html" id="labelTemplate">
+      <div class="field">
+          <label for="$item.name">Label</label>
+          <div class="inputs">
+              <select id="labelType" data-bind="value: labelType">
+                  <option value="Person">Person</option>
+                  <option value="Place">Place</option>
+                  <option value="Event">Event</option>
+                  <option value="Concept">Concept</option>
+              </select>
+              <input type="text" class="textinput" id="$item.name" name="$item.name" maxlength="40" data-bind="value: labelValue"/>
+              <button class="add label-add" name="add-annotations-button" id="add-annotation-button" data-bind="click: addLabel">Add Label</button>
+          </div>
+      </div>
+      <div>
+        <ul>
+          {{each(i, label) labels()}}
+          <li>${label.labelType} - ${label.value} (<a href="#" data-bind="click: function() { removeLabel(label) }">Remove</a>)</li>
+          {{/each}}
+        </ul>
+      </div>
+    </script>
 
 
 </head>
