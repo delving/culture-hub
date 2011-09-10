@@ -17,13 +17,13 @@ div.actions {
     text-align: right;
 }
 
-.add,
-.delete,
-.error,
-.success,
-.edit,
-.save,
-.submit {
+.actions .add,
+.actions .delete,
+.actions .error,
+.actions .success,
+.actions .edit,
+.actions .save,
+.actions .submit {
     background-position: 12px 50%;
     background-repeat: no-repeat;
     padding-left: 32px;
@@ -31,43 +31,43 @@ div.actions {
     text-decoration: none;
 }
 
-.edit {
+.actions .edit {
     background-image: url("../images/pencil_go.gif");
 }
 
-.delete {
+.actions .delete {
     background-image: url("../images/delete.gif");
 }
 
-.save {
+.actions .save {
     background-image:  url("../images/disk.png");
 }
 
-.submit {
+.actions .submit {
     background-image:  url("../images/page_white_go.png");
 }
 
-.page-add {
+.actions .page-add {
     background-image:  url("../images/page_add.gif");
 }
 
-.page-save {
+.actions .page-save {
     background-image:  url("../images/page_save.png");
 }
 
-.image-add {
+.actions .image-add {
     background-image:  url("../images/image_add.png");
 }
 
-.story-add {
+.actions .story-add {
     background-image:  url("../images/book_add.png");
 }
 
-.collection-add {
+.actions .collection-add {
     background-image:  url("../images/folder_add.gif");
 }
 
-.label-add {
+.actions .label-add {
     background-image:  url("../images/tag_blue_add.png");
 }
 

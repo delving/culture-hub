@@ -482,8 +482,10 @@ button[disabled] {
 
 /* table styles */
 
-table.list {
-    width: 100%
+table.list,
+table.files{
+    width: 100%;
+    font-size: 12px;
 }
 
 table.list th.header {
@@ -506,7 +508,8 @@ table.list .thumb {
     text-align: right
 }
 
-table.list tr:nth-child(odd) {
+table.list tr:nth-child(odd),
+table.files tr:nth-child(odd){
     background-color:#eeeee0;
 }
 table.list tr:nth-child(even){
