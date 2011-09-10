@@ -29,7 +29,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     val files = FileStore.fetchFilesForUID(uid)
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = files))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files))
         if(inserted != None) Some(objectModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)

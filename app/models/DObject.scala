@@ -16,6 +16,7 @@ import com.novus.salat.dao.{SalatMongoCursor, SalatDAO}
 case class DObject(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
                   user_id: ObjectId,
+                  userName: String,
                   name: String,
                   description: Option[String] = None,
                   files: Seq[StoredFile] = Seq.empty[StoredFile],
@@ -24,7 +25,6 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
   def userFullName = User.findOneByID(user_id).get.fullname
-  def userName = User.findOneByID(user_id).get.reference.username
 
 }
 
