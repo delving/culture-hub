@@ -4,7 +4,9 @@
 @import views.tags.html._
 
 @header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
+
 <div class="grid_12 alpha" id="items">
+
     @if(browsedUserName != null) {
         <h2>Browse objects owned by: <span>@browsedUserName</span></h2>
     } else {
@@ -23,18 +25,22 @@
     <div class="clear"></div>
 
     @for(o <- objects) {
-
-    <div class="item three-col">
-        <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-        <h4><a href="">@o.name</a></h4>
-        <!--<label>Owner</label><a href="">User Name</a><br/>-->
-        <span class="description">@o.shortDescription</span>
-    </div>
+      <div class="item three-col">
+          <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+          <h4><a href="">@o.name</a></h4>
+          <!--<label>Owner</label><a href="">User Name</a><br/>-->
+          <span class="description">@o.shortDescription</span>
+      </div>
+      @if(o.userName == userName) {
+          <span class="options"><a href="/@o.userName/object/@o.id/update">Edit Collection</a></span>
+      }
     }
 </div>
 
 <div class="grid_4 omega">
+  @if(connectedIsBrowsed) {
     <a href='/@userName/object/add'>Add new object</a>
+  }
 </div>
 
 }

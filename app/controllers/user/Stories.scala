@@ -19,7 +19,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
   def load(id: String): Result = {
 
     val collections = UserCollection.findByUser(connectedUserId)
-    val collectionVMs = for (c <- collections) yield CollectionViewModel(c._id, c.name)
+    val collectionVMs = (collections map { c => CollectionViewModel(c._id, c.name) }).toList
 
     Story.findById(id) match {
       case None => Json(StoryViewModel(collections = collectionVMs))

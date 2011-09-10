@@ -1,52 +1,45 @@
-@(user:models.User)
+@(collections: List[controllers.ShortCollection], page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
-@header("List of collections") {
+@header(if(browsedUserName != null) "List of collections for user %s".format(browsedUserName) else "List of collections") {
 
 <div class="grid_12 alpha" id="items">
 
-        @if(browsedUserName!=null) {
-            <h2>Browse collections owned by: <span>@browsedUserName</span></h2>
-        } else {
-            <h2>Browse collections</h2>
-        }
+      @if(browsedUserName!=null) {
+          <h2>Browse collections owned by: <span>@browsedUserName</span></h2>
+      } else {
+          <h2>Browse collections</h2>
+      }
 
-        <div class="item-nav">
-            <div class="item-count">
-                Found: <span>6</span> collections
-            </div>
-            <!--<div class="item-pager">-->
-                <!--<span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>-->
-                <!--<span>1</span><span class="pipe"> | </span>-->
-                <!--<a href="#">2</a><span class="pipe"> | </span>-->
-                <!--<a href="#">3</a><span class="pipe"> | </span>-->
-                <!--<a href="#">4</a><span class="pipe"> | </span>-->
-                <!--<a href="#">5</a><span class="pipe"> | </span>-->
-                <!--<a href="#">6</a><span class="pipe"> | </span>-->
-                <!--<a href="#">7</a><span class="pipe"> | </span>-->
-                <!--<a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>-->
-            <!--</div>-->
-        </div>
+      <div class="item-nav">
+          <div class="item-count">
+              Found: <span>@count</span> collections
+          </div>
+          <div class="item-pager">
+            <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+          </div>
+      </div>
 
-        @for(i <- 0 until 6) {
+      @for(c <- collections) {
 
-        <div class="item three-col">
-            <img src='@asset("/public/images/dummy-object.png")' width="84" alt=""/>
-            <h4><a href="">Title_@i</a></h4>
-            <!--<label>Owner</label><a href="">User Name</a><br/>-->
-            <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
-            @if(renderArgs.get("displayName") != null) {
-                <span class="options"><a href>Edit Collection</a></span>
-            }
-        </div>
-        }
-    </div>
-    <div class="grid_4 omega">
-        @if(renderArgs.get("displayName") != null) {
-            <div class="actions ar">
-                 <a class="add collection-add" href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
-            </div>
-        }
-    </div>
+      <div class="item three-col">
+          <img src='@asset("/public/images/dummy-object.png")' width="84" alt=""/>
+          <h4><a href="">@c.name</a></h4>
+          <!--<label>Owner</label><a href="">User Name</a><br/>-->
+          <span class="description">@c.shortDescription</span>
+          @if(c.userName == userName) {
+              <span class="options"><a href="/@c.userName/collection/@c.id/update">Edit Collection</a></span>
+          }
+      </div>
+      }
+  </div>
+  <div class="grid_4 omega">
+      @if(connectedIsBrowsed) {
+          <div class="actions ar">
+               <a class="add collection-add" href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
+          </div>
+      }
+  </div>
 }

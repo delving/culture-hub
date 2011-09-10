@@ -39,6 +39,6 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
 
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
 
-  def findAll() = find(MongoDBObject())
+  def findAll = find(MongoDBObject())
 
 }

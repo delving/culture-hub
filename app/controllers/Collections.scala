@@ -13,9 +13,14 @@ object Collections extends DelvingController {
 
   import views.Collection._
 
-  def list(user: String): AnyRef = {
-    val userObject = getUser(user)
-    html.list(user = userObject)
+  def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
+
+    val collectionsPage = user match {
+      case Some(u) => UserCollection.findByUser(browsedUserId).page(page)
+      case None => UserCollection.findAll.page(page)
+    }
+
+    html.list(collections = collectionsPage._1 map { c => ShortCollection(c._id, c.name, c.description.getOrElse(""), "", c.userName)}, page = page, count = collectionsPage._2)
   }
 
   def view(user: String, id: String): AnyRef = {
@@ -42,3 +47,7 @@ object Collections extends DelvingController {
     }
   }
 }
+
+// ~~~ list page models
+
+case class ShortCollection(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String, userName: String)

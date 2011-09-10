@@ -47,6 +47,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
             name = collectionModel.name,
             node = getNode,
             user_id = connectedUserId,
+            userName = connectedUser,
             description = collectionModel.description))
 //            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None

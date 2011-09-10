@@ -16,11 +16,12 @@ import com.mongodb.casbah.commons.conversions.scala._
 case class UserCollection(_id: ObjectId = new ObjectId,
                           TS_update: DateTime,
                           user_id: ObjectId,
+                          userName: String,
                           name: String,
                           node: String,
                           description: Option[String]) extends Repository
 
-object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Resolver[UserCollection] with AccessControl {
+object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Resolver[UserCollection] with Pager[UserCollection] with AccessControl {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -28,7 +29,7 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
 
   protected def getObjectIdField = "_id"
 
-  def findByUser(user: ObjectId) = UserCollection.find(MongoDBObject("user_id" -> user)).toList
+  def findByUser(user: ObjectId) = UserCollection.find(MongoDBObject("user_id" -> user))
 
   def findAllByOwner(owner: UserReference) = {
     val userCollectionCursor = findAllByRight(owner.username, owner.node, "owner")
@@ -41,5 +42,7 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
     val all = ownedCursor ++ updateCursor
     (for(uc <- all) yield grater[UserCollection].asObject(uc)).toList.distinct
   }
+
+  def findAll = find(MongoDBObject())
 
 }

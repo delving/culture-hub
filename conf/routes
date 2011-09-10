@@ -68,14 +68,14 @@ GET         /{user}/collection                                               Col
 GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/add                                           user.Collections.collectionUpdate
-GET         /{user}/collection/update/{id}                                   user.Collections.collectionUpdate
+GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.view
 
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.objectUpdate
-GET         /{user}/object/update/{id}                                       user.DObjects.objectUpdate
+GET         /{user}/object/{id}/update                                       user.DObjects.objectUpdate
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 GET         /{user}/object/load/{id}?                                        DObjects.load
 GET         /{user}/object/{id}                                              DObjects.view

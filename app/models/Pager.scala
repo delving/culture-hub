@@ -11,7 +11,7 @@ import salat.dao.{SalatMongoCursor, SalatDAO}
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
-  implicit def cursorWithPage(cursor: SalatMongoCursor[DObject]) = new {
+  implicit def cursorWithPage(cursor: SalatMongoCursor[A]) = new {
 
     /**
      * Returns a page and the total page count
