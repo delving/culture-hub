@@ -18,6 +18,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           user_id: ObjectId,
                           userName: String,
                           name: String,
+                          thumbnail_id: Option[ObjectId] = None,
                           node: String,
                           description: Option[String]) extends Repository
 

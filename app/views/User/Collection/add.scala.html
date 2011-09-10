@@ -65,7 +65,7 @@
             <th colspan="3" class="header">Objects in your collection</th>
             </tr>
             <tr>
-            <th>Object</th><th class="action">Action</th><th class="thumb">thumb</th>
+            <th>Object</th><th class="action">Action</th><th class="thumb">Thumbnail</th>
             </tr>
         </thead>
         <tbody>
@@ -73,7 +73,7 @@
         <tr>
             <td>${name}</td>
             <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
-            <td class="thumb"><input type="radio" name="is_thumb"></td>
+            <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
         </tr>
         {{/each}}
     </table>
