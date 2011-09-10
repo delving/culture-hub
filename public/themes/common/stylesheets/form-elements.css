@@ -108,6 +108,13 @@ button:hover{
     background-color: #555;
 }
 
+input[type=submit]:active,
+input[type=button]:active,
+input[type=file]:active,
+button:active{
+    background-color: #888;
+}
+
 button[disabled] {
     background-color: #888;
     cursor: default;

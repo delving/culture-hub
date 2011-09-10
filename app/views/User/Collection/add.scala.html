@@ -5,66 +5,37 @@
 
 @header(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
 
-<h1 class="grid_16">@if(id == None) { Create a new collection } else { Update a collection }</h1>
-
+<h1 class="grid_16 alpha">@if(id == None) { Create a collection } else { Update collection }</h1>
+<div class="grid_8 alpha">
 <form method="post" action="" id="collectionForm">
-    <div class="grid_8 alpha">
-        <h2>Collection Information</h2>
+
+        <!--<h2>Collection Information</h2>-->
         <span id="required-note">* Required Fields</span>
 
         @textField("name", "Name", "value: name")
         @textArea("description", "Description", "value: description")
-        @labelField("label", "Label", "value: label")
-        <div class="field">
-            <label for="annotations">Annotation(s)</label>
+        <!--@labelField("label", "Label", "value: label")-->
 
-            <div class="inputs">
-                <select id="annotationType">
-                    <option>Person</option>
-                    <option>Place</option>
-                    <option>Event</option>
-                    <option>Concept</option>
-                </select>
-
-                <input type="text" class="textinput" id="annotationText"/>
-
-                <button class="add label-add" type="button" name="add-annotations-button" id="add-annotation-button">Add Annotation</button>
-
-                <span class="error"></span>
-
-                <div id="annotations" class="display-box">
-                    <p class="developers-note ui-state-error ui-corner-all">
-                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                        [TODO: populate with above form elements in the form of
-                        <i>annotationText (annotationType)</i> with knockout.js]
-                    </p>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="field">
-            <label for="public">Public</label>
-
-            <div class="inputs">
-                <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
-                <input type="radio" value="1" id="public-1" name="public">Public
-            </div>
-        </div>
-
-    </div>
-
-
-        <h2>Add objects to your collection</h2>
+        <!--<h2>Add objects to your collection</h2>-->
 
         <div class="actions">
-                <button class="add image-add" id="addObject">Add an Object</button>
-            <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
+                <button class="add image-add" id="addObject">Add object(s)</button>
         </div>
+
+        <div id="objectList" data-bind="template: 'objectsList'"></div>
 
 
     <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
         <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+    </div>
+
+    <div class="field">
+        <label for="public-0">Public</label>
+
+        <div class="inputs">
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
+            <input type="radio" value="1" id="public-1" name="public">Public
+        </div>
     </div>
 
     <div class="actions">
@@ -88,13 +59,18 @@
 </script>
 
 <script type="text/html" id="objectsList">
-    <ul>
+    <table width="100%" class="list">
+        <thead>
+            <th colspan="2">Objects in your collection</th>
+        </thead>
+        <tbody>
         {{each(i, object) objects()}}
-        <li>
-            ${name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
-        </li>
+        <tr>
+            <td>${name}</td>
+            <td align="right"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
+        </tr>
         {{/each}}
-    </ul>
+    </table>
 </script>
 
 <script type="text/javascript" language="javascript">
