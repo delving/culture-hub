@@ -48,7 +48,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
     val persistedStory = storyVM.id match {
       case None =>
-        val story = Story(name = storyVM.name, description = storyVM.description, user_id = connectedUserId, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
+        val story = Story(name = storyVM.name, description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)
       case Some(id) =>

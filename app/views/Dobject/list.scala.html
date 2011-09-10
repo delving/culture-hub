@@ -26,7 +26,7 @@
 
     @for(o <- objects) {
       <div class="item three-col">
-          <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+          <img src='@o.thumbnailUrl' width="84"/>
           <h4><a href="">@o.name</a></h4>
           <!--<label>Owner</label><a href="">User Name</a><br/>-->
           <span class="description">@o.shortDescription</span>

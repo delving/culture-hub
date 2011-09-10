@@ -1,8 +1,8 @@
-@(user:models.User)
+@(stories: List[controllers.ShortStory], page: Int, count: Int)
 
 @import views.context._
 
-@header("Browse Stories") {
+@header(if(browsedUserName != null) "List of stories for user %s".format(browsedUserName) else "List of stories") {
     <div class="grid_12 alpha">
 
         @if(browsedUserName != null) {
@@ -11,14 +11,14 @@
             <h2>Browse Stories</h2>
         }
 
-        @for(i <- 0 until 6) {
+        @for(story <- stories) {
 
         <div class="item three-col">
-            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-            <h4><a href="">Title_@i</a></h4>
+            <img src='@story.thumbnailUrl")' width="84"/>
+            <h4><a href="">@story.name</a></h4>
             <!--<label>Owner</label><a href="">User Name</a><br/>-->
-            <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
-            @if(renderArgs.get("displayName") != null) {
+            <span class="description">@story.shortDescription</span>
+            @if(story.userName == userName) {
                 <span class="options"><a href>Edit Story</a></span>
             }
         </div>
@@ -26,9 +26,9 @@
 
     </div>
     <div class="grid_4 omega">
-        @if(renderArgs.get("displayName") != null) {
+        @if(connectedIsBrowsed) {
             <div class="actions ar">
-                 <a class="add story-add" href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
+                 <a class="add story-add" href='/@userName/story/add'>Create a new story</a>
             </div>
         }
     </div>

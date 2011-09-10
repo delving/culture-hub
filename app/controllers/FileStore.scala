@@ -7,6 +7,9 @@ import play.mvc.results.{RenderBinary, Result}
 import play.mvc.Util
 import com.mongodb.casbah.gridfs.{GridFS}
 import models.StoredFile
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+import com.thebuzzmedia.imgscalr.Scalr
 
 /**
  * Common controller for handling files, no matter from where.
@@ -41,6 +44,18 @@ object FileStore extends DelvingController {
 
     new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
   }
+
+  @Util def makeThumbnail(id: ObjectId, width: Int = 220) = {
+    val image = fs.find(id)
+    val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
+    val thumbnail = fs.createFile(thumbnailStream)
+    thumbnail.filename = image.filename
+    thumbnail.contentType = "image/jpeg"
+    thumbnail.save
+    thumbnail._id
+  }
+
+  @Util def getInputStream(id: ObjectId) = fs.find(id).inputStream
 
   @Util def fetchFilesForUID(uid: String): Seq[StoredFile] = fs.find(MongoDBObject("uid" -> uid)) map {
     f => StoredFile(f.getId.asInstanceOf[ObjectId], f.getFilename, f.getContentType, f.getLength)

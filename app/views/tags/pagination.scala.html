@@ -1,11 +1,11 @@
-@(selector: String, count: Int, start: Int, display: Int = 7)
+@(selector: String, count: Int, start: Int)
 @import views.context._
 
 <script type="text/javascript">
   $('@selector').paginate({
     count     : '@count',
     start     : '@start',
-    display     : '@display',
+    display     : 5,
     border          : true,
     border_color      : '#fff',
     text_color        : '#fff',
