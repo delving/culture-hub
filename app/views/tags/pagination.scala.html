@@ -1,4 +1,4 @@
-@(selector: String, count: Int, start: Int, url: String, display: Int = 7)
+@(selector: String, count: Int, start: Int, display: Int = 7)
 @import views.context._
 
 <script type="text/javascript">
@@ -16,7 +16,7 @@
     images          : false,
     mouse          : 'press',
     onChange           : function(page) {
-      window.location.href = '@url' + '&page=' + page;
+      window.location.href = '@paginationUrl' + page;
     }
   });
 

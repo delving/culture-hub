@@ -1,11 +1,10 @@
-@(user:models.User, page: Int, count: Int)
+@(page: Int, count: Int)
 
 @import views.context._
 @import views.tags.html._
 
 @header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
 <div class="grid_12 alpha" id="items">
-
     @if(browsedUserName != null) {
         <h2>Browse objects owned by: <span>@browsedUserName</span></h2>
     } else {
@@ -17,7 +16,7 @@
             Found: <span>@count</span> objects
         </div>
         <div class="item-pager">
-          <div id="pager">@pagination(selector = "#pager", count = count, start = page, url = "/" + browsedUserName + "/object/")</div>
+          <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
         </div>
     </div>
 

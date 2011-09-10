@@ -10,6 +10,7 @@ import cake.ComponentRegistry
 import play.mvc._
 import models.{PortalTheme, User}
 import org.bson.types.ObjectId
+import results.Result
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -21,7 +22,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   case class Token(id: String, name: String)
 
-  @Before def setConnectedUser() {
+  @Before(priority = 0) def setConnectedUser() {
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
     user foreach {
       u => {
@@ -32,15 +33,23 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
   }
 
-  @Before def setBrowsedUser() {
+  @Before(priority = 0) def setBrowsedUser() {
     Option(params.get("user")) foreach { userName =>
       val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
-      user foreach { u =>
-        renderArgs.put("browsedFullName", u.fullname)
-        renderArgs.put("browsedDisplayName", u.reference.username)
-        renderArgs.put("browsedUserId", u._id)
+      user match {
+        case Some(u) =>
+          renderArgs.put("browsedFullName", u.fullname)
+          renderArgs.put("browsedDisplayName", u.reference.username)
+          renderArgs.put("browsedUserId", u._id)
+        case None =>
+          renderArgs.put("browsedUserNotFound", userName)
       }
     }
+  }
+
+  @Before(priority = 1) def checkBrowsedUser(): Result = {
+    if(!browsedUserExists) return NotFound("User %s was not found".format(renderArgs.get("browsedUserNotFound", classOf[String])))
+    Continue
   }
 
   @Before(priority = 1) def setPortalTheme() {
@@ -62,7 +71,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def browsedFullName: String = renderArgs.get("browsedFullName", classOf[String])
 
-
+  @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.

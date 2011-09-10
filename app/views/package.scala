@@ -14,6 +14,7 @@ package object context {
   def params = play.mvc.Scope.Params.current()
   def renderArgs = play.mvc.Scope.RenderArgs.current()
   def validation = Validation.current()
+  def request = Http.Request.current()
   def errors = validation.errorsMap()
   def showError(key: String) = Validation.error(key)
 
@@ -24,6 +25,12 @@ package object context {
   // ~~~ browsed user
   def browsedUserName = renderArgs.get("browsedDisplayName")
   def browsedFullName = renderArgs.get("browsedFullName")
+
+  // ~~~ url building
+  def paginationUrl: String = {
+    val query = Option(params.get("query")) getOrElse ""
+    request.path + "?query=%s&page=".format(query)
+  }
 
   // ~~~ template helpers
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
