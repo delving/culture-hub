@@ -26,11 +26,11 @@
 
       <div class="item three-col">
           <img src='@asset("/public/images/dummy-object.png")' width="84" alt=""/>
-          <h4><a href="">@c.name</a></h4>
+          <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
           <!--<label>Owner</label><a href="">User Name</a><br/>-->
           <span class="description">@c.shortDescription</span>
           @if(c.userName == userName) {
-              <span class="options"><a href="/@c.userName/collection/@c.id/update">Edit Collection</a></span>
+              <span class="options"><a class="edit" href="/@c.userName/collection/@c.id/update">Edit Collection</a></span>
           }
       </div>
       }
