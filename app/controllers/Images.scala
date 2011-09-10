@@ -9,7 +9,6 @@ import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import com.mongodb.casbah.gridfs.{GridFSInputFile, GridFSDBFile, GridFS}
 import play.mvc.Http.Response
-import play.mvc.Controller
 import play.mvc.results.{NotFound, RenderBinary, Result}
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
@@ -128,10 +127,7 @@ class ImageCacheService extends HTTPClient {
 
       // also create a thumbnail on the fly
       // for this, fetch the stream again
-      val thumbnail: BufferedImage = resizeImage(retrieveImageFromUrl(url).dataAsStream, thumbnailWidth)
-      val os: ByteArrayOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(thumbnail, "jpg", os);
-      val is: InputStream = new ByteArrayInputStream(os.toByteArray);
+      val is = ImageCacheService.createThumbnail(retrieveImageFromUrl(url).dataAsStream, thumbnailWidth)
       val thumbnailFile = myFS.createFile(is, image.url + thumbnailSuffix)
       thumbnailFile.contentType = image.contentType
       thumbnailFile put ("viewed", 0)
@@ -144,7 +140,6 @@ class ImageCacheService extends HTTPClient {
       CachedItem(false, null)
     }
   }
-
 
   def retrieveImageFromUrl(url: String) : WebResource = {
     val method = new GetMethod(url)
@@ -185,11 +180,22 @@ class ImageCacheService extends HTTPClient {
   private def isThumbnail(thumbnail: Option[String]): Boolean = {
     thumbnail.getOrElse(false) == thumbnailSizeString
   }
+}
+
+object ImageCacheService {
+
+  def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int): InputStream = {
+    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth)
+    val os: ByteArrayOutputStream = new ByteArrayOutputStream()
+    ImageIO.write(thumbnail, "jpg", os)
+    new ByteArrayInputStream(os.toByteArray)
+  }
 
   private def resizeImage(imageStream: InputStream, width: Int): BufferedImage = {
     val bufferedImage: BufferedImage = ImageIO.read(imageStream)
     Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
   }
+
 
 }
 

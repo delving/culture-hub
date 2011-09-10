@@ -8,9 +8,9 @@ import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
-import models.{PortalTheme, User}
 import org.bson.types.ObjectId
 import results.Result
+import models.{StoredFile, PortalTheme, User}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -84,6 +84,17 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
     store
   }
+
+  @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
+    for(file <- files) if(file.contentType.contains("image")) return Some(file)
+    None
+  }
+
+  @Util def makeThumbnailUrl(thumbnail: Option[ObjectId]) = thumbnail match {
+    case Some(t) => "/thumbnail/%s".format(t)
+    case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
+  }
+
 }
 
 

@@ -121,6 +121,7 @@ POST       /admin/themes/reload                                              adm
 # File Store
 GET        /file/{id}                                                        FileStore.get
 POST       /file/upload/{uid}                                                FileStore.fileUpload
+GET        /thumbnail/{id}                                                   FileStore.get
 
 # Image Cache and Viewer
 GET        /services/image                                                   Images.image
