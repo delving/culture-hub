@@ -27,7 +27,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
 }
 
-object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resolver[DObject] {
+object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resolver[DObject] with Pager[DObject] {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -39,19 +39,5 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Resol
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
 
   def findAll() = find(MongoDBObject())
-
-  implicit def cursorWithPage(cursor: SalatMongoCursor[DObject]) = new {
-
-    /**
-     * Returns a page and the total page count
-     * @param page the page number
-     * @param pageSize optional size of the page, defaults to 20
-     */
-    def page(page: Int, pageSize: Int = 20) = {
-      val c = cursor.skip((page - 1) * pageSize).limit(20)
-      (c.toList, c.count)
-    }
-
-  }
 
 }
