@@ -15,14 +15,14 @@ object DObjects extends DelvingController {
 
   import views.Dobject._
 
-  def list(user: String): AnyRef = {
+  def list(user: String, query: String, page: Int = 1): AnyRef = {
     val u = getUser(user)
 
     // TODO access rights
     val objects = Map("availableObjects" -> DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)})
 
     request.format match {
-      case "html" => html.list(user = u)
+      case "html" => html.list(user = u, page = page, count = 58)
       case "json" => Json(objects)
     }
   }

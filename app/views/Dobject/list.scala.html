@@ -1,8 +1,9 @@
-@(user:models.User)
+@(user:models.User, page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
-@header("List of objects for user " + browsedUserName ) {
+@header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
 <div class="grid_12 alpha" id="items">
 
     @if(browsedUserName != null) {
@@ -13,18 +14,10 @@
 
     <div class="item-nav">
         <div class="item-count">
-            Found: <span>58</span> objects
+            Found: <span>@count</span> objects
         </div>
         <div class="item-pager">
-            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
-            <span>1</span><span class="pipe"> | </span>
-            <a href="#">2</a><span class="pipe"> | </span>
-            <a href="#">3</a><span class="pipe"> | </span>
-            <a href="#">4</a><span class="pipe"> | </span>
-            <a href="#">5</a><span class="pipe"> | </span>
-            <a href="#">6</a><span class="pipe"> | </span>
-            <a href="#">7</a><span class="pipe"> | </span>
-            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
+          <div id="pager">@pagination(selector = "#pager", count = count, start = page, url = "/" + browsedUserName + "/object/")</div>
         </div>
     </div>
 
@@ -41,5 +34,8 @@
     }
 </div>
 
+<div class="grid_4 omega">
+    <a href='/@userName/object/add'>Add new object</a>
+</div>
 
 }
