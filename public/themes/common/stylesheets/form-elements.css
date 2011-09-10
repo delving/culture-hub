@@ -46,6 +46,10 @@ div.field div.label {
     width: 200px;
 }
 
+label.fileinput-button {
+    margin-bottom:  0 !important;
+}
+
 /*div.field label:after {*/
     /*content: ":";*/
 /*}*/
@@ -113,6 +117,11 @@ input[type=button]:active,
 input[type=file]:active,
 button:active{
     background-color: #888;
+}
+
+input[type=radio],
+input[type=checkbox] {
+    margin: 4px 4px 0 0;
 }
 
 button[disabled] {
