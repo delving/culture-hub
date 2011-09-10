@@ -486,12 +486,24 @@ table.list {
     width: 100%
 }
 
-table.list th {
+table.list th.header {
     background:  #ddddd0;
     border-bottom:  1px solid #fff;
     color: #555;
     font-weight: bold;
-    padding:  6px;
+    padding:  2px 6px;
+}
+
+table.list th {
+    padding:  2px 6px;
+    background-color: #555;
+    color: #fff;
+    font-weight: normal;
+}
+
+table.list .action,
+table.list .thumb {
+    text-align: right
 }
 
 table.list tr:nth-child(odd) {
