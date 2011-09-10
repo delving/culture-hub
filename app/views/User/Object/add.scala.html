@@ -13,31 +13,7 @@
         @textField("name", "Name", "value: name")
         @textArea("description", "Description", "value: description")
 
-        <div class="field">
-            <label>Label</label>
-
-            <div id="labels">
-              <ul>
-                <li><a href="#person">Person</a></li>
-                <li><a href="#place">Place</a></li>
-                <li><a href="#event">Event</a></li>
-                <li><a href="#concept">Concept</a></li>
-              </ul>
-              <div id="person">
-                <input type="text" class="textinput" name="labelText" id="personInput"/>
-              </div>
-              <div id="place">
-                <input type="text" class="textinput" name="labelText" id="placeInput"/>
-              </div>
-              <div id="event">
-                <input type="text" class="textinput" name="labelText" id="eventInput"/>
-              </div>
-              <div id="concept">
-                <input type="text" class="textinput" name="labelText" id="conceptInput"/>
-              </div>
-            </div>
-
-        </div>
+        <div data-bind="template: {name: 'labelTemplate', templateOptions: {name: 'label', }}"></div>
 
         <div class="field">
             <label for="collection">Add to collection</label>
@@ -78,8 +54,6 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
-    $('#labels').tabs();
-
     $("#collection").tokenInput('/@userName/collection/writeable/search');
 
     $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
@@ -89,18 +63,24 @@
       autoUpload: true
     });
 
-    var objectModel = {};
+    var objectModel = {
+      labelType: ko.observable(""),
+      labelValue: ko.observable(""),
+      addLabel: function() {
+        objectModel.labels.push({labelType: objectModel.labelType(), value: objectModel.labelValue()});
+        objectModel.labelType("");
+        objectModel.labelValue("");
+      },
+      removeLabel: function(label) {
+        objectModel.labels.remove(function(it) {return it.labelType === label.labelType && it.value === label.value});
+      }
+    };
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
       $.postKOJson('/@userName/object/submit', objectModel, function(data) {
           updateViewModel(data, objectModel, scope);
-          if('@id.getOrElse("")'.length == 0) {
-            window.location.href = '/@userName/object/' + objectModel.id()
-          } else {
-          $('#result').html('Object saved');
-          $('#result').show().fadeOut('3000');
-        }
+            window.location.href = '/@userName/object/' + objectModel.id();
       }, function(jqXHR, textStatus, errorThrown) {
         $('#result').html('Error saving object, please try again');
         $('#result').show().fadeOut('3000');

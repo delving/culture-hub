@@ -25,7 +25,6 @@ class AdditionalScalaSerializers extends Serializers.None {
 
 class AdditionalScalaDeserializers extends Deserializers.None {
   override def findBeanDeserializer(javaType: JavaType, config: DeserializationConfig, provider: DeserializerProvider, beanDesc: BeanDescription, property: BeanProperty) = {
-    // FIXME for some reason the classloader won't find / see scala.Enumeration.Value here...
     val clazz = javaType.getRawClass
     if(clazz == classOf[ObjectId]) {
       new ObjectIdDeserializer

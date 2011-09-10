@@ -20,7 +20,7 @@ object Collections extends DelvingController {
       case None => UserCollection.findAll.page(page)
     }
 
-    html.list(collections = collectionsPage._1 map { c => ShortCollection(c._id, c.name, c.description.getOrElse(""), "", c.userName)}, page = page, count = collectionsPage._2)
+    html.list(collections = collectionsPage._1 map { c => ShortCollection(c._id, c.name, c.description.getOrElse(""), makeThumbnailUrl(c.thumbnail_id), c.userName)}, page = page, count = collectionsPage._2)
   }
 
   def view(user: String, id: String): AnyRef = {

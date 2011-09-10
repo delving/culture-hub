@@ -26,10 +26,10 @@ object Collections extends DelvingController with UserAuthentication with Secure
     val allObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
     UserCollection.findById(id) match {
-      case None => Json(CollectionAddModel.empty.copy(allObjects = allObjects, availableObjects = allObjects))
+      case None => Json(CollectionAddModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains))))
+        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
       }
     }
   }
@@ -40,6 +40,15 @@ object Collections extends DelvingController with UserAuthentication with Secure
   def collectionSubmit(data: String): Result = {
 
     val collectionModel: CollectionAddModel = parse[CollectionAddModel](data)
+    val selectedThumbnail: Option[ObjectId] = collectionModel.thumbnail
+    val thumbnail = selectedThumbnail match {
+      case Some(thumbnailObject) => DObject.findOneByID(thumbnailObject) match {
+        case Some(t) => t.thumbnail_id
+        case None => None
+      }
+      case None => None
+    }
+
     val persistedUserCollection = collectionModel.id match {
       case None =>
         val inserted: Option[ObjectId] = UserCollection.insert(
@@ -48,13 +57,14 @@ object Collections extends DelvingController with UserAuthentication with Secure
             node = getNode,
             user_id = connectedUserId,
             userName = connectedUser,
-            description = collectionModel.description))
+            description = collectionModel.description,
+            thumbnail_id = thumbnail))
 //            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = UserCollection.findOneByID(id)
         if (existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedUserCollection = existingObject.get.copy(TS_update = DateTime.now, name = collectionModel.name, description = collectionModel.description)
+        val updatedUserCollection = existingObject.get.copy(TS_update = DateTime.now, name = collectionModel.name, description = collectionModel.description, thumbnail_id = thumbnail)
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)
@@ -74,14 +84,18 @@ object Collections extends DelvingController with UserAuthentication with Secure
     }
   }
 
+  // TODO move someplace generic
+  implicit def stringToObjectIdOption(id: String): Option[ObjectId] = if(!ObjectId.isValid(id)) None else Some(new ObjectId(id))
+  implicit def objectIdOptionToString(id: Option[ObjectId]): String = id match {
+    case None => ""
+    case Some(oid) => oid.toString
+  }
 }
 
 case class CollectionAddModel(id: Option[ObjectId] = None,
-                              name: String, description: Option[String] = Some(""),
+                              name: String = "",
+                              description: Option[String] = Some(""),
                               objects: List[ObjectModel] = List.empty[ObjectModel],
                               allObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              availableObjects: List[ObjectModel] = List.empty[ObjectModel])
-
-object CollectionAddModel {
-  val empty = CollectionAddModel(name = "")
-}
+                              availableObjects: List[ObjectModel] = List.empty[ObjectModel],
+                              thumbnail: String = "")

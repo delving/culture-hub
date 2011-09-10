@@ -5,7 +5,6 @@ import models.salatContext._
 import org.bson.types.ObjectId
 import com.novus.salat.EnumStrategy
 import com.novus.salat.annotations.raw.EnumAs
-import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * 
@@ -22,10 +21,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  pages: List[Page]) {
 }
 
-object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Resolver[Story] with Pager[Story] {
-  def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
-  def findAll = find(MongoDBObject())
-}
+object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story]
 
 @EnumAs(strategy = EnumStrategy.BY_VALUE)
 object Visibility extends Enumeration {

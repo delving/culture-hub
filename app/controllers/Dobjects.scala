@@ -2,8 +2,8 @@ package controllers
 
 import play.mvc.results.Result
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{DObject, UserCollection}
 import org.bson.types.ObjectId
+import models.{Label, DObject, UserCollection}
 
 /**
  *
@@ -41,7 +41,7 @@ object DObjects extends DelvingController {
         case None => Json(ObjectModel())
         case Some(anObject) => {
           val collections = ObjectModel.objectIdListToCollections(anObject.collections)
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, (Label.findAllWithIds(anObject.labels) map {l => LabelModel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
         }
       }
   }
@@ -59,6 +59,7 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
                        collections: List[Collection] = List.empty[Collection],
+                       labels: List[LabelModel] = List.empty[LabelModel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
 
   def getCollections: List[ObjectId] = for(collection <- collections) yield new ObjectId(collection.id)
