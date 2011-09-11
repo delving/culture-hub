@@ -3,6 +3,7 @@ package controllers
 import play.mvc.results.Result
 import models.{DObject, UserCollection}
 import org.bson.types.ObjectId
+import org.joda.time.DateTime
 
 /**
  *
@@ -20,7 +21,7 @@ object Collections extends DelvingController {
       case None => UserCollection.findAll.page(page)
     }
 
-    html.list(collections = collectionsPage._1 map { c => ShortCollection(c._id, c.name, c.description.getOrElse(""), makeThumbnailUrl(c.thumbnail_object_id), c.userName)}, page = page, count = collectionsPage._2)
+    html.list(collections = collectionsPage._1, page = page, count = collectionsPage._2)
   }
 
   def view(user: String, id: String): AnyRef = {
@@ -50,4 +51,4 @@ object Collections extends DelvingController {
 
 // ~~~ list page models
 
-case class ShortCollection(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String, userName: String)
+case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)

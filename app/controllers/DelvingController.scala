@@ -10,7 +10,7 @@ import cake.ComponentRegistry
 import play.mvc._
 import org.bson.types.ObjectId
 import results.Result
-import models.{StoredFile, PortalTheme, User}
+import models._
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -23,6 +23,8 @@ case class Token(id: String, name: String)
 case class LabelModel(labelType: String, value: String)
 
 trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
+
+  // ~~~ user variables handling for view rendering (connected and browsed)
 
   @Before(priority = 0) def setConnectedUser() {
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
@@ -49,6 +51,8 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
   }
 
+  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
+
   @Before(priority = 1) def checkBrowsedUser(): Result = {
     if(!browsedUserExists) return NotFound("User %s was not found".format(renderArgs.get("browsedUserNotFound", classOf[String])))
     Continue
@@ -58,7 +62,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     renderArgs.put("theme", theme)
   }
 
-  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
+  // ~~~ convenience methods to access user information
 
   // TODO
   @Util def getNode = "cultureHub"
@@ -74,6 +78,8 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   @Util def browsedFullName: String = renderArgs.get("browsedFullName", classOf[String])
 
   @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
+
+  // ~~~ convenience methods
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
@@ -92,10 +98,16 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     None
   }
 
-  @Util def makeThumbnailUrl(thumbnail: Option[ObjectId]) = thumbnail match {
-    case Some(t) => "/thumbnail/%s".format(t)
-    case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
-  }
+  // ~~~ implicits for model conversion handling - we should move all of the definitions and those conversions to a common place or so
+
+  implicit def collectionToShort(c: UserCollection) = ShortCollection(c._id, c.TS_update, c.name, c.description.getOrElse(""), c.thumbnail_object_id, c.userName)
+  implicit def cListToSCList(cl: List[UserCollection]) = cl map { c => collectionToShort(c) }
+
+  implicit def storyToShort(s: Story) = ShortStory(s._id, s.TS_update, s.name, s.description, None, s.userName)
+  implicit def sListToSSList(sl: List[Story]) = sl map { s => storyToShort(s) }
+
+  implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
+  implicit def oListToSOList(ol: List[DObject]) = ol map { o => objectToShort(o) }
 
 }
 

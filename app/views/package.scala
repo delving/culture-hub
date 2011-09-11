@@ -4,9 +4,9 @@ import play.data.validation.Validation
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
-import models.PortalTheme
-import play.mvc.Http
 import org.bson.types.ObjectId
+import models.{PortalTheme}
+import play.mvc.{Util, Http}
 
 package object context {
 
@@ -36,6 +36,12 @@ package object context {
   }
 
   def thumbnailUrl(thumbnail: ObjectId) = "/thumbnail/%s".format(thumbnail)
+  
+  def thumbnailUrl(thumbnail: Option[ObjectId]) = thumbnail match {
+    case Some(t) => "/thumbnail/%s".format(t)
+    case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
+  }
+
 
   // ~~~ template helpers
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
@@ -51,6 +57,9 @@ package object context {
   def themeName = theme.name
   def themeTemplateDir = theme.templateDir
   def themeDisplayName = theme.displayName
+
+  // ~~~ temporary helper, should be replaced with cache
+  def fullName(userName: String) = models.User.findByUsername(userName, "cultureHub").get.fullname
 
 }
 

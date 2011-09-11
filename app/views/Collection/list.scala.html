@@ -25,7 +25,7 @@
       @for(c <- collections) {
 
       <div class="item three-col">
-          <img src='@c.thumbnailUrl' width="84" alt=""/>
+          <img src='@thumbnailUrl(c.thumbnail)' width="84" alt=""/>
           <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
           <!--<label>Owner</label><a href="">User Name</a><br/>-->
           <span class="description">@c.shortDescription</span>
@@ -38,7 +38,7 @@
   <div class="grid_4 omega">
       @if(connectedIsBrowsed) {
           <div class="actions ar">
-               <a class="add collection-add" href='/@renderArgs.get("displayName")/collection/add'>Create a new collection</a>
+               <a class="add collection-add" href='/@userName/collection/add'>Create a new collection</a>
           </div>
       }
   </div>

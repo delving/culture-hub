@@ -2,6 +2,7 @@ package controllers
 
 import org.bson.types.ObjectId
 import models.{Story, DObject}
+import org.joda.time.DateTime
 
 /**
  * 
@@ -21,7 +22,7 @@ object Stories extends DelvingController {
       case None => Story.findAll.page(page)
     }
 
-    html.list(stories = storiesPage._1 map { s => ShortStory(s._id, s.name, s.description, "", s.userName) }, page = page, count = storiesPage._2)
+    html.list(stories = storiesPage._1, page = page, count = storiesPage._2)
 
   }
 
@@ -34,4 +35,4 @@ object Stories extends DelvingController {
 
 // ~~~ list page models
 
-case class ShortStory(id: ObjectId, name: String, shortDescription: String, thumbnailUrl: String, userName: String)
+case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)

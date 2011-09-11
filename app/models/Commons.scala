@@ -19,6 +19,7 @@ trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
   def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
   def findAll = find(MongoDBObject())
+  def findRecent(howMany: Int) = find(MongoDBObject()).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
 
 }
 
