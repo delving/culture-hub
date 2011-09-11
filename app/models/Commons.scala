@@ -32,10 +32,10 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
     /**
      * Returns a page and the total object count
      * @param page the page number
-     * @param pageSize optional size of the page, defaults to 20
+     * @param pageSize optional size of the page, defaults to PAGE_SIZE
      */
     def page(page: Int, pageSize: Int = PAGE_SIZE) = {
-      val c = cursor.skip((page - 1) * pageSize).limit(20)
+      val c = cursor.skip((page - 1) * pageSize).limit(PAGE_SIZE)
       (c.toList, c.count)
     }
   }
