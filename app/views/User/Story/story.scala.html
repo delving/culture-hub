@@ -85,10 +85,14 @@
 </div>
 <!-- // story-pages -->
 
+
+
+
 <div class="grid_16 alpha" id="save-story">
 <hr/>
     <div class="actions">
-            <button class="save"  data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">Save Story</button>
+      <div class="wait"></div>
+      <button class="save" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">Save Story</button>
     </div>
 </div>
 
@@ -147,7 +151,7 @@
       {{each(i, object) currentPage.availableObjects()}}
       <tr>
           <td><input type="checkbox" value="${object.id}" data-bind="checked: currentPage.selectedObjectIds()" /></td>
-          <td><img src='@asset("/public/images/dummy-object.png")' width="50" alt="${object.name}"/></td>
+          <td><img src='${thumbnailUrl(object.id)}' width="50" alt="${object.name}"/></td>
           <td><h4>${object.name}</h4></td>
       </tr>
       {{/each}}
@@ -278,7 +282,7 @@
         },
         saveTheStory: function() {
           saveStory(function() {
-            // TODO redirect to story view
+            window.location.href = '/@userName/story/' + storyModel.id()
           }, function() {
             // TODO yell, shout, be desperate
           }, false);
@@ -300,10 +304,13 @@
       function saveStory(onSuccess, onFailure, isDraft) {
         var draft = typeof isDraft === 'undefined' ? false : isDraft;
         storyModel.isDraft(draft);
+        Spinners.create('.wait').play();
         $.postKOJson('/@userName/story/submit', storyModel, function(data) {
+          Spinners.get('.wait').remove();
           updateViewModel(data, storyModel);
           if(onSuccess !== undefined && typeof onSuccess === 'function') onSuccess.call();
         }, function(jqXHR, textStatus, errorThrown) {
+          Spinners.get('.wait').remove();
           if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
         })
       }

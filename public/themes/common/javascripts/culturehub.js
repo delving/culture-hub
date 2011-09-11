@@ -87,6 +87,15 @@ $("ul#user-menu li").hoverIntent(config); //Trigger Hover intent with custom con
 
 }
 
+
+function thumbnailUrl(id) {
+    if(typeof id === 'undefined' || id === "") {
+        return '/public/images/dummy-object.png';
+    } else {
+        return '/thumbnail/' + (typeof id === 'function' ? id() : id);
+    }
+}
+
 /**
  * Post knockoutJS form data as JSON string, into a parameter called "data". Deserializes mapping from the mapping plugin.
  *

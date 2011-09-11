@@ -40,7 +40,8 @@
         </div>
 
         <div class="actions">
-            <button class="save" id="saveButton" type="submit">Save Object</button>
+          <div class="wait"></div>
+          <button class="save" id="saveButton" type="submit">Save Object</button>
         </div>
 
   </form>
@@ -50,6 +51,7 @@
 <div class="grid_8">
 
 </div>
+
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -78,10 +80,13 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
+      Spinners.create('.wait').play();
       $.postKOJson('/@userName/object/submit', objectModel, function(data) {
+          Spinners.get('.wait').remove();
           updateViewModel(data, objectModel, scope);
-            window.location.href = '/@userName/object/' + objectModel.id();
+          window.location.href = '/@userName/object/' + objectModel.id();
       }, function(jqXHR, textStatus, errorThrown) {
+        Spinners.get('.wait').remove();
         $('#result').html('Error saving object, please try again');
         $('#result').show().fadeOut('3000');
       }, {uid: '@uid'})

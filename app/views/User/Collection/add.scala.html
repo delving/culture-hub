@@ -39,19 +39,21 @@
     </div>
 
     <div class="actions">
-            <button class="save collection-save" id="saveButton" type="submit">Save Collection</button>
+      <div class="wait"></div>
+      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button>
     </div>
 
 </form>
 </div>
+
 <script type="text/html" id="availableObjectsList">
     <table>
         <tbody>
-        {{each availableObjects()}}
+        {{each(i, object) availableObjects()}}
         <tr>
-            <td><input type="checkbox" value="${id}" data-bind="checked: selectedObjects()"/></td>
-            <td><img src='@asset("/public/images/dummy-object.png")' width="50"/></td>
-            <td><h4>${name}</h4></td>
+            <td><input type="checkbox" value="${object.id}" data-bind="checked: selectedObjects()"/></td>
+            <td><img src='${thumbnailUrl(object.id)}' width="50"/></td>
+            <td><h4>${object.name}</h4></td>
         </tr>
         {{/each}}
         </tbody>
@@ -107,10 +109,13 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
+            Spinners.create('.wait').play();
             $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
+                Spinners.get('.wait').remove();
                 updateViewModel(data, collectionModel);
                 window.location.href = '/@userName/collection/' + collectionModel.id()
             }, function(jqXHR, textStatus, errorThrown) {
+                Spinners.get('.wait').remove();
                 $('#result').html('Error saving collection, please try again');
                 $('#result').show().fadeOut('3000');
             })
