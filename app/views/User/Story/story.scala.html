@@ -160,13 +160,24 @@
 </script>
 
 <script type="text/html" id="objectsList">
-  <ul>
-  {{each(i, object) currentPage.objects()}}
-  <li>
-    ${object.name} (<a href="#" data-bind="click: function() { this.removeObject(object) }">Remove</a>)
-  </li>
-  {{/each}}
-  </ul>
+  <table width="100%" class="list">
+      <thead>
+          <tr>
+          <th colspan="3" class="header">Objects in your page</th>
+          </tr>
+          <tr>
+          <th>Object</th><th class="action">Action</th><th class="thumb">Thumbnail</th>
+          </tr>
+      </thead>
+      <tbody>
+      {{each(i, object) currentPage.objects()}}
+      <tr>
+          <td>${name}</td>
+          <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
+          <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: currentPage.thumbnail"></td>
+      </tr>
+      {{/each}}
+  </table>
 </script>
 
 <script type="text/html" id="pageList">
@@ -200,6 +211,7 @@
       var storyModel = {
         currentPage: {
           isNew: ko.observable(false),
+          thumbnail: ko.observable(),
           pageRef: ko.observable(),
           title: ko.observable(),
           text: ko.observable(),
