@@ -10,7 +10,7 @@ import play.mvc.{Util, Http}
 
 package object context {
 
-  val PAGE_SIZE = 20
+  val PAGE_SIZE = 4
 
   // ~~~ play variables
   def flash = play.mvc.Scope.Flash.current()

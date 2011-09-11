@@ -216,16 +216,22 @@ h4 {
     border-bottom: 1px solid #CFD0BF;
     padding: 10px 0;
     margin-bottom: 1em;
+    width: 100%;
 }
 
 .item-count {
-    display: inline;
+    /*display: inline-block;*/
+    /*width: 20%;*/
 }
 
 .item-pager {
-    display: inline;
-    float: right;
+    /*display: inline-block;*/
+    /*text-align: right;*/
+    /*display: inline-block;*/
+    /*width: 70%;*/
 }
+
+
 
 .items {
     clear: both;
@@ -253,11 +259,11 @@ h4 {
 }
 
 .item .collection {
-    background: transparent url(../images/icon-collection.png) top right no-repeat;
+    background: transparent url(../../common/images/folder.gif) top right no-repeat;
 }
 
 .item .object {
-    background: transparent url(../images/icon-object.png) top right no-repeat
+    background: transparent url(../../common/images/image.png) top right no-repeat
 }
 
 .item h4 a:link,
@@ -292,6 +298,7 @@ h4 {
         margin: 0 1% 1em 1%;
         width: 31.33%;
     }
+
 .item.clean {
     border:  none;
 }

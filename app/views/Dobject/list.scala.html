@@ -5,44 +5,40 @@
 
 @header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
 
-<div class="grid_12 alpha" id="items">
+<div class="grid_16 alpha" id="items">
 
     @if(browsedUserName != null) {
-        <h2>Browse objects owned by: <span>@browsedUserName</span></h2>
+    <h2>Browse objects owned by: <span>@browsedUserName</span> (@count)</h2>
     } else {
-        <h2>Browse objects</h2>
+    <h2>Browse objects (@count)</h2>
     }
 
     <div class="item-nav">
-        <div class="item-count">
-            Found: <span>@count</span> objects
-        </div>
-        <div class="item-pager">
-          <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-        </div>
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+
     </div>
 
     <div class="clear"></div>
 
     @for(o <- objects) {
-      <div class="item three-col">
-          <img src='@thumbnailUrl(o.id)' width="84"/>
-          <h4><a href="/@o.userName/object/@o.id">@o.name</a></h4>
-          <!--<label>Owner</label><a href="">User Name</a><br/>-->
-          <span class="description">@o.shortDescription</span>
-          @if(o.userName == userName) {
-              <span class="options"><a class="edit" href="/@o.userName/object/@o.id/update">Edit Object</a></span>
-          }
-      </div>
+    <div class="item one-col">
+        <img src='@thumbnailUrl(o.id)' width="84" alt="@o.name"/>
+        <h4><a href="/@o.userName/object/@o.id">@o.name</a></h4>
+        <!--<label>Owner</label><a href="">User Name</a><br/>-->
+        <span class="description">@o.shortDescription</span>
+        @if(o.userName == userName) {
+        <span class="options"><a class="action edit image-edit" href="/@o.userName/object/@o.id/update">Edit Object</a></span>
+        }
+    </div>
     }
 </div>
 
-<div class="grid_4 omega">
-  @if(connectedIsBrowsed) {
-  <div class="actions ar">
-    <a class="add image-add" href='/@userName/object/add'>Add new object</a>
-  </div>
-  }
-</div>
+<!--<div class="grid_4 omega">-->
+<!--@if(connectedIsBrowsed) {-->
+<!--<div class="actions ar">-->
+<!--<a class="add image-add" href='/@userName/object/add'>Add new object</a>-->
+<!--</div>-->
+<!--}-->
+<!--</div>-->
 
 }
