@@ -211,7 +211,7 @@
 			if(ver == 'ie7')
 				_ulwrapdiv.animate({scrollLeft: left + tmp - _first.parent().width() + 52 + 'px'});	
 			else
-				_ulwrapdiv.animate({scrollLeft: left + tmp - _first.parent().width() + 'px'});	
+				_ulwrapdiv.animate({scrollLeft: left + tmp - _first.parent().width() + 'px'});
 			o.onChange(currval);	
 		});
 		
@@ -236,7 +236,7 @@
 					}
 					);
 					obj.css('padding-left',_first.parent().width() + 5 +'px');
-					insidewidth = 0;
+					insidewidth = 1;
 					
 					obj.find('li').each(function(i,n){
 						if(i == (o.display-1)){
