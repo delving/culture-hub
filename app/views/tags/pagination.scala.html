@@ -1,9 +1,9 @@
-@(selector: String, count: Int, start: Int, pageSize: Int = 20)
+@(selector: String, count: Int, start: Int)
 @import views.context._
 
 <script type="text/javascript">
   $('@selector').paginate({
-    count     : '@((count / pageSize.toDouble).ceil.toInt)',
+    count     : '@((count / PAGE_SIZE.toDouble).ceil.toInt)',
     start     : '@start',
     display     : 5,
     border          : true,

@@ -25,6 +25,8 @@ trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
+  import views.context.PAGE_SIZE
+
   implicit def cursorWithPage(cursor: SalatMongoCursor[A]) = new {
 
     /**
@@ -32,7 +34,7 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
      * @param page the page number
      * @param pageSize optional size of the page, defaults to 20
      */
-    def page(page: Int, pageSize: Int = 20) = {
+    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
       val c = cursor.skip((page - 1) * pageSize).limit(20)
       (c.toList, c.count)
     }
