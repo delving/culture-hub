@@ -55,7 +55,6 @@ class ImageCacheService extends HTTPClient {
   val thumbnailWidth = 220
   val thumbnailSizeString = "BRIEF_DOC"
   val thumbnailSuffix = "_THUMBNAIL"
-  val cacheDuration = 60 * 60 * 24
   private val log: Logger = Logger.getLogger("ImageCacheService")
 
   // findImageInCache
@@ -101,7 +100,7 @@ class ImageCacheService extends HTTPClient {
       val item = storeImage(url)
       if (item.available) {
         val storedImage = findImageInCache(url, thumbnail)
-        setImageCacheControlHeaders(storedImage.get, response)
+        ImageCacheService.setImageCacheControlHeaders(storedImage.get, response)
         respondWithImageStream(storedImage.get)
       }
       else {
@@ -110,7 +109,7 @@ class ImageCacheService extends HTTPClient {
       }
     }
     else {
-      setImageCacheControlHeaders(image.get, response)
+      ImageCacheService.setImageCacheControlHeaders(image.get, response)
       respondWithImageStream(image.get)
     }
   }
@@ -169,14 +168,6 @@ class ImageCacheService extends HTTPClient {
     new RenderBinary(image.inputStream, "cachedImage", image.contentType, true)
   }
 
-  private def setImageCacheControlHeaders(image: GridFSDBFile, response: Response) {
-    response.setContentTypeIfNotSet(image.contentType)
-    val now = System.currentTimeMillis();
-    response.cacheFor("", cacheDuration.toString + "s", now)
-    response.headers.get("Cache-Control").values.add("must-revalidate")
-    response.setHeader("Expires", (now + cacheDuration * 1000).toString)
-  }
-
   private def isThumbnail(thumbnail: Option[String]): Boolean = {
     thumbnail.getOrElse(false) == thumbnailSizeString
   }
@@ -184,12 +175,23 @@ class ImageCacheService extends HTTPClient {
 
 object ImageCacheService {
 
+  val cacheDuration = 60 * 60 * 24
+
   def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int): InputStream = {
     val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth)
     val os: ByteArrayOutputStream = new ByteArrayOutputStream()
     ImageIO.write(thumbnail, "jpg", os)
     new ByteArrayInputStream(os.toByteArray)
   }
+
+  def setImageCacheControlHeaders(image: GridFSDBFile, response: Response, duration:Int = cacheDuration) {
+    response.setContentTypeIfNotSet(image.contentType)
+    val now = System.currentTimeMillis();
+    response.cacheFor("", duration.toString + "s", now)
+    response.headers.get("Cache-Control").values.add("must-revalidate")
+    response.setHeader("Expires", (now + duration * 1000).toString)
+  }
+
 
   private def resizeImage(imageStream: InputStream, width: Int): BufferedImage = {
     val bufferedImage: BufferedImage = ImageIO.read(imageStream)

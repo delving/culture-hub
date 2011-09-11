@@ -5,10 +5,9 @@ import scala.collection.JavaConversions.asScalaIterable
 import org.bson.types.ObjectId
 import play.mvc.results.{RenderBinary, Result}
 import play.mvc.Util
-import com.mongodb.casbah.gridfs.{GridFS}
+import com.mongodb.casbah.gridfs.GridFS
 import models.StoredFile
 import java.io.File
-import scala.io.Source
 
 /**
  * Common controller for handling files, no matter from where.
@@ -49,7 +48,10 @@ object FileStore extends DelvingController {
     if (!ObjectId.isValid(id)) return Error("Invalid ID " + id)
     val oid = new ObjectId(id)
     fs.findOne(MongoDBObject("image_id" -> oid)) match {
-      case Some(file) => new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
+      case Some(file) => {
+        ImageCacheService.setImageCacheControlHeaders(file, response, 60 * 15)
+        new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
+      }
       case None => {
         new RenderBinary(new File(play.Play.applicationPath + emptyThumbnail), "dummy-object.png")
       }
