@@ -1,6 +1,7 @@
 /* Actions */
 
-div.actions {
+.actions {
+    display: inline-block;
     margin-bottom: 10px;
     padding:  10px 0;
     overflow: hidden;
@@ -9,6 +10,12 @@ div.actions {
 
 .actions a {
     background-color: #eeeee0;
+    padding: 10px 10px 10px 34px !important;
+    border-radius: 4px;
+}
+
+.actions a:hover {
+    background-color: #bbbbb0;
     padding: 10px 10px 10px 34px;
     border-radius: 4px;
 }
@@ -23,15 +30,36 @@ div.actions {
 .actions .success,
 .actions .edit,
 .actions .save,
-.actions .submit {
-    background-position: 12px 50%;
+.actions .submit{
+    background-position: 10px 50%;
     background-repeat: no-repeat;
-    padding-left: 32px;
+    padding-left: 32px !important;
     padding-right: 16px;
     text-decoration: none;
 }
 
-.actions .edit {
+.action.add,
+.action.delete,
+.action.error,
+.action.success,
+.action.edit,
+.action.save,
+.action.submit,
+.action {
+    background-position: 0px 50%;
+    background-repeat: no-repeat;
+    padding-left: 24px !important;
+    padding-right: 16px;
+    text-decoration: none;
+}
+
+.actions .goto,
+.action.goto{
+    background-image: url("../images/page_white_go.png");
+}
+
+.actions .edit,
+.action.edit{
     background-image: url("../images/pencil_go.gif");
 }
 
@@ -55,15 +83,18 @@ div.actions {
     background-image:  url("../images/page_save.png");
 }
 
-.actions .image-add {
+.actions .image-add,
+.action.image-add {
     background-image:  url("../images/image_add.png");
 }
 
-.actions .story-add {
+.actions .story-add,
+.action.story-add {
     background-image:  url("../images/book_add.png");
 }
 
-.actions .collection-add {
+.actions .collection-add,
+.action.collection-add {
     background-image:  url("../images/folder_add.gif");
 }
 

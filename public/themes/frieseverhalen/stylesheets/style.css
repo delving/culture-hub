@@ -5,7 +5,7 @@ body {
 }
 
 .container_16 {
-    position: relative;
+    /*position: relative;*/
     min-width: 960px;
 }
 
@@ -81,14 +81,19 @@ h4 {
 #header-top  {
     background:  #272911;
     border-bottom:  1px solid #4a4d32;
-    line-height: 42px;
-    overflow:  hidden;
+    height: 32px;
+    line-height: 32px;
+    /*line-height: 42px;*/
+    /*overflow:  hidden;*/
 }
 
 #header-main {
     background:  #60652A url(../images/bg-header.png) repeat-x top left;
     height: 140px;
+    /*position: relative;*/
+    /*z-index: 1;*/
 }
+
 
 #header-main .container_16 {
     background: transparent url(../images/bg-main.png) no-repeat  right -150px;
@@ -153,9 +158,11 @@ h4 {
 #header-user-bar  {
     background: #272911;
     border-bottom:  1px solid #4a4d32;
-    overflow:  hidden;
-    line-height: 42px;
-    /*margin:  0;*/
+    /*overflow:  hidden;*/
+    line-height: 32px;
+    height: 32px;
+    /*position: relative;*/
+    /*z-index: 1000;*/
 }
 
 #user-name {
