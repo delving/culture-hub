@@ -34,7 +34,7 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
      */
     def page(page: Int, pageSize: Int = 20) = {
       val c = cursor.skip((page - 1) * pageSize).limit(20)
-      (c.toList, c.count)
+      (c.toList, (c.count / pageSize.toDouble).ceil.toInt)
     }
   }
 }
