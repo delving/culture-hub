@@ -34,6 +34,9 @@ body {
 
 /* end sticky footer code! */
 
+a, a:active, a:visited { color: #0673b9; }
+a:hover { color: #10a1ff; }
+
 /* typography */
 
 h1 {
@@ -53,6 +56,10 @@ h3 {
 
 h4 {
     font-size: 100%;
+}
+
+ol.small li {
+    font-size: 80%;
 }
 
 /*p {*/
