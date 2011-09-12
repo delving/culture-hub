@@ -19,8 +19,8 @@ object Stories extends DelvingController {
 
     // TODO access rights
     val storiesPage = user match {
-      case Some(u) => Story.findByUser(browsedUserId).page(page)
-      case None => Story.findAll.page(page)
+      case Some(u) => Story.queryWithUser(query, browsedUserId).page(page)
+      case None => Story.queryAll(query).page(page)
     }
 
     html.list(stories = storiesPage._1, page = page, count = storiesPage._2)

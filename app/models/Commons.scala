@@ -6,6 +6,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 import salat.dao.{SalatMongoCursor, SalatDAO}
+import java.util.regex.Pattern
 
 /**
  * 
@@ -21,6 +22,9 @@ trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
   def findAll = find(MongoDBObject())
   def findRecent(howMany: Int) = find(MongoDBObject()).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
 
+  def queryAll(query: String) = if(queryOk(query)) find(MongoDBObject("name" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else findAll
+  def queryWithUser(query: String, id: ObjectId) = if(queryOk(query)) find(MongoDBObject("user_id" -> id, "name" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else findByUser(id)
+  def queryOk(query: String) = query != null && query.trim().length > 0
 }
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>

@@ -2,7 +2,7 @@ package models
 
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
-import dao.SalatDAO
+import dao.{SalatMongoCursor, SalatDAO}
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto

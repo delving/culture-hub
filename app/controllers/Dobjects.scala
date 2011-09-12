@@ -18,8 +18,8 @@ object DObjects extends DelvingController {
 
     // TODO access rights
     val objectsPage = user match {
-      case Some(u) => DObject.findByUser(browsedUserId).page(page)
-      case None => DObject.findAll.page(page)
+      case Some(u) => DObject.queryWithUser(query, browsedUserId).page(page)
+      case None => DObject.queryAll(query).page(page)
     }
 
     request.format match {
