@@ -4,6 +4,10 @@ body {
     margin:  0;
 }
 
+body#authenticate {
+       background:  #60652A url(../images/bg-header.png) repeat-x top left;
+}
+
 .container_16 {
     /*position: relative;*/
     min-width: 960px;
@@ -56,6 +60,11 @@ h3 {
 
 h4 {
     font-size: 100%;
+}
+
+h4.user {
+    background:  transparent url(../../common/images/user.png) top left no-repeat;
+    padding:  0 0 0 24px;
 }
 
 ol.small li {

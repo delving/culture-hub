@@ -1,6 +1,7 @@
 /*@import url("reset-base.css");*/
 @import url("normalize.css");
-@import url("960.css");
+/*@import url("960.css");*/
+@import url("grid-fluid.css");
 @import url("typography.css");
 @import url("jquery.fileupload-ui.css");
 @import url("token-input.css");
