@@ -83,7 +83,7 @@ GET         /{user}/object/{id}                                              DOb
 
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.storyUpdate
-GET         /{user}/story/update/{id}                                        user.Stories.storyUpdate
+GET         /{user}/story/{id}/update                                        user.Stories.storyUpdate
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{story}                                            Stories.story
