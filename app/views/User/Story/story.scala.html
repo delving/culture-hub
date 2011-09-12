@@ -54,7 +54,7 @@
 
 <div class="clear"></div>
 
-<div id="story-pages" style="display: none">
+<div id="story-pages" style="@if(id == None) { display:none } else { display: block }">
     <hr/>
     <div class="grid_5 alpha suffix_1">
         <h3>Step 2: Story Pages</h3>
@@ -197,11 +197,6 @@
       {{/each}}
   </ul>
   <div class="clear"></div>
-  <p class="developers-note ui-state-error ui-corner-all">
-    <span class="ui-icon ui-icon-alert"></span>
-    Pages in the above list should be 'draggable' to re-order. Clicking on 'Edit' would fill and show the form below.
-    Clicking 'Delete' removes the page.
-  </p>
 </script>
 
 
