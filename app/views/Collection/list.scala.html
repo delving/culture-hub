@@ -8,38 +8,36 @@
 <div class="grid_12 alpha" id="items">
 
       @if(browsedUserName!=null) {
-          <h2>Browse collections owned by: <span>@browsedUserName</span></h2>
+          <h2>Browse collections owned by: <span>@browsedUserName</span> (@count)</h2>
       } else {
-          <h2>Browse collections</h2>
+          <h2>Browse collections  (@count)</h2>
       }
 
-      <div class="item-nav">
-          <div class="item-count">
-              Found: <span>@count</span> collections
-          </div>
-          <div class="item-pager">
-            <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-          </div>
-      </div>
 
       @for(c <- collections) {
 
-      <div class="item three-col">
+      <div class="item one-col">
+          <div class="media medium">
           <img src='@thumbnailUrl(c.thumbnail)' width="84" alt=""/>
+          </div>
+          <div class="metadata">
           <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
-          <!--<label>Owner</label><a href="">User Name</a><br/>-->
-          <span class="description">@c.shortDescription</span>
+          <p>@c.shortDescription</p>
+          </div>
+
           @if(c.userName == userName) {
-              <span class="options"><a class="edit" href="/@c.userName/collection/@c.id/update">Edit Collection</a></span>
+          <div class="actions">
+              <a class="edit" href="/@c.userName/collection/update/@c.id">Edit Collection</a>
+          </div>
           }
       </div>
       }
   </div>
-  <div class="grid_4 omega">
-      @if(connectedIsBrowsed) {
-          <div class="actions ar">
-               <a class="add collection-add" href='/@userName/collection/add'>Create a new collection</a>
-          </div>
-      }
-  </div>
+  <!--<div class="grid_4 omega">-->
+      <!--@if(connectedIsBrowsed) {-->
+          <!--<div class="actions ar">-->
+               <!--<a class="add collection-add" href='/@userName/collection/add'>Create a new collection</a>-->
+          <!--</div>-->
+      <!--}-->
+  <!--</div>-->
 }

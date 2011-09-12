@@ -1,25 +1,34 @@
 @(stories: List[controllers.ShortStory], page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
 @header(if(browsedUserName != null) "List of stories for user %s".format(browsedUserName) else "List of stories") {
     <div class="grid_12 alpha">
 
         @if(browsedUserName != null) {
-            <h2>All stories owned by: <span>@browsedUserName</span></h2>
+            <h2>All stories owned by: <span>@browsedUserName</span> (@count)</h2>
         } else {
-            <h2>Browse Stories</h2>
+            <h2>Browse Stories (@count)</h2>
         }
+
+
+    <div class="item-nav">
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+    </div>
 
         @for(story <- stories) {
 
-        <div class="item three-col">
-            <img src='@thumbnailUrl(story.thumbnail)' width="84"/>
-            <h4><a href="">@story.name</a></h4>
-            <!--<label>Owner</label><a href="">User Name</a><br/>-->
-            <span class="description">@story.shortDescription</span>
+        <div class="item one-col">
+            <div class="media medium">
+                <img src='@thumbnailUrl(story.thumbnail)' width="84"/>
+            </div>
+            <div class="metadata">
+            <h4><a href="/@story.userName/story/@story.id">@story.name</a></h4>
+                <p>@story.shortDescription</p>
+            </div>
             @if(story.userName == userName) {
-                <span class="options"><a href>Edit Story</a></span>
+                <div class="actions"><a class="edit" href="/@story.userName/story/update/@story.id">Edit Story</a></div>
             }
         </div>
         }

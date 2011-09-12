@@ -1,0 +1,68 @@
+@(user:models.User, name: String)
+
+@import views.context._
+
+@header("Story " + name + " of user " + user.fullname ) {
+
+<link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
+
+<h1>Story title</h1>
+<!-- "previous page" action -->
+<a class="prev browse left"></a>
+
+<!-- root element for scrollable -->
+<div class="scrollable">
+
+   <!-- root element for the items -->
+   <div class="items">
+
+      <!-- page 1 -->
+      <div class="page">
+         <h2>Page Title</h2>
+         <div class="media">
+             [page image]
+         </div>
+          <div class="text">
+              [page text]
+          </div>
+      </div>
+
+      <!-- page 2 -->
+      <div class="page">
+         <h2>Page Title</h2>
+         <div class="media">
+             [page image]
+         </div>
+          <div class="text">
+              [page text]
+          </div>
+      </div>
+
+      <!-- page 3 -->
+      <div class="page">
+         <h2>Page Title</h2>
+         <div class="media">
+             [page image]
+         </div>
+          <div class="text">
+              [page text]
+          </div>
+      </div>
+
+   </div>
+
+</div>
+
+<!-- "next page" action -->
+<a class="next browse right"></a>
+
+        <script>
+// execute your scripts when the DOM is ready. this is mostly a good habit
+$(function() {
+
+	// initialize scrollable
+	$(".scrollable").scrollable();
+
+});
+</script>
+}

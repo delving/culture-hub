@@ -30,7 +30,8 @@
 .actions .success,
 .actions .edit,
 .actions .save,
-.actions .submit{
+.actions .submit,
+.actions .read {
     background-position: 10px 50%;
     background-repeat: no-repeat;
     padding-left: 32px !important;
@@ -45,6 +46,7 @@
 .action.edit,
 .action.save,
 .action.submit,
+.action.read
 .action {
     background-position: 0px 50%;
     background-repeat: no-repeat;
@@ -63,7 +65,8 @@
     background-image: url("../images/pencil_go.gif");
 }
 
-.actions .delete {
+.actions .delete,
+.action.delete {
     background-image: url("../images/delete.gif");
 }
 
@@ -93,6 +96,11 @@
     background-image:  url("../images/book_add.png");
 }
 
+.actions .read,
+.action.read {
+    background-image:  url("../images/book_open.gif");
+}
+
 .actions .collection-add,
 .action.collection-add {
     background-image:  url("../images/folder_add.gif");
@@ -100,5 +108,9 @@
 
 .actions .label-add {
     background-image:  url("../images/tag_blue_add.png");
+}
+
+.wait {
+    display: inline-block;
 }
 
