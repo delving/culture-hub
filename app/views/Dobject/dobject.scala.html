@@ -1,4 +1,4 @@
-@(dobject: models.DObject)
+@(dobject: models.DObject, labels: List[controllers.ShortLabel])
 
 @import views.context._
 
@@ -36,8 +36,8 @@
     <div class="clear"></div>
     <h2>Labels</h2>
     <p class="labels">
-         @for(l <- dobject.labels) {
-        <span class="label"><a href="#">@l</a></span>&nbsp;
+         @for(l <- labels) {
+        <span class="label"><a href="#">@l.labelType - @l.value</a></span>&nbsp;
         }
     </p>
 

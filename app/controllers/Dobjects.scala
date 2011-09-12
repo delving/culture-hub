@@ -33,7 +33,10 @@ object DObjects extends DelvingController {
   def view(user: String, id: String): AnyRef = {
     DObject.findById(id) match {
         case None => NotFound
-        case Some(anObject) => html.dobject(dobject = anObject)
+        case Some(anObject) => {
+          val labels: List[ShortLabel] = anObject.labels
+          html.dobject(dobject = anObject, labels = labels)
+        }
       }
   }
 
@@ -42,7 +45,7 @@ object DObjects extends DelvingController {
         case None => Json(ObjectModel())
         case Some(anObject) => {
           val collections = ObjectModel.objectIdListToCollections(anObject.collections)
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, (Label.findAllWithIds(anObject.labels) map {l => LabelModel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
         }
       }
   }
@@ -60,7 +63,7 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
                        collections: List[Collection] = List.empty[Collection],
-                       labels: List[LabelModel] = List.empty[LabelModel],
+                       labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
 
   def getCollections: List[ObjectId] = for(collection <- collections) yield new ObjectId(collection.id)
