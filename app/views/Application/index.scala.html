@@ -47,30 +47,42 @@
 <div class="grid_8 alpha">
 
     <h2><span>Recent Collections</span></h2>
+
     <div class="collections-container">
         @for(c <- recentCollections) {
 
         <div class="item one-col">
-            <img src='@thumbnailUrl(c.thumbnail)' width="50" alt="@c.name"/>
-
-            <h4 class="collection"><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
-            <span class="user">@fullName(c.userName)</span><span class="date">@c.TS_update</span>
-
+            <div class="media small">
+                <img src='@thumbnailUrl(c.thumbnail)' width="50" alt="@c.name"/>
+            </div>
+            <div class="metadata">
+                <div class="bd">
+                    <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
+                    <span class="detail">@fullName(c.userName)</span>
+                    <span class="detail">@c.TS_update</span>
+                </div>
+             </div>
         </div>
 
         }
     </div>
 
     <h2><span>Recent Stories</span></h2>
+
     <div class="stories-container">
-         @for(s <- recentStories) {
+        @for(s <- recentStories) {
 
         <div class="item one-col">
-            <img src='@thumbnailUrl(s.thumbnail)' width="50" alt="@s.name"/>
-
-            <h4 class="story"><a href="/@s.userName/story/@s.id">@s.name</a></h4>
-            <span class="user">@fullName(s.userName)</span><span class="date">@s.TS_update</span>
-
+            <div class="media small">
+                <img src='@thumbnailUrl(s.thumbnail)' width="50" alt="@s.name"/>
+            </div>
+            <div class="metadata">
+                <div class="bd">
+                    <h4 class="story"><a href="/@s.userName/story/@s.id">@s.name</a></h4>
+                    <span class="detail">@fullName(s.userName)</span>
+                    <span class="detail">@s.TS_update</span>
+                </div>
+            </div>
         </div>
 
         }
@@ -78,12 +90,15 @@
 </div>
 
 <div class="grid_8 omega">
-   <h2><span>Recent Objects</span></h2>
-    <div class="objects-container">
+    <h2><span>Recent Objects</span></h2>
+
+    <div class="objects-container ">
         @for(o <- recentObjects) {
 
-        <div class="item clean">
-            <a href="/@o.userName/object/@o.id"><img src='@thumbnailUrl(o.id)' width="100" alt="@o.name"/></a>
+        <div class="item">
+            <div class="media medium">
+                <a href="/@o.userName/object/@o.id"><img src='@thumbnailUrl(o.id)' width="100" alt="@o.name"/></a>
+            </div>
         </div>
 
         }

@@ -238,55 +238,18 @@ h4 {
 
 }
 
-/* RESULT ITEM */
-
-/* homepage lists */
-
-#home .item .user,
-#home .item .date {
-    display: inline-block;
-    background: #00679A;
-    background: #555;
-    color: #fff;
-    font-size: smaller;
-    padding: 0 4px;
-    margin-right: 1px;
-}
-.item h4 {
-    font-weight: bold;
-    margin: 0;
-    padding: 0 20px 0 0;
-}
-
-.item .collection {
-    background: transparent url(../../common/images/folder.gif) top right no-repeat;
-}
-
-.item .object {
-    background: transparent url(../../common/images/image.png) top right no-repeat
-}
-
-.item h4 a:link,
-.item h4 a:visited {
-    color: #0066cc;
-    text-decoration: none;
-}
-
-.item h4 a:hover {
-    color: #0066cc;
-    text-decoration: underline;
-}
-
-.item {
-    /*border-bottom: 1px dotted #ccc;*/
-    display: block;
-}
 
     .one-col {
         clear: both;
-        padding: 0 1% 1em 1%;
+        padding: 0 1% 10px 1%;
     }
-
+     .one-col:after {
+      content: ".";
+      display: block;
+      height: 0;
+      clear: both;
+      visibility: hidden;
+    }
     .two-col {
         float: left;
         margin: 0 2% 1em 0;
@@ -298,38 +261,6 @@ h4 {
         margin: 0 1% 1em 1%;
         width: 31.33%;
     }
-
-.item.clean {
-    border:  none;
-}
-.item label {
-    display: inline;
-    margin-right: .5em;
-}
-
-.item .options {
-    display: block;
-    background: #fff;
-}
-
-.item img {
-    /*display: inline;*/
-    float: left;
-    margin: 0 1em 1em 0;
-    /*width: 85px;*/
-}
-
-.item .description {
-    display: block;
-    font-size: smaller;
-}
-
-.item-display img {
-    float: left;
-    margin: 0 10px 0 0;
-}
-
-
 
 .row {
     border-bottom: 1px dotted #555;
@@ -517,10 +448,14 @@ table.list th {
     font-weight: normal;
 }
 
-table.list .action,
-table.list .thumb {
-    text-align: right
-}
+    /*table.list td.action,*/
+    /*table.list td.thumb {*/
+        /*text-align: right*/
+    /*}*/
+
+    /*table.list td.thumb img {*/
+        /*margin-right: 5px;*/
+    /*}*/
 
 table.list tr:nth-child(odd),
 table.files tr:nth-child(odd){

@@ -51,9 +51,9 @@ ul#user-menu a.user {
 
 ul#user-menu li .sub {
 	position: absolute; /*--Important--*/
-	top: 32px; left: -140px;
+	top: 32px; left: -200px;
 	z-index: 99999;
-	background: #333300;
+	background: #272911;
 	padding: 10px;
 	float: left;
 	/*--Bottom right rounded corner--*/

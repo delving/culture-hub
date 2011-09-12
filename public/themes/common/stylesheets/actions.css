@@ -63,7 +63,8 @@
     background-image: url("../images/pencil_go.gif");
 }
 
-.actions .delete {
+.actions .delete,
+.action.delete {
     background-image: url("../images/delete.gif");
 }
 
@@ -100,5 +101,9 @@
 
 .actions .label-add {
     background-image:  url("../images/tag_blue_add.png");
+}
+
+.wait {
+    display: inline-block;
 }
 

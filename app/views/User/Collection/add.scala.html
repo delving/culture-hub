@@ -39,20 +39,19 @@
     </div>
 
     <div class="actions">
-      <div class="wait"></div>
-      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button>
+      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button><div class="wait"></div>
     </div>
 
 </form>
 </div>
 
 <script type="text/html" id="availableObjectsList">
-    <table>
+    <table class="list">
         <tbody>
         {{each(i, object) availableObjects()}}
         <tr>
             <td><input type="checkbox" value="${object.id}" data-bind="checked: selectedObjects()"/></td>
-            <td><img src='${thumbnailUrl(object.id)}' width="50"/></td>
+            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/></td>
             <td><h4>${object.name}</h4></td>
         </tr>
         {{/each}}
@@ -67,14 +66,14 @@
             <th colspan="3" class="header">Objects in your collection</th>
             </tr>
             <tr>
-            <th>Object</th><th class="action">Action</th><th class="thumb">Thumbnail</th>
+            <th>Object</th><th class="action">Action</th><th class="thumb">Default</th>
             </tr>
         </thead>
         <tbody>
         {{each(i, object) objects()}}
         <tr>
-            <td>${name}</td>
-            <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
+            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/>${name}</td>
+            <td class="action"><a href="#" class="action delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
             <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
         </tr>
         {{/each}}
