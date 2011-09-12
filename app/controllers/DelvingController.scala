@@ -79,6 +79,8 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
 
+  @Util def browsedIsConnected: Boolean = browsedUserId == connectedUserId
+
   // ~~~ convenience methods
 
   /**

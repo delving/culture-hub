@@ -27,8 +27,8 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     DObject.findById(id) match {
         case None => Json(ObjectModel())
         case Some(anObject) => {
-          val collections = ObjectModel.objectIdListToCollections(anObject.collections)
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
+          val collections = UserCollection.findAllWithIds(anObject.collections).toList map { c => Collection(c._id, c.name) }
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
         }
       }
   }
@@ -96,20 +96,12 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        name: String = "",
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
+                       visibility: String = "Private",
                        collections: List[Collection] = List.empty[Collection],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
 
-  def getCollections: List[ObjectId] = for(collection <- collections) yield new ObjectId(collection.id)
+  def getCollections: List[ObjectId] = for(collection <- collections) yield collection.id
 }
 
-object ObjectModel {
-
-  def objectIdListToCollections(collectionIds: List[ObjectId]) = {
-    (for (userCollection: UserCollection <- UserCollection.find(MongoDBObject("_id" -> MongoDBObject("$in" -> collectionIds))))
-    yield Collection(userCollection._id.toString, userCollection.name)).toList
-  }
-
-}
-
-case class Collection(id: String, name: String)
+case class Collection(id: ObjectId, name: String)
