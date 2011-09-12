@@ -27,7 +27,7 @@ case class UserReference(username: String = "", node: String = "", id: String = 
 /** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
-object User extends SalatDAO[User, ObjectId](userCollection) {
+object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
@@ -38,6 +38,8 @@ object User extends SalatDAO[User, ObjectId](userCollection) {
     }
     true
   }
+
+  def findAll = find(MongoDBObject("isActive" -> true))
 
   def findAllIdName: List[DBObject] = User.collection.find(MongoDBObject(), MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)).toList
 

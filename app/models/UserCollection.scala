@@ -20,7 +20,8 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           name: String,
                           thumbnail_object_id: Option[ObjectId] = None, // points to the object of which we take the thumbnail
                           node: String,
-                          description: Option[String]) extends Repository
+                          description: Option[String]) extends Repository {
+}
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] with AccessControl {
 

@@ -27,7 +27,10 @@ object Collections extends DelvingController {
   def view(user: String, id: String): AnyRef = {
     UserCollection.findById(id) match {
       case None => NotFound
-      case Some(collection) => html.collection(collection)
+      case Some(collection) => {
+        val objects: List[ShortObject] = DObject.findAllWithCollection(collection._id).toList
+        html.collection(collection, objects)
+      }
     }
   }
 

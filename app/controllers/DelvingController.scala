@@ -109,6 +109,9 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
   implicit def oListToSOList(ol: List[DObject]) = ol map { o => objectToShort(o) }
 
+  implicit def userToShort(u: User) = ShortUser(u._id, u.fullname, u.reference.username)
+  implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
+
 }
 
 
