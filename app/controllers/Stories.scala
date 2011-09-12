@@ -3,6 +3,7 @@ package controllers
 import org.bson.types.ObjectId
 import models.{Story, DObject}
 import org.joda.time.DateTime
+import play.templates.Html
 
 /**
  * 
@@ -29,6 +30,11 @@ object Stories extends DelvingController {
   def story(user: String, story: String): AnyRef = {
     val u = getUser(user)
     html.story(user = u, name = story)
+  }
+
+  def read(user: String, id: String): AnyRef = {
+    val story = Story.findById(id) getOrElse(return NotFound("Story with ID %s not found".format(id)))
+    html.storyRead(story)
   }
 
 }

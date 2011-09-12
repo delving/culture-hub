@@ -1,8 +1,8 @@
-@(user:models.User, name: String)
+@(story: models.Story)
 
 @import views.context._
 
-@header("Story " + name + " of user " + user.fullname ) {
+@header("Story " + story.name + " of user " + fullName(story.userName) ) {
 
 <link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
 
@@ -56,7 +56,7 @@
 <!-- "next page" action -->
 <a class="next browse right"></a>
 
-        <script>
+<script type="text/javascript">
 // execute your scripts when the DOM is ready. this is mostly a good habit
 $(function() {
 
