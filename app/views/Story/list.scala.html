@@ -20,12 +20,15 @@
         @for(story <- stories) {
 
         <div class="item one-col">
-            <img src='@thumbnailUrl(story.thumbnail)' width="84"/>
-            <h4><a href="">@story.name</a></h4>
-            <!--<label>Owner</label><a href="">User Name</a><br/>-->
-            <span class="description">@story.shortDescription</span>
+            <div class="media medium">
+                <img src='@thumbnailUrl(story.thumbnail)' width="84"/>
+            </div>
+            <div class="metadata">
+            <h4><a href="/@story.userName/story/@story.id">@story.name</a></h4>
+                <p>@story.shortDescription</p>
+            </div>
             @if(story.userName == userName) {
-                <span class="options"><a href>Edit Story</a></span>
+                <div class="actions"><a class="edit" href="/@story.userName/story/update/@story.id">Edit Story</a></div>
             }
         </div>
         }

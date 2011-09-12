@@ -30,7 +30,8 @@
 .actions .success,
 .actions .edit,
 .actions .save,
-.actions .submit{
+.actions .submit,
+.actions .read {
     background-position: 10px 50%;
     background-repeat: no-repeat;
     padding-left: 32px !important;
@@ -45,6 +46,7 @@
 .action.edit,
 .action.save,
 .action.submit,
+.action.read
 .action {
     background-position: 0px 50%;
     background-repeat: no-repeat;
@@ -92,6 +94,11 @@
 .actions .story-add,
 .action.story-add {
     background-image:  url("../images/book_add.png");
+}
+
+.actions .read,
+.action.read {
+    background-image:  url("../images/book_open.gif");
 }
 
 .actions .collection-add,
