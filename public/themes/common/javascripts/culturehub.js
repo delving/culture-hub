@@ -303,7 +303,8 @@ ko.bindingHandlers.tinymce = {
     update: function (element, valueAccessor, allBindingsAccessor, context) {
         //handle programmatic updates to the observable
         var value = ko.utils.unwrapObservable(valueAccessor());
-        $(element).html(value);
+        var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
+        if(typeof ed !== 'undefined') ed.setContent(value);
     }
 };
 
