@@ -6,7 +6,7 @@
 
 <link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
 
-<h1>Story title</h1>
+<h1>@story.name</h1>
 <!-- "previous page" action -->
 <a class="prev browse left"></a>
 
@@ -16,9 +16,9 @@
    <!-- root element for the items -->
    <div class="items">
 
-      <!-- page 1 -->
+     @for(page <- story.pages) {
       <div class="page">
-         <h2>Page Title</h2>
+         <h2>@page.title</h2>
          <div class="media">
              [page image]
          </div>
@@ -26,28 +26,7 @@
               [page text]
           </div>
       </div>
-
-      <!-- page 2 -->
-      <div class="page">
-         <h2>Page Title</h2>
-         <div class="media">
-             [page image]
-         </div>
-          <div class="text">
-              [page text]
-          </div>
-      </div>
-
-      <!-- page 3 -->
-      <div class="page">
-         <h2>Page Title</h2>
-         <div class="media">
-             [page image]
-         </div>
-          <div class="text">
-              [page text]
-          </div>
-      </div>
+     }
 
    </div>
 
