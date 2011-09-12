@@ -30,7 +30,7 @@ object Visibility extends Enumeration {
   val Private, Public = Value
 }
 
-case class Page(title: String, text: String, objects: List[PageObject])
+case class Page(title: String, text: String, objects: List[PageObject], thumbnail: Option[ObjectId])
 
 /** object in a page. may contain more things such as position, location, ... **/
 case class PageObject(dobject_id: ObjectId)

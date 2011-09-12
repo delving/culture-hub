@@ -207,6 +207,7 @@
     $(document).ready(function() {
       var storyModel = {
         currentPage: {
+          lock: ko.observable(false),
           isNew: ko.observable(false),
           thumbnail: ko.observable(),
           pageRef: ko.observable(),
@@ -223,12 +224,12 @@
           $("#story-pages").show("slow");
         },
         addPage: function() {
-          storyModel.currentPage.lock = true;
+          storyModel.currentPage.lock(true);
           storyModel.currentPage.isNew(true);
           storyModel.currentPage.title("");
           storyModel.currentPage.text("");
           storyModel.currentPage.objects([]);
-          storyModel.currentPage.selectedCollection([]);
+          storyModel.currentPage.selectedCollection("");
           storyModel.currentPage.availableObjects([]);
           storyModel.currentPage.selectedObjectIds([]);
           //$("#form-add-page").show("slow");
@@ -269,7 +270,7 @@
             storyModel.currentPage.pageRef().text(p.text);
             storyModel.currentPage.pageRef().objects(p.objects);
           }
-          storyModel.currentPage.lock = false;
+          storyModel.currentPage.lock(false);
           saveStory(function() {
             $('#pageForm').resetForm();
             //$("#form-add-page").hide("slow");
@@ -323,10 +324,6 @@
           if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
         })
       }
-    });
-
-    $(window).load(function() {
-        Delving.wysiwyg();
     });
 </script>
 }
