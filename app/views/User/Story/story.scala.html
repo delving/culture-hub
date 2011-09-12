@@ -33,8 +33,6 @@
 </div>
 
 <div class="grid_10 omega">
-
-    <h2>Story Information</h2>
     <span class="required-note">* Required Fields</span>
 
     @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
@@ -69,18 +67,18 @@
                 </ol>
             </div>
         </div>
-    </div>
-    <div class="grid_10 omega">
-        <h2>Story Pages</h2>
 
-        <!--<p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>-->
+        <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
         <div id="page-list" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
         <div class="actions">
                 <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
         </div>
 
-        <div id="form-add-page" class="page-form" style="display: block;" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
+    </div>
+    <div class="grid_10 omega">
+
+        <div id="form-add-page" class="page-form" style="@if(id == None) { display:block } else { display: none }" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
 
     </div>
 
@@ -111,7 +109,7 @@
 <script type="text/html" id="pageTemplate">
   <form id="${$item.action}PageForm" action="">
 
-    <h3>${$item.action} Page</h3>
+    <!--<h3>${$item.action} Page</h3>-->
     <span class="required-note">* Required Fields</span>
 
     <div class="field">
@@ -183,6 +181,7 @@
 </script>
 
 <script type="text/html" id="pageList">
+  <h3>Existing pages:</h3>
   <ul class="page-list">
       {{each(i, page) pages()}}
       <li id="page-${i}">
@@ -220,7 +219,7 @@
         },
         addPages: function() {
           saveStory();
-          storyMode.addPage();
+          storyModel.addPage();
           $("#story-pages").show("slow");
         },
         addPage: function() {
@@ -232,7 +231,7 @@
           storyModel.currentPage.selectedCollection("");
           storyModel.currentPage.availableObjects([]);
           storyModel.currentPage.selectedObjectIds([]);
-          //$("#form-add-page").show("slow");
+          $("#form-add-page").show("slow");
         },
         editPage: function(page) {
           storyModel.currentPage.isNew(false);
@@ -243,7 +242,7 @@
           storyModel.currentPage.selectedCollection([]);
           storyModel.currentPage.selectedObjectIds([]);
           storyModel.currentPage.availableObjects([]);
-          //$("#form-add-page").show("slow");
+          $("#form-add-page").show("slow");
         },
         deletePage: function(page) {
           confirmDeletion('#dialog-confirm-page-delete', function() {
@@ -273,7 +272,7 @@
           storyModel.currentPage.lock(false);
           saveStory(function() {
             $('#pageForm').resetForm();
-            //$("#form-add-page").hide("slow");
+            $("#form-add-page").hide("slow");
           }, function() {
             // TODO yell, cry. be desperate
           });
