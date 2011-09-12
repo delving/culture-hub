@@ -43,7 +43,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
-    val pages = storyVM.pages map {page => Page(page.title, page.text, page.objects map { o => PageObject(o.id.get) }) }
+    val pages = storyVM.pages map {page => Page(page.title, page.text, page.objects map { o => PageObject(o.id.get) }, page.thumbnail)}
     val visibility = Visibility.withName(storyVM.visibility)
 
     val persistedStory = storyVM.id match {
@@ -71,6 +71,6 @@ case class StoryViewModel(id: Option[ObjectId] = None,
                           isDraft: Boolean = true,
                           collections: List[CollectionViewModel] = List.empty[CollectionViewModel])
 
-case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectModel] = List.empty[ObjectModel])
+case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectModel] = List.empty[ObjectModel], thumbnail: Option[ObjectId] = None)
 
 case class CollectionViewModel(id: ObjectId, name: String)
