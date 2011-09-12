@@ -78,7 +78,7 @@ GET         /{user}/object                                                   DOb
 GET         /{user}/object/add                                               user.DObjects.objectUpdate
 GET         /{user}/object/{id}/update                                       user.DObjects.objectUpdate
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
-GET         /{user}/object/load/{id}?                                        DObjects.load
+GET         /{user}/object/load/{id}?                                        user.DObjects.load
 GET         /{user}/object/{id}                                              DObjects.view
 
 GET         /{user}/story                                                    Stories.list

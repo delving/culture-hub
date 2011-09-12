@@ -4,6 +4,7 @@ import play.mvc.results.Result
 import models.{DObject, UserCollection}
 import org.bson.types.ObjectId
 import org.joda.time.DateTime
+import user.ObjectModel
 
 /**
  *

@@ -7,7 +7,7 @@ import views.User.Story._
 import extensions.CHJson._
 import models._
 import org.scala_tools.time.Imports._
-import controllers.{ObjectModel, Secure, UserAuthentication, DelvingController}
+import controllers.{Secure, UserAuthentication, DelvingController}
 
 /**
  *
