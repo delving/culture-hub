@@ -36,8 +36,8 @@
     <div class="clear"></div>
     <h2>Labels</h2>
     <p class="labels">
-         @for(i <- 0 until 16) {
-        <span class="label"><a href="#">label_@i</a></span>&nbsp;
+         @for(l <- dobject.labels) {
+        <span class="label"><a href="#">@l</a></span>&nbsp;
         }
     </p>
 
