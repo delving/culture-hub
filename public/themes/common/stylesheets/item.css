@@ -63,8 +63,19 @@
     /*float: left;*/
 }
 
+.item h2 {
+    font-size: 90%;
+    margin:  0;
+}
+
+
 .item p {
     margin: 0;
+}
+
+
+.metadata p {
+   margin-bottom: 10px;
 }
 
 .item .detail {
