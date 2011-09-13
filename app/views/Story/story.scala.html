@@ -4,7 +4,29 @@
 
 @header("Story " + story.name + " of user " + browsedFullName ) {
 
-        <h1>Story "@story.name"</h1>
+<h1>Story "@story.name"</h1>
+
+Last updated: @niceTime(story.TS_update)
+<hr/>
+Description: @story.description
+<hr/>
+Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }
+<hr/>
+Pages:<br/>
+@for(page <- story.pages) {
+  <ul>
+    <li>@page.title</li>
+    <li>@page.text</li>
+    <li>
+      @for(o <- page.objects) {
+      <ul>
+        Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">
+      </ul>
+      }
+    </li>
+  </ul>
+  <hr/>
+}
 
 
 
