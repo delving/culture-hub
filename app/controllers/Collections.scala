@@ -37,18 +37,30 @@ object Collections extends DelvingController {
 
   /**list all user collections the connected user can write to as tokens **/
   def listWriteableAsTokens(q: String): Result = {
-    val userCollections = for (userCollection <- UserCollection.findByUser(connectedUserId).filter(c => c.name.toLowerCase contains(q))) yield Token(userCollection._id.toString, userCollection.name)
+    val userCollections = for (userCollection <- UserCollection.findByUser(connectedUserId).filter(c => c.name.toLowerCase contains (q))) yield Token(userCollection._id.toString, userCollection.name)
     Json(userCollections)
   }
 
-  def listObjects(id: String): Result = {
-    if(!ObjectId.isValid(id)) Error("Invalid collection id " + id)
-    val cid = new ObjectId(id)
-    val objects = for(o <- DObject.findAllWithCollection(cid)) yield ObjectModel(Some(o._id), o.name, o.description, o.user_id)
-    
-    request.format match {
-      case "json" => Json(objects)
-      case _ => BadRequest
+  val NO_COLLECTION = "NO_COLLECTION"
+
+  def listObjects(user: String, id: String): Result = {
+
+    def objectToObjectModel(o: DObject) = ObjectModel(Some(o._id), o.name, o.description, o.user_id)
+
+    // unassigned objects
+    if (id == NO_COLLECTION) {
+      getUser(user) match {
+        case Right(aUser) => Json(DObject.findAllUnassignedForUser(aUser._id) map { objectToObjectModel(_) })
+        case Left(error) => error
+      }
+    } else {
+      if (!ObjectId.isValid(id)) Error("Invalid collection id " + id)
+      val cid = new ObjectId(id)
+      val objects = Json(DObject.findAllWithCollection(cid) map { objectToObjectModel(_) })
+      request.format match {
+        case "json" => Json(objects)
+        case _ => BadRequest
+      }
     }
   }
 }

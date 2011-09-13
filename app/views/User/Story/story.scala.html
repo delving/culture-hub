@@ -224,6 +224,7 @@
           $("#story-pages").show("slow");
         },
         addPage: function() {
+          storyModel.collections.push({id: "@controllers.Collections.NO_COLLECTION", name: "No collection"});
           storyModel.currentPage.lock(true);
           storyModel.currentPage.isNew(true);
           storyModel.currentPage.title("");
@@ -235,6 +236,7 @@
           $("#form-add-page").show("slow");
         },
         editPage: function(page) {
+          storyModel.collections.push({id: "@controllers.Collections.NO_COLLECTION", name: "No collection"});
           storyModel.currentPage.isNew(false);
           storyModel.currentPage.pageRef(page),
           storyModel.currentPage.title(page.title());
@@ -314,6 +316,7 @@
       function saveStory(onSuccess, onFailure, isDraft) {
         var draft = typeof isDraft === 'undefined' ? false : isDraft;
         storyModel.isDraft(draft);
+        storyModel.collections.remove(function(it) { return it.id === "@controllers.Collections.NO_COLLECTION" });
         Spinners.create('.wait').play();
         $.postKOJson('/@userName/story/submit', storyModel, function(data) {
           Spinners.get('.wait').remove();
