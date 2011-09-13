@@ -3,8 +3,9 @@
 	when scrolling occurs this element stays still.
 */
 .story-container {
-    background:  #fff url(../images/bg-book.png) bottom left no-repeat;
+    background:  #fff url(../images/bg-book.png) bottom center no-repeat;
     width: 940px;
+    margin: 0 auto;
 	height:500px;
     position: relative;
 }
