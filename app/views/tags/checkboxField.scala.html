@@ -1,10 +1,10 @@
-@(name:String, label:String, dataBind: String = "", value: String = "")
+@(name:String, label:String, dataBind: String = "", value: String = "", labelClass: String = "")
 @import views.context._
 
 @fieldValue = @{ if (value.length > 0) value else params.get(name) }
 
 <div class="field">
-    <label for="@name">@label</label>
+    <label class="@labelClass" for="@name">@label</label>
     <div class="inputs">
         <input id="@name" type="checkbox" name="@name" size="40" value="@fieldValue" data-bind="@dataBind">
         <span class="error">@showError(name)</span>

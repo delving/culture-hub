@@ -1,8 +1,8 @@
-@(name:String, label:String, dataBind: String = "")
+@(name:String, label:String, dataBind: String = "", labelClass: String = "")
 @import views.context._
 
 <div class="field">
-    <label for="@name">@label</label>
+    <label class="@labelClass" for="@name">@label</label>
     <div class="inputs">
         <textarea class="textinput" id="@name" value="@params.get(name)" data-bind="@dataBind"></textarea>
         <span class="error">@showError(name)</span>
