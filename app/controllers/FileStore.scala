@@ -132,7 +132,18 @@ object FileStore extends DelvingController with Secure {
   @Util def getInputStream(id: ObjectId) = fs.find(id).inputStream
 
   @Util def fetchFilesForUID(uid: String): Seq[StoredFile] = fs.find(MongoDBObject("uid" -> uid)) map {
-    f => StoredFile(f.getId.asInstanceOf[ObjectId], f.getFilename, f.getContentType, f.getLength)
+    f => {
+      val id = f.getId.asInstanceOf[ObjectId]
+      val thumbnail = if (isImage(f)) {
+        fs.findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
+          case Some(t) => Some(t.id.asInstanceOf[ObjectId])
+          case None => None
+        }
+      } else {
+        None
+      }
+      StoredFile(id, f.getFilename, f.getContentType, f.getLength, thumbnail)
+    }
   }
 
   /**Attaches all files to an object, given the upload UID **/
