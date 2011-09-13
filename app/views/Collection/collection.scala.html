@@ -4,115 +4,109 @@
 
 @header("Collection " + collection.name + " of user " + browsedFullName) {
 
-<div class="grid_8 alpha">
+<h1>@collection.name</h1>
 
-    <div class="grid_16 alpha">
-      <h1>Collection <span>"@collection.name"</span></h1>
-    </div>
+<div class="grid_16 alpha">
 
-    <div class="grid_4 alpha">
-      <img src="@thumbnailUrl(collection.thumbnail_object_id)" width="220" alt="@collection.name"/>
-    </div>
+    <div class="item">
+        <div class="media large">
+            <img src="@thumbnailUrl(collection.thumbnail_object_id)" width="220" alt="@collection.name"/>
 
-    <div class="item-info">
+       </div>
 
-        <table>
-            <tbody>
-            <tr>
-                <th scope="row">Owner</th>
-                <td>@browsedFullName</td>
-            </tr>
-            <tr>
-                <th scope="row">Date Created</th>
-                <td>@niceTime(collection._id.getTime)</td>
-            </tr>
-            <tr>
-                <th scope="row">Date Modified</th>
-                <td>@niceTime(collection.TS_update)</td>
-            </tr>
-            <!--<tr>-->
-                <!--<th scope="row">Collaborator(s)</th>-->
-                <!--<td><a href="#">Collaborator Name</a>, <a href="#">Collaborator Name</a>,-->
-                    <!--<a href="#">Collaborator Name</a>-->
-                <!--</td>-->
-            <!--</tr>-->
-            <!--<tr>-->
-                <!--<th scope="row">Annotation(s)</th>-->
-                <!--<td>-->
-                    <!--<span class="annotation">Annotation (person), Annotation (place), Annotation (event)</span>-->
-                <!--</td>-->
-            <!--</tr>-->
+        <div class="metadata">
 
-            <!--<tr>-->
-                <!--<th scope="row">Followed by</th>-->
-                <!--<td>-->
-                    <!--@for(i <- 0 until 12) {-->
-                    <!--<span class="label"><a href="#">user_@i</a></span>&nbsp;-->
-                    <!--}-->
-                <!--</td>-->
-            <!--</tr>-->
-            </tbody>
-        </table>
-        <h2>Description</h2>
-        <p>@niceText(collection.description.getOrElse("No description available"))</p>
+            <h2>Owner</h2>
 
+            <p>@browsedFullName</p>
+
+            <h2>Date created:</h2>
+
+            <p>@niceTime(collection._id.getTime)</p>
+
+            <h2>Date modified:</h2>
+
+            <p>@niceTime(collection.TS_update)</p>
+
+            <h2>Description</h2>
+
+            <p>@niceText(collection.description.getOrElse("No description available"))</p>
+
+            <h2>Objects</h2>
+            <ul class="inline">
+            @for(o <- objects) {
+            <li>
+                <a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
+            </li>
+            }
+        </ul>
+
+        </div>
     </div>
 
 </div>
 
-<div class="grid_8 omega">
+@if(userName == browsedUserName) {
+<div class="actions ar grid_16 alpha">
+  <a class="edit" href="/@collection.userName/collection/@collection._id/update">Edit Collection</a>
+</div>
+}
+
+<!--<div class="grid_16 alpha">-->
 
     <!--<div class="dui-buttonset dui-buttonset-single">-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary">Share</button>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary">Follow</button>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-right">Collaborate</button>-->
+    <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
+    <!--<button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>-->
+    <!--<button class="dui-button ui-state-default ui-priority-primary">Share</button>-->
+    <!--<button class="dui-button ui-state-default ui-priority-primary">Follow</button>-->
+    <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-right">Collaborate</button>-->
     <!--</div>-->
 
     <!--<div class="clear"></div>-->
 
-    <h2>Objects</h2>
+    <!--<h2>Objects</h2>-->
 
-    <div class="collection-objects">
+    <!--<div class="collection-objects">-->
 
-        <ul class="inline">
-          @for(o <- objects) {
-          <li><a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a></li>
-          }
-        </ul>
+        <!--<ul class="inline">-->
+            <!--@for(o <- objects) {-->
+            <!--<li>-->
+                <!--<a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>-->
+            <!--</li>-->
+            <!--}-->
+        <!--</ul>-->
 
-    </div>
+    <!--</div>-->
 
     <!--<h2>Labels</h2>-->
 
     <!--<p class="labels">-->
-        <!--@for(i <- 0 until 16) {-->
-        <!--<span class="label"><a href="#">label_@i</a></span>&nbsp;-->
-        <!--}-->
+    <!--@for(i <- 0 until 16) {-->
+    <!--<span class="label"><a href="#">label_@i</a></span>&nbsp;-->
+    <!--}-->
     <!--</p>-->
 
     <!--<div id="comments">-->
-        <!--<h2>Comments</h2>-->
-        <!--<ul class="comment-list">-->
-            <!--@for(i <- 0 until 4) {-->
-            <!--<li class="comment">-->
-                <!--&lt;!&ndash;<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>&ndash;&gt;-->
-                <!--<div class="content">-->
+    <!--<h2>Comments</h2>-->
+    <!--<ul class="comment-list">-->
+    <!--@for(i <- 0 until 4) {-->
+    <!--<li class="comment">-->
+    <!--&lt;!&ndash;<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>&ndash;&gt;-->
+    <!--<div class="content">-->
 
-                    <!--<p>-->
-                        <!--Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.-->
-                    <!--</p>-->
-                    <!--<span class="user"><a href="#">Username</a></span>-->
-                    <!--<span class="date">xx-xx-xxxx</span>-->
+    <!--<p>-->
+    <!--Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.-->
+    <!--</p>-->
+    <!--<span class="user"><a href="#">Username</a></span>-->
+    <!--<span class="date">xx-xx-xxxx</span>-->
 
-                <!--</div>-->
-            <!--</li>-->
-
-            <!--}-->
-        <!--</ul>-->
     <!--</div>-->
-</div>
+    <!--</li>-->
+
+    <!--}-->
+    <!--</ul>-->
+    <!--</div>-->
+<!--</div>-->
 
 <div id="add-comment-dialog" title="Add a comment">
     <div class="inputs">
