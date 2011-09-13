@@ -74,7 +74,7 @@
 
         <div class="actions">
             <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
-            <a class="read" href="/" target="_blank">View your story</a>
+            <a class="read" href="#" target="_blank" data-bind="click: makeStoryUrl">View your story</a>
         </div>
 
     </div>
@@ -298,6 +298,9 @@
           }, function() {
             // TODO yell, shout, be desperate
           }, false);
+        },
+        makeStoryUrl: function() {
+          window.open('/@userName/story/' + storyModel.id() + '/read', '_blank');
         }
       };
       load('/@userName/story/load/@id.getOrElse("")', storyModel);
