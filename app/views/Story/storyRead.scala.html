@@ -10,24 +10,21 @@
 <div class="story">
 
 <h1>@story.name</h1>
-<!-- "previous page" action -->
-<a class="prev browse left">Previous</a>
 
-<!-- root element for scrollable -->
+<a class="prev browse left">Previous page</a>
+
+<a class="next browse right">Next page</a>
+
 <div class="scrollable">
 
    <!-- root element for the items -->
    <div class="items">
 
      @for(page <- story.pages) {
-      <div class="page">
-         <h2>@page.title</h2>
-         <div class="media">
-             <img src="@thumbnailUrl(page.thumbnail)" alt="@page.title">
-         </div>
-          <div class="text">
-              [page text]
-          </div>
+      <div class="page item">
+          <img src="@thumbnailUrl(page.thumbnail)" alt="@page.title">
+          <h2>@page.title</h2>
+              @page.text
       </div>
      }
 
@@ -35,8 +32,7 @@
 
 </div>
 
-<!-- "next page" action -->
-<a class="next browse right">Next</a>
+
 
     </div>
 

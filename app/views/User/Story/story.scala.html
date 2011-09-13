@@ -9,7 +9,7 @@
     <h1 class="emphasize">@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>
 
-<div class="grid_5 alpha suffix_1">
+<div class="grid_6 alpha">
     <h3>Step 1: Story Information</h3>
     <div class="container">
           <div class="head"></div>
@@ -32,7 +32,7 @@
       </div>
 </div>
 
-<div class="grid_10 omega">
+<div class="grid_9 prefix_1 omega">
     <span class="required-note">* Required Fields</span>
 
     @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
@@ -56,27 +56,28 @@
 
 <div id="story-pages" style="@if(id == None) { display:none } else { display: block }">
     <hr/>
-    <div class="grid_5 alpha suffix_1">
+    <div class="grid_6 alpha">
         <h3>Step 2: Story Pages</h3>
-        <div class="container">
-            <div class="head"></div>
-            <div class="body">
-                <ol>
-                    <li>Enter a page title</li>
-                    <li></li>
-                </ol>
-            </div>
-        </div>
+        <!--<div class="container">-->
+            <!--<div class="head"></div>-->
+            <!--<div class="body">-->
+                <!--<ol class="small">-->
+                    <!--<li>Enter a page title</li>-->
+                    <!--<li></li>-->
+                <!--</ol>-->
+            <!--</div>-->
+        <!--</div>-->
 
         <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
         <div id="page-list" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
         <div class="actions">
-                <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
+            <a href="#" class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</a>
+            <a class="read" href="/" target="_blank">View your story</a>
         </div>
 
     </div>
-    <div class="grid_10 omega">
+    <div class="grid_9 prefix_1 omega">
 
         <div id="form-add-page" class="page-form" style="@if(id == None) { display:block } else { display: none }" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
 
