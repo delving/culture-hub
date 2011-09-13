@@ -27,9 +27,9 @@ object Stories extends DelvingController {
 
   }
 
-  def story(user: String, story: String): AnyRef = {
-    val u = getUser(user)
-    html.story(user = u, name = story)
+  def story(user: String, id: String): AnyRef = {
+    val story = Story.findById(id) getOrElse(return NotFound("Story with ID %s could not be found".format(id)))
+    html.story(story = story)
   }
 
   def read(user: String, id: String): AnyRef = {

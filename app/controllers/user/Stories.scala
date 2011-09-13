@@ -48,12 +48,12 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
     val persistedStory = storyVM.id match {
       case None =>
-        val story = Story(name = storyVM.name, TS_update = DateTime.now, description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = storyVM.visibility, pages = pages, isDraft = storyVM.isDraft)
+        val story = Story(name = storyVM.name, TS_update = DateTime.now, description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = visibility, pages = pages, isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)
       case Some(id) =>
         val savedStory = Story.findOneByID(id).getOrElse(return Error("Story with ID %s not found".format(id)))
-        val updatedStory = savedStory.copy(TS_update = DateTime.now, name = storyVM.name, description = storyVM.description, visibility = storyVM.visibility, pages = pages)
+        val updatedStory = savedStory.copy(TS_update = DateTime.now, name = storyVM.name, description = storyVM.description, visibility = visibility, pages = pages)
         Story.save(updatedStory)
         storyVM
     }
@@ -66,7 +66,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 case class StoryViewModel(id: Option[ObjectId] = None,
                           name: String = "",
                           description: String = "",
-                          visibility: String = Visibility.Private.toString,
+                          visibility: String = Visibility.Public.toString,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
                           collections: List[CollectionViewModel] = List.empty[CollectionViewModel])

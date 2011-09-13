@@ -1,10 +1,10 @@
-@(user:models.User, name: String)
+@(story: models.Story)
 
 @import views.context._
 
-@header("Story " + name + " of user " + user.fullname ) {
+@header("Story " + story.name + " of user " + browsedFullName ) {
 
-        <h1>Story "@name"</h1>
+        <h1>Story "@story.name"</h1>
 
 
 

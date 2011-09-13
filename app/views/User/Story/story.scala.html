@@ -38,13 +38,15 @@
     @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
     @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'")
 
-    <div class="field">
-      <label for="public">Publication Status</label>
-      <div class="inputs">
-          <input type="radio" checked="checked" value="0" id="public-0" name="public"> Private
-          <input type="radio" value="1" id="public-1" name="public"> Public
-      </div>
+    <div class="field" for="objectVisibility">
+        <label>Public</label>
+
+        <div class="inputs">
+            <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
+            <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
+        </div>
     </div>
+
    @if(id == None) {
     <div class="actions">
         <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>

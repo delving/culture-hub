@@ -18,7 +18,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  description: String,
                  user_id: ObjectId,
                  userName: String,
-                 visibility: String, // Visibility.Value
+                 visibility: Visibility.Value,
                  isDraft: Boolean,
                  pages: List[Page]) {
 }
