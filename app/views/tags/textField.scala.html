@@ -1,9 +1,9 @@
-@(name:String, label:String, dataBind: String = "", help: String = "", disabled: Boolean = false)
+@(name:String, label:String, dataBind: String = "", help: String = "", disabled: Boolean = false, labelClass: String = "")
 @import views.context._
 
 @isDisabled = @{ if(disabled) "disabled" else "" }
 <div class="field">
-    <label for="@name">@label</label>
+    <label class="@labelClass" for="@name">@label</label>
     <div class="inputs">
         <input type="text" class="textinput" id="@name" name="@name" size="40" value="@params.get(name)" data-bind="@dataBind" @isDisabled />
         <span class="error">@showError(name)</span>

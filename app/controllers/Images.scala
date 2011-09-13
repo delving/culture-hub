@@ -13,6 +13,7 @@ import play.mvc.results.{NotFound, RenderBinary, Result}
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
 import play.Play
+import play.utils.Utils
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -187,9 +188,10 @@ object ImageCacheService {
   def setImageCacheControlHeaders(image: GridFSDBFile, response: Response, duration:Int = cacheDuration) {
     response.setContentTypeIfNotSet(image.contentType)
     val now = System.currentTimeMillis();
-    response.cacheFor("", duration.toString + "s", now)
-    response.headers.get("Cache-Control").values.add("must-revalidate")
-    response.setHeader("Expires", (now + duration * 1000).toString)
+//    response.cacheFor(image.underlying.getMD5, duration.toString + "s", now)
+    // overwrite the Cache-Control header and add the must-revalidate directive by hand
+    response.setHeader("Cache-Control", "max-age=%s, must-revalidate".format(duration))
+    response.setHeader("Expires", Utils.getHttpDateFormatter.format(new Date(now + duration * 1000)))
   }
 
 

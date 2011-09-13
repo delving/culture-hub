@@ -18,8 +18,8 @@ object Collections extends DelvingController {
   def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
 
     val collectionsPage = user match {
-      case Some(u) => UserCollection.findByUser(browsedUserId).page(page)
-      case None => UserCollection.findAll.page(page)
+      case Some(u) => UserCollection.queryWithUser(query, browsedUserId).page(page)
+      case None => UserCollection.queryAll(query).page(page)
     }
 
     html.list(collections = collectionsPage._1, page = page, count = collectionsPage._2)

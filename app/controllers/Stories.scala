@@ -19,17 +19,17 @@ object Stories extends DelvingController {
 
     // TODO access rights
     val storiesPage = user match {
-      case Some(u) => Story.findByUser(browsedUserId).page(page)
-      case None => Story.findAll.page(page)
+      case Some(u) => Story.queryWithUser(query, browsedUserId).page(page)
+      case None => Story.queryAll(query).page(page)
     }
 
     html.list(stories = storiesPage._1, page = page, count = storiesPage._2)
 
   }
 
-  def story(user: String, story: String): AnyRef = {
-    val u = getUser(user)
-    html.story(user = u, name = story)
+  def story(user: String, id: String): AnyRef = {
+    val story = Story.findById(id) getOrElse(return NotFound("Story with ID %s could not be found".format(id)))
+    html.story(story = story)
   }
 
   def read(user: String, id: String): AnyRef = {

@@ -5,6 +5,8 @@ import com.mongodb.DBObject
 import play.mvc.results.Result
 import org.bson.types.ObjectId
 import play.templates.Html
+import com.mongodb.casbah.commons.MongoDBObject
+import java.util.regex.Pattern
 
 /**
  * 
@@ -21,9 +23,17 @@ object Users extends DelvingController {
   }
 
   def list(query: String, page: Int = 1): Html = {
-    val usersPage = User.findAll.page(page)
 
-    html.list(users = usersPage._1, page = page, count = usersPage._2)
+    // ~~~ temporary hand-crafted search for users
+    import views.context.PAGE_SIZE
+    def queryOk(query: String) = query != null && query.trim().length > 0
+    val queriedUsers = (if(queryOk(query)) User.find(MongoDBObject("firstName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) ++ User.find(MongoDBObject("lastName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else User.findAll).toList
+    val pageEndIndex: Int = (page + 1) * PAGE_SIZE
+    val listMax = queriedUsers.length
+    val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
+    val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
+
+    html.list(users = usersPage.toList, page = page, count = queriedUsers.length)
 
   }
 
