@@ -6,12 +6,9 @@
 
 <link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
 
-
 <div class="story">
 
-<h1>@story.name</h1>
-<!-- "previous page" action -->
-<a class="prev browse left">Previous</a>
+    <h1>@story.name</h1>
 
     <div class="story-container">
 
@@ -20,19 +17,7 @@
             <a class="next browse right">Next page</a>
         </div>
 
-     @for(page <- story.pages) {
-      <div class="page">
-         <h2>@page.title</h2>
-         <div class="media">
-           @for(i <- page.objects.headOption) {
-              <img src="@imageUrl(i.dobject_id)" alt="@page.title">
-           }
-         </div>
-          <div class="text">
-            @Html(page.text)
-          </div>
-      </div>
-     }
+        <div class="scrollable">
 
             <!-- root element for the items -->
             <div class="items">
@@ -54,7 +39,9 @@
                         @Html(page.text)
                     </div>
                     <div class="page-right">
-                        [page image]
+                       @for(i <- page.objects.headOption) {
+                          <img src="@imageUrl(i.dobject_id)" alt="@page.title">
+                       }
                     </div>
                 </div>
                 }
@@ -76,3 +63,5 @@
     });
 </script>
 }
+
+
