@@ -5,27 +5,32 @@
 @header("Story " + story.name + " of user " + browsedFullName ) {
 
 <h1>Story "@story.name"</h1>
+<p>@story.description</p>
+Date created: @niceTime(story._id.getTime)<br/>
+Last updated: @niceTime(story.TS_update)<br/>
 
-Last updated: @niceTime(story.TS_update)
-<hr/>
-Description: @story.description
-<hr/>
-Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }
-<hr/>
+
+<!--Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }-->
 Pages:<br/>
-@for(page <- story.pages) {
   <ul>
+@for(page <- story.pages) {
+
     <li>@page.title</li>
-    <li>@page.text</li>
-    <li>
-      @for(o <- page.objects) {
-      <ul>
-        Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">
-      </ul>
-      }
-    </li>
-  </ul>
-  <hr/>
+    <!--<li>@page.text</li>-->
+    <!--<li>-->
+      <!--@for(o <- page.objects) {-->
+      <!--<ul>-->
+        <!--Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">-->
+      <!--</ul>-->
+      <!--}-->
+    <!--</li>-->
+
 }
+</ul>
+@if(story.userName == userName){
+ <a href="/@story.userName/story/@story._id/update">Edit story</a>
+}
+
+<a href="/@story.userName/story/@story._id/read">Read story</a>
 
 }
