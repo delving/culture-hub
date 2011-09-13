@@ -59,7 +59,7 @@
                 <div class="bd">
                     <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
                     <span class="detail">@fullName(c.userName)</span>
-                    <span class="detail">@c.TS_update</span>
+                    <span class="detail">@niceTime(c.TS_update)</span>
                 </div>
              </div>
         </div>
@@ -80,7 +80,7 @@
                 <div class="bd">
                     <h4 class="story"><a href="/@s.userName/story/@s.id">@s.name</a></h4>
                     <span class="detail">@fullName(s.userName)</span>
-                    <span class="detail">@s.TS_update</span>
+                    <span class="detail">@niceTime(s.TS_update)</span>
                 </div>
             </div>
         </div>
