@@ -58,10 +58,6 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     Continue
   }
 
-  @Before(priority = 1) def setPortalTheme() {
-    renderArgs.put("theme", theme)
-  }
-
   // ~~~ convenience methods to access user information
 
   // TODO
@@ -190,7 +186,7 @@ trait ParameterCheck {
 
 }
 
-trait ThemeAware {
+trait ThemeAware { self: Controller =>
 
   val themeHandler = ComponentRegistry.themeHandler
   val localizedFieldNames = new LocalizedFieldNames
@@ -207,6 +203,7 @@ trait ThemeAware {
     val portalTheme = themeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
+    renderArgs.put("theme", theme)
   }
 
   @Finally

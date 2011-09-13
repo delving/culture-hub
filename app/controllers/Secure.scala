@@ -56,7 +56,7 @@ trait Security {
   def onAuthenticated(username: String, session: Session)
 }
 
-object Authentication extends Controller {
+object Authentication extends Controller with ThemeAware {
 
   private val authSec = getSecurity.newInstance.asInstanceOf[ { def authenticate(username: String, password: String): Boolean }]
 
