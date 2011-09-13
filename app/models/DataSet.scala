@@ -82,7 +82,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
-    val newMapping = Mapping(recordMapping = RecordMapping.toXml(mapping), format = RecordDefinition(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired))
+    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired))
     // remove First Harvest Step
     this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
   }
@@ -255,7 +255,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces), play.Play.classloader.getParent)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent)
     val cursor = salatDAO.find(MongoDBObject())
     var state = getStateWithSpec(dataSet.spec)
     for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
@@ -350,7 +350,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     import scala.collection.JavaConversions.asJavaMap
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping, asJavaMap(dataSet.namespaces), play.Play.classloader)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader)
     val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
@@ -380,7 +380,7 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 
-case class Mapping(recordMapping: String = "",
+case class Mapping(recordMapping: Option[String] = None,
                    format: RecordDefinition,
                    rec_indexed: Int = 0,
                    errorMessage: Option[String] = Some(""),

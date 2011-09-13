@@ -275,8 +275,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     }
 
     for(mapping <- dataSet.mappings) {
-      writeEntry("mapping_%s.xml".format(mapping._1), zipOut) { out =>
-        writeContent(mapping._2.recordMapping, out)
+      if(mapping._2.recordMapping != None) {
+        writeEntry("mapping_%s.xml".format(mapping._1), zipOut) { out =>
+          writeContent(mapping._2.recordMapping.get, out)
+        }
       }
     }
 
