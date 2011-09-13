@@ -24,7 +24,7 @@
               <div class="actions"><a href="" class="add collection-add">Create a collection</a> </div>
               <ol class="small">
                   <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
-                  <li>You should inititally keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
+                  <li>You should initially keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
                   <li>Once you have completed the above steps you can start adding pages to your story</li>
               </ol>
           </div>
@@ -168,7 +168,7 @@
           <th colspan="3" class="header">Objects in your page</th>
           </tr>
           <tr>
-          <th>Object</th><th class="action">Action</th><th class="thumb">Thumbnail</th>
+          <th>Object</th><th class="action">Action</th><th class="thumb">Use as story thumbnail</th>
           </tr>
       </thead>
       <tbody>
@@ -176,7 +176,7 @@
       <tr>
           <td>${name}</td>
           <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
-          <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: currentPage.thumbnail"></td>
+          <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
       </tr>
       {{/each}}
   </table>
@@ -210,7 +210,6 @@
         currentPage: {
           lock: ko.observable(false),
           isNew: ko.observable(false),
-          thumbnail: ko.observable(),
           pageRef: ko.observable(),
           title: ko.observable(),
           text: ko.observable(),

@@ -108,7 +108,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   implicit def collectionToShort(c: UserCollection) = ShortCollection(c._id, c.TS_update, c.name, c.description.getOrElse(""), c.thumbnail_object_id, c.userName)
   implicit def cListToSCList(cl: List[UserCollection]) = cl map { c => collectionToShort(c) }
 
-  implicit def storyToShort(s: Story) = ShortStory(s._id, s.TS_update, s.name, s.description, None, s.userName)
+  implicit def storyToShort(s: Story) = ShortStory(s._id, s.TS_update, s.name, s.description, s.thumbnail, s.userName)
   implicit def sListToSSList(sl: List[Story]) = sl map { s => storyToShort(s) }
 
   implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
@@ -118,6 +118,11 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
 
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
+
+  implicit def oIdToString(oid: Option[ObjectId]) = oid match {
+    case Some(id) => id.toString
+    case None => ""
+  }
 
 }
 
