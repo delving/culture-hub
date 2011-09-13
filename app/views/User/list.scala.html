@@ -15,12 +15,11 @@
 
     <div class="clear"></div>
 
-    @for(u <- users) {
-    <div class="item one-col">
-      <img src='/images/' width="84" alt="@u.name"/>
-      <h4><a href="/@u.userName/profile">@u.name</a></h4>
-    </div>
-    }
+@for(u <- users) {
+   <div class="item one-col">
+     <h4 class="user"><a href="/@u.userName/profile">@u.fullName</a></h4>
+   </div>
+   }
 </div>
 
 }
