@@ -7,18 +7,19 @@ import play.mvc.results.{RenderBinary, Result}
 import play.mvc.Util
 import models.StoredFile
 import java.io.File
-import com.mongodb.casbah.gridfs.{GridFSDBFile, GridFSInputFile, GridFS}
+import com.mongodb.casbah.gridfs.{GridFSDBFile, GridFS}
 import com.mongodb.gridfs.GridFSFile
 
 /**
  * Common controller for handling files, no matter from where.
  *
  * TODO add indexes on the object_id and image_id field
- *
+ * TODO access control for uploading!!!
+ * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileStore extends DelvingController with Secure {
+object FileStore extends DelvingController {
 
   val emptyThumbnail = "/public/images/dummy-object.png"
   val emptyThumbnailFile = new File(play.Play.applicationPath + emptyThumbnail)
