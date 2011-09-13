@@ -69,7 +69,10 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
-  @Util def getUser(displayName: String): User = User.findOne(MongoDBObject("_id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
+  @Util def getUser(displayName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)) match {
+    case Some(user) => Right(user)
+    case None => Left(NotFound("Could not find user " + displayName))
+  }
 
   @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
 
@@ -111,7 +114,7 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
   implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
   implicit def oListToSOList(ol: List[DObject]) = ol map { o => objectToShort(o) }
 
-  implicit def userToShort(u: User) = ShortUser(u._id, u.fullname, u.reference.username)
+  implicit def userToShort(u: User) = ShortUser(u._id, u.firstName, u.lastName, u.fullname, u.email, u.reference.username)
   implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
 
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}

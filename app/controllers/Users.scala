@@ -17,8 +17,11 @@ object Users extends DelvingController {
 
   import views.User._
 
-  def index(user: String) = {
-    val u = getUser(user)
+  def index(user: String): AnyRef = {
+    val u = getUser(user) match {
+      case Right(aUser) => aUser
+      case Left(error) => return error
+    }
     html.index(username = u.reference.username)
   }
 
@@ -47,4 +50,4 @@ object Users extends DelvingController {
 
 }
 
-case class ShortUser(id: ObjectId, name: String, userName: String)
+case class ShortUser(id: ObjectId, firstName: String, lastName: String, fullName: String, email: String, userName: String)
