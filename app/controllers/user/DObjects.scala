@@ -12,7 +12,7 @@ import controllers._
 import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import models.{UserCollection, Label, DObject}
+import models.{Visibility, UserCollection, Label, DObject}
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -28,7 +28,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         case None => Json(ObjectModel())
         case Some(anObject) => {
           val collections = UserCollection.findAllWithIds(anObject.collections).toList map { c => Collection(c._id, c.name) }
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility.toString, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length)}))
         }
       }
   }
@@ -68,7 +68,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = makeThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = makeThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           makeThumbnail(id)

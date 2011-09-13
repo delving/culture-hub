@@ -15,7 +15,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                   TS_update: DateTime,
                   user_id: ObjectId,
                   userName: String,
-                  visibility: String = "Private", // TODO turn into Enumeration when fixes in Salat are ok
+                  visibility: Visibility.Value = Visibility.Private,
                   name: String,
                   description: Option[String] = None,
                   thumbnail_file_id: Option[ObjectId] = None, // pointer to the file selected as the thumbnail. This is _not_ helping to fetch the thumbnail, which is retrieved using the ID of the object
