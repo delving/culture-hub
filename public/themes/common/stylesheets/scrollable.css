@@ -81,11 +81,12 @@
 
 .scrollable .title-page h1 {
     font-size: 300%;
-    margin: 70px 0 10px 0;
+    margin: 30px 0 10px 0;
 }
 
 .scrollable .title-page h2 {
    color: #000;
+   margin-top: 20px;
 }
 
 .scrollable .page h2 {
@@ -94,10 +95,10 @@
 }
 
 /* single scrollable item */
-.scrollable img {
-	float:left;
-    margin:  0 20px 20px 0;
-}
+/*.scrollable img {*/
+	/*float:left;*/
+    /*margin:  0 20px 20px 0;*/
+/*}*/
 
 /* active item */
 /*.scrollable .active {*/
