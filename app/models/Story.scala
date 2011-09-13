@@ -19,6 +19,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  user_id: ObjectId,
                  userName: String,
                  visibility: Visibility.Value,
+                 thumbnail: Option[ObjectId],
                  isDraft: Boolean,
                  pages: List[Page]) {
 }
@@ -30,7 +31,7 @@ object Visibility extends Enumeration {
   val Private, Public = Value
 }
 
-case class Page(title: String, text: String, objects: List[PageObject], thumbnail: Option[ObjectId])
+case class Page(title: String, text: String, objects: List[PageObject])
 
 /** object in a page. may contain more things such as position, location, ... **/
 case class PageObject(dobject_id: ObjectId)
