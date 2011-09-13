@@ -1,4 +1,4 @@
-@(name:String, label:String, dataBind: String = "", help: String = "", labelClass: String = "")
+@(name:String, label:String, dataBind: String = "", help: String = "", disabled: Boolean = false, labelClass: String = "")
 @import views.context._
 
 @isDisabled = @{ if(disabled) "disabled" else "" }
