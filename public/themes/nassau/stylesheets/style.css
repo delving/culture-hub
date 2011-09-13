@@ -1,11 +1,11 @@
 body {
-    background:  #60652A;
+    background:  #ccc;
     font: 15px/1.5 Arial,Helvetica,sans-serif;
     margin:  0;
 }
 
 body#authenticate {
-       background:  #60652A url(../images/bg-header.png) repeat-x top left;
+       background:  #990000;
 }
 
 .container_16 {
@@ -15,46 +15,60 @@ body#authenticate {
 
 /* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
 
-/*html, body {height: 100%;}*/
+html, body {height: 100%;}
 
-/*#wrapper {min-height: 100%;}*/
+#wrapper {
+    min-height: 100%;
+}
 
-/*#page {overflow:auto;*/
-	/*padding-bottom: 200px;}  *//* must be same height as the footer */
+#page {overflow:auto;
+    padding-bottom: 300px;}   /*must be same height as the footer*/
 
-/*#footer {position: relative;*/
-	/*margin-top: -200px; *//* negative value of footer height */
-	/*height: 200px;*/
-	/*clear:both;}*/
+#footer {position: relative;
+	margin-top: -300px;  /*negative value of footer height*/
+	height: 300px;
+	clear:both;}
 
-/*Opera Fix*/
-/*body:before {*/
-	/*content:"";*/
-	/*height:100%;*/
-	/*float:left;*/
-	/*width:0;*/
-	/*margin-top:-32767px;/*/
-/*}*/
+Opera Fix
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;/
+}
 
 /* end sticky footer code! */
+
+
+
+#footer .container_16 {
+    background:  #333;
+    height: 300px;
+}
 
 a, a:active, a:visited { color: #0673b9; }
 a:hover { color: #10a1ff; }
 
 /* typography */
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: Times, "Times New Roman", serif;
+    margin-top: 0px;
+}
+
 h1 {
-    color: #CC3333;
+    color: #990000;
     font-size: 150%;
 }
 
 h2 {
-    color: #CC3333;
+    color: #990000;
     font-size: 135%;
 }
 
 h3 {
-    color: #ff0033;
+    color: #ad3333;
     font-size: 115%;
 }
 
@@ -77,11 +91,17 @@ ol.small li {
 
 /* basic page layout */
 
+
+#header, #search, #page, #footer {
+    background: #fff;
+}
+
+#page .container_16 {
+   	padding-top: 20px;
+
+}
+
 #page {
-    background-color: #fff;
-    min-height: 200px;
-    overflow: hidden;
-    padding:  20px 0;
     clear: both;
 }
 
@@ -94,43 +114,30 @@ ol.small li {
     display: none;
 }
 
-#header-top  {
-    background:  #272911;
-    border-bottom:  1px solid #4a4d32;
+#header-top  .container_16  {
+    background:  #333;
+    /*border-bottom:  1px solid #4a4d32;*/
     height: 42px;
     line-height: 42px;
     /*line-height: 42px;*/
     /*overflow:  hidden;*/
 }
 
-#header-main {
-    background:  #60652A url(../images/bg-header.png) repeat-x top left;
+#header-main   .container_16 {
+    background:  #990000 ;
     height: 140px;
     /*position: relative;*/
     /*z-index: 1;*/
 }
-
-
-#header-main .container_16 {
-    background: transparent url(../images/bg-main.png) no-repeat  right -150px;
-    height: 140px;
-}
-
 
 #home #header-main {
     height: 350px;
 }
 
 #home #header-main .container_16 {
-    background: transparent url(../images/bg-main.png) no-repeat bottom right;
     height: 350px;
 }
 
-
-#footer {
-    background:  #60652A;
-    min-height: 100px;
-}
 
 #login-registration {
     text-align: right;
@@ -139,26 +146,26 @@ ol.small li {
 /* Name / Branding */
 
 #branding h1 {
-    background: transparent url(../images/bg-name.png) no-repeat top left;
+    /*background: transparent url(../images/bg-name.png) no-repeat top left;*/
     color: #fff;
-    font: 42px arial;
-    margin: 40px 0 0 0;
+    font-size: 300%;
+    margin: 30px 0 0 0;
     padding:  0;
 }
 
-#branding h1 span {
-    display: inline-block;
-    text-align: center;
-    width: 335px;
+/*#branding h1 span {*/
+    /*display: inline-block;*/
+    /*text-align: center;*/
+    /*width: 335px;*/
     /*margin-left: 20px;*/
-}
+/*}*/
 
 #header-text {
     display: none;
 }
 
 #header-text a {
-    color: pink;
+    color: #e8c8c8;
 }
 
 #home #header-text {
@@ -166,14 +173,14 @@ ol.small li {
     color: #fff;
     font-size: 13px;
     width: 40%;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 /* User bar navigation */
 
 #header-user-bar  {
-    background: #272911;
-    border-bottom:  1px solid #4a4d32;
+    background: #333;
+    /*border-bottom:  1px solid #4a4d32;*/
     /*overflow:  hidden;*/
     line-height: 32px;
     height: 32px;
@@ -190,14 +197,14 @@ ol.small li {
 
 /* Search */
 
-#search {
-    background:  #CFD0BF;
+#search .container_16 {
+    background:  #333;
     height: 75px;
     line-height: 70px;
     text-align: center;
 }
 #search input[type="text"]{
-    background: transparent url(../images/bg-search-input.png) 0 0 no-repeat;
+    background: transparent url(../../common/images/bg-search-input.png) 0 0 no-repeat;
     border: none;
     height: 40px;
     line-height: 40px;
@@ -225,6 +232,65 @@ ol.small li {
 #search input[type="submit"]:active {
     background: transparent url(../images/bg-button-states.png) 0 -64px no-repeat;
 }
+
+
+
+/* table styles */
+
+table.list,
+table.files{
+    width: 100%;
+    font-size: 12px;
+}
+
+table.list th.header {
+    background:  #ddddd0;
+    border-bottom:  1px solid #fff;
+    color: #555;
+    font-weight: bold;
+    padding:  2px 6px;
+}
+
+table.list th {
+    padding:  2px 6px;
+    background-color: #555;
+    color: #fff;
+    font-weight: normal;
+}
+
+    /*table.list td.action,*/
+    /*table.list td.thumb {*/
+        /*text-align: right*/
+    /*}*/
+
+    /*table.list td.thumb img {*/
+        /*margin-right: 5px;*/
+    /*}*/
+
+table.list tr:nth-child(odd),
+table.files tr:nth-child(odd){
+    background-color:#eeeee0;
+}
+table.list tr:nth-child(even){
+    background-color:#fffff0;
+}
+
+table.list tr:hover {
+    background:  #fff;
+}
+
+ul.inline {
+    margin: 0;
+    padding: 0;
+}
+
+ul.inline li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 10px 10px 0;
+}
+
+/* This needs to go to common */
 
 /* result page */
 
@@ -303,8 +369,8 @@ ol.small li {
 /* containers */
 
 .container {
-    background:  #E7E8DF;
-    border:  1px solid #E7E8DF;
+    background:  #ebebeb;
+    border:  1px solid #c8c8c8;
     border-radius: 4px;
 }
 
@@ -409,8 +475,8 @@ input[type=submit],
 input[type=button],
 input[type=file],
 button {
-    background-color: #cfd0bf;
-    color: #555;
+    background-color: #ababab;
+    color: #fff;
 }
 
 input[type=file] {
@@ -421,7 +487,7 @@ input[type=submit]:hover,
 input[type=button]:hover,
 input[type=file]:hover,
 button:hover{
-    background-color: #666600;
+    background-color: #888;
     color: #fff;
 }
 
@@ -429,72 +495,24 @@ input[type=submit]:active,
 input[type=button]:active,
 input[type=file]:active,
 button:active{
-    background-color: #3c3c00;
+    background-color: #555;
     color: #fff;
 }
 
 button[disabled] {
-    background-color: #cfd0bf;
+    background-color: #e2e2e2;
     color: #555;
     cursor: default;
     opacity:0.4;
     filter:alpha(opacity=40)
 }
 
-/* table styles */
+/* action over-rides */
 
-table.list,
-table.files{
-    width: 100%;
-    font-size: 12px;
+.actions a {
+    background-color: #c8c8c8;
 }
 
-table.list th.header {
-    background:  #ddddd0;
-    border-bottom:  1px solid #fff;
-    color: #555;
-    font-weight: bold;
-    padding:  2px 6px;
-}
-
-table.list th {
-    padding:  2px 6px;
-    background-color: #555;
-    color: #fff;
-    font-weight: normal;
-}
-
-    /*table.list td.action,*/
-    /*table.list td.thumb {*/
-        /*text-align: right*/
-    /*}*/
-
-    /*table.list td.thumb img {*/
-        /*margin-right: 5px;*/
-    /*}*/
-
-table.list tr:nth-child(odd),
-table.files tr:nth-child(odd){
-    background-color:#eeeee0;
-}
-table.list tr:nth-child(even){
-    background-color:#fffff0;
-}
-
-table.list tr:hover {
-    background:  #fff;
-}
-
-ul.inline {
-    margin: 0;
-    padding: 0;
-}
-
-ul.inline li {
-    display: inline-block;
-    list-style: none;
-    margin: 0 10px 10px 0;
-}
 
 
 
