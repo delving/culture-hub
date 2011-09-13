@@ -72,7 +72,7 @@ function initUploadWidget() {
                 } else {
                     row.find('.name a').text(file.name);
                     if (file.thumbnail_url) {
-                        row.find('.preview').append('<a><img></a>')
+                        row.find('.preview').append('<a><img width="80"></a>')
                                 .find('img').prop('src', file.thumbnail_url);
                         row.find('a').prop('target', '_blank');
                     }

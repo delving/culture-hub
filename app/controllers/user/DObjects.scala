@@ -40,8 +40,8 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     val files = FileStore.fetchFilesForUID(uid)
 
-    def makeThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
-        case Some(f) => FileStore.makeThumbnail(objectId, f.id)
+    def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
+        case Some(f) => FileStore.activateThumbnail(f.id, objectId)
         case None => None
     }
 
@@ -60,7 +60,8 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, labels = labels))
         inserted match {
           case Some(iid) => {
-            makeThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
+            FileStore.markFilesAttached(uid, iid)
+            activateThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
             Some(objectModel.copy(id = inserted))
           }
           case None => None
@@ -68,10 +69,10 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = makeThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
-          makeThumbnail(id)
+          FileStore.markFilesAttached(uid, id)
           Some(objectModel)
         } catch {
           case e: SalatDAOUpdateError => None
@@ -81,7 +82,6 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     persistedObject match {
       case Some(theObject) => {
-        FileStore.detachFilesForUID(uid)
         Json(theObject)
       }
       case None => Error("Error saving object")
