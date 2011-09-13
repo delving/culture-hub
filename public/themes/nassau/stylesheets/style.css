@@ -1,5 +1,5 @@
 body {
-    background:  #ccc;
+    background:  #333 url(../images/nassaue-footer-bg.png) bottom center no-repeat;
     font: 15px/1.5 Arial,Helvetica,sans-serif;
     margin:  0;
 }
@@ -15,56 +15,54 @@ body#authenticate {
 
 /* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
 
-html, body {height: 100%;}
+/*html, body {height: 100%;}*/
 
-#wrapper {
-    min-height: 100%;
-}
+/*#wrapper {*/
+    /*min-height: 100%;*/
 
-#page {overflow:auto;
-    padding-bottom: 300px;}   /*must be same height as the footer*/
+/*}*/
 
-#footer {position: relative;
-	margin-top: -300px;  /*negative value of footer height*/
-	height: 300px;
-	clear:both;}
+/*#page {overflow:auto;*/
+    /*padding-bottom: 300px;}   must be same height as the footer*/
 
-Opera Fix
-body:before {
-	content:"";
-	height:100%;
-	float:left;
-	width:0;
-	margin-top:-32767px;/
-}
+/*#footer {position: relative;*/
+	/*margin-top: -300px;  negative value of footer height*/
+	/*height: 300px;*/
+	/*clear:both;}*/
+
+/*Opera Fix*/
+/*body:before {*/
+	/*content:"";*/
+	/*height:100%;*/
+	/*float:left;*/
+	/*width:0;*/
+	/*margin-top:-32767px;/*/
+/*}*/
 
 /* end sticky footer code! */
 
 
 
-#footer .container_16 {
-    background:  #333;
-    height: 300px;
-}
+
 
 a, a:active, a:visited { color: #0673b9; }
 a:hover { color: #10a1ff; }
 
 /* typography */
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
     font-family: Times, "Times New Roman", serif;
     margin-top: 0px;
 }
 
 h1 {
     color: #990000;
-    font-size: 150%;
+    font-size: 175%;
 }
 
 h2 {
     color: #990000;
-    font-size: 135%;
+    font-size: 150%;
 }
 
 h3 {
@@ -91,18 +89,24 @@ ol.small li {
 
 /* basic page layout */
 
-
-#header, #search, #page, #footer {
-    background: #fff;
+#footer {
+    background:  #333;
+    height: 300px;
 }
 
-#page .container_16 {
-   	padding-top: 20px;
 
+
+
+#page {
+    background:  #fff;
+    padding: 10px 0;
 }
+
 
 #page {
     clear: both;
+    min-height: 400px;
+    overflow:  hidden;
 }
 
 #page .container_16 .grid_16 {
@@ -114,7 +118,7 @@ ol.small li {
     display: none;
 }
 
-#header-top  .container_16  {
+#header-top   {
     background:  #333;
     /*border-bottom:  1px solid #4a4d32;*/
     height: 42px;
@@ -123,18 +127,19 @@ ol.small li {
     /*overflow:  hidden;*/
 }
 
-#header-main   .container_16 {
-    background:  #990000 ;
+#header-main {
+    background:  #990000;
     height: 140px;
     /*position: relative;*/
     /*z-index: 1;*/
 }
 
-#home #header-main {
+#home #header-main .container_16 {
+    background:  #990000  url(../images/nassau-header-bg.png) bottom right no-repeat;
     height: 350px;
 }
 
-#home #header-main .container_16 {
+#home #header-main  {
     height: 350px;
 }
 
@@ -174,6 +179,7 @@ ol.small li {
     font-size: 13px;
     width: 40%;
     margin-top: 20px;
+    text-shadow: 1px 1px #000;
 }
 
 /* User bar navigation */
@@ -197,10 +203,10 @@ ol.small li {
 
 /* Search */
 
-#search .container_16 {
-    background:  #333;
-    height: 75px;
-    line-height: 70px;
+#search {
+    background: #555;
+    height: 64px;
+    line-height: 64px;
     text-align: center;
 }
 #search input[type="text"]{

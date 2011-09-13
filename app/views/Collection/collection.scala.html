@@ -4,44 +4,46 @@
 
 @header("Collection " + collection.name + " of user " + browsedFullName) {
 
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/collections">Collections</a><span class="arrow"> &gt; </span>
+    <span class="current">@collection.name</span>
+</div>
+
 <h1>@collection.name</h1>
 
-<div class="grid_16 alpha">
+<div class="grid_4 alpha">
 
-    <div class="item">
-        <div class="media large">
-            <img src="@thumbnailUrl(collection.thumbnail_object_id)" width="220" alt="@collection.name"/>
+    <img src="@thumbnailUrl(collection.thumbnail_object_id)" width="220" alt="@collection.name"/>
 
-        </div>
+</div>
 
-        <div class="metadata">
+<div class="grid_12 omega">
+    <div class="item metadata">
+        <h2>Owner</h2>
+        <p>@browsedFullName</p>
 
-            <h2>Owner</h2>
-            <p>@browsedFullName</p>
+        <h2>Date created:</h2>
+        <p>@niceTime(collection._id.getTime)</p>
 
-            <h2>Date created:</h2>
-            <p>@niceTime(collection._id.getTime)</p>
+        <h2>Date modified:</h2>
+        <p>@niceTime(collection.TS_update)</p>
 
-            <h2>Date modified:</h2>
-            <p>@niceTime(collection.TS_update)</p>
+        <h2>Description</h2>
+        <p>@niceText(collection.description.getOrElse("No description available"))</p>
 
-            <h2>Description</h2>
-            <p>@niceText(collection.description.getOrElse("No description available"))</p>
-
-            <h2>Objects</h2>
-            @if(objects.length > 0 ) {
-            <ul class="inline">
-                @for(o <- objects) {
-                <li>
-                    <a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
-                </li>
-                }
-            </ul>
-            } else {
-            <p>No objects found for this collection</p>
+        <h2>Objects</h2>
+        @if(objects.length > 0 ) {
+        <ul class="inline">
+            @for(o <- objects) {
+            <li>
+                <a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
+            </li>
             }
-
-        </div>
+        </ul>
+        } else {
+        <p>No objects found for this collection</p>
+        }
     </div>
 
 </div>

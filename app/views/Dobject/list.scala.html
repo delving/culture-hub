@@ -5,6 +5,11 @@
 
 @header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
 
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Objects</span>
+</div>
+
 <div class="grid_16 alpha" id="items">
 
     @if(browsedUserName != null) {

@@ -3,6 +3,15 @@
 @import views.context._
 
 @header("Profile of user " + user.fullName ) {
+
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/users">User</a><span class="arrow"> &gt; </span>
+    <span class="current">@user.fullName</span>
+</div>
+
+
+
 <h1>Profile page for: <span>@user.fullName</span></h1>
 User name: @user.userName<br/>
 <!--First Name: @user.firstName<br/>-->

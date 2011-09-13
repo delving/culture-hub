@@ -54,3 +54,15 @@
 .item-pager .pipe {
     padding: 0 2px 0 2px;
 }
+
+.breadcrumbs {
+    margin-bottom: 10px;
+}
+
+.breadcrumbs .arrow {
+    margin:  0 10px;
+}
+
+.breadcrumbs .current {
+    color: #888;
+}

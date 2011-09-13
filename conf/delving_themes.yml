@@ -55,7 +55,7 @@
     templateDir: nassau
     isDefault: false
     subdomain: nassau
-    displayName: De Friese Nassaus
+    displayName: De Friese Nassau's
     defaultLanguage: nl
     colorScheme: default
     solrSelectUrl: "http://localhost:8983/solr"

@@ -4,7 +4,13 @@
 
 @header("Story " + story.name + " of user " + browsedFullName ) {
 
-<h1>Story "@story.name"</h1>
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/stories">Stories</a><span class="arrow"> &gt; </span>
+    <span class="current">@story.name</span>
+</div>
+
+<h1>@story.name</h1>
 
 <div class="grid_4 alpha">
     <img src='@thumbnailUrl(story.thumbnail)' width="220" alt="@story.name"/>

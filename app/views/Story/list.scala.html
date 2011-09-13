@@ -4,6 +4,11 @@
 @import views.tags.html._
 
 @header(if(browsedUserName != null) "List of stories for user %s".format(browsedUserName) else "List of stories") {
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Stories</span>
+</div>
+
     <div class="grid_16 alpha">
 
         @if(browsedUserName != null) {

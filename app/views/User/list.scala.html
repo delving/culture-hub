@@ -5,6 +5,11 @@
 
 @header("List of users") {
 
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Users</span>
+</div>
+
 <div class="grid_16 alpha" id="items">
 
     <h2>Browse users (@count)</h2>
