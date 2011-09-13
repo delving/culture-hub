@@ -6,6 +6,7 @@ import at.ait.dme.magicktiler.{TilingException, TilesetInfo, MagickTiler}
 import org.apache.commons.io.FileUtils
 import java.io.File
 import scala.collection.JavaConversions._
+import user.FileUploadResponse
 
 /**
  * Controller taking care of image uploading for tiling

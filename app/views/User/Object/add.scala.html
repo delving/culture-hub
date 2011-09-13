@@ -61,7 +61,7 @@
     $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
     initUploadWidget();
     $('#fileupload').fileupload({
-      url: '@action(controllers.FileStore.uploadFile(uid))',
+      url: '@action(controllers.user.FileUpload.uploadFile(uid))',
       autoUpload: true
     });
 

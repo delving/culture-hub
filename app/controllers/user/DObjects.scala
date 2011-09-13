@@ -38,10 +38,10 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
-    val files = FileStore.fetchFilesForUID(uid)
+    val files = user.FileUpload.fetchFilesForUID(uid)
 
     def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
-        case Some(f) => FileStore.activateThumbnail(f.id, objectId)
+        case Some(f) => FileUpload.activateThumbnail(f.id, objectId)
         case None => None
     }
 
@@ -60,7 +60,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, labels = labels))
         inserted match {
           case Some(iid) => {
-            FileStore.markFilesAttached(uid, iid)
+            FileUpload.markFilesAttached(uid, iid)
             activateThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
             Some(objectModel.copy(id = inserted))
           }
@@ -72,7 +72,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
-          FileStore.markFilesAttached(uid, id)
+          FileUpload.markFilesAttached(uid, id)
           Some(objectModel)
         } catch {
           case e: SalatDAOUpdateError => None

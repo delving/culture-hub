@@ -122,7 +122,7 @@ POST       /admin/themes/reload                                              adm
 
 # File Store
 GET        /file/{id}                                                        FileStore.get
-POST       /file/upload/{uid}                                                FileStore.fileUpload
+POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
 GET        /file/image/{id}                                                  FileStore.getImage
 GET        /thumbnail/{id}                                                   FileStore.getThumbnail
 
