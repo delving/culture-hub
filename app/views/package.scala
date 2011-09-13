@@ -44,6 +44,8 @@ package object context {
     case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
   }
 
+  def imageUrl(image: ObjectId) = "/file/image/" + image
+
   def searchUrl = request.path
 
   // ~~~ template helpers
@@ -60,6 +62,7 @@ package object context {
   def themeName = theme.name
   def themeTemplateDir = theme.templateDir
   def themeDisplayName = theme.displayName
+  def themeText = theme.text
 
   def themePath(path: String) = "/public/themes/%s/%s".format(themeName, path)
 

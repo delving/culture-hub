@@ -20,6 +20,9 @@ object FileStore extends DelvingController {
   val emptyThumbnail = "/public/images/dummy-object.png"
   val emptyThumbnailFile = new File(play.Play.applicationPath + emptyThumbnail)
 
+  val IMAGE_FIELD = "image_object_id"
+  val THUMBNAIL_FIELD = "thumbnail_object_id"
+
   val fileStore = MongoConnection().getDB("fileStore")
   val fs = GridFS(fileStore)
 
@@ -45,28 +48,36 @@ object FileStore extends DelvingController {
     new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
   }
 
-  def getThumbnail(id: String): Result = {
+  def getThumbnail(id: String): Result = getImage(id, true)
+
+  def getImage(id: String): Result = getImage(id, false)
+
+  def getImage(id: String, thumbnail: Boolean): Result = {
     if (!ObjectId.isValid(id)) return Error("Invalid ID " + id)
     val oid = new ObjectId(id)
-    fs.findOne(MongoDBObject("image_id" -> oid)) match {
+    val field = if(thumbnail) THUMBNAIL_FIELD else IMAGE_FIELD
+    fs.findOne(MongoDBObject(field -> oid)) match {
       case Some(file) => {
         ImageCacheService.setImageCacheControlHeaders(file, response, 60 * 15)
         new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, true)
       }
       case None => {
-        new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
+        if(thumbnail) new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true) else NotFound
       }
     }
-
   }
 
+  /** makes a thumbnail for the given (image) file and marks it as The Chosen One **/
   @Util def makeThumbnail(objectId: ObjectId, fileId: ObjectId, width: Int = 220) = {
+    // TODO add indexes on the object_id and image_id field
     val image = fs.find(fileId)
+    image.put(IMAGE_FIELD, objectId)
+    image.save
     val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
     val thumbnail = fs.createFile(thumbnailStream)
     thumbnail.filename = image.filename
     thumbnail.contentType = "image/jpeg"
-    thumbnail.put("image_id", objectId)
+    thumbnail.put(THUMBNAIL_FIELD, objectId)
     thumbnail.save
     thumbnail._id
   }
