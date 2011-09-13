@@ -7,6 +7,7 @@ import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import models.{PortalTheme}
 import play.mvc.{Util, Http}
+import controllers.FileStore
 
 package object context {
 
@@ -44,7 +45,7 @@ package object context {
     case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
   }
 
-  def imageUrl(image: ObjectId) = "/file/image/" + image
+  def imageUrl(image: ObjectId) = if(FileStore.imageExists(image)) "/file/image/" + image else "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
 
   def searchUrl = request.path
 

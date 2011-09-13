@@ -57,6 +57,8 @@ object FileStore extends DelvingController {
     }
   }
 
+  @Util def imageExists(objectId: ObjectId) = fs.find(MongoDBObject(IMAGE_OBJECT_POINTER_FIELD -> objectId)).nonEmpty
+
   @Util def getInputStream(id: ObjectId) = fs.find(id).inputStream
 
 
