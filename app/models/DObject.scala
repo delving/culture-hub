@@ -33,6 +33,8 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
   // TODO index the collections field
   def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
 
+  def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
+
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
     update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_id" -> thumbnail_id)) , false, false)
   }
