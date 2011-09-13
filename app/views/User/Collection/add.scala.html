@@ -10,10 +10,10 @@
 <form method="post" action="" id="collectionForm">
 
         <!--<h2>Collection Information</h2>-->
-        <span id="required-note">* Required Fields</span>
+        <span class="required-note"><span>*</span> Required Fields</span>
 
-        @textField("name", "Name", "value: name")
-        @textArea("description", "Description", "value: description")
+        @textField("name", "Name", "value: name", " ",  "required")
+        @textArea("description", "Description", "value: description", " ",  "required")
         <!--@labelField("label", "Label", "value: label")-->
 
         <!--<h2>Add objects to your collection</h2>-->

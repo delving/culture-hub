@@ -26,6 +26,10 @@ label {
     font-size: 1em;
 }
 
+.required-note span {
+    color: #cc0000;
+}
+
 div.field {
     border-bottom: 1px dotted #ccc;
     margin-bottom: 10px;
@@ -55,8 +59,8 @@ label.fileinput-button {
 /*}*/
 
 div.field label.required:after {
-    color: #777777;
-    content: "*";
+    color: #cc0000;
+    content: " *";
     font-size: 14px;
     font-weight: normal;
 }

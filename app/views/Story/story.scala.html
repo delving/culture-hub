@@ -5,32 +5,48 @@
 @header("Story " + story.name + " of user " + browsedFullName ) {
 
 <h1>Story "@story.name"</h1>
-<p>@story.description</p>
-Date created: @niceTime(story._id.getTime)<br/>
-Last updated: @niceTime(story.TS_update)<br/>
 
+<div class="grid_4 alpha">
+    <img src='@thumbnailUrl(story.thumbnail)' width="220" alt="@story.name"/>
+</div>
+<div class="grid_12 omega">
 
-<!--Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }-->
-Pages:<br/>
-  <ul>
-@for(page <- story.pages) {
+    <div class="item metadata">
+        <h2>Description</h2>
+        <p>@story.description</p>
 
-    <li>@page.title</li>
-    <!--<li>@page.text</li>-->
-    <!--<li>-->
-      <!--@for(o <- page.objects) {-->
-      <!--<ul>-->
-        <!--Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">-->
-      <!--</ul>-->
-      <!--}-->
-    <!--</li>-->
+        <h2>Date created</h2>
+        <p>@niceTime(story._id.getTime)</p>
 
-}
-</ul>
-@if(story.userName == userName){
- <a href="/@story.userName/story/@story._id/update">Edit story</a>
-}
+        <h2>Last modified</h2>
+        <p>Last updated: @niceTime(story.TS_update)</p>
 
-<a href="/@story.userName/story/@story._id/read">Read story</a>
+        <!--Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }-->
+        <h2>Pages:</h2>
+        <ul>
+            @for(page <- story.pages) {
+
+            <li>@page.title</li>
+            <!--<li>@page.text</li>-->
+            <!--<li>-->
+            <!--@for(o <- page.objects) {-->
+            <!--<ul>-->
+            <!--Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">-->
+            <!--</ul>-->
+            <!--}-->
+            <!--</li>-->
+
+            }
+        </ul>
+    </div>
+
+    <div class="">
+        @if(story.userName == userName){
+        <a class="action edit" href="/@story.userName/story/@story._id/update">Edit story</a>
+        }
+
+        <a class="action read" href="/@story.userName/story/@story._id/read">Read story</a>
+    </div>
+</div>
 
 }

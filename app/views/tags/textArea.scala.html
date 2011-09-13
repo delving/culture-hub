@@ -1,4 +1,4 @@
-@(name:String, label:String, dataBind: String = "", labelClass: String = "")
+@(name:String, label:String, dataBind: String = "", help: String = "", labelClass: String = "")
 @import views.context._
 
 <div class="field">
@@ -6,5 +6,6 @@
     <div class="inputs">
         <textarea class="textinput" id="@name" value="@params.get(name)" data-bind="@dataBind"></textarea>
         <span class="error">@showError(name)</span>
+        <span class="help">@help</span>
     </div>
 </div>

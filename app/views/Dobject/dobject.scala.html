@@ -3,17 +3,16 @@
 @import views.context._
 
 @header("Object " + dobject.name + " of user " + browsedFullName) {
-<div class="grid_16 alpha">
-    <h1>@dobject.name</h1>
+
+<h1>@dobject.name</h1>
+
+<div class="grid_4 alpha">
+    <img src='@imageUrl(dobject._id)' width="220" alt="@dobject.name"/>
 </div>
 
-   <div class="grid_4 alpha">
-      <img src='@imageUrl(dobject._id)' width="220" alt="@dobject.name"/>
-   </div>
+<div class="grid_12 omega">
 
-    <div class="grid_12 omega">
-
-        <div class="item metadata">
+    <div class="item metadata">
         <h2>Name</h2>
         <p>@dobject.name</p>
 
@@ -32,60 +31,63 @@
             <span class="label">@l.labelType - @l.value</span><br/>
             }
         </p>
-            </div>
     </div>
-
-    <!--<div class="grid_8">-->
-    <!--<div class="dui-buttonset dui-buttonset-single">-->
-    <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
-    <!--<button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>-->
-    <!--<button class="dui-button ui-state-default ui-priority-primary">Share</button>-->
-    <!--</div>-->
-
-    <!--<div class="clear"></div>-->
-    <!--<h2>Labels</h2>-->
-    <!--<p class="labels">-->
-    <!--@for(l <- labels) {-->
-    <!--<span class="label"><a href="#">@l.labelType - @l.value</a></span>&nbsp;-->
-    <!--}-->
-    <!--</p>-->
-    <!--</div>-->
-    <!--<div id="comments">-->
-    <!--<h2>Comments</h2>-->
-    <!--<ul class="comment-list">-->
-    <!--@for(i <- 0 until 4) {-->
-    <!--<li class="comment">-->
-    <!--&lt;!&ndash;<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>&ndash;&gt;-->
-    <!--<div class="content">-->
-
-    <!--<p>-->
-    <!--Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.-->
-    <!--</p>-->
-    <!--<span class="user"><a href="#">Username</a></span>-->
-    <!--<span class="date">xx-xx-xxxx</span>-->
-
-    <!--</div>-->
-    <!--</li>-->
-
-    <!--}-->
-    <!--</ul>-->
-    <!--</div>-->
-    <!--<div class="container">-->
-    <!--<h3>Options</h3>-->
-
-    <!--<p>-->
-    <!--Add object to a collection-->
-    <!--</p>-->
-    <!--<select id="collection-name" name="collection-name">-->
-    <!--<option value="">Collection 1</option>-->
-    <!--<option value="">Collection 2</option>-->
-    <!--<option value="">Collection 3</option>-->
-    <!--<option value="">Collection 4</option>-->
-    <!--</select>-->
-    <!--<button>Add Objects</button>-->
-    <!--</div>-->
-
 </div>
+
+@if(userName == browsedUserName) {
+<div class="actions ar grid_16 alpha">
+    <a class="edit" href="/@dobject.userName/object/@dobject._id/update">Edit Object</a>
+</div>
+}
+<!--<div class="grid_8">-->
+<!--<div class="dui-buttonset dui-buttonset-single">-->
+<!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary">Share</button>-->
+<!--</div>-->
+
+<!--<div class="clear"></div>-->
+<!--<h2>Labels</h2>-->
+<!--<p class="labels">-->
+<!--@for(l <- labels) {-->
+<!--<span class="label"><a href="#">@l.labelType - @l.value</a></span>&nbsp;-->
+<!--}-->
+<!--</p>-->
+<!--</div>-->
+<!--<div id="comments">-->
+<!--<h2>Comments</h2>-->
+<!--<ul class="comment-list">-->
+<!--@for(i <- 0 until 4) {-->
+<!--<li class="comment">-->
+<!--&lt;!&ndash;<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>&ndash;&gt;-->
+<!--<div class="content">-->
+
+<!--<p>-->
+<!--Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.-->
+<!--</p>-->
+<!--<span class="user"><a href="#">Username</a></span>-->
+<!--<span class="date">xx-xx-xxxx</span>-->
+
+<!--</div>-->
+<!--</li>-->
+
+<!--}-->
+<!--</ul>-->
+<!--</div>-->
+<!--<div class="container">-->
+<!--<h3>Options</h3>-->
+
+<!--<p>-->
+<!--Add object to a collection-->
+<!--</p>-->
+<!--<select id="collection-name" name="collection-name">-->
+<!--<option value="">Collection 1</option>-->
+<!--<option value="">Collection 2</option>-->
+<!--<option value="">Collection 3</option>-->
+<!--<option value="">Collection 4</option>-->
+<!--</select>-->
+<!--<button>Add Objects</button>-->
+<!--</div>-->
 
 <script type="text/javascript">
 

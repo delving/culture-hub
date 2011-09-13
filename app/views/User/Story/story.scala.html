@@ -32,10 +32,10 @@
 </div>
 
 <div class="grid_9 prefix_1 omega">
-    <span class="required-note">* Required Fields</span>
+    <span class="required-note"><span>*</span> Required Fields</span>
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'")
-    @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'")
+    <!--@textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", " ", "required")-->
+    <!--@textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'", " ", "required")-->
 
     <div class="field" for="objectVisibility">
         <label>Public</label>
@@ -111,11 +111,8 @@
 <script type="text/html" id="pageTemplate">
   <form id="${$item.action}PageForm" action="">
 
-    <!--<h3>${$item.action} Page</h3>-->
-    <span class="required-note">* Required Fields</span>
-
     <div class="field">
-      <label for="title">Title</label>
+      <label for="title"  class="required">Title</label>
       <div class="inputs">
         <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown' " />
         <span class="error"></span>
@@ -136,12 +133,12 @@
             <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
             <button class="add image-add" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
         </div>
-        <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
     </div>
-    <div class="field">
-        <div class="inputs">
+
+    <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
+
+    <div class="actions">
             <button class="save page-save"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
-        </div>
     </div>
   </form>
 

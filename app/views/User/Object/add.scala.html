@@ -9,8 +9,8 @@
     <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
 
   <form id="objectForm" method="post" action="">
-
-        @textField("name", "Name", "value: name")
+        <span class="required-note"><span>*</span> Required Fields</span>
+        @textField("name", "Name", "value: name", " ", false, "required")
         @textArea("description", "Description", "value: description")
 
         <div data-bind="template: {name: 'labelTemplate', templateOptions: {name: 'label', }}"></div>
