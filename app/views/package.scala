@@ -62,6 +62,7 @@ package object context {
   def themeName = theme.name
   def themeTemplateDir = theme.templateDir
   def themeDisplayName = theme.displayName
+  def themeText = theme.text
 
   def themePath(path: String) = "/public/themes/%s/%s".format(themeName, path)
 

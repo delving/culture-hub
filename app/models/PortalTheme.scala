@@ -29,7 +29,8 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
                        homePage:                            Option[String] = Some(""),
-                       metadataPrefix:                      Option[String] = Some("")) {
+                       metadataPrefix:                      Option[String] = Some(""),
+                       text:                                String = "") {
 
   def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
     try {
