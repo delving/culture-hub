@@ -21,10 +21,14 @@
    <div class="items">
 
      @for(page <- story.pages) {
-      <div class="page item">
-          <img src="@thumbnailUrl(page.thumbnail)" alt="@page.title">
-          <h2>@page.title</h2>
-              @page.text
+      <div class="page">
+         <h2>@page.title</h2>
+         <div class="media">
+              [page image]
+         </div>
+          <div class="text">
+            @Html(page.text)
+          </div>
       </div>
      }
 
@@ -32,7 +36,8 @@
 
 </div>
 
-
+<!-- "next page" action -->
+<a class="next browse right">Next</a>
 
     </div>
 
