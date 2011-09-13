@@ -76,10 +76,10 @@
           <label for="$item.name">Label</label>
           <div class="inputs">
               <select id="labelType" data-bind="value: labelType">
-                  <option value="Person">Person</option>
-                  <option value="Place">Place</option>
-                  <option value="Event">Event</option>
-                  <option value="Concept">Concept</option>
+                  <option value="Who">Who</option>
+                  <option value="What">What</option>
+                  <option value="Where">Where</option>
+                  <option value="When">When</option>
               </select>
               <input type="text" class="textinput" id="$item.name" name="$item.name" maxlength="40" data-bind="value: labelValue"/>
               <button class="add label-add" name="add-annotations-button" id="add-annotation-button" data-bind="click: addLabel">Add Label</button>
