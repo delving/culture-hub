@@ -56,7 +56,7 @@ object Collections extends DelvingController {
     } else {
       if (!ObjectId.isValid(id)) Error("Invalid collection id " + id)
       val cid = new ObjectId(id)
-      val objects = Json(DObject.findAllWithCollection(cid) map { objectToObjectModel(_) })
+      val objects = DObject.findAllWithCollection(cid) map { objectToObjectModel(_) }
       request.format match {
         case "json" => Json(objects)
         case _ => BadRequest
