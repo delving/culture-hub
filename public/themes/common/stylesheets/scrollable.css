@@ -33,12 +33,12 @@
 	position:relative;
 	overflow:hidden;
 	overflow-y: auto;
-    width: 800px;
+    width: 860px;
     margin:  0 auto;
     height: 500px;
 
 	/* custom decorations */
-    top: 30px;
+    top: 40px;
 }
 
 /*
@@ -56,17 +56,23 @@
 
 .scrollable .page {
 	float:left;
-	width:800px;
+	width:860px;
     position: relative;
     top: 20px;
+    left: 0px;
     /*padding: 50px 70px;*/
+}
+
+.scrollable .page img {
+    max-height: 300px;
+    max-width: 350px;
 }
 
 .scrollable .page-left,
 .scrollable .page-right {
     float: left;
-    width: 46%;
-    margin:  0 2%;
+    width: 42%;
+    margin:  0 4%;
 }
 
 .scrollable .title-page {
