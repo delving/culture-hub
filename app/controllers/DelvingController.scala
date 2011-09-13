@@ -8,9 +8,9 @@ import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
-import org.bson.types.ObjectId
 import results.Result
 import models._
+import org.bson.types.ObjectId
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -115,9 +115,14 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
 
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
 
-  implicit def oIdToString(oid: Option[ObjectId]) = oid match {
+  implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
     case Some(id) => id.toString
     case None => ""
+  }
+
+  implicit def stringToOidOption(id: String): Option[ObjectId] = ObjectId.isValid(id) match {
+    case true => Some(new ObjectId(id))
+    case false => None
   }
 
 }

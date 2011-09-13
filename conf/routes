@@ -125,6 +125,7 @@ GET        /file/{id}                                                        Fil
 POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
 GET        /file/image/{id}                                                  FileStore.getImage
 GET        /thumbnail/{id}                                                   FileStore.getThumbnail
+DELETE     /file/{id}                                                        user.FileUpload.deleteFile
 
 # Image Cache and Viewer
 GET        /services/image                                                   Images.image

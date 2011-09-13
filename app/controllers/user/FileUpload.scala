@@ -5,10 +5,12 @@ import play.mvc.results.Result
 import collection.JavaConversions._
 import com.mongodb.casbah.gridfs.GridFSDBFile
 import play.mvc.Util
-import models.StoredFile
 import com.mongodb.gridfs.GridFSFile
 import controllers.{FileStore, ImageCacheService, Secure, DelvingController}
 import controllers.FileStore._
+import org.bson.types.ObjectId
+import models.{DObject, StoredFile}
+
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -41,10 +43,24 @@ object FileUpload extends DelvingController with Secure {
         }
       } else ""
 
-      FileUploadResponse(upload.getFileName, upload.getSize.longValue(), "/file/" + f._id.get, thumbnailUrl)
+      FileUploadResponse(upload.getFileName, upload.getSize.longValue(), "/file/" + f._id.get, thumbnailUrl, "/file/" + f._id.get)
+    }
+    Json(uploadedFiles)
+  }
+
+  def deleteFile(id: String): Result = {
+    val oid = id getOrElse(return Error("Invalid file ID " + id))
+    fs.find(oid) foreach { toDelete =>
+      fs.find(MongoDBObject(FILE_POINTER_FIELD -> oid)) foreach { t =>
+        fs.remove(t.getId.asInstanceOf[ObjectId])
+      }
+      fs.remove(oid)
     }
 
-    Json(uploadedFiles)
+    // remove referring objects
+    DObject.removeFile(oid)
+
+    Ok
   }
 
   /**creates a thumbnail and stores a pointer to the original image **/

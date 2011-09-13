@@ -13,6 +13,7 @@ import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
+import play.mvc.Util
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -28,7 +29,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         case None => Json(ObjectModel())
         case Some(anObject) => {
           val collections = UserCollection.findAllWithIds(anObject.collections).toList map { c => Collection(c._id, c.name) }
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility.toString, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length, "/file/" + f.id, f.thumbnailUrl)}))
+          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility.toString, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length, "/file/" + f.id, f.thumbnailUrl, "/file/" + f.id)}))
         }
       }
   }
@@ -87,7 +88,6 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case None => Error("Error saving object")
     }
   }
-
 }
 
 // ~~~ view models
