@@ -50,6 +50,32 @@
     metadataPrefix:
 
 - !!models.PortalTheme
+    name: nassau
+    templateDir: nassau
+    isDefault: false
+    subdomain: nassau
+    displayName: De Friese Nassaus
+    defaultLanguage: nl
+    colorScheme: default
+    solrSelectUrl: "http://localhost:8983/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: username@email.com
+        exceptionTo: username@email.com
+        feedbackTo: username@email.com
+        registerTo: username@email.com
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+        - dc.title
+        - dc.creator
+    hiddenQueryFilter:
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    homePage:
+    metadataPrefix:
+
+- !!models.PortalTheme
     name: norvegiana
     templateDir: norvegiana
     subdomain: norvegiana
