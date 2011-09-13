@@ -61,6 +61,8 @@ package object context {
   def themeTemplateDir = theme.templateDir
   def themeDisplayName = theme.displayName
 
+  def themePath(path: String) = "/public/themes/%s/".format(themeName)
+
   // ~~~ temporary helper, should be replaced with cache
   def fullName(userName: String) = models.User.findByUsername(userName, "cultureHub").get.fullname
 
