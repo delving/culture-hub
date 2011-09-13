@@ -60,7 +60,7 @@ GET         /stories                                                         Sto
 
 GET         /{user}/?                                                        Users.index
 
-GET         /{user}/profile                                                  Profiles.index
+GET         /{user}/profile                                                  Profiles.view
 
 GET         /{user}/label                                                    Labels.list
 GET         /{user}/label/{label}                                            Labels.label
