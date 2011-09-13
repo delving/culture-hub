@@ -2,15 +2,42 @@
 	root element for the scrollable.
 	when scrolling occurs this element stays still.
 */
+.story-container {
+    background:  #fff url(../images/bg-book.png) bottom left no-repeat;
+    width: 940px;
+	height:500px;
+    position: relative;
+}
+
+.story-navigation {
+    position: relative;
+    top: 40px;
+    clear: both;
+}
+
+.story-navigation .prev {
+    float: left;
+    margin-left: 75px;
+
+}
+
+.story-navigation .next {
+    float: right;
+    margin-right: 75px;
+
+}
+
 .scrollable {
  	/* required settings */
 	position:relative;
 	overflow:hidden;
-	width: 680px;
-	height:120px;
+	overflow-y: auto;
+    width: 800px;
+    margin:  0 auto;
+    height: 500px;
 
 	/* custom decorations */
-	border:1px solid #ccc;
+    top: 30px;
 }
 
 /*
@@ -26,36 +53,58 @@
 	clear:both;
 }
 
-.items div.page {
+.scrollable .page {
 	float:left;
-	width:680px;
+	width:800px;
+    position: relative;
+    top: 20px;
+    /*padding: 50px 70px;*/
+}
+
+.scrollable .page-left,
+.scrollable .page-right {
+    float: left;
+    width: 46%;
+    margin:  0 2%;
+}
+
+.scrollable .title-page {
+    text-align: center;
+}
+
+.scrollable .title-page h1 {
+    font-size: 300%;
+    margin: 70px 0 10px 0;
+}
+
+.scrollable .title-page h2 {
+   color: #000;
+}
+
+.scrollable .page h2 {
+    color: #555;
+    font-size: 150%;
 }
 
 /* single scrollable item */
 .scrollable img {
 	float:left;
-	margin:20px 5px 20px 21px;
-	background-color:#fff;
-	padding:2px;
-	border:1px solid #ccc;
-	width:100px;
-	height:75px;
-
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
+    margin:  0 20px 20px 0;
 }
 
 /* active item */
-.scrollable .active {
-	border:2px solid #000;
-	position:relative;
-	cursor:default;
-}
+/*.scrollable .active {*/
+	/*border:2px solid #000;*/
+	/*position:relative;*/
+	/*cursor:default;*/
+/*}*/
 
 /* Navigation */
 
 .story .browse {
     cursor: pointer;
+    display: inline-block;
+    /*margin-right: 20px;*/
 }
 .story .browse.disabled {
     color: #ccc;

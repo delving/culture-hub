@@ -6,48 +6,58 @@
 
 <link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
 
-
 <div class="story">
 
-<h1>@story.name</h1>
+    <h1>@story.name</h1>
 
-<a class="prev browse left">Previous page</a>
+    <div class="story-container">
 
-<a class="next browse right">Next page</a>
+        <div class="story-navigation">
+            <a class="prev browse left">Previous page</a>
+            <a class="next browse right">Next page</a>
+        </div>
 
-<div class="scrollable">
+        <div class="scrollable">
 
-   <!-- root element for the items -->
-   <div class="items">
+            <!-- root element for the items -->
+            <div class="items">
 
-     @for(page <- story.pages) {
-      <div class="page">
-         <h2>@page.title</h2>
-         <div class="media">
-              [page image]
-         </div>
-          <div class="text">
-            @Html(page.text)
-          </div>
-      </div>
-     }
+                <div class="page title-page">
+                    <div class="page-left">
+                         <h1>@story.name</h1>
+                          <h2>By: @fullName(story.userName)</h2>
+                    </div>
+                    <div class="page-right">
+                          <img src="@thumbnailUrl(story._id)" />
+                    </div>
+                </div>
 
-   </div>
+                @for(page <- story.pages) {
+                <div class="page">
+                    <div class="page-left">
+                        <h2>@page.title</h2>
+                        @Html(page.text)
+                    </div>
+                    <div class="page-right">
+                        [page image]
+                    </div>
+                </div>
+                }
 
-</div>
+            </div>
 
-<!-- "next page" action -->
-<a class="next browse right">Next</a>
+        </div>
 
     </div>
+</div>
 
 <script type="text/javascript">
-// execute your scripts when the DOM is ready. this is mostly a good habit
-$(function() {
+    // execute your scripts when the DOM is ready. this is mostly a good habit
+    $(function() {
 
-	// initialize scrollable
-	$(".scrollable").scrollable();
+        // initialize scrollable
+        $(".scrollable").scrollable();
 
-});
+    });
 </script>
 }
