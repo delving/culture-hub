@@ -4,7 +4,7 @@
 @import views.tags.html._
 
 @header(if(browsedUserName != null) "List of stories for user %s".format(browsedUserName) else "List of stories") {
-    <div class="grid_12 alpha">
+    <div class="grid_16 alpha">
 
         @if(browsedUserName != null) {
             <h2>All stories owned by: <span>@browsedUserName</span> (@count)</h2>
@@ -34,12 +34,12 @@
         }
 
     </div>
-    <div class="grid_4 omega">
-        @if(connectedIsBrowsed) {
-            <div class="actions ar">
-                 <a class="add story-add" href='/@userName/story/add'>Create a new story</a>
-            </div>
-        }
-    </div>
+    <!--<div class="grid_4 omega">-->
+        <!--@if(connectedIsBrowsed) {-->
+            <!--<div class="actions ar">-->
+                 <!--<a class="add story-add" href='/@userName/story/add'>Create a new story</a>-->
+            <!--</div>-->
+        <!--}-->
+    <!--</div>-->
 
 }
