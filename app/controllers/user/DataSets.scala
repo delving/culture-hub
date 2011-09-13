@@ -30,12 +30,6 @@ object DataSets extends DelvingController with UserSecured {
     val spec: String = dataSet.spec
     val factsObject = new BasicDBObject(dataSet.facts)
 
-    def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
-      (for (recordDef <- recordDefinitions) yield {
-        (recordDef, Mapping(recordMapping = "", format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
-      }).toMap[String, Mapping]
-    }
-
     // TODO handle all "automatic facts"
     factsObject.append("spec", spec)
 
@@ -54,8 +48,7 @@ object DataSets extends DelvingController with UserSecured {
             name = dataSet.facts("name").toString,
             facts = factsObject,
             metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
-          ),
-          mappings = buildMappings(dataSet.recordDefinitions)
+          )
         )
       )
     }
