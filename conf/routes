@@ -86,7 +86,7 @@ GET         /{user}/story/add                                                use
 GET         /{user}/story/{id}/update                                        user.Stories.storyUpdate
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 GET         /{user}/story/load/{id}?                                         user.Stories.load
-GET         /{user}/story/{story}                                            Stories.story
+GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
 
 GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
