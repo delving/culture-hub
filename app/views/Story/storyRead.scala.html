@@ -23,7 +23,9 @@
       <div class="page">
          <h2>@page.title</h2>
          <div class="media">
-              [page image]
+           @for(i <- page.objects.headOption) {
+              <img src="@imageUrl(i.dobject_id)" alt="@page.title">
+           }
          </div>
           <div class="text">
             @Html(page.text)

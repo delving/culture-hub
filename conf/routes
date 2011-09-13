@@ -123,6 +123,7 @@ POST       /admin/themes/reload                                              adm
 # File Store
 GET        /file/{id}                                                        FileStore.get
 POST       /file/upload/{uid}                                                FileStore.fileUpload
+GET        /file/image/{id}                                                  FileStore.getImage
 GET        /thumbnail/{id}                                                   FileStore.getThumbnail
 
 # Image Cache and Viewer

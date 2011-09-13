@@ -44,6 +44,8 @@ package object context {
     case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
   }
 
+  def imageUrl(image: ObjectId) = "/file/image/" + image
+
   def searchUrl = request.path
 
   // ~~~ template helpers
