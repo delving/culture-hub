@@ -18,6 +18,7 @@ import java.io.File
 object FileStore extends DelvingController {
 
   val emptyThumbnail = "/public/images/dummy-object.png"
+  val emptyThumbnailFile = new File(play.Play.applicationPath + emptyThumbnail)
 
   val fileStore = MongoConnection().getDB("fileStore")
   val fs = GridFS(fileStore)
@@ -50,10 +51,10 @@ object FileStore extends DelvingController {
     fs.findOne(MongoDBObject("image_id" -> oid)) match {
       case Some(file) => {
         ImageCacheService.setImageCacheControlHeaders(file, response, 60 * 15)
-        new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
+        new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, true)
       }
       case None => {
-        new RenderBinary(new File(play.Play.applicationPath + emptyThumbnail), "dummy-object.png")
+        new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
       }
     }
 
