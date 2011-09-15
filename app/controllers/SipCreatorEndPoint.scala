@@ -92,6 +92,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Xml(dataSetsXml)
   }
 
+    // todo: implement
+    def unlock(spec: String): Result = {
+        "Ok"
+    }
 
   /**
    * Takes a request of filenames and replies with the ones it is missing:

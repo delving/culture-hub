@@ -109,6 +109,7 @@ POST        /{user}/dataset/{spec}/disable                                   use
 POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
 GET         /{user}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
+GET         /{user}/dataset/sip-creator/unlock/{spec}                        SipCreatorEndPoint.unlock
 POST        /{user}/dataset/sip-creator/submit/{spec}                        SipCreatorEndPoint.acceptFileList
 POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
 GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
