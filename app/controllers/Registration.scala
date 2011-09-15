@@ -133,7 +133,7 @@ object Registration extends DelvingController {
       Action(controllers.Application.index)
     } else {
       val canChange = User.canChangePassword(resetPasswordToken.get)
-      if(canChange) {
+      if(!canChange) {
         flash += ("resetPasswordError" -> "Error changing your password. Try resetting it again.")
         Action(controllers.Application.index)
       } else {

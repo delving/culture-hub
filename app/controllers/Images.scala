@@ -9,11 +9,11 @@ import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import com.mongodb.casbah.gridfs.{GridFSInputFile, GridFSDBFile, GridFS}
 import play.mvc.Http.Response
-import play.mvc.Controller
 import play.mvc.results.{NotFound, RenderBinary, Result}
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
 import play.Play
+import play.utils.Utils
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -56,7 +56,6 @@ class ImageCacheService extends HTTPClient {
   val thumbnailWidth = 220
   val thumbnailSizeString = "BRIEF_DOC"
   val thumbnailSuffix = "_THUMBNAIL"
-  val cacheDuration = 60 * 60 * 24
   private val log: Logger = Logger.getLogger("ImageCacheService")
 
   // findImageInCache
@@ -102,7 +101,7 @@ class ImageCacheService extends HTTPClient {
       val item = storeImage(url)
       if (item.available) {
         val storedImage = findImageInCache(url, thumbnail)
-        setImageCacheControlHeaders(storedImage.get, response)
+        ImageCacheService.setImageCacheControlHeaders(storedImage.get, response)
         respondWithImageStream(storedImage.get)
       }
       else {
@@ -111,7 +110,7 @@ class ImageCacheService extends HTTPClient {
       }
     }
     else {
-      setImageCacheControlHeaders(image.get, response)
+      ImageCacheService.setImageCacheControlHeaders(image.get, response)
       respondWithImageStream(image.get)
     }
   }
@@ -128,10 +127,7 @@ class ImageCacheService extends HTTPClient {
 
       // also create a thumbnail on the fly
       // for this, fetch the stream again
-      val thumbnail: BufferedImage = resizeImage(retrieveImageFromUrl(url).dataAsStream, thumbnailWidth)
-      val os: ByteArrayOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(thumbnail, "jpg", os);
-      val is: InputStream = new ByteArrayInputStream(os.toByteArray);
+      val is = ImageCacheService.createThumbnail(retrieveImageFromUrl(url).dataAsStream, thumbnailWidth)
       val thumbnailFile = myFS.createFile(is, image.url + thumbnailSuffix)
       thumbnailFile.contentType = image.contentType
       thumbnailFile put ("viewed", 0)
@@ -144,7 +140,6 @@ class ImageCacheService extends HTTPClient {
       CachedItem(false, null)
     }
   }
-
 
   def retrieveImageFromUrl(url: String) : WebResource = {
     val method = new GetMethod(url)
@@ -174,22 +169,37 @@ class ImageCacheService extends HTTPClient {
     new RenderBinary(image.inputStream, "cachedImage", image.contentType, true)
   }
 
-  private def setImageCacheControlHeaders(image: GridFSDBFile, response: Response) {
-    response.setContentTypeIfNotSet(image.contentType)
-    val now = System.currentTimeMillis();
-    response.cacheFor("", cacheDuration.toString + "s", now)
-    response.headers.get("Cache-Control").values.add("must-revalidate")
-    response.setHeader("Expires", (now + cacheDuration * 1000).toString)
-  }
-
   private def isThumbnail(thumbnail: Option[String]): Boolean = {
     thumbnail.getOrElse(false) == thumbnailSizeString
   }
+}
+
+object ImageCacheService {
+
+  val cacheDuration = 60 * 60 * 24
+
+  def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int): InputStream = {
+    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth)
+    val os: ByteArrayOutputStream = new ByteArrayOutputStream()
+    ImageIO.write(thumbnail, "jpg", os)
+    new ByteArrayInputStream(os.toByteArray)
+  }
+
+  def setImageCacheControlHeaders(image: GridFSDBFile, response: Response, duration:Int = cacheDuration) {
+    response.setContentTypeIfNotSet(image.contentType)
+    val now = System.currentTimeMillis();
+//    response.cacheFor(image.underlying.getMD5, duration.toString + "s", now)
+    // overwrite the Cache-Control header and add the must-revalidate directive by hand
+    response.setHeader("Cache-Control", "max-age=%s, must-revalidate".format(duration))
+    response.setHeader("Expires", Utils.getHttpDateFormatter.format(new Date(now + duration * 1000)))
+  }
+
 
   private def resizeImage(imageStream: InputStream, width: Int): BufferedImage = {
     val bufferedImage: BufferedImage = ImageIO.read(imageStream)
     Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
   }
+
 
 }
 

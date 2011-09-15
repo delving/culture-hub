@@ -1,12 +1,6 @@
 package controllers
 
-import models.User
-import play.mvc.{Controller}
-import net.liftweb.json.Serialization.{read, write}
-import play.classloading.enhancers.LocalvariablesNamesEnhancer
-import java.lang.reflect.Constructor
-import net.liftweb.json.{Extraction, DefaultFormats, ParameterNameReader}
-import extensions.AdditionalActions
+import models._
 
 /**
  *
@@ -17,9 +11,16 @@ object Profiles extends DelvingController {
 
   import views.Profile._
 
-  def index(user: String): AnyRef = {
+  def view(user: String): AnyRef = {
+    val u: ShortUser = getUser(user) match {
+      case Right(aUser) => aUser
+      case Left(error) => return error
+    }
 
-    val u: User = getUser(user)
-    RenderMultitype(html.index, ('user, u))
+    val objects: List[ShortObject] = DObject.findByUser(u.id).toList
+    val collections: List[ShortCollection] = UserCollection.findByUser(u.id).toList
+    val stories: List[ShortStory] = Story.findByUser(u.id).toList
+
+    html.view(u, objects, collections, stories)
   }
 }

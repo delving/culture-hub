@@ -1,62 +1,107 @@
-@(title:String)
+@(recentCollections: List[controllers.ShortCollection], recentStories: List[controllers.ShortStory], recentObjects: List[controllers.ShortObject])
 
 @import views.context._
-@main(title) {
+@header("Welcome", "home") {
 
-<div class="grid_8">
-    <h1>Hi and welcome to the Delving Play-Ground!</h1>
+<div class="messages-container">
+    <div class="messages">
+        @if(flash.get("registrationSuccess") != null) {
+        <p class="success">
+            Your account was successfully created! An email has been sent to @flash.get("registrationSuccess") for activation
+        </p>
+        }
+        @if(flash.get("registrationError") != null) {
+        <p class="error">
+            Error creating your account, please try again. The cause of the error is: "@flash.get("registrationError")"
+        </p>
+        }
+        @if(flash.get("activation") != null && flash.get("activation") == "true") {
+        <p class="success">
+            Your account is now active!
+        </p>
+        }
+        @if(flash.get("activation") != null && flash.get("activation") == "false") {
+        <p class="error">
+            Error activating your account.
+        </p>
+        }
+        @if(flash.get("resetPasswordEmail") != null && flash.get("resetPasswordEmail") == "true") {
+        <p class="success">
+            An e-mail has been sent to you with a link to reset your password
+        </p>
+        }
+        @if(flash.get("resetPasswordError") != null) {
+        <p class="error">
+            Error resetting your password: @flash.get("resetPasswordError")
+        </p>
+        }
 
-    @if(flash.get("registrationSuccess") != null) {
-    <p class="success">
-        Your account was successfully created! An email has been sent to @flash.get("registrationSuccess") for activation
-    </p>
-    }
-    @if(flash.get("registrationError") != null) {
-    <p class="error">
-        Error creating your account, please try again. The cause of the error is: "@flash.get("registrationError")"
-    </p>
-    }
-    @if(flash.get("activation") != null && flash.get("activation") == "true") {
-    <p class="success">
-        Your account is now active!
-    </p>
-    }
-    @if(flash.get("activation") != null && flash.get("activation") == "false") {
-    <p class="error">
-        Error activating your account.
-    </p>
-    }
-    @if(flash.get("resetPasswordEmail") != null && flash.get("resetPasswordEmail") == "true") {
-    <p class="success">
-        An e-mail has been sent to you with a link to reset your password
-    </p>
-    }
-    @if(flash.get("resetPasswordError") != null) {
-    <p class="error">
-        Error resetting your password: @flash.get("resetPasswordError")
-    </p>
-    }
-
-    @if(flash.get("resetPasswordSuccess") != null && flash.get("resetPasswordSuccess") == "true") {
-    <p class="success">
-        Your password has been successfully changed
-    </p>
-    }
-
-    <p>
-        <!--This awesome welcome message has been written in a Starbucks in Vienna on a sunny tuesday afternoon.-->
-        This is the development environment for the uber-cool and amazing Delving Play-Ground - a precursor for Culture-Hub. This is a place where objects come to life through
-        contextual grouping in 'collections' and through story-telling. We believe that every object tells a story, but that story depends on context. So
-        one object may be able to tell a different story depending on its context.
-    </p>
-
-    <p>
-        <a href="@action(controllers.Registration.index)">Register</a> and start adding and grouping objects. You can work on your own collections and stories or collaborate with other users to create collections and tell stories.
-    </p>
-
+        @if(flash.get("resetPasswordSuccess") != null && flash.get("resetPasswordSuccess") == "true") {
+        <p class="success">
+            Your password has been successfully changed
+        </p>
+        }
+    </div>
 </div>
 
-<div class="grid_8">
+<div class="grid_8 alpha">
 
+    <h2><span>Recent Collections</span></h2>
+
+    <div class="collections-container">
+        @for(c <- recentCollections) {
+
+        <div class="item one-col">
+            <div class="media small">
+                <img src='@thumbnailUrl(c.thumbnail)' width="50" alt="@c.name"/>
+            </div>
+            <div class="metadata">
+                <div class="bd">
+                    <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
+                    <span class="detail">@fullName(c.userName)</span>
+                    <span class="detail">@niceTime(c.TS_update)</span>
+                </div>
+             </div>
+        </div>
+
+        }
+    </div>
+
+    <h2><span>Recent Stories</span></h2>
+
+    <div class="stories-container">
+        @for(s <- recentStories) {
+
+        <div class="item one-col">
+            <div class="media small">
+                <img src='@thumbnailUrl(s.thumbnail)' width="50" alt="@s.name"/>
+            </div>
+            <div class="metadata">
+                <div class="bd">
+                    <h4 class="story"><a href="/@s.userName/story/@s.id">@s.name</a></h4>
+                    <span class="detail">@fullName(s.userName)</span>
+                    <span class="detail">@niceTime(s.TS_update)</span>
+                </div>
+            </div>
+        </div>
+
+        }
+    </div>
+</div>
+
+<div class="grid_8 omega">
+    <h2><span>Recent Objects</span></h2>
+
+    <div class="objects-container ">
+        @for(o <- recentObjects) {
+
+        <div class="item">
+            <div class="media medium">
+                <a href="/@o.userName/object/@o.id"><img src='@thumbnailUrl(o.id)' width="100" alt="@o.name"/></a>
+            </div>
+        </div>
+
+        }
+    </div>
 </div>
 }

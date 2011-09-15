@@ -1,117 +1,267 @@
-@(title:String = "", isCurrent: String = "")(body: => Html)
+@(title:String = "", bodyId: String = "")(body: => Html)
 @import views.context._
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
 
     <title>@title</title>
-    <!--<link rel="stylesheet" type="text/css" href="@asset("/public/stylesheets/960.css")"/>-->
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/grid-fluid.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/custom-theme/jquery-ui-1.8.14.custom.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/jquery.fileupload-ui.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input.css")'/>
-    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/stylesheets/token-input-facebook.css")'/>
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/style.css")'/>
-    <link rel="stylesheet" type="text/css" href='@asset("/public/stylesheets/menu.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset(themePath("stylesheets/common.css"))'/>
+    <link rel="stylesheet" type="text/css" media="screen" href='@asset("/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css")'/>
+    <link rel="stylesheet" type="text/css" href='@asset(themePath("stylesheets/style.css"))'/>
 
-    <script id='jquery' src='@asset("/public/javascripts/jquery-1.6.2.min.js")' type='text/javascript'></script>
-    <script id='jquery-ui' src='@asset("/public/javascripts/jquery-ui-1.8.13.custom.min.js")' type='text/javascript'></script>
-    <script id='jquery-iframe-transport' src='@asset("/public/javascripts/jquery.iframe-transport.js")' type='text/javascript'></script>
-    <script id='jquery-fileupload' src='@asset("/public/javascripts/jquery.fileupload.js")' type='text/javascript'></script>
-    <script id='jquery-fileupload-ui' src='@asset("/public/javascripts/jquery.fileupload-ui.js")' type='text/javascript'></script>
-    <script id='jquery-template' src='@asset("/public/javascripts/jquery.tmpl.min.js")' type='text/javascript'></script>
-    <script id='knockoutJS' src='@asset("/public/javascripts/knockout-1.2.1.js")' type='text/javascript'></script>
-    <script id='knockoutJS-mapping' src='@asset("/public/javascripts/knockout.mapping-latest.js")' type='text/javascript'></script>
-    <script id='jquery-form' src='@asset("/public/javascripts/jquery.form.js")' type='text/javascript'></script>
-    <script id='jquery-tokeninput' src='@asset("/public/javascripts/jquery.tokeninput-1.5.0.js")' type='text/javascript'></script>
-    <script id='culturehub' src='@asset("/public/javascripts/culturehub.js")' type='text/javascript'></script>
+
+    <script id='jquery' src='@asset("/public/themes/common/javascripts/jquery-1.6.2.min.js")' type='text/javascript'></script>
+    <script id='jquery-hover' src='@asset("/public/themes/common/javascripts/jquery.hoverIntent.minified.js")' type='text/javascript'></script>
+    <script id='jquery-ui' src='@asset("/public/themes/common/javascripts/jquery-ui-1.8.13.custom.min.js")' type='text/javascript'></script>
+    <script id='jquery-iframe-transport' src='@asset("/public/themes/common/javascripts/jquery.iframe-transport.js")' type='text/javascript'></script>
+    <script id='jquery-fileupload' src='@asset("/public/themes/common/javascripts/jquery.fileupload.js")' type='text/javascript'></script>
+    <script id='jquery-fileupload-ui' src='@asset("/public/themes/common/javascripts/jquery.fileupload-ui.js")' type='text/javascript'></script>
+    <script id='jquery-upload' src='@asset("/public/themes/common/javascripts/upload.js")' type='text/javascript'></script>
+    <script id='jquery-template' src='@asset("/public/themes/common/javascripts/jquery.tmpl.min.js")' type='text/javascript'></script>
+    <script id='knockoutJS' src='@asset("/public/themes/common/javascripts/knockout-1.2.1.js")' type='text/javascript'></script>
+    <script id='knockoutJS-mapping' src='@asset("/public/themes/common/javascripts/knockout.mapping-latest.js")' type='text/javascript'></script>
+    <script id='jquery-form' src='@asset("/public/themes/common/javascripts/jquery.form.js")' type='text/javascript'></script>
+    <script id='jquery-paginate' src='@asset("/public/themes/common/javascripts/jquery.paginate.js")' type='text/javascript'></script>
+    <script id='spinners' src='@asset("/public/themes/common/javascripts/spinners.min.js")' type='text/javascript'></script>
+    <script id='jquery-tokeninput' src='@asset("/public/themes/common/javascripts/jquery.tokeninput-1.5.0.js")' type='text/javascript'></script>
+    <script id='jquery-multiselect' src='@asset("/public/themes/common/javascripts/jquery.multiselect.min.js")' type='text/javascript'></script>
+    <script id='jquery-multiselect-filter' src='@asset("/public/themes/common/javascripts/jquery.multiselect.filter.js")' type='text/javascript'></script>
+    <script id='jquery-tools' src='@asset("/public/themes/common/javascripts/jquery.tools.min.js")' type='text/javascript'></script>
+    <script id='culturehub' src='@asset("/public/themes/common/javascripts/culturehub.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
             initializeElements();
-        });
+
+       });
+
+
     </script>
 
-</head>
-<body>
+    <script type="text/html" id="uploadFileTemplate">
+      <form action="" method="post" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+          <label class="fileinput-button">
+            <span>Add files...</span>
+            <input type="file" name="files[]" multiple="true"/>
+          </label>
+          <button type="submit" class="start">Start upload</button>
+          <button type="reset" class="cancel">Cancel upload</button>
+          <button type="button" class="delete">Delete files</button>
+        </div>
+      </form>
+      <div class="fileupload-content">
+        <table class="files"></table>
+      </div>
+    </script>
 
-<div id="top-nav">
+    <script type="text/html" id="simpleUploadFileTemplate">
+      <form action="" method="post" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+          <label class="fileinput-button">
+            <span>Add files...</span>
+            <input type="file" name="files[]" multiple="true"/>
+          </label>
+        </div>
+      </form>
+      <div class="fileupload-content">
+        <table class="files"></table>
+      </div>
+    </script>
 
-    <ul class="menu-h">
-        <li class="current"><a href="@action(controllers.Application.index)"><span>Home</span></a></li>
-        <li><a class="" href=""><span>Users</span></a></li>
-        <li><a class="" href=""><span>Objects</span></a></li>
-        <li><a class="" href=""><span>Collections</span></a></li>
-        <li><a class="" href=""><span>Stories</span></a></li>
-    </ul>
-
-    <div id="user-bar">
-        <ul class="menu-h">
-        @if(renderArgs.get("displayName") != null) {
-            <li class="main"><a href="">Hi @renderArgs.get("fullName")</a>
-                <ul class="right">
-                    <li><a class="" href='/@renderArgs.get("displayName")/profile'><span>Your Profile</span></a></li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/object'><span>Your Objects</span></a></li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/collection'><span>Your Collections</span></a>
-                    </li>
-                    <li><a class="" href='/@renderArgs.get("displayName")/story'><span>Your Stories</span></a></li>
-                    <li><a class="" href="/logout"><span>Logout</span></a></li>
-                </ul>
-            </li>
-            } else {
-            <li><a href="/login">Login</a></li>
-            <li><a href="@action(controllers.Registration.index)">Register</a></li>
-            <li><a href="@action(controllers.Registration.lostPassword)">Lost password</a></li>
-
-            }
+    <script type="text/html" id="labelTemplate">
+      <div class="field">
+          <label for="$item.name">Label</label>
+          <div class="inputs">
+              <select id="labelType" data-bind="value: labelType">
+                  <option value="Who">Who</option>
+                  <option value="What">What</option>
+                  <option value="Where">Where</option>
+                  <option value="When">When</option>
+              </select>
+              <input type="text" class="textinput" id="$item.name" name="$item.name" maxlength="40" data-bind="value: labelValue"/>
+              <button class="add label-add" name="add-annotations-button" id="add-annotation-button" data-bind="click: addLabel">Add Label</button>
+          </div>
+      </div>
+      <div>
+        <ul>
+          {{each(i, label) labels()}}
+          <li>${label.labelType} - ${label.value} (<a href="#" data-bind="click: function() { removeLabel(label) }">Remove</a>)</li>
+          {{/each}}
         </ul>
+      </div>
+    </script>
+</head>
+@if(bodyId.length == 0) {
+<body>
+} else {
+<body id="@bodyId">
+}
+
+<div id="wrapper">
+
+    <div id="header">
+
+        <div id="header-top">
+            <div class="container_16">
+                <div class="grid_10" id="hub-navigation">
+                    <a class='@if(isCurrent("Application")) {current}' href="@action(controllers.Application.index)"><span>Home</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Users")) {current}' href="/users"><span>Users</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Objects")) {current}' href="/objects"><span>Objects</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Collections")) {current}' href="/collections"><span>Collections</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Stories")) {current}' href="/stories"><span>Stories</span></a>
+
+                </div>
+                <div class="grid_6" id="login-registration">
+
+                    @if(userName == null) {
+
+                    <a href="/login"><span>Login</span></a><span class="pipe">|</span>
+                    <a href="@action(controllers.Registration.index)"><span>Register</span></a><span class="pipe">|</span>
+                    <a href="@action(controllers.Registration.lostPassword)"><span>Forgot Password</span></a>
+
+                    } else {
+                    <div id="user-tools" class="">
+                       <ul id="user-menu">
+                           <li>
+                               <a href="#" class="user"> Hi @fullName</a>
+                                 <div class="sub">
+                                    <ul>
+                                        <li><h2>Go to</h2></li>
+                                        <li><a class="action goto" href='/@userName/profile'><span>Your Profile</span></a></li>
+                                        <li><a class="action goto" href='/@userName/object'><span>Your Objects</span></a></li>
+                                        <li><a class="action goto" href='/@userName/collection'><span>Your Collections</span></a></li>
+                                        <li><a class="action goto" href='/@userName/story'><span>Your Stories</span></a></li>
+                                    </ul>
+                                    <ul>
+                                        <li><h2>Create</h2></li>
+                                       <li ><a class="action add image-add" href='/@userName/object/add'>Create new object</a></li>
+                                       <li><a class="action add collection-add" href='/@userName/collection/add'>Create new collection</a></li>
+                                       <li><a class="action add story-add" href='/@userName/story/add'>Create new story</a></li>
+                                    </ul>
+
+                                </div>
+
+                           </li>
+                           <li><span class="pipe">|</span><a href="/logout"><span>Logout</span></a></li>
+                       </ul>
+                        <!--<span class="pipe">|</span><a href="/logout"><span>Logout</span></a>-->
+                    </div>
+
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+        <!--@if(userName != null) {-->
+
+        <!--<div id="header-user-bar">-->
+            <!--<div class="container_16">-->
+                <!--<div class="grid_12" id="user-navigation">-->
+                    <!--<span id="user-name">Hi @fullName</span>-->
+                    <!--<a href='/@userName/profile'><span>Your Profile</span></a><span class="pipe">|</span>-->
+                    <!--<a href='/@userName/object'><span>Your Objects</span></a><span class="pipe">|</span>-->
+                    <!--<a href='/@userName/collection'><span>Your Collections</span></a><span class="pipe">|</span>-->
+                    <!--<a href='/@userName/story'><span>Your Stories</span></a>-->
+                <!--</div>-->
+
+                <!--<div class="grid_4">-->
+                    <!--<div id="user-tools" class="">-->
+                       <!--<ul class="main-menu">-->
+                           <!--<li><a href="#"> Hi @fullName</a>-->
+                               <!--<ul class="sub-menu">-->
+                                   <!--<li><a href="" class="add image-add">New object</a></li>-->
+                                   <!--<li><a href="" class="add collection-add">New collection</a></li>-->
+                                   <!--<li><a href="" class="add story-add">New story</a></li>-->
+                               <!--</ul>-->
+                           <!--</li>-->
+                       <!--</ul>-->
+                    <!--</div>-->
+
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <!--}-->
+
+        <div id="header-main">
+            <div class="container_16">
+                <div class="grid_16" id="branding">
+                    <h1><span>@themeDisplayName</span></h1>
+
+                    <div id="header-text">
+                        <p>This is the development environment for the uber-cool and amazing Delving Play-Ground - a precursor for Culture-Hub. This is a place where objects come to life through
+                            contextual grouping in 'collections' and through story-telling. We believe that every object tells a story, but that story depends on context. So
+                            one object may be able to tell a different story depending on its context.</p>
+
+                        <p>
+                            <a href="@action(controllers.Registration.index)">Register</a> or
+                            <a href="/login">login</a> and start adding and grouping objects. You can work on your own collections and stories or collaborate with other users to create collections and tell stories.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="header-bot">
+            <div class="container_16">
+                <div class="grid_16">
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
-</div>
-
-<div id="header">
-    <div class="container_16">
-        <div class="grid_16">
-            <!--<div id="logo"><img src='@asset("/public/images/logo.png")'/></div>-->
-            <!--<h1 class="grid_12 push_4 omega">DELVING Play Services</h1>-->
-            <h1>Delving Play-Ground</h1>
+    <div id="search">
+        <div class="container_16">
+            <div class="grid_16">
+                <form method="get" action="">
+                    <input type="text" class="textinput" id="query" name="query" value='@params.get("query")' />
+                    <input type="submit" class="dui-button ui-state-default" value="Search">
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="body">
-    <div class="container_16">
-        <!--<div class="grid_16">-->
-        @body
-        <!--</div>-->
+    <div id="page">
+
+        <div id="messages-container">
+            <div class="container_16">
+                <div class="grid_16">
+
+                </div>
+            </div>
+        </div>
+
+        <div id="page-main">
+            <div class="container_16">
+                <div class="grid_16">
+                     @body
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>
 
 <div id="footer">
     <div class="container_16">
-        <div class="grid_4">
-            <h3>Play / Scala Links</h3>
-            <ul class="menu-v">
-                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/home" target="_blank">Play Scala Documentation</a></li>
-                <li><a href="http://scala.playframework.org/documentation/scala-0.9.1/templates" target="_blank">Scala Templates Documentation</a></li>
-                <li><a href="http://playcheatsheet.appspot.com/show/ArtemMedeu/armed/play-cheatsheets" target="_blank">Play Cheatsheet</a></li>
-            </ul>
-
-        </div>
-        <div class="grid_4">
-            <h3>Javascript Links</h3>
-            <ul class="menu-v">
-                <li><a href="http://docs.jquery.com/Main_Page" target="_blank">jQuery Documentation</a></li>
-                <li><a href="http://jqueryui.com/demos/" target="_blank">jQueryUI Documentation</a></li>
-                <li><a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">Knockout.js Documentation</a></li>
-            </ul>
-
+        <div class="grid_16">
+            &#160;
         </div>
     </div>
 </div>
+
+
+
 
 </body>
 </html>

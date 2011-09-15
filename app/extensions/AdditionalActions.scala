@@ -10,43 +10,59 @@ import net.liftweb.json
 import json._
 import json.Serialization._
 import com.codahale.jerkson.util.CaseClassSigParser
-import org.codehaus.jackson.map.module.SimpleModule
+import play.mvc.Controller
+import org.codehaus.jackson.map._
+import org.codehaus.jackson.map.Module.SetupContext
 import org.codehaus.jackson.Version
-import org.bson.types.ObjectId
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-// glue for lift-json
+// glue for lift-json, still used in some places
 object PlayParameterNameReader extends ParameterNameReader {
+
   import scala.collection.JavaConversions._
+
   def lookupParameterNames(constructor: Constructor[_]) = LocalvariablesNamesEnhancer.lookupParameterNames(constructor)
 }
+
+
+object CHJson extends com.codahale.jerkson.Json {
+  // this is where we setup out Jackson module for custom de/serialization
+  val module: Module = new Module() {
+    def getModuleName = "Delving"
+    def version() = Version.unknownVersion()
+    def setupModule(ctx: SetupContext) {
+      ctx.addDeserializers(new AdditionalScalaDeserializers)
+      ctx.addSerializers(new AdditionalScalaSerializers)
+    }
+  }
+  mapper.registerModule(module)
+}
+
+
 
 /**
  * This trait provides additional actions that can be used in controllers
  */
 trait AdditionalActions {
-
-  // this is where we setup out Jackson module for custom de/serialization
-  val mapper = com.codahale.jerkson.Json.mapper
-  val module: SimpleModule = new SimpleModule("delving", Version.unknownVersion())
-  module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
-  module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
-  mapper.registerModule(module)
-
-  import com.codahale.jerkson.Json._
+  self: Controller =>
 
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
 
-  def Json(data: AnyRef): Result = new RenderJson(generate(data))
+  def Json(data: AnyRef): Result = new RenderJson(CHJson.generate(data))
 
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 
   def RenderKml(entity: AnyRef) = new RenderKml(entity)
+
+  def TextError(why: String, status: Int = 500) = {
+    response.status = new java.lang.Integer(status)
+    Text(why)
+  }
 }
 
 
@@ -69,7 +85,9 @@ class RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.
     } else if (request.format == "xml") {
       // TODO for now we still have lift-json here because we want to use the XML extraction
       // but maybe there is another way to achieve this
-      val doc = <response>{net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}</response>
+      val doc = <response>
+        {net.liftweb.json.Xml.toXml(Extraction.decompose(arg))}
+      </response>
       new RenderXml(doc.toString())(request, response)
     } else if (request.format == "kml") {
       new RenderKml(arg)(request, response)

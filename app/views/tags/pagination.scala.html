@@ -1,0 +1,23 @@
+@(selector: String, count: Int, start: Int)
+@import views.context._
+
+<script type="text/javascript">
+  $('@selector').paginate({
+    count     : '@((count / PAGE_SIZE.toDouble).ceil.toInt)',
+    start     : '@start',
+    display     : 5,
+    border          : true,
+    border_color      : '#fff',
+    text_color        : '#0066cc',
+    background_color      : '#fff',
+    border_hover_color    : '#fff',
+    text_hover_color      : '#000',
+    background_hover_color  : '#eaeaea',
+    images          : false,
+    mouse          : 'press',
+    onChange           : function(page) {
+      window.location.href = '@paginationUrl' + page;
+    }
+  });
+
+</script>

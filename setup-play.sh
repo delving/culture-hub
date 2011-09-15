@@ -41,7 +41,7 @@ cd play
 git apply ../culture-hub/binder-patch.patch
 
 # http://play.lighthouseapp.com/projects/74274/tickets/32-all-case-classes-get-an-additional-default-empty-constructor-preventing-json-deserializer-from-working
-git apply ../culture-hub/constructor-patch.patch
+# git apply ../culture-hub/constructor-patch.patch
 
 git apply ../culture-hub/error-display-patch.patch
 
@@ -74,7 +74,11 @@ mkdir modules
 cd modules
 git clone git://github.com/playframework/play-scala.git --depth 1
 cd play-scala
+
+# http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
+git apply ../../jvm-args-patch.patch
 ant -Dplay.path=../../../play
+cd ../../
 
 echo
 echo
@@ -84,7 +88,7 @@ echo ======================
 echo
 echo
 
-../play/play dependencies --sync
+../play/play dependencies
 
 echo =========================================
 echo Done! Run the application with "../play/play run" or when in your path just "play run"

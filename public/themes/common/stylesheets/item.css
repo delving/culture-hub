@@ -1,0 +1,88 @@
+.item {
+    display: block;
+    position: relative;
+    overlow: hidden;
+}
+
+
+.item h4 {
+    font-weight: bold;
+    margin: 0;
+    padding: 0 20px 0 0;
+}
+
+.item h4 a:link,
+.item h4 a:visited {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.item h4 a:hover {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.item .media {
+    float: left;
+    /*display: table-cell;*/
+    position: relative;
+    margin: 0 10px 10px 0;
+    /*clear: left;*/
+}
+
+.item .media.small {
+    width: 50px;
+    height: 40px;
+}
+
+.item .media.medium {
+    width: 100px;
+    height: 75px;
+}
+
+.item .media.large {
+
+}
+
+.item .media.small img {
+    position:absolute;
+    clip:rect(0px,50px,40px,0px);
+}
+
+.item .media.medium img{
+    position:absolute;
+    clip:rect(0px,100px,75px,0px);
+}
+
+.item .media.large img{
+
+}
+
+.item .metadata {
+    display: table-cell;
+    /*float: left;*/
+}
+
+.item h2 {
+    font-size: 95%;
+    margin:  0;
+}
+
+
+.item p {
+    margin: 0;
+}
+
+
+.metadata p {
+   margin-bottom: 10px;
+}
+
+.item .detail {
+    display: inline-block;
+    font-size: 90%;
+    margin-right: 10px;
+}
+
+
+

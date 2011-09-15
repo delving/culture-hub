@@ -1,4 +1,4 @@
-# culture-hub
+# Delving culture-hub
 
 Proof of concept of a services application written with play-scala.
 
@@ -21,6 +21,10 @@ This will eventually demonstrate things such as authentication & authorization, 
 - from the `culture-hub` directory, run `sh setup.sh` in order to setup the application (find dependencies, etc.). You may need to run `play dependencies` later on by hand in order to download and install additional dependencies.
 - configure the settings at the end of `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
+- configure the subdomains for testing in your `/etc/hosts` file by adding:
+
+    127.0.0.1       norvegiana.localhost
+    127.0.0.1       friesmuseum.localhost
 
 ### Running the application - development mode
 
@@ -28,7 +32,7 @@ Run the application via
 
     play run -Xss4m --%youruser
 
-where `youruser is the key you used for your custom properties in `conf/application.conf``
+where `youruser` is the key you used for your custom properties in `conf/application.conf``
 
 An example user is `bob@gmail.com` with password `secret`
 

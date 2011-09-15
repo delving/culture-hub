@@ -28,6 +28,7 @@ import play.mvc.Http
 import scala.collection.JavaConversions._
 import cake.MetadataModelComponent
 import models.PortalTheme
+import play.exceptions.ConfigurationException
 
 trait ThemeHandlerComponent {
   this: MetadataModelComponent =>
@@ -69,11 +70,16 @@ class ThemeHandler {
         PortalTheme.insert(_)
       }
     } else {
-      themeList = readThemesFromDatabase()
+      try {
+        themeList = readThemesFromDatabase()
+      } catch {
+        case t: Throwable =>
+          log.error("Error reading Themes from the database.", t)
+      }
     }
 
     if(!getDefaultTheme.isDefined) {
-      throw new RuntimeException("No default theme could be found!") // this should be some kind of custom startup exception
+      throw new ConfigurationException("No default theme could be found!")
     }
   }
 
@@ -110,18 +116,21 @@ class ThemeHandler {
     else getDefaultTheme.get
   }
 
-  def getByBaseUrl(baseUrl: String): PortalTheme = {
-    val theme = themeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
+  def getBySubdomain(subdomain: Option[String]): PortalTheme = {
+    val theme = themeList.filter(_.subdomain == subdomain)
     if (!theme.isEmpty) theme.head
     else getDefaultTheme.get
   }
 
-  def getByBaseUrl(request: Http.Request): PortalTheme = getByBaseUrl(request.host)
-
   def getByRequest(request: Http.Request): PortalTheme = {
     if (hasSingleTheme) getDefaultTheme.get
     else if (debug && request.params._contains("theme")) getByThemeName(request.params.get("theme"))
-    else getByBaseUrl(request)
+    else {
+      val domain = play.Play.configuration.getProperty("hub.hostname")
+      val index = request.host.indexOf(domain)
+      val subdomain = if(index == 0) None else Some(request.host.substring(0, index - 1).toLowerCase)
+      getBySubdomain(subdomain)
+    }
   }
 
   private[util] def loadThemesYaml(): Seq[PortalTheme] = {

@@ -1,0 +1,144 @@
+@(id: Option[String] = None)
+
+@import views.context._
+@import views.tags.html._
+
+@header(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/collections">Collections</a><span class="arrow"> &gt; </span>
+    <span class="current">@if(id == None) { Create a collection } else { Update collection }</span>
+</div>
+
+<h1 class="grid_16 alpha">@if(id == None) { Create a collection } else { Update collection }</h1>
+
+<div class="grid_8 alpha">
+
+<form method="post" action="" id="collectionForm">
+
+        <!--<h2>Collection Information</h2>-->
+        <span class="required-note"><span>*</span> Required Fields</span>
+
+        @textField("name", "Name", "value: name", " ",  false, "required")
+        @textArea("description", "Description", "value: description", " ",  "required")
+        <!--@labelField("label", "Label", "value: label")-->
+
+        <!--<h2>Add objects to your collection</h2>-->
+
+        <div class="actions">
+                <button class="add image-add" id="addObject">Add object(s)</button>
+        </div>
+
+        <div id="objectList" data-bind="template: 'objectsList'"></div>
+
+
+    <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
+        <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+    </div>
+
+    <div class="field">
+        <label for="public-0">Public</label>
+
+        <div class="inputs">
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
+            <input type="radio" value="1" id="public-1" name="public">Public
+        </div>
+    </div>
+
+    <div class="actions">
+      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button><div class="wait"></div>
+    </div>
+
+</form>
+</div>
+
+<script type="text/html" id="availableObjectsList">
+    <table class="list">
+        <tbody>
+        {{each(i, object) availableObjects()}}
+        <tr>
+            <td><input type="checkbox" value="${object.id}" data-bind="checked: selectedObjects()"/></td>
+            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/></td>
+            <td><h4>${object.name}</h4></td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+
+<script type="text/html" id="objectsList">
+    <table width="100%" class="list">
+        <thead>
+            <tr>
+            <th colspan="3" class="header">Objects in your collection</th>
+            </tr>
+            <tr>
+            <th>Object</th><th class="action">Action</th><th class="thumb">Default</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{each(i, object) objects()}}
+        <tr>
+            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/>${name}</td>
+            <td class="action"><a href="#" class="action delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
+            <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
+        </tr>
+        {{/each}}
+    </table>
+</script>
+
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+
+        var collectionModel = {
+            selectedObjects: ko.observableArray(),
+            removeObject: function(object) {
+                this.availableObjects.push(object);
+                this.objects.remove(object);
+            }
+        };
+
+        $('#objects-dialogue').dialog({
+            autoOpen: false,
+            buttons: {
+                "Add selected objects": function() {
+                    addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects);
+                    $(this).dialog('close');
+                }
+            }
+        });
+
+        $("#addObject").click(function(event) {
+            event.preventDefault();
+            $("#objects-dialogue").dialog('open');
+        });
+
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            Spinners.create('.wait').play();
+            $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
+                Spinners.get('.wait').remove();
+                updateViewModel(data, collectionModel);
+                window.location.href = '/@userName/collection/' + collectionModel.id()
+            }, function(jqXHR, textStatus, errorThrown) {
+                Spinners.get('.wait').remove();
+                $('#result').html('Error saving collection, please try again');
+                $('#result').show().fadeOut('3000');
+            })
+        });
+
+        load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
+
+        var viewModel = { };
+
+        var annotation = function (name, type) {
+            this.name = name;
+            this.type = type;
+            this.remove = function() {
+                viewModel.annotations.remove(this)
+            }
+        }
+    });
+</script>
+
+}

@@ -8,7 +8,9 @@ import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
-import models.{UserReference, PortalTheme, User}
+import results.Result
+import models._
+import org.bson.types.ObjectId
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -16,29 +18,69 @@ import models.{UserReference, PortalTheme, User}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
+// TODO find a better place for these
+case class Token(id: String, name: String)
+case class ShortLabel(labelType: String, value: String)
+
 trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
-  @Before def setConnectedUser() {
+  // ~~~ user variables handling for view rendering (connected and browsed)
 
+  @Before(priority = 0) def setConnectedUser() {
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
-    user map {
+    user foreach {
       u => {
         renderArgs.put("fullName", u.fullname)
         renderArgs.put("displayName", u.reference.username)
+        renderArgs.put("userId", u._id)
       }
     }
   }
+
+  @Before(priority = 0) def setBrowsedUser() {
+    Option(params.get("user")) foreach { userName =>
+      val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
+      user match {
+        case Some(u) =>
+          renderArgs.put("browsedFullName", u.fullname)
+          renderArgs.put("browsedDisplayName", u.reference.username)
+          renderArgs.put("browsedUserId", u._id)
+        case None =>
+          renderArgs.put("browsedUserNotFound", userName)
+      }
+    }
+  }
+
+  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
+
+  @Before(priority = 1) def checkBrowsedUser(): Result = {
+    if(!browsedUserExists) return NotFound("User %s was not found".format(renderArgs.get("browsedUserNotFound", classOf[String])))
+    Continue
+  }
+
+  // ~~~ convenience methods to access user information
 
   // TODO
   @Util def getNode = "cultureHub"
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
-  @Util def getUserReference = UserReference(username = connectedUser, node = getNode, id = getUserId(connectedUser))
-
-  @Util def getUser(displayName: String): User = {
-    User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)).getOrElse(User.nobody)
+  @Util def getUser(displayName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)) match {
+    case Some(user) => Right(user)
+    case None => Left(NotFound("Could not find user " + displayName))
   }
+
+  @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
+
+  @Util def browsedUserId: ObjectId = renderArgs.get("browsedUserId", classOf[ObjectId])
+
+  @Util def browsedFullName: String = renderArgs.get("browsedFullName", classOf[String])
+
+  @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
+
+  @Util def browsedIsConnected: Boolean = browsedUserId == connectedUserId
+
+  // ~~~ convenience methods
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
@@ -51,6 +93,38 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     }
     store
   }
+
+  @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
+    for(file <- files) if(file.contentType.contains("image")) return Some(file)
+    None
+  }
+
+  // ~~~ implicits for model conversion handling - we should move all of the definitions and those conversions to a common place or so
+
+  implicit def collectionToShort(c: UserCollection) = ShortCollection(c._id, c.TS_update, c.name, c.description.getOrElse(""), c.thumbnail_object_id, c.userName)
+  implicit def cListToSCList(cl: List[UserCollection]) = cl map { c => collectionToShort(c) }
+
+  implicit def storyToShort(s: Story) = ShortStory(s._id, s.TS_update, s.name, s.description, s.thumbnail, s.userName)
+  implicit def sListToSSList(sl: List[Story]) = sl map { s => storyToShort(s) }
+
+  implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
+  implicit def oListToSOList(ol: List[DObject]) = ol map { o => objectToShort(o) }
+
+  implicit def userToShort(u: User) = ShortUser(u._id, u.firstName, u.lastName, u.fullname, u.email, u.reference.username)
+  implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
+
+  implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
+
+  implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
+    case Some(id) => id.toString
+    case None => ""
+  }
+
+  implicit def stringToOidOption(id: String): Option[ObjectId] = ObjectId.isValid(id) match {
+    case true => Some(new ObjectId(id))
+    case false => None
+  }
+
 }
 
 
@@ -58,7 +132,7 @@ trait FormatResolver {
   self: Controller =>
 
   // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
-  val supportedFormats = List("html", "xml", "json", "kml")
+  val supportedFormats = List("html", "xml", "json", "kml", "token")
 
   @Before(priority = 1)
   def setFormat(): AnyRef = {
@@ -117,7 +191,7 @@ trait ParameterCheck {
 
 }
 
-trait ThemeAware {
+trait ThemeAware { self: Controller =>
 
   val themeHandler = ComponentRegistry.themeHandler
   val localizedFieldNames = new LocalizedFieldNames
@@ -129,14 +203,15 @@ trait ThemeAware {
 
   implicit def lookup = lookupThreadLocal.get()
 
-  @Before(priority = 2)
+  @Before(priority = 0)
   def setTheme() {
     val portalTheme = themeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
+    renderArgs.put("theme", theme)
   }
 
-  @After
+  @Finally
   def cleanup() {
     themeThreadLocal.remove()
     lookupThreadLocal.remove()
