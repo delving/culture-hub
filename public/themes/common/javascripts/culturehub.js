@@ -30,66 +30,67 @@ function initializeElements() {
 //            });
 
 //On Hover Over
-function megaHoverOver(){
-    $(this).find(".sub").stop().fadeTo('fast', 1).show(); //Find sub and fade it in
-    (function($) {
-        //Function to calculate total width of all ul's
-        jQuery.fn.calcSubWidth = function() {
-            rowWidth = 0;
-            //Calculate row
-            $(this).find("ul").each(function() { //for each ul...
-                rowWidth += $(this).width(); //Add each ul's width together
+    function megaHoverOver() {
+        $(this).find(".sub").stop().fadeTo('fast', 1).show(); //Find sub and fade it in
+        (function($) {
+            //Function to calculate total width of all ul's
+            jQuery.fn.calcSubWidth = function() {
+                rowWidth = 0;
+                //Calculate row
+                $(this).find("ul").each(function() { //for each ul...
+                    rowWidth += $(this).width(); //Add each ul's width together
+                });
+            };
+        })(jQuery);
+
+        if ($(this).find(".row").length > 0) { //If row exists...
+
+            var biggestRow = 0;
+
+            $(this).find(".row").each(function() {    //for each row...
+                $(this).calcSubWidth(); //Call function to calculate width of all ul's
+                //Find biggest row
+                if (rowWidth > biggestRow) {
+                    biggestRow = rowWidth;
+                }
             });
-        };
-    })(jQuery);
 
-    if ( $(this).find(".row").length > 0 ) { //If row exists...
+            $(this).find(".sub").css({'width' :biggestRow}); //Set width
+            $(this).find(".row:last").css({'margin':'0'});  //Kill last row's margin
 
-        var biggestRow = 0;
+        } else { //If row does not exist...
 
-        $(this).find(".row").each(function() {	//for each row...
-            $(this).calcSubWidth(); //Call function to calculate width of all ul's
-            //Find biggest row
-            if(rowWidth > biggestRow) {
-                biggestRow = rowWidth;
-            }
-        });
+            $(this).calcSubWidth();  //Call function to calculate width of all ul's
+            $(this).find(".sub").css({'width' : rowWidth}); //Set Width
 
-        $(this).find(".sub").css({'width' :biggestRow}); //Set width
-        $(this).find(".row:last").css({'margin':'0'});  //Kill last row's margin
-
-    } else { //If row does not exist...
-
-        $(this).calcSubWidth();  //Call function to calculate width of all ul's
-        $(this).find(".sub").css({'width' : rowWidth}); //Set Width
-
+        }
     }
-}
+
 //On Hover Out
-function megaHoverOut(){
-  $(this).find(".sub").stop().fadeTo('fast', 0, function() { //Fade to 0 opactiy
-      $(this).hide();  //after fading, hide it
-  });
-}
+    function megaHoverOut() {
+        $(this).find(".sub").stop().fadeTo('fast', 0, function() { //Fade to 0 opactiy
+            $(this).hide();  //after fading, hide it
+        });
+    }
 
 //Set custom configurations
-var config = {
-     sensitivity: 2, // number = sensitivity threshold (must be 1 or higher)
-     interval: 100, // number = milliseconds for onMouseOver polling interval
-     over: megaHoverOver, // function = onMouseOver callback (REQUIRED)
-     timeout: 500, // number = milliseconds delay before onMouseOut
-     out: megaHoverOut // function = onMouseOut callback (REQUIRED)
-};
+    var config = {
+        sensitivity: 2, // number = sensitivity threshold (must be 1 or higher)
+        interval: 100, // number = milliseconds for onMouseOver polling interval
+        over: megaHoverOver, // function = onMouseOver callback (REQUIRED)
+        timeout: 500, // number = milliseconds delay before onMouseOut
+        out: megaHoverOut // function = onMouseOut callback (REQUIRED)
+    };
 
-$("ul#user-menu li .sub").css({'opacity':'0'}); //Fade sub nav to 0 opacity on default
-$("ul#user-menu li").hoverIntent(config); //Trigger Hover intent with custom configurations
+    $("ul#user-menu li .sub").css({'opacity':'0'}); //Fade sub nav to 0 opacity on default
+    $("ul#user-menu li").hoverIntent(config); //Trigger Hover intent with custom configurations
 
 
 }
 
 
 function thumbnailUrl(id) {
-    if(typeof id === 'undefined' || id === "") {
+    if (typeof id === 'undefined' || id === "") {
         return '/public/images/dummy-object.png';
     } else {
         return '/thumbnail/' + (typeof id === 'function' ? id() : id);
@@ -125,7 +126,7 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
 function load(url, viewModel, scope, callback) {
     $.getJSON(url, {}, function(data) {
         updateViewModel(data, viewModel, scope);
-        if(typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
+        if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
     });
 }
 
@@ -152,19 +153,19 @@ function updateViewModel(data, viewModel, scope) {
 
 function confirmDeletion(elementSelector, onDelete) {
     $(elementSelector).dialog({
-			resizable: false,
-			height:140,
-			modal: true,
-			buttons: {
-				"Delete": function() {
-                    if(typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
-		});
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+            "Delete": function() {
+                if (typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }
+        }
+    });
 
 }
 
@@ -304,10 +305,79 @@ ko.bindingHandlers.tinymce = {
         //handle programmatic updates to the observable
         var value = ko.utils.unwrapObservable(valueAccessor());
         var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
-        if(typeof ed !== 'undefined') ed.setContent(value);
+        if (typeof ed !== 'undefined') ed.setContent(value);
     }
 };
 
+
+/** Binding for adding stylized and rich multiselect - jQuery UI MultiSelect Widget
+ *  http://www.erichynds.com/jquery/jquery-ui-multiselect-widget/
+ *
+ *  source: https://github.com/thelinuxlich/knockout_bindings/blob/master/knockout_bindings.js#L156
+ */
+ko.bindingHandlers.jqMultiSelect = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var defaults = {
+            click: function(event, ui) {
+                var selected_options = $.map($(element).multiselect("getChecked"), function(a) {
+                    return $(a).val()
+                });
+                allBindingsAccessor()['selectedOptions'](selected_options);
+            }
+        };
+        var options = $.extend(defaults, valueAccessor());
+
+        var selected = allBindingsAccessor()['selectedOptions']();
+        var available = allBindingsAccessor()['options']();
+        var optionsText = allBindingsAccessor()['optionsText'];
+        var optionsValue = allBindingsAccessor()['optionsValue'];
+
+        $.each(selected, function(index, el) {
+            var option = $.grep(available, function(e, index) {
+                return (typeof e[optionsValue] === 'function' ? e[optionsValue]() : e[optionsValue]) == el
+            });
+            var optionText = (option[0])[optionsText];
+            $(element).append("<option value='" + el + "'>" + optionText + "</option>");
+        });
+
+        allBindingsAccessor()['options'].subscribe(function(value) {
+            ko.bindingHandlers.jqMultiSelect.regenerateMultiselect(element, options, viewModel);
+        });
+        allBindingsAccessor()['selectedOptions'].subscribe(function(value) {
+            ko.bindingHandlers.jqMultiSelect.regenerateMultiselect(element, options, viewModel);
+        });
+    },
+    update: function (element, valueAccessor, allBindingsAccessor, context) {
+        ko.bindingHandlers.jqMultiSelect.regenerateMultiselect(element, null, context);
+    },
+    regenerateMultiselect: function(element, options, viewModel) {
+        if ($(element).next().hasClass("ui-multiselect")) {
+            setTimeout(function() {
+                if ($(element).multiselect('option', 'filter') === true) {
+                    return $(element).multiselect("refresh").multiselectfilter({
+                        label: $(element).multiselect('option', 'filterLabel') || "Search: "
+                    });
+                } else {
+                    return $(element).multiselect("refresh");
+                }
+            }, 0);
+        } else {
+            setTimeout(function() {
+                if ($(element).multiselect('option', 'filter') === true) {
+                    $(element).multiselect(options).multiselectfilter({
+                        label: $(element).multiselect('option', 'filterLabel') || "Search: "
+                    });
+                } else {
+                    $(element).multiselect(options);
+                    $(element).multiselect('close');
+                }
+                if ($(element).multiselect('option', 'noChecks') === true) {
+                    $(element).next().next().find(".ui-helper-reset:first").remove();
+                }
+            }, 0);
+        }
+    }
+};
 
 /**
  * Add the TinyMCE WYSIWG editor to a page.

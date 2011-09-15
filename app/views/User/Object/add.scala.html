@@ -18,9 +18,7 @@
         <div class="field">
             <label for="collection">Add to collection</label>
 
-            <div class="inputs">
-              <input type="text" id="collection" name="repositories" data-bind="tokens: collections" />
-            </div>
+            <select id="collection" name="repositories" multiple="true" data-bind="jqMultiSelect: collections, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'" ></select>
         </div>
 
         <div class="field" for="objectVisibility">
@@ -55,8 +53,6 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-
-    $("#collection").tokenInput('/@userName/collection/writeable/search');
 
     $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
     initUploadWidget();

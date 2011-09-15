@@ -13,7 +13,6 @@ import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
-import play.mvc.Util
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -25,11 +24,20 @@ import play.mvc.Util
 object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def load(id: String): Result = {
+    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => Collection(c._id, c.name) }
     DObject.findById(id) match {
-        case None => Json(ObjectModel())
+        case None => Json(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
-          val collections = UserCollection.findAllWithIds(anObject.collections).toList map { c => Collection(c._id, c.name) }
-          Json(ObjectModel(Some(anObject._id), anObject.name, anObject.description, anObject.user_id, anObject.visibility.toString, collections, (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList, anObject.files map {f => FileUploadResponse(f.name, f.length, "/file/" + f.id, f.thumbnailUrl, "/file/" + f.id)}))
+          Json(ObjectModel(
+            Some(anObject._id),
+            anObject.name,
+            anObject.description,
+            anObject.user_id,
+            anObject.visibility.toString,
+            anObject.collections,
+            availableCollections,
+            (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList,
+            anObject.files map {f => FileUploadResponse(f.name, f.length, "/file/" + f.id, f.thumbnailUrl, "/file/" + f.id)}))
         }
       }
   }
@@ -58,7 +66,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.getCollections, files = files, labels = labels))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.collections, files = files, labels = labels))
         inserted match {
           case Some(iid) => {
             FileUpload.markFilesAttached(uid, iid)
@@ -70,7 +78,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.getCollections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           FileUpload.markFilesAttached(uid, id)
@@ -97,11 +105,10 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
                        visibility: String = "Private",
-                       collections: List[Collection] = List.empty[Collection],
+                       collections: List[ObjectId] = List.empty[ObjectId],
+                       availableCollections: List[Collection] = List.empty[Collection],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
-
-  def getCollections: List[ObjectId] = for(collection <- collections) yield collection.id
 }
 
 case class Collection(id: ObjectId, name: String)
