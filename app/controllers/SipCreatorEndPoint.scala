@@ -92,9 +92,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Xml(dataSetsXml)
   }
 
-    // todo: implement
     def unlock(spec: String): Result = {
-        "Ok"
+      val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec), 404))
+      val updated = dataSet.copy(lockedBy = None)
+      DataSet.save(updated)
+      Ok
     }
 
   /**
