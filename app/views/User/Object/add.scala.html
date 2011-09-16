@@ -18,7 +18,7 @@
         <div class="field">
             <label for="collection">Add to collection</label>
 
-            <select id="collection" name="repositories" multiple="true" data-bind="jqMultiSelect: collections, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'" ></select>
+            <select id="collection" name="repositories" multiple="multiple" data-bind="jqMultiSelect: { filter: false }, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'" ></select>
         </div>
 
         <div class="field" for="objectVisibility">
