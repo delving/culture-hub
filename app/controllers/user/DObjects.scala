@@ -43,7 +43,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
   }
 
 
-  def objectUpdate(id: String): Html = html.add(Option(id), Codec.UUID())
+  def objectUpdate(id: String): Html = html.dobject(Option(id), Codec.UUID())
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)

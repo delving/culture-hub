@@ -35,7 +35,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
   }
 
 
-  def collectionUpdate(id: String): Html = html.add(Option(id))
+  def collectionUpdate(id: String): Html = html.collection(Option(id))
 
   def collectionSubmit(data: String): Result = {
 
