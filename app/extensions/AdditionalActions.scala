@@ -4,7 +4,6 @@ import play.classloading.enhancers.LocalvariablesNamesEnhancer
 import play.mvc.Http.{Response, Request}
 import java.lang.reflect.{Method, Constructor}
 import play.templates.Html
-import play.mvc.results.{RenderHtml, RenderXml, RenderJson, Result}
 import models.User
 import net.liftweb.json
 import json._
@@ -14,6 +13,7 @@ import play.mvc.Controller
 import org.codehaus.jackson.map._
 import org.codehaus.jackson.map.Module.SetupContext
 import org.codehaus.jackson.Version
+import play.mvc.results._
 
 /**
  *
@@ -53,7 +53,13 @@ trait AdditionalActions {
   // this is where we set our classLoader for jerkson
   CaseClassSigParser.setClassLoader(play.Play.classloader)
 
-  def Json(data: AnyRef): Result = new RenderJson(CHJson.generate(data))
+  def Json(data: AnyRef): Result = new Result() {
+    def apply(request: Request, response: Response) {
+      val encoding = getEncoding
+      setContentTypeIfNotSet(response, "application/json; charset=" + encoding)
+      response.out.write(CHJson.generate(data).getBytes(encoding))
+    }
+  }
 
   def RenderMultitype(template: play.templates.BaseScalaTemplate[play.templates.Html, play.templates.Format[play.templates.Html]], args: (Symbol, Any)*) = new RenderMultitype(template, args: _*)
 
