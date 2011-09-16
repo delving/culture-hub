@@ -258,28 +258,30 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     val records = DataSet.getRecords(dataSet)
 
-    writeEntry("records.xml", zipOut) { out =>
-      val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
+    if(records.count() > 0) {
+      writeEntry("records.xml", zipOut) { out =>
+        val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
 
-      val builder = new StringBuilder
-      builder.append("<delving-sip-source ")
-      for(ns <- dataSet.namespaces) builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
-      builder.append(">")
-      write(builder.toString(), pw, out)
+        val builder = new StringBuilder
+        builder.append("<delving-sip-source ")
+        for(ns <- dataSet.namespaces) builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+        builder.append(">")
+        write(builder.toString(), pw, out)
 
-      var count = 0
-      for(record <- records.find(MongoDBObject())) {
-        pw.println("""<input id="%s">""".format(record.localRecordKey))
-        pw.println(record.getXmlString())
-        pw.println("</input>")
+        var count = 0
+        for(record <- records.find(MongoDBObject())) {
+          pw.println("""<input id="%s">""".format(record.localRecordKey))
+          pw.println(record.getXmlString())
+          pw.println("</input>")
 
-        if(count % 100 == 0) {
-          pw.flush()
-          out.flush()
+          if(count % 100 == 0) {
+            pw.flush()
+            out.flush()
+          }
+          count += 1
         }
-        count += 1
+        write("</delving-sip-source>", pw, out)
       }
-      write("</delving-sip-source>", pw, out)
     }
 
     for(mapping <- dataSet.mappings) {
