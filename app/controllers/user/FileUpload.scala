@@ -10,6 +10,8 @@ import controllers.{FileStore, ImageCacheService, Secure, DelvingController}
 import controllers.FileStore._
 import org.bson.types.ObjectId
 import models.{DObject, StoredFile}
+import java.util.List
+import play.data.Upload
 
 /**
  * 
@@ -21,13 +23,16 @@ object FileUpload extends DelvingController with Secure {
   val fs = controllers.FileStore.fs
 
   def uploadFile(uid: String): Result = {
-    val uploads = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
+    val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
+    uploadFile(uid, asScalaIterable(uploads))
+  }
 
-    val uploadedFiles = for (upload: play.data.Upload <- asScalaIterable(uploads)) yield {
+  def uploadFile(uid: String, uploads: Iterable[Upload]): Result = {
+    val uploadedFiles = for (upload: play.data.Upload <- uploads) yield {
       val f = fs.createFile(upload.asStream())
       f.filename = upload.getFileName
       f.contentType = upload.getContentType
-      f.put(controllers.FileStore.UPLOAD_UID_FIELD, uid)
+      f.put(FileStore.UPLOAD_UID_FIELD, uid)
       f.save
 
       if (f._id == None) return Error("Error saving uploaded file")
@@ -64,7 +69,7 @@ object FileUpload extends DelvingController with Secure {
   }
 
   /**creates a thumbnail and stores a pointer to the original image **/
-  @Util def createThumbnail(image: GridFSDBFile, width: Int) = {
+  @Util private def createThumbnail(image: GridFSDBFile, width: Int) = {
     val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
     val thumbnail = fs.createFile(thumbnailStream)
     thumbnail.filename = image.filename
@@ -94,7 +99,8 @@ object FileUpload extends DelvingController with Secure {
       f =>
       // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
       // f.removeField("uid")
-        f.put(controllers.FileStore.UPLOAD_UID_FIELD, "")
+        f.put(FileStore.UPLOAD_UID_FIELD, "")
+        f.put(FileStore.OBJECT_POINTER_FIELD, objectId)
         f.save()
     }
   }
