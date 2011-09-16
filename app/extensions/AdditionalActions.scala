@@ -30,7 +30,7 @@ object PlayParameterNameReader extends ParameterNameReader {
 
 
 object CHJson extends com.codahale.jerkson.Json {
-  // this is where we setup out Jackson module for custom de/serialization
+  // this is where we setup our Jackson module for custom de/serialization
   val module: Module = new Module() {
     def getModuleName = "Delving"
     def version() = Version.unknownVersion()
@@ -49,9 +49,6 @@ object CHJson extends com.codahale.jerkson.Json {
  */
 trait AdditionalActions {
   self: Controller =>
-
-  // this is where we set our classLoader for jerkson
-  CaseClassSigParser.setClassLoader(play.Play.classloader)
 
   def Json(data: AnyRef): Result = new RenderJson(CHJson.generate(data))
 
