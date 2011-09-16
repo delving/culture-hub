@@ -9,7 +9,6 @@
 - iipsrv.url
 - debug
 - portal.theme.file
-- hub.hostname
 - services.harvindexing.prefix
 - services.password
 - services.api.useAccessKey
