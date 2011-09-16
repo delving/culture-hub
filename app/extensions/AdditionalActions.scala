@@ -2,7 +2,6 @@ package extensions
 
 import play.mvc.Http.{Response, Request}
 import models.User
-import com.codahale.jerkson.util.CaseClassSigParser
 import play.mvc.Controller
 import org.codehaus.jackson.map._
 import org.codehaus.jackson.map.Module.SetupContext
@@ -15,10 +14,12 @@ import play.mvc.results._
  */
 
 object CHJson extends com.codahale.jerkson.Json {
-  // this is where we setup out Jackson module for custom de/serialization
+  // this is where we setup our Jackson module for custom de/serialization
   val module: Module = new Module() {
     def getModuleName = "Delving"
+
     def version() = Version.unknownVersion()
+
     def setupModule(ctx: SetupContext) {
       ctx.addDeserializers(new AdditionalScalaDeserializers)
       ctx.addSerializers(new AdditionalScalaSerializers)
@@ -32,9 +33,6 @@ object CHJson extends com.codahale.jerkson.Json {
  */
 trait AdditionalActions {
   self: Controller =>
-
-  // this is where we set our classLoader for jerkson
-  CaseClassSigParser.setClassLoader(play.Play.classloader)
 
   def Json(data: AnyRef): Result = new Result() {
     def apply(request: Request, response: Response) {
