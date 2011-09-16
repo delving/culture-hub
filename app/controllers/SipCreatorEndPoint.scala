@@ -15,9 +15,9 @@ import extensions.AdditionalActions
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
 import com.mongodb.casbah.commons.MongoDBObject
-import org.apache.commons.io.IOUtils
 import java.io._
 import util.SimpleDataSetParser
+import org.apache.commons.io.{FileCleaningTracker, IOUtils}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -36,6 +36,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
   private val log: Logger = Logger.getLogger(getClass)
+  private val fileCleaningTracker = new FileCleaningTracker
 
   val DOT_PLACEHOLDER = "--"
 
@@ -232,6 +233,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val name = "%s-sip".format(spec)
     val tmpFile = File.createTempFile(name, "zip")
     tmpFile.deleteOnExit()
+    fileCleaningTracker.track(tmpFile, dataSet)
 
     val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
 
@@ -293,9 +295,6 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     try {
       new RenderBinary(tmpFile, name + ".zip")
     } finally {
-      // FIXME make a job that cleans this up
-//      tmpFile.delete()
-
       val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
       DataSet.save(updatedDataSet)
     }
