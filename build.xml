@@ -7,8 +7,7 @@
     <property name="coverage.results" value="${root}/test-result/code-coverage"/>
     <property name="tmp" value="${root}/tmp"/>
     <!-- You need to adjust the path to play here -->
-    <property name="testcommand" value="../play/play auto-test -Duser=test -Xss4m"/>
-
+    <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
         <classpath>
@@ -16,6 +15,9 @@
         </classpath>
     </taskdef>
 
+    <target name="check" unless="play.path">
+        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
+    </target>
 
     <target name="package">
     </target>
@@ -28,7 +30,7 @@
         <mkdir dir="${target}"/>
     </target>
 
-    <target name="test" description="Runs all tests" depends="prepare">
+    <target name="test" description="Runs all tests" depends="prepare, check">
         <!-- Run the test command -->
         <echo message="Running command: ${testcommand}"/>
         <exec command="${testcommand}" failonerror="false" resultproperty="testresult">
