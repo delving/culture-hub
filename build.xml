@@ -147,8 +147,13 @@
             <fileset refid="dependency.fileset"/>
             <chainedmapper>
                 <flattenmapper/>
-                <globmapper from="sip-creator-*.jar" to="sip-creator.jar"/>
-                <globmapper from="sip-core-*.jar" to="sip-core.jar"/>
+                <mapper>
+                    <globmapper from="sip-creator-*.jar" to="sip-creator.jar"/>
+                    <globmapper from="sip-core-*.jar" to="sip-core.jar"/>
+                    <globmapper from="oauth2-client-0.2*.jar" to="oauth2-client-0.2.jar"/>
+                    <globmapper from="oauth2-common-0.2*.jar" to="oauth2-common-0.2.jar"/>
+                    <identitymapper/>
+                </mapper>
             </chainedmapper>
         </copy>
     </target>
