@@ -1,4 +1,5 @@
-<project name="Build For Integrating Play! with TeamCity" default="package">
+<project name="Build For Integrating Play! with TeamCity" default="package"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
@@ -9,14 +10,24 @@
     <!-- You need to adjust the path to play here -->
     <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
 
+    <property name="sip-creator.version" value="0.3.4-SNAPSHOT" />
+
     <taskdef resource="net/sf/antcontrib/antlib.xml">
         <classpath>
             <pathelement location="${root}/lib-extra/ant-contrib-1.0b3.jar"/>
         </classpath>
     </taskdef>
 
+    <path id="maven-ant-tasks.classpath" path="${root}/lib-extra/maven-ant-tasks-2.1.3.jar"/>
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath"/>
+
+    <artifact:remoteRepository id="delving.snapshots"
+                               url="http://development.delving.org:8081/nexus/content/repositories/snapshots"/>
+
     <target name="check" unless="play.path">
-        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
+        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home"/>
     </target>
 
     <target name="package">
@@ -99,7 +110,6 @@
         </echo>
 
 
-
         <!--Zip the unit test results-->
         <zip destfile="${target}/playTestResults.zip">
             <fileset dir="${test.results}">
@@ -122,6 +132,21 @@
                 <available file="${root}/test-result/result.failed"/>
             </condition>
         </fail>
+    </target>
+
+    <target name="downloadSipCreator">
+        <delete>
+            <fileset dir="${root}/public/sip-creator" includes="*.jar, *.zip, *.jnlp" />
+        </delete>
+        <mkdir dir="${root}/public/sip-creator"/>
+        <artifact:dependencies fileSetId="dependency.fileset">
+            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}" type="zip"/>
+            <remoteRepository refid="delving.snapshots"/>
+        </artifact:dependencies>
+        <copy todir="${root}/public/sip-creator">
+            <fileset refid="dependency.fileset"/>
+            <mapper type="flatten"/>
+        </copy>
     </target>
 
 </project>

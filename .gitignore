@@ -11,3 +11,7 @@ extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
 legacyServices/lib/*.jar
 /precompiled
+/public/sip-creator/*.jar
+/public/sip-creator/*.zip
+/public/sip-creator/*.jnlp
+
