@@ -1,5 +1,6 @@
 <project name="Build For Integrating Play! with TeamCity" default="package"
-         xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         xmlns:rsel="antlib:org.apache.tools.ant.types.resources.selectors">
 
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
@@ -11,6 +12,7 @@
     <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
 
     <property name="sip-creator.version" value="0.3.5-SNAPSHOT"/>
+    <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
         <classpath>
@@ -135,27 +137,24 @@
     </target>
 
     <target name="downloadSipCreator">
-        <property name="pubdir" value="${root}/public/sip-creator"/>
+        <property name="pubdir" value="${sip-creator.path}"/>
         <delete>
             <fileset dir="${pubdir}" includes="*.jar, *.zip, *.jnlp"/>
         </delete>
         <artifact:dependencies fileSetId="dependency.fileset">
-            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}"/>
+            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}" type="zip"/>
             <remoteRepository refid="delving.snapshots"/>
         </artifact:dependencies>
-        <copy todir="${pubdir}" verbose="true">
-            <fileset refid="dependency.fileset"/>
-            <chainedmapper>
-                <flattenmapper/>
-                <mapper>
-                    <globmapper from="sip-creator-*.jar" to="sip-creator.jar"/>
-                    <globmapper from="sip-core-*.jar" to="sip-core.jar"/>
-                    <globmapper from="oauth2-client-0.2*.jar" to="oauth2-client-0.2.jar"/>
-                    <globmapper from="oauth2-common-0.2*.jar" to="oauth2-common-0.2.jar"/>
-                    <identitymapper/>
-                </mapper>
-            </chainedmapper>
+        <copy todir="${pubdir}" verbose="true" flatten="true">
+             <restrict id="filtered.dependencies">
+                <fileset refid="dependency.fileset"/>
+                <rsel:name name="*.zip"/>
+            </restrict>
+            <mapper>
+                <globmapper from="*.zip" to="sip-creator.zip"/>
+            </mapper>
         </copy>
+        <unzip src="${sip-creator.path}/sip-creator.zip" dest="${sip-creator.path}"/>
     </target>
 
 </project>
