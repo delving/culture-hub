@@ -39,7 +39,3 @@ object DObjects extends DelvingController {
   }
 
 }
-
-// ~~~ list page models
-
-case class ShortObject(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, userName: String)

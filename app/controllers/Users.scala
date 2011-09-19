@@ -49,5 +49,3 @@ object Users extends DelvingController {
   }
 
 }
-
-case class ShortUser(id: ObjectId, firstName: String, lastName: String, fullName: String, email: String, userName: String)

@@ -18,11 +18,7 @@ import org.bson.types.ObjectId
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-// TODO find a better place for these
-case class Token(id: String, name: String)
-case class ShortLabel(labelType: String, value: String)
-
-trait DelvingController extends Controller with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
@@ -98,33 +94,6 @@ trait DelvingController extends Controller with AdditionalActions with FormatRes
     for(file <- files) if(file.contentType.contains("image")) return Some(file)
     None
   }
-
-  // ~~~ implicits for model conversion handling - we should move all of the definitions and those conversions to a common place or so
-
-  implicit def collectionToShort(c: UserCollection) = ShortCollection(c._id, c.TS_update, c.name, c.description.getOrElse(""), c.thumbnail_object_id, c.userName)
-  implicit def cListToSCList(cl: List[UserCollection]) = cl map { c => collectionToShort(c) }
-
-  implicit def storyToShort(s: Story) = ShortStory(s._id, s.TS_update, s.name, s.description, s.thumbnail, s.userName)
-  implicit def sListToSSList(sl: List[Story]) = sl map { s => storyToShort(s) }
-
-  implicit def objectToShort(o: DObject) = ShortObject(o._id, o.TS_update, o.name, o.description.getOrElse(""), o.userName)
-  implicit def oListToSOList(ol: List[DObject]) = ol map { o => objectToShort(o) }
-
-  implicit def userToShort(u: User) = ShortUser(u._id, u.firstName, u.lastName, u.fullname, u.email, u.reference.username)
-  implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
-
-  implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
-
-  implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
-    case Some(id) => id.toString
-    case None => ""
-  }
-
-  implicit def stringToOidOption(id: String): Option[ObjectId] = ObjectId.isValid(id) match {
-    case true => Some(new ObjectId(id))
-    case false => None
-  }
-
 }
 
 

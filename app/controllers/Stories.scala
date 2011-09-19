@@ -38,7 +38,3 @@ object Stories extends DelvingController {
   }
 
 }
-
-// ~~~ list page models
-
-case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)

@@ -5,7 +5,7 @@ import extensions.CHJson
 import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.{BasicDBObject, WriteConcern}
-import controllers.{DataSetModel, DelvingController}
+import controllers.{ShortDataSet, DelvingController}
 import org.scala_tools.time.Imports._
 import eu.delving.sip.DataSetState
 import models._
@@ -26,7 +26,7 @@ object DataSets extends DelvingController with UserSecured {
   // TODO check rights for the accessed dataset
   def dataSetSubmit(data: String): Result = {
 
-    val dataSet = CHJson.parse[DataSetModel](data)
+    val dataSet = CHJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
     val factsObject = new BasicDBObject(dataSet.facts)
 

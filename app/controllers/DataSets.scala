@@ -29,19 +29,12 @@ object DataSets extends DelvingController {
         val describedFacts = for(factDef <- DataSet.factDefinitionList) yield Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString)
         html.view(ds, describedFacts)
       }
-      case "json" => if(dataSet == None) Json(DataSetModel.empty) else {
+      case "json" => if(dataSet == None) Json(ShortDataSet()) else {
         val dS = dataSet.get
-        Json(DataSetModel(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts))
+        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts))
       }
     }
 
   }
 
 }
-
-case class DataSetModel(id: Option[ObjectId] = None, spec: String, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String])
-object DataSetModel {
-  val empty = DataSetModel(spec = "")
-}
-
-case class Fact(name: String, prompt: String, value: String)

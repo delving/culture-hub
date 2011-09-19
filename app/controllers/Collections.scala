@@ -64,7 +64,3 @@ object Collections extends DelvingController {
     }
   }
 }
-
-// ~~~ list page models
-
-case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
