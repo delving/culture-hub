@@ -6,6 +6,8 @@ test-result
 .idea
 /modules
 /lib
+/logs
+/system.out
 target/
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
