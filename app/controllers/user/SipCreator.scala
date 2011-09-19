@@ -27,7 +27,7 @@ object SipCreator extends DelvingController {
         <title>Delving SIP-Creator</title>
         <vendor>Delving</vendor>
         <description kind="one-line">Delving SIP-Creator</description>
-        <icon href={ codebase + "sip-creator.png" } kind="default"/>
+        <icon href={ codebase + "sip-creator-logo.png" } kind="default"/>
         <shortcut online="false">
             <desktop/>
         </shortcut>
