@@ -37,9 +37,6 @@ echo
 
 cd play
 
-# http://play.lighthouseapp.com/projects/57987/tickets/970-binder-does-not-pass-suffix-to-custom-typebinder-s-when-binding-a-bean
-git apply ../culture-hub/binder-patch.patch
-
 git apply ../culture-hub/error-display-patch.patch
 
 cd ..
