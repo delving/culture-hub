@@ -17,6 +17,8 @@ case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDesc
 
 case class ShortLabel(labelType: String, value: String)
 
+case class ShortTheme(id: ObjectId, name: String)
+
 case class Token(id: String, name: String)
 
 
@@ -35,6 +37,9 @@ trait ModelImplicits {
   implicit def uListToSUList(ul: List[User]) = ul map { u => userToShort(u) }
 
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
+
+  implicit def themeToShort(t: PortalTheme) = ShortTheme(t._id, t.name)
+  implicit def tListToSTList(tl: Seq[PortalTheme]) = tl map { t => themeToShort(t) }
 
   implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
     case Some(id) => id.toString

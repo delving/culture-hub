@@ -44,10 +44,4 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
 
 }
 
-object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) {
-
-  def findAll = {
-    find(MongoDBObject()).toList
-  }
-
-}
+object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) with Resolver[PortalTheme] with Commons[PortalTheme]

@@ -90,7 +90,7 @@ class ThemeHandler {
     themeList = readThemesFromDatabase()
   }
 
-  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll
+  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll.toSeq
 
 
   def readThemesFromDisk(): Seq[PortalTheme] = {

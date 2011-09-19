@@ -118,8 +118,11 @@ GET         /users/search                                                    Use
 
 # Portal Administration
 GET        /admin/themes                                                     admin.Themes.index
+GET        /admin/themes/load/{id}?                                          admin.Themes.load
 GET        /admin/themes/list                                                admin.Themes.list
-POST       /admin/themes/reload                                              admin.Themes.reload
+GET        /admin/themes/new                                                 admin.Themes.themeUpdate
+GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
+POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 
 # File Store
 GET        /file/{id}                                                        FileStore.get
