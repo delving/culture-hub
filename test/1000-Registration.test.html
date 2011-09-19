@@ -11,7 +11,7 @@
   type('registration.displayName','foo')
   type('registration.password1','foo')
   type('registration.password2','foo')
-  clickAndWait('css=input[type=submit]')
+  clickAndWait('css=button[type=submit]')
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
   # Verify if an error is displayed if the account is not active

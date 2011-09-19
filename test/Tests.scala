@@ -55,7 +55,7 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGe
 //    val outputCount = DataSet.indexInSolr(ds, "icn")
 //    outputCount should equal ((3, 0))
 //  }
-}
+//}
 
 class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers  {
 
