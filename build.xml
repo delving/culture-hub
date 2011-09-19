@@ -10,7 +10,7 @@
     <!-- You need to adjust the path to play here -->
     <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
 
-    <property name="sip-creator.version" value="0.3.4-SNAPSHOT" />
+    <property name="sip-creator.version" value="0.3.5-SNAPSHOT"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
         <classpath>
@@ -135,17 +135,21 @@
     </target>
 
     <target name="downloadSipCreator">
+        <property name="pubdir" value="${root}/public/sip-creator"/>
         <delete>
-            <fileset dir="${root}/public/sip-creator" includes="*.jar, *.zip, *.jnlp" />
+            <fileset dir="${pubdir}" includes="*.jar, *.zip, *.jnlp"/>
         </delete>
-        <mkdir dir="${root}/public/sip-creator"/>
         <artifact:dependencies fileSetId="dependency.fileset">
-            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}" type="zip"/>
+            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}"/>
             <remoteRepository refid="delving.snapshots"/>
         </artifact:dependencies>
-        <copy todir="${root}/public/sip-creator">
+        <copy todir="${pubdir}" verbose="true">
             <fileset refid="dependency.fileset"/>
-            <mapper type="flatten"/>
+            <chainedmapper>
+                <flattenmapper/>
+                <globmapper from="sip-creator-*.jar" to="sip-creator.jar"/>
+                <globmapper from="sip-core-*.jar" to="sip-core.jar"/>
+            </chainedmapper>
         </copy>
     </target>
 
