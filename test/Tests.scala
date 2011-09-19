@@ -5,11 +5,9 @@ import com.borachio.scalatest.MockFactory
 import eu.delving.metadata.MetadataModel
 import org.scalatest.matchers._
 import play.test._
-import play.libs.OAuth2
-import play.libs.OAuth2.Response
 import util._
 import models._
-import org.scalatest.{BeforeAndAfterAll, Spec, Suite}
+import org.scalatest.Suite
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -38,20 +36,20 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGe
 
 }
 
-class DataSetSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with BeforeAndAfterAll {
-  import models.DataSet
-
-  val ds = DataSet.findBySpec("Verzetsmuseum").get
-
-  override def beforeAll() {
-    DataSet.deleteFromSolr(ds)
-  }
-
-  override def afterAll() {
-    DataSet.deleteFromSolr(ds)
-  }
-
 // TODO set-up solr startup for tests - via a script or so
+//class DataSetSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with BeforeAndAfterAll {
+//  import models.DataSet
+//
+//  val ds = DataSet.findBySpec("Verzetsmuseum").get
+//
+//  override def beforeAll() {
+//    DataSet.deleteFromSolr(ds)
+//  }
+//
+//  override def afterAll() {
+//    DataSet.deleteFromSolr(ds)
+//  }
+//
 //  it should "should Index every entry in the dataset" in {
 //    DataSet.getRecords(ds).count() should equal (3)
 //    val outputCount = DataSet.indexInSolr(ds, "icn")
