@@ -5,7 +5,6 @@ import play.mvc
 import mvc.results.{RenderBinary, Result}
 import mvc.{Before, Controller}
 import org.scala_tools.time.Imports._
-import eu.delving.sip.DataSetState
 import eu.delving.metadata.{RecordMapping, MetadataModel}
 import org.apache.log4j.Logger
 import cake.ComponentRegistry
@@ -222,7 +221,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
 
-    val ds = dataSet.copy(details = details, state = DataSetState.UPLOADED.toString)
+    val ds = dataSet.copy(details = details, state = DataSetState.UPLOADED)
     DataSet.save(ds)
     Right("Goodbye and thanks for all the fish")
   }
