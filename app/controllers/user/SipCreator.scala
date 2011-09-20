@@ -28,6 +28,7 @@ object SipCreator extends DelvingController {
         <vendor>Delving</vendor>
         <description kind="one-line">Delving SIP-Creator</description>
         <icon href={ codebase + "sip-creator-logo.png" } kind="default"/>
+        <icon href={ codebase + "sip-creator-logo.png" } kind="splash"/>
         <shortcut online="false">
             <desktop/>
         </shortcut>
@@ -45,10 +46,10 @@ object SipCreator extends DelvingController {
         <jar href="jettison-1.2.jar"/>
         <jar href="slf4j-api-1.6.1.jar"/>
         <jar href="utils-1.07.00.jar"/>
-        <jar href="httpclient-4.0.1.jar"/>
-        <jar href="httpcore-4.0.1.jar"/>
+        <jar href="httpclient-4.1.2.jar"/>
+        <jar href="httpcore-4.1.2.jar"/>
         <jar href="commons-logging-1.1.1.jar"/>
-        <jar href="commons-codec-1.3.jar"/>
+        <jar href="commons-codec-1.4.jar"/>
         <jar href="log4j-1.2.16.jar"/>
         <jar href="commons-lang-2.3.jar"/>
         <jar href="joda-time-1.6.jar"/>
