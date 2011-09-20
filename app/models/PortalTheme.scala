@@ -38,7 +38,8 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
       ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
     }
     catch {
-      case ex: Exception => ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition
+      // TODO this can probably be removed...
+      case ex: Exception => ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
     }
   }
 

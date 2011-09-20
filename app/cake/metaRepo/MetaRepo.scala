@@ -149,7 +149,6 @@ trait MetadataFormat {
 trait DataSet {
 
   import com.mongodb.DBObject
-  import eu.delving.sip.DataSetState
   import java.util.Date
   import java.io.InputStream
   import eu.delving.metadata.RecordMapping
@@ -167,10 +166,6 @@ trait DataSet {
   def setFactsHash(sourceHash: String): Unit
 
   def getNamespaces: DBObject
-
-  def getState(fresh: Boolean): DataSetState
-
-  def setState(dataSetState: DataSetState): Unit
 
   def getErrorMessage: String
 
