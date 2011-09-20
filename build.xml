@@ -1,0 +1,160 @@
+<project name="Build For Integrating Play! with TeamCity" default="package"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         xmlns:rsel="antlib:org.apache.tools.ant.types.resources.selectors">
+
+    <property name="root" value="."/>
+    <property name="target" value="${root}/target"/>
+    <property name="test.results" value="${root}/test-result"/>
+    <property name="index.html" value="${test.results}/index.html"/>
+    <property name="coverage.results" value="${root}/test-result/code-coverage"/>
+    <property name="tmp" value="${root}/tmp"/>
+    <!-- You need to adjust the path to play here -->
+    <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
+
+    <property name="sip-creator.version" value="0.3.5-SNAPSHOT"/>
+    <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="${root}/lib-extra/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <path id="maven-ant-tasks.classpath" path="${root}/lib-extra/maven-ant-tasks-2.1.3.jar"/>
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath"/>
+
+    <artifact:remoteRepository id="delving.snapshots"
+                               url="http://development.delving.org:8081/nexus/content/repositories/snapshots"/>
+
+    <target name="check" unless="play.path">
+        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home"/>
+    </target>
+
+    <target name="package">
+    </target>
+
+    <target name="clean" description="Cleans up.">
+        <deltree dir="${target}"/>
+    </target>
+
+    <target name="prepare" description="Prepares the output folders">
+        <mkdir dir="${target}"/>
+    </target>
+
+    <target name="test" description="Runs all tests" depends="prepare, check">
+        <!-- Run the test command -->
+        <echo message="Running command: ${testcommand}"/>
+        <exec command="${testcommand}" failonerror="false" resultproperty="testresult">
+        </exec>
+
+        <fail status="255" message="Tests were not run. Maybe compilation failed?">
+            <condition>
+                <equals arg1="255" arg2="${testresult}"/>
+            </condition>
+        </fail>
+
+        <!--Wait for coverage results to appear-->
+        <sleep seconds="10"/>
+
+        <!--create some index.html for the rest results. This should probably be added to play.-->
+        <!--Yes this wins the price as the ugliest ant file ever..-->
+        <echo file="${index.html}">
+            <![CDATA[
+        <html>
+                <head>
+                <title>Test results</title>
+                <style type="text/css">
+                 body { font-family: sans-serif; color: black; }
+                 .failed { background-color: red; color: white; }
+                 .passed { background-color: #90ee90; color:black; }
+                </style>  
+                </head>
+                <body>
+                <h1> Test results </h1>
+                <ul>
+                ]]>
+        </echo>
+        <for param="file">
+            <path>
+                <fileset dir="${test.results}">
+                    <include name="*.html"/>
+                    <exclude name="index.html"/>
+                </fileset>
+
+            </path>
+            <sequential>
+                <propertyregex override="yes"
+                               property="status" input="@{file}"
+                               regexp=".*\.(.*)\.html$" replace="\1"/>
+                <propertyregex override="yes"
+                               property="originalname" input="@{file}"
+                               regexp=".*[/\\](.*)\.${status}\.html$" replace="\1"/>
+                <propertyregex override="yes"
+                               property="link" input="@{file}"
+                               regexp=".*[/\\]([^/\\]+)$" replace="\1"/>
+
+
+                <echo file="${index.html}" append="true"
+                      message="&lt;li class=&quot;${status}&quot;&gt;&lt;a href=&quot;${link}&quot;&gt;${originalname}&lt;/a&gt; - ${status}&lt;/li&gt;"/>
+            </sequential>
+        </for>
+
+        <echo file="${index.html}" append="true">
+            <![CDATA[
+            <li><a href="application.log">Application.log</a></li>
+        </ul>
+        </body>
+        </html>
+        </echo>
+                      ]]>
+        </echo>
+
+
+        <!--Zip the unit test results-->
+        <zip destfile="${target}/playTestResults.zip">
+            <fileset dir="${test.results}">
+                <exclude name="code-coverage/**"/>
+                <include name="**/*"/>
+            </fileset>
+        </zip>
+
+        <!--Zip the code coverage results
+        <zip destfile="${target}/playCoverageResults.zip">
+            <fileset dir="${coverage.results}">
+                <include name="**/*"/>
+            </fileset>
+        </zip>-->
+
+
+        <!--Fail the target if any unit test failed.-->
+        <fail status="1" message="Some tests failed.">
+            <condition>
+                <available file="${root}/test-result/result.failed"/>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="downloadSipCreator">
+        <property name="pubdir" value="${sip-creator.path}"/>
+        <delete>
+            <fileset dir="${pubdir}" includes="*.jar, *.zip, *.jnlp"/>
+        </delete>
+        <artifact:dependencies fileSetId="dependency.fileset">
+            <dependency groupId="eu.delving" artifactId="sip-creator" version="${sip-creator.version}" type="zip"/>
+            <remoteRepository refid="delving.snapshots"/>
+        </artifact:dependencies>
+        <copy todir="${pubdir}" verbose="true" flatten="true">
+             <restrict id="filtered.dependencies">
+                <fileset refid="dependency.fileset"/>
+                <rsel:name name="*.zip"/>
+            </restrict>
+            <mapper>
+                <globmapper from="*.zip" to="sip-creator.zip"/>
+            </mapper>
+        </copy>
+        <unzip src="${sip-creator.path}/sip-creator.zip" dest="${sip-creator.path}"/>
+    </target>
+
+</project>

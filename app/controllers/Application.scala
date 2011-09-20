@@ -1,6 +1,7 @@
 package controllers
 
-import play.mvc.Controller
+import play.templates.Html
+import models.{DObject, Story, UserCollection}
 
 /**
  * 
@@ -11,10 +12,14 @@ object Application extends DelvingController {
 
   import views.Application._
 
-  def index = {
-    html.index(
-      title = "Howdy!"
-    )
+  def index: Html = {
+
+    val recentCollections: List[ShortCollection] = UserCollection.findRecent(3).toList
+    val recentStories: List[ShortStory] = Story.findRecent(3).toList
+    val recentObjects: List[ShortObject] = DObject.findRecent(12).toList
+
+    html.index(recentCollections, recentStories, recentObjects)
+
   }
 
 }

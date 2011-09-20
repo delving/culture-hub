@@ -37,13 +37,7 @@ echo
 
 cd play
 
-# http://play.lighthouseapp.com/projects/57987/tickets/970-binder-does-not-pass-suffix-to-custom-typebinder-s-when-binding-a-bean
-git apply ../play-services/binder-patch.patch
-
-# http://play.lighthouseapp.com/projects/74274/tickets/32-all-case-classes-get-an-additional-default-empty-constructor-preventing-json-deserializer-from-working
-git apply ../play-services/constructor-patch.patch
-
-git apply ../play-services/error-display-patch.patch
+git apply ../culture-hub/error-display-patch.patch
 
 cd ..
 
@@ -57,7 +51,7 @@ echo
 
 cd play/framework
 ant
-cd ../../play-services
+cd ../../culture-hub
 
 echo
 echo
@@ -74,7 +68,11 @@ mkdir modules
 cd modules
 git clone git://github.com/playframework/play-scala.git --depth 1
 cd play-scala
+
+# http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
+git apply ../../jvm-args-patch.patch
 ant -Dplay.path=../../../play
+cd ../../
 
 echo
 echo
@@ -84,7 +82,7 @@ echo ======================
 echo
 echo
 
-../play/play dependencies --sync
+../play/play dependencies
 
 echo =========================================
 echo Done! Run the application with "../play/play run" or when in your path just "play run"

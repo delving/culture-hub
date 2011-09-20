@@ -1,0 +1,26 @@
+From 0d9eae2b0c009ee5480f8b461f649575c79420e4 Mon Sep 17 00:00:00 2001
+From: Manuel Bernhardt <bernhardt.manuel@gmail.com>
+Date: Thu, 18 Aug 2011 13:27:35 +0200
+Subject: [PATCH] [#44] Not overriding memory parameters set via
+ application.conf
+
+---
+ commands.py |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/commands.py b/commands.py
+index e356bce..90ff0cb 100644
+--- a/commands.py
++++ b/commands.py
+@@ -35,7 +35,7 @@ def before(**kargs):
+ 
+     if command == 'run' or command == 'test' or command == 'auto-test':
+         # Only add JVM params if they aren't already set
+-        if len([p for p in args if '-Xmx' in p]) == 0:
++        if len([p for p in args if '-Xmx' in p]) == 0 && !app.readConf('jvm.memory'):
+             args.append('-Xms512m')
+             args.append('-Xmx512m')
+             args.append('-XX:PermSize=256m')
+-- 
+1.7.5.4
+

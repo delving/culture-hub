@@ -1,0 +1,230 @@
+body {
+    background:  #fff;
+    font: 15px/1.5 Arial,Helvetica,sans-serif;
+    margin:  0;
+}
+
+.container_16 {
+    position: relative;
+    min-width: 960px;
+}
+
+/* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
+
+html, body {height: 100%;}
+
+#wrapper {min-height: 100%;}
+
+#page {overflow:auto;
+	padding-bottom: 200px;}  /* must be same height as the footer */
+
+#footer {position: relative;
+	margin-top: -200px; /* negative value of footer height */
+	height: 200px;
+	clear:both;}
+
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;/
+}
+
+/* end sticky footer code! */
+
+/* basic page layout */
+
+#page {
+    min-height: 200px;
+}
+
+#header-top .container_16 {
+    background:  #fff;
+    line-height: 42px;
+    overflow:  hidden;
+}
+
+#header-main .container_16 {
+    background:  #555;
+    height: 140px;
+}
+
+#home #header-main .container_16 {
+    height: 400px;
+}
+
+#footer .container_16 {
+    background:  #555;
+    height: 200px;
+}
+
+#login-registration {
+    text-align: right;
+}
+
+/* Name / Branding */
+
+#branding h1 {
+    font-family: Times, "Times New Roman", serif;
+    color: #fff;
+    margin: 10px 0 0 0;
+    padding:  0;
+}
+
+#header-text {
+    display: none;
+}
+
+#header-text a {
+    color: pink;
+}
+
+#home #header-text {
+    display: block;
+    color: #fff;
+    width: 50%;
+    margin-top: 50px;
+}
+
+/* User bar navigation */
+
+#header-user-bar .container_16 {
+    background: #ccc;
+    overflow:  hidden;
+    line-height: 42px;
+    /*margin:  0;*/
+}
+
+/* Search */
+
+#search .container_16 {
+    background:  #ccc;
+    height: 64px;
+    line-height: 64px;
+}
+
+/* result page */
+
+.item-nav {
+    border-bottom: 5px solid #000;
+    padding: 10px 0;
+    margin-bottom: 1em;
+}
+
+.item-count {
+    display: inline;
+}
+
+.item-pager {
+    display: inline;
+    float: right;
+}
+
+.items {
+    clear: both;
+
+}
+
+/* RESULT ITEM */
+
+.item h4 {
+    font-weight: bold;
+    margin: 0;
+    padding: 0 20px 0 0;
+}
+
+.item .collection {
+    background: transparent url(../images/icon-collection.png) top right no-repeat;
+}
+
+.item .object {
+    background: transparent url(../images/icon-object.png) top right no-repeat
+}
+
+.item h4 a:link,
+.item h4 a:visited {
+    color: #000;
+    text-decoration: none;
+}
+
+.item h4 a:hover {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.item {
+    border-bottom: 1px dotted #ccc;
+    display: block;
+}
+
+    .one-col {
+        clear: both;
+        padding: 0 1% 1em 1%;
+    }
+
+    .two-col {
+        float: left;
+        margin: 0 1% 1em 1%;
+        width: 48%;
+    }
+
+    .three-col {
+        float: left;
+        margin: 0 1% 1em 1%;
+        width: 31.33%;
+    }
+.item.clean {
+    border:  none;
+}
+.item label {
+    display: inline;
+    margin-right: .5em;
+}
+
+.item .options {
+    display: block;
+    background: #fff;
+}
+
+.item img {
+    /*display: inline;*/
+    float: left;
+    margin: 0 1em 1em 0;
+    width: 85px;
+}
+
+.item .description {
+    display: block;
+    font-size: smaller;
+}
+
+.item-display img {
+    float: left;
+    margin: 0 10px 0 0;
+}
+
+
+
+.row {
+    border-bottom: 1px dotted #555;
+    display: block;
+    height: 21px;
+    line-height: 21px;
+    margin-bottom: 4px;
+
+}
+
+.row label {
+    clear: left;
+    float: left;
+    font-weight: bold;
+    margin-right: 10px;
+    width: 100px;
+    text-align: right;
+}
+
+.row span {
+    display: block
+}

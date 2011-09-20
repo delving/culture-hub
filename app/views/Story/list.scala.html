@@ -1,28 +1,53 @@
-@(user:models.User)
+@(stories: List[controllers.ShortStory], page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
-@main("List of stories for user " + user.fullname ) {
-    <div class="grid_12">
-        <h1>All the stories of <span>@user.fullname</span></h1>
-        @for(i <- 0 until 6) {
+@header(if(browsedUserName != null) "List of stories for user %s".format(browsedUserName) else "List of stories") {
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Stories</span>
+</div>
 
-        <div class="item three-col">
-            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
-            <h4><a href="">Title_@i</a></h4>
-            <!--<label>Owner</label><a href="">User Name</a><br/>-->
-            <span class="description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</span>
-            @if(renderArgs.get("displayName") != null) {
-                <span class="options"><a href>Edit Story</a></span>
+    <div class="grid_16 alpha">
+
+        @if(browsedUserName != null) {
+            <h2>All stories owned by: <span>@browsedUserName</span> (@count)</h2>
+        } else {
+            <h2>Browse Stories (@count)</h2>
+        }
+
+    @if(stories.length > 0){
+    <div class="item-nav">
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+    </div>
+    }   else {
+        <p>There are currently no stories available</p>
+    }
+
+        @for(story <- stories) {
+
+        <div class="item one-col">
+            <div class="media medium">
+                <img src='@thumbnailUrl(story.thumbnail)' width="84"/>
+            </div>
+            <div class="metadata">
+            <h4><a href="/@story.userName/story/@story.id">@story.name</a></h4>
+                <p>@story.shortDescription</p>
+            </div>
+            @if(story.userName == userName) {
+                <div class="actions"><a class="edit" href="/@story.userName/story/@story.id/update">Edit Story</a></div>
             }
         </div>
         }
 
     </div>
-    <div class="grid_4">
-        @if(renderArgs.get("displayName") != null) {
-                 <a href='/@renderArgs.get("displayName")/story/add'>Create a new story</a>
-        }
-    </div>
+    <!--<div class="grid_4 omega">-->
+        <!--@if(connectedIsBrowsed) {-->
+            <!--<div class="actions ar">-->
+                 <!--<a class="add story-add" href='/@userName/story/add'>Create a new story</a>-->
+            <!--</div>-->
+        <!--}-->
+    <!--</div>-->
 
 }

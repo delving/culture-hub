@@ -1,11 +1,58 @@
-@(user:models.User, name: String)
+@(story: models.Story)
 
 @import views.context._
 
-@main("Story " + name + " of user " + user.fullname ) {
+@header("Story " + story.name + " of user " + browsedFullName ) {
 
-        <h1>Story "@name"</h1>
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/stories">Stories</a><span class="arrow"> &gt; </span>
+    <span class="current">@story.name</span>
+</div>
 
+<h1>@story.name</h1>
 
+<div class="grid_4 alpha">
+    <img src='@thumbnailUrl(story.thumbnail)' width="220" alt="@story.name"/>
+</div>
+<div class="grid_12 omega">
+
+    <div class="item metadata">
+        <h2>Description</h2>
+        <p>@story.description</p>
+
+        <h2>Date created</h2>
+        <p>@niceTime(story._id.getTime)</p>
+
+        <h2>Last modified</h2>
+        <p>Last updated: @niceTime(story.TS_update)</p>
+
+        <!--Is this a draft: @if(story.isDraft) { "Yes" } else { "No" }-->
+        <h2>Pages:</h2>
+        <ul>
+            @for(page <- story.pages) {
+
+            <li>@page.title</li>
+            <!--<li>@page.text</li>-->
+            <!--<li>-->
+            <!--@for(o <- page.objects) {-->
+            <!--<ul>-->
+            <!--Object ID: @o.dobject_id <img src="@thumbnailUrl(o.dobject_id)">-->
+            <!--</ul>-->
+            <!--}-->
+            <!--</li>-->
+
+            }
+        </ul>
+    </div>
+
+    <div class="">
+        @if(story.userName == userName){
+        <a class="action edit" href="/@story.userName/story/@story._id/update">Edit story</a>
+        }
+
+        <a class="action read" href="/@story.userName/story/@story._id/read">Read story</a>
+    </div>
+</div>
 
 }

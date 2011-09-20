@@ -1,10 +1,10 @@
 import java.util.Properties
 import java.util.regex.{Pattern, Matcher}
+import models.salatContext._
 import play.exceptions.ConfigurationException
 import play.jobs._
 import play.libs.IO
 import play.Play
-import util.YamlLoader
 
 @OnApplicationStart class BootStrap extends Job {
 
@@ -13,6 +13,9 @@ import util.YamlLoader
     import models._
     import play.test._
     import scala.collection.JavaConversions._
+
+    // this is explicitely here because if we leave it to its own devices we sometimes get a race condition in dev mode when modifying model files
+    initSalat()
 
     // also retrieve user-based properties when running in test mode
     if (Play.id == "test") {

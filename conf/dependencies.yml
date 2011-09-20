@@ -25,13 +25,9 @@ require:
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
-    - provided -> jerkson_2.8.1 0.4.1-SNAPSHOT-patched
-    - org.codehaus.jackson -> jackson-mapper-asl 1.8.3
-
-    # uncomment when https://github.com/codahale/jerkson/pull/25 is accepted & released
-    #- com.codahale -> jerkson_2.8.1 0.4.0:
-    #    exclude:
-    #        - org.scala-lang -> scala-library
+    - com.codahale -> jerkson_2.8.1 0.4.2-SNAPSHOT:
+        exclude:
+            - org.scala-lang -> scala-library
 
     # for testing
     - com.borachio -> borachio_2.8.1 1.1:
@@ -39,7 +35,7 @@ require:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
     # delving dependencies
-    - eu.delving -> sip-core 0.3.2-SNAPSHOT:
+    - eu.delving -> sip-core 0.3.5-SNAPSHOT:
         exclude:
             - cglib -> *
     # remove later
@@ -62,11 +58,11 @@ repositories:
         root: "http://maven.thebuzzmedia.com"
         contains:
             - com.thebuzzmedia.*
-#    - codahale:
-#        type: iBiblio
-#        root: "http://repo.codahale.com/"
-#        contains:
-#            - com.codahale.*
+    - codahale:
+        type: iBiblio
+        root: "http://repo.codahale.com/"
+        contains:
+            - com.codahale.*
     - java-net:
          type: iBiblio
          root: "http://download.java.net/maven/2/"
