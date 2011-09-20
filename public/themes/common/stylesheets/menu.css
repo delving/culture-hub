@@ -66,6 +66,7 @@ ul#user-menu li .sub {
 	-webkit-border-bottom-left-radius: 5px;
 	display: none; /*--Hidden for those with js turned off--*/
     width: 400px;
+        line-height: 28px;
 }
 ul#user-menu li .row { /*--If needed to break out into rows--*/
 	clear: both;

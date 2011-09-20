@@ -30,6 +30,7 @@ function initializeElements() {
 //            });
 
 //On Hover Over
+
 function megaHoverOver(){
     $(this).find(".sub").stop().fadeTo('fast', 1).show(); //Find sub and fade it in
     (function($) {
@@ -83,7 +84,6 @@ var config = {
 
 $("ul#user-menu li .sub").css({'opacity':'0'}); //Fade sub nav to 0 opacity on default
 $("ul#user-menu li").hoverIntent(config); //Trigger Hover intent with custom configurations
-
 
 }
 
