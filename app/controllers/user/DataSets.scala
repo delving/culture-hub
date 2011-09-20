@@ -119,7 +119,7 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  private def changeState(dataSet: DataSet, state: DataSetState.Value): DataSet = {
+  private def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
     val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
     val updatedDataSet = dataSet.copy(state = state, mappings = mappings)
     DataSet.save(updatedDataSet)
