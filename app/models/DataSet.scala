@@ -8,7 +8,6 @@ import com.mongodb.casbah.Implicits._
 import org.scala_tools.time.Imports._
 import controllers.SolrServer
 import com.novus.salat._
-import annotations.raw.EnumAs
 import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
@@ -34,7 +33,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    user: ObjectId,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
-                   state: DataSetState.Value,
+                   state: DataSetState,
                    details: Details,
                    lastUploaded: DateTime,
                    hashes: Map[String, String] = Map.empty[String, String],
@@ -157,7 +156,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("spec" -> dataSet.spec), dataSet, false, false, new WriteConcern())
   }
 
-  def updateState(dataSet: DataSet, state: DataSetState.Value) {
+  def updateState(dataSet: DataSet, state: DataSetState) {
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
   }
 
@@ -363,16 +362,19 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
   def hasOptions = !options.isEmpty
 }
 
-@EnumAs(strategy = EnumStrategy.BY_VALUE)
-object DataSetState extends Enumeration {
+case class DataSetState(name: String)
 
-  val INCOMPLETE = Value("incomplete")
-  val DISABLED  = Value("disabled")
-  val UPLOADED = Value("uploaded")
-  val QUEUED = Value("queued")
-  val INDEXING = Value("indexing")
-  val ENABLED = Value("enabled")
-  val ERROR = Value("error")
+object DataSetState {
+  val values = List(INCOMPLETE, ENABLED, DISABLED, UPLOADED, QUEUED, INDEXING, ERROR)
+  val INCOMPLETE = DataSetState("incomplete")
+  val ENABLED = DataSetState("enabled")
+  val DISABLED = DataSetState("disabled")
+  val UPLOADED = DataSetState("uploaded")
+  val QUEUED = DataSetState("queued")
+  val INDEXING = DataSetState("enabled")
+  val ERROR = DataSetState("error")
+  def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
+  def valid(name: String) = values.contains(DataSetState(name))
 }
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())

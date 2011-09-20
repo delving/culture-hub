@@ -80,7 +80,7 @@
 - !!models.DataSet
     spec: EmptyCollection
     node: cultureHub
-    state: CREATED
+    state: INCOMPLETE
     user: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:
