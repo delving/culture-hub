@@ -11,21 +11,6 @@
         <automatic>true</automatic>
         <defaultValue>false</defaultValue>
     </fact-definition>
-    <fact-definition name="recordRootPath">
-        <prompt>Record Path</prompt>
-        <toolTip>This path indicates where the record boundaries are in the input XML.</toolTip>
-        <automatic>true</automatic>
-    </fact-definition>
-    <fact-definition name="recordCount">
-        <prompt>Record Count</prompt>
-        <toolTip>This number is how many records there are in the input XML.</toolTip>
-        <automatic>true</automatic>
-    </fact-definition>
-    <fact-definition name="uniqueElementPath">
-        <prompt>Unique Element</prompt>
-        <toolTip>This path indicates where to find the unique element within the record.</toolTip>
-        <automatic>true</automatic>
-    </fact-definition>
     <fact-definition name="name">
         <prompt>Name</prompt>
         <toolTip>The name given to this data set</toolTip>

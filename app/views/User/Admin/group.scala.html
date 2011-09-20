@@ -1,4 +1,4 @@
-@(name: String = "")
+@(id: Option[String] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -7,13 +7,15 @@
 
 <form class="form" id="groupForm" action="/@userName/admin/groups/create" method="POST">
 
+  <!-- TODO needs some Eric-foo to actually look nice -->
+  <div id="result" style="display: none;" align="center"></div>
   <div>
     <div>
       @textField("name", "Name", "value: name")
     </div>
     <div>
       <!-- this should appear in a box next to the previous field, with the label next to the tickbox -->
-      @checkboxField(name = "read", label = "Can view repositories", "checked: readRight")
+      @checkboxField("read", "Can view repositories", "checked: readRight")
       @checkboxField("update", "Can update repositories", "checked: updateRight")
       @checkboxField("delete", "Can delete repositories", "checked: deleteRight")
     </div>
@@ -26,7 +28,7 @@
     </div>
     <div>
       <label for="repositories">Repositories</label>
-      <input type="text" id="repositories" name="repositories"/>
+      <input type="text" id="repositories" name="repositories" data-bind="tokens: repositories"/>
     </div>
   </div>
 </form>
@@ -34,21 +36,22 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    $("#members").tokenInput("@action(controllers.Users.listAsTokens)");
-    $("#repositories").tokenInput([
-      {id: "1", name: "Foo"},
-      {id: "2", name: "Bar"}
-    ]);
+    $("#members").tokenInput("/users/search");
+    $("#repositories").tokenInput('/@userName/repositories/writeable/search');
 
     var groupModel = {};
 
     var scope = document.getElementById('groupForm');
 
-    load('/@userName/admin/groups/load/@name', groupModel, scope);
+    load('/@userName/admin/groups/load/@id', groupModel, scope);
 
     $('#saveButton').click(function() {
       $.postKOJson('/@userName/admin/groups/submit', groupModel, function(data) {
-        updateViewModel(groupModel, data, scope)
+        updateViewModel(data, groupModel, scope);
+        window.location.href = '/@userName/admin/groups'; //+ groupModel.id();
+      }, function(jqXHR, textStatus, errorThrown) {
+        $('#result').html('Error saving group, please try again');
+        $('#result').show().fadeOut('3000');
       })
     });
   })

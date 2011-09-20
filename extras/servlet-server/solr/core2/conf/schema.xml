@@ -593,7 +593,7 @@
         field name or dynamic field, rather than reporting them as an error. 
         alternately, change the type="ignored" to some other type e.g. "text" if you want 
         unknown fields indexed and/or stored by default --> 
-   <!--dynamicField name="*" type="ignored" multiValued="true" /-->
+   <dynamicField name="*" type="text_general" multiValued="true" />
    
  </fields>
 
@@ -606,18 +606,20 @@
  <defaultSearchField>text</defaultSearchField>
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
- <solrQueryParser defaultOperator="OR"/>
+ <solrQueryParser defaultOperator="AND"/>
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-   <copyField source="cat" dest="text"/>
-   <copyField source="name" dest="text"/>
-   <copyField source="manu" dest="text"/>
-   <copyField source="features" dest="text"/>
-   <copyField source="includes" dest="text"/>
-   <copyField source="manu" dest="manu_exact"/>
+    <copyField source="*" dest="text"/>
+
+   <!--<copyField source="cat" dest="text"/>-->
+   <!--<copyField source="name" dest="text"/>-->
+   <!--<copyField source="manu" dest="text"/>-->
+   <!--<copyField source="features" dest="text"/>-->
+   <!--<copyField source="includes" dest="text"/>-->
+   <!--<copyField source="manu" dest="manu_exact"/>-->
 	
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 

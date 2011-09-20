@@ -36,7 +36,9 @@ echo
 echo
 
 cd play
-git apply ../play-services/binder-patch.patch
+
+git apply ../culture-hub/error-display-patch.patch
+
 cd ..
 
 echo
@@ -49,7 +51,7 @@ echo
 
 cd play/framework
 ant
-cd ../../play-services
+cd ../../culture-hub
 
 echo
 echo
@@ -59,7 +61,18 @@ echo ========================
 echo
 echo
 
-../play/play install scala-0.9.1
+# until we have a new release we use the latest version
+# ../play/play install scala-0.9.1
+
+mkdir modules
+cd modules
+git clone git://github.com/playframework/play-scala.git --depth 1
+cd play-scala
+
+# http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
+git apply ../../jvm-args-patch.patch
+ant -Dplay.path=../../../play
+cd ../../
 
 echo
 echo
@@ -69,7 +82,7 @@ echo ======================
 echo
 echo
 
-../play/play dependencies --sync
+../play/play dependencies
 
 echo =========================================
 echo Done! Run the application with "../play/play run" or when in your path just "play run"

@@ -2,8 +2,11 @@ package controllers
 
 import models.User
 import com.mongodb.DBObject
-import extensions.RenderLiftJson
 import play.mvc.results.Result
+import org.bson.types.ObjectId
+import play.templates.Html
+import com.mongodb.casbah.commons.MongoDBObject
+import java.util.regex.Pattern
 
 /**
  * 
@@ -14,22 +17,35 @@ object Users extends DelvingController {
 
   import views.User._
 
-  def index(user: String) = {
-    val u = getUser(user)
+  def index(user: String): AnyRef = {
+    val u = getUser(user) match {
+      case Right(aUser) => aUser
+      case Left(error) => return error
+    }
     html.index(username = u.reference.username)
   }
 
-  def listAsTokens: Result = {
-    // list all users as tokens (for auto-completion)
-    // in order to adhere with the multi-type rendering we might want to combine this with a HTML action at some point (though listing all users does not seem to make much sense)
-    case class Token(id: String, name: String)
+  def list(query: String, page: Int = 1): Html = {
 
-    val userTokens: List[Token] = for(u: DBObject <- User.findAllIdName) yield {
+    // ~~~ temporary hand-crafted search for users
+    import views.context.PAGE_SIZE
+    def queryOk(query: String) = query != null && query.trim().length > 0
+    val queriedUsers = (if(queryOk(query)) User.find(MongoDBObject("firstName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) ++ User.find(MongoDBObject("lastName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else User.findAll).toList
+    val pageEndIndex: Int = (page + 1) * PAGE_SIZE
+    val listMax = queriedUsers.length
+    val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
+    val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
+
+    html.list(users = usersPage.toList, page = page, count = queriedUsers.length)
+
+  }
+
+  def listAsTokens(q: String): Result = {
+    // TODO this could rather be a mongo query
+    val userTokens: List[Token] = for(u: DBObject <- User.findAllIdName.filter(user => (user.get("firstName") + " " + user.get("lastName")) contains (q))) yield {
       Token(id = u.get("reference").asInstanceOf[DBObject].get("id").toString, name = u.get("firstName") + " " + u.get("lastName"))
     }
-
-    RenderLiftJson(userTokens)
-
+    Json(userTokens)
   }
 
 }

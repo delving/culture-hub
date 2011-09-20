@@ -1,0 +1,35 @@
+From aac457bf19e2dfd665cd8c29f2e031c171c403c5 Mon Sep 17 00:00:00 2001
+From: Manuel Bernhardt <bernhardt.manuel@gmail.com>
+Date: Thu, 18 Aug 2011 10:52:58 +0200
+Subject: [PATCH] Convenience for error displaying
+
+---
+ framework/templates/tags/500.html |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/framework/templates/tags/500.html b/framework/templates/tags/500.html
+index 317bb04..4382c11 100644
+--- a/framework/templates/tags/500.html
++++ b/framework/templates/tags/500.html
+@@ -116,6 +116,18 @@
+             ${play.utils.Utils.open(exception.sourceFile, line_index+from) ? '</a>'.raw() : ''}
+          #{/list}
+     </div>
++    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script> 
++    <script> 
++      $(document).ready(function(){ 
++        $("a").click(function(event){ 
++          event.preventDefault(); 
++         var url = $(this).attr("href"); 
++         $.getJSON( url, function(json) { 
++             //do nothing 
++         }); 
++        }); 
++      }); 
++    </script> 
+     #{/if}
+ 	%{ moreHtml = exception.moreHTML }%
+ 	#{if moreHtml}
+-- 
+1.7.5.4
+

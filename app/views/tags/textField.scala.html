@@ -1,10 +1,12 @@
-@(name:String, label:String, dataBind: String = "")(implicit prefix: String = "")
+@(name:String, label:String, dataBind: String = "", help: String = "", disabled: Boolean = false, labelClass: String = "")
 @import views.context._
 
-@fieldName = @{ (if (prefix.length > 0) prefix + "." else "") + name}
-
+@isDisabled = @{ if(disabled) "disabled" else "" }
 <div class="field">
-  <label for="@fieldName">@label</label>
-  <input id="@fieldName" type="text" name="@fieldName" size="40" value="@params.get(fieldName)" data-bind="@dataBind">
-  <span class="error">@showError(fieldName)</span>
+    <label class="@labelClass" for="@name">@label</label>
+    <div class="inputs">
+        <input type="text" class="textinput" id="@name" name="@name" size="40" value="@params.get(name)" data-bind="@dataBind" @isDisabled />
+        <span class="error">@showError(name)</span>
+        <span class="help">@help</span>
+    </div>
 </div>

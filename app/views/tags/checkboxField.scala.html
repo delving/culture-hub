@@ -1,10 +1,12 @@
-@(name:String, label:String, dataBind: String = "")(implicit prefix: String = "")
+@(name:String, label:String, dataBind: String = "", value: String = "", labelClass: String = "")
 @import views.context._
 
-@fieldName = @{ (if (prefix.length > 0) prefix + "." else "") + name}
+@fieldValue = @{ if (value.length > 0) value else params.get(name) }
 
 <div class="field">
-  <label for="@fieldName">@label</label>
-  <input id="@fieldName" type="checkbox" name="@fieldName" size="40" value="@params.get(fieldName)" data-bind="@dataBind">
-  <span class="error">@showError(fieldName)</span>
+    <label class="@labelClass" for="@name">@label</label>
+    <div class="inputs">
+        <input id="@name" type="checkbox" name="@name" size="40" value="@fieldValue" data-bind="@dataBind">
+        <span class="error">@showError(name)</span>
+    </div>
 </div>

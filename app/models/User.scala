@@ -2,18 +2,13 @@ package models
 
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
-import dao.SalatDAO
+import dao.{SalatMongoCursor, SalatDAO}
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
-import views.Collection.html.collection
 
-/** Unique reference to a user across the CultureHub space **/
-case class UserReference(username: String = "", node: String = "", id: String = "")
-
-object UserReference extends SalatDAO[UserReference, ObjectId](collection = userCollection)
-
-case class User(reference: UserReference = UserReference("", "", ""),
+case class User(_id: ObjectId = new ObjectId,
+                reference: UserReference = UserReference("", "", ""),
                 firstName: String,
                 lastName: String,
                 email: String,
@@ -26,9 +21,13 @@ case class User(reference: UserReference = UserReference("", "", ""),
   val fullname = firstName + " " + lastName
 }
 
+/** Unique reference to a user across the CultureHub space. This is useful to lookup users based on their username **/
+case class UserReference(username: String = "", node: String = "", id: String = "")
+
+/** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
-object User extends SalatDAO[User, ObjectId](collection = userCollection) {
+object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
@@ -39,6 +38,8 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
     }
     true
   }
+
+  def findAll = find(MongoDBObject("isActive" -> true))
 
   def findAllIdName: List[DBObject] = User.collection.find(MongoDBObject(), MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)).toList
 
@@ -87,6 +88,7 @@ object User extends SalatDAO[User, ObjectId](collection = userCollection) {
   }
 
   def findByAccessToken(token: String): Option[User] = {
+    if(play.Play.mode == play.Play.Mode.DEV && token == "TEST") return User.findOne(MongoDBObject("reference.username" -> "bob"))
     User.findOne(MongoDBObject("accessToken.token" -> token))
   }
 

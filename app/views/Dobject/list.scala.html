@@ -1,19 +1,57 @@
-@(user:models.User)
+@(objects: List[controllers.ShortObject], page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
-@main("List of objects for user " + user.fullname ) {
-   <div class="grid_8 alpha">
-        <h1>All the objects of @user.fullname</h1>
-        <ul>
-          <li>Foos</li>
-          <li>Bars</li>
-          <li>Bazs</li>
-        </ul>
+@header(if(browsedUserName != null) "List of objects for user %s".format(browsedUserName) else "List of objects") {
+
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Objects</span>
+</div>
+
+<div class="grid_16 alpha" id="items">
+
+    @if(browsedUserName != null) {
+    <h2>Browse objects owned by: <span>@browsedUserName</span> (@count)</h2>
+    } else {
+    <h2>Browse objects (@count)</h2>
+    }
+
+    <div class="item-nav">
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+
     </div>
 
-   <div class="grid_8 omega">
-       <a href='/@renderArgs.get("displayName")/object/add'>Add new object</a>
-   </div>
+    <div class="clear"></div>
+
+    @for(o <- objects) {
+    <div class="item one-col">
+        <div class="media medium">
+            <img src='@thumbnailUrl(o.id)' width="84" alt="@o.name"/>
+        </div>
+        <div class="metadata">
+            <div class="bd">
+                <h4><a href="/@o.userName/object/@o.id">@o.name</a></h4>
+                @o.shortDescription
+            </div>
+            @if(o.userName == userName) {
+            <div class="actions">
+                <a class="action edit image-edit" href="/@o.userName/object/@o.id/update">Edit Object</a>
+            </div>
+            }
+        </div>
+    </div>
+    <div class="clear"></div>
+    }
+</div>
+
+<!--<div class="grid_4 omega">-->
+<!--@if(connectedIsBrowsed) {-->
+<!--<div class="actions ar">-->
+<!--<a class="add image-add" href='/@userName/object/add'>Add new object</a>-->
+<!--</div>-->
+<!--}-->
+<!--</div>-->
 
 }

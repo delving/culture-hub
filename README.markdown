@@ -1,4 +1,4 @@
-# play-services
+# Delving culture-hub
 
 Proof of concept of a services application written with play-scala.
 
@@ -18,9 +18,13 @@ This will eventually demonstrate things such as authentication & authorization, 
 ### One-time set-up
 
 - run `sh setup-play-patched.sh` in order to install play. Make sure you add the play directory to your shell path after installation so it can be found in further steps, e.g. by adding the line `export PATH=$PATH:/Users/foo/workspace/play` to your `~/.bash_profile`
-- from the `play-services` directory, run `sh setup.sh` in order to setup the application (find dependencies, etc.). You may need to run `play dependencies` later on by hand in order to download and install additional dependencies.
+- from the `culture-hub` directory, run `sh setup.sh` in order to setup the application (find dependencies, etc.). You may need to run `play dependencies` later on by hand in order to download and install additional dependencies.
 - configure the settings at the end of `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
+- configure the subdomains for testing in your `/etc/hosts` file by adding:
+
+    127.0.0.1       norvegiana.localhost
+    127.0.0.1       friesmuseum.localhost
 
 ### Running the application - development mode
 
@@ -28,7 +32,7 @@ Run the application via
 
     play run -Xss4m --%youruser
 
-where `youruser is the key you used for your custom properties in `conf/application.conf``
+where `youruser` is the key you used for your custom properties in `conf/application.conf``
 
 An example user is `bob@gmail.com` with password `secret`
 
@@ -37,6 +41,10 @@ An example user is `bob@gmail.com` with password `secret`
 Run the test mode via
 
     play test -Xss4m -Duser=youruser
+
+Run in prod mode (for use with Sip-Creator) via
+
+    play start -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:SoftRefLRUPolicyMSPerMB=1 -XX:MaxPermSize=128m -Xms512m -Xmx512m -Xss4m --%prod
 
 Then you can access the test dashboard on `http://localhost:9000/@tests`
 

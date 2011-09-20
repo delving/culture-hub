@@ -27,7 +27,6 @@
         solr.RAMDirectoryFactory is memory based, not persistent, and doesn't work with replication. -->
   <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
 
-
   <updateHandler class="solr.DirectUpdateHandler2" />
 
   <requestDispatcher handleSelect="true" >

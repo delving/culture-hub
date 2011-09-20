@@ -11,8 +11,11 @@ object Services extends DelvingController with HTTPClient {
   import play.mvc.results.Result
 
   // todo change this with the real portal skins and functionality etc
-  def index(user: String) = {
-    val u = getUser(user)
+  def index(user: String): AnyRef = {
+    val u = getUser(user) match {
+      case Right(aUser) => aUser
+      case Left(error) => return error
+    }
     html.index(username = u.reference.username)
   }
 
@@ -23,6 +26,7 @@ object Services extends DelvingController with HTTPClient {
 
     val solrQueryString: String = request.querystring
 
+    // todo add proper dependency for the solr url here
     val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr/core0", solrQueryString)
     val method: HttpMethod = new GetMethod(solrServerUrl)
 

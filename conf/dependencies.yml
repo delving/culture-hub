@@ -10,8 +10,6 @@ require:
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
             - org.scala-lang -> *
-     # commented out while the snapshot is broken. Added the working version to provided instead
-     # provided fix had unwanted side-effects so reverted
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
@@ -27,20 +25,19 @@ require:
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
+    - com.codahale -> jerkson_2.8.1 0.4.2-SNAPSHOT:
+        exclude:
+            - org.scala-lang -> scala-library
+
     # for testing
     - com.borachio -> borachio_2.8.1 1.1:
         exclude:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
-    # provided dependencies
-#    - provided -> salat-core_2.8.1 0.0.8-SNAPSHOT:
-#        exclude:
-#            - org.scala-lang -> scala-library
-#    - provided -> salat-util_2.8.1 0.0.8-SNAPSHOT:
-#        exclude:
-#            - org.scala-lang -> scala-library
     # delving dependencies
-    - provided -> sip-core 0.3.1-SNAPSHOT
+    - eu.delving -> sip-core 0.3.5-SNAPSHOT:
+        exclude:
+            - cglib -> *
     # remove later
     - com.google.collections -> google-collections 1.0
 
@@ -61,6 +58,11 @@ repositories:
         root: "http://maven.thebuzzmedia.com"
         contains:
             - com.thebuzzmedia.*
+    - codahale:
+        type: iBiblio
+        root: "http://repo.codahale.com/"
+        contains:
+            - com.codahale.*
     - java-net:
          type: iBiblio
          root: "http://download.java.net/maven/2/"
@@ -77,6 +79,18 @@ repositories:
         root: "http://repo.novus.com/snapshots/"
         contains:
             - com.novus.*
+    - delving-snapshot:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
+    - delving-releases:
+        type: iBiblio
+        root: "http://development.delving.org:8081/nexus/content/repositories/releases"
+        contains:
+            - eu.delving.*
+            - eu.europeana.*
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"

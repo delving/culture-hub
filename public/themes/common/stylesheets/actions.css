@@ -1,0 +1,120 @@
+/* Actions */
+
+.actions {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding:  10px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.actions a {
+    background-color: #eeeee0;
+    padding: 10px 10px 10px 34px !important;
+    border-radius: 4px;
+}
+
+.actions button {
+    padding:  4px;
+}
+
+.actions a:hover {
+    background-color: #bbbbb0;
+    padding: 10px 10px 10px 34px;
+    border-radius: 4px;
+}
+
+.actions.ar {
+    text-align: right;
+}
+
+.actions .add,
+.actions .delete,
+.actions .error,
+.actions .success,
+.actions .edit,
+.actions .save,
+.actions .submit,
+.actions .read {
+    background-position: 10px 50%;
+    background-repeat: no-repeat;
+    padding-left: 32px !important;
+    padding-right: 16px;
+    text-decoration: none;
+}
+
+.action.add,
+.action.delete,
+.action.error,
+.action.success,
+.action.edit,
+.action.save,
+.action.submit,
+.action.read,
+.action {
+    background-position: 0px 50%;
+    background-repeat: no-repeat;
+    padding-left: 24px !important;
+    padding-right: 16px;
+    text-decoration: none;
+}
+
+.actions .goto,
+.action.goto{
+    background-image: url("../images/page_white_go.png");
+}
+
+.actions .edit,
+.action.edit{
+    background-image: url("../images/pencil_go.gif");
+}
+
+.actions .delete,
+.action.delete {
+    background-image: url("../images/delete.gif");
+}
+
+.actions .save {
+    background-image:  url("../images/disk.png");
+}
+
+.actions .submit {
+    background-image:  url("../images/page_white_go.png");
+}
+
+.actions .page-add {
+    background-image:  url("../images/page_add.gif");
+}
+
+.actions .page-save {
+    background-image:  url("../images/page_save.png");
+}
+
+.actions .image-add,
+.action.image-add {
+    background-image:  url("../images/image_add.png");
+}
+
+.actions .story-add,
+.action.story-add {
+    background-image:  url("../images/book_add.png");
+}
+
+.actions .read,
+.action.read {
+    background-image:  url("../images/book_open.gif");
+}
+
+.actions .collection-add,
+.action.collection-add {
+    background-image:  url("../images/folder_add.gif");
+}
+
+.actions .label-add {
+    background-image:  url("../images/tag_blue_add.png");
+}
+
+.wait {
+    display: inline-block;
+}
+

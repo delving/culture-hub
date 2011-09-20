@@ -1,6 +1,15 @@
 package cake.metaRepo
 
 import play.mvc.Http
+import org.apache.log4j.Logger
+import java.text.SimpleDateFormat
+import org.joda.time.DateTime
+import java.util.Date
+import xml.Elem
+import models.MetadataRecord
+import scala.collection.JavaConversions._
+import cake.metaRepo.PmhVerbType.PmhVerb
+import org.joda.time.format.DateTimeFormat
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -12,15 +21,6 @@ import play.mvc.Http
  */
 
 class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaConfig {
-
-  import org.apache.log4j.Logger
-  import java.text.SimpleDateFormat
-  import org.joda.time.DateTime
-  import java.util.Date
-  import xml.Elem
-  import models.MetadataRecord
-  import scala.collection.JavaConversions._
-  import cake.metaRepo.PmhVerbType.PmhVerb
 
   private val log = Logger.getLogger(getClass);
 
@@ -83,7 +83,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   private def toUtcDateTime(date: DateTime) : String = date.toString("yyyy-MM-dd'T'HH:mm:ss'Z'")
   private def currentDate = toUtcDateTime (new DateTime())
-  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(new DateTime(date)) else ""
+  private def printDate(date: DateTime) : String = if (date != null) toUtcDateTime(date) else ""
 
   /**
    */
@@ -147,9 +147,6 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
    * This method can give back the following Error and Exception conditions: idDoesNotExist, noMetadataFormats.
    */
 
-  // todo remove this one
-  val metaRepo = new MetaRepoImpl
-
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
     import models.DataSet
 
@@ -204,7 +201,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="ListIdentifiers" from={harvestStep.getPmhRequest.getFrom.toString} until={harvestStep.getPmhRequest.getUntil.toString}
+      <request verb="ListIdentifiers" from={harvestStep.getPmhRequest.getFrom.toString(DateTimeFormat.fullDateTime())} until={harvestStep.getPmhRequest.getUntil.toString(DateTimeFormat.fullDateTime())}
                metadataPrefix={harvestStep.getPmhRequest.getMetadataPrefix}
                set={setSpec}>{getRequestURL}</request>
       <ListIdentifiers>
@@ -282,6 +279,10 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     elem
   }
 
+
+  // todo remove this one
+  val metaRepo = new MetaRepoImpl
+
   private def getHarvestStep(pmhRequestEntry: PmhRequestEntry) : HarvestStep = {
     if (!pmhRequestEntry.resumptionToken.isEmpty)
       metaRepo.getHarvestStep(pmhRequestEntry.resumptionToken, pmhRequestEntry.pmhRequestItem.accessKey)
@@ -317,7 +318,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
     // todo add transform into any metadata format
-    val recordAsString = record.getXmlStringAsRecord().replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val recordAsString = record.getXmlStringAsRecord(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
