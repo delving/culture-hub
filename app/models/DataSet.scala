@@ -8,17 +8,18 @@ import com.mongodb.casbah.Implicits._
 import org.scala_tools.time.Imports._
 import controllers.SolrServer
 import com.novus.salat._
+import annotations.raw.EnumAs
 import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
-import eu.delving.sip.{IndexDocument, DataSetState}
+import eu.delving.sip.IndexDocument
 import com.mongodb.{BasicDBObject, WriteConcern}
 import com.mongodb.casbah.commons.conversions.scala._
 import java.io.File
 import play.exceptions.ConfigurationException
 import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
-import xml.{NodeSeq, Node, XML}
+import xml.{Node, XML}
 
 /**
  *
@@ -33,7 +34,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    user: ObjectId,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
-                   state: String, // imported from sip-core
+                   state: DataSetState.Value,
                    details: Details,
                    lastUploaded: DateTime,
                    hashes: Map[String, String] = Map.empty[String, String],
@@ -44,8 +45,6 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    access: AccessRight) extends Repository {
 
   val name = spec
-
-  def getDataSetState: DataSetState = DataSetState.get(state)
 
   def getUser: User = User.findOneByID(user).get // orElse we are in trouble
 
@@ -112,11 +111,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
-    import eu.delving.sip.DataSetState._
-    val allDateSets: List[DataSet] = find(MongoDBObject("state" -> INDEXING.toString)).sort(MongoDBObject("name" -> 1)).toList
+    val allDateSets: List[DataSet] = find(MongoDBObject("state" -> DataSetState.INDEXING.toString)).sort(MongoDBObject("name" -> 1)).toList
     if (allDateSets.length < 3)
       {
-        val queuedIndexing = find(MongoDBObject("state" -> QUEUED.toString)).sort(MongoDBObject("name" -> 1)).toList
+        val queuedIndexing = find(MongoDBObject("state" -> DataSetState.QUEUED.toString)).sort(MongoDBObject("name" -> 1)).toList
         queuedIndexing.headOption
       }
     else
@@ -159,7 +157,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("spec" -> dataSet.spec), dataSet, false, false, new WriteConcern())
   }
 
-  def updateState(dataSet: DataSet, state: DataSetState) {
+  def updateState(dataSet: DataSet, state: DataSetState.Value) {
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
   }
 
@@ -245,7 +243,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add more elements: hasDigitalObject. etc
   }
 
-  def getStateWithSpec(spec: String): String = findBySpec(spec).get.state
+  def getStateWithSpec(spec: String): String = findBySpec(spec).get.state.toString
 
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
@@ -365,18 +363,17 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
   def hasOptions = !options.isEmpty
 }
 
-//object DataSetStateType extends Enumeration {
-//
-//  case class DataSetState1(state: String) extends Val(state)
-//
-//  val INCOMPLETE = DataSetState1("incomplete")
-//  val DISABLED  = DataSetState1("disabled")
-//  val UPLOADED = DataSetState1("uploaded")
-//  val QUEUED = DataSetState1("queued")
-//  val INDEXING = DataSetState1("indexing")
-//  val ENABLED = DataSetState1("enabled")
-//  val ERROR = DataSetState1("error")
-//}
+@EnumAs(strategy = EnumStrategy.BY_VALUE)
+object DataSetState extends Enumeration {
+
+  val INCOMPLETE = Value("incomplete")
+  val DISABLED  = Value("disabled")
+  val UPLOADED = Value("uploaded")
+  val QUEUED = Value("queued")
+  val INDEXING = Value("indexing")
+  val ENABLED = Value("enabled")
+  val ERROR = Value("error")
+}
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
 

@@ -7,9 +7,8 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.{BasicDBObject, WriteConcern}
 import controllers.{ShortDataSet, DelvingController}
 import org.scala_tools.time.Imports._
-import eu.delving.sip.DataSetState
 import models._
-import eu.delving.sip.DataSetState._
+import models.DataSetState._
 
 /**
  *
@@ -47,7 +46,7 @@ object DataSets extends DelvingController with UserSecured {
           spec = dataSet.spec,
           node = getNode,
           user = connectedUserId,
-          state = DataSetState.INCOMPLETE.toString,
+          state = DataSetState.INCOMPLETE,
           lastUploaded = DateTime.now,
           access = AccessRight(users = Map("foo" -> UserAction(user = UserReference("", "", "")))), // TODO
           details = Details(
@@ -68,7 +67,7 @@ object DataSets extends DelvingController with UserSecured {
     // TODO
     // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.getDataSetState match {
+    dataSet.state match {
       case DISABLED | UPLOADED =>
         changeState(dataSet, DataSetState.QUEUED)
         Ok
@@ -82,7 +81,7 @@ object DataSets extends DelvingController with UserSecured {
     // TODO
     // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.getDataSetState match {
+    dataSet.state match {
       case ENABLED =>
         changeState(dataSet, DataSetState.QUEUED)
         Ok
@@ -97,7 +96,7 @@ object DataSets extends DelvingController with UserSecured {
     // TODO
     // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.getDataSetState match {
+    dataSet.state match {
       case QUEUED | INDEXING | ERROR | ENABLED =>
         val updatedDataSet = changeState(dataSet, DataSetState.DISABLED)
         DataSet.deleteFromSolr(updatedDataSet)
@@ -112,7 +111,7 @@ object DataSets extends DelvingController with UserSecured {
     // TODO
     // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.getDataSetState match {
+    dataSet.state match {
       case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
         DataSet.delete(dataSet)
         Ok
@@ -120,9 +119,9 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  private def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
+  private def changeState(dataSet: DataSet, state: DataSetState.Value): DataSet = {
     val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
-    val updatedDataSet = dataSet.copy(state = state.toString, mappings = mappings)
+    val updatedDataSet = dataSet.copy(state = state, mappings = mappings)
     DataSet.save(updatedDataSet)
     updatedDataSet
   }

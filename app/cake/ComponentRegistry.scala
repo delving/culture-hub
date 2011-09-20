@@ -3,8 +3,6 @@ package cake
 import extensions.{ObjectIdTypeBinder, ScalaListTypeBinder}
 import util.{ThemeHandler, ThemeHandlerComponent}
 import scala.collection.JavaConversions._
-import play.Play
-import eu.delving.sip.AccessKey
 import eu.delving.metadata.MetadataModel
 import eu.delving.metadata.MetadataModelImpl
 
@@ -27,9 +25,6 @@ trait MetadataModelComponent {
 
 trait MetaRepoComponent {
 
-  import eu.delving.sip.AccessKey
-
-  val accessKey: AccessKey
   //  val metaRepo: MetaRepo
 }
 
@@ -39,7 +34,6 @@ trait MetaRepoComponent {
 object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent with MetaRepoComponent {
 
   val metadataModel: MetadataModel = new MetadataModelImpl
-  val accessKey = new AccessKey
   val themeHandler: ThemeHandler = new ThemeHandler
 
   //  val metaRepo = new MetaRepoImpl
@@ -54,10 +48,8 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
 
   def init() {
     try {
-      metadataModel.asInstanceOf[MetadataModelImpl].setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
+//      metadataModel.asInstanceOf[MetadataModelImpl].setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
       metadataModel.asInstanceOf[MetadataModelImpl].setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
-
-      accessKey.setServicesPassword(Play.configuration.getProperty("services.password").trim)
 
       themeHandler.startup()
     } catch {
