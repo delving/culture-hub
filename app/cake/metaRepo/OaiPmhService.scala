@@ -251,11 +251,14 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
 
-    val recIdentifier = DataSet.parseIdentifier(pmhRequest.identifier)
-    val identifier = recIdentifier.rawId
+    val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    val record: MetadataRecord = DataSet.getRecord(recIdentifier, metadataFormat, pmhRequest.accessKey)
+    val record: MetadataRecord = {
+      val mdRecord = DataSet.getRecord(identifier, metadataFormat, pmhRequest.accessKey)
+      if (mdRecord == None) return createErrorResponse("idDoesNotExist")
+      else mdRecord.get
+    }
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
