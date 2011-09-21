@@ -15,15 +15,17 @@
 
     @textField("spec", "Identifier", "value: spec", "The unique identifier of this Data Set")
 
-    @for(factDef <- factDefinitions) {
+    @for(i <- 0 until factDefinitions.length; val factDef = factDefinitions(i)) {
       @if(factDef.hasOptions) {
         @populatedSelectField(factDef.name + "_field", factDef.prompt, factDef.options.map(opt => (opt, opt)), "value: facts." + factDef.name, factDef.tooltip)
       } else {
         @textField(factDef.name + "_field", factDef.prompt, "value: facts." + factDef.name, factDef.tooltip, factDef.automatic)
       }
+      @if(i == 4) {
+      </div>
+      <div class="grid_8 omega">
+      }
     }
-    </div>
-    <div class="grid_8 omega">
     <h2>Record Definitions</h2>
     @for(recordDef <- recordDefinitions) {
       @checkboxField(recordDef + "_field", recordDef, "checked: recordDefinitions", recordDef)
