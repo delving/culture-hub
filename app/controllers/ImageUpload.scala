@@ -42,7 +42,7 @@ object ImageUpload extends DelvingController {
       tiler.setWorkingDirectory(imageTileWorkDir)
       tiler.setTileFormat(ImageFormat.JPEG);
       tiler.setJPEGCompressionQuality(75);
-      tiler.setBackgroundColor("#ffffff");
+      tiler.setBackgroundColor("#ffffffff");
       tiler.setGeneratePreviewHTML(false);
 
       // GM can't work with the temporary file names given by Play
