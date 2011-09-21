@@ -12,8 +12,8 @@
     var flashvars = {
       server: '@action(controllers.Images.iipsrv)',
       image: image,
-      navigation: true,
-      credit: "copyright or information message"
+      navigation: true
+//      credit: "copyright or information message"
     };
     var params = {
       scale: "noscale",
@@ -21,7 +21,7 @@
       allowfullscreen: "true",
       allowscriptaccess: "always"
     };
-    swfobject.embedSWF('@asset("/public/flash/IIPZoom.swf")', 'container', '100%', '100%', '9.0.0', '@asset("/public/flash/expressInstall.swf")', flashvars, params);
+    swfobject.embedSWF('@asset("/public/flash/IIPZoom.swf")', 'container', '100%', '600px', '9.0.0', '@asset("/public/flash/expressInstall.swf")', flashvars, params);
   }
 
   $(document).ready(function() {
