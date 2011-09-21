@@ -13,10 +13,10 @@ object DataSets extends DelvingController {
 
   import views.Dataset._
 
-  def list: Html = {
+  def list(user: Option[String], page: Int = 1): Html = {
     // TODO visibility (public, private)
-    val dataSets = DataSet.findAllByOwner(connectedUserId)
-    html.list(dataSets)
+    val dataSetsPage = DataSet.findAllByOwner(connectedUserId).page(page)
+    html.list(dataSetsPage._1, page, dataSetsPage._2)
   }
 
   def dataSet(spec: String): AnyRef = {
@@ -29,9 +29,9 @@ object DataSets extends DelvingController {
         val describedFacts = for(factDef <- DataSet.factDefinitionList) yield Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString)
         html.view(ds, describedFacts)
       }
-      case "json" => if(dataSet == None) Json(ShortDataSet()) else {
+      case "json" => if(dataSet == None) Json(ShortDataSet(userName = connectedUser)) else {
         val dS = dataSet.get
-        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts))
+        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getUser.reference.username))
       }
     }
 

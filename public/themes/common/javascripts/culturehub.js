@@ -85,7 +85,6 @@ function initializeElements() {
     $("ul#user-menu li .sub").css({'opacity':'0'}); //Fade sub nav to 0 opacity on default
     $("ul#user-menu li").hoverIntent(config); //Trigger Hover intent with custom configurations
 
-
 }
 
 

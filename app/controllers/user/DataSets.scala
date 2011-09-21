@@ -45,7 +45,7 @@ object DataSets extends DelvingController with UserSecured {
         DataSet(
           spec = dataSet.spec,
           node = getNode,
-          user = connectedUserId,
+          user_id = connectedUserId,
           state = DataSetState.INCOMPLETE,
           lastUploaded = DateTime.now,
           access = AccessRight(users = Map("foo" -> UserAction(user = UserReference("", "", "")))), // TODO

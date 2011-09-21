@@ -57,21 +57,21 @@ h1, h2 {
 
 h1 {
     color: #990000;
-    font-size: 175%;
+    /*font-size: 175%;*/
 }
 
 h2 {
     color: #990000;
-    font-size: 150%;
+    /*font-size: 150%;*/
 }
 
 h3 {
     color: #ad3333;
-    font-size: 115%;
+    /*font-size: 115%;*/
 }
 
 h4 {
-    font-size: 100%;
+    /*font-size: 100%;*/
 }
 
 h4.user {
@@ -99,7 +99,7 @@ ol.small li {
 
 #page {
     background:  #fff;
-    padding: 10px 0;
+    padding: 20px 0;
 }
 
 
@@ -206,8 +206,13 @@ ol.small li {
 #search {
     background: #555;
     height: 64px;
-    line-height: 64px;
+    /*line-height: 64px;*/
     text-align: center;
+}
+
+#search form {
+    height: 40px;
+    margin: 12px 0 0 0;
 }
 #search input[type="text"]{
     background: transparent url(../../common/images/bg-search-input.png) 0 0 no-repeat;
