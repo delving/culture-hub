@@ -62,6 +62,16 @@ This is how:
 installation by running `cd extras/servlet-server && java -jar start.jar`
 - now you are ready to go and use the advanced image viewer
 
+### Batch conversion of high-resolution images
+
+In order to convert high-resoltution images in batch mode, we can use the magicktiler:
+
+- clone it with `git clone git@github.com:delving/magicktiler.git`
+- build it with `ant build:dist`
+- run it with `java -jar magicktiler.jar -s ptif -i /path/to/the/images`
+
+This will render PTIF (tiled TIF) images in the same directory than the input directory (until this is fixed in magicktiler)
+
 ## Notes
 
 ### Play installation - Play versions
