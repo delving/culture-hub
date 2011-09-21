@@ -1,81 +1,99 @@
-@(user: models.User, name: String)
+@(dobject: models.DObject, labels: List[controllers.ShortLabel])
 
 @import views.context._
 
-@main("Object " + name + " of user " + user.fullname ) {
+@header("Object " + dobject.name + " of user " + browsedFullName) {
 
-   <div class="grid_8">
-      <h1>Object <span>"@name"</span></h1>
-      <div  class="item-display clearfix" style="min-width: 220px;">
-           <img src='@asset("/public/images/dummy-object.png")' width="220"/>
-           <label>Name</label><span>Object Name Goes Here</span>
-          <label>Owner</label><span>Object Owner Goes Here</span>
-          <label>Annotation(s)</label><span>Object Annotation(s) Go Here</span>
-          <label>Date created</label><span>Creation Date Goes Here</span>
-      </div>
-      <h2>Description</h2>
-      <p>
-          Just the good ol' boys, never meanin' no harm. Beats all you've ever saw, been in trouble with the law since the day they was born. Straight'nin' the curve, flat'nin' the hills. Someday the mountain might get 'em, but the law never will. Makin' their way, the only way they know how, that's just a little bit more than the law will allow. Just good ol' boys, wouldn't change if they could, fightin' the system like a true modern day Robin Hood.
-      </p>
-       <p>
-           Hey there where ya goin', not exactly knowin', who says you have to call just one place home. He's goin' everywhere, B.J. McKay and his best friend Bear. He just keeps on movin', ladies keep improvin', every day is better than the last. New dreams and better scenes, and best of all I don't pay property tax. Rollin' down to Dallas, who's providin' my palace, off to New Orleans or who knows where. Places new and ladies, too, I'm B.J. McKay and this is my best friend Bear.
-       </p>
-       <p>
-            Top Cat! The most effectual Top Cat! Who's intellectual close friends get to call him T.C., providing it's with dignity. Top Cat! The indisputable leader of the gang. He's the boss, he's a pip, he's the championship. He's the most tip top, Top Cat.
-      </p>
-   </div>
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <a href="/objects">Objects</a><span class="arrow"> &gt; </span>
+    <span class="current">@dobject.name</span>
+</div>
 
-   <div class="grid_8">
-    <div class="dui-buttonset dui-buttonset-single">
-        <button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>
-        <button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>
-        <button class="dui-button ui-state-default ui-priority-primary">Share</button>
-    </div>
+<h1>@dobject.name</h1>
 
-    <div class="clear"></div>
-    <h2>Labels</h2>
-    <p class="labels">
-         @for(i <- 0 until 16) {
-        <span class="label"><a href="#">label_@i</a></span>&nbsp;
-        }
-    </p>
+<div class="grid_4 alpha">
+    <img src='@imageUrl(dobject._id)' width="220" alt="@dobject.name"/>
+</div>
 
-    <div id="comments">
-        <h2>Comments</h2>
-        <ul class="comment-list">
-            @for(i <- 0 until 4) {
-            <li class="comment">
-                <!--<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>-->
-                <div class="content">
+<div class="grid_12 omega">
 
-                    <p>
-                        Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.
-                    </p>
-                    <span class="user"><a href="#">Username</a></span>
-                    <span class="date">xx-xx-xxxx</span>
+    <div class="item metadata">
+        <h2>Name</h2>
+        <p>@dobject.name</p>
 
-                </div>
-            </li>
+        <h2>Description:</h2>
+        <p>@niceText(dobject.description.getOrElse("No description available"))</p>
 
+        <h2>Owner</h2>
+        <p>@browsedFullName</p>
+
+        <h2>Date created</h2>
+        <p>@niceTime(dobject._id.getTime)</p>
+
+        <h2>Label(s)</h2>
+        <p class="labels">
+            @for(l <- labels) {
+            <span class="label">@l.labelType - @l.value</span><br/>
             }
-        </ul>
+        </p>
     </div>
-       <!--<div class="container">-->
-           <!--<h3>Options</h3>-->
+</div>
 
-           <!--<p>-->
-               <!--Add object to a collection-->
-           <!--</p>-->
-           <!--<select id="collection-name" name="collection-name">-->
-               <!--<option value="">Collection 1</option>-->
-               <!--<option value="">Collection 2</option>-->
-               <!--<option value="">Collection 3</option>-->
-               <!--<option value="">Collection 4</option>-->
-           <!--</select>-->
-           <!--<button>Add Objects</button>-->
-       <!--</div>-->
+@if(userName == browsedUserName) {
+<div class="actions ar grid_16 alpha">
+    <a class="edit" href="/@dobject.userName/object/@dobject._id/update">Edit Object</a>
+</div>
+}
+<!--<div class="grid_8">-->
+<!--<div class="dui-buttonset dui-buttonset-single">-->
+<!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary" id="add-label">Label</button>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary">Share</button>-->
+<!--</div>-->
 
-   </div>
+<!--<div class="clear"></div>-->
+<!--<h2>Labels</h2>-->
+<!--<p class="labels">-->
+<!--@for(l <- labels) {-->
+<!--<span class="label"><a href="#">@l.labelType - @l.value</a></span>&nbsp;-->
+<!--}-->
+<!--</p>-->
+<!--</div>-->
+<!--<div id="comments">-->
+<!--<h2>Comments</h2>-->
+<!--<ul class="comment-list">-->
+<!--@for(i <- 0 until 4) {-->
+<!--<li class="comment">-->
+<!--&lt;!&ndash;<div class="avatar"><img src='@asset("/public/images/dummy-object.png")' width="35"/></div>&ndash;&gt;-->
+<!--<div class="content">-->
+
+<!--<p>-->
+<!--Breakfast procuring nay end happiness allowance assurance frankness. Met simplicity nor difficulty unreserved who. Entreaties mr conviction dissimilar me astonished estimating cultivated. On no applauded exquisite my additions.-->
+<!--</p>-->
+<!--<span class="user"><a href="#">Username</a></span>-->
+<!--<span class="date">xx-xx-xxxx</span>-->
+
+<!--</div>-->
+<!--</li>-->
+
+<!--}-->
+<!--</ul>-->
+<!--</div>-->
+<!--<div class="container">-->
+<!--<h3>Options</h3>-->
+
+<!--<p>-->
+<!--Add object to a collection-->
+<!--</p>-->
+<!--<select id="collection-name" name="collection-name">-->
+<!--<option value="">Collection 1</option>-->
+<!--<option value="">Collection 2</option>-->
+<!--<option value="">Collection 3</option>-->
+<!--<option value="">Collection 4</option>-->
+<!--</select>-->
+<!--<button>Add Objects</button>-->
+<!--</div>-->
 
 <script type="text/javascript">
 

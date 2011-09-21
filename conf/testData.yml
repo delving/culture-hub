@@ -14,7 +14,8 @@
     id: "dan#cultureHub"
 
 - !!models.User
-    reference: *bob
+    _id:            4e5679a80364ae80333ab939
+    reference:      *bob
     firstName:      Bob
     lastName:       Marley
     email:          bob@gmail.com
@@ -22,7 +23,8 @@
     isActive:       true
 
 - !!models.User
-    reference: *jimmy
+    _id:            4e5679a80364ae80333ab93a
+    reference:      *jimmy
     firstName:      Jimmy
     lastName:       Hendrix
     email:          jimmy@gmail.com
@@ -30,7 +32,8 @@
     isActive:       true
 
 - !!models.User
-    reference: *dan
+    _id:            4e5679a80364ae80333ab93b
+    reference:      *dan
     firstName:      Dan
     lastName:       Brown
     email:          dan@gmail.com
@@ -52,9 +55,8 @@
     owner: !!bool "false"
 
 - !!models.UserGroup &buddies
-    user: *jimmy
+    user: 4e5679a80364ae80333ab93a
     name: Buddies
-#    id: "Buddies#jimmy#cultureHub"
     users:
       ? "dan#cultureHub"
       : *dan
@@ -71,18 +73,20 @@
         namespace: "http://abmu.org/abm"
         schema: "http://abmu.org/abm.xsd"
         accessKeyRequired: false
-    "mapping_hash": "78B05C28A250BB02C3F84A0612B8D7F0"
     "rec_indexed": 3
     errorMessage:
     indexed: true
 
 - !!models.DataSet
-    spec: Verzetsmuseum
-    state: ENABLED
+    spec: EmptyCollection
+    node: cultureHub
+    state: INCOMPLETE
+    user: 4e5679a80364ae80333ab939 # bob
+    lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:
-        name: Verzetsmuseum
-        "uploaded_records": 1679
-        "total_records": 1679
+        name: Empty Collection
+        "uploaded_records": 0
+        "total_records": 0
         "deleted_records": 0
         errorMessage:
         metadataFormat:
@@ -90,10 +94,9 @@
             namespace: "http://delving.eu/namespaces/raw"
             schema: "http://delving.eu/namespaces/raw/schema.xsd"
             accessKeyRequired: !!bool "true"
-        "facts_bytes": "awEAAHNwZWM9c2ZmS0wKZG93bmxvYWRlZFNvdXJjZT1mYWxzZQpyZWNvcmRSb290UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQKcmVjb3JkQ291bnQ9MTY3OQp1bmlxdWVFbGVtZW50UGF0aD0vbWV0YWRhdGEvcmVjb3JkL21ldGFkYXRhL2FibTpyZWNvcmQvZGM6aWRlbnRpZmllcgpuYW1lPXNmZktMCmNvbGxlY3Rpb25UeXBlPWFsbApuYW1lc3BhY2VQcmVmaXg9cmF3Cmxhbmd1YWdlPW5vCmNvdW50cnk9bm9yd2F5CnByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKZGF0YVByb3ZpZGVyPU5vcnNrIEt1bHR1cnLDpWQKcmlnaHRzPWh0dHA6Ly93d3cuZXVyb3BlYW5hLmV1L3JpZ2h0cy91bmtub3duLwp0eXBlPUlNQUdFCg=="
-    "facts_hash": 6376A11D42819F2F08035E9EEAF46E9B
-    "source_hash": 61F0D46F76B01E0CCAD7286234F30B6A
-    "downloaded_source_hash": 61F0D46F76B01E0CCAD7286234F30B6B
+        facts:
+            spec: EmptyCollection
+    hashes: !!map { }
     namespaces:
         ? raw
         : "http://delving.eu/namespaces/raw"
@@ -112,6 +115,8 @@
     mappings:
         ? icn
         : *icnMapping
+    hints: ""
+    invalidRecords: !!map { }
     access:
         users:
             ? "jimmy#cultureHub"
@@ -120,6 +125,68 @@
             : *bobAction
         groups:
           - "Buddies#jimmy#cultureHub"
+
+- !!models.DataSet
+    spec: Verzetsmuseum
+    node: cultureHub
+    state: ENABLED
+    user: 4e5679a80364ae80333ab939 # bob
+    lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
+    details:
+        name: Verzetsmuseum
+        "uploaded_records": 1679
+        "total_records": 1679
+        "deleted_records": 0
+        errorMessage:
+        metadataFormat:
+            prefix: raw
+            namespace: "http://delving.eu/namespaces/raw"
+            schema: "http://delving.eu/namespaces/raw/schema.xsd"
+            accessKeyRequired: !!bool "true"
+        facts:
+            spec: Verzetsmuseum
+            downloadedSource: false
+            name: Verzetsmuseum
+            collectionType: all
+            namespacePrefix: raw
+            language: nl
+            country: netherlands
+            provider: Verzetsmuseum
+            dataProvider: Verzetsmuseum
+            rights: "http://creativecommons.org/publicdomain/mark/1.0/"
+            type: IMAGE
+    hashes: !!map { }
+    namespaces:
+        ? raw
+        : "http://delving.eu/namespaces/raw"
+        ? dc
+        : "http://purl.org/dc/elements/1.1/"
+        ? dcterms
+        : "http://purl.org/dc/terms/"
+        ? europeana
+        : "http://www.europeana.eu/schemas/ese/"
+        ? ese
+        : "http://www.europeana.eu/schemas/ese/"
+        ? icn
+        : "http://www.icn.nl/"
+        ? abm
+        : "http://to_be_decided/abm/"
+    mappings:
+        ? icn
+        : *icnMapping
+    hints: ""
+    invalidRecords: !!map { }
+    access:
+        users:
+            ? "jimmy#cultureHub"
+            : *jimmyAction
+            ? "bob#cultureHub"
+            : *bobAction
+        groups:
+          - "Buddies#jimmy#cultureHub"
+
+
+
 
 - !!models.MetadataRecord
   rawMetadata:
@@ -130,6 +197,7 @@
     : "bla"
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
+  validOutputFormats: ["ese", "icn"]
   localRecordKey: "00001"
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
@@ -224,7 +292,7 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"
 
 - !!models.MetadataRecord
   rawMetadata:
@@ -236,6 +304,7 @@
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
   localRecordKey: "00002"
+  validOutputFormats: ["ese", "icn"]
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
         ? 5CEBCDDB8BAC5072F71E55108DB1A488
@@ -329,7 +398,7 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"
 
 - !!models.MetadataRecord
   rawMetadata:
@@ -340,6 +409,7 @@
     : "bla"
   modified: !!timestamp "2011-08-14T10:19:20.835Z"
   deleted: !!bool "false"
+  validOutputFormats: ["ese", "icn"]
   localRecordKey: "00003"
   globalHash: "5B59D5A55EE2718D18BFF4B3CD849285"
   hash:
@@ -434,4 +504,4 @@
         ? 3BA0EFFF643D508A36D18EDAC179E128
         : "/record/edit.date_1"
         ? DC62C8A3563DC5BF9C99D321943FC584
-        ?: "/record/input.date"
+        : "/record/input.date"

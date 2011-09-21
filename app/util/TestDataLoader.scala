@@ -28,7 +28,7 @@ trait TestDataGeneric extends TestData {
       case g: UserGroup => UserGroup.insert(g)
       case d: DataSet => DataSet.insert(d)
       case md: MetadataRecord => {
-        val ds = DataSet.getWithSpec("Verzetsmuseum")
+        val ds = DataSet.findBySpec("Verzetsmuseum").get
         DataSet.getRecords(ds).insert(md)
       }
       case _ =>

@@ -1,0 +1,59 @@
+@(spec: Option[String] = None, factDefinitions: Seq[models.FactDefinition], recordDefinitions: Seq[String])
+
+@import views.context._
+@import views.tags.html._
+
+@header(if(spec == None) "Create new data set for user " + fullName else "Update data set for user " + fullName) {
+
+<h1 class="grid_16">@if(spec == None) { Create a new data set } else { Update a data set }</h1>
+
+<form method="post" action="" id="collectionForm">
+  <div class="grid_8">
+    <h2>Data Set Information</h2>
+
+    @textField("spec", "Identifier", "value: spec", "The unique identifier of this Data Set")
+
+    @for(factDef <- factDefinitions) {
+      @if(factDef.hasOptions) {
+        @populatedSelectField(factDef.name + "_field", factDef.prompt, factDef.options.map(opt => (opt, opt)), "value: facts." + factDef.name, factDef.tooltip)
+      } else {
+        @textField(factDef.name + "_field", factDef.prompt, "value: facts." + factDef.name, factDef.tooltip, factDef.automatic)
+      }
+    }
+
+    @for(recordDef <- recordDefinitions) {
+      @checkboxField(recordDef + "_field", recordDef, "checked: recordDefinitions", recordDef)
+    }
+
+    <div class="field">
+        <div class="inputs">
+        <input id="saveButton" type="submit" value="Save DataSet" />
+        </div>
+    </div>
+
+  </div>
+</form>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    var dataSetModel = {};
+
+    $('#saveButton').click(function(event) {
+      event.preventDefault();
+      $.postKOJson('/@userName/dataset/submit', dataSetModel, function(data) {
+        updateViewModel(data, dataSetModel, scope);
+        window.location.href = '/@userName/dataset/' + dataSetModel.spec()
+      }, function(jqXHR, textStatus, errorThrown) {
+        $('#result').html('Error saving collection, please try again');
+        $('#result').show().fadeOut('3000');
+      })
+    });
+
+    var scope = document.getElementById('dataSetForm');
+
+    load('/@userName/dataset/@spec.getOrElse("")', dataSetModel, scope);
+  });
+</script>
+
+}

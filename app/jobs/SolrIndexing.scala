@@ -12,16 +12,8 @@ import models.DataSet
 @Every("10s")
 class SolrIndexing extends Job {
 
-  var isRunning:Boolean = false
-
   override def doJob() {
-    // TODO this is probably useless, remove when tested
-    if(!isRunning) {
-      isRunning = true
-      val dataSet = DataSet.findCollectionForIndexing()
-      println("looking for datasets")
-      if (dataSet != None) DataSet.indexInSolr(dataSet.get, "icn") // todo add default index format later via DataSet
-      isRunning = false
-    }
+    val dataSet = DataSet.findCollectionForIndexing()
+    if (dataSet != None) DataSet.indexInSolr(dataSet.get, "icn") // todo add default index format later via DataSet
   }
 }

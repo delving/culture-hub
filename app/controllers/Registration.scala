@@ -7,6 +7,8 @@ import play.libs.Crypto
 import notifiers.Mails
 import play.Play
 import models.{UserReference, User}
+import play.mvc.results.Result
+import play.templates.Html
 
 /**
  *
@@ -21,7 +23,7 @@ object Registration extends DelvingController {
     html.index(randomId = Codec.UUID())
   }
 
-  def register() = {
+  def register(): AnyRef = {
     val code = params.get("code")
     val randomId = params.get("randomID")
 
@@ -82,15 +84,15 @@ object Registration extends DelvingController {
     captcha
   }
 
-  def activate(activationToken: Option[String]) = {
+  def activate(activationToken: Option[String]): AnyRef = {
     val success = activationToken.isDefined && User.activateUser(activationToken.get)
     if (success) flash += ("activation" -> "true") else flash += ("activation" -> "false")
     Action(controllers.Application.index)
   }
 
-  def lostPassword() = html.lostPassword()
+  def lostPassword(): Html = html.lostPassword()
 
-  def resetPasswordEmail() = {
+  def resetPasswordEmail(): AnyRef = {
     Validation.clear()
 
     val email = request.params.get("email")
@@ -127,13 +129,13 @@ object Registration extends DelvingController {
     }
   }
 
-  def resetPassword(resetPasswordToken: Option[String]) = {
+  def resetPassword(resetPasswordToken: Option[String]): AnyRef = {
     if (resetPasswordToken == None) {
       flash += ("resetPasswordError" -> "Reset token not found")
       Action(controllers.Application.index)
     } else {
       val canChange = User.canChangePassword(resetPasswordToken.get)
-      if(canChange) {
+      if(!canChange) {
         flash += ("resetPasswordError" -> "Error changing your password. Try resetting it again.")
         Action(controllers.Application.index)
       } else {
@@ -142,7 +144,7 @@ object Registration extends DelvingController {
     }
   }
 
-  def newPassword() = {
+  def newPassword(): AnyRef = {
     Validation.clear()
     
     val resetPasswordToken: Option[String] = Option(params.get("resetPasswordToken"))

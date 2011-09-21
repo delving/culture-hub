@@ -1,0 +1,30 @@
+@(users: List[controllers.ShortUser], page: Int, count: Int)
+
+@import views.context._
+@import views.tags.html._
+
+@header("List of users") {
+
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">Users</span>
+</div>
+
+<div class="grid_16 alpha" id="items">
+
+    <h2>Browse users (@count)</h2>
+
+    <div class="item-nav">
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+    </div>
+
+    <div class="clear"></div>
+
+@for(u <- users) {
+   <div class="item one-col">
+     <h4 class="user"><a href="/@u.userName/profile">@u.fullName</a></h4>
+   </div>
+   }
+</div>
+
+}

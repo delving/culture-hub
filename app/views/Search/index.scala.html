@@ -2,43 +2,46 @@
 
 @import views.context._
 
-@main("Search Results") {
+@header("Search Results") {
 
-<div class="grid_12" id="items">
+<div class="grid_12 alpha" id="items">
 
     <h2>Search Results for: <span>[query]</span></h2>
 
     <div class="item-nav">
+
         <div class="item-count">
             Found: <span>12358</span> results
         </div>
+
         <div class="item-pager">
-            <ul>
-                <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
-                <li><span>1</span><span class="pipe"> | </span></li>
-                <li><a href="#">2</a><span class="pipe"> | </span></li>
-                <li><a href="#">3</a><span class="pipe"> | </span></li>
-                <li><a href="#">4</a><span class="pipe"> | </span></li>
-                <li><a href="#">5</a><span class="pipe"> | </span></li>
-                <li><a href="#">6</a><span class="pipe"> | </span></li>
-                <li><a href="#">7</a><span class="pipe"> | </span></li>
-                <li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>
-            </ul>
+            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
+            <span>1</span><span class="pipe"> | </span>
+            <a href="#">2</a><span class="pipe"> | </span>
+            <a href="#">3</a><span class="pipe"> | </span>
+            <a href="#">4</a><span class="pipe"> | </span>
+            <a href="#">5</a><span class="pipe"> | </span>
+            <a href="#">6</a><span class="pipe"> | </span>
+            <a href="#">7</a><span class="pipe"> | </span>
+            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
         </div>
+
     </div>
 
-    @for(i <- 0 until 16) {
+    <div class="clear"></div>
 
+    <div class="items">
 
-
+        @for(i <- 0 until 10) {
 
         <div class="item two-col">
             <img src='@asset("/public/images/dummy-object.png")' width="84"/>
 
             @if((new scala.util.Random).nextBoolean == true) {
-                 <h4 class="object"><a href="">Title_@i</a></h4>
+            <h4 class="object"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></h4>
             } else {
-                 <h4 class="collection"><a href="">Title_@i</a></h4>
+            <h4 class="collection"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a>
+            </h4>
             }
             <span class="description">
                 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
@@ -49,48 +52,54 @@
 
         </div>
 
-    }
+        }
+
+    </div>
+
+    <div class="clear"></div>
 
     <div class="item-nav">
         <div class="item-count">
             Found: <span>12358</span> results
         </div>
         <div class="item-pager">
-            <ul>
-                <li><span class="gtarrow">&lt;</span> Previous<span class="pipe"> | </span></li>
-                <li><span>1</span><span class="pipe"> | </span></li>
-                <li><a href="#">2</a><span class="pipe"> | </span></li>
-                <li><a href="#">3</a><span class="pipe"> | </span></li>
-                <li><a href="#">4</a><span class="pipe"> | </span></li>
-                <li><a href="#">5</a><span class="pipe"> | </span></li>
-                <li><a href="#">6</a><span class="pipe"> | </span></li>
-                <li><a href="#">7</a><span class="pipe"> | </span></li>
-                <li><a href="#" class="next">Next <span class="gtarrow">&gt;</span></a></li>
-            </ul>
+            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
+            <span>1</span><span class="pipe"> | </span>
+            <a href="#">2</a><span class="pipe"> | </span>
+            <a href="#">3</a><span class="pipe"> | </span>
+            <a href="#">4</a><span class="pipe"> | </span>
+            <a href="#">5</a><span class="pipe"> | </span>
+            <a href="#">6</a><span class="pipe"> | </span>
+            <a href="#">7</a><span class="pipe"> | </span>
+            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
         </div>
     </div>
 
 </div>
 
-<div class="grid_4 sidebar">
+<div class="grid_4 omega sidebar">
+
+    <h3>Options</h3>
 
     <div class="container">
-        <h3>Options</h3>
+        <div class="head"></div>
+        <div class="body">
 
-        <label>Sort by</label>
-        <img src='@asset("/public/images/icon-object.png")' width="16"/>Object
-        <img src='@asset("/public/images/icon-collection.png")' width="16"/>Collection
+            <label>Sort by</label>
+                <a href="" class=""><img src='@asset("/public/images/icon-object.png")' width="16" alt="Sort by object"/>Object</a>
+            <a href="" class=""><img src='@asset("/public/images/icon-collection.png")' width="16" alt="Sort by collection"/>Collection</a>
 
-        <p>
-            Add <strong>selected</strong> objects to a collection
-        </p>
-        <select id="collection-name" name="collection-name">
-            <option value="">Collection 1</option>
-            <option value="">Collection 2</option>
-            <option value="">Collection 3</option>
-            <option value="">Collection 4</option>
-        </select>
-        <button>Add Objects</button>
+            <p>
+                Add <strong>selected</strong> objects to a collection
+            </p>
+            <select id="collection-name" name="collection-name">
+                <option value="">Collection 1</option>
+                <option value="">Collection 2</option>
+                <option value="">Collection 3</option>
+                <option value="">Collection 4</option>
+            </select>
+            <button>Add Objects</button>
+        </div>
     </div>
 
 </div>

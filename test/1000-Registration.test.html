@@ -4,14 +4,14 @@
   clearSession()
 
   open('/')
-  clickAndWait('link=Register!')
+  clickAndWait('link=Register')
   type('registration.firstName','Foo')
   type('registration.lastName','Bar')
   type('registration.email','foo@bar.com')
   type('registration.displayName','foo')
   type('registration.password1','foo')
   type('registration.password2','foo')
-  clickAndWait('css=input[type=submit]')
+  clickAndWait('css=button[type=submit]')
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
   # Verify if an error is displayed if the account is not active

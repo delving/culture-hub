@@ -5,6 +5,12 @@
 # Home page
 GET         /                                       Application.index
 
+GET         /documentation/?                        Documentation.index
+GET         /documentation/images/{name}            Documentation.image
+GET         /documentation/{id}                     Documentation.page
+GET         /documentation/{category}/{id}          Documentation.page
+
+
 # Form-based authentication
 GET         /login                                  Authentication.login
 POST        /login                                  Authentication.authenticate
@@ -30,10 +36,10 @@ GET         /services/administrator/dataset                                  Sip
 GET         /services/administrator/dataset/{dataSetSpec}/{command}          SipCreatorEndPoint.secureIndexingControl
 
 # Backwards compatibility with the old portal module
-GET        /portal/                                                         Portal.index
+GET        /portal/                                                          Portal.index
 
 # Search results
-GET        /search                                                         Search.index
+GET        /search                                                           Search.index
 
 # User registration
 GET        /registration                                                     Registration.index
@@ -46,58 +52,103 @@ GET        /registration/resetPassword/{resetPasswordToken}                  Reg
 POST       /registration/newPassword                                         Registration.newPassword
 
 # Delving URL scheme
-GET         /{user}/?                               Users.index
-GET         /{user}/profile                         Profiles.index
-GET         /{user}/label                           Labels.list
-GET         /{user}/label/{label}                   Labels.label
-GET         /{user}/collection                      Collections.list
-GET         /{user}/collection/add                  Collections.add
-GET         /{user}/collection/{collection}         Collections.collection
-GET         /{user}/object                          Dobjects.list
-GET         /{user}/object/add                      Dobjects.add
-GET         /{user}/object/{dobject}                Dobjects.dobject
-GET         /{user}/story                           Stories.list
-GET         /{user}/story/add                       Stories.add
-GET         /{user}/story/{story}                   Stories.story
+
+GET         /users                                                           Users.list
+GET         /collections                                                     Collections.list
+GET         /objects                                                         DObjects.list
+GET         /stories                                                         Stories.list
+
+GET         /{user}/?                                                        Users.index
+
+GET         /{user}/profile                                                  Profiles.view
+
+GET         /{user}/label                                                    Labels.list
+GET         /{user}/label/{label}                                            Labels.label
+
+GET         /{user}/collection                                               Collections.list
+GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
+GET         /{user}/collection/{id}/objects                                  Collections.listObjects
+GET         /{user}/collection/add                                           user.Collections.collectionUpdate
+GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
+POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
+GET         /{user}/collection/load/{id}?                                    user.Collections.load
+GET         /{user}/collection/{id}                                          Collections.view
+
+GET         /{user}/object                                                   DObjects.list
+GET         /{user}/object/add                                               user.DObjects.objectUpdate
+GET         /{user}/object/{id}/update                                       user.DObjects.objectUpdate
+POST        /{user}/object/submit                                            user.DObjects.objectSubmit
+GET         /{user}/object/load/{id}?                                        user.DObjects.load
+GET         /{user}/object/{id}                                              DObjects.view
+
+GET         /{user}/story                                                    Stories.list
+GET         /{user}/story/add                                                user.Stories.storyUpdate
+GET         /{user}/story/{id}/update                                        user.Stories.storyUpdate
+POST        /{user}/story/submit                                             user.Stories.storySubmit
+GET         /{user}/story/load/{id}?                                         user.Stories.load
+GET         /{user}/story/{id}                                               Stories.story
+GET         /{user}/story/{id}/read                                          Stories.read
+
+GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/groups                                             user.Admin.groupList
 GET         /{user}/admin/groups/new                                         user.Admin.groupUpdate
-GET         /{user}/admin/groups/update/{name}                               user.Admin.groupUpdate
+GET         /{user}/admin/groups/update/{id}                                 user.Admin.groupUpdate
 POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
-GET         /{user}/admin/groups/load/{name}?                                 user.Admin.groupLoad
+GET         /{user}/admin/groups/load/{id}?                                  user.Admin.groupLoad
 
-GET         /{user}/dataset                                                  SipCreatorEndPoint.listAll
-GET         /{user}/dataset/{dataSetSpec}/{command}                          SipCreatorEndPoint.indexingControl
-POST        /{user}/dataset/submit/{dataSetSpec}/{fileType}/{fileName}       SipCreatorEndPoint.acceptFile
-POST        /{user}/dataset/fetch/{dataSetSpec}-sip.zip                      SipCreatorEndPoint.fetchSIP
-GET         /{user}/admin/dataset                                            SipCreatorEndPoint.secureListAll
-GET         /{user}/admin/dataset/{dataSetSpec}/{command}                    SipCreatorEndPoint.secureIndexingControl
+GET         /{user}/dataset                                                  DataSets.list
+GET         /{user}/dataset/new                                              user.DataSets.dataSetUpdate
+GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
+POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
+GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
+POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
+POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
+POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
+POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
-GET         /users/list                                                      Users.listAsTokens
+GET         /{user}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
+GET         /{user}/dataset/sip-creator/unlock/{spec}                        SipCreatorEndPoint.unlock
+POST        /{user}/dataset/sip-creator/submit/{spec}                        SipCreatorEndPoint.acceptFileList
+POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
+GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
 
+GET         /{user}/sip-creator                                              user.SipCreator.index
+GET         /{user}/sip-creator/sip-creator.jnlp                             user.SipCreator.jnlp
 
+GET         /users/search                                                    Users.listAsTokens
 
 # Portal Administration
-GET        /admin/themes                            admin.Themes.index
-GET        /admin/themes/list                       admin.Themes.list
-POST       /admin/themes/reload                     admin.Themes.reload
+GET        /admin/themes                                                     admin.Themes.index
+GET        /admin/themes/load/{id}?                                          admin.Themes.load
+GET        /admin/themes/list                                                admin.Themes.list
+GET        /admin/themes/new                                                 admin.Themes.themeUpdate
+GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
+POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 
-# Image Cache and Viewer
-GET        /services/image                          Images.image
-GET        /services/imageView/{image}              Images.view
-GET        /fcgi-bin/iipsrv.fcgi                    Images.iipsrv
+# File Store
+GET        /file/{id}                                                        FileStore.get
+POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
+GET        /file/image/{id}                                                  FileStore.getImage
+GET        /thumbnail/{id}                                                   FileStore.getThumbnail
+DELETE     /file/{id}                                                        user.FileUpload.deleteFile
 
-# Image Upload
-GET         /services/upload                        ImageUpload.upload
-POST        /services/uploadFile                    ImageUpload.uploadFile
+# Image Cache
+GET        /image/cache                                                      Images.image
+
+# Image viewer for high-resolution images
+GET        /image/upload                                                     ImageUpload.upload
+POST       /image/upload                                                     ImageUpload.uploadFile
+GET        /image/viewer/{image}                                             Images.view
+GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
 
 # Ignore favicon requests
-GET         /favicon.ico                            404
+GET         /favicon.ico                                                     404
 
 # Map static resources from the /app/public folder to the /public path
-GET         /public/                                staticDir:public
+GET         /public/                                                         staticDir:public
 
 
 # Catch all
-*           /{controller}/{action}                  {controller}.{action}
+*           /{controller}/{action}                                           {controller}.{action}

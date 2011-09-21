@@ -1,0 +1,87 @@
+@(id: Option[String] = None)
+
+@import views.context._
+@import views.tags.html._
+
+@header(if(id == None) "Add new Portal Theme" else "Update Portal Theme") {
+
+<div class="grid_8">
+  <h1>@if(id == None) { Add a new theme } else { Update a theme }</h1>
+
+  <form id="themeForm" method="post" action="">
+    <span class="required-note"><span>*</span> Required Fields</span>
+    @textField("name", "Name", "value: name", " ", false, "required")
+    @textField("isDefault", "Description", "checked: isDefault")
+    @textField("displayName", "Display Name", "value: displayName")
+    @textField("templateDir", "Template directory", "value: templateDir")
+    @textField("googleAnalyticsTrackingCode", "Google Analytics code", "value: googleAnalyticsTrackingCode")
+    @textField("addThisTrackingCode", "Add this code", "value: addThisTrackingCode")
+    @textField("defaultLanguage", "Default language", "value: defaultLanguage")
+    @textField("colorScheme", "Color scheme", "value: colorScheme")
+    @textField("solrSelectUrl", "Solr select URL", "value: solrSelectUrl")
+    @textField("cacheUrl", "Cache URL", "value: cacheUrl")
+    @textField("homePage", "Homepage", "value: homePage")
+    <div class="field">
+      <label for="localisedQueryKeys">Localised query keys</label>
+
+      <div>
+        <select id="localisedQueryKeys" multiple="multiple" width="50" name="localisedQueryKeys" data-bind="options: localisedQueryKeys, selectedOptions: selectedQueryKeys"></select>
+        <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"'/>
+        <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">Add</button>
+        <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">Remove</button>
+      </div>
+    </div>
+    @textField("metadataPrefix", "Metadata prefix", "value: metadataPrefix")
+    @textField("hiddenQueryFilter", "Hidden Query filter", "value: hiddenQueryFilter")
+    @textField("adminTo", "Admin to", "value: emailTarget.adminTo")
+    @textField("exceptionTo", "Exception to", "value: emailTarget.exceptionTo")
+    @textField("feedbackTo", "Feedback to", "value: emailTarget.feedbackTo")
+    @textField("registerTo", "Register to", "value: emailTarget.registerTo")
+    @textField("systemFrom", "System from", "value: emailTarget.systemFrom")
+    @textField("feedbackFrom", "Feedback from", "value: emailTarget.feedbackFrom")
+
+    <div class="actions">
+      <div class="wait"></div>
+      <button class="save" id="saveButton" type="submit">Save Theme</button>
+    </div>
+
+  </form>
+
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    var themeModel = {
+      addQueryKeys: ko.observable(""),
+      selectedQueryKeys: ko.observableArray([]),
+      addItem: function() {
+        if (themeModel.addQueryKeys() != "") {
+          themeModel.localisedQueryKeys.push(themeModel.addQueryKeys());
+          themeModel.addQueryKeys("");
+        }
+      },
+      removeSelected: function() {
+          themeModel.localisedQueryKeys.removeAll(themeModel.selectedQueryKeys());
+          themeModel.selectedQueryKeys([]);
+        }
+    };
+
+    $('#saveButton').click(function(event) {
+      event.preventDefault();
+      Spinners.create('.wait').play();
+      $.postKOJson('/admin/themes/submit', themeModel, function(data) {
+        Spinners.get('.wait').remove();
+        updateViewModel(data, themeModel);
+        window.location.href = '/admin/themes';
+      }, function(jqXHR, textStatus, errorThrown) {
+        Spinners.get('.wait').remove();
+        $('#result').html('Error saving theme, please try again');
+      })
+    });
+
+    load('/admin/themes/load/@id.getOrElse("")', themeModel);
+  });
+</script>
+
+}

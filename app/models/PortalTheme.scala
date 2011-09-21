@@ -5,7 +5,7 @@ import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
-import eu.delving.metadata.{MetadataModelImpl, RecordDefinition}
+import eu.delving.metadata.MetadataModelImpl
 
 /**
  *
@@ -19,7 +19,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        isDefault:                           Boolean = false,
                        localiseQueryKeys:                   List[String] = List(),
                        hiddenQueryFilter:                   Option[String] = Some(""),
-                       baseUrl:                             String,
+                       subdomain:                           Option[String] = None,
                        displayName:                         String,
                        googleAnalyticsTrackingCode:         Option[String] = Some(""),
                        addThisTrackingCode:                 Option[String] = Some(""),
@@ -29,24 +29,20 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
                        homePage:                            Option[String] = Some(""),
-                       metadataPrefix:                      Option[String] = Some("")) {
+                       metadataPrefix:                      Option[String] = Some(""),
+                       text:                                String = "") {
 
-  def getRecordDefinition: RecordDefinition = {
+  def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
     try {
       // getRecordDefinition should be in the interface
       ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
     }
     catch {
-      case ex: Exception => ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition
+      // TODO this can probably be removed...
+      case ex: Exception => ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
     }
   }
 
 }
 
-object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) {
-
-  def findAll = {
-    find(MongoDBObject()).toList
-  }
-
-}
+object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) with Resolver[PortalTheme] with Commons[PortalTheme]

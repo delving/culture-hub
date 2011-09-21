@@ -28,6 +28,7 @@ import play.mvc.Http
 import scala.collection.JavaConversions._
 import cake.MetadataModelComponent
 import models.PortalTheme
+import play.exceptions.ConfigurationException
 
 trait ThemeHandlerComponent {
   this: MetadataModelComponent =>
@@ -69,11 +70,16 @@ class ThemeHandler {
         PortalTheme.insert(_)
       }
     } else {
-      themeList = readThemesFromDatabase()
+      try {
+        themeList = readThemesFromDatabase()
+      } catch {
+        case t: Throwable =>
+          log.error("Error reading Themes from the database.", t)
+      }
     }
 
-    if(!getDefaultTheme.isDefined) {
-      throw new RuntimeException("No default theme could be found!") // this should be some kind of custom startup exception
+    if (!getDefaultTheme.isDefined) {
+      throw new ConfigurationException("No default theme could be found!")
     }
   }
 
@@ -84,7 +90,7 @@ class ThemeHandler {
     themeList = readThemesFromDatabase()
   }
 
-  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll
+  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll.toSeq
 
 
   def readThemesFromDisk(): Seq[PortalTheme] = {
@@ -110,18 +116,25 @@ class ThemeHandler {
     else getDefaultTheme.get
   }
 
-  def getByBaseUrl(baseUrl: String): PortalTheme = {
-    val theme = themeList.filter(_.baseUrl.equalsIgnoreCase(baseUrl))
-    if (!theme.isEmpty) theme.head
-    else getDefaultTheme.get
-  }
-
-  def getByBaseUrl(request: Http.Request): PortalTheme = getByBaseUrl(request.host)
-
   def getByRequest(request: Http.Request): PortalTheme = {
     if (hasSingleTheme) getDefaultTheme.get
     else if (debug && request.params._contains("theme")) getByThemeName(request.params.get("theme"))
-    else getByBaseUrl(request)
+    else {
+      // fetch by longest matching subdomain
+      themeList.foldLeft(getDefaultTheme.get) {
+        (r: PortalTheme, c: PortalTheme) => {
+          val rMatches = r.subdomain != None && request.domain.startsWith(r.subdomain.get)
+          val cMatches = c.subdomain != None && request.domain.startsWith(c.subdomain.get)
+          val rLonger = r.subdomain.get.length() > c.subdomain.get.length()
+
+          if (rMatches && cMatches && rLonger) r
+          else if (rMatches && cMatches && !rLonger) c
+          else if (rMatches && !cMatches) r
+          else if (cMatches && !rMatches) c
+          else r // default
+        }
+      }
+    }
   }
 
   private[util] def loadThemesYaml(): Seq[PortalTheme] = {
@@ -135,10 +148,8 @@ class ThemeHandler {
       System.exit(1);
     }
 
-    val themes = for (theme <- YamlLoader.load[List[PortalTheme]](themeFileName)) yield {
-      theme.copy(
-        localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys
-      )
+    val themes = for (theme: PortalTheme <- YamlLoader.load[List[PortalTheme]](themeFileName)) yield {
+      theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
     }
     themes
   }
