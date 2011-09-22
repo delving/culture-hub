@@ -16,4 +16,12 @@ legacyServices/lib/*.jar
 /public/sip-creator/*.jar
 /public/sip-creator/*.zip
 /public/sip-creator/*.jnlp
+/extras/iipsrv-0.9.9
+/extras/jpeg-8c
+/extras/tiff-3.9.5
+/extras/iipsrv-0.9.9.tar.bz2
+/extras/jpegsrc.v8c.tar.gz
+/extras/tiff-3.9.5.tar.gz
+
+
 

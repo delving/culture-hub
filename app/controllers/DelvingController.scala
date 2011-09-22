@@ -81,10 +81,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
    */
-  @Util def getPath(key: String): File = {
+  @Util def getPath(key: String, create: Boolean = false): File = {
     val path = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
     val store = new File(path)
-    if (!store.exists()) {
+    if (!store.exists() && create) {
+      store.mkdirs()
+    } else if(!store.exists()) {
       throw new RuntimeException("Could not find path %s for key %s" format (store.getAbsolutePath, key))
     }
     store

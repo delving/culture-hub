@@ -3,10 +3,11 @@ package controllers
 import at.ait.dme.magicktiler.ptif.PTIFConverter
 import at.ait.dme.magicktiler.image.ImageFormat
 import at.ait.dme.magicktiler.{TilingException, TilesetInfo, MagickTiler}
-import org.apache.commons.io.FileUtils
 import java.io.File
 import scala.collection.JavaConversions._
 import user.FileUploadResponse
+import org.apache.commons.io.FileUtils
+import views.ImageUpload._
 
 /**
  * Controller taking care of image uploading for tiling
@@ -16,7 +17,7 @@ import user.FileUploadResponse
 
 object ImageUpload extends DelvingController {
 
-  import views.ImageUpload._
+  val TIF_EXT = ".tif"
 
   def upload(): AnyRef = {
     html.uploadFile()
@@ -24,11 +25,9 @@ object ImageUpload extends DelvingController {
 
   def uploadFile(): AnyRef = {
 
-    val imageStoreDir = getPath("image.store.path")
-    val imageTmpDir = new File(getPath("image.tmp.path"), "convert")
-    if (!imageTmpDir.exists()) {
-      imageTmpDir.mkdirs()
-    }
+    val imageStoreDir = getPath("image.store.path", true)
+    val imageTileWorkDir = new File(getPath("image.tmp.path", true), "tileWorkDir")
+    val imageUploadWorkDir = new File(getPath("image.tmp.path", true), "uploadWorkDir")
 
     val uploads: java.util.List[play.data.Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
 
@@ -36,26 +35,22 @@ object ImageUpload extends DelvingController {
       val name: String = upload.getFileName
 
       val fileName = if (name.indexOf(".") > -1) name.substring(0, name.indexOf(".")) else name
-      val targetFile: File = new File(imageStoreDir, fileName + ".tif") // we want tiled TIFs for the moment
+      val targetFile: File = new File(imageStoreDir, fileName + TIF_EXT) // we want tiled TIFs for the moment
+      targetFile.createNewFile()
 
       val tiler: MagickTiler = new PTIFConverter()
-      tiler.setWorkingDirectory(imageTmpDir)
+      tiler.setWorkingDirectory(imageTileWorkDir)
       tiler.setTileFormat(ImageFormat.JPEG);
       tiler.setJPEGCompressionQuality(75);
-      tiler.setBackgroundColor("#ffffff");
+      tiler.setBackgroundColor("#ffffffff");
       tiler.setGeneratePreviewHTML(false);
 
-      // working around http://code.google.com/p/magicktiler/issues/detail?id=4
-      val tempWithExtension: File = new File(imageTmpDir, name)
-
+      // GM can't work with the temporary file names given by Play
+      val tempWithExtension: File = new File(imageUploadWorkDir, name)
       try {
-
         FileUtils.copyFile(upload.asFile(), tempWithExtension)
-
-        System.setProperty("magicktiler.gm.command", getPath("image.graphicsmagic.cmd").getAbsolutePath)
         val info: TilesetInfo = tiler.convert(tempWithExtension, targetFile);
-
-        FileUploadResponse(name, tempWithExtension.length)
+        FileUploadResponse(name, tempWithExtension.length, "/image/viewer/" + fileName + TIF_EXT)
       } catch {
         case te: TilingException => {
           te.printStackTrace()
