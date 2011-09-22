@@ -10,7 +10,7 @@ case class ShortObject(id: ObjectId, TS_update: DateTime, name: String, shortDes
 
 case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
 
-case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String])
+case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String)
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
@@ -40,6 +40,9 @@ trait ModelImplicits {
 
   implicit def themeToShort(t: PortalTheme) = ShortTheme(t._id, t.name)
   implicit def tListToSTList(tl: Seq[PortalTheme]) = tl map { t => themeToShort(t) }
+
+  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.getFacts, ds.mappings.keySet.toList, ds.getUser.reference.username)
+  implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
   implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
     case Some(id) => id.toString
