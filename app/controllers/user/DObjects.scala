@@ -13,6 +13,8 @@ import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
+import play.data.validation.Annotations._
+import play.data.validation.Validation
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -47,6 +49,19 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
+
+    import scala.collection.JavaConversions.asScalaIterable
+
+    if(!Validation.valid("object", objectModel).ok) {
+      val fieldErrors = asScalaIterable(Validation.errors).filter(_.getKey.contains(".")).map { error => (error.getKey.split("\\.")(1), error.message()) }
+      val globalErrors = asScalaIterable(Validation.errors).filterNot(_.getKey.contains(".")).map { error => ("global", error.message()) }
+      val errors = fieldErrors ++ globalErrors
+      val responseModel = objectModel.copy(errors = errors.toMap)
+
+      response.status = 400
+      return Json(responseModel)
+    }
+
     val files = user.FileUpload.fetchFilesForUID(uid)
 
     def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
@@ -101,14 +116,15 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 // ~~~ view models
 
 case class ObjectModel(id: Option[ObjectId] = None,
-                       name: String = "",
+                       @Required name: String = "",
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
                        visibility: String = "Private",
                        collections: List[ObjectId] = List.empty[ObjectId],
                        availableCollections: List[Collection] = List.empty[Collection],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
-                       files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
+                       files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
+                       errors: Map[String, String] = Map.empty[String, String]) {
 }
 
 case class Collection(id: ObjectId, name: String)

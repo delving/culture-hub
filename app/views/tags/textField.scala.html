@@ -6,7 +6,7 @@
     <label class="@labelClass" for="@name">@label</label>
     <div class="inputs">
         <input type="text" class="textinput" id="@name" name="@name" size="40" value="@params.get(name)" data-bind="@dataBind" @isDisabled />
-        <span class="error">@showError(name)</span>
+        <span class="error" data-bind="text: errors.@name">@showError(name)</span>
         <span class="help">@help</span>
     </div>
 </div>

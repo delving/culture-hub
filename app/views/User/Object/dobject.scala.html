@@ -6,14 +6,16 @@
 @header(if(id == None) "Add new object for user " + fullName else "Update object for user " + fullName) {
 
 <div class="grid_8">
-    <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
+  <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
+
+  <div data-bind="text: errors.global"></div>
 
   <form id="objectForm" method="post" action="">
         <span class="required-note"><span>*</span> Required Fields</span>
         @textField("name", "Name", "value: name", " ", false, "required")
         @textArea("description", "Description", "value: description")
 
-        <div data-bind="template: {name: 'labelTemplate', templateOptions: {name: 'label', }}"></div>
+        <div data-bind="template: {name: 'labelTemplate', templateOptions: {name: 'label'}}"></div>
 
         <div class="field">
             <label for="collection">Add to collection</label>
@@ -79,18 +81,15 @@
       Spinners.create('.wait').play();
       $.postKOJson('/@userName/object/submit', objectModel, function(data) {
           Spinners.get('.wait').remove();
-          updateViewModel(data, objectModel, scope);
+          updateViewModel(data, objectModel);
           window.location.href = '/@userName/object/' + objectModel.id();
       }, function(jqXHR, textStatus, errorThrown) {
         Spinners.get('.wait').remove();
-        $('#result').html('Error saving object, please try again');
-        $('#result').show().fadeOut('3000');
+        updateViewModel($.parseJSON(jqXHR.responseText), objectModel);
       }, {uid: '@uid'})
     });
 
-    var scope = document.getElementById('objectForm');
-
-    load('/@userName/object/load/@id.getOrElse("")', objectModel, scope, function() {
+    load('/@userName/object/load/@id.getOrElse("")', objectModel, null, function() {
       var files = ko.toJS(objectModel.files);
       var fu = $('#fileupload').data('fileupload');
       fu._adjustMaxNumberOfFiles(-files.length);
