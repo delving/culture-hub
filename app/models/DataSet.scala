@@ -19,6 +19,7 @@ import java.io.File
 import play.exceptions.ConfigurationException
 import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
 import xml.{Node, XML}
+import cake.ComponentRegistry
 
 /**
  *
@@ -92,10 +93,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   lazy val factDefinitionList = parseFactDefinitionList
 
-  private def parseFactDefinitionList: Seq[FactDefinition] = {
+  def getFactDefinitionFile: File = {
     val file = new File("conf/fact-definition-list.xml")
     if (!file.exists()) throw new ConfigurationException("Fact definition configuration file not found!")
-    val xml = XML.loadFile(file)
+    file
+  }
+
+  private def parseFactDefinitionList: Seq[FactDefinition] = {
+    val xml = XML.loadFile(getFactDefinitionFile)
     for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
   }
 
@@ -252,7 +257,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
     val cursor = salatDAO.find(MongoDBObject())
     var state = getStateWithSpec(dataSet.spec)
     for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
@@ -347,7 +352,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     import scala.collection.JavaConversions.asJavaMap
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader, ComponentRegistry.metadataModel)
     val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
@@ -396,9 +401,13 @@ object RecordDefinition {
 
   lazy val recordDefinitions = parseRecordDefinitions
 
-  private def parseRecordDefinitions: List[RecordDefinition] = {
+  def getRecordDefinitionFiles: Seq[File] = {
     val conf = new File("conf/")
-    val definitionContent = for(f <- conf.listFiles().filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))) yield XML.loadFile(f)
+    conf.listFiles().filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
+  }
+
+  private def parseRecordDefinitions: List[RecordDefinition] = {
+    val definitionContent = getRecordDefinitionFiles.map { f => XML.loadFile(f) }
     definitionContent flatMap { parseRecordDefinition(_) } toList
   }
 

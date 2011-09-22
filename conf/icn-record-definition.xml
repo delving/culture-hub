@@ -74,7 +74,13 @@
                 <string>onbekend:</string>
             </options>
         </field>
-        <field prefix="icn" localName="collectionType" factName="collectionType"/>
+        <field prefix="icn" localName="collectionType">
+            <options>
+                <string>all</string>
+                <string>portal</string>
+                <string>mm</string>
+            </options>
+        </field>
         <field prefix="icn" localName="acquisitionYear"/>
         <field prefix="icn" localName="purchasePrice"/>
         <field prefix="icn" localName="acquiredWithHelpFrom"/>
