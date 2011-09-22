@@ -99,8 +99,8 @@ POST        /{user}/admin/groups/submit                                      use
 GET         /{user}/admin/groups/load/{id}?                                  user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  DataSets.list
-GET         /{user}/dataset/new                                              user.DataSets.dataSetUpdate
-GET         /{user}/dataset/update/{spec}                                    user.DataSets.dataSetUpdate
+GET         /{user}/dataset/add                                              user.DataSets.dataSetUpdate
+GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSetUpdate
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
 GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
 POST        /{user}/dataset/{spec}/index                                     user.DataSets.index

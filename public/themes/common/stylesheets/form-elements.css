@@ -71,6 +71,12 @@ div.field label.required:after {
     width: 100%;
 }
 
+.field .help {
+    display: block;
+    color: #888;
+    font-size: 85%;
+}
+
 input.textinput, select, textarea {
     background-color: #FFFFFF;
     border: 1px solid #DDDAD3;

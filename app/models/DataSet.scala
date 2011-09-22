@@ -30,7 +30,7 @@ import xml.{Node, XML}
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    node: String,
-                   user: ObjectId,
+                   user_id: ObjectId,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
@@ -45,7 +45,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   val name = spec
 
-  def getUser: User = User.findOneByID(user).get // orElse we are in trouble
+  def getUser: User = User.findOneByID(user_id).get // orElse we are in trouble
 
   def getLockedBy: Option[User] = if(lockedBy == None) None else User.findOneByID(lockedBy.get)
 
@@ -86,7 +86,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
   }
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with SolrServer with AccessControl {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with AccessControl {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -141,7 +141,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
   }
 
-  def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user" -> owner)).toList
+  def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user_id" -> owner))
 
 
   def updateById(id: ObjectId, dataSet: DataSet) {

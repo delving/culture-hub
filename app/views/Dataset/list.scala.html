@@ -1,19 +1,35 @@
-@(dataSets: List[models.DataSet])
+@(dataSets: List[controllers.ShortDataSet], page: Int, count: Int)
 
 @import views.context._
+@import views.tags.html._
 
-@header("Data Sets") {
+@header("List of DataSets") {
 
-<div class="grid_8">
-
-  <h1>Ingested collections</h1>
-
-  <ul>
-    @for(ds <- dataSets) {
-    <li><a href="/@userName/dataset/@ds.name">@ds.name</a></li>
-    }
-  </ul>
-
+<div class="breadcrumbs">
+    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
+    <span class="current">DataSets</span>
 </div>
 
+<div class="grid_12 alpha" id="items">
+
+      <h2>Browse DataSets (@count)</h2>
+
+      <div class="item-nav">
+          <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+      </div>
+
+      <div class="clear"></div>
+
+      @for(d <- dataSets) {
+      <div class="item one-col">
+          <h4><a href="/@browsedUserName/dataset/@d.spec">@d.spec</a></h4>
+
+          @if(d.userName == userName) {
+          <div class="actions">
+              <a class="edit" href="/@browsedUserName/dataset/@d.spec/update">Edit DataSet</a>
+          </div>
+          }
+      </div>
+      }
+</div>
 }

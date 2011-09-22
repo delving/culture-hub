@@ -81,7 +81,7 @@
     spec: EmptyCollection
     node: cultureHub
     state: INCOMPLETE
-    user: 4e5679a80364ae80333ab939 # bob
+    user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:
         name: Empty Collection
@@ -130,7 +130,7 @@
     spec: Verzetsmuseum
     node: cultureHub
     state: ENABLED
-    user: 4e5679a80364ae80333ab939 # bob
+    user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:
         name: Verzetsmuseum
