@@ -61,16 +61,21 @@ object Registration extends DelvingController {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
       // TODO save the node
       val newUser = User(reference = UserReference(r.displayName, getNode, getUserId(r.displayName)), firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
-      User.insert(newUser)
+      val inserted = User.insert(newUser)
 
-      try {
-        Mails.activation(newUser, activationToken)
-        flash += ("registrationSuccess" -> newUser.email)
-      } catch {
-        case t: Throwable => {
-          User.remove(newUser)
-          flash += ("registrationError" -> t.getMessage)
-        }
+      inserted match {
+        case Some(id) =>
+          try {
+            Mails.activation(newUser, activationToken)
+            flash += ("registrationSuccess" -> newUser.email)
+          } catch {
+            case t: Throwable => {
+              User.remove(newUser.copy(_id = id))
+              flash += ("registrationError" -> t.getMessage)
+            }
+          }
+        case None =>
+          flash += ("registrationError" -> "Error creating your account, please try again")
       }
 
       Action(controllers.Application.index)
