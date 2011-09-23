@@ -18,10 +18,13 @@
     <h2>Browse objects (@count)</h2>
     }
 
+    @if(objects.length > 0) {
     <div class="item-nav">
         <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-
     </div>
+    }   else {
+        <p>There are currently no objects available</p>
+    }
 
     <div class="clear"></div>
 

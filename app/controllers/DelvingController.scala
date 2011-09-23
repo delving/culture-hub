@@ -47,6 +47,14 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
+  @Before def brokenPlayBindingWorkaround(page: Int = 1) {
+    val page = params.get("page", classOf[Int])
+    if(page == 0) {
+      params.remove("page")
+      params.put("page", "1")
+    }
+  }
+
   @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   @Before(priority = 1) def checkBrowsedUser(): Result = {

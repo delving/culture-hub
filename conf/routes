@@ -114,7 +114,7 @@ POST        /{user}/dataset/sip-creator/submit/{spec}                        Sip
 POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
 GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
 
-GET         /{user}/sip-creator                                              user.SipCreator.index
+GET         /{user}/sip-creator/?                                            user.SipCreator.index
 GET         /{user}/sip-creator/sip-creator.jnlp                             user.SipCreator.jnlp
 
 GET         /users/search                                                    Users.listAsTokens
