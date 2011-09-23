@@ -14,9 +14,13 @@
 
     <h2>Browse users (@count)</h2>
 
+    @if(users.length > 0) {
     <div class="item-nav">
         <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
     </div>
+    }   else {
+        <p>There are currently no users</p>
+    }
 
     <div class="clear"></div>
 
