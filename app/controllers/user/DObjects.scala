@@ -14,7 +14,6 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
 import play.data.validation.Annotations._
-import play.data.validation.Validation
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -26,7 +25,7 @@ import play.data.validation.Validation
 object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def load(id: String): Result = {
-    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => Collection(c._id, c.name) }
+    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findById(id) match {
         case None => Json(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
@@ -110,10 +109,8 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        owner: ObjectId = new ObjectId(),
                        visibility: String = "Private",
                        collections: List[ObjectId] = List.empty[ObjectId],
-                       availableCollections: List[Collection] = List.empty[Collection],
+                       availableCollections: List[CollectionReference] = List.empty[CollectionReference],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
-                       errors: Map[String, String] = Map.empty[String, String]) {
-}
+                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
-case class Collection(id: ObjectId, name: String)

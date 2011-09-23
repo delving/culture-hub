@@ -13,6 +13,8 @@
     <h1 class="emphasize">@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>
 
+<div data-bind="text: errors().global"></div>
+
 <div class="grid_6 alpha">
     <h3>Step 1: Story Information</h3>
     <div class="container">
@@ -328,6 +330,7 @@
           if(onSuccess !== undefined && typeof onSuccess === 'function') onSuccess.call();
         }, function(jqXHR, textStatus, errorThrown) {
           Spinners.get('.wait').remove();
+          updateViewModel($.parseJSON(jqXHR.responseText), storyModel);
           if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
         })
       }

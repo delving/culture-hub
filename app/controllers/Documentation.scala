@@ -1,11 +1,11 @@
 package controllers
 
-import play.mvc.Controller
 import java.io.File
 import play.Play
 import org.pegdown.PegDownProcessor
 import play.libs.IO
 import play.mvc.results.RenderBinary
+import play.mvc.{Util, Controller}
 
 /**
  *
@@ -16,11 +16,15 @@ object Documentation extends Controller {
 
   import views.Documentation._
 
-  def index = page("home", null)
+  def helpIndex = page("home", null, "help")
+  def developerIndex = page("home", null, "developer")
 
-  def page(id: String, category: String): AnyRef = {
+  def help(id: String, category: String) = page(id, category, "help")
+  def developer(id: String, category: String) = page(id, category, "developer")
+
+  @Util def page(id: String, category: String, docType: String): AnyRef = {
     val cat = if(category == null) "" else category + "/"
-    val page: File = new File(Play.applicationPath, "documentation/help/" + cat + id + ".markdown")
+    val page: File = new File(Play.applicationPath, "documentation/%s/%s%s.markdown".format(docType, cat, id))
     if (!page.exists()) return NotFound("Could not find page '%s'".format(cat + id))
 
     val markup = IO.readContentAsString(page)

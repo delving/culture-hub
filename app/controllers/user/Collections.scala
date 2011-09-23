@@ -12,6 +12,7 @@ import com.mongodb.casbah.Imports._
 import org.scala_tools.time.Imports._
 import controllers._
 import models.{DObject, UserCollection}
+import play.data.validation.Annotations._
 
 /**
  * Manipulation of user collections
@@ -26,10 +27,10 @@ object Collections extends DelvingController with UserAuthentication with Secure
     val allObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
     UserCollection.findById(id) match {
-      case None => Json(CollectionAddModel(allObjects = allObjects, availableObjects = allObjects))
+      case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionAddModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_object_id))
+        Json(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_object_id))
       }
     }
   }
@@ -39,7 +40,8 @@ object Collections extends DelvingController with UserAuthentication with Secure
 
   def collectionSubmit(data: String): Result = {
 
-    val collectionModel: CollectionAddModel = parse[CollectionAddModel](data)
+    val collectionModel: CollectionViewModel = parse[CollectionViewModel](data)
+    validate(collectionModel).foreach { errors => return JsonBadRequest(collectionModel.copy(errors = errors)) }
 
     val persistedUserCollection = collectionModel.id match {
       case None =>
@@ -84,10 +86,11 @@ object Collections extends DelvingController with UserAuthentication with Secure
   }
 }
 
-case class CollectionAddModel(id: Option[ObjectId] = None,
-                              name: String = "",
+case class CollectionViewModel(id: Option[ObjectId] = None,
+                              @Required name: String = "",
                               description: Option[String] = Some(""),
                               objects: List[ObjectModel] = List.empty[ObjectModel],
                               allObjects: List[ObjectModel] = List.empty[ObjectModel],
                               availableObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              thumbnail: String = "")
+                              thumbnail: String = "",
+                              errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
