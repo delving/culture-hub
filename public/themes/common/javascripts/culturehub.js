@@ -138,8 +138,10 @@ function load(url, viewModel, scope, callback) {
 function updateViewModel(data, viewModel, scope) {
 
     var mapping = {
-        'errors': function(options) {
-            return ko.observable(options.data);
+        'errors': {
+            'create': function(options) {
+                return ko.observable(ko.mapping.fromJS(options.data));
+            }
         }
     };
 
@@ -152,6 +154,10 @@ function updateViewModel(data, viewModel, scope) {
         } else {
             ko.applyBindings(viewModel);
         }
+    }
+
+    if(data.errors) {
+        viewModel.errors(ko.mapping.fromJS(data.errors));
     }
 }
 

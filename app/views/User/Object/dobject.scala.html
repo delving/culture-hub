@@ -8,7 +8,7 @@
 <div class="grid_8">
   <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
 
-  <div data-bind="text: errors.global"></div>
+  <div data-bind="text: errors().global"></div>
 
   <form id="objectForm" method="post" action="">
         <span class="required-note"><span>*</span> Required Fields</span>
