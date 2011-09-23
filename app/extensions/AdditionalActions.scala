@@ -42,6 +42,11 @@ trait AdditionalActions {
     }
   }
 
+  def JsonBadRequest(data: AnyRef): Result = {
+    response.status = 400
+    Json(data)
+  }
+
   def RenderKml(entity: AnyRef) = new RenderKml(entity)
 
   def TextError(why: String, status: Int = 500) = {

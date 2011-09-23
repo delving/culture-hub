@@ -49,18 +49,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
-
-    import scala.collection.JavaConversions.asScalaIterable
-
-    if(!Validation.valid("object", objectModel).ok) {
-      val fieldErrors = asScalaIterable(Validation.errors).filter(_.getKey.contains(".")).map { error => (error.getKey.split("\\.")(1), error.message()) }
-      val globalErrors = asScalaIterable(Validation.errors).filterNot(_.getKey.contains(".")).map { error => ("global", error.message()) }
-      val errors = fieldErrors ++ globalErrors
-      val responseModel = objectModel.copy(errors = errors.toMap)
-
-      response.status = 400
-      return Json(responseModel)
-    }
+    validate(objectModel).foreach { errors => return JsonBadRequest(objectModel.copy(errors = errors)) }
 
     val files = user.FileUpload.fetchFilesForUID(uid)
 
