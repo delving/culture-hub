@@ -17,7 +17,7 @@ index e356bce..90ff0cb 100644
      if command == 'run' or command == 'test' or command == 'auto-test':
          # Only add JVM params if they aren't already set
 -        if len([p for p in args if '-Xmx' in p]) == 0:
-+        if len([p for p in args if '-Xmx' in p]) == 0 && !app.readConf('jvm.memory'):
++        if len([p for p in args if '-Xmx' in p]) == 0 and not !app.readConf('jvm.memory'):
              args.append('-Xms512m')
              args.append('-Xmx512m')
              args.append('-XX:PermSize=256m')
