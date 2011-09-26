@@ -7,7 +7,8 @@ import views.User.Story._
 import extensions.CHJson._
 import models._
 import org.scala_tools.time.Imports._
-import controllers.{Secure, UserAuthentication, DelvingController}
+import controllers._
+import play.data.validation.Annotations._
 
 /**
  *
@@ -19,7 +20,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
   def load(id: String): Result = {
 
     val collections = UserCollection.findByUser(connectedUserId)
-    val collectionVMs = (collections map { c => CollectionViewModel(c._id, c.name) }).toList
+    val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
 
     Story.findById(id) match {
       case None => Json(StoryViewModel(collections = collectionVMs))
@@ -44,6 +45,8 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
+    validate(storyVM).foreach { errors => return JsonBadRequest(storyVM.copy(errors = errors)) }
+
     val pages = storyVM.pages map {page => Page(page.title, page.text, page.objects map { o => PageObject(o.id.get) })}
     val visibility = Visibility.withName(storyVM.visibility)
     val thumbnail = if (ObjectId.isValid(storyVM.thumbnail)) Some(new ObjectId(storyVM.thumbnail)) else None
@@ -66,14 +69,13 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 }
 
 case class StoryViewModel(id: Option[ObjectId] = None,
-                          name: String = "",
+                          @Required name: String = "",
                           description: String = "",
                           visibility: String = Visibility.Public.toString,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
                           thumbnail: String = "",
-                          collections: List[CollectionViewModel] = List.empty[CollectionViewModel])
+                          collections: List[CollectionReference] = List.empty[CollectionReference],
+                          errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
 case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectModel] = List.empty[ObjectModel])
-
-case class CollectionViewModel(id: ObjectId, name: String)

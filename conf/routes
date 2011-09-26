@@ -3,22 +3,27 @@
 # ~~~~
 
 # Home page
-GET         /                                       Application.index
+GET         /                                                                Application.index
 
-GET         /documentation/?                        Documentation.index
-GET         /documentation/images/{name}            Documentation.image
-GET         /documentation/{id}                     Documentation.page
-GET         /documentation/{category}/{id}          Documentation.page
+# Documentation
+GET         /documentation/images/{name}                                     Documentation.image
 
+GET         /documentation/developer/?                                       Documentation.developerIndex
+GET         /documentation/developer/{id}                                    Documentation.developer
+GET         /documentation/developer/{category}/{id}                         Documentation.developer
+
+GET         /documentation/?                                                 Documentation.helpIndex
+GET         /documentation/{id}                                              Documentation.help
+GET         /documentation/{category}/{id}                                   Documentation.help
 
 # Form-based authentication
-GET         /login                                  Authentication.login
-POST        /login                                  Authentication.authenticate
-GET         /logout                                 Authentication.logout
+GET         /login                                                           Authentication.login
+POST        /login                                                           Authentication.authenticate
+GET         /logout                                                          Authentication.logout
 
 # OAuth2
-GET         /authorize                              OAuth2Authenticator.authenticate
-GET         /token                                  OAuth2TokenEndpoint.token
+GET         /authorize                                                       OAuth2Authenticator.authenticate
+GET         /token                                                           OAuth2TokenEndpoint.token
 
 # Backwards compatibility with the old services module
 GET         /services/                                                       Services.index
