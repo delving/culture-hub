@@ -4,6 +4,8 @@ import org.bson.types.ObjectId
 import org.joda.time.DateTime
 import models._
 
+// ~~ short models, mainly for browsing & displaying things view full rendering
+
 case class ShortUser(id: ObjectId, firstName: String, lastName: String, fullName: String, email: String, userName: String)
 
 case class ShortObject(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, userName: String)
@@ -20,6 +22,11 @@ case class ShortLabel(labelType: String, value: String)
 case class ShortTheme(id: ObjectId, name: String)
 
 case class Token(id: String, name: String)
+
+
+// ~~ reference objects
+
+case class CollectionReference(id: ObjectId, name: String)
 
 
 trait ModelImplicits {
@@ -55,4 +62,8 @@ trait ModelImplicits {
   }
 
 
+}
+
+trait ViewModel {
+  val errors: Map[String, String]
 }

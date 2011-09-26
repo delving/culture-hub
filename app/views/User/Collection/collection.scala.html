@@ -12,6 +12,8 @@
 
 <h1 class="grid_16 alpha">@if(id == None) { Create a collection } else { Update collection }</h1>
 
+<div data-bind="text: errors().global"></div>
+
 <div class="grid_8 alpha">
 
 <form method="post" action="" id="collectionForm">
@@ -122,8 +124,7 @@
                 window.location.href = '/@userName/collection/' + collectionModel.id()
             }, function(jqXHR, textStatus, errorThrown) {
                 Spinners.get('.wait').remove();
-                $('#result').html('Error saving collection, please try again');
-                $('#result').show().fadeOut('3000');
+                updateViewModel($.parseJSON(jqXHR.responseText), collectionModel);
             })
         });
 

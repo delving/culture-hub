@@ -13,6 +13,7 @@ import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
+import play.data.validation.Annotations._
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -24,7 +25,7 @@ import models.{Visibility, UserCollection, Label, DObject}
 object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def load(id: String): Result = {
-    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => Collection(c._id, c.name) }
+    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findById(id) match {
         case None => Json(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
@@ -47,6 +48,8 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
+    validate(objectModel).foreach { errors => return JsonBadRequest(objectModel.copy(errors = errors)) }
+
     val files = user.FileUpload.fetchFilesForUID(uid)
 
     def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
@@ -101,14 +104,13 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 // ~~~ view models
 
 case class ObjectModel(id: Option[ObjectId] = None,
-                       name: String = "",
+                       @Required name: String = "",
                        description: Option[String] = Some(""),
                        owner: ObjectId = new ObjectId(),
                        visibility: String = "Private",
                        collections: List[ObjectId] = List.empty[ObjectId],
-                       availableCollections: List[Collection] = List.empty[Collection],
+                       availableCollections: List[CollectionReference] = List.empty[CollectionReference],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
-                       files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse]) {
-}
+                       files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
+                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
-case class Collection(id: ObjectId, name: String)

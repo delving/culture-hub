@@ -136,15 +136,28 @@ function load(url, viewModel, scope, callback) {
  * @param scope the scope of the model binding
  */
 function updateViewModel(data, viewModel, scope) {
+
+    var mapping = {
+        'errors': {
+            'create': function(options) {
+                return ko.observable(ko.mapping.fromJS(options.data));
+            }
+        }
+    };
+
     if (ko.mapping.isMapped(viewModel)) {
         ko.mapping.updateFromJS(viewModel, data)
     } else {
-        $.extend(viewModel, ko.mapping.fromJS(data));
+        $.extend(viewModel, ko.mapping.fromJS(data, mapping));
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);
         } else {
             ko.applyBindings(viewModel);
         }
+    }
+
+    if(data.errors) {
+        viewModel.errors(ko.mapping.fromJS(data.errors));
     }
 }
 
