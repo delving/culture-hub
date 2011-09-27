@@ -319,20 +319,11 @@
         }
       });
 
-      function saveStory(onSuccess, onFailure, isDraft) {
+      function saveStory(onSuccess, onError, isDraft) {
         var draft = typeof isDraft === 'undefined' ? false : isDraft;
         storyModel.isDraft(draft);
         storyModel.collections.remove(function(it) { return it.id === "@controllers.Collections.NO_COLLECTION" });
-        Spinners.create('.wait').play();
-        $.postKOJson('/@userName/story/submit', storyModel, function(data) {
-          Spinners.get('.wait').remove();
-          updateViewModel(data, storyModel);
-          if(onSuccess !== undefined && typeof onSuccess === 'function') onSuccess.call();
-        }, function(jqXHR, textStatus, errorThrown) {
-          Spinners.get('.wait').remove();
-          updateViewModel($.parseJSON(jqXHR.responseText), storyModel);
-          if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
-        })
+        handleSubmit('/@userName/story/submit', storyModel, null, onSuccess, onError);
       }
     });
 </script>

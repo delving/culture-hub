@@ -69,15 +69,7 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      Spinners.create('.wait').play();
-      $.postKOJson('/admin/themes/submit', themeModel, function(data) {
-        Spinners.get('.wait').remove();
-        updateViewModel(data, themeModel);
-        window.location.href = '/admin/themes';
-      }, function(jqXHR, textStatus, errorThrown) {
-        Spinners.get('.wait').remove();
-        $('#result').html('Error saving theme, please try again');
-      })
+      handleSubmit('/admin/themes/submit', themeModel, '/admin/themes');
     });
 
     load('/admin/themes/load/@id.getOrElse("")', themeModel);

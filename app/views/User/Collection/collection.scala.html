@@ -117,15 +117,7 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            Spinners.create('.wait').play();
-            $.postKOJson('/@userName/collection/submit', collectionModel, function(data) {
-                Spinners.get('.wait').remove();
-                updateViewModel(data, collectionModel);
-                window.location.href = '/@userName/collection/' + collectionModel.id()
-            }, function(jqXHR, textStatus, errorThrown) {
-                Spinners.get('.wait').remove();
-                updateViewModel($.parseJSON(jqXHR.responseText), collectionModel);
-            })
+            handleSubmit('/@userName/collection/submit', collectionModel, '/@userName/collection/' + collectionModel.id());
         });
 
         load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
