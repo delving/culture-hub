@@ -66,7 +66,7 @@ echo
 
 mkdir module-extra
 cd module-extra
-git clone git://github.com/manuelbernhardt/play-scala.git scala-head --depth 1
+git clone git://github.com/delving/play-scala.git scala-head --depth 1
 cd scala-head
 
 # http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
