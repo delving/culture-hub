@@ -4,7 +4,6 @@ import extensions.AdditionalActions
 import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
-import util.LocalizedFieldNames
 import scala.collection.JavaConversions._
 import cake.ComponentRegistry
 import play.mvc._
@@ -12,6 +11,7 @@ import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
+import util.{Implicits, LocalizedFieldNames}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -19,7 +19,7 @@ import play.data.validation.Validation
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Implicits {
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
@@ -85,7 +85,11 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def browsedIsConnected: Boolean = browsedUserId == connectedUserId
 
+  @Util def browsingUser: Boolean = browsedUserName != null
+
   // ~~~ convenience methods
+
+  @Util  def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(itemName.pluralize, browsedUserName) + browsedFullName else "List of " + itemName.pluralize
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
