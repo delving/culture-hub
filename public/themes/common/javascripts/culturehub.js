@@ -100,6 +100,15 @@ function thumbnailUrl(id) {
 }
 
 /**
+ * Helper to add a template to a page as script tag
+ * @param templateName the name of the template
+ * @param templateMarkup the markup of the template
+ */
+function addTemplate(templateName, templateMarkup) {
+    $("body").append("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "</script>");
+}
+
+/**
  * Handles submission of a viewModel via KO
  * @param url the submission URL
  * @param viewModel the viewModel to submit
@@ -114,7 +123,7 @@ function handleSubmit(url, viewModel, redirectUrl, onSuccess, onError, additiona
             Spinners.get('.wait').remove();
             updateViewModel(data, viewModel);
             if(typeof onSuccess !== 'undefined') onSuccess.call();
-            if(typeof redirectUrl !== 'undefined') window.location.href = redirectUrl;
+            if(redirectUrl) window.location.href = redirectUrl;
         }, function(jqXHR, textStatus, errorThrown) {
             Spinners.get('.wait').remove();
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);

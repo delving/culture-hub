@@ -18,24 +18,22 @@
 
 <form method="post" action="" id="collectionForm">
 
-        <!--<h2>Collection Information</h2>-->
-        <span class="required-note"><span>*</span> Required Fields</span>
+    <span class="required-note"><span>*</span> Required Fields</span>
 
-        @textField("name", "Name", "value: name", " ",  false, "required")
-        @textArea("description", "Description", "value: description", " ",  "required")
-        <!--@labelField("label", "Label", "value: label")-->
+    @textField("name", "Name", "value: name", " ",  false, "required")
+    @textArea("description", "Description", "value: description", " ",  "required")
+    <!--@labelField("label", "Label", "value: label")-->
 
-        <!--<h2>Add objects to your collection</h2>-->
+    <!--<h2>Add objects to your collection</h2>-->
 
-        <div class="actions">
-                <button class="add image-add" id="addObject">Add object(s)</button>
-        </div>
+    <div class="actions">
+            <button class="add image-add" id="addObject">Add object(s)</button>
+    </div>
 
-        <div id="objectList" data-bind="template: 'objectsList'"></div>
-
+    <div id="objectList" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
 
     <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
-        <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+        <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
     </div>
 
     <div class="field">
@@ -54,43 +52,16 @@
 </form>
 </div>
 
-<script type="text/html" id="availableObjectsList">
-    <table class="list">
-        <tbody>
-        {{each(i, object) availableObjects()}}
-        <tr>
-            <td><input type="checkbox" value="${object.id}" data-bind="checked: selectedObjects()"/></td>
-            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/></td>
-            <td><h4>${object.name}</h4></td>
-        </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</script>
-
-<script type="text/html" id="objectsList">
-    <table width="100%" class="list">
-        <thead>
-            <tr>
-            <th colspan="3" class="header">Objects in your collection</th>
-            </tr>
-            <tr>
-            <th>Object</th><th class="action">Action</th><th class="thumb">Default</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{each(i, object) objects()}}
-        <tr>
-            <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/>${name}</td>
-            <td class="action"><a href="#" class="action delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
-            <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
-        </tr>
-        {{/each}}
-    </table>
-</script>
-
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
+
+        // load templates
+        $.get('@asset("/public/themes/common/templates/_availableObjects.tmpl.html")', null, function(template) {
+          addTemplate('availableObjectsList', template);
+        });
+        $.get('@asset("/public/themes/common/templates/_selectedObjects.tmpl.html")', null, function(template) {
+          addTemplate('objectsList', template);
+        });
 
         var collectionModel = {
             selectedObjects: ko.observableArray(),
