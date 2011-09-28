@@ -1,4 +1,4 @@
-@(id: Option[String] = None)
+@(id: Option[String] = None)(implicit viewModel: Option[Class[_ <: controllers.ViewModel]] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -88,7 +88,7 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/@userName/collection/submit', collectionModel, '/@userName/collection/' + collectionModel.id());
+            handleSubmit('/@userName/collection/submit', collectionModel, '#collectionForm', '/@userName/collection/' + collectionModel.id());
         });
 
         load('/@userName/collection/load/@id.getOrElse("")', collectionModel);

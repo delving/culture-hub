@@ -7,8 +7,8 @@ import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import models.{PortalTheme}
 import play.mvc.Http
-import controllers.FileStore
 import util.Implicits
+import controllers.{ViewModel, FileStore}
 
 package object context extends Implicits {
 
