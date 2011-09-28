@@ -78,15 +78,7 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      Spinners.create('.wait').play();
-      $.postKOJson('/@userName/object/submit', objectModel, function(data) {
-          Spinners.get('.wait').remove();
-          updateViewModel(data, objectModel);
-          window.location.href = '/@userName/object/' + objectModel.id();
-      }, function(jqXHR, textStatus, errorThrown) {
-        Spinners.get('.wait').remove();
-        updateViewModel($.parseJSON(jqXHR.responseText), objectModel);
-      }, {uid: '@uid'})
+      handleSubmit('/@userName/object/submit', objectModel, '/@userName/object/' + objectModel.id(), null, null, {uid: '@uid'});
     });
 
     load('/@userName/object/load/@id.getOrElse("")', objectModel, null, function() {
