@@ -5,10 +5,12 @@ import extensions.CHJson
 import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.{BasicDBObject, WriteConcern}
-import controllers.{ShortDataSet, DelvingController}
 import org.scala_tools.time.Imports._
 import models._
 import models.DataSetState._
+import controllers.{ViewModel, ShortDataSet, DelvingController}
+import views.User.Dataset._
+
 
 /**
  *
@@ -16,8 +18,6 @@ import models.DataSetState._
  */
 
 object DataSets extends DelvingController with UserSecured {
-
-  import views.User.Dataset._
 
   // TODO check rights for the accessed dataset
   def dataSetUpdate(spec: String): AnyRef = html.dataset(Option(spec), DataSet.factDefinitionList.filterNot(factDef => factDef.automatic), RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))

@@ -217,3 +217,7 @@ trait ThemeAware { self: Controller =>
   }
 
 }
+
+trait ViewModelConsumer { self: Controller =>
+  implicit val viewModel: Option[Class[_ <: ViewModel]] = None
+}

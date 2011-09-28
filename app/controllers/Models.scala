@@ -88,4 +88,5 @@ trait ModelImplicits {
 
 trait ViewModel {
   val errors: Map[String, String]
+  lazy val validationRules: Map[String, String] = util.Validation.getClientSideValidationRules(this.getClass)
 }

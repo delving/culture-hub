@@ -1,4 +1,4 @@
-@(id: Option[String] = None)
+@(id: Option[String] = None)(implicit viewModel: Option[Class[_ <: controllers.ViewModel]] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -39,24 +39,25 @@
 
 <div class="grid_9 prefix_1 omega">
     <span class="required-note"><span>*</span> Required Fields</span>
+    <form id="storyForm">
+      @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", " ", false, "required")
+      @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'", " ", "required")
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", " ", false, "required")
-    @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'", " ", "required")
+      <div class="field" for="objectVisibility">
+          <label>Public</label>
 
-    <div class="field" for="objectVisibility">
-        <label>Public</label>
+          <div class="inputs">
+              <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
+              <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
+          </div>
+      </div>
 
-        <div class="inputs">
-            <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
-            <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
-        </div>
-    </div>
-
-   @if(id == None) {
+    @if(id == None) {
     <div class="actions">
-        <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
+      <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
     </div>
     }
+    </form>
 </div>
 
 <div class="clear"></div>
