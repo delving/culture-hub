@@ -49,18 +49,10 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      $.postKOJson('/@userName/dataset/submit', dataSetModel, function(data) {
-        updateViewModel(data, dataSetModel, scope);
-        window.location.href = '/@userName/dataset/' + dataSetModel.spec()
-      }, function(jqXHR, textStatus, errorThrown) {
-        $('#result').html('Error saving collection, please try again');
-        $('#result').show().fadeOut('3000');
-      })
+      handleSubmit('/@userName/dataset/submit', dataSetModel, '/@userName/dataset/' + dataSetModel.spec());
     });
 
-    var scope = document.getElementById('dataSetForm');
-
-    load('/@userName/dataset/@spec.getOrElse("")', dataSetModel, scope);
+    load('/@userName/dataset/@spec.getOrElse("")', dataSetModel);
   });
 </script>
 

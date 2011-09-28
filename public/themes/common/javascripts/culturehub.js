@@ -87,13 +87,48 @@ function initializeElements() {
 
 }
 
-
+/**
+ * Helper to fetch a thumbnail URL
+ * @param id the ID of the thumbnail
+ */
 function thumbnailUrl(id) {
     if (typeof id === 'undefined' || id === "") {
         return '/public/images/dummy-object.png';
     } else {
         return '/thumbnail/' + (typeof id === 'function' ? id() : id);
     }
+}
+
+/**
+ * Helper to add a template to a page as script tag
+ * @param templateName the name of the template
+ * @param templateMarkup the markup of the template
+ */
+function addTemplate(templateName, templateMarkup) {
+    $("body").append("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "</script>");
+}
+
+/**
+ * Handles submission of a viewModel via KO
+ * @param url the submission URL
+ * @param viewModel the viewModel to submit
+ * @param redirectUrl the URl to redirect to in case of success, can be null
+ * @param onSuccess what to do in case of success
+ * @param onError what to do in case of failure
+ * @param additionalData additional Data to be sent over
+ */
+function handleSubmit(url, viewModel, redirectUrl, onSuccess, onError, additionalData) {
+        Spinners.create('.wait').play();
+        $.postKOJson(url, viewModel, function(data) {
+            Spinners.get('.wait').remove();
+            updateViewModel(data, viewModel);
+            if(typeof onSuccess !== 'undefined') onSuccess.call();
+            if(redirectUrl) window.location.href = redirectUrl;
+        }, function(jqXHR, textStatus, errorThrown) {
+            Spinners.get('.wait').remove();
+            updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
+            if(typeof onError !== 'undefined') onError.call();
+        }, additionalData);
 }
 
 /**
