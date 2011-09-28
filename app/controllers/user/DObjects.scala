@@ -24,6 +24,8 @@ import play.data.validation.Annotations._
 
 object DObjects extends DelvingController with UserAuthentication with Secure {
 
+  implicit val viewModel = Some(classOf[ObjectModel])
+
   def load(id: String): Result = {
     val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findById(id) match {

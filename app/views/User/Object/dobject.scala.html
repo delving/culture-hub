@@ -1,4 +1,4 @@
-@(id: Option[String] = None, uid: String)
+@(id: Option[String] = None, uid: String)(implicit viewModel: Option[Class[_ <: controllers.ViewModel]] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -78,7 +78,7 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/@userName/object/submit', objectModel, '/@userName/object/' + objectModel.id(), null, null, {uid: '@uid'});
+      handleSubmit('/@userName/object/submit', objectModel, '#objectForm', '/@userName/object/' + objectModel.id(), null, null, {uid: '@uid'});
     });
 
     load('/@userName/object/load/@id.getOrElse("")', objectModel, null, function() {

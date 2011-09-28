@@ -69,7 +69,7 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/admin/themes/submit', themeModel, '/admin/themes');
+      handleSubmit('/admin/themes/submit', themeModel, '#themeForm', '/admin/themes');
     });
 
     load('/admin/themes/load/@id.getOrElse("")', themeModel);

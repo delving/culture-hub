@@ -112,23 +112,28 @@ function addTemplate(templateName, templateMarkup) {
  * Handles submission of a viewModel via KO
  * @param url the submission URL
  * @param viewModel the viewModel to submit
+ * @param formSelector jQuery selector for the form that holds the viewModel
  * @param redirectUrl the URl to redirect to in case of success, can be null
  * @param onSuccess what to do in case of success
  * @param onError what to do in case of failure
  * @param additionalData additional Data to be sent over
  */
-function handleSubmit(url, viewModel, redirectUrl, onSuccess, onError, additionalData) {
-        Spinners.create('.wait').play();
+function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onError, additionalData) {
+    Spinners.create('.wait').play();
+    if ((typeof formSelector !== 'undefined' && formSelector != null && $(formSelector).validate({meta: 'validate'}).form()) || !formSelector) {
         $.postKOJson(url, viewModel, function(data) {
             Spinners.get('.wait').remove();
             updateViewModel(data, viewModel);
-            if(typeof onSuccess !== 'undefined') onSuccess.call();
-            if(redirectUrl) window.location.href = redirectUrl;
+            if (typeof onSuccess !== 'undefined') onSuccess.call();
+            if (redirectUrl) window.location.href = redirectUrl;
         }, function(jqXHR, textStatus, errorThrown) {
             Spinners.get('.wait').remove();
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
-            if(typeof onError !== 'undefined') onError.call();
+            if (typeof onError !== 'undefined') onError.call();
         }, additionalData);
+    } else {
+        Spinners.get('.wait').remove();
+    }
 }
 
 /**
@@ -191,7 +196,7 @@ function updateViewModel(data, viewModel, scope) {
         }
     }
 
-    if(data.errors) {
+    if (data.errors) {
         viewModel.errors(ko.mapping.fromJS(data.errors));
     }
 }
