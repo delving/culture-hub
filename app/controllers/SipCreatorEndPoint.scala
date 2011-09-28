@@ -62,7 +62,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def getConnectedUserId = getConnectedUser._id
 
   def listAll(): Result = {
-    val dataSets = DataSet.findAllByOwner(getConnectedUserId)
+    val dataSets = DataSet.findAllByOwner(getConnectedUserId).toList
 
     val dataSetsXml = <data-set-list>
       {dataSets.map {

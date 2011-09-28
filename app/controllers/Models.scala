@@ -4,13 +4,15 @@ import org.bson.types.ObjectId
 import org.joda.time.DateTime
 import models._
 
+// ~~ short models, mainly for browsing & displaying things view full rendering
+
 case class ShortUser(id: ObjectId, firstName: String, lastName: String, fullName: String, email: String, userName: String)
 
 case class ShortObject(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, userName: String)
 
 case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
 
-case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String])
+case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String)
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
@@ -20,6 +22,11 @@ case class ShortLabel(labelType: String, value: String)
 case class ShortTheme(id: ObjectId, name: String)
 
 case class Token(id: String, name: String)
+
+
+// ~~ reference objects
+
+case class CollectionReference(id: ObjectId, name: String)
 
 
 trait ModelImplicits {
@@ -41,6 +48,9 @@ trait ModelImplicits {
   implicit def themeToShort(t: PortalTheme) = ShortTheme(t._id, t.name)
   implicit def tListToSTList(tl: Seq[PortalTheme]) = tl map { t => themeToShort(t) }
 
+  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.getFacts, ds.mappings.keySet.toList, ds.getUser.reference.username)
+  implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
+
   implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
     case Some(id) => id.toString
     case None => ""
@@ -52,4 +62,8 @@ trait ModelImplicits {
   }
 
 
+}
+
+trait ViewModel {
+  val errors: Map[String, String]
 }

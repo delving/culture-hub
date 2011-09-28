@@ -2,600 +2,56 @@
 <fact-definition-list>
     <fact-definition name="spec">
         <prompt>Data Set Spec</prompt>
-        <toolTip>The reference identifier of this data set</toolTip>
+        <toolTip>The reference identifier of this data set, without spaces.</toolTip>
         <automatic>true</automatic>
-    </fact-definition>
-    <fact-definition name="downloadedSource">
-        <prompt>Downloaded Source</prompt>
-        <toolTip>This indicates whether the source file is downloaded or imported.</toolTip>
-        <automatic>true</automatic>
-        <defaultValue>false</defaultValue>
+        <!--this is not used as a default-->
     </fact-definition>
     <fact-definition name="name">
         <prompt>Name</prompt>
-        <toolTip>The name given to this data set</toolTip>
-    </fact-definition>
-    <fact-definition name="collectionType">
-        <prompt>Collection Type</prompt>
-        <toolTip>Classification of collections</toolTip>
-        <options>
-            <string>all</string>
-            <string>portal</string>
-            <string>mm</string>
-        </options>
-    </fact-definition>
-    <fact-definition name="namespacePrefix">
-        <prompt>Prefix</prompt>
-        <toolTip>The prefix to denote this namespace</toolTip>
-        <options>
-            <string>raw</string>
-        </options>
+        <toolTip>The name given to this data set.  </toolTip>
+        <!--this is not used as a default-->
     </fact-definition>
     <fact-definition name="language">
         <prompt>Language</prompt>
         <toolTip>Which lingo?</toolTip>
         <options>
-            <string>ab</string>
-            <string>ace</string>
-            <string>ach</string>
-            <string>ada</string>
-            <string>ady</string>
-            <string>ae</string>
-            <string>af</string>
-            <string>afa</string>
-            <string>afh</string>
-            <string>ak</string>
-            <string>akk</string>
-            <string>ale</string>
-            <string>alg</string>
-            <string>alt</string>
-            <string>am</string>
-            <string>an</string>
-            <string>ang</string>
-            <string>apa</string>
-            <string>ar</string>
-            <string>arc</string>
-            <string>arg</string>
-            <string>arn</string>
-            <string>arp</string>
-            <string>art</string>
-            <string>arw</string>
-            <string>as</string>
-            <string>ast</string>
-            <string>ath</string>
-            <string>aus</string>
-            <string>av</string>
-            <string>awa</string>
-            <string>ay</string>
             <string>az</string>
-            <string>ba</string>
-            <string>bad</string>
-            <string>bai</string>
-            <string>bal</string>
-            <string>bam</string>
-            <string>ban</string>
-            <string>bas</string>
-            <string>bat</string>
-            <string>be</string>
-            <string>bej</string>
-            <string>bem</string>
-            <string>bn</string>
-            <string>ber</string>
             <string>bg</string>
-            <string>bh</string>
-            <string>bho</string>
-            <string>bi</string>
-            <string>bih</string>
-            <string>bik</string>
-            <string>bin</string>
-            <string>bis</string>
-            <string>bla</string>
-            <string>bm</string>
-            <string>bnt</string>
-            <string>bo</string>
-            <string>br</string>
-            <string>bra</string>
             <string>bs</string>
-            <string>btk</string>
-            <string>bua</string>
-            <string>bug</string>
-            <string>byn</string>
             <string>ca</string>
-            <string>cad</string>
-            <string>cai</string>
-            <string>car</string>
-            <string>cau</string>
-            <string>ce</string>
-            <string>ceb</string>
-            <string>cel</string>
-            <string>ch</string>
-            <string>cha</string>
-            <string>chb</string>
-            <string>chg</string>
-            <string>chk</string>
-            <string>chm</string>
-            <string>chn</string>
-            <string>cho</string>
-            <string>chp</string>
-            <string>chr</string>
-            <string>chu</string>
-            <string>chv</string>
-            <string>chy</string>
-            <string>cmc</string>
-            <string>co</string>
-            <string>cop</string>
-            <string>cor</string>
-            <string>cos</string>
-            <string>cpe</string>
-            <string>cpf</string>
-            <string>cpp</string>
-            <string>cr</string>
-            <string>crh</string>
-            <string>crp</string>
             <string>cs</string>
-            <string>csb</string>
-            <string>cu</string>
-            <string>cus</string>
-            <string>cv</string>
-            <string>cy</string>
             <string>da</string>
-            <string>dak</string>
-            <string>dar</string>
-            <string>day</string>
             <string>de</string>
-            <string>del</string>
-            <string>den</string>
-            <string>dgr</string>
-            <string>din</string>
-            <string>div</string>
-            <string>doi</string>
-            <string>dra</string>
-            <string>dsb</string>
-            <string>dua</string>
-            <string>dum</string>
-            <string>dv</string>
-            <string>dyu</string>
-            <string>dz</string>
-            <string>dzo</string>
-            <string>ee</string>
-            <string>efi</string>
-            <string>egy</string>
-            <string>eka</string>
             <string>el</string>
-            <string>elx</string>
             <string>en</string>
-            <string>enm</string>
-            <string>eo</string>
             <string>es</string>
             <string>et</string>
-            <string>eu</string>
-            <string>ewe</string>
-            <string>ewo</string>
-            <string>fa</string>
-            <string>fan</string>
-            <string>fao</string>
-            <string>fas</string>
-            <string>fat</string>
-            <string>ff</string>
             <string>fi</string>
-            <string>fij</string>
-            <string>fil</string>
-            <string>fiu</string>
-            <string>fj</string>
-            <string>fo</string>
-            <string>fon</string>
             <string>fr</string>
-            <string>ful</string>
-            <string>fur</string>
-            <string>fy</string>
             <string>ga</string>
-            <string>gaa</string>
-            <string>gay</string>
-            <string>gba</string>
-            <string>gd</string>
-            <string>gem</string>
-            <string>gez</string>
-            <string>gil</string>
-            <string>gl</string>
-            <string>gla</string>
-            <string>glg</string>
-            <string>glv</string>
-            <string>gmh</string>
-            <string>gn</string>
-            <string>goh</string>
-            <string>gon</string>
-            <string>gor</string>
-            <string>got</string>
-            <string>grb</string>
-            <string>grc</string>
-            <string>grn</string>
-            <string>gu</string>
-            <string>guj</string>
-            <string>gv</string>
-            <string>gwi</string>
-            <string>ha</string>
-            <string>hai</string>
-            <string>hat</string>
-            <string>hau</string>
-            <string>haw</string>
-            <string>he</string>
-            <string>her</string>
-            <string>hi</string>
-            <string>hil</string>
-            <string>him</string>
-            <string>hin</string>
-            <string>hit</string>
-            <string>hmn</string>
-            <string>hmo</string>
-            <string>ho</string>
             <string>hr</string>
-            <string>hsb</string>
-            <string>ht</string>
             <string>hu</string>
-            <string>hup</string>
             <string>hy</string>
-            <string>hz</string>
-            <string>ia</string>
-            <string>iba</string>
-            <string>ibo</string>
-            <string>id</string>
-            <string>ido</string>
-            <string>ie</string>
-            <string>ig</string>
-            <string>iii</string>
-            <string>ijo</string>
-            <string>ik</string>
-            <string>iku</string>
-            <string>ile</string>
-            <string>ilo</string>
-            <string>ina</string>
-            <string>inc</string>
-            <string>ind</string>
-            <string>ine</string>
-            <string>inh</string>
-            <string>io</string>
-            <string>ipk</string>
-            <string>ira</string>
-            <string>iro</string>
             <string>is</string>
             <string>it</string>
-            <string>iu</string>
-            <string>ja</string>
-            <string>jbo</string>
-            <string>jpr</string>
-            <string>jrb</string>
-            <string>jv</string>
             <string>ka</string>
-            <string>kaa</string>
-            <string>kab</string>
-            <string>kac</string>
-            <string>kal</string>
-            <string>kam</string>
-            <string>kan</string>
-            <string>kar</string>
-            <string>kas</string>
-            <string>kau</string>
-            <string>kaw</string>
-            <string>kaz</string>
-            <string>kbd</string>
-            <string>kg</string>
-            <string>kha</string>
-            <string>khi</string>
-            <string>khm</string>
-            <string>kho</string>
-            <string>ki</string>
-            <string>kik</string>
-            <string>kin</string>
-            <string>kir</string>
-            <string>kj</string>
-            <string>kk</string>
-            <string>kl</string>
-            <string>km</string>
-            <string>kmb</string>
-            <string>kn</string>
-            <string>ko</string>
-            <string>kok</string>
-            <string>kom</string>
-            <string>kon</string>
-            <string>kor</string>
-            <string>kos</string>
-            <string>kpe</string>
-            <string>kr</string>
-            <string>krc</string>
-            <string>kro</string>
-            <string>kru</string>
-            <string>ks</string>
-            <string>ku</string>
-            <string>kua</string>
-            <string>kum</string>
-            <string>kur</string>
-            <string>kut</string>
-            <string>kv</string>
-            <string>kw</string>
-            <string>ky</string>
-            <string>la</string>
-            <string>lad</string>
-            <string>lah</string>
-            <string>lam</string>
-            <string>lao</string>
-            <string>lb</string>
-            <string>lez</string>
-            <string>lg</string>
-            <string>li</string>
-            <string>lin</string>
-            <string>ln</string>
-            <string>lo</string>
-            <string>lol</string>
-            <string>loz</string>
             <string>lt</string>
-            <string>ltz</string>
-            <string>lu</string>
-            <string>lua</string>
-            <string>lug</string>
-            <string>lui</string>
-            <string>lun</string>
-            <string>luo</string>
-            <string>lus</string>
             <string>lv</string>
-            <string>mad</string>
-            <string>mag</string>
-            <string>mah</string>
-            <string>mai</string>
-            <string>mak</string>
-            <string>mal</string>
-            <string>man</string>
-            <string>map</string>
-            <string>mar</string>
-            <string>mas</string>
-            <string>mdf</string>
-            <string>mdr</string>
-            <string>men</string>
-            <string>mg</string>
-            <string>mga</string>
-            <string>mh</string>
-            <string>mi</string>
-            <string>mic</string>
-            <string>min</string>
-            <string>mis</string>
             <string>mk</string>
-            <string>mkh</string>
-            <string>ml</string>
-            <string>mlg</string>
-            <string>mlt</string>
-            <string>mn</string>
-            <string>mnc</string>
-            <string>mni</string>
-            <string>mno</string>
-            <string>mo</string>
-            <string>moh</string>
-            <string>mol</string>
-            <string>mos</string>
-            <string>mr</string>
-            <string>mri</string>
-            <string>ms</string>
-            <string>msa</string>
             <string>mt</string>
-            <string>mul</string>
-            <string>mun</string>
-            <string>mus</string>
-            <string>mwl</string>
-            <string>mwr</string>
-            <string>my</string>
-            <string>mya</string>
-            <string>myn</string>
-            <string>myv</string>
-            <string>na</string>
-            <string>nah</string>
-            <string>nai</string>
-            <string>nap</string>
-            <string>nau</string>
-            <string>nav</string>
             <string>nb</string>
-            <string>nbl</string>
-            <string>nd</string>
-            <string>nde</string>
-            <string>ndo</string>
-            <string>nds</string>
-            <string>ne</string>
-            <string>nep</string>
-            <string>new</string>
-            <string>ng</string>
-            <string>nia</string>
-            <string>nic</string>
-            <string>niu</string>
             <string>nl</string>
-            <string>nn</string>
             <string>no</string>
-            <string>nog</string>
-            <string>non</string>
-            <string>nr</string>
-            <string>nso</string>
-            <string>nub</string>
-            <string>nv</string>
-            <string>nwc</string>
-            <string>ny</string>
-            <string>nya</string>
-            <string>nym</string>
-            <string>nyn</string>
-            <string>nyo</string>
-            <string>nzi</string>
-            <string>oc</string>
-            <string>oci</string>
-            <string>oj</string>
-            <string>oji</string>
-            <string>om</string>
-            <string>or</string>
-            <string>ori</string>
-            <string>orm</string>
-            <string>os</string>
-            <string>osa</string>
-            <string>oss</string>
-            <string>ota</string>
-            <string>oto</string>
-            <string>pa</string>
-            <string>paa</string>
-            <string>pag</string>
-            <string>pal</string>
-            <string>pam</string>
-            <string>pan</string>
-            <string>pap</string>
-            <string>pau</string>
-            <string>peo</string>
-            <string>phi</string>
-            <string>phn</string>
-            <string>pi</string>
             <string>pl</string>
-            <string>pli</string>
-            <string>pon</string>
-            <string>por</string>
-            <string>pra</string>
-            <string>pro</string>
-            <string>ps</string>
             <string>pt</string>
-            <string>pus</string>
-            <string>qu</string>
-            <string>raj</string>
-            <string>rap</string>
-            <string>rar</string>
-            <string>rm</string>
-            <string>rn</string>
             <string>ro</string>
-            <string>roa</string>
-            <string>roh</string>
-            <string>rom</string>
             <string>ru</string>
-            <string>run</string>
-            <string>rw</string>
-            <string>sa</string>
-            <string>sad</string>
-            <string>sag</string>
-            <string>sah</string>
-            <string>sai</string>
-            <string>sal</string>
-            <string>sam</string>
-            <string>sas</string>
-            <string>sat</string>
-            <string>sc</string>
-            <string>scn</string>
-            <string>sco</string>
-            <string>sd</string>
-            <string>se</string>
-            <string>sel</string>
-            <string>sem</string>
-            <string>sg</string>
-            <string>sga</string>
-            <string>sgn</string>
-            <string>shn</string>
-            <string>si</string>
-            <string>sid</string>
-            <string>sin</string>
-            <string>sio</string>
-            <string>sit</string>
             <string>sk</string>
             <string>sl</string>
-            <string>sla</string>
-            <string>sm</string>
-            <string>sma</string>
-            <string>sme</string>
-            <string>smi</string>
-            <string>smj</string>
-            <string>smn</string>
-            <string>sms</string>
-            <string>sn</string>
-            <string>sna</string>
-            <string>snd</string>
-            <string>snk</string>
-            <string>so</string>
-            <string>sog</string>
-            <string>som</string>
-            <string>son</string>
-            <string>sot</string>
             <string>sq</string>
-            <string>sr</string>
-            <string>srr</string>
-            <string>ss</string>
-            <string>ssa</string>
-            <string>ssw</string>
-            <string>st</string>
-            <string>su</string>
-            <string>suk</string>
-            <string>sun</string>
-            <string>sus</string>
-            <string>sux</string>
             <string>sv</string>
-            <string>sw</string>
-            <string>swa</string>
-            <string>syr</string>
-            <string>ta</string>
-            <string>tah</string>
-            <string>tai</string>
-            <string>tat</string>
-            <string>te</string>
-            <string>tem</string>
-            <string>ter</string>
-            <string>tet</string>
-            <string>tg</string>
-            <string>tgl</string>
-            <string>th</string>
-            <string>ti</string>
-            <string>tig</string>
-            <string>tiv</string>
-            <string>tk</string>
-            <string>tkl</string>
-            <string>tl</string>
-            <string>tlh</string>
-            <string>tli</string>
-            <string>tmh</string>
-            <string>tn</string>
-            <string>to</string>
-            <string>tog</string>
-            <string>tpi</string>
             <string>tr</string>
-            <string>ts</string>
-            <string>tsi</string>
-            <string>tt</string>
-            <string>tum</string>
-            <string>tup</string>
-            <string>tut</string>
-            <string>tvl</string>
-            <string>tw</string>
-            <string>ty</string>
-            <string>tyv</string>
-            <string>udm</string>
-            <string>ug</string>
-            <string>uga</string>
             <string>uk</string>
-            <string>umb</string>
-            <string>und</string>
-            <string>ur</string>
-            <string>uz</string>
-            <string>vai</string>
-            <string>ve</string>
-            <string>vi</string>
-            <string>vo</string>
-            <string>vot</string>
-            <string>wa</string>
-            <string>wak</string>
-            <string>wal</string>
-            <string>war</string>
-            <string>was</string>
-            <string>wen</string>
-            <string>wln</string>
-            <string>wo</string>
-            <string>xal</string>
-            <string>xh</string>
-            <string>yao</string>
-            <string>yap</string>
-            <string>yi</string>
-            <string>yo</string>
-            <string>ypk</string>
-            <string>za</string>
-            <string>zap</string>
-            <string>zen</string>
-            <string>zh</string>
-            <string>znd</string>
-            <string>zu</string>
-            <string>zun</string>
         </options>
     </fact-definition>
     <fact-definition name="country">
@@ -651,11 +107,11 @@
     </fact-definition>
     <fact-definition name="provider">
         <prompt>Provider</prompt>
-        <toolTip>Who provides?</toolTip>
+        <toolTip>Either the original data provider or the aggregator</toolTip>
     </fact-definition>
     <fact-definition name="dataProvider">
         <prompt>Data Provider</prompt>
-        <toolTip>Who provides the data?</toolTip>
+        <toolTip>The original provider of the data, who actually owns the data</toolTip>
     </fact-definition>
     <fact-definition name="rights">
         <prompt>Rights</prompt>

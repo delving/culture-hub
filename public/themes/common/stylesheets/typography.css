@@ -27,35 +27,35 @@ hr
 /* =Headings
 --------------------------------------------------------------------------------*/
 
-/*h1*/
-/*{*/
-	/*font-size: 25px;*/
-/*}*/
+h1
+{
+	/*font-size: 40px;*/
+}
 
-/*h2*/
-/*{*/
-	/*font-size: 23px;*/
-/*}*/
+h2
+{
+	font-size: 25px;
+}
 
-/*h3*/
-/*{*/
-	/*font-size: 21px;*/
-/*}*/
+h3
+{
+	font-size: 20px;
+}
 
-/*h4*/
-/*{*/
-	/*font-size: 19px;*/
-/*}*/
+h4
+{
+	font-size: 15px;
+}
 
-/*h5*/
-/*{*/
-	/*font-size: 17px;*/
-/*}*/
+h5
+{
+	font-size: 12px;
+}
 
-/*h6*/
-/*{*/
-	/*font-size: 15px;*/
-/*}*/
+h6
+{
+	font-size: 15px;
+}
 
 h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
@@ -69,35 +69,35 @@ h1, .h1 {
 }
 
 h2, .h2 {
-    font-size: 167%;
+    /*font-size: 167%;*/
     font-weight: normal;
     font-style: normal;
     color: #AE0345;
 }
 
 h3, .h3 {
-    font-size: 146.5%;
+    /*font-size: 146.5%;*/
     font-weight: normal;
     font-style: normal;
     color: #DF2B72;
 }
 
 h4, .h4 {
-    font-size: 123.1%;
+    /*font-size: 123.1%;*/
     font-weight: normal;
     font-style: normal;
     color: #333;
 }
 
 h5, .h5 {
-    font-size: 108%;
+    /*font-size: 108%;*/
     font-weight: bold;
     font-style: normal;
     color: #AE0345;
 }
 
 h6, .h6 {
-    font-size: 108%;
+    /*font-size: 108%;*/
     font-weight: normal;
     font-style: italic;
     color: #333;

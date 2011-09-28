@@ -34,12 +34,17 @@ object CHJson extends com.codahale.jerkson.Json {
 trait AdditionalActions {
   self: Controller =>
 
-  def Json(data: AnyRef): Result = new Result() {
-    def apply(request: Request, response: Response) {
+  override def Json(data: AnyRef): RenderJson = new RenderJson() {
+    override def apply(request: Request, response: Response) {
       val encoding = getEncoding
       setContentTypeIfNotSet(response, "application/json; charset=" + encoding)
       response.out.write(CHJson.generate(data).getBytes(encoding))
     }
+  }
+
+  def JsonBadRequest(data: AnyRef): Result = {
+    response.status = 400
+    Json(data)
   }
 
   def RenderKml(entity: AnyRef) = new RenderKml(entity)

@@ -45,12 +45,12 @@ a:hover { color: #10a1ff; }
 
 h1 {
     color: #CC3333;
-    font-size: 150%;
+    font-size: 165%;
 }
 
 h2 {
     color: #CC3333;
-    font-size: 135%;
+    font-size: 130%;
 }
 
 h3 {
@@ -98,8 +98,8 @@ ol.small li {
     background:  #272911;
     border-bottom:  1px solid #4a4d32;
     height: 42px;
-    line-height: 42px;
     /*line-height: 42px;*/
+    line-height: 42px;
     /*overflow:  hidden;*/
 }
 
@@ -494,6 +494,12 @@ ul.inline li {
     display: inline-block;
     list-style: none;
     margin: 0 10px 10px 0;
+}
+
+/* item over-ride */
+
+.item h2 {
+    font-size: 110%;
 }
 
 

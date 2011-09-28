@@ -5,7 +5,8 @@
 
 require:
     - play
-    - play -> scala 0.9.1
+#    - play -> scala 0.9.1
+    - scala-head -> scala-head
     - commons-httpclient -> commons-httpclient 3.1
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
@@ -35,7 +36,7 @@ require:
             - org.scala-lang -> scala-library
             - org.scalatest -> *
     # delving dependencies
-    - eu.delving -> sip-core 0.3.5-SNAPSHOT:
+    - eu.delving -> sip-core 0.4.0-SNAPSHOT:
         exclude:
             - cglib -> *
     # remove later
@@ -96,3 +97,8 @@ repositories:
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"
         contains:
           - provided -> *
+    - localModules:
+        type: local
+        artifact: ${application.path}/module-extra/[module]
+        contains:
+            - scala-head

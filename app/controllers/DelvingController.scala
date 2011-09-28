@@ -11,6 +11,7 @@ import play.mvc._
 import results.Result
 import models._
 import org.bson.types.ObjectId
+import play.data.validation.Validation
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -44,6 +45,14 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         case None =>
           renderArgs.put("browsedUserNotFound", userName)
       }
+    }
+  }
+
+  @Before def brokenPlayBindingWorkaround(page: Int = 1) {
+    val page = params.get("page", classOf[Int])
+    if(page == 0) {
+      params.remove("page")
+      params.put("page", "1")
     }
   }
 
@@ -96,6 +105,21 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     for(file <- files) if(file.contentType.contains("image")) return Some(file)
     None
   }
+
+  @Util def validate(viewModel: AnyRef): Option[Map[String, String]] = {
+    import scala.collection.JavaConversions.asScalaIterable
+
+    if(!Validation.valid("object", viewModel).ok) {
+      val fieldErrors = asScalaIterable(Validation.errors).filter(_.getKey.contains(".")).map { error => (error.getKey.split("\\.")(1), error.message()) }
+      val globalErrors = asScalaIterable(Validation.errors).filterNot(_.getKey.contains(".")).map { error => ("global", error.message()) }
+      val errors = fieldErrors ++ globalErrors
+      Some(errors.toMap)
+    } else {
+      None
+    }
+  }
+
+
 }
 
 

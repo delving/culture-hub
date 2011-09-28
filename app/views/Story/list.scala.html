@@ -17,13 +17,13 @@
             <h2>Browse Stories (@count)</h2>
         }
 
-    @if(stories.length > 0){
-    <div class="item-nav">
-        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-    </div>
-    }   else {
-        <p>There are currently no stories available</p>
-    }
+        @if(stories.length > 0) {
+        <div class="item-nav">
+            <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+        </div>
+        }   else {
+            <p>There are currently no stories available</p>
+        }
 
         @for(story <- stories) {
 

@@ -7,28 +7,36 @@
 
 <h1 class="grid_16">@if(spec == None) { Create a new data set } else { Update a data set }</h1>
 
-<form method="post" action="" id="collectionForm">
-  <div class="grid_8">
+<form method="post" action="" id="collectionForm" class="grid_16">
+
+    <div class="grid_8 alpha">
+
     <h2>Data Set Information</h2>
 
     @textField("spec", "Identifier", "value: spec", "The unique identifier of this Data Set")
 
-    @for(factDef <- factDefinitions) {
+    @for(i <- 0 until factDefinitions.length; val factDef = factDefinitions(i)) {
       @if(factDef.hasOptions) {
         @populatedSelectField(factDef.name + "_field", factDef.prompt, factDef.options.map(opt => (opt, opt)), "value: facts." + factDef.name, factDef.tooltip)
       } else {
         @textField(factDef.name + "_field", factDef.prompt, "value: facts." + factDef.name, factDef.tooltip, factDef.automatic)
       }
+      @if(i == 4) {
+      </div>
+      <div class="grid_8 omega">
+      }
     }
-
+    <h2>Record Definitions</h2>
     @for(recordDef <- recordDefinitions) {
       @checkboxField(recordDef + "_field", recordDef, "checked: recordDefinitions", recordDef)
     }
+    </div>
 
-    <div class="field">
-        <div class="inputs">
+    <div class="clear"></div>
+    <div class="actions">
+
         <input id="saveButton" type="submit" value="Save DataSet" />
-        </div>
+
     </div>
 
   </div>

@@ -2,12 +2,12 @@ package test
 
 import cake.MetadataModelComponent
 import com.borachio.scalatest.MockFactory
-import eu.delving.metadata.MetadataModel
 import org.scalatest.matchers._
 import play.test._
 import util._
 import models._
 import org.scalatest.Suite
+import eu.delving.metadata.{MetadataModelImpl, MetadataModel}
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -57,10 +57,17 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGe
 //  }
 //}
 
-class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers  {
+class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers with TestEnvironment {
 
   import eu.delving.sip.MappingEngine
   import io.Source
+
+  override val metadataModel = {
+    val metadataModelImpl = new MetadataModelImpl()
+    metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
+    metadataModelImpl.setRecordDefinitionFiles(RecordDefinition.getRecordDefinitionFiles : _*)
+    metadataModelImpl
+  }
 
   val record =
             """<priref>6389</priref>
@@ -103,7 +110,7 @@ class MappingEngineSpec extends UnitFlatSpec with ShouldMatchers  {
   val mappingString = Source.fromInputStream(getClass.getResourceAsStream("/sample_icn_mapping.xml"), "utf-8").getLines().mkString
 
   import scala.collection.JavaConversions.asJavaMap
-  val engine: MappingEngine = new MappingEngine(mappingString, asJavaMap(Map[String,String]()), play.Play.classloader)
+  val engine: MappingEngine = new MappingEngine(mappingString, asJavaMap(Map[String,String]()), play.Play.classloader, metadataModel)
 
   it should "should run over 1000 entries fast" in {
     for (i <- 0 to 10) {

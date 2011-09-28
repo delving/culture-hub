@@ -5,7 +5,7 @@ import util.{ThemeHandler, ThemeHandlerComponent}
 import scala.collection.JavaConversions._
 import eu.delving.metadata.MetadataModel
 import eu.delving.metadata.MetadataModelImpl
-
+import models.{DataSet, RecordDefinition}
 
 /**
  * This object uses the Cake pattern to manage Dependency Injection, see also
@@ -48,8 +48,9 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
 
   def init() {
     try {
-//      metadataModel.asInstanceOf[MetadataModelImpl].setDefaultPrefix(Play.configuration.getProperty("services.harvindexing.prefix"))
-      metadataModel.asInstanceOf[MetadataModelImpl].setRecordDefinitionResources(List("/abm-record-definition.xml", "/icn-record-definition.xml", "/ese-record-definition.xml"))
+      val metadataModelImpl = metadataModel.asInstanceOf[MetadataModelImpl]
+      metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
+      metadataModelImpl.setRecordDefinitionFiles(RecordDefinition.getRecordDefinitionFiles : _*)
 
       themeHandler.startup()
     } catch {
