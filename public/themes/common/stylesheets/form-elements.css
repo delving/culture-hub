@@ -54,6 +54,14 @@ label.fileinput-button {
     margin-bottom:  0 !important;
 }
 
+div.field span.error,
+div.field label.error {
+    display: inline-block;
+    color: #b22222;
+    margin-left: 5px;
+    font-style: normal;
+}
+
 /*div.field label:after {*/
     /*content: ":";*/
 /*}*/

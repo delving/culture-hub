@@ -7,8 +7,8 @@ import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import models.{PortalTheme}
 import play.mvc.Http
-import controllers.FileStore
 import util.Implicits
+import controllers.{ViewModel, FileStore}
 
 package object context extends Implicits {
 
@@ -60,6 +60,11 @@ package object context extends Implicits {
 
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
+
+  def printValidationRules(name: String)(implicit viewModel: Option[Class[_ <: ViewModel]]) = viewModel match {
+    case Some(c) => util.Validation.getClientSideValidationRules(c)(name)
+    case None => ""
+  }
 
   // ~~~ themes
   def theme = renderArgs.get("theme").asInstanceOf[PortalTheme]
