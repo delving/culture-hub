@@ -1,120 +1,280 @@
 /* Actions */
 
-.actions {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding:  10px 0;
-    overflow: hidden;
-    position: relative;
-}
 
-.actions a {
-    background-color: #eeeee0;
-    padding: 10px 10px 10px 34px !important;
-    border-radius: 4px;
-}
+/* ACTIONS ************************************************/
+/*
+    Icon sets used:
+    1) Silk icons from http://wwww.famfamfam.com (Mark James
+    2) Fugues icons from http://p.yusukekamiyamane.com (Yusuke Kamiyamane)
+    3) Silk icons companions from http://damieng.com/ (Damien Guard)
+*/
 
-.actions button {
-    padding:  4px;
-}
-
-.actions a:hover {
-    background-color: #bbbbb0;
-    padding: 10px 10px 10px 34px;
-    border-radius: 4px;
-}
-
-.actions.ar {
-    text-align: right;
-}
-
-.actions .add,
-.actions .delete,
-.actions .error,
-.actions .success,
-.actions .edit,
-.actions .save,
-.actions .submit,
-.actions .read {
-    background-position: 10px 50%;
-    background-repeat: no-repeat;
-    padding-left: 32px !important;
-    padding-right: 16px;
-    text-decoration: none;
-}
-
-.action.add,
-.action.delete,
-.action.error,
-.action.success,
-.action.edit,
-.action.save,
-.action.submit,
-.action.read,
 .action {
     background-position: 0px 50%;
     background-repeat: no-repeat;
     padding-left: 24px !important;
-    padding-right: 16px;
+    padding-right: 4px;
     text-decoration: none;
+    /*font-size: 95%;*/
 }
 
-.actions .goto,
+.action.button {
+    background-color: #eeeeee;
+    background-position: 10px 8px;
+    border:  1px solid #ccc;
+    padding: 5px 10px 3px 34px !important;
+    border-radius: 4px;
+    font-size: 90%
+}
+
+.action.button.small {
+    background-color: #eeeeee;
+    background-position: 6px 6px;
+    border:  1px solid #ccc;
+    padding: 2px 6px 0px 28px !important;
+    border-radius: 4px;
+    font-size: 75%;
+}
+
+.action.no-icon {
+    background-image: none;
+    padding-left: 0px !important;
+}
+
+.action.i-right {
+   background-position: right 50%;
+    padding-right: 20px;
+    padding-left: 0px !important;
+}
+
+.action.f-right {
+    float: right;
+}
+
+.action.disabled {
+    opacity: .8;
+}
+
+.action.current {
+    /*font-weight: bold;*/
+    text-decoration: underline;
+}
+
 .action.goto{
     background-image: url("../images/page_white_go.png");
 }
 
-.actions .edit,
-.action.edit{
-    background-image: url("../images/pencil_go.gif");
-}
-
-.actions .delete,
-.action.delete {
-    background-image: url("../images/delete.gif");
-}
-
-.actions .save {
+.action.save {
     background-image:  url("../images/disk.png");
 }
 
-.actions .submit {
-    background-image:  url("../images/page_white_go.png");
+.action.new-window {
+    background-image:  url("../images/application_double.png");
 }
 
-.actions .page-add {
+.action.original-context {
+    background-image:  url("../images/application_osx_home.png");
+}
+
+.action.next {
+   background-image:  url("../images/control_fastforward.png");
+}
+
+.action.previous {
+   background-image:  url("../images/control_rewind.png");
+}
+
+.action.return {
+   background-image:  url("../images/arrow_rotate_anticlockwise.png");
+}
+
+.action.edit {
+   background-image:  url("../images/pencil_go.gif");
+}
+
+.action.delete.page {
+   background-image:  url("../images/page_white_delete.png");
+    color: #cc0000;
+}
+
+.action.edit.image {
+   background-image:  url("../images/image_edit.png");
+}
+
+.action.delete.image {
+   background-image:  url("../images/image_delete.png");
+    color: #cc0000;
+}
+
+.action.share {
+    background-image:  url("../images/share.png");
+}
+
+/*.actions .submit {*/
+    /*background-image:  url("../images/page_white_go.png");*/
+/*}*/
+
+.action.page-add {
     background-image:  url("../images/page_add.gif");
 }
 
-.actions .page-save {
-    background-image:  url("../images/page_save.png");
-}
+/*.actions .page-save {*/
+    /*background-image:  url("../images/page_save.png");*/
+/*}*/
 
-.actions .image-add,
 .action.image-add {
     background-image:  url("../images/image_add.png");
 }
 
-.actions .story-add,
 .action.story-add {
     background-image:  url("../images/book_add.png");
 }
 
-.actions .read,
 .action.read {
     background-image:  url("../images/book_open.gif");
 }
 
-.actions .collection-add,
 .action.collection-add {
     background-image:  url("../images/folder_add.gif");
 }
 
-.actions .label-add {
-    background-image:  url("../images/tag_blue_add.png");
-}
+/*.actions .label-add {*/
+    /*background-image:  url("../images/tag_blue_add.png");*/
+/*}*/
 
-.wait {
+/*.wait {*/
+    /*display: inline-block;*/
+/*}*/
+
+
+
+.actions .action {
     display: inline-block;
 }
+
+.actions.list  {
+    /*display: block;*/
+    /*padding:  10px;*/
+    /*margin-bottom: 10px;*/
+}
+
+
+
+/*.actions {*/
+    /*display: inline-block;*/
+    /*margin-bottom: 10px;*/
+    /*padding:  10px 0;*/
+    /*overflow: hidden;*/
+    /*position: relative;*/
+/*}*/
+
+/*.actions a {*/
+    /*background-color: #eeeee0;*/
+    /*padding: 10px 10px 10px 34px !important;*/
+    /*border-radius: 4px;*/
+/*}*/
+
+/*.actions button {*/
+    /*padding:  4px;*/
+/*}*/
+
+/*.actions a:hover {*/
+    /*background-color: #bbbbb0;*/
+    /*padding: 10px 10px 10px 34px;*/
+    /*border-radius: 4px;*/
+/*}*/
+
+/*.actions.ar {*/
+    /*text-align: right;*/
+/*}*/
+
+/*.actions .add,*/
+/*.actions .delete,*/
+/*.actions .error,*/
+/*.actions .success,*/
+/*.actions .edit,*/
+/*.actions .save,*/
+/*.actions .submit,*/
+/*.actions .read {*/
+    /*background-position: 10px 50%;*/
+    /*background-repeat: no-repeat;*/
+    /*padding-left: 32px !important;*/
+    /*padding-right: 16px;*/
+    /*text-decoration: none;*/
+/*}*/
+
+/*.action.add,*/
+/*.action.delete,*/
+/*.action.error,*/
+/*.action.success,*/
+/*.action.edit,*/
+/*.action.save,*/
+/*.action.submit,*/
+/*.action.read,*/
+/*.action {*/
+    /*background-position: 0px 50%;*/
+    /*background-repeat: no-repeat;*/
+    /*padding-left: 24px !important;*/
+    /*padding-right: 16px;*/
+    /*text-decoration: none;*/
+/*}*/
+
+/*.actions .goto,*/
+/*.action.goto{*/
+    /*background-image: url("../images/page_white_go.png");*/
+/*}*/
+
+/*.actions .edit,*/
+/*.action.edit{*/
+    /*background-image: url("../images/pencil_go.gif");*/
+/*}*/
+
+/*.actions .delete,*/
+/*.action.delete {*/
+    /*background-image: url("../images/delete.gif");*/
+/*}*/
+
+/*.actions .save {*/
+    /*background-image:  url("../images/disk.png");*/
+/*}*/
+
+/*.actions .submit {*/
+    /*background-image:  url("../images/page_white_go.png");*/
+/*}*/
+
+/*.actions .page-add {*/
+    /*background-image:  url("../images/page_add.gif");*/
+/*}*/
+
+/*.actions .page-save {*/
+    /*background-image:  url("../images/page_save.png");*/
+/*}*/
+
+/*.actions .image-add,*/
+/*.action.image-add {*/
+    /*background-image:  url("../images/image_add.png");*/
+/*}*/
+
+/*.actions .story-add,*/
+/*.action.story-add {*/
+    /*background-image:  url("../images/book_add.png");*/
+/*}*/
+
+/*.actions .read,*/
+/*.action.read {*/
+    /*background-image:  url("../images/book_open.gif");*/
+/*}*/
+
+/*.actions .collection-add,*/
+/*.action.collection-add {*/
+    /*background-image:  url("../images/folder_add.gif");*/
+/*}*/
+
+/*.actions .label-add {*/
+    /*background-image:  url("../images/tag_blue_add.png");*/
+/*}*/
+
+/*.wait {*/
+    /*display: inline-block;*/
+/*}*/
 

@@ -63,6 +63,11 @@
     /*float: left;*/
 }
 
+.item .metadata {
+    font-size: 85%;
+    line-height: 136%;
+}
+
 .item h2 {
     font-size: 120%;
     margin:  0;
@@ -83,6 +88,29 @@
     font-size: 90%;
     margin-right: 10px;
 }
+
+    .one-col {
+        clear: both;
+        padding: 0 1% 1em 1%;
+    }
+
+    .two-col {
+        float: left;
+        margin: 0 2% 1em 0;
+        width: 48%;
+    }
+
+    .three-col {
+        float: left;
+        margin: 0 2% 1em 0;
+        width: 31.33%;
+    }
+
+    .four-col {
+        float: left;
+        margin: 0 2% 1em 0;
+        width: 23%;
+     }
 
 
 

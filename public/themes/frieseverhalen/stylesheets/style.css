@@ -103,6 +103,10 @@ ol.small li {
     /*overflow:  hidden;*/
 }
 
+#header-top a {
+    color: #fff;
+}
+
 #header-main {
     background:  #60652A url(../images/bg-header.png) repeat-x top left;
     height: 140px;
