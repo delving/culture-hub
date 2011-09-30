@@ -1,16 +1,11 @@
 @(user:controllers.ShortUser, objects: List[controllers.ShortObject], collections: List[controllers.ShortCollection], stories: List[controllers.ShortStory])
 
 @import views.context._
+@import views.tags.html._
 
 @header("Profile of user " + user.fullName ) {
 
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <a href="/users">User</a><span class="arrow"> &gt; </span>
-    <span class="current">@user.fullName</span>
-</div>
-
-
+@breadcrumbs()
 
 <h1>Profile page for: <span>@user.fullName</span></h1>
 User name: @user.userName<br/>

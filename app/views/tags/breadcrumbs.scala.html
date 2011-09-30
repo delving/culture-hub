@@ -1,0 +1,15 @@
+@import views.context._
+
+<div class="breadcrumbs">
+@crumble.zipWithIndex.map {c =>
+  @if(c._2 == crumble.length - 1 && crumble.length > 1) {
+    @c._1._2
+  }
+  @if(c._2 < crumble.length - 1 && crumble.length > 1) {
+    <a href="@c._1._1">@c._1._2</a> <span class="arrow"> &gt; </span>
+  }
+  @if(c._2 < crumble.length - 1 && crumble.length == 1) {
+  <a href="@c._1._1">@c._1._2</a>
+  }
+}
+</div>

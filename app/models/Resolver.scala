@@ -19,5 +19,4 @@ trait Resolver[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =
     }
   }
 
-
 }

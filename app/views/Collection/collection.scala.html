@@ -1,14 +1,11 @@
 @(collection: models.UserCollection, objects: List[controllers.ShortObject])
 
 @import views.context._
+@import views.tags.html._
 
 @header("Collection " + collection.name + " of user " + browsedFullName) {
 
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow ir"> &gt; </span>
-    <a href="/collections">Collections</a><span class="arrow"> &gt; </span>
-    <span class="current">@collection.name</span>
-</div>
+@breadcrumbs()
 
 <h1>@collection.name</h1>
 
@@ -37,7 +34,7 @@
         <ul class="inline">
             @for(o <- objects) {
             <li>
-                <a href="/@o.userName/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
+                <a href="/@o.userName/collection/@collection._id/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
             </li>
             }
         </ul>

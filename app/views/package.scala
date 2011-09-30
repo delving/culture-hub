@@ -5,10 +5,10 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
-import models.{PortalTheme}
 import play.mvc.Http
 import util.Implicits
 import controllers.{ViewModel, FileStore}
+import models.{UserCollection, DObject, PortalTheme}
 
 package object context extends Implicits {
 
@@ -57,14 +57,44 @@ package object context extends Implicits {
 
   def isCurrent(controller: String) = Http.Request.current().controller == controller
 
-
-
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 
   def printValidationRules(name: String)(implicit viewModel: Option[Class[_ <: ViewModel]]) = viewModel match {
     case Some(c) => util.Validation.getClientSideValidationRules(c)(name)
     case None => ""
   }
+
+  def crumble: List[(String, String)] = {
+    val crumbList = request.path.split("/").drop(1).toList
+    val crumbs = crumbList match {
+
+      case "users" :: Nil => List(("/users", "Users"))
+      case "objects" :: Nil => List(("/objects", "Objects"))
+      case "collections" :: Nil => List(("/collections", "Collections"))
+      case "stories" :: Nil => List(("/stories", "Stories"))
+
+      case user :: Nil => List(("/" + user, user))
+
+      case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/add", "Create new object"))
+      case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/add", "Create new collection"))
+      case user :: "story" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/add", "Create new story"))
+
+      case user :: "object" :: id :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/" + id, DObject.fetchName(id)))
+      case user :: "collection" :: id :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + id, UserCollection.fetchName(id)))
+      case user :: "story" :: id :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/" + id, models.Story.fetchName(id)))
+
+      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/" + id, "Update object \"" + DObject.fetchName(id) + "\""))
+      case user :: "collection" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + id, "Update collection \"" + UserCollection.fetchName(id)  + "\"" ))
+      case user :: "story" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/" + id, "Update story \"" + models.Story.fetchName(id) + "\""))
+
+      case user :: "collection" :: cid :: "object" :: oid ::Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + cid, UserCollection.fetchName(cid)), ("/" + user + "/collection/" + cid + "/object/" + oid, DObject.fetchName(oid)))
+
+      case _ => List()
+    }
+    ("/", "Home") :: crumbs
+  }
+
+
 
   // ~~~ themes
   def theme = renderArgs.get("theme").asInstanceOf[PortalTheme]
