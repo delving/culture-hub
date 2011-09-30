@@ -1,5 +1,6 @@
 .jPaginate{
-    height:34px;
+    height:32px;
+    line-height: 32px;
     position:relative;
     color:#a5a5a5;
     font-size:small;
@@ -19,7 +20,7 @@
 }
 .jPag-control-front{
 	position:absolute;
-	top:0px;
+	top:10px;
 }
 .jPaginate span{
     cursor:pointer;

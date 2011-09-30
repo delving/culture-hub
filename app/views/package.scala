@@ -12,7 +12,7 @@ import controllers.{ViewModel, FileStore}
 
 package object context extends Implicits {
 
-  val PAGE_SIZE = 4
+  val PAGE_SIZE = 16
 
   // ~~~ play variables
   def flash = play.mvc.Scope.Flash.current()

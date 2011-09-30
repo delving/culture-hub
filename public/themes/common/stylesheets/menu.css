@@ -51,9 +51,9 @@ ul#user-menu a.user {
 
 ul#user-menu li .sub {
 	position: absolute; /*--Important--*/
-	top: 32px; left: -200px;
+	top: 64px; left: -200px;
 	z-index: 99999;
-	background: #272911;
+	background: #336699;
 	padding: 10px;
 	float: left;
 	/*--Bottom right rounded corner--*/
@@ -89,7 +89,7 @@ ul#user-menu .sub ul li h2 { /*--Sub nav heading style--*/
 	padding: 0;  margin: 0;
 	/*font-size: 1.3em;*/
 	font-weight: normal;
-    color: #CFD0BF;
+    color: gold;
 }
 /*ul#user-menu .sub ul li h2 a { *//*--Sub nav heading link style--*/
 	/*padding: 5px 0;*/

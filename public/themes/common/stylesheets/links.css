@@ -1,23 +1,23 @@
-#hub-navigation a,
-#login-registration a,
-#user-navigation a {
-  margin: 0;
-  padding:  0;
-  color: #ccc;
-  text-decoration: none;
-}
+/*#hub-navigation a,*/
+/*#login-registration a,*/
+/*#user-navigation a {*/
+  /*margin: 0;*/
+  /*padding:  0;*/
+  /*color: #ccc;*/
+  /*text-decoration: none;*/
+/*}*/
 
-#hub-navigation a:hover,
-#login-registration a:hover,
-#user-navigation a:hover {
-  text-decoration: underline;
-}
+/*#hub-navigation a:hover,*/
+/*#login-registration a:hover,*/
+/*#user-navigation a:hover {*/
+  /*text-decoration: underline;*/
+/*}*/
 
-#hub-navigation a.current,
-#login-registration a.current,
-#user-navigation a.current {
-  text-decoration: underline;
-}
+/*#hub-navigation a.current,*/
+/*#login-registration a.current,*/
+/*#user-navigation a.current {*/
+  /*text-decoration: underline;*/
+/*}*/
 
 /*#hub-navigation a.current span,*/
 /*#login-registration a.current span,*/
@@ -31,13 +31,13 @@
   /*text-decoration: none;*/
 /*}*/
 
-#hub-navigation span.pipe,
-#login-registration span.pipe,
-#user-navigation span.pipe {
+span.pipe {
     display: inline-block;
     margin: 0 8px;
+    padding:  0;
     color: #777
 }
+
 
 .item-pager a:link,
 .item-pager a:visited {
@@ -56,12 +56,26 @@
 }
 
 .breadcrumbs {
-    margin-bottom: 10px;
+    height: 20px;
+    margin-bottom: 20px;
+}
+.breadcrumbs span.arrow {
+    background:  transparent url(../images/arrows-next-horizontal.png) -80px 4px no-repeat;
+    display: inline-block;
+    height: 16px;
+    margin:  0 10px 0 12px;
+    width: 16px;
+    text-indent: -999em; overflow: hidden;
 }
 
-.breadcrumbs .arrow {
-    margin:  0 10px;
-}
+/*.breadcrumbs {*/
+    /*height: 64px;*/
+    /*line-height: 64px;*/
+/*}*/
+
+/*.breadcrumbs .arrow {*/
+    /*margin:  0 10px;*/
+/*}*/
 
 .breadcrumbs .current {
     color: #888;

@@ -1,6 +1,7 @@
 @(recentCollections: List[controllers.ShortCollection], recentStories: List[controllers.ShortStory], recentObjects: List[controllers.ShortObject])
 
 @import views.context._
+@import views.tags.html._
 @header("Welcome", "home") {
 
 <div class="messages-container">
@@ -45,10 +46,10 @@
 </div>
 
 <div class="grid_8 alpha">
-
+    @if(recentCollections.size > 0) {
     <h2><span>Recent Collections</span></h2>
 
-    <div class="collections-container">
+    <div class="collections-container items">
         @for(c <- recentCollections) {
 
         <div class="item one-col">
@@ -56,6 +57,7 @@
                 <img src='@thumbnailUrl(c.thumbnail)' width="50" alt="@c.name"/>
             </div>
             <div class="metadata">
+                <div class="hd"></div>
                 <div class="bd">
                     <h4><a href="/@c.userName/collection/@c.id">@c.name</a></h4>
                     <span class="detail">@fullName(c.userName)</span>
@@ -67,6 +69,9 @@
         }
     </div>
 
+    }
+
+    @if(recentStories.size > 0) {
     <h2><span>Recent Stories</span></h2>
 
     <div class="stories-container">
@@ -87,9 +92,12 @@
 
         }
     </div>
+
+    }
 </div>
 
 <div class="grid_8 omega">
+    @if(recentObjects.size > 0) {
     <h2><span>Recent Objects</span></h2>
 
     <div class="objects-container ">
@@ -103,5 +111,9 @@
 
         }
     </div>
+    }
 </div>
+
+
+
 }
