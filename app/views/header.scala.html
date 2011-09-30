@@ -1,6 +1,6 @@
 @(title:String = "", bodyId: String = "")(body: => Html)
 @import views.context._
-
+@import views.tags.html._
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -107,9 +107,9 @@
 
 <div id="wrapper">
 
-    <div id="header">
+    <header id="header">
 
-        <div id="header-top">
+        <nav id="header-top" class="clearfix">
             <div class="container_16">
                 <div class="grid_10" id="hub-navigation">
                     <a class='@if(isCurrent("Application")) {current}' href="@action(controllers.Application.index)"><span>Home</span></a><span class="pipe">|</span>
@@ -162,47 +162,17 @@
                 </div>
             </div>
 
-        </div>
+        </nav>
 
-        <!--@if(userName != null) {-->
-
-        <!--<div id="header-user-bar">-->
-            <!--<div class="container_16">-->
-                <!--<div class="grid_12" id="user-navigation">-->
-                    <!--<span id="user-name">Hi @fullName</span>-->
-                    <!--<a href='/@userName/profile'><span>Your Profile</span></a><span class="pipe">|</span>-->
-                    <!--<a href='/@userName/object'><span>Your Objects</span></a><span class="pipe">|</span>-->
-                    <!--<a href='/@userName/collection'><span>Your Collections</span></a><span class="pipe">|</span>-->
-                    <!--<a href='/@userName/story'><span>Your Stories</span></a>-->
-                <!--</div>-->
-
-                <!--<div class="grid_4">-->
-                    <!--<div id="user-tools" class="">-->
-                       <!--<ul class="main-menu">-->
-                           <!--<li><a href="#"> Hi @fullName</a>-->
-                               <!--<ul class="sub-menu">-->
-                                   <!--<li><a href="" class="add image-add">New object</a></li>-->
-                                   <!--<li><a href="" class="add collection-add">New collection</a></li>-->
-                                   <!--<li><a href="" class="add story-add">New story</a></li>-->
-                               <!--</ul>-->
-                           <!--</li>-->
-                       <!--</ul>-->
-                    <!--</div>-->
-
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-
-        <!--}-->
-
-        <div id="header-main">
+        <div id="header-main" class="clearfix">
             <div class="container_16">
                 <div class="grid_16" id="branding">
-                    <h1><span>@themeDisplayName</span></h1>
+
+                    <h1 class="ir"><span>@themeDisplayName</span></h1>
 
                     <div id="header-text">
                         <p>This is the development environment for the Delving Culture-Hub. This is a place where objects come to life through
-                            contextual grouping in 'collections' and through story-telling. We believe that every object tells a story, but that story depends on context. So
+                            contextual grouping in collections and through story-telling. We believe that every object tells a story, but that story depends on context. So
                             one object may be able to tell a different story depending on its context.</p>
 
                         <p>
@@ -210,11 +180,12 @@
                             <a href="/login">login</a> and start adding and grouping objects. You can work on your own collections and stories or collaborate with other users to create collections and tell stories.
                         </p>
                     </div>
+
                 </div>
             </div>
         </div>
 
-        <div id="header-bot">
+        <div id="header-bot" class="clearfix">
             <div class="container_16">
                 <div class="grid_16">
 
@@ -222,20 +193,20 @@
             </div>
         </div>
 
-    </div>
+    </header>
 
-    <div id="search">
+    <div id="search" class="clearfix">
         <div class="container_16">
             <div class="grid_16">
                 <form method="get" action="">
                     <input type="text" class="textinput" id="query" name="query" value='@params.get("query")' />
-                    <input type="submit" class="dui-button ui-state-default" value="Search">
+                    <input type="submit" class="dui-button" value="Search">
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="page">
+    <div id="page" class="clearfix">
 
         <div id="messages-container">
             <div class="container_16">

@@ -1,6 +1,7 @@
 - !!models.PortalTheme
     name: default
     templateDir: default
+    isDefault: true
     subdomain: default
     displayName: Delving Culture Hub
     defaultLanguage: nl
@@ -27,7 +28,6 @@
 - !!models.PortalTheme
     name: frieseverhalen
     templateDir: frieseverhalen
-    isDefault: true
     subdomain: frieseverhalen
     displayName: Friese Verhalen
     defaultLanguage: nl
