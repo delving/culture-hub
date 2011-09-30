@@ -25,7 +25,7 @@ case class ShortTheme(id: ObjectId, name: String)
 case class Token(id: String, name: String)
 
 
-case class ListItem(id: ObjectId, title: String, description: String = "", thumbnail: Option[ObjectId] = None, userName: String, fullUserName: String)
+case class ListItem(id: String, title: String, description: String = "", thumbnail: Option[ObjectId] = None, userName: String, fullUserName: String)
 
 
 // ~~ reference objects
@@ -65,13 +65,15 @@ trait ModelImplicits {
   implicit def collectionToListItem(c: UserCollection) = ListItem(c.id, c.name, c.description.getOrElse(""), c.thumbnail_object_id, c.userName, fullName(c.userName))
   implicit def storyToListItem(s: Story) = ListItem(s.id, s.name, s.description, s.thumbnail, s.userName, fullName(s.userName))
   implicit def userToListItem(u: User) = ListItem(u.id, u.fullname, "", None, u.reference.username, u.fullName)
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.id.get, ds.details.name, ds.description.getOrElse(""), None, ds.userName, fullName(ds.userName))
+  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.userName, fullName(ds.userName))
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }
   implicit def storyListToListItemList(l: List[Story]) = l.map { storyToListItem(_) }
   implicit def userListToListItemList(l: List[User]) = l.map { userToListItem(_) }
   implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
+
+  implicit def oidToString(oid: ObjectId) = oid.toString
 
   implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
     case Some(id) => id.toString
