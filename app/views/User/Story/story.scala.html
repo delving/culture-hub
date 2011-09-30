@@ -1,4 +1,4 @@
-@(id: Option[String] = None)
+@(id: Option[String] = None)(implicit viewModel: Option[Class[_ <: controllers.ViewModel]] = None)
 
 @import views.context._
 @import views.tags.html._
@@ -39,24 +39,25 @@
 
 <div class="grid_9 prefix_1 omega">
     <span class="required-note"><span>*</span> Required Fields</span>
+    <form id="storyForm">
+      @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", " ", false, "required")
+      @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'", " ", "required")
 
-    @textField("name", "Name", "value: name, valueUpdate: 'afterkeydown'", " ", false, "required")
-    @textArea("description", "Description", "value: description, valueUpdate: 'afterkeydown'", " ", "required")
+      <div class="field" for="objectVisibility">
+          <label>Public</label>
 
-    <div class="field" for="objectVisibility">
-        <label>Public</label>
+          <div class="inputs">
+              <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
+              <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
+          </div>
+      </div>
 
-        <div class="inputs">
-            <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
-            <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
-        </div>
-    </div>
-
-   @if(id == None) {
+    @if(id == None) {
     <div class="actions">
-        <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
+      <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
     </div>
     }
+    </form>
 </div>
 
 <div class="clear"></div>
@@ -105,7 +106,7 @@
 </div>
 
 <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
-  <div id="objects-list" data-bind="template: 'availableObjectsList'"></div>
+  <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: currentPage.selectedObjectIds, availableObjects: currentPage.availableObjects}}"></div>
 </div>
 
 <div id="dialog-confirm-page-delete" title="Delete the page?" style="display: none;">
@@ -120,9 +121,7 @@
     <div class="field">
       <label for="title"  class="required">Title</label>
       <div class="inputs">
-        <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown' " />
-        <span class="error"></span>
-        <span class="help"></span>
+        <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: 'Required'}}" />
       </div>
     </div>
 
@@ -141,48 +140,13 @@
         </div>
     </div>
 
-    <div id="objectList" class="display-box" data-bind="template: 'objectsList'"></div>
+    <div id="objectList" class="display-box" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
     <div class="actions">
             <button class="save page-save"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
     </div>
   </form>
 
-</script>
-
-<script type="text/html" id="availableObjectsList">
-  <table>
-      <tbody>
-      {{each(i, object) currentPage.availableObjects()}}
-      <tr>
-          <td><input type="checkbox" value="${object.id}" data-bind="checked: currentPage.selectedObjectIds()" /></td>
-          <td><img src='${thumbnailUrl(object.id)}' width="50" alt="${object.name}"/></td>
-          <td><h4>${object.name}</h4></td>
-      </tr>
-      {{/each}}
-      </tbody>
-  </table>
-</script>
-
-<script type="text/html" id="objectsList">
-  <table width="100%" class="list">
-      <thead>
-          <tr>
-          <th colspan="3" class="header">Objects in your page</th>
-          </tr>
-          <tr>
-          <th>Object</th><th class="action">Action</th><th class="thumb">Use as story thumbnail</th>
-          </tr>
-      </thead>
-      <tbody>
-      {{each(i, object) currentPage.objects()}}
-      <tr>
-          <td>${name}</td>
-          <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
-          <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: thumbnail"></td>
-      </tr>
-      {{/each}}
-  </table>
 </script>
 
 <script type="text/html" id="pageList">
@@ -205,10 +169,18 @@
   <div class="clear"></div>
 </script>
 
-
 <script type="text/javascript" language="javascript">
 
     $(document).ready(function() {
+
+      // load templates
+      $.get('@asset("/public/themes/common/templates/_availableObjects.tmpl.html")', null, function(template) {
+        addTemplate('availableObjectsList', template);
+      });
+      $.get('@asset("/public/themes/common/templates/_selectedObjects.tmpl.html")', null, function(template) {
+        addTemplate('objectsList', template);
+      });
+
       var storyModel = {
         currentPage: {
           lock: ko.observable(false),
@@ -319,20 +291,13 @@
         }
       });
 
-      function saveStory(onSuccess, onFailure, isDraft) {
-        var draft = typeof isDraft === 'undefined' ? false : isDraft;
-        storyModel.isDraft(draft);
-        storyModel.collections.remove(function(it) { return it.id === "@controllers.Collections.NO_COLLECTION" });
-        Spinners.create('.wait').play();
-        $.postKOJson('/@userName/story/submit', storyModel, function(data) {
-          Spinners.get('.wait').remove();
-          updateViewModel(data, storyModel);
-          if(onSuccess !== undefined && typeof onSuccess === 'function') onSuccess.call();
-        }, function(jqXHR, textStatus, errorThrown) {
-          Spinners.get('.wait').remove();
-          updateViewModel($.parseJSON(jqXHR.responseText), storyModel);
-          if(onFailure !== undefined && typeof onFailure === 'function') onFailure.call();
-        })
+      function saveStory(onSuccess, onError, isDraft) {
+        if($('#storyForm').validate({meta: 'validate'}).form()) {
+          var draft = typeof isDraft === 'undefined' ? false : isDraft;
+          storyModel.isDraft(draft);
+          storyModel.collections.remove(function(it) { return it.id === "@controllers.Collections.NO_COLLECTION" });
+          handleSubmit('/@userName/story/submit', null, storyModel, null, onSuccess, onError);
+        }
       }
     });
 </script>

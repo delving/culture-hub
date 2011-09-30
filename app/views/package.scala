@@ -6,10 +6,11 @@ import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import models.{PortalTheme}
-import play.mvc.{Util, Http}
-import controllers.FileStore
+import play.mvc.Http
+import util.Implicits
+import controllers.{ViewModel, FileStore}
 
-package object context {
+package object context extends Implicits {
 
   val PAGE_SIZE = 4
 
@@ -53,9 +54,17 @@ package object context {
   def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
   def niceTime(timestamp: DateTime) = timestamp.toString(DateTimeFormat.fullDateTime())
   def niceText(text: String) = JavaExtensions.nl2br(text)
+
   def isCurrent(controller: String) = Http.Request.current().controller == controller
 
+
+
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
+
+  def printValidationRules(name: String)(implicit viewModel: Option[Class[_ <: ViewModel]]) = viewModel match {
+    case Some(c) => util.Validation.getClientSideValidationRules(c)(name)
+    case None => ""
+  }
 
   // ~~~ themes
   def theme = renderArgs.get("theme").asInstanceOf[PortalTheme]

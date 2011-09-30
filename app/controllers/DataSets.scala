@@ -2,7 +2,8 @@ package controllers
 
 import play.templates.Html
 import models.DataSet
-import org.bson.types.ObjectId
+import views.Dataset._
+
 
 /**
  *
@@ -11,12 +12,10 @@ import org.bson.types.ObjectId
 
 object DataSets extends DelvingController {
 
-  import views.Dataset._
-
   def list(user: Option[String], page: Int = 1): Html = {
     // TODO visibility (public, private)
     val dataSetsPage = DataSet.findAllByOwner(connectedUserId).page(page)
-    html.list(dataSetsPage._1, page, dataSetsPage._2)
+    views.html.list(listPageTitle("dataset"), "dataset", dataSetsPage._1, page, dataSetsPage._2)
   }
 
   def dataSet(spec: String): AnyRef = {

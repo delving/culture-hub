@@ -13,8 +13,6 @@ import user.ObjectModel
 
 object Collections extends DelvingController {
 
-  import views.Collection._
-
   def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
 
     val collectionsPage = user match {
@@ -22,10 +20,11 @@ object Collections extends DelvingController {
       case None => UserCollection.queryAll(query).page(page)
     }
 
-    html.list(collections = collectionsPage._1, page = page, count = collectionsPage._2)
+    views.html.list(title = listPageTitle("collection"), itemName = "collection", items = collectionsPage._1, page = page, count = collectionsPage._2)
   }
 
   def view(user: String, id: String): AnyRef = {
+    import views.Collection._
     UserCollection.findById(id) match {
       case None => NotFound
       case Some(collection) => {

@@ -17,6 +17,8 @@ import play.data.validation.Annotations._
 
 object Stories extends DelvingController with UserAuthentication with Secure {
 
+  implicit val viewModel = Some(classOf[StoryViewModel])
+
   def load(id: String): Result = {
 
     val collections = UserCollection.findByUser(connectedUserId)
