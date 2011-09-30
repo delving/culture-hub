@@ -58,7 +58,7 @@ object DataSets extends DelvingController with UserSecured {
         )
       )
     }
-    Ok
+    Json(dataSet)
   }
 
   def index(spec: String): Result = {

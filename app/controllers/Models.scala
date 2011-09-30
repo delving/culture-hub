@@ -13,7 +13,7 @@ case class ShortObject(id: ObjectId, TS_update: DateTime, name: String, shortDes
 
 case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
 
-case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String)
+case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String, errors: Map[String, String] = Map.empty[String, String])
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
