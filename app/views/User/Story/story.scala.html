@@ -4,11 +4,9 @@
 @import views.tags.html._
 
 @header(if(id == None) "Create new story for user " + fullName else "Update story for user " + fullName) {
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <a href="/stories">Stories</a><span class="arrow"> &gt; </span>
-    <span class="current">@if(id == None) { Create a new story } else { Update a story }</span>
-</div>
+
+@breadcrumbs()
+
 <div class="grid_16 alpha">
     <h1 class="emphasize">@if(id == None) { Create a new story } else { Update a story }</h1>
 </div>

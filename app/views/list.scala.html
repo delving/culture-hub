@@ -5,10 +5,7 @@
 
 @header(title) {
 
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <span class="current">@itemName.capitalize.pluralize</span>
-</div>
+@breadcrumbs()
 
 <div class="grid_16 alpha" id="items">
 

@@ -4,11 +4,8 @@
 @import views.tags.html._
 
 @header(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <a href="/collections">Collections</a><span class="arrow"> &gt; </span>
-    <span class="current">@if(id == None) { Create a collection } else { Update collection }</span>
-</div>
+
+@breadcrumbs()
 
 <h1 class="grid_16 alpha">@if(id == None) { Create a collection } else { Update collection }</h1>
 

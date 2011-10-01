@@ -24,7 +24,11 @@ case class Story(_id: ObjectId = new ObjectId,
                  pages: List[Page]) {
 }
 
-object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story]
+object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
+
+  def fetchName(id: String): String = findById(id).get.name
+
+}
 
 @EnumAs(strategy = EnumStrategy.BY_VALUE)
 object Visibility extends Enumeration {

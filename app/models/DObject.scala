@@ -39,6 +39,8 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
     update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_id" -> thumbnail_id)) , false, false)
   }
 
+  def fetchName(id: String): String = findById(id).get.name
+
   def removeFile(oid: ObjectId) {
     DObject.update(MongoDBObject(), (MongoDBObject("$pull" -> MongoDBObject("files" -> MongoDBObject("id" -> oid)))))
   }

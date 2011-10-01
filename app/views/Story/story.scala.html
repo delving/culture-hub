@@ -1,14 +1,11 @@
 @(story: models.Story)
 
 @import views.context._
+@import views.tags.html._
 
 @header("Story " + story.name + " of user " + browsedFullName ) {
 
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <a href="/stories">Stories</a><span class="arrow"> &gt; </span>
-    <span class="current">@story.name</span>
-</div>
+@breadcrumbs()
 
 <h1>@story.name</h1>
 
