@@ -21,7 +21,7 @@ object DObjects extends DelvingController {
     }
 
     request.format match {
-      case "html" => html.list(title = listPageTitle("object"), itemName = "object", items = objectsPage._1, page = page, count = objectsPage._2)
+      case "html" => views.html.list(title = listPageTitle("object"), itemName = "object", items = objectsPage._1, page = page, count = objectsPage._2)
       case "json" => Json(objectsPage._1)
     }
   }

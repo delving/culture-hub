@@ -36,6 +36,8 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
     (for(uc <- userCollectionCursor) yield grater[UserCollection].asObject(uc)).toList
   }
 
+  def fetchName(id: String): String = findById(id).get.name
+
   def findAllWriteable(user: UserReference) = {
     val ownedCursor = findAllByRight(user.username, user.node, "owner")
     val updateCursor = findAllByRight(user.username, user.node, "update")

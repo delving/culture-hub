@@ -1,14 +1,11 @@
 @(dobject: models.DObject, labels: List[controllers.ShortLabel])
 
 @import views.context._
+@import views.tags.html._
 
 @header("Object " + dobject.name + " of user " + browsedFullName) {
 
-<div class="breadcrumbs">
-    <a href="@action(controllers.Application.index)">Home</a><span class="arrow"> &gt; </span>
-    <a href="/objects">Objects</a><span class="arrow"> &gt; </span>
-    <span class="current">@dobject.name</span>
-</div>
+@breadcrumbs()
 
 <h1>@dobject.name</h1>
 

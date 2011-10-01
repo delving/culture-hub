@@ -7,6 +7,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 import salat.dao.{SalatMongoCursor, SalatDAO}
 import java.util.regex.Pattern
+import salatContext._
 
 /**
  * 
