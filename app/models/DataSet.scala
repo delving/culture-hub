@@ -20,6 +20,7 @@ import play.exceptions.ConfigurationException
 import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
 import xml.{Node, XML}
 import cake.ComponentRegistry
+import play.i18n.Messages
 
 /**
  *
@@ -367,16 +368,18 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
   def hasOptions = !options.isEmpty
 }
 
-case class DataSetState(name: String)
+case class DataSetState(name: String) {
+  def description = Messages.get("dataSetState." + name)
+}
 
 object DataSetState {
-  val values = List(INCOMPLETE, ENABLED, DISABLED, UPLOADED, QUEUED, INDEXING, ERROR)
+  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
   val INCOMPLETE = DataSetState("incomplete")
-  val ENABLED = DataSetState("enabled")
-  val DISABLED = DataSetState("disabled")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
   val INDEXING = DataSetState("enabled")
+  val ENABLED = DataSetState("enabled")
+  val DISABLED = DataSetState("disabled")
   val ERROR = DataSetState("error")
   def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
   def valid(name: String) = values.contains(DataSetState(name))
@@ -408,7 +411,7 @@ object RecordDefinition {
 
   private def parseRecordDefinitions: List[RecordDefinition] = {
     val definitionContent = getRecordDefinitionFiles.map { f => XML.loadFile(f) }
-    definitionContent flatMap { parseRecordDefinition(_) } toList
+    definitionContent.flatMap(parseRecordDefinition(_)).toList
   }
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {

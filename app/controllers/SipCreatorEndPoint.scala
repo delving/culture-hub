@@ -126,7 +126,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     }
 
-    val requiredFiles = (lines flatMap fileRequired) mkString ("\n")
+    val requiredFiles = (lines flatMap fileRequired).mkString("\n")
     Text(requiredFiles)
   }
 
