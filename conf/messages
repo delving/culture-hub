@@ -23,6 +23,16 @@ secure.error=Login incorrect
 secure.logout=You were logged out successfully
 secure.notactive.error=Your account is not yet active. Active it following the link in the mail.
 
+dataSetState.incomplete=DataSet is incomplete
+dataSetState.uploaded=DataSet is uploaded and ready for indexing
+dataSetState.queued=DataSet is queued for indexing
+dataSetState.indexing=DataSet is being indexed
+dataSetState.enabled=DataSet is enabled
+dataSetState.disabled=DataSet is disabled
+dataSetState.error=DataSet has an error
+
+
+
 _action.OpenInNewWindow=Opens in a new window
 _action.add.annotation=Add annotation
 _action.add.tag=Add a tag

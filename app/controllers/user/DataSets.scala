@@ -30,9 +30,10 @@ object DataSets extends DelvingController with UserSecured {
     val factsObject = new BasicDBObject(dataSet.facts)
 
     def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
-      (for (recordDef <- recordDefinitions) yield {
-        (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
-      }).toMap[String, Mapping]
+      val mappings = recordDefinitions.map {
+        recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
+      }
+      mappings.toMap[String, Mapping]
     }
 
     // TODO handle all "automatic facts"

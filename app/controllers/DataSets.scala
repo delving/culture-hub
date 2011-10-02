@@ -15,10 +15,10 @@ object DataSets extends DelvingController {
   def list(user: Option[String], page: Int = 1): Html = {
     // TODO visibility (public, private)
     val dataSetsPage = DataSet.findAllByOwner(connectedUserId).page(page)
-    views.html.list(listPageTitle("dataset"), "dataset", dataSetsPage._1, page, dataSetsPage._2)
+    html.list(listPageTitle("dataset"), dataSetsPage._1, page, dataSetsPage._2)
   }
 
-  def dataSet(spec: String): AnyRef = {
+  def view(spec: String): AnyRef = {
    // TODO check if connected user has access
     val dataSet = DataSet.findBySpec(spec)
 

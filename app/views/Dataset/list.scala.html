@@ -1,0 +1,50 @@
+@(title: String, items: List[controllers.ShortDataSet], page: Int, count: Int)
+
+@import views.context._
+@import views.tags.html._
+@import models.DataSetState._
+
+@header(title) {
+
+@breadcrumbs()
+
+<div class="grid_16 alpha" id="items">
+
+    @if(browsedUserName != null) {
+    <h2>Browse DataSets owned by: <span>@browsedUserName</span> (@count)</h2>
+    } else {
+    <h2>Browse DataSets (@count)</h2>
+    }
+
+    @if(items.length > 0) {
+    <div class="item-nav">
+        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+    </div>
+    }   else {
+        <p>There are currently no DataSets available</p>
+    }
+
+    <div class="clear"></div>
+
+    @for(i <- items) {
+    <div class="item one-col">
+        <div class="media medium">
+            <img src='@thumbnailUrl(None)' width="84" alt="@i.spec"/>
+        </div>
+        <div class="metadata">
+            <div class="bd">
+                <h4><a href="/@i.userName/dataSet/@i.spec">@i.spec</a> (<em>@i.total_records records</em>)</h4>
+                @i.state.description
+            </div>
+            @if(i.userName == userName) {
+            <div class="actions">
+                <a class="action edit image-edit" href="/@i.userName/dataSet/@i.id/update">Edit DataSet</a>
+            </div>
+            }
+        </div>
+    </div>
+    <div class="clear"></div>
+    }
+</div>
+
+}

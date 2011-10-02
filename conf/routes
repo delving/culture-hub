@@ -106,7 +106,7 @@ GET         /{user}/dataset                                                  Dat
 GET         /{user}/dataset/add                                              user.DataSets.dataSetUpdate
 GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSetUpdate
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
-GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
+GET         /{user}/dataset/{spec}?                                          DataSets.view
 POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
 POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
 POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
