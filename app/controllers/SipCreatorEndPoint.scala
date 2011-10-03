@@ -131,7 +131,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   }
 
 
-  def acceptFile(spec: String, fileName: String): Result = {
+  def acceptFile: Result = {
+    val spec = params.get("spec")
+    val fileName = params.get("fileName")
     log.info(String.format("Accepting file %s for DataSet %s", fileName, spec))
     val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec)))
 
