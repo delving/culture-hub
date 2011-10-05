@@ -124,8 +124,8 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
         $.postKOJson(url, viewModel, function(data) {
             Spinners.get('.wait').remove();
             updateViewModel(data, viewModel);
-            if (typeof onSuccess !== 'undefined') onSuccess.call();
-            if (redirectUrl) window.location.href = redirectUrl;
+            if (onSuccess) onSuccess.call();
+            if (redirectUrl) window.location.href = redirectUrl + viewModel.id();
         }, function(jqXHR, textStatus, errorThrown) {
             Spinners.get('.wait').remove();
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
