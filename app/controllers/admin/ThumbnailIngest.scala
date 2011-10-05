@@ -1,0 +1,61 @@
+package controllers.admin
+
+import controllers.ImageCacheService
+import java.io.{FileInputStream, File}
+import play.mvc.results.Result
+import play.mvc.{Util, Controller}
+
+/**
+ * Creates thumbnails from FS images and stores them in the Mongo FileStore
+ * 
+ * TODO this should become part of a comprehensive interface for batch image ingestion, tiling etc.
+ * 
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ */
+
+object ThumbnailIngest extends Controller {
+
+  val fs = controllers.FileStore.fs
+
+  def ingest(path: String): Result = {
+    if(path == null) Error("Null path parameter")
+    val dir = new File(path)
+    if (!dir.exists() || !dir.isDirectory) {
+      Error("Path '%s' is not a valid directory".format(dir))
+    } else {
+      // yadaaaaa
+      val images = dir.listFiles().filter(file => {
+        val f = file.getName
+        f.endsWith("tif") || f.endsWith("TIF") || f.endsWith("jpg") || f.endsWith("JPG")
+      })
+      images.foreach {
+        i =>
+          List(storeThumbnail(i, 180), storeThumbnail(i, 500)) foreach {
+            t => if(t == None) return Error("Could not thumbanilize image " + i.getAbsolutePath)
+          }
+      }
+      Text("Successfuly created thumbnails for " + images.length.toString + " images")
+    }
+  }
+
+  @Util private def storeThumbnail(image: File, width: Int) = {
+    try {
+      val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width)
+      val thumbnail = fs.createFile(thumbnailStream)
+      thumbnail.filename = image.getName
+      thumbnail.contentType = "image/jpeg"
+      val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
+      thumbnail.put(controllers.FileStore.IMAGE_ID_FIELD, imageName)
+      thumbnail.put(controllers.FileStore.ORIGIN_PATH_FIELD, image.getAbsolutePath)
+      thumbnail.put(controllers.FileStore.THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
+      thumbnail.save
+      Some(thumbnail._id)
+    } catch {
+      case t => {
+        t.printStackTrace()
+        None
+      }
+    }
+  }
+
+}
