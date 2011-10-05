@@ -78,7 +78,7 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/@userName/object/submit', objectModel, '#objectForm', '/@userName/object/' + objectModel.id(), null, null, {uid: '@uid'});
+      handleSubmit('/@userName/object/submit', objectModel, '#objectForm', '/@userName/object/', null, null, {uid: '@uid'});
     });
 
     load('/@userName/object/load/@id.getOrElse("")', objectModel, null, function() {
