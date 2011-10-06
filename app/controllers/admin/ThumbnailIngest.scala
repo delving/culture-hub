@@ -4,6 +4,7 @@ import controllers.ImageCacheService
 import java.io.{FileInputStream, File}
 import play.mvc.results.Result
 import play.mvc.{Util, Controller}
+import org.bson.types.ObjectId
 
 /**
  * Creates thumbnails from FS images and stores them in the Mongo FileStore
@@ -28,17 +29,17 @@ object ThumbnailIngest extends Controller {
         val f = file.getName
         f.endsWith("tif") || f.endsWith("TIF") || f.endsWith("jpg") || f.endsWith("JPG")
       })
-      images.foreach {
-        i =>
-          List(storeThumbnail(i, 180), storeThumbnail(i, 500)) foreach {
-            t => if(t == None) return Error("Could not thumbanilize image " + i.getAbsolutePath)
-          }
+      val thumbnails: Seq[(Option[ObjectId], File)] = (images.map { image => (storeThumbnail(image, 180), image) }).toList ::: (images.map { image => (storeThumbnail(image, 500), image) }).toList
+      val failures = thumbnails.filter(_._1 == None).map {r => r._2.getAbsolutePath }
+      if(failures.size == 0) {
+        Text("Successfuly created thumbnails for " + images.length.toString + " images")
+      } else {
+        Text("Failed to create all thumbnails, " + failures.length + " issues for:\n" + failures.mkString("\n"))
       }
-      Text("Successfuly created thumbnails for " + images.length.toString + " images")
     }
   }
 
-  @Util private def storeThumbnail(image: File, width: Int) = {
+  @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
     try {
       val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width)
       val thumbnail = fs.createFile(thumbnailStream)
@@ -49,7 +50,7 @@ object ThumbnailIngest extends Controller {
       thumbnail.put(controllers.FileStore.ORIGIN_PATH_FIELD, image.getAbsolutePath)
       thumbnail.put(controllers.FileStore.THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
       thumbnail.save
-      Some(thumbnail._id)
+      thumbnail._id
     } catch {
       case t => {
         t.printStackTrace()
