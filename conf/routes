@@ -131,11 +131,14 @@ GET        /admin/themes/new                                                 adm
 GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 
+GET        /admin/tool/thumbnailize/                                         admin.ThumbnailIngest.ingest
+
 # File Store
 GET        /file/{id}                                                        FileStore.get
 POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
-GET        /file/image/{id}                                                  FileStore.getImage
-GET        /thumbnail/{id}                                                   FileStore.getThumbnail
+GET        /file/image/{id}                                                  FileStore.displayImage
+GET        /thumbnail/{id}/{width}?                                          FileStore.displayThumbnail
+GET        /thumbnail/{id}                                                   FileStore.displayThumbnail
 DELETE     /file/{id}                                                        user.FileUpload.deleteFile
 
 # Image Cache

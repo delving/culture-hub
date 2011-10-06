@@ -85,7 +85,7 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/@userName/collection/submit', collectionModel, '#collectionForm', '/@userName/collection/' + collectionModel.id());
+            handleSubmit('/@userName/collection/submit', collectionModel, '#collectionForm', '/@userName/collection/');
         });
 
         load('/@userName/collection/load/@id.getOrElse("")', collectionModel);

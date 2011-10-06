@@ -294,7 +294,7 @@
           var draft = typeof isDraft === 'undefined' ? false : isDraft;
           storyModel.isDraft(draft);
           storyModel.collections.remove(function(it) { return it.id === "@controllers.Collections.NO_COLLECTION" });
-          handleSubmit('/@userName/story/submit', null, storyModel, null, onSuccess, onError);
+          handleSubmit('/@userName/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
         }
       }
     });
