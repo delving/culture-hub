@@ -36,12 +36,23 @@ object DataSets extends DelvingController with UserSecured {
       mappings.toMap[String, Mapping]
     }
 
+    def updateMappings(recordDefinitions: List[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
+      val existing = mappings.filter(m => recordDefinitions.contains(m._1))
+      val added = recordDefinitions.filter(prefix => !mappings.keys.contains(prefix))
+      existing ++ buildMappings(added)
+    }
+
     // TODO handle all "automatic facts"
     factsObject.append("spec", spec)
 
     dataSet.id match {
       // TODO for update, add the operator that appends key-value pairs rather than setting all
-      case Some(id) => DataSet.update(MongoDBObject("spec" -> spec), MongoDBObject("$set" -> MongoDBObject("spec" -> spec, "details.facts" -> factsObject)), false, false, new WriteConcern())
+      case Some(id) => {
+        val existing = DataSet.findOneByID(id).get
+        val updatedDetails = existing.details.copy(facts = factsObject)
+        val updated = existing.copy(spec = spec, details = updatedDetails, mappings = updateMappings(dataSet.recordDefinitions, existing.mappings) )
+        DataSet.save(updated)
+        }
       case None => DataSet.insert(
         DataSet(
           spec = dataSet.spec,

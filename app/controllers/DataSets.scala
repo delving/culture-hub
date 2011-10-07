@@ -30,7 +30,7 @@ object DataSets extends DelvingController {
       }
       case "json" => if(dataSet == None) Json(ShortDataSet(userName = connectedUser)) else {
         val dS = dataSet.get
-        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getUser.reference.username))
+        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getUser.reference.username, recordDefinitions = dS.recordDefinitions))
       }
     }
 
