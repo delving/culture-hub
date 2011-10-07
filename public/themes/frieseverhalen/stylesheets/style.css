@@ -8,6 +8,27 @@ body#authenticate {
        background:  #60652A url(../images/bg-header.png) repeat-x top left;
 }
 
+#login h2 {
+    color: #555;
+}
+
+#login-registration {
+    text-align: right;
+}
+
+#login #branding {
+    margin:  0;
+    text-align: center;
+}
+
+#login #branding h1 {
+    margin:  0 auto 20px auto;
+    color: #fff;
+    width: 335px;
+}
+
+
+
 .container_16 {
     /*position: relative;*/
     min-width: 960px;
@@ -45,12 +66,6 @@ h4.user {
 ol.small li {
     font-size: 80%;
 }
-
-/*p {*/
-    /*margin:  0;*/
-/*}*/
-
-
 
 /* basic page layout */
 
@@ -120,9 +135,7 @@ ol.small li {
     min-height: 100px;
 }
 
-#login-registration {
-    text-align: right;
-}
+
 
 /* Name / Branding */
 
@@ -132,6 +145,7 @@ ol.small li {
     font: 42px arial;
     margin: 40px 0 0 0;
     padding:  0;
+    width: auto;
 }
 
 #branding h1 span {
@@ -490,6 +504,17 @@ ul.inline li {
     font-size: 110%;
 }
 
+p.error {
+    padding:  4px;
+    background: #cc0000;
+    color: #fff
+}
+
+p.success {
+    padding:  4px;
+    background:  green;
+    color: #fff;
+}
 
 
 
