@@ -8,35 +8,31 @@ body#authenticate {
        background:  #60652A url(../images/bg-header.png) repeat-x top left;
 }
 
+#login h2 {
+    color: #555;
+}
+
+#login-registration {
+    text-align: right;
+}
+
+#login #branding {
+    margin:  0;
+    text-align: center;
+}
+
+#login #branding h1 {
+    margin:  0 auto 20px auto;
+    color: #fff;
+    width: 335px;
+}
+
+
+
 .container_16 {
     /*position: relative;*/
     min-width: 960px;
 }
-
-/* Sticky Footer Code thanks to: http://www.cssstickyfooter.com/ */
-
-/*html, body {height: 100%;}*/
-
-/*#wrapper {min-height: 100%;}*/
-
-/*#page {overflow:auto;*/
-	/*padding-bottom: 200px;}  *//* must be same height as the footer */
-
-/*#footer {position: relative;*/
-	/*margin-top: -200px; *//* negative value of footer height */
-	/*height: 200px;*/
-	/*clear:both;}*/
-
-/*Opera Fix*/
-/*body:before {*/
-	/*content:"";*/
-	/*height:100%;*/
-	/*float:left;*/
-	/*width:0;*/
-	/*margin-top:-32767px;/*/
-/*}*/
-
-/* end sticky footer code! */
 
 a, a:active, a:visited { color: #0673b9; }
 a:hover { color: #10a1ff; }
@@ -71,10 +67,6 @@ ol.small li {
     font-size: 80%;
 }
 
-/*p {*/
-    /*margin:  0;*/
-/*}*/
-
 /* basic page layout */
 
 #page {
@@ -107,6 +99,13 @@ ol.small li {
     color: #fff;
 }
 
+    /* User menu - override common menu.css*/
+
+    ul#user-menu li .sub {
+        top: 42px; left: -200px;
+        background: #272911;
+    }
+
 #header-main {
     background:  #60652A url(../images/bg-header.png) repeat-x top left;
     height: 140px;
@@ -136,9 +135,7 @@ ol.small li {
     min-height: 100px;
 }
 
-#login-registration {
-    text-align: right;
-}
+
 
 /* Name / Branding */
 
@@ -148,6 +145,7 @@ ol.small li {
     font: 42px arial;
     margin: 40px 0 0 0;
     padding:  0;
+    width: auto;
 }
 
 #branding h1 span {
@@ -506,6 +504,17 @@ ul.inline li {
     font-size: 110%;
 }
 
+p.error {
+    padding:  4px;
+    background: #cc0000;
+    color: #fff
+}
+
+p.success {
+    padding:  4px;
+    background:  green;
+    color: #fff;
+}
 
 
 

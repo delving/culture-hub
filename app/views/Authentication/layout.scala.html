@@ -7,8 +7,10 @@
     <head>
         <title>@title</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <link rel="stylesheet" type="text/css" href='@asset(themePath("stylesheets/style.css"))'/>
+        <link rel="stylesheet" type="text/css" media="screen" href='@asset("public/themes/common/stylesheets/normalize.css")'/>
+        <link rel="stylesheet" type="text/css" media="screen" href='@asset("public/themes/common/stylesheets/links.css")'/>
         <link rel="stylesheet" type="text/css" media="screen" href='@asset("public/themes/common/stylesheets/secure.css")'/>
+        <link rel="stylesheet" type="text/css" media="screen" href='@asset(themePath("stylesheets/style.css"))'/>
     </head>
     <body id="authenticate">
       @body
