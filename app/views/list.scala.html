@@ -24,26 +24,30 @@
     }
 
     <div class="clear"></div>
-
+    <div class="items">
     @for(i <- items) {
-    <div class="item one-col">
+    <div class="item four-col">
         <div class="media medium">
             <img src='@thumbnailUrl(i.thumbnail)' width="84" alt="@i.title"/>
         </div>
         <div class="metadata">
-            <div class="bd">
+            <div class="hd">
                 <h4><a href="/@i.userName/@itemName/@i.id">@i.title</a></h4>
+            </div>
+            <div class="bd">
                 @i.description
             </div>
+            <div class="ft">
             @if(i.userName == userName) {
             <div class="actions">
                 <a class="action edit image-edit" href="/@i.userName/@itemName/@i.id/update">Edit @itemName.capitalize</a>
             </div>
             }
+            </div>
         </div>
     </div>
-    <div class="clear"></div>
     }
+    </div>
 </div>
 
 }
