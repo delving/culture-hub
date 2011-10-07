@@ -114,7 +114,8 @@
                 <div class="grid_10" id="hub-navigation">
                     <a class='@if(isCurrent("Application")) {current}' href="@action(controllers.Application.index)"><span>Home</span></a><span class="pipe">|</span>
                     <a class='@if(isCurrent("Users")) {current}' href="/users"><span>Users</span></a><span class="pipe">|</span>
-                    <a class='@if(isCurrent("Objects")) {current}' href="/objects"><span>Objects</span></a><span class="pipe">|</span>
+                    <!--<a class='@if(isCurrent("Objects")) {current}' href="/objects"><span>Objects</span></a><span class="pipe">|</span>-->
+                    <a class='@if(isCurrent("Dobjects.list")) {current}' href="/objects"><span>Objects</span></a><span class="pipe">|</span>
                     <a class='@if(isCurrent("Collections")) {current}' href="/collections"><span>Collections</span></a><span class="pipe">|</span>
                     <a class='@if(isCurrent("Stories")) {current}' href="/stories"><span>Stories</span></a>
 
@@ -124,8 +125,8 @@
                     @if(userName == null) {
 
                     <a href="/login"><span>Login</span></a><span class="pipe">|</span>
-                    <a href="@action(controllers.Registration.index)"><span>Register</span></a><span class="pipe">|</span>
-                    <a href="@action(controllers.Registration.lostPassword)"><span>Forgot Password</span></a>
+                    <a class='@if(isCurrent("Registration.index")) {current}' href="@action(controllers.Registration.index)"><span>Register</span></a><span class="pipe">|</span>
+                    <a class='@if(isCurrent("Registration.lostPassword")) {current}' href="@action(controllers.Registration.lostPassword)"><span>Forgot Password</span></a>
 
                     } else {
                     <div id="user-tools" class="">

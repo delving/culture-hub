@@ -1,35 +1,9 @@
-/*#hub-navigation a,*/
-/*#login-registration a,*/
-/*#user-navigation a {*/
-  /*margin: 0;*/
-  /*padding:  0;*/
-  /*color: #ccc;*/
-  /*text-decoration: none;*/
-/*}*/
+a, a:active, a:visited { color: #0673b9; }
+a:hover { color: #10a1ff; }
 
-/*#hub-navigation a:hover,*/
-/*#login-registration a:hover,*/
-/*#user-navigation a:hover {*/
-  /*text-decoration: underline;*/
-/*}*/
-
-/*#hub-navigation a.current,*/
-/*#login-registration a.current,*/
-/*#user-navigation a.current {*/
-  /*text-decoration: underline;*/
-/*}*/
-
-/*#hub-navigation a.current span,*/
-/*#login-registration a.current span,*/
-/*#user-navigation a.current span {*/
-  /*background: #E7E8DF;*/
-  /*color: #555;*/
-  /*display: inline-block;*/
-  /*font-weight: bold;*/
-  /*height: 21px;*/
-  /*padding:  0 10px;*/
-  /*text-decoration: none;*/
-/*}*/
+a.current {
+    font-weight: bold;
+}
 
 span.pipe {
     display: inline-block;
@@ -38,22 +12,26 @@ span.pipe {
     color: #777
 }
 
-
-.item-pager a:link,
-.item-pager a:visited {
-    color: #000;
-    font-weight: bold;
-    text-decoration: none;
+#pager {
+    padding: 10px 0;
+    position: relative;
 }
 
-.item-pager a:hover {
-    color: #0066cc;
-    text-decoration: underline;
-}
+/*.item-pager a:link,*/
+/*.item-pager a:visited {*/
+    /*color: #000;*/
+    /*font-weight: bold;*/
+    /*text-decoration: none;*/
+/*}*/
 
-.item-pager .pipe {
-    padding: 0 2px 0 2px;
-}
+/*.item-pager a:hover {*/
+    /*color: #0066cc;*/
+    /*text-decoration: underline;*/
+/*}*/
+
+/*.item-pager .pipe {*/
+    /*padding: 0 2px 0 2px;*/
+/*}*/
 
 .breadcrumbs {
     height: 20px;

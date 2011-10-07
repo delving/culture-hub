@@ -55,7 +55,7 @@ package object context extends Implicits {
   def niceTime(timestamp: DateTime) = timestamp.toString(DateTimeFormat.fullDateTime())
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
-  def isCurrent(controller: String) = Http.Request.current().controller == controller
+  def isCurrent(action: String) = Http.Request.current().action.startsWith(action)
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 
