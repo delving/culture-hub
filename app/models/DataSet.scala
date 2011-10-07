@@ -402,7 +402,7 @@ object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
 
-  lazy val recordDefinitions = parseRecordDefinitions
+  def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinitionFiles: Seq[File] = {
     val conf = new File("conf/")
