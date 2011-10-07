@@ -500,10 +500,15 @@ button[disabled] {
     width: 100%;
 }
 
-.item {
-    background:  #eaeaea;
-    margin:  0;
-    padding: 4px;
+/*.item {*/
+    /*border: 1px solid #ccc;*/
+/*}*/
+
+.item .inner {
+    border: 1px solid #ccc;
+    overflow:  hidden;
+    padding:  5px;
+
 }
 
 

@@ -1,6 +1,6 @@
 body {
     font-family: sans-serif;
-    background-color: #336699;
+    background-color: #7DC7E6;
     color: #666;
     font-size: 100%;
     line-height: 26px;
@@ -16,6 +16,7 @@ h1, h2, h3 {
     margin-top: 0;
     margin-bottom: 10px;
     font-weight: normal;
+    color: #BF3D00;
 }
 
 h1 {
@@ -44,7 +45,7 @@ h3 {
 }
 
     #header-top {
-        background:  #336699 ;
+        background:  #034D8F ;
         border-bottom:  1px solid #fff;
         height: 64px;
         line-height: 64px;
@@ -68,34 +69,34 @@ h3 {
         }
 
     #header-main {
-        height: 120px;
-        display: none;
+        background: transparent url(../images/top_image_nbm2.jpg) repeat-x top center;
+        height: 140px;
+        display: block;
     }
 
     #home #header-main {
-        height: 450px;
+        height: 304px;
         display: block;
     }
 
     #home #header-main .container_16 {
-        background: transparent url(../images/logo-delving-large.png) no-repeat 0 10px;
-        height: 450px;
+
+        height: 304px;
     }
 
 /* Name / Branding */
 
-    /*#branding h1 {*/
-       /*background:  transparent url(../images/header-delving-culture-hub.png) no-repeat top left;*/
-       /*height: 50px;*/
-       /*margin:  40px 0 0 120px;*/
-    /*}*/
+    #branding h1 {
+       background:  transparent url(../images/logo.png) no-repeat 0 -50px;
+       height: 100px;
+       margin: 40px 0 0 0;
+    }
+
     #home #branding h1 {
-        background:  transparent url(../images/header-delving-culture-hub.png) no-repeat top left;
+        background:  transparent url(../images/logo.png) no-repeat top left;
         font-family: Times, "Times New Roman", serif;
-        font-size: 64px;
-        line-height: 64px;
-        /*color: #fff;*/
-        margin: 40px 0 0 380px;
+        height: 250px;
+        margin: 40px 0 0 0;
         padding: 0;
     }
 
@@ -113,7 +114,7 @@ h3 {
     }
 
     #home #header-text {
-        display: block;
+        display: none;
         font-size: 150%;
         line-height: 150%;
         /*width: 50%;*/
@@ -124,17 +125,27 @@ h3 {
 }
 
 #search {
-    padding:  10px 0;
+    background-color: #7DC7E6;
+    border-top:  1px solid #fff;
+    padding:  20px 0;
     text-align: center;
 }
 
 
 #search input[type=text] {
-    width: 300px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    height: 21px;
+    width: 400px;
+    height: 22px;
+    margin:  0;
+    border:  1px solid #fff;
+}
+
+#search input[type=submit] {
+    border-radius: 0px;
+    background-color: #ec451b;
+    color: #fff;
+    text-transform: uppercase;
+    margin-left:  -4px;
+    border: none;
 }
 
 #page {
