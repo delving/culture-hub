@@ -59,13 +59,21 @@
 }
 
 .item .metadata {
-    display: table-cell;
-    /*float: left;*/
-}
-
-.item .metadata {
+     display: table-cell;
     font-size: 85%;
     line-height: 136%;
+}
+
+.item .metadata .hd {
+
+}
+
+.item .metadata .bd {
+    margin-bottom: 4px;
+}
+
+.item .metadata .ft {
+
 }
 
 .item h2 {
@@ -95,18 +103,21 @@
     }
 
     .two-col {
+        display: inline-block;
         float: left;
         margin: 0 2% 1em 0;
         width: 48%;
     }
 
     .three-col {
+        display: inline-block;
         float: left;
         margin: 0 2% 1em 0;
         width: 31.33%;
     }
 
     .four-col {
+        display: inline-block;
         float: left;
         margin: 0 2% 1em 0;
         width: 23%;

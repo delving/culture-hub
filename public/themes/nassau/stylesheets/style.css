@@ -147,6 +147,10 @@ ol.small li {
     /*overflow:  hidden;*/
 }
 
+#header-top a {
+    color: #fff;
+}
+
 #header-main {
     background:  #990000;
     height: 140px;
@@ -245,7 +249,7 @@ ol.small li {
 }
 
 #search input[type="submit"] {
-    background: transparent url(../images/bg-button-states.png) 0 0 no-repeat;
+    /*background: transparent url(../images/bg-button-states.png) 0 0 no-repeat;*/
     border:  none;
     color: #fff;
     font-weight: normal;
@@ -257,11 +261,11 @@ ol.small li {
 }
 
 #search input[type="submit"]:hover {
-    background: transparent url(../images/bg-button-states.png) 0 -32px no-repeat;
+    /*background: transparent url(../images/bg-button-states.png) 0 -32px no-repeat;*/
 }
 
 #search input[type="submit"]:active {
-    background: transparent url(../images/bg-button-states.png) 0 -64px no-repeat;
+    /*background: transparent url(../images/bg-button-states.png) 0 -64px no-repeat;*/
 }
 
 
@@ -320,60 +324,6 @@ ul.inline li {
     list-style: none;
     margin: 0 10px 10px 0;
 }
-
-/* This needs to go to common */
-
-/* result page */
-
-.item-nav {
-    border-bottom: 1px solid #CFD0BF;
-    padding: 10px 0;
-    margin-bottom: 1em;
-    width: 100%;
-}
-
-.item-count {
-    /*display: inline-block;*/
-    /*width: 20%;*/
-}
-
-.item-pager {
-    /*display: inline-block;*/
-    /*text-align: right;*/
-    /*display: inline-block;*/
-    /*width: 70%;*/
-}
-
-
-
-.items {
-    clear: both;
-
-}
-
-
-    .one-col {
-        clear: both;
-        padding: 0 1% 10px 1%;
-    }
-     .one-col:after {
-      content: ".";
-      display: block;
-      height: 0;
-      clear: both;
-      visibility: hidden;
-    }
-    .two-col {
-        float: left;
-        margin: 0 2% 1em 0;
-        width: 48%;
-    }
-
-    .three-col {
-        float: left;
-        margin: 0 1% 1em 1%;
-        width: 31.33%;
-    }
 
 .row {
     border-bottom: 1px dotted #555;
@@ -540,10 +490,21 @@ button[disabled] {
 
 /* action over-rides */
 
-.actions a {
-    background-color: #c8c8c8;
+
+/*item over-rides */
+
+.item-nav {
+    border-bottom: 1px solid #CFD0BF;
+    padding: 10px 0;
+    margin-bottom: 1em;
+    width: 100%;
 }
 
+.item {
+    background:  #eaeaea;
+    margin:  0;
+    padding: 4px;
+}
 
 
 
