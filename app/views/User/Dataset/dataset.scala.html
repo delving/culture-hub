@@ -45,13 +45,11 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
-    var dataSetModel = {
-      id: function() { return this.spec.call(); }
-    };
+    var dataSetModel = {};
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/@userName/dataset/submit', dataSetModel, '#collectionForm', '/@userName/dataset/');
+      handleSubmit('/@userName/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/@userName/dataset/' + dataSetModel.spec.call(); });
     });
 
     load('/@userName/dataset/@spec.getOrElse("")', dataSetModel);
