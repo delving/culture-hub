@@ -12,7 +12,7 @@
 <div data-bind="text: errors().global"></div>
 
 <div class="grid_8 alpha">
-
+  <button id="busyTest">Test</button>
 <form method="post" action="" id="collectionForm">
 
     <span class="required-note"><span>*</span> Required Fields</span>
@@ -43,11 +43,15 @@
     </div>
 
     <div class="actions">
-      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button><div class="wait"></div>
+      <button class="save collection-save" id="saveButton" type="submit">Save Collection</button>
+      <div class="wait"></div>
     </div>
 
 </form>
 </div>
+
+
+
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
