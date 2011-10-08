@@ -4,32 +4,11 @@
 function initializeElements() {
     $(".saveButton").button();
 
-//    //all hover and click logic for dui-buttons
-//    $(".dui-button:not(.ui-state-disabled)")
-//            .hover(
-//            function() {
-//                $(this).addClass("ui-state-hover");
-//            },
-//            function() {
-//                $(this).removeClass("ui-state-hover");
-//            }
-//    )
-//            .mousedown(function() {
-//                $(this).parents('.dui-buttonset-single:first').find(".dui-button.ui-state-active").removeClass("ui-state-active");
-//                if ($(this).is('.ui-state-active.dui-button-toggleable, .dui-buttonset-multi .ui-state-active')) {
-//                    $(this).removeClass("ui-state-active");
-//                }
-//                else {
-//                    $(this).addClass("ui-state-active");
-//                }
-//            })
-//            .mouseup(function() {
-//                if (! $(this).is('.dui-button-toggleable, .dui-buttonset-single .dui-button,  .dui-buttonset-multi .dui-button')) {
-//                    $(this).removeClass("ui-state-active");
-//                }
-//            });
+    $.preloadImages (
+        "/public/themes/common/images/spinner.gif"
+    );
 
-//On Hover Over
+    // User Menu - On Hover Over
     function megaHoverOver() {
         $(this).find(".sub").stop().fadeTo('fast', 1).show(); //Find sub and fade it in
         (function($) {
@@ -66,14 +45,14 @@ function initializeElements() {
         }
     }
 
-//On Hover Out
+    // user menu - On Hover Out
     function megaHoverOut() {
         $(this).find(".sub").stop().fadeTo('fast', 0, function() { //Fade to 0 opactiy
             $(this).hide();  //after fading, hide it
         });
     }
 
-//Set custom configurations
+    //User menu - Set custom configurations
     var config = {
         sensitivity: 2, // number = sensitivity threshold (must be 1 or higher)
         interval: 100, // number = milliseconds for onMouseOver polling interval
@@ -119,20 +98,20 @@ function addTemplate(templateName, templateMarkup) {
  * @param additionalData additional Data to be sent over
  */
 function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onError, additionalData) {
-    Spinners.create('.wait').play();
+    $(".wait").spinner();
     if ((typeof formSelector !== 'undefined' && formSelector != null && $(formSelector).validate({meta: 'validate'}).form()) || !formSelector) {
         $.postKOJson(url, viewModel, function(data) {
-            Spinners.get('.wait').remove();
+                $(".wait").spinner("hide");
             updateViewModel(data, viewModel);
             if (onSuccess) onSuccess.call();
             if (redirectUrl) window.location.href = redirectUrl + viewModel.id();
         }, function(jqXHR, textStatus, errorThrown) {
-            Spinners.get('.wait').remove();
+            $(".wait").spinner("hide");
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
             if (typeof onError !== 'undefined') onError.call();
         }, additionalData);
     } else {
-        Spinners.get('.wait').remove();
+        $(".wait").spinner("hide");
     }
 }
 
@@ -469,3 +448,18 @@ Delving.wysiwyg = function (params) {
 
     tinyMCE.init(initParams);
 };
+
+/**
+ * Helper to preload images
+ * @param url for image to preload
+ */
+$.preloadImages = function() {
+	for (var i = 0; i<arguments.length; i++) {
+		img = new Image();
+		img.src = arguments[i];
+	}
+}
+
+
+
+
