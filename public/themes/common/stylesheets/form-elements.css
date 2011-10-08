@@ -149,10 +149,6 @@ button[disabled] {
     filter:alpha(opacity=40)
 }
 
-.preloadWait {
-    background-image: url(../images/busy.gif);
-}
-
 .wait {
     display: inline-block;
     margin-left: 5px;
