@@ -8,7 +8,7 @@
 @breadcrumbs()
 
 <div class="grid_16 alpha" id="items">
-
+    <!-- @count @page @PAGE_SIZE -->
     @if(browsedUserName != null) {
     <h2>Browse @itemName.pluralize owned by: <span>@browsedUserName</span> (@count)</h2>
     } else {
@@ -16,9 +16,10 @@
     }
 
     @if(items.length > 0) {
-    <div class="item-nav">
+
         <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-    </div>
+
+
     }   else {
         <p>There are currently no @itemName.pluralize available</p>
     }
