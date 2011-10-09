@@ -38,7 +38,7 @@
         hide : function() {
              return this.each(function() {
                 obj = $(this);
-                obj.css("visibility", "none");
+                obj.css("visibility", "hidden");
 
             });
         }
