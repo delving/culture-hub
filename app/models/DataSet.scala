@@ -17,7 +17,7 @@ import com.mongodb.{BasicDBObject, WriteConcern}
 import com.mongodb.casbah.commons.conversions.scala._
 import java.io.File
 import play.exceptions.ConfigurationException
-import eu.delving.metadata.{MetadataNamespace, Path, RecordMapping}
+import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
@@ -70,19 +70,17 @@ case class DataSet(_id: ObjectId = new ObjectId,
   }
 
   def getAllNamespaces: Map[String, String] = {
-    val metadataNamespaces = (for (ns <- MetadataNamespace.values) yield (ns.getPrefix, ns.getUri)).toMap[String, String]
+    val metadataNamespaces = RecordDefinition.recordDefinitions.map(rd => (rd.prefix, rd.namespace)).toMap[String, String]
     val mdFormatNamespaces = Map(details.metadataFormat.prefix -> details.metadataFormat.namespace)
     metadataNamespaces ++ mdFormatNamespaces
   }
 
   def setMapping(mapping: RecordMapping, accessKeyRequired: Boolean = true): DataSet = {
-    import eu.delving.metadata.MetadataNamespace
-
-    val ns: Option[MetadataNamespace] = MetadataNamespace.values().filter(ns => ns.getPrefix == mapping.getPrefix).headOption
+    val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
-    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.getPrefix, ns.get.getSchema, ns.get.getUri, accessKeyRequired))
+    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
     // remove First Harvest Step
     this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
   }
@@ -420,14 +418,6 @@ object RecordDefinition {
     Some(RecordDefinition(recordDefinitionNamespace \ "@prefix" text, recordDefinitionNamespace \ "@schema" text, recordDefinitionNamespace \ "@uri" text))
   }
 
-  def create(prefix: String, accessKeyRequired: Boolean = true): RecordDefinition = {
-    import eu.delving.metadata.MetadataNamespace
-
-    val ns: MetadataNamespace = MetadataNamespace.values().filter(ns => ns.getPrefix == prefix).headOption.getOrElse(
-      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", prefix))
-    )
-    RecordDefinition(ns.getPrefix, ns.getSchema, ns.getUri, accessKeyRequired)
-  }
 }
 
 case class Details(name: String,
