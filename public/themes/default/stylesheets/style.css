@@ -46,9 +46,7 @@ h3 {
     #header-top {
         background:  #336699 ;
         border-bottom:  1px solid #fff;
-        height: 64px;
-        line-height: 64px;
-        /*font-size: 12px;*/
+        line-height: 32px;
     }
 
     #header-top a {
@@ -184,95 +182,13 @@ ul.inline li {
 
 /* TABLES */
 
-/* TABLE STYLES */
-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 10px 0 10px 0;
-}
 
-thead th {
-    /*border-bottom: 4px solid #000;*/
-    /*font-size: 1em;*/
-    text-align: left;
-    font-weight: normal;
-    margin-top: 0;
-    padding: 0 5px;
-}
-
-thead th span {
-    color: #888;
-}
-
-tbody th {
-    text-align: right;
-    min-width: 120px;
-    font-size: 1.1em;
-}
-
-tbody th,
-tbody td {
-    padding: 4px 6px;
-    vertical-align: top;
-    line-height: 1.5em;
-}
-
-
-table.mceLayout {
-    width: 100% !important;
-}
-
-table.list,
-table.files{
-    width: 100%;
-    font-size: 12px;
-}
-
-table.list th.header {
-    background:  #7D9EBE;
-    border-bottom:  1px solid #fff;
-    color: #fff;
-    font-weight: bold;
-    padding:  2px 6px;
-}
-
-table.list th {
-    padding:  2px 6px;
-    background-color: #B5C7DA;
-    color: #fff;
-    font-weight: normal;
-}
-
-    /*table.list td.action,*/
-    /*table.list td.thumb {*/
-        /*text-align: right*/
-    /*}*/
-
-    /*table.list td.thumb img {*/
-        /*margin-right: 5px;*/
-    /*}*/
-
-table.list tr:nth-child(odd),
-table.files tr:nth-child(odd){
-    background-color:#ECF1F6;
-}
-table.list tr:nth-child(even){
-    background-color:#eaeaea;
-}
-
-table.list tr:hover {
-    background:  #fff;
-}
 
 /*item over-rides */
 
-.item-nav {
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-/*.item {*/
-    /*border: 1px solid #ccc;*/
+/*.item-nav {*/
+    /*margin-bottom: 10px;*/
+    /*width: 100%;*/
 /*}*/
 
 .item .inner {
@@ -281,16 +197,6 @@ table.list tr:hover {
     padding:  5px;
 
 }
-
-
-
-
-
-
-
-
-
-
 
 /* ==|== media queries ======================================================
    PLACEHOLDER Media Queries for Responsive Design.

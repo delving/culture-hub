@@ -87,9 +87,9 @@ h3 {
 /* Name / Branding */
 
     #branding h1 {
-       background:  transparent url(../images/logo.png) no-repeat 0 -50px;
-       height: 100px;
-       margin: 40px 0 0 0;
+        background: url("../images/logo.png") no-repeat scroll 0 -50px transparent;
+        height: 100px;
+        margin: 10px 0 0;
     }
 
     #home #branding h1 {
@@ -140,12 +140,14 @@ h3 {
 }
 
 #search input[type=submit] {
+    background: #ec451b;
     border-radius: 0px;
-    background-color: #ec451b;
-    color: #fff;
-    text-transform: uppercase;
-    margin-left:  -4px;
     border: none;
+    color: #fff;
+    height: 28px;
+    margin-left:  -4px;
+    padding:  2px 12px;
+    text-transform: uppercase;
 }
 
 #page {

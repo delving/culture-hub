@@ -1,5 +1,3 @@
-/*@import url("../../common/stylesheets/reset.css");*/
-/*@import url("../../common/stylesheets/960.css");*/
 @import url("../../common/stylesheets/grid-fluid.css");
 @import url("../../common/stylesheets/normalize.css");
 @import url("../../common/stylesheets/typography.css");
@@ -12,6 +10,5 @@
 @import url("../../common/stylesheets/menu.css");
 @import url("../../common/stylesheets/actions.css");
 @import url("../../common/stylesheets/item.css");
-/*@import url("mod.css");*/
-/*@import url("media.css");*/
-/*@import url("dui-buttons.css");*/
+@import url("../../common/stylesheets/dui-buttons.css");
+@import url("../../common/stylesheets/tables.css");
