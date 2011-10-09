@@ -157,7 +157,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         Ok
       }
       case Left(houston) => {
-        log.info("Error accepting file %s for DataSet %: %s".format(fileName, spec, houston))
+      log.info("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
         TextError(houston)
       }
     }
