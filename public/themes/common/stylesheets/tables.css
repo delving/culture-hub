@@ -59,9 +59,6 @@ table.files{
 }
 
 .datagrid table thead th {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #B5C7DA), color-stop(1, #B5C7DA));
-    background: -moz-linear-gradient(center top, #B5C7DA 5%, #B5C7DA 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#B5C7DA', endColorstr = '#B5C7DA');
     background-color: #B5C7DA;
     color: #FFFFFF;
     font-size: 12px;
