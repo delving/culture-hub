@@ -8,7 +8,7 @@
 @breadcrumbs()
 
 <div class="grid_16 alpha" id="items">
-
+    <!-- @count @page @PAGE_SIZE -->
     @if(browsedUserName != null) {
     <h2>Browse @itemName.pluralize owned by: <span>@browsedUserName</span> (@count)</h2>
     } else {
@@ -29,7 +29,7 @@
     <div class="item two-col">
       <div class="inner">
         <div class="media medium">
-            <img src='@thumbnailUrl(i.thumbnail)' width="84" alt="@i.title"/>
+            <!--<img src='thumbnailUrl(i.thumbnail)' width="84" alt="@i.title"/>-->
         </div>
         <div class="metadata">
             <div class="hd">

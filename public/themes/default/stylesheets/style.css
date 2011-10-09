@@ -272,9 +272,7 @@ table.list tr:hover {
 /*item over-rides */
 
 .item-nav {
-    border-bottom: 1px solid #CFD0BF;
-    padding: 10px 0;
-    margin-bottom: 1em;
+    margin-bottom: 10px;
     width: 100%;
 }
 
