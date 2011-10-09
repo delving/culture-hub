@@ -108,7 +108,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
 
   private def extractNamespaces(ns: NamespaceBinding, namespaces: collection.mutable.Map[String, String]) {
     if (ns == TopScope) return
-    namespaces.put(ns.prefix, ns.uri)
+    if(ns.prefix != null) namespaces.put(ns.prefix, ns.uri)
     extractNamespaces(ns.parent, namespaces)
   }
 
