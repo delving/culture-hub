@@ -165,7 +165,7 @@ function updateViewModel(data, viewModel, scope) {
     };
 
     if (ko.mapping.isMapped(viewModel)) {
-        ko.mapping.updateFromJS(viewModel, data)
+        ko.mapping.fromJS(data, viewModel)
     } else {
         $.extend(viewModel, ko.mapping.fromJS(data, mapping));
         if (typeof scope !== 'undefined') {
