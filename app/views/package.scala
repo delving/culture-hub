@@ -1,14 +1,14 @@
 package views {
 
 import play.data.validation.Validation
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import play.mvc.Http
 import util.Implicits
 import controllers.{ViewModel, FileStore}
 import models.{UserCollection, DObject, PortalTheme}
+import java.util.Date
+import java.text.SimpleDateFormat
 
 package object context extends Implicits {
 
@@ -51,8 +51,9 @@ package object context extends Implicits {
   def searchUrl = request.path
 
   // ~~~ template helpers
-  def niceTime(timestamp: Long) = new DateTime(timestamp).toString(DateTimeFormat.fullDateTime())
-  def niceTime(timestamp: DateTime) = timestamp.toString(DateTimeFormat.fullDateTime())
+  val niceTimeFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
+  def niceTime(timestamp: Long) = new Date(timestamp)
+  def niceTime(timestamp: Date) = timestamp
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
   def isCurrent(action: String) = Http.Request.current().action.startsWith(action)

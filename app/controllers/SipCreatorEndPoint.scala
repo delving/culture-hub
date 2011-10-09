@@ -4,7 +4,6 @@ import models._
 import play.mvc
 import mvc.results.{RenderBinary, Result}
 import mvc.{Before, Controller}
-import org.scala_tools.time.Imports._
 import eu.delving.metadata.{RecordMapping, MetadataModel}
 import org.apache.log4j.Logger
 import cake.ComponentRegistry
@@ -17,6 +16,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import java.io._
 import util.SimpleDataSetParser
 import org.apache.commons.io.{FileCleaningTracker, IOUtils}
+import java.util.Date
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -203,7 +203,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       while (continue) {
         val record = parser.nextRecord
         if (record != None) {
-          val toInsert = record.get.copy(modified = DateTime.now, deleted = false)
+          val toInsert = record.get.copy(modified = new Date(), deleted = false)
           records.insert(toInsert)
         } else {
           continue = false
