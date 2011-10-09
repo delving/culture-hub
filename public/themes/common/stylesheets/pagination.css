@@ -1,8 +1,14 @@
+#pager {
+    background:  #ccc;
+    display: block;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
 .pagination {
     font-size: 14px;
-    clear: both;
-    height: 28px;
-    background: #ccc;
+    width: 100%;
+    height: inherit;
 }
 
 .pagination a {
@@ -14,13 +20,11 @@
 }
 
 .pagination a, .pagination span {
-    display: block;
-    float: left;
-    padding: 1px 6px;;
-    /*margin-right: 5px;*/
-    /*margin-bottom: 5px;*/
+    display: inline-block;
+    /*float: left;*/ /*Use display: inline-block instead of float left to get rid of parent/child float glitch */
     margin: 0;
     min-width: 1em;
+    padding: 1px 6px;
     text-align: center;
 }
 
