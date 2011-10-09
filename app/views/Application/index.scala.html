@@ -1,4 +1,4 @@
-@(recentCollections: List[controllers.ShortCollection], recentStories: List[controllers.ShortStory], recentObjects: List[controllers.ShortObject])
+@(recentCollections: List[controllers.ShortCollection], recentStories: List[controllers.ShortStory], recentObjects: List[controllers.ListItem])
 
 @import views.context._
 @import views.tags.html._
@@ -105,7 +105,7 @@
 
         <div class="item">
             <div class="media medium">
-                <a href="/@o.userName/object/@o.id"><img src='@thumbnailUrl(o.id)' width="100" alt="@o.name"/></a>
+                <a href="/@o.userName/object/@o.id"><img src='@thumbnailUrl(o.thumbnail)' width="100" alt="@o.title"/></a>
             </div>
         </div>
 

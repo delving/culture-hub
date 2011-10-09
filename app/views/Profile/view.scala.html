@@ -1,4 +1,4 @@
-@(user:controllers.ShortUser, objects: List[controllers.ShortObject], collections: List[controllers.ShortCollection], stories: List[controllers.ShortStory])
+@(user:controllers.ShortUser, objects: List[controllers.ListItem], collections: List[controllers.ShortCollection], stories: List[controllers.ShortStory])
 
 @import views.context._
 @import views.tags.html._
@@ -9,51 +9,10 @@
 
 <h1>Profile page for: <span>@user.fullName</span></h1>
 User name: @user.userName<br/>
-<!--First Name: @user.firstName<br/>-->
 Full Name: @user.fullName<br/>
 Active since: @niceTime(user.id.getTime)<br/>
 <!--Email: @user.email<br/>-->
 Number of objects: <a href="/@user.userName/object"> @objects.length</a><br/>
 Number of collections: <a href="/@user.userName/collection">@collections.length</a><br/>
 Number of stories: <a href="/@user.userName/story">@stories.length</a><br/>
-<!--<hr/>-->
-        <!--All the objects of this user:-->
-        <!--@for(o <- objects) {-->
-          <!--<ul>-->
-            <!--<li>ID: @o.id</li>-->
-            <!--<li>Updated: @niceTime(o.TS_update)</li>-->
-            <!--<li>Name: @o.name</li>-->
-            <!--<li>Description: @o.shortDescription</li>-->
-            <!--<li><img src="@thumbnailUrl(o.id)"></li>-->
-          <!--</ul>-->
-        <!--}-->
-<!--<hr/>-->
-<!--All the collections of this user:-->
-<!--@for(c <- collections) {-->
-  <!--<ul>-->
-    <!--<li>ID: @c.id</li>-->
-    <!--<li>Updated: @niceTime(c.TS_update)</li>-->
-    <!--<li>Name: @c.name</li>-->
-    <!--<li>Description: @c.shortDescription</li>-->
-    <!--<li><img src="@thumbnailUrl(c.thumbnail)"></li>-->
-  <!--</ul>-->
-<!--}-->
-
-<!--<hr/>-->
-<!--All the stories of this user:-->
-<!--@for(s <- stories) {-->
-  <!--<ul>-->
-    <!--<li>ID: @s.id</li>-->
-    <!--<li>Updated: @niceTime(s.TS_update)</li>-->
-    <!--<li>Name: @s.name</li>-->
-    <!--<li>Description: @s.shortDescription</li>-->
-    <!--<li><img src="@thumbnailUrl(s.thumbnail)"></li>-->
-  <!--</ul>-->
-<!--}-->
-
-
-
-
-
-
 }

@@ -3,7 +3,6 @@ package controllers
 import play.mvc.results.Result
 import models.{DObject, UserCollection}
 import org.bson.types.ObjectId
-import org.joda.time.DateTime
 import user.ObjectModel
 
 /**
@@ -28,7 +27,7 @@ object Collections extends DelvingController {
     UserCollection.findById(id) match {
       case None => NotFound
       case Some(collection) => {
-        val objects: List[ShortObject] = DObject.findAllWithCollection(collection._id).toList
+        val objects: List[ListItem] = DObject.findAllWithCollection(collection._id).toList
         html.collection(collection, objects)
       }
     }

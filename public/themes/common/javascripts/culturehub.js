@@ -101,7 +101,7 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
     $(".wait").spinner();
     if ((typeof formSelector !== 'undefined' && formSelector != null && $(formSelector).validate({meta: 'validate'}).form()) || !formSelector) {
         $.postKOJson(url, viewModel, function(data) {
-                $(".wait").spinner("hide");
+            $(".wait").spinner("hide");
             updateViewModel(data, viewModel);
             if (onSuccess) onSuccess.call();
             if (redirectUrl) window.location.href = redirectUrl + viewModel.id();

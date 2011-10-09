@@ -1,4 +1,4 @@
-@(collection: models.UserCollection, objects: List[controllers.ShortObject])
+@(collection: models.UserCollection, objects: List[controllers.ListItem])
 
 @import views.context._
 @import views.tags.html._
@@ -34,7 +34,7 @@
         <ul class="inline">
             @for(o <- objects) {
             <li>
-                <a href="/@o.userName/collection/@collection._id/object/@o.id"><img src="@thumbnailUrl(o.id)" width="75" height="75" alt="@o.name"/></a>
+                <a href="/@o.userName/collection/@collection._id/object/@o.id"><img src="@thumbnailUrl(o.thumbnail)" width="75" height="75" alt="@o.title"/></a>
             </li>
             }
         </ul>

@@ -3,7 +3,6 @@ package controllers
 import models.User
 import com.mongodb.DBObject
 import play.mvc.results.Result
-import org.bson.types.ObjectId
 import play.templates.Html
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
@@ -36,7 +35,7 @@ object Users extends DelvingController {
     val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
     val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
 
-    views.html.list(title = listPageTitle("user"), itemName = "user", items = usersPage.toList, page = page, count = queriedUsers.length)
+    html.list(title = listPageTitle("user"), items = usersPage.toList, page = page, count = queriedUsers.length)
 
   }
 
