@@ -13,7 +13,8 @@ require:
             - org.scala-lang -> *
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
-            - org.scala-lang -> *
+            - org.scala-lang -> scala-library
+            - org.scala-lang -> scala-compiler
     - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
         exclude:
             - org.scala-lang -> *
