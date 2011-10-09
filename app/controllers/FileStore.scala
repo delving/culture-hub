@@ -8,7 +8,6 @@ import java.io.File
 import com.mongodb.casbah.gridfs.{GridFSDBFile, GridFS}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoConnection
-import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 
 /**
  * Common controller for handling files, no matter from where.
@@ -19,8 +18,6 @@ import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHe
  */
 
 object FileStore extends DelvingController {
-
-  RegisterJodaTimeConversionHelpers()
 
   val emptyThumbnail = "/public/images/dummy-object.png"
   val emptyThumbnailFile = new File(play.Play.applicationPath + emptyThumbnail)

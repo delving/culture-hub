@@ -3,13 +3,11 @@ package cake.metaRepo
 import play.mvc.Http
 import org.apache.log4j.Logger
 import java.text.SimpleDateFormat
-import org.joda.time.DateTime
 import java.util.Date
 import xml.Elem
 import models.MetadataRecord
 import scala.collection.JavaConversions._
 import cake.metaRepo.PmhVerbType.PmhVerb
-import org.joda.time.format.DateTimeFormat
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -81,9 +79,10 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     true
   }
 
-  private def toUtcDateTime(date: DateTime) : String = date.toString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  private def currentDate = toUtcDateTime (new DateTime())
-  private def printDate(date: DateTime) : String = if (date != null) toUtcDateTime(date) else ""
+  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
+  private def currentDate = toUtcDateTime (new Date())
+  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
 
   /**
    */
@@ -201,7 +200,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="ListIdentifiers" from={harvestStep.getPmhRequest.getFrom.toString(DateTimeFormat.fullDateTime())} until={harvestStep.getPmhRequest.getUntil.toString(DateTimeFormat.fullDateTime())}
+      <request verb="ListIdentifiers" from={utcFormat.format(harvestStep.getPmhRequest.getFrom)} until={(utcFormat.format(harvestStep.getPmhRequest.getUntil))}
                metadataPrefix={harvestStep.getPmhRequest.getMetadataPrefix}
                set={setSpec}>{getRequestURL}</request>
       <ListIdentifiers>

@@ -1,19 +1,19 @@
 package controllers
 
 import org.bson.types.ObjectId
-import org.joda.time.DateTime
 import models._
+import java.util.Date
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
 case class ShortUser(id: ObjectId, firstName: String, lastName: String, fullName: String, email: String, userName: String)
 
-case class ShortCollection(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
+case class ShortCollection(id: ObjectId, TS_update: Date, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
 
 case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", total_records: Int = 0, state: DataSetState = DataSetState.INCOMPLETE, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String, errors: Map[String, String] = Map.empty[String, String])
 case class Fact(name: String, prompt: String, value: String)
 
-case class ShortStory(id: ObjectId, TS_update: DateTime, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
+case class ShortStory(id: ObjectId, TS_update: Date, name: String, shortDescription: String, thumbnail: Option[ObjectId], userName: String)
 
 case class ShortLabel(labelType: String, value: String)
 

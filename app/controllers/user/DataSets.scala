@@ -5,11 +5,11 @@ import extensions.CHJson
 import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.{BasicDBObject, WriteConcern}
-import org.scala_tools.time.Imports._
 import models._
 import models.DataSetState._
-import controllers.{ViewModel, ShortDataSet, DelvingController}
+import controllers.{ShortDataSet, DelvingController}
 import views.User.Dataset._
+import java.util.Date
 
 
 /**
@@ -59,7 +59,7 @@ object DataSets extends DelvingController with UserSecured {
           node = getNode,
           user_id = connectedUserId,
           state = DataSetState.INCOMPLETE,
-          lastUploaded = DateTime.now,
+          lastUploaded = new Date(),
           access = AccessRight(users = Map("foo" -> UserAction(user = UserReference("", "", "")))), // TODO
           details = Details(
             name = dataSet.facts("name").toString,
