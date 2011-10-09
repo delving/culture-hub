@@ -17,7 +17,7 @@ object Profiles extends DelvingController {
       case Left(error) => return error
     }
 
-    val objects: List[ShortObject] = DObject.findByUser(u.id).toList
+    val objects: List[ListItem] = DObject.findByUser(u.id).toList
     val collections: List[ShortCollection] = UserCollection.findByUser(u.id).toList
     val stories: List[ShortStory] = Story.findByUser(u.id).toList
 
