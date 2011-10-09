@@ -1,0 +1,107 @@
+/* TABLE STYLES */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 10px 0 10px 0;
+}
+
+thead th {
+    /*border-bottom: 4px solid #000;*/
+    /*font-size: 1em;*/
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0;
+    padding: 0 5px;
+}
+
+thead th span {
+    color: #888;
+}
+
+tbody th {
+    text-align: right;
+    min-width: 120px;
+    font-size: 1.1em;
+}
+
+tbody th,
+tbody td {
+    padding: 4px 6px;
+    vertical-align: top;
+    line-height: 1.5em;
+}
+
+
+table.mceLayout {
+    width: 100% !important;
+}
+
+table.list,
+table.files{
+    width: 100%;
+    font-size: 12px;
+}
+
+.datagrid table {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+
+.datagrid {
+    font: normal 12px/150% Arial, Helvetica, sans-serif;
+    background: #fff;
+    overflow: hidden;
+}
+
+.datagrid table td, .datagrid table th {
+    padding: 3px 10px;
+}
+
+.datagrid table thead th {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #B5C7DA), color-stop(1, #B5C7DA));
+    background: -moz-linear-gradient(center top, #B5C7DA 5%, #B5C7DA 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#B5C7DA', endColorstr = '#B5C7DA');
+    background-color: #B5C7DA;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+    border-left: 1px solid #FFFFFF;
+}
+
+.datagrid table thead th:first-child {
+    border: none;
+}
+
+.datagrid table tbody td {
+    color: #00496B;
+    border-left: 1px solid #E1EEF4;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.datagrid table tbody .alt td {
+    background: #E1EEF4;
+    color: #00496B;
+}
+
+.datagrid table tbody td:first-child {
+    border: none;
+}
+
+.datagrid table tfoot td {
+    border-top: 1px solid #B5C7DA;
+    background: #E1EEF4;
+}
+
+.datagrid table tfoot td {
+    font-size: 12px
+}
+
+.datagrid #pager {
+    background-color: transparent;
+    margin:  0;
+    text-align: right;
+    width: auto;
+
+}

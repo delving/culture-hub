@@ -105,37 +105,37 @@ input.textdisplay {
     border: none;
 }
 
-input[type=submit],
-input[type=button],
-input[type=file],
-button {
-    border: none;
-    background-color: #999;
-    color: #fff;
+/*input[type=submit],*/
+/*input[type=button],*/
+/*input[type=file],*/
+/*button {*/
+    /*border: none;*/
+    /*background-color: #999;*/
+    /*color: #fff;*/
     /*font-size: 1.1em;*/
     /*font-weight: bold;*/
-    padding: 4px 10px;
-    border-radius: 4px;
-    height: 30px;
-}
+    /*padding: 4px 10px;*/
+    /*border-radius: 4px;*/
+    /*height: 30px;*/
+/*}*/
 
 input[type=file] {
     background: #fff;
 }
 
-input[type=submit]:hover,
-input[type=button]:hover,
-input[type=file]:hover,
-button:hover{
-    background-color: #555;
-}
+/*input[type=submit]:hover,*/
+/*input[type=button]:hover,*/
+/*input[type=file]:hover,*/
+/*button:hover{*/
+    /*background-color: #555;*/
+/*}*/
 
-input[type=submit]:active,
-input[type=button]:active,
-input[type=file]:active,
-button:active{
-    background-color: #888;
-}
+/*input[type=submit]:active,*/
+/*input[type=button]:active,*/
+/*input[type=file]:active,*/
+/*button:active{*/
+    /*background-color: #888;*/
+/*}*/
 
 input[type=radio],
 input[type=checkbox] {
