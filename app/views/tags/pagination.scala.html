@@ -1,23 +1,41 @@
 @(selector: String, count: Int, start: Int)
 @import views.context._
 
+
 <script type="text/javascript">
-  $('@selector').paginate({
-    count     : '@{val c = (count / PAGE_SIZE.toDouble).ceil.toInt; if(c == 0) 1 else c}',
-    start     : '@start',
-    display     : 5,
-    border          : true,
-    border_color      : '#fff',
-    text_color        : '#0066cc',
-    background_color      : '#fff',
-    border_hover_color    : '#fff',
-    text_hover_color      : '#000',
-    background_hover_color  : '#eaeaea',
-    images          : false,
-    mouse          : 'press',
-    onChange           : function(page) {
-      window.location.href = '@paginationUrl' + page;
+
+    initPagination();
+
+    function pageselectCallback(){
+        // empty callback works for some reason with the link_to property set?????
+
+        //var start = parseInt('@start') + 1;
+        //window.location.href = '@Html(paginationUrl)' + start;
+        //return false;
     }
-  });
+
+    /**
+     * Initialisation function for pagination
+     */
+    function initPagination() {
+
+        // count entries inside the hidden content
+        var num_entries = '@count';
+//         var start = parseInt('@start') + 1;
+        // Create content inside pagination element
+        $('@selector').pagination(num_entries, {
+            one_indexed:true,
+            num_edge_entries:1,
+            current_page:  parseInt('@start'),
+            items_per_page: parseInt('@PAGE_SIZE'),
+            link_to: '@Html(paginationUrl)' + "__id__",
+            callback: pageselectCallback
+        });
+     }
+
+    // When document is ready, initialize pagination
+//    $(document).ready(function(){
+//        initPagination();
+//    });
 
 </script>

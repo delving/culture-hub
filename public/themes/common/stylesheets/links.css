@@ -11,28 +11,6 @@ span.pipe {
     padding:  0;
     color: #777
 }
-
-#pager {
-    padding: 10px 0;
-    position: relative;
-}
-
-/*.item-pager a:link,*/
-/*.item-pager a:visited {*/
-    /*color: #000;*/
-    /*font-weight: bold;*/
-    /*text-decoration: none;*/
-/*}*/
-
-/*.item-pager a:hover {*/
-    /*color: #0066cc;*/
-    /*text-decoration: underline;*/
-/*}*/
-
-/*.item-pager .pipe {*/
-    /*padding: 0 2px 0 2px;*/
-/*}*/
-
 .breadcrumbs {
     height: 20px;
     margin-bottom: 20px;
@@ -45,15 +23,6 @@ span.pipe {
     width: 16px;
     text-indent: -999em; overflow: hidden;
 }
-
-/*.breadcrumbs {*/
-    /*height: 64px;*/
-    /*line-height: 64px;*/
-/*}*/
-
-/*.breadcrumbs .arrow {*/
-    /*margin:  0 10px;*/
-/*}*/
 
 .breadcrumbs .current {
     color: #888;
