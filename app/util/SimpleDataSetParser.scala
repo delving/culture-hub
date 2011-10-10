@@ -9,7 +9,6 @@ import eu.delving.metadata.{Hasher, Tag, Path}
 import models.{MetadataRecord, DataSet}
 import com.mongodb.casbah.Implicits._
 import com.mongodb.casbah.Imports._
-import org.scala_tools.time.Imports._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.

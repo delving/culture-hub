@@ -4,7 +4,6 @@ import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 import salat.dao.{SalatMongoCursor, SalatDAO}
 import java.util.regex.Pattern
 import salatContext._
@@ -15,8 +14,6 @@ import salatContext._
  */
 
 trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
-
-  RegisterJodaTimeConversionHelpers()
 
   def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))

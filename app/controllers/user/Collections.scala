@@ -13,6 +13,7 @@ import org.scala_tools.time.Imports._
 import controllers._
 import models.{DObject, UserCollection}
 import play.data.validation.Annotations._
+import java.util.Date
 
 /**
  * Manipulation of user collections
@@ -48,7 +49,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
     val persistedUserCollection = collectionModel.id match {
       case None =>
         val inserted: Option[ObjectId] = UserCollection.insert(
-          UserCollection(TS_update = DateTime.now,
+          UserCollection(TS_update = new Date(),
             name = collectionModel.name,
             node = getNode,
             user_id = connectedUserId,
@@ -60,7 +61,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
       case Some(id) =>
         val existingObject = UserCollection.findOneByID(id)
         if (existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedUserCollection = existingObject.get.copy(TS_update = DateTime.now, name = collectionModel.name, description = collectionModel.description, thumbnail_object_id = collectionModel.thumbnail)
+        val updatedUserCollection = existingObject.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_object_id = collectionModel.thumbnail)
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)

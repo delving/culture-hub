@@ -5,7 +5,6 @@ import org.bson.types.ObjectId
 import models.salatContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.Implicits._
-import org.scala_tools.time.Imports._
 import controllers.SolrServer
 import com.novus.salat._
 import dao.SalatDAO
@@ -37,7 +36,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    description: Option[String] = Some(""),
                    state: DataSetState,
                    details: Details,
-                   lastUploaded: DateTime,
+                   lastUploaded: Date,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
@@ -87,8 +86,6 @@ case class DataSet(_id: ObjectId = new ObjectId,
 }
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with AccessControl {
-
-  RegisterJodaTimeConversionHelpers()
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -444,7 +441,7 @@ case class Details(name: String,
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string
                           mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
-                          modified: DateTime = DateTime.now,
+                          modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String],
                           deleted: Boolean = false, // if the record has been deleted
                           localRecordKey: String, // the unique element value

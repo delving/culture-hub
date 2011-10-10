@@ -1,6 +1,6 @@
 package cake.metaRepo
 
-import org.joda.time.DateTime
+import java.util.Date
 
 /**
  *
@@ -46,7 +46,7 @@ trait HarvestStep {
 
   def getId: ObjectId
 
-  def getExpiration: DateTime
+  def getExpiration: Date
 
   def getListSize: Int
 
@@ -84,9 +84,9 @@ trait PmhRequest {
 
   def getSet: String
 
-  def getFrom: DateTime
+  def getFrom: Date
 
-  def getUntil: DateTime
+  def getUntil: Date
 
   def getMetadataPrefix: String
 }
