@@ -7,10 +7,17 @@ package controllers
  */
 
 trait SolrServer {
+
+  import org.apache.solr.client.solrj.SolrQuery
+  import org.apache.solr.client.solrj.response.QueryResponse
+
   // todo: later move to cake pattern type trait and instantiation
 
   def getSolrServer = SolrServer.solrServer
   def getStreamingUpdateServer = SolrServer.streamingUpdateServer
+  def getTestServer = SolrServer.solrTestServer
+
+  def runQuery(query: SolrQuery): QueryResponse = getSolrServer.query(query)
 }
 
 object SolrServer {
@@ -26,7 +33,7 @@ object SolrServer {
   // allowCompression defaults to false.
   // Server side must support gzip or deflate for this to have any effect.
   solrServer.setAllowCompression(false)
-  solrServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
+  solrServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
   private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 5000, 30)
   streamingUpdateServer.setSoTimeout(10000)  // socket read timeout
@@ -35,7 +42,17 @@ object SolrServer {
   streamingUpdateServer.setMaxTotalConnections(100)
   streamingUpdateServer.setFollowRedirects(false)  // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
+  streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
+  
+  private val testUrl = "http://localhost:8983/solr/core3"
+  private val solrTestServer = new CommonsHttpSolrServer( testUrl )
+  solrTestServer.setSoTimeout(10000)  // socket read timeout
+  solrTestServer.setConnectionTimeout(100)
+  solrTestServer.setDefaultMaxConnectionsPerHost(100)
+  solrTestServer.setMaxTotalConnections(100)
+  solrTestServer.setFollowRedirects(false)  // defaults to false
+  
 
+  
 }

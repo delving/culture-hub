@@ -21,7 +21,10 @@ require:
             - cglib -> *
     # remove later
     - com.google.collections -> google-collections 1.0
-
+    # Solr dependencies
+    - org.apache.solr -> solr-solrj 3.4.0
+    #- com.twitter -> finagle 1.8.0
+    #- com.twitter -> finagle-core 1.8.0
 
 repositories:
     - scala-tools:
@@ -41,6 +44,16 @@ repositories:
          root: "https://repository.apache.org/content/groups/snapshots-group/"
          contains:
             - org.apache.amber -> *
+    - novus:
+        type: iBiblio
+        root: "http://repo.novus.com/snapshots/"
+        contains:
+            - com.novus.*
+    - twitter:
+        type: iBiblio
+        root: "http://maven.twttr.com/"
+        contains:
+            - com.twitter.*
     - delving-snapshot:
         type: iBiblio
         root: "http://development.delving.org:8081/nexus/content/repositories/snapshots"
