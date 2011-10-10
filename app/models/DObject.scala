@@ -36,7 +36,7 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
   def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
-    update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_id" -> thumbnail_id)) , false, false)
+    update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_file_id" -> thumbnail_id)) , false, false)
   }
 
   def fetchName(id: String): String = findById(id).get.name

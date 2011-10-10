@@ -20,6 +20,8 @@ import play.data.Upload
 
 object FileUpload extends DelvingController with Secure {
 
+  val thumbnailSizes = Map("tiny" -> 80, "small" -> 220)
+
   val fs = controllers.FileStore.fs
 
   def uploadFile(uid: String): Result = {
@@ -40,10 +42,9 @@ object FileUpload extends DelvingController with Secure {
       // if this is an image, create a thumbnail for it so we can display it on the fly
       val thumbnailUrl: String = if (f.contentType.contains("image")) {
         fs.findOne(f._id.get) match {
-          case Some(storedFile) => createThumbnail(storedFile, controllers.FileStore.THUMBNAIL_WIDTH) match {
-            case Some(thumb) => "/file/" + thumb
-            case None => controllers.FileStore.emptyThumbnail
-          }
+          case Some(storedFile) =>
+            val thumbnails = createThumbnails(storedFile)
+            if(thumbnails.size > 0) "/file/" + thumbnails(80).getOrElse(FileStore.emptyThumbnail) else controllers.FileStore.emptyThumbnail
           case None => ""
         }
       } else ""
@@ -68,16 +69,22 @@ object FileUpload extends DelvingController with Secure {
     Ok
   }
 
-  /**creates a thumbnail and stores a pointer to the original image **/
+  @Util private def createThumbnails(image: GridFSDBFile): Map[Int, Option[ObjectId]] = {
+    thumbnailSizes.map { size => createThumbnail(image, size._2) }
+  }
+
+  /**creates a batch of thumbnails and stores a pointer to the original image **/
   @Util private def createThumbnail(image: GridFSDBFile, width: Int) = {
     val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
     val thumbnail = fs.createFile(thumbnailStream)
     thumbnail.filename = image.filename
     thumbnail.contentType = "image/jpeg"
     thumbnail.put(controllers.FileStore.FILE_POINTER_FIELD, image._id)
+    thumbnail.put(controllers.FileStore.THUMBNAIL_WIDTH_FIELD, width)
     thumbnail.save
-    thumbnail._id
+    (width, thumbnail._id)
   }
+
   @Util def fetchFilesForUID(uid: String): Seq[StoredFile] = fs.find(MongoDBObject("uid" -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
@@ -107,34 +114,36 @@ object FileUpload extends DelvingController with Secure {
 
   @Util def isImage(f: GridFSFile) = f.getContentType.contains("image")
 
-  /**given a file ID, set its thumbnail as The Chosen One for an object **/
-  @Util def activateThumbnail(fileId: ObjectId, objectId: ObjectId) = fs.findOne(MongoDBObject(FILE_POINTER_FIELD -> fileId)) match {
-    case Some(thumb) => {
+  @Util def activateThumbnails(fileId: ObjectId, objectId: ObjectId) {
+    val thumbnails = fs.find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
 
-      // update active thumbnail
-      fs.findOne(MongoDBObject(THUMBNAIL_OBJECT_POINTER_FIELD -> objectId)) foreach {
-        theOldOne =>
-          theOldOne.put(THUMBNAIL_OBJECT_POINTER_FIELD, "")
-          theOldOne.save
-      }
-      thumb.put(THUMBNAIL_OBJECT_POINTER_FIELD, objectId)
-      thumb.save
-
-      // update active image
-      fs.findOne(MongoDBObject(IMAGE_OBJECT_POINTER_FIELD -> objectId)) foreach {
-        theOldOne =>
-          theOldOne.put(IMAGE_OBJECT_POINTER_FIELD, "")
-          theOldOne.save
-      }
-      fs.findOne(fileId) foreach {
-        theNewOne =>
-          theNewOne.put(IMAGE_OBJECT_POINTER_FIELD, objectId)
-          theNewOne.save
-      }
-
-      Some(fileId)
+    // deactive old thumbnails
+    fs.find(MongoDBObject(THUMBNAIL_OBJECT_POINTER_FIELD -> objectId)) foreach {
+      theOldOne =>
+        theOldOne.put(THUMBNAIL_OBJECT_POINTER_FIELD, "")
+        theOldOne.save
     }
-    case None => None
+
+    // activate new thumbnails
+    thumbnails foreach {
+      thumb =>
+        thumb.put(THUMBNAIL_OBJECT_POINTER_FIELD, objectId)
+        thumb.save
+    }
+
+    // deactivate old image
+    fs.findOne(MongoDBObject(IMAGE_OBJECT_POINTER_FIELD -> objectId)) foreach {
+      theOldOne =>
+        theOldOne.put(IMAGE_OBJECT_POINTER_FIELD, "")
+        theOldOne.save
+    }
+
+    // activate new default image
+    fs.findOne(fileId) foreach {
+      theNewOne =>
+        theNewOne.put(IMAGE_OBJECT_POINTER_FIELD, objectId)
+        theNewOne.save
+    }
   }
 
 }
