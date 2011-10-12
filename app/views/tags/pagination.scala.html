@@ -7,21 +7,14 @@
     initPagination();
 
     function pageselectCallback(){
-        // empty callback works for some reason with the link_to property set?????
-
-        //var start = parseInt('@start') + 1;
-        //window.location.href = '@Html(paginationUrl)' + start;
-        //return false;
+        // empty callback
     }
 
     /**
      * Initialisation function for pagination
      */
     function initPagination() {
-
-        // count entries inside the hidden content
         var num_entries = '@count';
-//         var start = parseInt('@start') + 1;
         // Create content inside pagination element
         $('@selector').pagination(num_entries, {
             one_indexed:true,
@@ -33,9 +26,5 @@
         });
      }
 
-    // When document is ready, initialize pagination
-//    $(document).ready(function(){
-//        initPagination();
-//    });
 
 </script>

@@ -3,8 +3,8 @@ package models
 import org.bson.types.ObjectId
 import salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
-import org.joda.time.DateTime
 import com.novus.salat.dao.SalatDAO
+import java.util.Date
 
 /**
  * 
@@ -12,7 +12,7 @@ import com.novus.salat.dao.SalatDAO
  */
 
 case class DObject(_id: ObjectId = new ObjectId,
-                  TS_update: DateTime,
+                  TS_update: Date,
                   user_id: ObjectId,
                   userName: String,
                   visibility: Visibility.Value = Visibility.Private,

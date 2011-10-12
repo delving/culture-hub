@@ -1,8 +1,8 @@
 #pager {
-    background:  #ccc;
+    /*background:  #ccc;*/
     display: block;
     margin-bottom: 20px;
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .pagination {
@@ -11,21 +11,25 @@
     height: inherit;
 }
 
-.pagination a {
-    background: #fff;
-    text-decoration: none;
-    /*border: solid 1px #AAE;*/
-    color: #15B;
-    margin: 0;
-}
-
 .pagination a, .pagination span {
+    background: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1) repeat scroll 0 0 transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    -moz-border-radius:border-radius: 2px 2px 2px 2px;
+    -webkit-border-radius: border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+    color: #666666;
     display: inline-block;
-    /*float: left;*/ /*Use display: inline-block instead of float left to get rid of parent/child float glitch */
-    margin: 0;
+    font-size: 85%;
     min-width: 1em;
-    padding: 1px 6px;
+    cursor: default;
+    /*font: 75% arial,sans-serif;*/
+    margin: 0 8px 0 0;
+    outline: medium none;
+    padding: 3px 8px;
     text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+
 }
 
 .pagination .current {

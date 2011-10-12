@@ -8,48 +8,55 @@
 
 @breadcrumbs()
 
-<div class="grid_16 alpha" id="items">
+@if(browsedUserName != null) {
+<h2>Browse DataSets owned by: <span>@browsedUserName</span> (@count)</h2>
+} else {
+<h2>Browse DataSets (@count)</h2>
+}
 
-    @if(browsedUserName != null) {
-    <h2>Browse DataSets owned by: <span>@browsedUserName</span> (@count)</h2>
-    } else {
-    <h2>Browse DataSets (@count)</h2>
-    }
-
-    @if(items.length > 0) {
-    <div class="item-nav">
-        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
-    </div>
-    }   else {
-        <p>There are currently no DataSets available</p>
-    }
-
-    <div class="clear"></div>
-
-    @for(i <- items) {
-    <div class="item four-col">
-        <!--<div class="media medium">-->
-            <!--<img src='@thumbnailUrl(None)' width="84" alt="@i.spec"/>-->
-        <!--</div>-->
-        <div class="metadata">
-            <div class="bd">
-                <h4><a href="/@i.userName/dataset/@i.spec">@i.spec</a> (<em>@i.total_records records</em>)</h4>
-                @i.state.description
-            </div>
-            @if(i.userName == userName) {
-            <div class="actions">
-                <a class="action edit image-edit" href="/@i.userName/dataset/@i.spec/update">Edit DataSet</a>
-            </div>
+@if(items.length > 0) {
+    <div class="datagrid">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Nr. of items</th>
+                <th>Status</th>
+                <th>Options</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <td colspan="4">
+                        @if(items.length > 0) {
+                        <div id="pager">@pagination(selector = "#pager", count = count, start = page)</div>
+                        } else {
+                        <p>There are currently no DataSets available</p>
+                        }
+                </td>
+            </tr>
+            </tfoot>
+            <tbody>
+            @for(i <- items) {
+            <tr>
+                <td><a href="/@i.userName/dataset/@i.spec">@i.spec</a></td>
+                <td>@i.total_records</td>
+                <td>@i.state.description</td>
+                <td>
+                    @if(i.userName == userName) {
+                    <a class="action edit image-edit" href="/@i.userName/dataset/@i.spec/update">Edit DataSet</a>
+                    }
+                </td>
+            </tr>
             }
-        </div>
-    </div>
-    <div class="clear"></div>
-    }
-  <div class="clear"></div>
-  <div>
-    <a href="/@userName/sip-creator/">Sip-Creator</a>
-  </div>
+            </tbody>
+        </table>
 
-</div>
+        <a class="dui-button" href="/@userName/sip-creator/">Sip-Creator</a>
+
+
+} else {
+    <p>There are currently no DataSets available</p>
+}
 
 }

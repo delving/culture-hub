@@ -6,7 +6,6 @@ import play.mvc.results.Result
 import extensions.CHJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.SalatDAOUpdateError
-import org.scala_tools.time.Imports._
 import play.libs.Codec
 import controllers._
 import com.mongodb.WriteConcern
@@ -14,6 +13,7 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
 import play.data.validation.Annotations._
+import java.util.Date
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -72,7 +72,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.collections, files = files, labels = labels))
+        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = new Date(), name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.collections, files = files, labels = labels))
         inserted match {
           case Some(iid) => {
             FileUpload.markFilesAttached(uid, iid)
@@ -84,7 +84,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error("Object with id %s not found".format(id))
-        val updatedObject = existingObject.get.copy(TS_update = DateTime.now, name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           FileUpload.markFilesAttached(uid, id)
