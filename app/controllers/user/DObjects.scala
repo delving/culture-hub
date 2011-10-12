@@ -54,8 +54,9 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     val files = user.FileUpload.fetchFilesForUID(uid)
 
+    /** finds thumbnail candidate for an object, "activate" thumbnails (for easy lookup) and returns the OID of the thumbnail candidate image file **/
     def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
-        case Some(f) => FileUpload.activateThumbnail(f.id, objectId)
+        case Some(f) => FileUpload.activateThumbnails(f.id, objectId); Some(f.id)
         case None => None
     }
 
