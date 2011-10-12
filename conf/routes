@@ -101,9 +101,10 @@ GET         /{user}/repositories/writeable/search                            Rep
 
 GET         /{user}/admin/?                                                  user.Admin.index
 
-GET         /{user}/dataset/?                                                DataSets.list
-GET         /{user}/dataset/add                                              user.DataSets.dataSet
-GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSet
+GET         /{user}/dataset                                                  DataSets.list
+GET         /{user}/dataset/add                                              user.DataSets.dataSetUpdate
+GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSetUpdate
+GET         /{user}/dataset/{spec}/list                                      Things.list
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
 GET         /{user}/dataset/{spec}                                           DataSets.dataSet
 GET         /{user}/dataset/load/{spec}?                                     DataSets.dataSet
