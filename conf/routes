@@ -73,26 +73,29 @@ GET         /stories                                                         Sto
 
 GET         /{user}/?                                                        Profiles.view
 
+GET         /{user}/label                                                    Labels.list
+GET         /{user}/label/{label}                                            Labels.label
+
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
-GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
-GET         /{user}/collection/add                                           user.Collections.collection
-GET         /{user}/collection/{id}/update                                   user.Collections.collection
+GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.view
+GET         /{user}/collection/add                                           user.Collections.collectionUpdate
+GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
-GET         /{user}/collection/{id}                                          Collections.collection
+GET         /{user}/collection/{id}                                          Collections.view
 
 GET         /{user}/object                                                   DObjects.list
-GET         /{user}/object/add                                               user.DObjects.dobject
-GET         /{user}/object/{id}/update                                       user.DObjects.dobject
+GET         /{user}/object/add                                               user.DObjects.objectUpdate
+GET         /{user}/object/{id}/update                                       user.DObjects.objectUpdate
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 GET         /{user}/object/load/{id}?                                        user.DObjects.load
-GET         /{user}/object/{id}                                              DObjects.dobject
+GET         /{user}/object/{id}                                              DObjects.view
 
 GET         /{user}/story                                                    Stories.list
-GET         /{user}/story/add                                                user.Stories.story
-GET         /{user}/story/{id}/update                                        user.Stories.story
+GET         /{user}/story/add                                                user.Stories.storyUpdate
+GET         /{user}/story/{id}/update                                        user.Stories.storyUpdate
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story
@@ -101,21 +104,21 @@ GET         /{user}/story/{id}/read                                          Sto
 GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
 
 GET         /{user}/admin/?                                                  user.Admin.index
+GET         /{user}/admin/groups                                             user.Admin.groupList
+GET         /{user}/admin/groups/new                                         user.Admin.groupUpdate
+GET         /{user}/admin/groups/update/{id}                                 user.Admin.groupUpdate
+POST        /{user}/admin/groups/submit                                      user.Admin.groupSubmit
+GET         /{user}/admin/groups/load/{id}?                                  user.Admin.groupLoad
 
 GET         /{user}/dataset                                                  DataSets.list
 GET         /{user}/dataset/add                                              user.DataSets.dataSetUpdate
 GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSetUpdate
 GET         /{user}/dataset/{spec}/list                                      Things.list
 POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
-GET         /{user}/dataset/{spec}                                           DataSets.dataSet
-GET         /{user}/dataset/load/{spec}?                                     DataSets.dataSet
+GET         /{user}/dataset/{spec}?                                          DataSets.view
 POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
 POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
-POST        /{user}/dataset/{spec}/cancel                                    user.DataSets.cancel
-GET         /{user}/dataset/{spec}/indexingStatus                            user.DataSets.indexingStatus
-GET         /{user}/dataset/{spec}/state                                     user.DataSets.state
 POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
-POST        /{user}/dataset/{spec}/enable                                    user.DataSets.enable
 POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
 GET         /{user}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
@@ -138,7 +141,6 @@ GET        /admin/themes/{id}/update                                         adm
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 
 GET        /admin/tool/thumbnailize/                                         admin.ThumbnailIngest.ingest
-GET        /admin/tool/thumbnailize/remove/                                  admin.ThumbnailIngest.remove
 
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
