@@ -60,4 +60,10 @@ object Services extends DelvingController with HTTPClient {
     val oaiPmhService = new OaiPmhService(request, accessKey)
     new RenderXml(oaiPmhService.parseRequest)
   }
+
+  def searchApi : Result = {
+    import play.mvc.results.RenderXml
+    new RenderXml("<sjoerd>rocks</sjoerd>")
+
+  }
 }

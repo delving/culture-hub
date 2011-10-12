@@ -35,7 +35,7 @@ DELETE     /file/{id}                                                        use
 # Backwards compatibility with the old services module
 GET         /services/                                                       Services.index
 GET         /services/api/solr/select                                        Services.solrSearchProxy
-GET         /services/api/search                                             Services.index
+GET         /services/api/search                                             Services.searchApi
 GET         /services/api/open-search                                        Services.index
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
