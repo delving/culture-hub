@@ -27,13 +27,13 @@ trait Secure {
           }
           case None => {
             session.remove("username")
-            flash.put("url", if (("GET" == request.method)) request.url else "/")
+            session.put("url", if (("GET" == request.method)) request.url else "/")
             Action(Authentication.login())
           }
         }
       }
       case None => {
-        flash.put("url", if (("GET" == request.method)) request.url else "/")
+        session.put("url", if (("GET" == request.method)) request.url else "/")
         Action(Authentication.login())
       }
     }
@@ -76,7 +76,6 @@ object Authentication extends Controller with ThemeAware {
         redirectToOriginalURL
       }
     }
-    flash.keep("url")
     html.login(title = "Login")
   }
 
@@ -110,14 +109,12 @@ object Authentication extends Controller with ThemeAware {
   }
 
   def loginError(): Html = {
-    flash.keep("url")
     flash.error(Messages.get("secure.error"))
     params.flash()
     html.login(title = "Login")
   }
 
   def userNotActiveError(): Html = {
-    flash.keep("url")
     flash.error(Messages.get("secure.notactive.error"))
     params.flash()
     html.login(title = "Login")
@@ -132,10 +129,11 @@ object Authentication extends Controller with ThemeAware {
 
 
   private def redirectToOriginalURL:Result = {
-    val url = flash.get("url")
+    val url = session.get("url")
     if (url == null) {
       Redirect("/")
     } else {
+      session.remove("url")
       Redirect(url)
     }
   }
