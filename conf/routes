@@ -36,6 +36,7 @@ DELETE     /file/{id}                                                        use
 GET         /services/                                                       Services.index
 GET         /services/api/solr/select                                        Services.solrSearchProxy
 GET         /services/api/search                                             Services.searchApi
+GET         /services/api/{spec}:{id}                                        Services.retrieveRecord
 GET         /services/api/open-search                                        Services.index
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
