@@ -3,6 +3,7 @@ package models
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
+import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
 import eu.delving.metadata.MetadataModelImpl
 
