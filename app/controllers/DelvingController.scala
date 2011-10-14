@@ -28,7 +28,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     user foreach {
       u => {
         renderArgs.put("fullName", u.fullname)
-        renderArgs.put("displayName", u.reference.username)
+        renderArgs.put("userName", u.reference.username)
         renderArgs.put("userId", u._id)
       }
     }
@@ -40,8 +40,8 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
       user match {
         case Some(u) =>
           renderArgs.put("browsedFullName", u.fullname)
-          renderArgs.put("browsedDisplayName", u.reference.username)
           renderArgs.put("browsedUserId", u._id)
+          renderArgs.put("browsedUserName", u.reference.username)
         case None =>
           renderArgs.put("browsedUserNotFound", userName)
       }
@@ -70,12 +70,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
-  @Util def getUser(displayName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)) match {
+  @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(userName), "isActive" -> true)) match {
     case Some(user) => Right(user)
-    case None => Left(NotFound("Could not find user " + displayName))
+    case None => Left(NotFound("Could not find user " + userName))
   }
 
-  @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
+  @Util def browsedUserName: String = renderArgs.get("browsedUserName", classOf[String])
 
   @Util def browsedUserId: ObjectId = renderArgs.get("browsedUserId", classOf[ObjectId])
 

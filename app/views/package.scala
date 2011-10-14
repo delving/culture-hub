@@ -24,11 +24,11 @@ package object context extends Implicits {
   def showError(key: String) = Validation.error(key)
 
   // ~~~ connected user
-  def userName = renderArgs.get("displayName")
+  def userName = renderArgs.get("userName")
   def fullName = renderArgs.get("fullName")
 
   // ~~~ browsed user
-  def browsedUserName = renderArgs.get("browsedDisplayName")
+  def browsedUserName = renderArgs.get("browsedUserName")
   def browsedFullName = renderArgs.get("browsedFullName")
 
   def connectedIsBrowsed = userName == browsedUserName

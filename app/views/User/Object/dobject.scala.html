@@ -15,7 +15,7 @@
         @textField("name", "Name", "value: name", " ", false, "required")
         @textArea("description", "Description", "value: description")
 
-        <div data-bind="template: {name: 'labelTemplate', templateOptions: {name: 'label'}}"></div>
+        <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
 
         <div class="field">
             <label for="collection">Add to collection</label>
@@ -55,6 +55,11 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
+
+      // load templates
+      $.get('@asset("/public/themes/common/templates/_addLabel.html")', null, function(template) {
+        addTemplate('addLabelTemplate', template);
+      });
 
     $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
     initUploadWidget();
