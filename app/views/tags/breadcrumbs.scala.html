@@ -1,7 +1,7 @@
 @import views.context._
 
 <div class="breadcrumbs">
-@crumble.zipWithIndex.map {c =>
+@crumble.map {c =>
   @if(c._2 == crumble.length - 1 && crumble.length > 1) {
     @c._1._2
   }

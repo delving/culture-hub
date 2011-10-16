@@ -69,7 +69,7 @@ package object context extends Implicits {
     case None => ""
   }
 
-  def crumble: List[(String, String)] = {
+  def crumble: List[((String, String), Int)] = {
     val crumbList = request.path.split("/").drop(1).toList
     val crumbs = crumbList match {
 
@@ -96,7 +96,7 @@ package object context extends Implicits {
 
       case _ => List()
     }
-    ("/", "Home") :: crumbs
+    (("/", "Home") :: crumbs).zipWithIndex
   }
 
 

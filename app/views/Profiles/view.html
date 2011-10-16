@@ -1,6 +1,8 @@
 #{extends 'header.html' /}
 #{set title:'Profile of '+userName /}
 
+#{breadcrumbs /}
+
 <!-- TODO extend header -->
 <h1>Profile page for: <span>${user.fullName}</span></h1>
 User name: ${user.userName}<br/>
