@@ -7,7 +7,6 @@ import play.data.validation.Validation
 import play.Play
 import play.mvc.{Util, Before, Controller}
 import play.mvc.results.Result
-import play.templates.Html
 import play.i18n.Messages
 import com.mongodb.casbah.commons.MongoDBObject
 import play.mvc.Scope.Session
@@ -76,7 +75,7 @@ object Authentication extends Controller with ThemeAware {
         redirectToOriginalURL
       }
     }
-    html.login(title = "Login")
+    Template
   }
 
   def authenticate(): AnyRef = {
@@ -108,16 +107,16 @@ object Authentication extends Controller with ThemeAware {
     }
   }
 
-  def loginError(): Html = {
+  def loginError(): Result = {
     flash.error(Messages.get("secure.error"))
     params.flash()
-    html.login(title = "Login")
+    Template("/Authentication/login.html")
   }
 
-  def userNotActiveError(): Html = {
+  def userNotActiveError(): Result = {
     flash.error(Messages.get("secure.notactive.error"))
     params.flash()
-    html.login(title = "Login")
+    Template("/Authentication/login.html")
   }
 
   def logout = {
@@ -128,7 +127,7 @@ object Authentication extends Controller with ThemeAware {
   }
 
 
-  private def redirectToOriginalURL:Result = {
+  private def redirectToOriginalURL: Result = {
     val url = session.get("url")
     if (url == null) {
       Redirect("/")

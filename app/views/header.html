@@ -96,11 +96,11 @@
                     <a class='${"Registration.index".isCurrent()}' href="@{Registration.index()}"><span>Register</span></a><span class="pipe">|</span>
                     <a class='${"Registration.lostPassword".isCurrent()}' href="@{Registration.lostPassword()}"><span>Forgot Password</span></a>
                     #{/if}
-                    #{elseif}
+                    #{else}
                     <div id="user-tools" class="">
                        <ul id="user-menu">
                            <li>
-                               <a href="#" class="user"> Hi @fullName</a>
+                               <a href="#" class="user"> Hi ${fullName}</a>
                                  <div class="sub">
                                     <ul>
                                         <li><h2>Go to</h2></li>
@@ -125,7 +125,7 @@
                        </ul>
                         <!--<span class="pipe">|</span><a href="/logout"><span>Logout</span></a>-->
                     </div>
-                    #{/elseif}
+                    #{/else}
                 </div>
             </div>
 
@@ -135,7 +135,7 @@
             <div class="container_16">
                 <div class="grid_16" id="branding">
 
-                    <h1 class="ir"><span>@themeDisplayName</span></h1>
+                    <h1 class="ir"><span>${views.context.package.themeDisplayName()}</span></h1>
 
                     <div id="header-text">
                         <p>This is the development environment for the Delving Culture-Hub. This is a place where objects come to life through
