@@ -1,0 +1,9 @@
+%{ def isDisabled = _disabled != null && _disabled ? "disabled" : "" }%
+<div class="field">
+    <label class="${_labelClass}" for="${_name}">${_label}</label>
+    <div class="inputs">
+        <input type="text" class="textinput" id="${_name}" name="${_name}" size="40" data-bind="${_dataBind}" data-validate="${views.context.package.printValidationRules(_name)}" ${isDisabled} />
+        <span class="error" data-bind="text: errors().${_name}">${views.context.package.showError(_name)}</span>
+        <span class="help">${_help}</span>
+    </div>
+</div>

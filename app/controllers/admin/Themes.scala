@@ -1,13 +1,11 @@
 package controllers.admin
 
-import controllers.DelvingController
 import cake.ComponentRegistry
-import com.mongodb.casbah.commons.MongoDBObject
 import play.mvc.results.Result
-import play.templates.Html
 import extensions.CHJson
 import org.bson.types.ObjectId
 import models.{EmailTarget, PortalTheme}
+import controllers.{ViewModel, DelvingController}
 
 /**
  * TODO add Access Control
@@ -17,11 +15,9 @@ import models.{EmailTarget, PortalTheme}
 
 object Themes extends DelvingController {
 
-  import views.Admin.Themes._
-
-  def index(): AnyRef = {
+  def index(): Result = {
     val themeList = PortalTheme.findAll
-    html.index(themes = themeList.toList)
+    Template('themes -> themeList.toList)
   }
 
   def load(id: String): Result = {
@@ -36,7 +32,7 @@ object Themes extends DelvingController {
     Json(Map("themes" -> themeList))
   }
 
-  def themeUpdate(id: String): Html = html.theme(Option(id))
+  def themeUpdate(id: String): Result = Template('id -> Option(id))
 
   def themeSubmit(data: String): Result = {
     val theme = CHJson.parse[ThemeViewModel](data)
@@ -88,4 +84,5 @@ case class ThemeViewModel(id: Option[ObjectId] = None,
                           emailTarget: EmailTarget = EmailTarget(),
                           homePage: Option[String] = Some(""),
                           metadataPrefix: Option[String] = Some(""),
-                          text: String = "")
+                          text: String = "",
+                          errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

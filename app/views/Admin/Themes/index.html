@@ -1,0 +1,10 @@
+#{extends 'header.html' /}
+#{set title:'Themes administration' /}
+
+<h1>CultureHub themes administration</h1>
+
+<ul>
+  #{list themes, as: 'theme'}
+    <li><a href="/admin/themes/${theme._id}/update">${theme.name}</a></li>
+  #{/list}
+</ul>
