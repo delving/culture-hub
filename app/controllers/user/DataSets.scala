@@ -3,8 +3,7 @@ package controllers.user
 import play.mvc.results.Result
 import extensions.CHJson
 import scala.collection.JavaConversions._
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.{BasicDBObject, WriteConcern}
+import com.mongodb.BasicDBObject
 import models._
 import models.DataSetState._
 import controllers.{ShortDataSet, DelvingController}

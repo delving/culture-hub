@@ -14,6 +14,7 @@ import controllers._
 import models.{DObject, UserCollection}
 import play.data.validation.Annotations._
 import java.util.Date
+import play.mvc.Before
 
 /**
  * Manipulation of user collections
@@ -23,7 +24,9 @@ import java.util.Date
 
 object Collections extends DelvingController with UserAuthentication with Secure {
 
-  implicit val viewModel = Some(classOf[CollectionViewModel])
+  @Before def setViewModel() {
+    renderArgs += ("viewModel", classOf[CollectionViewModel])
+  }
 
   def load(id: String): Result = {
     // TODO access rights

@@ -60,10 +60,11 @@ package object context extends Implicits {
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 
-  def printValidationRules(name: String)(implicit viewModel: Option[Class[_ <: ViewModel]]) = viewModel match {
+  def printValidationRules(name: String) = Option(renderArgs.get("viewModel")) match {
     case Some(c) => {
-      val rules = util.Validation.getClientSideValidationRules(c)
-      if(rules.get(name) == None) throw new util.ProgrammerException("Unknown field '%s' for view model %s".format(name, c.getName)) else rules(name)
+      val vm = c.asInstanceOf[Class[_ <: ViewModel]]
+      val rules = util.Validation.getClientSideValidationRules(vm)
+      if(rules.get(name) == None) throw new util.ProgrammerException("Unknown field '%s' for view model %s".format(name, vm.getName)) else rules(name)
     }
     case None => ""
   }

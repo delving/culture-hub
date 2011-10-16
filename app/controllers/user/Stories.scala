@@ -9,6 +9,7 @@ import models._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
+import play.mvc.Before
 
 /**
  *
@@ -17,7 +18,9 @@ import java.util.Date
 
 object Stories extends DelvingController with UserAuthentication with Secure {
 
-  implicit val viewModel = Some(classOf[StoryViewModel])
+  @Before def setViewModel() {
+    renderArgs += ("viewModel", classOf[StoryViewModel])
+  }
 
   def load(id: String): Result = {
 

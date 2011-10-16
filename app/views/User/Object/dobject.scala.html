@@ -1,4 +1,4 @@
-@(id: Option[String] = None, uid: String)(implicit viewModel: Option[Class[_ <: controllers.ViewModel]] = None)
+@(id: Option[String] = None, uid: String)
 
 @import views.context._
 @import views.tags.html._
@@ -57,7 +57,7 @@
   $(document).ready(function() {
 
       // load templates
-      $.get('@asset("/public/themes/common/templates/_addLabel.html")', null, function(template) {
+      $.get('@asset("/public/themes/common/templates/_addLabel.tmpl.html")', null, function(template) {
         addTemplate('addLabelTemplate', template);
       });
 
