@@ -1,30 +1,22 @@
-@(id: Option[String] = None)
+#{extends 'header.html' /}
+#{set title: id == None ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
+#{breadcrumbs /}
 
-@import views.context._
-@import views.tags.html._
-
-@header(if(id == None) "Create new collection for user " + fullName else "Update collection for user " + fullName) {
-
-@breadcrumbs()
-
-<h1 class="grid_16 alpha">@if(id == None) { Create a collection } else { Update collection }</h1>
+<h1 class="grid_16 alpha">${id == None ? "Create a collection" : "Update collection" }</h1>
 
 <div data-bind="text: errors().global"></div>
 
 <div class="grid_8 alpha">
   <button id="busyTest">Test</button>
-<form method="post" action="" id="collectionForm">
+  <form method="post" action="" id="collectionForm">
 
     <span class="required-note"><span>*</span> Required Fields</span>
 
-    @textField("name", "Name", "value: name", " ",  false, "required")
-    @textArea("description", "Description", "value: description", " ",  "required")
-    <!--@labelField("label", "Label", "value: label")-->
-
-    <!--<h2>Add objects to your collection</h2>-->
+    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
+    #{textArea name:"description", label:"Description", dataBind:"value: description", labelClass:"required" /}
 
     <div class="actions">
-            <button class="add image-add" id="addObject">Add object(s)</button>
+      <button class="add image-add" id="addObject">Add object(s)</button>
     </div>
 
     <div id="objectList" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
@@ -50,17 +42,14 @@
 </form>
 </div>
 
-
-
-
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
 
         // load templates
-        $.get('@asset("/public/themes/common/templates/_availableObjects.tmpl.html")', null, function(template) {
+        $.get("@{'/public/themes/common/templates/_availableObjects.tmpl.html'}", null, function(template) {
           addTemplate('availableObjectsList', template);
         });
-        $.get('@asset("/public/themes/common/templates/_selectedObjects.tmpl.html")', null, function(template) {
+        $.get("@{'/public/themes/common/templates/_selectedObjects.tmpl.html'}", null, function(template) {
           addTemplate('objectsList', template);
         });
 
@@ -89,10 +78,10 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/@userName/collection/submit', collectionModel, '#collectionForm', '/@userName/collection/');
+            handleSubmit('/${userName}/collection/submit', collectionModel, '#collectionForm', '/${userName}/collection/');
         });
 
-        load('/@userName/collection/load/@id.getOrElse("")', collectionModel);
+        load('/${userName}/collection/load/${id == None ? "" : id.get()}', collectionModel);
 
         var viewModel = { };
 
@@ -100,10 +89,8 @@
             this.name = name;
             this.type = type;
             this.remove = function() {
-                viewModel.annotations.remove(this)
+              viewModel.annotations.remove(this)
             }
         }
     });
 </script>
-
-}

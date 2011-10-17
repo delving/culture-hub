@@ -69,8 +69,8 @@ GET         /{user}/collection                                               Col
 GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
-GET         /{user}/collection/add                                           user.Collections.collectionUpdate
-GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
+GET         /{user}/collection/add                                           user.Collections.collection
+GET         /{user}/collection/{id}/update                                   user.Collections.collection
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.collection
