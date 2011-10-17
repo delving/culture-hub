@@ -1,47 +1,43 @@
-@(dobject: models.DObject, labels: List[controllers.ShortLabel])
+#{extends 'header.html' /}
+#{set title:'Object ' + dobject.name + ' of user ' + browsedFullName /}
 
-@import views.context._
-@import views.tags.html._
+#{breadcrumbs /}
 
-@header("Object " + dobject.name + " of user " + browsedFullName) {
-
-@breadcrumbs()
-
-<h1>@dobject.name</h1>
+<h1>${dobject.name}</h1>
 
 <div class="grid_4 alpha">
-    <img src='@imageUrl(dobject._id)' width="220" alt="@dobject.name"/>
+    <img src='${views.context.package.imageUrl(dobject._id)}' width="220" alt="${dobject.name}"/>
 </div>
 
 <div class="grid_12 omega">
 
     <div class="item metadata">
         <h2>Name</h2>
-        <p>@dobject.name</p>
+        <p>${dobject.name}</p>
 
         <h2>Description:</h2>
-        <p>@niceText(dobject.description.getOrElse("No description available"))</p>
+        <p>${views.context.package.niceText(dobject.description == None ? "No description available" : dobject.description.get())}</p>
 
         <h2>Owner</h2>
-        <p>@browsedFullName</p>
+        <p>${browsedFullName}</p>
 
         <h2>Date created</h2>
-        <p>@niceTime(dobject._id.getTime)</p>
+        <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
 
         <h2>Label(s)</h2>
         <p class="labels">
-            @for(l <- labels) {
-            <span class="label">@l.labelType - @l.value</span><br/>
-            }
+            #{list labels, as: 'l'}
+            <span class="label">${l.labelType} - ${l.value}</span><br/>
+            #{/list}
         </p>
     </div>
 </div>
 
-@if(userName == browsedUserName) {
+#{if userName == browsedUserName}
 <div class="actions ar grid_16 alpha">
-    <a class="edit" href="/@dobject.userName/object/@dobject._id/update">Edit Object</a>
+    <a class="edit" href="/${dobject.userName}/object/${dobject._id}/update">Edit Object</a>
 </div>
-}
+#{/}
 <!--<div class="grid_8">-->
 <!--<div class="dui-buttonset dui-buttonset-single">-->
 <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
@@ -96,22 +92,22 @@
 
     jQuery(document).ready(function() {
         jQuery("#add-comment").click(function(event) {
-            jQuery("#add-comment-dialog").dialog({
-                modal: true,
-                close: function(event, ui) {
-                    $("#add-comment").removeClass("ui-state-active");
-                }
-            });
-            event.preventDefault();
-        })
+          event.preventDefault();
+          jQuery("#add-comment-dialog").dialog({
+              modal: true,
+              close: function(event, ui) {
+                  $("#add-comment").removeClass("ui-state-active");
+              }
+          });
+        });
         jQuery("#add-label").click(function(event) {
-            jQuery("#add-label-dialog").dialog({
-                modal: true,
-                close: function(event, ui) {
-                    $("#add-label").removeClass("ui-state-active");
-                }
-            });
-            event.preventDefault();
+          event.preventDefault();
+          jQuery("#add-label-dialog").dialog({
+              modal: true,
+              close: function(event, ui) {
+                  $("#add-label").removeClass("ui-state-active");
+              }
+          });
         })
 
     });
@@ -131,4 +127,3 @@
         <button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>
     </div>
 </div>
-}

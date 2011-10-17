@@ -71,7 +71,7 @@ GET         /{user}/label/{label}                                            Lab
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
-GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.view
+GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collectionUpdate
 GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
@@ -83,7 +83,7 @@ GET         /{user}/object/add                                               use
 GET         /{user}/object/{id}/update                                       user.DObjects.objectUpdate
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 GET         /{user}/object/load/{id}?                                        user.DObjects.load
-GET         /{user}/object/{id}                                              DObjects.view
+GET         /{user}/object/{id}                                              DObjects.dobject
 
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.storyUpdate
