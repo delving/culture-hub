@@ -1,0 +1,89 @@
+#{extends 'header.html' /}
+#{set title:'Collection ' + collection.name + ' of user ' + browsedFullName /}
+
+#{breadcrumbs /}
+
+<h1>${collection.name}</h1>
+
+<div class="grid_4 alpha">
+
+    <img src="${views.context.package.thumbnailUrl(collection.thumbnail_object_id)}" width="220" alt="${collection.name}"/>
+
+</div>
+
+<div class="grid_12 omega">
+    <div class="item metadata">
+        <h2>Owner</h2>
+        <p>${browsedFullName}</p>
+
+        <h2>Date created:</h2>
+        <p>${views.context.package.niceTime(collection._id.getTime())}</p>
+
+        <h2>Date modified:</h2>
+        <p>${views.context.package.niceTime(collection.TS_update)}</p>
+
+        <h2>Description</h2>
+        <p>${views.context.package.niceText(collection.description == None ? "No description available" : collection.description.get())}</p>
+
+        <h2>Objects</h2>
+        #{if objects.length() > 0}
+        <ul class="inline">
+            #{list objects, as: 'o'}
+            <li>
+                <a href="/${o.userName}/collection/${collection._id}/object/${o.id}"><img src="${views.context.package.thumbnailUrl(o.thumbnail)}" width="75" height="75" alt="${o.title}"/></a>
+            </li>
+            #{/list}
+        </ul>
+        #{/if}
+        #{else}
+        <p>No objects found for this collection</p>
+        #{/else}
+    </div>
+
+</div>
+
+#{if userName == browsedUserName}
+<div class="actions ar grid_16 alpha">
+    <a class="edit" href="/${collection.userName}/collection/${collection._id}/update">Edit Collection</a>
+</div>
+#{/if}
+
+<!--<div id="add-comment-dialog" title="Add a comment">-->
+    <!--<h3>Add a comment</h3>-->
+    <!--<div class="inputs">-->
+        <!--<textarea name="comment" id="comment"></textarea>-->
+        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
+    <!--</div>-->
+<!--</div>-->
+
+<!--<div id="add-label-dialog" title="Add a label">-->
+    <!--<h3>Add a label</h3>-->
+    <!--<div class="inputs">-->
+        <!--<input type="text" class="textinput"/>-->
+        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
+    <!--</div>-->
+<!--</div>-->
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+//        jQuery('#itemcarousel').jcarousel();
+        jQuery("#add-comment").click(function(event) {
+          event.preventDefault();
+          jQuery("#add-comment-dialog").dialog({
+              modal: true,
+              close: function(event, ui) {
+                  $("#add-comment").removeClass("ui-state-active");
+              }
+          });
+        });
+        jQuery("#add-label").click(function(event) {
+          event.preventDefault();
+          jQuery("#add-label-dialog").dialog({
+              modal: true,
+              close: function(event, ui) {
+                  $("#add-label").removeClass("ui-state-active");
+              }
+          });
+        })
+    });
+</script>

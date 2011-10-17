@@ -76,7 +76,7 @@ GET         /{user}/collection/add                                           use
 GET         /{user}/collection/{id}/update                                   user.Collections.collectionUpdate
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
-GET         /{user}/collection/{id}                                          Collections.view
+GET         /{user}/collection/{id}                                          Collections.collection
 
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.objectUpdate
