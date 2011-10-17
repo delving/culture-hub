@@ -61,8 +61,6 @@ object Authentication extends Controller with ThemeAware {
 
   private val onAuthSec = getSecurity.newInstance.asInstanceOf[ { def onAuthenticated(username: String, session: Session) }]
 
-  import views.Authentication._
-
   def login(): AnyRef = {
     if(session("username").isDefined) Redirect("/")
 
