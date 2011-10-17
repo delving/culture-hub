@@ -1,8 +1,5 @@
-@(title:String="")
-
-@import views.context._
-
-@header("Search Results") {
+#{extends 'header.html' /}
+#{set title:'Search results' /}
 
 <div class="grid_12 alpha" id="items">
 
@@ -32,27 +29,27 @@
 
     <div class="items">
 
-        @for(i <- 0 until 10) {
+        %{for (i in 0..10) { }%
 
         <div class="item two-col">
-            <img src='@asset("/public/images/dummy-object.png")' width="84"/>
+            <img src="@{'/public/images/dummy-object.png'}" width="84"/>
 
-            @if((new scala.util.Random).nextBoolean == true) {
-            <h4 class="object"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></h4>
-            } else {
-            <h4 class="collection"><a href="">Title_@i Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a>
+            #{if ((new scala.util.Random()).nextBoolean() == true)}
+            <h4 class="object"><a href="">Title_${i} Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></h4>
+            #{/if}
+            #{else}
+            <h4 class="collection"><a href="">Title_${i} Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a>
             </h4>
-            }
+            #{/else}
             <span class="description">
                 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
             </span>
             <span class="options">
-                <input type="checkbox" value="@i"/>
+                <input type="checkbox" value="${i}"/>
             </span>
 
         </div>
-
-        }
+        %{ } }%
 
     </div>
 
@@ -86,8 +83,8 @@
         <div class="body">
 
             <label>Sort by</label>
-                <a href="" class=""><img src='@asset("/public/images/icon-object.png")' width="16" alt="Sort by object"/>Object</a>
-            <a href="" class=""><img src='@asset("/public/images/icon-collection.png")' width="16" alt="Sort by collection"/>Collection</a>
+                <a href="" class=""><img src="@{'/public/images/icon-object.png'}" width="16" alt="Sort by object"/>Object</a>
+            <a href="" class=""><img src="@{'/public/images/icon-collection.png'}" width="16" alt="Sort by collection"/>Collection</a>
 
             <p>
                 Add <strong>selected</strong> objects to a collection
@@ -103,5 +100,3 @@
     </div>
 
 </div>
-
-}

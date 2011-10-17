@@ -8,9 +8,7 @@ package controllers
 
 object Search extends DelvingController {
 
-  import views.Search._
-
   def index = {
-    html.index("hi there")
+    Template
   }
 }
