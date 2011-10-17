@@ -3,7 +3,6 @@ package controllers
 import models.User
 import com.mongodb.DBObject
 import play.mvc.results.Result
-import play.templates.Html
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 
@@ -14,17 +13,15 @@ import java.util.regex.Pattern
 
 object Users extends DelvingController {
 
-  import views.User._
-
   def index(user: String): AnyRef = {
     val u = getUser(user) match {
       case Right(aUser) => aUser
       case Left(error) => return error
     }
-    html.index(username = u.reference.username)
+    Template
   }
 
-  def list(query: String, page: Int = 1): Html = {
+  def list(query: String, page: Int = 1): Result = {
 
     // ~~~ temporary hand-crafted search for users
     import views.context.PAGE_SIZE
@@ -35,8 +32,8 @@ object Users extends DelvingController {
     val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
     val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
 
-    html.list(title = listPageTitle("user"), items = usersPage.toList, page = page, count = queriedUsers.length)
-
+    val items: List[ListItem] = usersPage.toList
+    Template("/User/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length)
   }
 
   def listAsTokens(q: String): Result = {

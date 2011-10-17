@@ -1,9 +1,9 @@
 #{extends 'header.html' /}
-#{set title: id == None ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
+#{set title: id.isEmpty() ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
 #{breadcrumbs /}
 
 <div class="grid_8">
-  <h1>${id == None ? "Create new object" : "Update object" }</h1>
+  <h1>${id.isEmpty() ? "Create new object" : "Update object" }</h1>
 
   <div data-bind="text: errors().global"></div>
 
@@ -83,7 +83,7 @@
       handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
     });
 
-    load('/${userName}/object/load/${id == None ? "" : id.get()}', objectModel, null, function() {
+    load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
       var files = ko.toJS(objectModel.files);
       var fu = $('#fileupload').data('fileupload');
       fu._adjustMaxNumberOfFiles(-files.length);

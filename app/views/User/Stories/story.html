@@ -1,9 +1,9 @@
 #{extends 'header.html' /}
-#{set title: id == None ? 'Create new story for user ' + fullName : 'Update story for user ' + fullName /}
+#{set title: id.isEmpty() ? 'Create new story for user ' + fullName : 'Update story for user ' + fullName /}
 #{breadcrumbs /}
 
 <div class="grid_16 alpha">
-    <h1 class="emphasize">${id == None ? "Create a new story" : "Update a story" }</h1>
+    <h1 class="emphasize">${id.isEmpty() ? "Create a new story" : "Update a story" }</h1>
 </div>
 
 <div data-bind="text: errors().global"></div>
@@ -45,7 +45,7 @@
           </div>
       </div>
 
-    #{if id == None}
+    #{if id.isEmpty()}
     <div class="actions">
       <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
     </div>
@@ -55,7 +55,7 @@
 
 <div class="clear"></div>
 
-<div id="story-pages" style="${id == None ? 'display:none' : 'display: block' }">
+<div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }">
     <hr/>
     <div class="grid_6 alpha">
         <h3>Step 2: Story Pages</h3>
@@ -80,7 +80,7 @@
     </div>
     <div class="grid_9 prefix_1 omega">
 
-        <div id="form-add-page" class="page-form" style="${id == None ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
+        <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
 
     </div>
 
@@ -271,7 +271,7 @@
           window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
         }
       };
-      load('/${userName}/story/load/${id == None ? "" : id.get()}', storyModel);
+      load('/${userName}/story/load/${id.isEmpty() ? "" : id.get()}', storyModel);
 
       $('#objects-dialogue').dialog({
         autoOpen: false,

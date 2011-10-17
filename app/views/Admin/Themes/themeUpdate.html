@@ -1,8 +1,8 @@
 #{extends 'header.html' /}
-#{set title: id == None ? 'Add new Portal Theme' : 'Update Portal Theme' /}
+#{set title: id.isEmpty() ? 'Add new Portal Theme' : 'Update Portal Theme' /}
 
 <div class="grid_8">
-  <h1>${id == None? 'Add a new theme' : 'Update a theme'}</h1>
+  <h1>${id.isEmpty() ? 'Add a new theme' : 'Update a theme'}</h1>
 
   <form id="themeForm" method="post" action="">
     <span class="required-note"><span>*</span> Required Fields</span>
@@ -68,6 +68,6 @@
       handleSubmit('/admin/themes/submit', themeModel, '#themeForm', null, function() { document.location = '/admin/themes'});
     });
 
-    load('/admin/themes/load/${id == None ? "" : id.get()}', themeModel);
+    load('/admin/themes/load/${id.isEmpty() ? "" : id.get()}', themeModel);
   });
 </script>

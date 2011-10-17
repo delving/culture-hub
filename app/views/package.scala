@@ -4,13 +4,12 @@ import play.data.validation.Validation
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import play.mvc.Http
-import util.Implicits
 import controllers.{ViewModel, FileStore}
 import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
 
-package object context extends Implicits {
+package object context {
 
   val PAGE_SIZE = 12
 

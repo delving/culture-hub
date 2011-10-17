@@ -12,14 +12,14 @@ import user.ObjectModel
 
 object Collections extends DelvingController {
 
-  def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
+  def list(user: Option[String], query: String, page: Int = 1): Result = {
 
     val collectionsPage = user match {
       case Some(u) => UserCollection.queryWithUser(query, browsedUserId).page(page)
       case None => UserCollection.queryAll(query).page(page)
     }
-
-    views.html.list(title = listPageTitle("collection"), itemName = "collection", items = collectionsPage._1, page = page, count = collectionsPage._2)
+    val items: List[ListItem] = collectionsPage._1
+    Template("/list.html", 'title -> listPageTitle("collection"), 'itemName -> "collection", 'items -> items, 'page -> page, 'count -> collectionsPage._2)
   }
 
   def collection(user: String, id: String): Result = {

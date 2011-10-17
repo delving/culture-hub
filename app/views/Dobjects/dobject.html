@@ -16,7 +16,7 @@
         <p>${dobject.name}</p>
 
         <h2>Description:</h2>
-        <p>${views.context.package.niceText(dobject.description == None ? "No description available" : dobject.description.get())}</p>
+        <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description.get())}</p>
 
         <h2>Owner</h2>
         <p>${browsedFullName}</p>

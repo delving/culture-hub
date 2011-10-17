@@ -29,14 +29,13 @@ object Images extends DelvingController {
   }
 
   def view(image: String): AnyRef = {
-    import views.Image._
 
     // just for testing
     //val smallballs = getPath("image.store.path") + "/" + image + ".tif"
     val smallballs = Play.applicationPath.getAbsolutePath + "/public/images/smallballs.tif"
 
-    if (image.isEmpty || image.equalsIgnoreCase("smallballs")) html.view(smallballs)
-    else html.view(Play.configuration.getProperty("image.store.path") + "/" +  image)
+    if (image.isEmpty || image.equalsIgnoreCase("smallballs")) Template('image -> smallballs)
+    else Template("/Image/view.html",'image -> (Play.configuration.getProperty("image.store.path") + "/" +  image))
 
   }
 

@@ -18,8 +18,8 @@ object Stories extends DelvingController {
       case Some(u) => Story.queryWithUser(query, browsedUserId).page(page)
       case None => Story.queryAll(query).page(page)
     }
-
-    views.html.list(title = listPageTitle("story"), itemName = "story", items = storiesPage._1, page = page, count = storiesPage._2)
+    val items: List[ListItem] = storiesPage._1
+    Template("/list.html", 'title -> listPageTitle("story"), 'itemName -> "story", 'items -> items, 'page -> page, 'count -> storiesPage._2)
 
   }
 

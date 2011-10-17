@@ -19,9 +19,10 @@ object DObjects extends DelvingController {
       case None => DObject.queryAll(query).page(page)
     }
 
+    val items: List[ListItem] = objectsPage._1
     request.format match {
-      case "html" => views.html.list(title = listPageTitle("object"), itemName = "object", items = objectsPage._1, page = page, count = objectsPage._2)
-      case "json" => Json(objectsPage._1)
+      case "html" => Template("/list.html", 'title -> listPageTitle("object"), 'itemName -> "object", 'items -> items, 'page -> page, 'count -> objectsPage._2)
+      case "json" => Json(items)
     }
   }
 

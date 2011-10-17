@@ -361,6 +361,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
 case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
   def hasOptions = !options.isEmpty
+
+  val opts = options.map(opt => (opt, opt))
 }
 
 case class DataSetState(name: String) {

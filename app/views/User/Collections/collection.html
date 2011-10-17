@@ -1,8 +1,8 @@
 #{extends 'header.html' /}
-#{set title: id == None ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
+#{set title: id.isEmpty() ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
 #{breadcrumbs /}
 
-<h1 class="grid_16 alpha">${id == None ? "Create a collection" : "Update collection" }</h1>
+<h1 class="grid_16 alpha">${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
 
 <div data-bind="text: errors().global"></div>
 
@@ -81,7 +81,7 @@
             handleSubmit('/${userName}/collection/submit', collectionModel, '#collectionForm', '/${userName}/collection/');
         });
 
-        load('/${userName}/collection/load/${id == None ? "" : id.get()}', collectionModel);
+        load('/${userName}/collection/load/${id.isEmpty() ? "" : id.get()}', collectionModel);
 
         var viewModel = { };
 

@@ -1,17 +1,14 @@
-@(name:String, label:String, selectDataBind: String = "", valueDataBind: String = "")
-@import views.context._
-
 <div class="field">
-    <label for="@name">@label</label>
+    <label for="${_name}">${_label}</label>
     <div class="inputs">
-        <select id="annotationType" data-bind="@selectDataBind">
+        <select id="annotationType" data-bind="${_selectDataBind}">
             <option value="Who">Who</option>
             <option value="Where">Where</option>
             <option value="What">What</option>
             <option value="When">When</option>
         </select>
-        <input type="text" class="textinput" id="@name" name="@name" maxlength="40" data-bind="@valueDataBind"/>
+        <input type="text" class="textinput" id="${_name}" name="${_name}" maxlength="40" data-bind="${_valueDataBind}"/>
         <button class="add label-add" name="add-annotations-button" id="add-annotation-button">Add Label</button>
-        <span class="error">@showError(name)</span>
+        <span class="error">${views.context.package.showError(_name)}</span>
     </div>
 </div>

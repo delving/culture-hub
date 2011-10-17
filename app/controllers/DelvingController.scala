@@ -11,7 +11,7 @@ import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
-import util.{Implicits, LocalizedFieldNames}
+import util.LocalizedFieldNames
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -19,7 +19,7 @@ import util.{Implicits, LocalizedFieldNames}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Implicits {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
@@ -89,7 +89,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util  def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(itemName.pluralize, browsedUserName) + browsedFullName else "List of " + itemName.pluralize
+  @Util def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(extensions.ViewExtensions.pluralize(itemName), browsedUserName) + browsedFullName else "List of " + extensions.ViewExtensions.pluralize(itemName)
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
