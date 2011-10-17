@@ -1,14 +1,12 @@
-@(story: models.Story)
+#{extends 'header.html' /}
+#{set title:'Story ' + story.name + ' of user ' + browsedFullName /}
+#{breadcrumbs /}
 
-@import views.context._
-
-@header("Story " + story.name + " of user " + fullName(story.userName) ) {
-
-<link rel="stylesheet" type="text/css" href='@asset("/public/themes/common/stylesheets/scrollable.css")'/>
+<link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
 
 <div class="story">
 
-    <h1>@story.name</h1>
+    <h1>${story.name}</h1>
 
     <div class="story-container">
 
@@ -27,42 +25,33 @@
                           &#160;
                     </div>
                     <div class="page-right" style="text-align: center">
-                           <h1>@story.name</h1>
-                         <div><img src="@thumbnailUrl(story.thumbnail)" /></div>
-                          <h2>By: @fullName(story.userName)</h2>
+                           <h1>${story.name}</h1>
+                         <div><img src="${views.context.package.thumbnailUrl(story.thumbnail)}" /></div>
+                          <h2>By: ${browsedFullName}</h2>
                     </div>
                 </div>
 
-                @for(page <- story.pages) {
+                #{list story.pages, as: 'page'}
                 <div class="page">
                     <div class="page-left">
-                        <h2>@page.title</h2>
-                        @Html(page.text)
+                        <h2>${page.title}</h2>
+                        ${page.text.raw()}
                     </div>
                     <div class="page-right">
-                       @for(i <- page.objects.headOption) {
-                          <img src="@imageUrl(i.dobject_id)" alt="@page.title">
-                       }
+                       #{list page.objects.headOption(), as: 'o'}
+                          <img src="${views.context.package.imageUrl(o.dobject_id)}" alt="${page.title}">
+                       #{/list}
                     </div>
                 </div>
-                }
-
+                #{/list}
             </div>
-
         </div>
-
     </div>
 </div>
 
 <script type="text/javascript">
-    // execute your scripts when the DOM is ready. this is mostly a good habit
-    $(function() {
-
+    $(document).ready(function() {
         // initialize scrollable
         $(".scrollable").scrollable();
-
     });
 </script>
-}
-
-
