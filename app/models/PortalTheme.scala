@@ -30,6 +30,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        emailTarget:                         EmailTarget = EmailTarget(),
                        homePage:                            Option[String] = Some(""),
                        metadataPrefix:                      Option[String] = None,
+                       facets:                              List[FacetElement] = List(),
                        text:                                String = "") {
 
   def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
@@ -37,5 +38,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
   }
 
 }
+
+case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
 
 object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) with Resolver[PortalTheme] with Commons[PortalTheme]
