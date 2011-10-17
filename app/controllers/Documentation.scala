@@ -14,8 +14,6 @@ import play.mvc.{Util, Controller}
 
 object Documentation extends Controller {
 
-  import views.Documentation._
-
   def helpIndex = page("home", null, "help")
   def developerIndex = page("home", null, "developer")
 
@@ -31,7 +29,7 @@ object Documentation extends Controller {
     val converted = toHTML(markup)
     val title = getTitle(markup)
 
-    html.page(title = title, html = converted)
+    Template("/Documentation/page.html", 'title -> title, 'html -> converted)
   }
 
   def image(name: String): AnyRef = {
