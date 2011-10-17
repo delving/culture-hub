@@ -178,8 +178,8 @@ object ImageCacheService {
 
   val cacheDuration = 60 * 60 * 24
 
-  def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int): InputStream = {
-    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth)
+  def createThumbnail(sourceStream: InputStream, boundingBox: Boolean = false): InputStream = {
+    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
     val os: ByteArrayOutputStream = new ByteArrayOutputStream()
     ImageIO.write(thumbnail, "jpg", os)
     new ByteArrayInputStream(os.toByteArray)
@@ -195,9 +195,13 @@ object ImageCacheService {
   }
 
 
-  private def resizeImage(imageStream: InputStream, width: Int): BufferedImage = {
+  private def resizeImage(imageStream: InputStream, width: Int, boundingBox: Boolean): BufferedImage = {
     val bufferedImage: BufferedImage = ImageIO.read(imageStream)
-    Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
+    if(boundingBox) {
+      Scalr.resize(bufferedImage, width, width)
+    } else {
+      Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
+    }
   }
 
 

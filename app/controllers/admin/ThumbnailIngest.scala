@@ -41,7 +41,7 @@ object ThumbnailIngest extends Controller {
 
   @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
     try {
-      val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width)
+      val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width, true)
       val thumbnail = fs.createFile(thumbnailStream)
       thumbnail.filename = image.getName
       thumbnail.contentType = "image/jpeg"
