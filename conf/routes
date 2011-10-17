@@ -132,6 +132,7 @@ GET        /admin/themes/{id}/update                                         adm
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 
 GET        /admin/tool/thumbnailize/                                         admin.ThumbnailIngest.ingest
+GET        /admin/tool/thumbnailize/remove/                                  admin.ThumbnailIngest.remove
 
 # File Store
 GET        /file/{id}                                                        FileStore.get
