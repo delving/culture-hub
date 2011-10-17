@@ -5,6 +5,7 @@ import java.io.{FileInputStream, File}
 import play.mvc.results.Result
 import play.mvc.{Util, Controller}
 import org.bson.types.ObjectId
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * Creates thumbnails from FS images and stores them in the Mongo FileStore
@@ -39,6 +40,15 @@ object ThumbnailIngest extends Controller {
     }
   }
 
+  def remove(path: String): Result = {
+    if(path == null) Error("Null path parameter")
+    val thumbs = fs.find(MongoDBObject(controllers.FileStore.ORIGIN_PATH_FIELD -> path.r))
+    thumbs.foreach {
+      t => fs.remove(t.getId.asInstanceOf[ObjectId])
+    }
+    Text("Removed %s thumbnails".format(thumbs.length))
+  }
+
   @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
     try {
       val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width, true)
@@ -58,5 +68,7 @@ object ThumbnailIngest extends Controller {
       }
     }
   }
+
+
 
 }
