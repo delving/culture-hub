@@ -53,7 +53,7 @@ class FileStoreSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneri
   }
 
   it should "mark an active thumbnail and an active image given a file pointer and object ID" in {
-    FileUpload.activateThumbnail(uploaded_id, TEST_OID)
+    FileUpload.activateThumbnails(uploaded_id, TEST_OID)
 
     val image = FileStore.renderImage(TEST_OID.toString, false)
     val thumbnail = FileStore.renderImage(TEST_OID.toString, true)
