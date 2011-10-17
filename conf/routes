@@ -83,8 +83,8 @@ GET         /{user}/object/load/{id}?                                        use
 GET         /{user}/object/{id}                                              DObjects.dobject
 
 GET         /{user}/story                                                    Stories.list
-GET         /{user}/story/add                                                user.Stories.storyUpdate
-GET         /{user}/story/{id}/update                                        user.Stories.storyUpdate
+GET         /{user}/story/add                                                user.Stories.story
+GET         /{user}/story/{id}/update                                        user.Stories.story
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story

@@ -2,8 +2,6 @@ package controllers.user
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import play.templates.Html
-import views.User.Story._
 import extensions.CHJson._
 import models._
 import controllers._
@@ -46,7 +44,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
     }
   }
 
-  def storyUpdate(id: String): Html = html.story(Option(id))
+  def story(id: String): Result = Template('id -> Option(id))
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
