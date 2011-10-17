@@ -364,7 +364,7 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 }
 
 case class DataSetState(name: String) {
-  def description = Messages.get("dataSetState." + name)
+  def description = Messages.get("dataSetState." + name.toLowerCase)
 }
 
 object DataSetState {

@@ -1,0 +1,22 @@
+#{extends 'header.html' /}
+#{set title:'DataSet ' + dataSet.name + ' of user ' + browsedFullName /}
+
+<h1 class="grid_16">Data Set <span>"${dataSet.spec}"</span></h1>
+
+<div class="item metadata">
+
+    <div class="grid_8">
+    %{
+      for (i in 0..facts.size() - 1) {
+        def fact = facts.get(i);
+    }%
+        <h4>${fact.prompt}</h4>
+        <p>${fact.value}</p>
+      #{if i == 4}
+        </div>
+        <div class="grid_8">
+      #{/if}
+    %{}}%
+    </div>
+
+</div>

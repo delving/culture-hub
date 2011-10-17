@@ -80,6 +80,11 @@ package object context extends Implicits {
 
       case user :: Nil => List(("/" + user, user))
 
+      case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"))
+      case user :: "object" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"))
+      case user :: "dataset" :: Nil => List(("/" + user, user), ("/" + user + "/dataset", "DataSets"))
+      case user :: "story" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"))
+
       case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/add", "Create new object"))
       case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/add", "Create new collection"))
       case user :: "story" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/add", "Create new story"))

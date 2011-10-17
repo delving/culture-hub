@@ -12,7 +12,7 @@
       one_indexed:true,
       num_edge_entries:1,
       current_page:  parseInt('${_start}'),
-      items_per_page: parseInt('${views.context.package.PAGE_SIZE}'),
+      items_per_page: parseInt('${views.context.package.PAGE_SIZE()}'),
       link_to: '${_paginationUrl.raw()}' + "__id__",
       callback: function() { } // empty callback
     });
