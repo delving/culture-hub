@@ -33,7 +33,7 @@ class FileStoreSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneri
     val upload = new MockUpload(testFile)
     val uploads = List(upload)
 
-    val res: Result = FileUpload.uploadFile(TEST_UID, uploads)
+    val res: Result = FileUpload.uploadFileInternal(TEST_UID, uploads)
     res.getClass should not equal (classOf[Error])
   }
 

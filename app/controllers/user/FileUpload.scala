@@ -26,10 +26,10 @@ object FileUpload extends DelvingController with Secure {
 
   def uploadFile(uid: String): Result = {
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
-    uploadFile(uid, asScalaIterable(uploads))
+    uploadFileInternal(uid, asScalaIterable(uploads))
   }
 
-  def uploadFile(uid: String, uploads: Iterable[Upload]): Result = {
+  @Util def uploadFileInternal(uid: String, uploads: Iterable[Upload]): Result = {
     val uploadedFiles = for (upload: play.data.Upload <- uploads) yield {
       val f = fs.createFile(upload.asStream())
       f.filename = upload.getFileName

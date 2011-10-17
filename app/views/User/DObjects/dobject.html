@@ -1,19 +1,16 @@
-@(id: Option[String] = None, uid: String)
-
-@import views.context._
-@import views.tags.html._
-
-@header(if(id == None) "Add new object for user " + fullName else "Update object for user " + fullName) {
+#{extends 'header.html' /}
+#{set title: id == None ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
+#{breadcrumbs /}
 
 <div class="grid_8">
-  <h1>@if(id == None) { Add a new object } else { Update an object }</h1>
+  <h1>${id == None ? "Create new object" : "Update object" }</h1>
 
   <div data-bind="text: errors().global"></div>
 
   <form id="objectForm" method="post" action="">
         <span class="required-note"><span>*</span> Required Fields</span>
-        @textField("name", "Name", "value: name", " ", false, "required")
-        @textArea("description", "Description", "value: description")
+        #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
+        #{textArea name:"description", label:"Description", dataBind:"value: description" /}
 
         <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
 
@@ -57,14 +54,14 @@
   $(document).ready(function() {
 
       // load templates
-      $.get('@asset("/public/themes/common/templates/_addLabel.tmpl.html")', null, function(template) {
+      $.get("@{'/public/themes/common/templates/_addLabel.tmpl.html'}", null, function(template) {
         addTemplate('addLabelTemplate', template);
       });
 
     $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
     initUploadWidget();
     $('#fileupload').fileupload({
-      url: '@action(controllers.user.FileUpload.uploadFile(uid))',
+      url: '@{user.FileUpload.uploadFile(uid)}',
       autoUpload: true
     });
 
@@ -83,10 +80,10 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/@userName/object/submit', objectModel, '#objectForm', '/@userName/object/', null, null, {uid: '@uid'});
+      handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
     });
 
-    load('/@userName/object/load/@id.getOrElse("")', objectModel, null, function() {
+    load('/${userName}/object/load/${id == None ? "" : id.get()}', objectModel, null, function() {
       var files = ko.toJS(objectModel.files);
       var fu = $('#fileupload').data('fileupload');
       fu._adjustMaxNumberOfFiles(-files.length);
@@ -99,5 +96,3 @@
     });
   });
 </script>
-
-}
