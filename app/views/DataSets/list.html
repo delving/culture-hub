@@ -1,0 +1,58 @@
+#{extends 'header.html' /}
+#{set title:_title /}
+
+#{breadcrumbs /}
+
+#{if browsedUserName}
+<h2>Browse DataSets owned by: <span>${browsedUserName}</span> (${count})</h2>
+#{/if}
+#{else}
+<h2>Browse DataSets (${count})</h2>
+#{/else}
+
+#{if items.length() > 0}
+    <div class="data-grid">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Nr. of items</th>
+                <th>Status</th>
+                <th>Options</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <td colspan="4">
+                        #{if items.length() > 0}
+                        <div id="pager">#{pagination selector: "#pager", count: count, start: page /}</div>
+                        #{/}
+                        #{else}
+                        <p>There are currently no DataSets available</p>
+                        #{/}
+                </td>
+            </tr>
+            </tfoot>
+            <tbody>
+            #{list items, as: 'i'}
+            <tr>
+                <td><a href="/${i.userName}/dataset/${i.spec}">${i.spec}</a></td>
+                <td>${i.total_records}</td>
+                <td>${i.state.description()}</td>
+                <td>
+                    #{if i.userName == userName}
+                    <a class="action edit image-edit" href="/${i.userName}/dataset/${i.spec}/update">Edit DataSet</a>
+                    #{/}
+                </td>
+            </tr>
+            #{/list}
+            </tbody>
+        </table>
+    </div>
+        <a class="dui-button" href="/${userName}/sip-creator/">Sip-Creator</a>
+
+
+#{/}
+#{else}
+    <p>There are currently no DataSets available</p>
+#{/}

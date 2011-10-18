@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Culture-Hub documentation - ${title}</title>
+        <link rel='stylesheet' href="@{'/public/stylesheets/documentation.css'}" type='text/css' media='screen'>
+        <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/wiki.css'}" type='text/css' media='screen'>
+        <script type="text/javascript" src="@{'/public/themes/common/javascripts/jquery-1.6.2.min.js'}"></script>
+        <script type="text/javascript" src="@{'/public/themes/common/javascripts/doc-navigation.js'}"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+
+            <div id="docSidebar">
+                
+                <div id="logo">
+                    <img src="@{'/public/images/logo.png'}">
+                    <h2 id="version">Culture-Hub 0.5</h2>
+                </div>
+
+                <h2>Browse</h2>
+                <ul>
+                    <li id="gotoc"><a href="home">Table of contents</a></li>
+                </ul>
+
+                <h2>Contents</h2>
+                <div id="toc"></div>
+
+            </div>
+
+            <div id="pageContent">
+                <div class="wikistyle">${html.raw()}</div>
+            </div>
+
+        </div>
+    </body>
+</html>

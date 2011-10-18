@@ -7,7 +7,7 @@ import java.io.File
 import scala.collection.JavaConversions._
 import user.FileUploadResponse
 import org.apache.commons.io.FileUtils
-import views.ImageUpload._
+import play.mvc.results.Result
 
 /**
  * Controller taking care of image uploading for tiling
@@ -19,9 +19,7 @@ object ImageUpload extends DelvingController {
 
   val TIF_EXT = ".tif"
 
-  def upload(): AnyRef = {
-    html.uploadFile()
-  }
+  def upload(): Result = Template
 
   def uploadFile(): AnyRef = {
 

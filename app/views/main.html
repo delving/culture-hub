@@ -1,0 +1,12 @@
+#{extends 'header.html' /}
+#{set title: title /}
+#{set bodyId: bodyId /}
+
+<div id="search">
+        <form method="get" action="@{Search.index()}" class="grid_12 alpha push_4">
+            <input type="text" class="textinput" id="query" name="query"/>
+            <button type="submit" class="dui-button ui-state-default">Search</button>
+        </form>
+</div>
+
+#{doLayout /}

@@ -1,0 +1,104 @@
+#{extends 'header.html' /}
+#{set title:'Welcome' /}
+#{set bodyId:'home' /}
+
+<div class="messages-container">
+    <div class="messages">
+        #{if flash.registrationSuccess}
+        <p class="success">
+            Your account was successfully created! An email has been sent to ${flash.registrationSuccess} for activation
+        </p>
+        #{/}
+        #{if flash.registrationError}
+        <p class="error">
+            Error creating your account, please try again. The cause of the error is: "${flash.registrationError}"
+        </p>
+        #{/}
+        #{if flash.activation && flash.activation == "true"}
+        <p class="success">
+            Your account is now active!
+        </p>
+        #{/}
+        #{if flash.activation && flash.activation == "false"}
+        <p class="error">
+            Error activating your account.
+        </p>
+        #{/}
+        #{if flash.resetPasswordEmail && flash.resetPasswordEmail == "true"}
+        <p class="success">
+            An e-mail has been sent to you with a link to reset your password
+        </p>
+        #{/}
+        #{if flash.resetPasswordError}
+        <p class="error">
+            Error resetting your password: ${flash.resetPasswordError}
+        </p>
+        #{/}
+        #{if flash.resetPasswordSuccess && flash.resetPasswordSuccess == "true"}
+        <p class="success">
+            Your password has been successfully changed
+        </p>
+        #{/}
+    </div>
+</div>
+
+<div class="grid_8 alpha">
+    #{if recentCollections.size() > 0}
+    <h2><span>Recent Collections</span></h2>
+
+    <div class="collections-container items">
+        #{list recentCollections, as: 'c'}
+        <div class="item one-col">
+            <div class="media small">
+                <img src='${views.context.package.thumbnailUrl(c.thumbnail)}' width="50" alt="${c.name}"/>
+            </div>
+            <div class="metadata">
+                <div class="hd"></div>
+                <div class="bd">
+                    <h4><a href="/${c.userName}/collection/${c.id}">${c.name}</a></h4>
+                    <span class="detail">${views.context.package.fullName(c.userName)}</span>
+                    <span class="detail">${views.context.package.niceTime(c.TS_update)}</span>
+                </div>
+             </div>
+        </div>
+        #{/list}
+    </div>
+    #{/if}
+
+    #{if recentStories.size() > 0}
+    <h2><span>Recent Stories</span></h2>
+
+    <div class="stories-container">
+      #{list recentStories, as: 's'}
+        <div class="item one-col">
+            <div class="media small">
+              <img src='${views.context.package.thumbnailUrl(s.thumbnail)}' width="50" alt="${s.name}"/>
+            </div>
+            <div class="metadata">
+                <div class="bd">
+                    <h4 class="story"><a href="/${s.userName}/story/${s.id}">${s.name}</a></h4>
+                    <span class="detail">${views.context.package.fullName(s.userName)}</span>
+                    <span class="detail">${views.context.package.niceTime(s.TS_update)}</span>
+                </div>
+            </div>
+        </div>
+      #{/list}
+    </div>
+    #{/if}
+</div>
+
+<div class="grid_8 omega">
+    #{if recentObjects.size() > 0}
+    <h2><span>Recent Objects</span></h2>
+
+    <div class="objects-container ">
+        #{list recentObjects, as: 'o'}
+        <div class="item">
+            <div class="media medium">
+                <a href="/${o.userName}/object/${o.id}"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' width="100" alt="${o.title}"/></a>
+            </div>
+        </div>
+        #{/list}
+    </div>
+    #{/if}
+</div>

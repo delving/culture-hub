@@ -23,7 +23,7 @@
 
             return this.each(function() {
                 obj = $(this);
-                obj.append(img);
+                obj.html(img);
                 obj.css("visibility", "");
 
             });
@@ -39,7 +39,6 @@
              return this.each(function() {
                 obj = $(this);
                 obj.css("visibility", "hidden");
-
             });
         }
     };

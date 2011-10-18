@@ -11,21 +11,31 @@
    removeObject(object)      function to remove an object
 
 -->
+
 <table width="100%" class="list">
+    <caption>${$item.title}</caption>
     <thead>
         <tr>
-        <th colspan="3" class="header">${$item.title}</th>
-        </tr>
-        <tr>
-        <th>Object</th><th class="action">Action</th><th class="thumb">Use as thumbnail</th>
+            <th>Object</th>
+            <th>Name</th>
+            <th>Use as default <strong>*</strong></th>
+            <th>Action</th>
         </tr>
     </thead>
+    <tfoot>
+        <tr>
+            <td colspan="4">
+                 <div><strong>*</strong> This will set the image as the default image to represent your collection or story</div>
+            </td>
+        </tr>
+    </tfoot>
     <tbody>
     {{each(i, object) $item.objects()}}
     <tr>
-        <td><img src='${thumbnailUrl(object.id)}' width="50" alt=""/>${name}</td>
-        <td class="action"><a href="#" class="delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
-        <td class="thumb"><input type="radio" name="is_thumb" value="${id}" data-bind="checked: $item.thumbnail"></td>
+        <td width="50"><img src='${thumbnailUrl(object.id)}' width="50" alt=""/></td>
+        <td>${name}</td>
+        <td><input type="radio" name="is_thumb" value="${id}" data-bind="checked: $item.thumbnail"></td>
+        <td><a href="#" class="action delete" data-bind="click: function() { this.removeObject(object) }">Remove</a></td>
     </tr>
     {{/each}}
 </table>

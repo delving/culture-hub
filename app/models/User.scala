@@ -45,13 +45,13 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
-  def findByUsername(username: String, node: String) = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node))
+  def findByUsername(userName: String, node: String) = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> node))
 
   def findByUserId(id: String) = User.findOne(MongoDBObject("reference.id" -> id))
 
-  def existsWithEmail(email: String) = User.count(MongoDBObject("displayName" -> email)) != 0
+  def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
 
-  def existsWithUsername(displayName: String, node: String) = User.count(MongoDBObject("reference.username" -> displayName, "reference.node" -> node)) != 0
+  def existsWithUsername(userName: String, node: String) = User.count(MongoDBObject("reference.username" -> userName, "reference.node" -> node)) != 0
 
   def activateUser(activationToken: String): Boolean = {
     val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return false)

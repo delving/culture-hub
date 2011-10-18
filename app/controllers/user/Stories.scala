@@ -2,13 +2,12 @@ package controllers.user
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import play.templates.Html
-import views.User.Story._
 import extensions.CHJson._
 import models._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
+import play.mvc.Before
 
 /**
  *
@@ -17,7 +16,9 @@ import java.util.Date
 
 object Stories extends DelvingController with UserAuthentication with Secure {
 
-  implicit val viewModel = Some(classOf[StoryViewModel])
+  @Before def setViewModel() {
+    renderArgs += ("viewModel", classOf[StoryViewModel])
+  }
 
   def load(id: String): Result = {
 
@@ -43,7 +44,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
     }
   }
 
-  def storyUpdate(id: String): Html = html.story(Option(id))
+  def story(id: String): Result = Template('id -> Option(id))
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)

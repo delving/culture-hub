@@ -7,7 +7,6 @@ package controllers
 
 object Services extends DelvingController with HTTPClient {
 
-  import views.User._
   import play.mvc.results.Result
 
   // todo change this with the real portal skins and functionality etc
@@ -16,7 +15,7 @@ object Services extends DelvingController with HTTPClient {
       case Right(aUser) => aUser
       case Left(error) => return error
     }
-    html.index(username = u.reference.username)
+    Template
   }
 
   def solrSearchProxy : Result  = {

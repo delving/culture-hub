@@ -11,7 +11,7 @@ import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
-import util.{Implicits, LocalizedFieldNames}
+import util.LocalizedFieldNames
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -19,7 +19,7 @@ import util.{Implicits, LocalizedFieldNames}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Implicits {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
@@ -28,7 +28,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     user foreach {
       u => {
         renderArgs.put("fullName", u.fullname)
-        renderArgs.put("displayName", u.reference.username)
+        renderArgs.put("userName", u.reference.username)
         renderArgs.put("userId", u._id)
       }
     }
@@ -40,8 +40,8 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
       user match {
         case Some(u) =>
           renderArgs.put("browsedFullName", u.fullname)
-          renderArgs.put("browsedDisplayName", u.reference.username)
           renderArgs.put("browsedUserId", u._id)
+          renderArgs.put("browsedUserName", u.reference.username)
         case None =>
           renderArgs.put("browsedUserNotFound", userName)
       }
@@ -70,12 +70,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def getUserId(username: String): String = username + "#" + getNode
 
-  @Util def getUser(displayName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(displayName), "isActive" -> true)) match {
+  @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(userName), "isActive" -> true)) match {
     case Some(user) => Right(user)
-    case None => Left(NotFound("Could not find user " + displayName))
+    case None => Left(NotFound("Could not find user " + userName))
   }
 
-  @Util def browsedUserName: String = renderArgs.get("browsedDisplayName", classOf[String])
+  @Util def browsedUserName: String = renderArgs.get("browsedUserName", classOf[String])
 
   @Util def browsedUserId: ObjectId = renderArgs.get("browsedUserId", classOf[ObjectId])
 
@@ -89,7 +89,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util  def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(itemName.pluralize, browsedUserName) + browsedFullName else "List of " + itemName.pluralize
+  @Util def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(extensions.ViewExtensions.pluralize(itemName), browsedUserName) + browsedFullName else "List of " + extensions.ViewExtensions.pluralize(itemName)
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
@@ -216,8 +216,4 @@ trait ThemeAware { self: Controller =>
     lookupThreadLocal.remove()
   }
 
-}
-
-trait ViewModelConsumer { self: Controller =>
-  implicit val viewModel: Option[Class[_ <: ViewModel]] = None
 }

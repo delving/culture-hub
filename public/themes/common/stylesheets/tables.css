@@ -42,60 +42,75 @@ table.files{
     font-size: 12px;
 }
 
-.datagrid table {
+/* DATAGRID TABLE */
+
+.data-grid table {
     border-collapse: collapse;
     text-align: left;
     width: 100%;
+    margin: 0;
 }
 
-.datagrid {
-    font: normal 12px/150% Arial, Helvetica, sans-serif;
+.data-grid {
+    /*font: normal 12px/150% Arial, Helvetica, sans-serif;*/
     background: #fff;
     overflow: hidden;
+    border: 1px solid #F1F1F1;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    margin-bottom: 10px;
 }
 
-.datagrid table td, .datagrid table th {
+.data-grid table caption {
+    background-color: #555;
+    color: #fff;
+    font-weight: bold;
+    text-align: left;
+}
+
+.data-grid table caption, .data-grid table td, .data-grid table th {
     padding: 3px 10px;
 }
 
-.datagrid table thead th {
-    background-color: #B5C7DA;
-    color: #FFFFFF;
+.data-grid table thead th {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #E1E1E1), color-stop(1, #E1E1E1));
+    background: -moz-linear-gradient(center top, #E1E1E1 5%, #E1E1E1 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#E1E1E1', endColorstr = '#E1E1E1');
+    background-color: #E1E1E1;
+    color: #555555;
     font-size: 12px;
     font-weight: bold;
-    border-left: 1px solid #FFFFFF;
+    border-left: 1px solid #F1F1F1;
 }
 
-.datagrid table thead th:first-child {
+.data-grid table thead th:first-child {
     border: none;
 }
 
-.datagrid table tbody td {
-    color: #00496B;
-    border-left: 1px solid #E1EEF4;
+.data-grid table tbody td {
+    color: #000000;
+    border-left: 1px solid #F1F1F1;
     font-size: 12px;
     font-weight: normal;
 }
 
-.datagrid table tbody .alt td {
-    background: #E1EEF4;
+
+.data-grid table tbody tr:nth-child(even) td {
+    background: #F1F1F1;
     color: #00496B;
 }
 
-.datagrid table tbody td:first-child {
+.data-grid table tbody td:first-child {
     border: none;
 }
 
-.datagrid table tfoot td {
-    border-top: 1px solid #B5C7DA;
-    background: #E1EEF4;
+.data-grid table tbody tr:hover td {
+    background: #fffff0;
 }
 
-.datagrid table tfoot td {
-    font-size: 12px
-}
 
-.datagrid #pager {
+.data-grid #pager {
     background-color: transparent;
     margin:  0;
     text-align: right;
