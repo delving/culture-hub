@@ -13,7 +13,6 @@ import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import eu.delving.sip.IndexDocument
 import com.mongodb.{BasicDBObject, WriteConcern}
-import com.mongodb.casbah.commons.conversions.scala._
 import java.io.File
 import play.exceptions.ConfigurationException
 import eu.delving.metadata.{Path, RecordMapping}
@@ -110,15 +109,24 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     )
   }
 
+  def findByState(state: DataSetState) = {
+    DataSet.find(MongoDBObject("state.name" -> state.name))
+  }
+
+  def getIndexingState(spec: String): (Int, Int) = {
+    val ds = DataSet.findBySpec(spec).getOrElse(return (100, 100))
+    if(ds.state == DataSetState.ENABLED) return (ds.details.total_records, ds.details.total_records)
+    (ds.details.indexing_count, ds.details.total_records)
+  }
+
   def findCollectionForIndexing() : Option[DataSet] = {
-    val allDateSets: List[DataSet] = find(MongoDBObject("state" -> DataSetState.INDEXING.toString)).sort(MongoDBObject("name" -> 1)).toList
-    if (allDateSets.length < 3)
-      {
-        val queuedIndexing = find(MongoDBObject("state" -> DataSetState.QUEUED.toString)).sort(MongoDBObject("name" -> 1)).toList
+    val allDateSets: List[DataSet] = findByState(DataSetState.INDEXING).sort(MongoDBObject("name" -> 1)).toList
+    if (allDateSets.length < 3) {
+        val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("name" -> 1)).toList
         queuedIndexing.headOption
-      }
-    else
-      None
+      } else {
+        None
+    }
   }
 
   import eu.delving.sip.IndexDocument
@@ -158,7 +166,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def updateState(dataSet: DataSet, state: DataSetState) {
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> state.toString)), false, false, new WriteConcern())
+    val sdbo: MongoDBObject = grater[DataSetState].asDBObject(state)
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
   }
 
   def updateGroups(dataSet: DataSet, groups: List[String]) {
@@ -243,33 +252,30 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add more elements: hasDigitalObject. etc
   }
 
-  def getStateWithSpec(spec: String): String = findBySpec(spec).get.state.toString
+  def getStateBySpec(spec: String) = findBySpec(spec).get.state
+
+  def updateIndexingCount(spec: String, count: Int) {
+    DataSet.update(MongoDBObject("spec" -> spec), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
+  }
 
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String) : (Int, Int) = {
     import eu.delving.sip.MappingEngine
     import scala.collection.JavaConversions.asJavaMap
-    println(dataSet.spec)
     val salatDAO = getRecords(dataSet)
     DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
     val cursor = salatDAO.find(MongoDBObject())
-    var state = getStateWithSpec(dataSet.spec)
-    for (record <- cursor; if (state.equals(DataSetState.INDEXING.toString))) {
-      println(cursor.numSeen)
-      println(record._id)
-      println(record.localRecordKey)
+    var state = getStateBySpec(dataSet.spec)
+    for (record <- cursor; if (state == DataSetState.INDEXING)) {
+//      println(cursor.numSeen)
+//      println(record._id)
+//      println(record.localRecordKey)
       if (cursor.numSeen % 100 == 0) {
-        state = getStateWithSpec(dataSet.spec)
+        updateIndexingCount(dataSet.spec, cursor.numSeen)
+        state = getStateBySpec(dataSet.spec)
       }
-      // very fast
-//      val doc = new SolrInputDocument
-//      doc.addField("id", record._id)
-//      doc.addField("text_value", record.getXmlString())
-//      for (i <- 0 to 100) doc.addField("dummy", i.toString)
-//      getStreamingUpdateServer.add(doc)
-      // very slow
       val s0 = System.currentTimeMillis()
       val mapping = engine.executeMapping(record.getXmlString())
 //      println("mapping in: %s".format(System.currentTimeMillis() - s0))
@@ -305,7 +311,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 //      }
 //    }
     state match {
-      case "INDEXING" =>
+      case DataSetState.INDEXING =>
         DataSet.updateState(dataSet, DataSetState.ENABLED)
         getStreamingUpdateServer.commit()
       case _ =>
@@ -374,7 +380,7 @@ object DataSetState {
   val INCOMPLETE = DataSetState("incomplete")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
-  val INDEXING = DataSetState("enabled")
+  val INDEXING = DataSetState("indexing")
   val ENABLED = DataSetState("enabled")
   val DISABLED = DataSetState("disabled")
   val ERROR = DataSetState("error")
@@ -423,6 +429,7 @@ case class Details(name: String,
                    uploaded_records: Int = 0,
                    total_records: Int = 0,
                    deleted_records: Int = 0,
+                   indexing_count: Int = 0,
                    metadataFormat: RecordDefinition,
                    facts: BasicDBObject = new BasicDBObject(),
                    errorMessage: Option[String] = Some("")

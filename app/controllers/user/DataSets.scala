@@ -80,7 +80,7 @@ object DataSets extends DelvingController with UserSecured {
     dataSet.state match {
       case DISABLED | UPLOADED =>
         changeState(dataSet, DataSetState.QUEUED)
-        Ok
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be indexed in the current state")
     }
   }
@@ -94,10 +94,29 @@ object DataSets extends DelvingController with UserSecured {
     dataSet.state match {
       case ENABLED =>
         changeState(dataSet, DataSetState.QUEUED)
-        Ok
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be re-indexed in the current state")
     }
 
+  }
+
+  def cancel(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    dataSet.state match {
+      case QUEUED | INDEXING =>
+        changeState(dataSet, DataSetState.UPLOADED)
+        DataSet.deleteFromSolr(dataSet)
+        Redirect("/%s/dataset".format(connectedUser))
+      case _ => Error("DataSet cannot be re-indexed in the current state")
+    }
+  }
+
+  def status(spec: String): Result = {
+    val state = DataSet.getIndexingState(spec) match {
+      case (a, b) if a == b => "DONE"
+      case (a, b) => ((a.toDouble / b) * 100).round
+    }
+    Json(Map("state" -> state))
   }
 
   def disable(spec: String): Result = {
@@ -110,7 +129,7 @@ object DataSets extends DelvingController with UserSecured {
       case QUEUED | INDEXING | ERROR | ENABLED =>
         val updatedDataSet = changeState(dataSet, DataSetState.DISABLED)
         DataSet.deleteFromSolr(updatedDataSet)
-        Ok
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be disabled in the current state")
     }
   }
@@ -124,7 +143,7 @@ object DataSets extends DelvingController with UserSecured {
     dataSet.state match {
       case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
         DataSet.delete(dataSet)
-        Ok
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be deleted in the current state")
     }
   }

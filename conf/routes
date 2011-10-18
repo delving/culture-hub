@@ -101,6 +101,8 @@ POST        /{user}/dataset/submit                                           use
 GET         /{user}/dataset/{spec}?                                          DataSets.dataSet
 POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
 POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
+POST        /{user}/dataset/{spec}/cancel                                    user.DataSets.cancel
+GET        /{user}/dataset/{spec}/status                                     user.DataSets.status
 POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
 POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
 
