@@ -3,6 +3,7 @@
 #{breadcrumbs /}
 
 <div class="grid_16 alpha" id="items">
+
     #{if browsedUserName}
     <h2>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h2>
     #{/if}
@@ -35,7 +36,7 @@
             <div class="ft">
             #{if i.userName == userName}
             <div class="actions">
-                <a class="action edit image-edit" href="/${i.userName}/${itemName}/${i.id}/update">Edit ${itemName.capitalize()}</a>
+                <a class="action edit dui-button" href="/${i.userName}/${itemName}/${i.id}/update">Edit ${itemName.capitalize()}</a>
             </div>
             #{/if}
             </div>

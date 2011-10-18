@@ -10,30 +10,18 @@
 */
 
 .action {
-    background-position: 0px 50%;
+    background-position: 4px 4px;
     background-repeat: no-repeat;
-    padding-left: 24px !important;
-    padding-right: 4px;
+    padding:  6px 10px 6px 24px;
     text-decoration: none;
-    /*font-size: 95%;*/
+        vertical-align: middle;
 }
 
-.action.button {
-    background-color: #eeeeee;
-    background-position: 10px 8px;
+button.action {
+    background-position: 8px 4px;
     border:  1px solid #ccc;
-    padding: 5px 10px 3px 34px !important;
+    padding: 2px 4px 8px 34px;
     border-radius: 4px;
-    font-size: 90%
-}
-
-.action.button.small {
-    background-color: #eeeeee;
-    background-position: 6px 6px;
-    border:  1px solid #ccc;
-    padding: 2px 6px 0px 28px !important;
-    border-radius: 4px;
-    font-size: 75%;
 }
 
 .action.no-icon {
@@ -42,7 +30,7 @@
 }
 
 .action.i-right {
-   background-position: right 50%;
+    background-position: right 50%;
     padding-right: 20px;
     padding-left: 0px !important;
 }
@@ -56,7 +44,6 @@
 }
 
 .action.current {
-    /*font-weight: bold;*/
     text-decoration: underline;
 }
 
@@ -68,12 +55,12 @@
     background-image:  url("../images/disk.png");
 }
 
-.action.new-window {
-    background-image:  url("../images/application_double.png");
+.action.delete {
+    background-image:  url("../images/delete.gif");
 }
 
-.action.original-context {
-    background-image:  url("../images/application_osx_home.png");
+.action.new-window {
+    background-image:  url("../images/application_double.png");
 }
 
 .action.next {
@@ -84,17 +71,40 @@
    background-image:  url("../images/control_rewind.png");
 }
 
-.action.return {
-   background-image:  url("../images/arrow_rotate_anticlockwise.png");
-}
-
 .action.edit {
    background-image:  url("../images/pencil_go.gif");
 }
 
+/* actions for pages */
+
 .action.delete.page {
-   background-image:  url("../images/page_white_delete.png");
+   background-image:  url("../images/page_delete.png");
     color: #cc0000;
+}
+
+.action.edit.page {
+   background-image:  url("../images/page_edit.png");
+    color: #669900;
+}
+
+.action.add.page {
+    background-image:  url("../images/page_add.gif");
+}
+
+.action.save.page {
+    background-image:  url("../images/page_save.png");
+}
+
+/* actions for stories */
+
+.action.view.story {
+    background-image: url("../images/bg-book.png");
+}
+
+/* actions for images/objects */
+
+.action.add.image {
+   background-image:  url("../images/image_add.png");
 }
 
 .action.edit.image {
@@ -110,22 +120,6 @@
     background-image:  url("../images/share.png");
 }
 
-/*.actions .submit {*/
-    /*background-image:  url("../images/page_white_go.png");*/
-/*}*/
-
-.action.page-add {
-    background-image:  url("../images/page_add.gif");
-}
-
-/*.actions .page-save {*/
-    /*background-image:  url("../images/page_save.png");*/
-/*}*/
-
-.action.image-add {
-    background-image:  url("../images/image_add.png");
-}
-
 .action.story-add {
     background-image:  url("../images/book_add.png");
 }
@@ -138,143 +132,20 @@
     background-image:  url("../images/folder_add.gif");
 }
 
-/*.actions .label-add {*/
-    /*background-image:  url("../images/tag_blue_add.png");*/
-/*}*/
-
-/*.wait {*/
-    /*display: inline-block;*/
-/*}*/
-
-
-
-.actions .action {
-    display: inline-block;
+.action.label.add {
+    background-image: url("../images/tag_blue_add.png");
 }
 
-.actions.list  {
-    /*display: block;*/
-    /*padding:  10px;*/
-    /*margin-bottom: 10px;*/
+.action.label.delete {
+    background-image: url("../images/tag_blue_delete.png");
 }
 
+.actions {
+    margin-bottom: 10px;
+}
 
+.actions .action:last-of-type {
+    margin-right: 0;
+}
 
-/*.actions {*/
-    /*display: inline-block;*/
-    /*margin-bottom: 10px;*/
-    /*padding:  10px 0;*/
-    /*overflow: hidden;*/
-    /*position: relative;*/
-/*}*/
-
-/*.actions a {*/
-    /*background-color: #eeeee0;*/
-    /*padding: 10px 10px 10px 34px !important;*/
-    /*border-radius: 4px;*/
-/*}*/
-
-/*.actions button {*/
-    /*padding:  4px;*/
-/*}*/
-
-/*.actions a:hover {*/
-    /*background-color: #bbbbb0;*/
-    /*padding: 10px 10px 10px 34px;*/
-    /*border-radius: 4px;*/
-/*}*/
-
-/*.actions.ar {*/
-    /*text-align: right;*/
-/*}*/
-
-/*.actions .add,*/
-/*.actions .delete,*/
-/*.actions .error,*/
-/*.actions .success,*/
-/*.actions .edit,*/
-/*.actions .save,*/
-/*.actions .submit,*/
-/*.actions .read {*/
-    /*background-position: 10px 50%;*/
-    /*background-repeat: no-repeat;*/
-    /*padding-left: 32px !important;*/
-    /*padding-right: 16px;*/
-    /*text-decoration: none;*/
-/*}*/
-
-/*.action.add,*/
-/*.action.delete,*/
-/*.action.error,*/
-/*.action.success,*/
-/*.action.edit,*/
-/*.action.save,*/
-/*.action.submit,*/
-/*.action.read,*/
-/*.action {*/
-    /*background-position: 0px 50%;*/
-    /*background-repeat: no-repeat;*/
-    /*padding-left: 24px !important;*/
-    /*padding-right: 16px;*/
-    /*text-decoration: none;*/
-/*}*/
-
-/*.actions .goto,*/
-/*.action.goto{*/
-    /*background-image: url("../images/page_white_go.png");*/
-/*}*/
-
-/*.actions .edit,*/
-/*.action.edit{*/
-    /*background-image: url("../images/pencil_go.gif");*/
-/*}*/
-
-/*.actions .delete,*/
-/*.action.delete {*/
-    /*background-image: url("../images/delete.gif");*/
-/*}*/
-
-/*.actions .save {*/
-    /*background-image:  url("../images/disk.png");*/
-/*}*/
-
-/*.actions .submit {*/
-    /*background-image:  url("../images/page_white_go.png");*/
-/*}*/
-
-/*.actions .page-add {*/
-    /*background-image:  url("../images/page_add.gif");*/
-/*}*/
-
-/*.actions .page-save {*/
-    /*background-image:  url("../images/page_save.png");*/
-/*}*/
-
-/*.actions .image-add,*/
-/*.action.image-add {*/
-    /*background-image:  url("../images/image_add.png");*/
-/*}*/
-
-/*.actions .story-add,*/
-/*.action.story-add {*/
-    /*background-image:  url("../images/book_add.png");*/
-/*}*/
-
-/*.actions .read,*/
-/*.action.read {*/
-    /*background-image:  url("../images/book_open.gif");*/
-/*}*/
-
-/*.actions .collection-add,*/
-/*.action.collection-add {*/
-    /*background-image:  url("../images/folder_add.gif");*/
-/*}*/
-
-/*.actions .label-add {*/
-    /*background-image:  url("../images/tag_blue_add.png");*/
-/*}*/
-
-/*.wait {*/
-    /*display: inline-block;*/
-/*}*/
 

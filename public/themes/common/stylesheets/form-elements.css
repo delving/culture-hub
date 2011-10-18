@@ -17,7 +17,6 @@ form.box {
 label {
     display: block;
     color: #555;
-
 }
 
 .required-note {
@@ -31,7 +30,7 @@ label {
 }
 
 div.field {
-    border-bottom: 1px dotted #ccc;
+    /*border-bottom: 1px dotted #ccc;*/
     margin-bottom: 10px;
     overflow: hidden;
     padding-bottom: 10px;

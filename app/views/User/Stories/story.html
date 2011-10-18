@@ -10,24 +10,17 @@
 
 <div class="grid_6 alpha">
     <h3>Step 1: Story Information</h3>
-    <div class="container">
-          <div class="head"></div>
-          <div class="body">
+      <p>
+          A <strong>story</strong> can be created from objects in a
+          <strong>collection</strong>. So before you can compose a story, you must have
+          a collection with objects in it.
+      </p>
 
-              <p>
-                  A <strong>story</strong> can be created from objects in a
-                  <strong>collection</strong>. So before you can compose a story, you must have
-                  a collection with objects in it.
-              </p>
-              <div class="actions"><a href="" class="add collection-add">Create a collection</a> </div>
-              <ol class="small">
-                  <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
-                  <li>You should initially keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
-                  <li>Once you have completed the above steps you can start adding pages to your story</li>
-              </ol>
-          </div>
-          <div class="foot"></div>
-      </div>
+      <ol class="small">
+          <li>Enter the basic story information: a name and short description, and optionally add annotations</li>
+          <li>You should initially keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it</li>
+          <li>Once you have completed the above steps you can start adding pages to your story</li>
+      </ol>
 </div>
 
 <div class="grid_9 prefix_1 omega">
@@ -47,7 +40,7 @@
 
     #{if id.isEmpty()}
     <div class="actions">
-      <button class="add page-add" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
+      <button class="action page add dui-button" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
     </div>
     #{/if}
     </form>
@@ -63,8 +56,9 @@
         <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
         <div class="actions">
-            <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
-            <a class="read" href="#" target="_blank" data-bind="click: makeStoryUrl">View your story</a>
+
+            <a class="action story read dui-button" href="#" target="_blank" data-bind="click: makeStoryUrl" rel="nofollow" >View your story</a>
+            <button class="action add page dui-button f-right" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
         </div>
 
     </div>
@@ -83,7 +77,7 @@
 <div class="grid_16 alpha" id="save-story">
 <hr/>
     <div class="actions">
-      <button class="save" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">Save Story</button>
+      <button class="action save dui-button" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">Save Story</button>
       <div class="wait"></div>
     </div>
 </div>
@@ -119,14 +113,14 @@
     <div class="field">
         <div class="inputs">
             <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            <button class="add image-add" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
+            <button class="action add image dui-button" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
         </div>
     </div>
 
     <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
     <div class="actions">
-            <button class="save page-save"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
+            <button class="action save dui-button"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
     </div>
   </form>
 
