@@ -7,7 +7,7 @@
 <div data-bind="text: errors().global"></div>
 
 <div class="grid_8 alpha">
-  <button id="busyTest">Test</button>
+
   <form method="post" action="" id="collectionForm">
 
     <span class="required-note"><span>*</span> Required Fields</span>
@@ -19,7 +19,7 @@
       <button class="add image-add" id="addObject">Add object(s)</button>
     </div>
 
-    <div id="objectList" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
+    <div id="objectList" class="data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
 
     <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
         <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>

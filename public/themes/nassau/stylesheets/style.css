@@ -427,17 +427,17 @@ button[disabled] {
 }
 
 /*table over-rides */
-.datagrid table thead th {
+.data-grid table thead th {
     background-color: #555;
     border-left: 1px solid #ccc;
 }
 
-.datagrid table tbody td {
+.data-grid table tbody td {
     color: #00496B;
     border-left: 1px solid #ccc;
 }
 
-.datagrid table tfoot td {
+.data-grid table tfoot td {
     border-top: 1px solid #ccc;
     background: #ccc;
 }

@@ -59,18 +59,8 @@
     <hr/>
     <div class="grid_6 alpha">
         <h3>Step 2: Story Pages</h3>
-        <!--<div class="container">-->
-            <!--<div class="head"></div>-->
-            <!--<div class="body">-->
-                <!--<ol class="small">-->
-                    <!--<li>Enter a page title</li>-->
-                    <!--<li></li>-->
-                <!--</ol>-->
-            <!--</div>-->
-        <!--</div>-->
-
         <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
-        <div id="page-list" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
         <div class="actions">
             <button class="add page-add" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
@@ -133,7 +123,7 @@
         </div>
     </div>
 
-    <div id="objectList" class="display-box" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
+    <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
     <div class="actions">
             <button class="save page-save"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
@@ -143,23 +133,29 @@
 </script>
 
 <script type="text/html" id="pageList">
-  <h3>Existing pages:</h3>
-  <ul class="page-list">
-      {{each(i, page) pages()}}
-      <li id="#{verbatim}page-${i}#{/}">
-          <div class="page-info">
-              <span class="left">
-                  <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
-              </span>
-              <span class="right">
-                  <a class="action edit" href="#" data-bind="click: function() { this.editPage(page); }">Edit</a>
-                  <a class="action delete" href="#" data-bind="click: function() { this.deletePage(page); }">Delete</a>
-              </span>
-          </div>
-      </li>
-      {{/each}}
-  </ul>
-  <div class="clear"></div>
+
+        <table class="list">
+            <caption>Existing pages:</caption>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{each(i, page) pages()}}
+            <tr id="#{verbatim}page-${i}#{/}">
+                <td>
+                    <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
+                </td>
+                <td>
+                    <a class="action edit" href="#" data-bind="click: function() { this.editPage(page); }">Edit</a>
+                    <a class="action delete" href="#" data-bind="click: function() { this.deletePage(page); }">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
 </script>
 
 <script type="text/javascript" language="javascript">

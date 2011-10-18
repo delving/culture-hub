@@ -459,22 +459,22 @@ p.success {
 
 /*table over-rides */
 
-.datagrid table thead th {
+.data-grid table thead th {
     background-color: #aaaaa0;
     border-left: 1px solid #ccccc0;
 }
 
-.datagrid table tbody td {
+.data-grid table tbody td {
     color: #00496B;
     border-left: 1px solid #ccccc0;
 }
 
-.datagrid table tbody .alt td {
+.data-grid table tbody .alt td {
     background: #fffff0;
     color: #00496B;
 }
 
-.datagrid table tfoot td {
+.data-grid table tfoot td {
     border-top: 1px solid #ccccc0;
     background: #ddddd0;
 }
