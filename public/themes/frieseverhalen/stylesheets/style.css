@@ -194,60 +194,36 @@ ol.small li {
 
 #search {
     background:  #CFD0BF;
-    text-align: center;
     padding:  10px 0;
+    text-align: center;
 }
 
 
-/*#search input[type="text"]{*/
-    /*background: transparent url(../images/bg-search-input.png) 0 0 no-repeat;*/
-    /*border: none;*/
-    /*height: 32px;*/
-    /*line-height: 40px;*/
-    /*margin: 0 0;*/
-    /*padding: 0 10px;*/
-    /*width: 430px;*/
-/*}*/
-
-/*#search input[type="submit"] {*/
-    /*background: transparent url(../images/bg-button-states.png) 0 0 no-repeat;*/
-    /*background:  #272911;*/
-    /*border:  none;*/
-    /*color: #fff;*/
-    /*font-weight: normal;*/
-    /*height: 32px;*/
-    /*margin: 0 0 0 -5px;*/
-    /*padding: 0 5px;*/
-    /*width: 82px;*/
-
-/*}*/
-
-#search input[type="text"] {
-font-size: 14px;
-height: 22px;
-width: 336px;
-background-color: white;
-margin: 0!important;
-padding: 2px 0 2px 8px;
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    border: medium none;
+    /*border:  1px solid #d1d1d1;*/
+    padding: 6px;
+    width: 400px;
 }
 
-#search input[type="submit"] {
+#search input[type="submit"]  {
     background: none repeat scroll 0 0 #CC3333;
     border: medium none;
-    border-radius: 0 0 0 0;
     color: #FFFFFF;
-    height: 28px;
+    cursor: pointer;
     margin-left: -4px;
-    padding: 2px 12px;
+    padding: 6px;
+    text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.7);
     text-transform: uppercase;
+    width: 80px;
 }
 
-#search input[type="submit"]:hover {
-    /*background: transparent url(../images/bg-button-states.png) 0 -32px no-repeat;*/
-}
-
-#search input[type="submit"]:active {
-    /*background: transparent url(../images/bg-button-states.png) 0 -64px no-repeat;*/
+#search input {
+    /*border-radius: 4px 4px 4px 4px;*/
+    /*font-size: 12px;*/
+    font-weight: bold;
+    vertical-align: top;
 }
 
 /* result page */
@@ -459,22 +435,22 @@ p.success {
 
 /*table over-rides */
 
-.datagrid table thead th {
+.data-grid table thead th {
     background-color: #aaaaa0;
     border-left: 1px solid #ccccc0;
 }
 
-.datagrid table tbody td {
+.data-grid table tbody td {
     color: #00496B;
     border-left: 1px solid #ccccc0;
 }
 
-.datagrid table tbody .alt td {
+.data-grid table tbody .alt td {
     background: #fffff0;
     color: #00496B;
 }
 
-.datagrid table tfoot td {
+.data-grid table tfoot td {
     border-top: 1px solid #ccccc0;
     background: #ddddd0;
 }

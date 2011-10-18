@@ -1,8 +1,8 @@
 package controllers
 
-import play.templates.Html
 import models.DataSet
-import views.Dataset._
+import play.mvc.results.Result
+import scala.collection.JavaConversions.asJavaList
 
 
 /**
@@ -12,21 +12,22 @@ import views.Dataset._
 
 object DataSets extends DelvingController {
 
-  def list(user: Option[String], page: Int = 1): Html = {
+  def list(user: Option[String], page: Int = 1): Result = {
     // TODO visibility (public, private)
     val dataSetsPage = DataSet.findAllByOwner(connectedUserId).page(page)
-    html.list(listPageTitle("dataset"), dataSetsPage._1, page, dataSetsPage._2)
+    val items: List[ShortDataSet] = dataSetsPage._1 
+    Template('title -> listPageTitle("dataset"), 'items -> items, 'page -> page, 'count -> dataSetsPage._2)
   }
 
-  def view(spec: String): AnyRef = {
+  def dataSet(spec: String): Result = {
    // TODO check if connected user has access
     val dataSet = DataSet.findBySpec(spec)
 
     request.format match {
       case "html" => {
         val ds = dataSet.getOrElse(return NotFound("DataSet '%s' was not found".format(spec)))
-        val describedFacts = for(factDef <- DataSet.factDefinitionList) yield Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString)
-        html.view(ds, describedFacts)
+        val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
+        Template('dataSet -> ds, 'facts -> asJavaList(describedFacts))
       }
       case "json" => if(dataSet == None) Json(ShortDataSet(userName = connectedUser)) else {
         val dS = dataSet.get

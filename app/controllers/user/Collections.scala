@@ -1,7 +1,5 @@
 package controllers.user
 
-import play.templates.Html
-import views.User.Collection._
 import play.mvc.results.Result
 import org.bson.types.ObjectId
 import com.mongodb.WriteConcern
@@ -9,11 +7,11 @@ import com.novus.salat.dao.SalatDAOUpdateError
 import extensions.CHJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
-import org.scala_tools.time.Imports._
 import controllers._
 import models.{DObject, UserCollection}
 import play.data.validation.Annotations._
 import java.util.Date
+import play.mvc.Before
 
 /**
  * Manipulation of user collections
@@ -23,7 +21,9 @@ import java.util.Date
 
 object Collections extends DelvingController with UserAuthentication with Secure {
 
-  implicit val viewModel = Some(classOf[CollectionViewModel])
+  @Before def setViewModel() {
+    renderArgs += ("viewModel", classOf[CollectionViewModel])
+  }
 
   def load(id: String): Result = {
     // TODO access rights
@@ -39,7 +39,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
   }
 
 
-  def collectionUpdate(id: String): Html = html.collection(Option(id))
+  def collection(id: String): Result = Template('id -> Option(id))
 
   def collectionSubmit(data: String): Result = {
 

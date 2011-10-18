@@ -1,0 +1,13 @@
+#{extends 'header.html' /}
+#{set title:'Profile of '+userName /}
+
+#{breadcrumbs /}
+
+<!-- TODO extend header -->
+<h1>Profile page for: <span>${user.fullName}</span></h1>
+User name: ${user.userName}<br/>
+Full Name: ${user.fullName}<br/>
+Active since: ${views.context.package.niceTime(user.id.getTime())}<br/>
+Number of objects: <a href="/${user.userName}/object"> ${objects.length()}</a><br/>
+Number of collections: <a href="/${user.userName}/collection">${collections.length()}</a><br/>
+Number of stories: <a href="/${user.userName}/story">${stories.length()}</a><br/>

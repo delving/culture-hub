@@ -9,8 +9,6 @@ import models._
 
 object Profiles extends DelvingController {
 
-  import views.Profile._
-
   def view(user: String): AnyRef = {
     val u: ShortUser = getUser(user) match {
       case Right(aUser) => aUser
@@ -21,6 +19,6 @@ object Profiles extends DelvingController {
     val collections: List[ShortCollection] = UserCollection.findByUser(u.id).toList
     val stories: List[ShortStory] = Story.findByUser(u.id).toList
 
-    html.view(u, objects, collections, stories)
+    Template('user -> u, 'objects -> objects, 'collections -> collections, 'stories -> stories)
   }
 }

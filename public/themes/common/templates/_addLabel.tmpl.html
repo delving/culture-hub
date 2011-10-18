@@ -1,0 +1,38 @@
+<div class="field">
+    <label for="$item.name">Label</label>
+
+    <div class="inputs">
+        <select id="labelType" data-bind="value: $item.labelType">
+            <option value="Who">Who</option>
+            <option value="What">What</option>
+            <option value="Where">Where</option>
+            <option value="When">When</option>
+        </select>
+        <input type="text" class="textinput" id="$item.name" name="$item.name" maxlength="40" data-bind="value: $item.labelValue"/>
+        <button class="action add label dui-button" name="add-annotations-button" id="add-annotation-button" data-bind="click: $item.addLabel">Add Label</button>
+    </div>
+</div>
+{{if $item.labels().length > 0}}
+<div class="data-grid">
+    <table class="list">
+        <thead>
+        <tr>
+            <th>Label</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {{each(i, label) $item.labels()}}
+        <tr>
+            <td>${label.labelType} - ${label.value}</td>
+            <td>
+                <a href="#" class="action label delete f-right" data-bind="click: function() { this.removeLabel(label) }">Remove</a>
+            </td>
+        </tr>
+        {{/each}}
+
+        </tbody>
+    </table>
+</div>
+{{/if}}

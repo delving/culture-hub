@@ -3,12 +3,10 @@ package controllers.user
 import play.mvc.results.Result
 import extensions.CHJson
 import scala.collection.JavaConversions._
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.{BasicDBObject, WriteConcern}
+import com.mongodb.BasicDBObject
 import models._
 import models.DataSetState._
 import controllers.{ShortDataSet, DelvingController}
-import views.User.Dataset._
 import java.util.Date
 
 
@@ -20,7 +18,7 @@ import java.util.Date
 object DataSets extends DelvingController with UserSecured {
 
   // TODO check rights for the accessed dataset
-  def dataSetUpdate(spec: String): AnyRef = html.dataset(Option(spec), DataSet.factDefinitionList.filterNot(factDef => factDef.automatic), RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  def dataSet(spec: String): Result = Template('spec -> Option(spec), 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
 
   // TODO check rights for the accessed dataset
   def dataSetSubmit(data: String): Result = {

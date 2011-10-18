@@ -1,0 +1,40 @@
+#{extends 'header.html' /}
+#{set title:'Story ' + story.name + ' of user ' + browsedFullName /}
+#{breadcrumbs /}
+
+<h1>${story.name}</h1>
+
+<div class="grid_4 alpha">
+    <img src='${views.context.package.thumbnailUrl(story.thumbnail)}' width="220" alt="${story.name}"/>
+</div>
+<div class="grid_12 omega">
+
+    <div class="item metadata">
+        <h2>Description</h2>
+        <p>${story.description}</p>
+
+        <h2>Date created</h2>
+        <p>${views.context.package.niceTime(story._id.getTime())}</p>
+
+        <h2>Last modified</h2>
+        <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
+
+        <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
+        <h2>Pages:</h2>
+        <ul>
+            #{list story.pages, as: 'page'}
+
+            <li>${page.title}</li>
+            <!--<li>${page.text}</li>-->
+            #{/list}
+        </ul>
+    </div>
+
+    <div class="">
+        #{if story.userName == userName}
+        <a class="action edit dui-button" href="/${story.userName}/story/${story._id}/update">Edit story</a>
+        #{/if}
+
+        <a class="action read dui-button" href="/${story.userName}/story/${story._id}/read">Read story</a>
+    </div>
+</div>

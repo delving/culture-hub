@@ -1,6 +1,7 @@
 package controllers
 
 import models.DObject
+import play.mvc.results.Result
 
 /**
  *
@@ -10,8 +11,6 @@ import models.DObject
 
 object DObjects extends DelvingController {
 
-  import views._
-
   def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
 
     // TODO access rights
@@ -20,18 +19,19 @@ object DObjects extends DelvingController {
       case None => DObject.queryAll(query).page(page)
     }
 
+    val items: List[ListItem] = objectsPage._1
     request.format match {
-      case "html" => views.html.list(title = listPageTitle("object"), itemName = "object", items = objectsPage._1, page = page, count = objectsPage._2)
-      case "json" => Json(objectsPage._1)
+      case "html" => Template("/list.html", 'title -> listPageTitle("object"), 'itemName -> "object", 'items -> items, 'page -> page, 'count -> objectsPage._2)
+      case "json" => Json(items)
     }
   }
 
-  def view(user: String, id: String): AnyRef = {
+  def dobject(user: String, id: String): Result = {
     DObject.findById(id) match {
         case None => NotFound
         case Some(anObject) => {
           val labels: List[ShortLabel] = anObject.labels
-          views.Dobject.html.dobject(dobject = anObject, labels = labels)
+          Template('dobject -> anObject, 'labels -> labels)
         }
       }
   }

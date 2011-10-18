@@ -1,10 +1,7 @@
 package controllers.user
 
 import controllers.DelvingController
-import play.templates.Html
 import play.mvc.results.Result
-import views.User.SipCreator._
-
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -12,7 +9,7 @@ import views.User.SipCreator._
 
 object SipCreator extends DelvingController {
 
-  def index: Html = html.index()
+  def index: Result = Template
 
   def jnlp: Result = {
 

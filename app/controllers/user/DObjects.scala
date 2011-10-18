@@ -1,7 +1,5 @@
 package controllers.user
 
-import play.templates.Html
-import views.User.Object._
 import play.mvc.results.Result
 import extensions.CHJson._
 import com.mongodb.casbah.commons.MongoDBObject
@@ -14,6 +12,7 @@ import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
 import play.data.validation.Annotations._
 import java.util.Date
+import play.mvc.Before
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -24,7 +23,9 @@ import java.util.Date
 
 object DObjects extends DelvingController with UserAuthentication with Secure {
 
-  implicit val viewModel = Some(classOf[ObjectModel])
+  @Before def setViewModel() {
+    renderArgs += ("viewModel", classOf[ObjectModel])
+  }
 
   def load(id: String): Result = {
     val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
@@ -46,7 +47,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
   }
 
 
-  def objectUpdate(id: String): Html = html.dobject(Option(id), Codec.UUID())
+  def dobject(id: String): Result = Template('id -> Option(id), 'uid -> Codec.UUID())
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
@@ -116,4 +117,3 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
                        errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
-

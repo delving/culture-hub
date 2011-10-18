@@ -8,7 +8,6 @@ import notifiers.Mails
 import play.Play
 import models.{UserReference, User}
 import play.mvc.results.Result
-import play.templates.Html
 
 /**
  *
@@ -17,10 +16,8 @@ import play.templates.Html
 
 object Registration extends DelvingController {
 
-  import views.Registration._
-
-  def index() = {
-    html.index(randomId = Codec.UUID())
+  def index(): Result = {
+    Template('randomId -> Codec.UUID())
   }
 
   def register(): AnyRef = {
@@ -95,7 +92,7 @@ object Registration extends DelvingController {
     Action(controllers.Application.index)
   }
 
-  def lostPassword(): Html = html.lostPassword()
+  def lostPassword(): Result = Template
 
   def resetPasswordEmail(): AnyRef = {
     Validation.clear()
@@ -144,7 +141,7 @@ object Registration extends DelvingController {
         flash += ("resetPasswordError" -> "Error changing your password. Try resetting it again.")
         Action(controllers.Application.index)
       } else {
-        html.resetPassword(resetPasswordToken = resetPasswordToken.get)
+        Template('resetPasswordToken -> resetPasswordToken.get)
       }
     }
   }

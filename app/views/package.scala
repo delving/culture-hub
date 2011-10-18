@@ -4,13 +4,12 @@ import play.data.validation.Validation
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import play.mvc.Http
-import util.Implicits
 import controllers.{ViewModel, FileStore}
 import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
 
-package object context extends Implicits {
+package object context {
 
   val PAGE_SIZE = 12
 
@@ -24,11 +23,11 @@ package object context extends Implicits {
   def showError(key: String) = Validation.error(key)
 
   // ~~~ connected user
-  def userName = renderArgs.get("displayName")
+  def userName = renderArgs.get("userName")
   def fullName = renderArgs.get("fullName")
 
   // ~~~ browsed user
-  def browsedUserName = renderArgs.get("browsedDisplayName")
+  def browsedUserName = renderArgs.get("browsedUserName")
   def browsedFullName = renderArgs.get("browsedFullName")
 
   def connectedIsBrowsed = userName == browsedUserName
@@ -60,15 +59,16 @@ package object context extends Implicits {
 
   implicit def userListToString(users: List[models.User]): String = (for(u <- users) yield u.fullname) reduceLeft (_ + ", " + _)
 
-  def printValidationRules(name: String)(implicit viewModel: Option[Class[_ <: ViewModel]]) = viewModel match {
+  def printValidationRules(name: String) = Option(renderArgs.get("viewModel")) match {
     case Some(c) => {
-      val rules = util.Validation.getClientSideValidationRules(c)
-      if(rules.get(name) == None) throw new util.ProgrammerException("Unknown field '%s' for view model %s".format(name, c.getName)) else rules(name)
+      val vm = c.asInstanceOf[Class[_ <: ViewModel]]
+      val rules = util.Validation.getClientSideValidationRules(vm)
+      if(rules.get(name) == None) throw new util.ProgrammerException("Unknown field '%s' for view model %s".format(name, vm.getName)) else rules(name)
     }
     case None => ""
   }
 
-  def crumble: List[(String, String)] = {
+  def crumble: List[((String, String), Int)] = {
     val crumbList = request.path.split("/").drop(1).toList
     val crumbs = crumbList match {
 
@@ -78,6 +78,11 @@ package object context extends Implicits {
       case "stories" :: Nil => List(("/stories", "Stories"))
 
       case user :: Nil => List(("/" + user, user))
+
+      case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"))
+      case user :: "object" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"))
+      case user :: "dataset" :: Nil => List(("/" + user, user), ("/" + user + "/dataset", "DataSets"))
+      case user :: "story" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"))
 
       case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/add", "Create new object"))
       case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/add", "Create new collection"))
@@ -95,7 +100,7 @@ package object context extends Implicits {
 
       case _ => List()
     }
-    ("/", "Home") :: crumbs
+    (("/", "Home") :: crumbs).zipWithIndex
   }
 
 
