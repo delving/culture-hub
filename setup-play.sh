@@ -70,7 +70,6 @@ git clone git://github.com/delving/play-scala.git scala-head --depth 1
 cd scala-head
 
 # http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
-git checkout --track -b template-dev-faster origin/template-dev-faster
 git apply ../../jvm-args-patch.patch
 ant -Dplay.path=../../../play
 cd ../../
