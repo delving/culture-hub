@@ -38,7 +38,7 @@
             <tr>
                 <td><a href="/${i.userName}/dataset/${i.spec}">${i.spec}</a></td>
                 <td>${i.total_records}</td>
-                <td>${i.state.description()}</td>
+                <td id="description${i.spec}">${i.state.description()}</td>
                 <td>
                   #{if i.userName == userName}
                       <a class="action edit image-edit" href="/${i.userName}/dataset/${i.spec}/update">Edit DataSet</a>
@@ -60,25 +60,44 @@
                         <button class="action cancel">Cancel indexing</button>
                       </form>
                       #{/if}
+                      #{if i.state == models.DataSetState.QUEUED()}
+                      <script type="text/javascript">
+                          $('#description${i.spec}').smartupdater({
+                            url : "/${i.userName}/dataset/${i.spec}/state",
+                            minTimeout: 2000
+                          }, function (data) {
+                            var d = $.parseJSON(data);
+                            if(d.state == '${models.DataSetState.INDEXING().name()}') {
+                              // yadaaa
+                              document.location = "/${i.userName}/dataset";
+                            }
+                          });
+                        </script>
+                      #{/if}
                       #{if i.state == models.DataSetState.INDEXING()}
                         <div id="indexCounter${i.spec}"></div>
                         <script type="text/javascript">
                           $('#indexCounter${i.spec}').progressbar();
                           $('#indexCounter${i.spec}').smartupdater({
-                            url : "/${i.userName}/dataset/${i.spec}/status",
+                            url : "/${i.userName}/dataset/${i.spec}/indexingStatus",
                             minTimeout: 2000
                           }, function (data) {
                             var d = $.parseJSON(data);
-                            if(d.state == 'DONE') {
+                            if(d.status == 'DONE') {
                               $('#indexCounter${i.spec}').smartupdaterStop();
                               $('#indexCounter${i.spec}').progressbar("value", 100);
                               // TODO adjust message in table
                             } else {
-                              $('#indexCounter${i.spec}').progressbar("value", d.state);
+                              $('#indexCounter${i.spec}').progressbar("value", d.status);
                             }
                           });
                         </script>
                       #{/if}
+                    #{if i.state == models.DataSetState.DISABLED()}
+                      <form action="/${i.userName}/dataset/${i.spec}/enable" method="POST">
+                        <button class="action enable">Enable</button>
+                      </form>
+                    #{/if}
                     #{/if}
                 </td>
             </tr>

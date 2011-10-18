@@ -107,16 +107,20 @@ object DataSets extends DelvingController with UserSecured {
         changeState(dataSet, DataSetState.UPLOADED)
         DataSet.deleteFromSolr(dataSet)
         Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be re-indexed in the current state")
+      case _ => Error("DataSet cannot be cancelled in the current state")
     }
   }
 
-  def status(spec: String): Result = {
+  def state(spec: String): Result = {
+    Json(Map("state" -> DataSet.getStateBySpec(spec).name))
+  }
+
+  def indexingStatus(spec: String): Result = {
     val state = DataSet.getIndexingState(spec) match {
       case (a, b) if a == b => "DONE"
       case (a, b) => ((a.toDouble / b) * 100).round
     }
-    Json(Map("state" -> state))
+    Json(Map("status" -> state))
   }
 
   def disable(spec: String): Result = {
@@ -131,6 +135,20 @@ object DataSets extends DelvingController with UserSecured {
         DataSet.deleteFromSolr(updatedDataSet)
         Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be disabled in the current state")
+    }
+  }
+
+  def enable(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.state match {
+      case DISABLED =>
+        changeState(dataSet, DataSetState.ENABLED)
+        Redirect("/%s/dataset".format(connectedUser))
+      case _ => Error("DataSet cannot be enabled in the current state")
     }
   }
 
