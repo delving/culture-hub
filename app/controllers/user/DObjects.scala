@@ -54,7 +54,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
     val objectModel: ObjectModel = parse[ObjectModel](data)
     validate(objectModel).foreach { errors => return JsonBadRequest(objectModel.copy(errors = errors)) }
 
-    val files = controllers.dos.FileUpload.fetchFilesForUID(uid)
+    val files = controllers.dos.FileUpload.getFilesForUID(uid)
 
     /** finds thumbnail candidate for an object, "activate" thumbnails (for easy lookup) and returns the OID of the thumbnail candidate image file **/
     def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
