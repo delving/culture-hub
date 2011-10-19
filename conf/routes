@@ -131,13 +131,12 @@ POST       /admin/themes/submit                                              adm
 GET        /admin/tool/thumbnailize/                                         admin.ThumbnailIngest.ingest
 GET        /admin/tool/thumbnailize/remove/                                  admin.ThumbnailIngest.remove
 
-# File Store
-GET        /file/{id}                                                        FileStore.get
+# Image Upload - with authentication
 POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
-GET        /file/image/{id}                                                  FileStore.displayImage
-GET        /thumbnail/{id}/{width}?                                          FileStore.displayThumbnail
-GET        /thumbnail/{id}                                                   FileStore.displayThumbnail
 DELETE     /file/{id}                                                        user.FileUpload.deleteFile
+
+# Delving object Server module
+*          /                                                                 module:dos
 
 # Image Cache
 GET        /image/cache                                                      Images.image

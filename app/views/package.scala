@@ -4,10 +4,11 @@ import play.data.validation.Validation
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import play.mvc.Http
-import controllers.{ViewModel, FileStore}
+import controllers.{ViewModel}
 import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
+import controllers.dos.ImageDisplay
 
 package object context {
 
@@ -45,7 +46,7 @@ package object context {
     case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
   }
 
-  def imageUrl(image: ObjectId) = if(FileStore.imageExists(image)) "/file/image/" + image else "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
+  def imageUrl(image: ObjectId) = if(ImageDisplay.imageExists(image)) "/file/image/" + image else "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
 
   def searchUrl = request.path
 
