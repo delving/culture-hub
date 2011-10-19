@@ -86,7 +86,7 @@
                             if(d.status == 'DONE') {
                               $('#indexCounter${i.spec}').smartupdaterStop();
                               $('#indexCounter${i.spec}').progressbar("value", 100);
-                              // TODO adjust message in table
+                              document.location = "/${i.userName}/dataset";
                             } else {
                               $('#indexCounter${i.spec}').progressbar("value", d.status);
                             }
