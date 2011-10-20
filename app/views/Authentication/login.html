@@ -1,15 +1,11 @@
-#{extends 'Authentication/layout.html' /}
+#{extends 'header.html' /}
 #{set title: 'Login' /}
 
-<section id="login">
-
-    #{form @authenticate()}
-
-    <div id="branding">
-        <h1><span>${views.context.package.themeDisplayName()}</span></h1>
-    </div>
+<section id="login" class="line">
 
     <h2>Login</h2>
+
+    #{form @authenticate()}
 
     #{if flash.error}
     <p class="error">
@@ -42,11 +38,6 @@
     </p>
     #{/form}
 
-    <nav>
-        <a href="@{Application.index()}"><span>Home</span></a><span class="pipe">|</span>
-        <a href="@{Registration.index()}"><span>Register</span></a><span class="pipe">|</span>
-        <a href="@{Registration.lostPassword()}"><span>Forgot Password</span></a>
-    </nav>
 
 </section>
 

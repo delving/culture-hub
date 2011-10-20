@@ -1,7 +1,7 @@
 #{extends 'header.html' /}
 #{set title:'Register!' /}
 
-<div class="grid_8 alpha">
+<div id="register">
     <h1>Register for <span>${views.context.package.themeDisplayName()}</span></h1>
 
     <form id="registrationForm" action="@{Registration.register()}" method="POST" class="grid_16">
@@ -32,7 +32,4 @@
             <button type="submit" class="submit">Register!</button>
         </div>
     </form>
- </div>
-<div class="grid_8 omega">
-    &#160;
 </div>
