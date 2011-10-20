@@ -243,24 +243,7 @@ body {
 
 /* ITEM LIST *************************************************************************************/
 
-ul.items {
-    list-style: none outside none;
-    margin: 10px 0;
-    overflow: auto;
-    padding: 0;
-}
 
-ul.items li {
-    /*background-image: url("/portal/branding/portal2/images/icons/object-types.png");*/
-    /*background-position: 21px 144px;*/
-    /*background-repeat: no-repeat;*/
-    border-bottom: 1px dotted #A0A0A0;
-    float: left;
-    margin: 10px 17px 10px 0;
-    min-height: 161px;
-    position: relative;
-    width: 180px;
-}
 
 /* STORY EDIT ************************************************************************************/
 

@@ -23,17 +23,24 @@
 
         #{list items, as: 'i'}
         <li class="item">
+            <a href="/${i.userName}/${itemName}/${i.id}" rel="nofollow">
         <!--<div class="media medium">-->
-            <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' width="84" alt="${i.title}"/>
+            <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' width="100" alt="${i.title}"/>
         <!--</div>-->
         <!--<div class="metadata">-->
             <!--<div class="hd">-->
-                <h2><a href="/${i.userName}/${itemName}/${i.id}">${i.title}</a></h2>
-            <!--</div>-->
-            <!--<div class="bd">-->
-               *{*** ${i.description} ***}*
-            <!--</div>-->
-            <!--<div class="ft">-->
+                <h2>${i.title}</h2>
+             #{if i.description}
+                <div class="more-info">
+                %{
+                   shortDescription = i.description.size() > 100 ? i.description[0..100] : i.description;
+                }%
+                  ${shortDescription}
+
+                </div>
+            #{/if}
+            </a>
+                <!--<div class="ft">-->
             #{if i.userName == userName}
             <div class="actions">
                 <a class="action edit dui-button" href="/${i.userName}/${itemName}/${i.id}/update">Edit ${itemName.capitalize()}</a>
