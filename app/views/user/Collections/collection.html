@@ -2,12 +2,11 @@
 #{set title: id.isEmpty() ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
 #{breadcrumbs /}
 
-<h1 class="grid_16 alpha">${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
+<section id="edit-collection">
+
+<h1>${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
 
 <div data-bind="text: errors().global"></div>
-
-<div class="grid_8 alpha">
-
   <form method="post" action="" id="collectionForm">
 
     <span class="required-note"><span>*</span> Required Fields</span>
@@ -41,6 +40,8 @@
 
 </form>
 </div>
+
+</section>
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {

@@ -1,5 +1,5 @@
-@import url("../../common/stylesheets/grid-fluid.css");
 @import url("../../common/stylesheets/normalize.css");
+@import url("../../common/stylesheets/grid.css");
 @import url("../../common/stylesheets/jquery.fileupload-ui.css");
 @import url("../../common/stylesheets/token-input.css");
 @import url("../../common/stylesheets/token-input-facebook.css");
@@ -11,3 +11,4 @@
 @import url("../../common/stylesheets/dui-buttons.css");
 @import url("../../common/stylesheets/actions.css");
 @import url("../../common/stylesheets/tables.css");
+@import url("../../common/stylesheets/helpers.css");

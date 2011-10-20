@@ -1,6 +1,13 @@
 #{extends 'header.html' /}
 #{set title:'Welcome' /}
 #{set bodyId:'home' /}
+#{set 'moreCss'}
+     <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/carousel.css'}"/>
+#{/set}
+#{set 'moreScripts'}
+     <script src='${views.context.package.themePath("javascripts/index.js")}' type='text/javascript'></script>
+#{/set}
+
 
 <div class="messages-container">
     <div class="messages">
@@ -42,15 +49,33 @@
     </div>
 </div>
 
-<div class="grid_8 alpha">
-    #{if recentCollections.size() > 0}
-    <h2><span>Recent Collections</span></h2>
+#{if recentObjects.size() > 0}
 
-    <div class="collections-container items">
+<h1><span>Recent Objects</span></h1>
+    <ul id="carousel-1" class="jcarousel-skin-nassau">
+    #{list recentObjects, as: 'o'}
+        <li>
+            <a href="/${o.userName}/object/${o.id}">
+                <img src='${views.context.package.thumbnailUrl(o.thumbnail)}' width="150" alt="${o.title}"/>
+                <span>${o.title}</span>
+            </a>
+        </li>
+    #{/list}
+   </ul>
+<a href="/objects" class="more">More objects</a>
+#{/if}
+
+<div class="line">
+#{if recentCollections.size() > 0}
+
+
+
+    <div class="collections-container items unit size1of2">
+        <h2><span>Recent Collections</span></h2>
         #{list recentCollections, as: 'c'}
         <div class="item one-col">
-            <div class="media small">
-                <img src='${views.context.package.thumbnailUrl(c.thumbnail)}' width="50" alt="${c.name}"/>
+            <div class="media medium">
+                <img src='${views.context.package.thumbnailUrl(c.thumbnail)}' width="100" alt="${c.name}"/>
             </div>
             <div class="metadata">
                 <div class="hd"></div>
@@ -66,13 +91,14 @@
     #{/if}
 
     #{if recentStories.size() > 0}
-    <h2><span>Recent Stories</span></h2>
 
-    <div class="stories-container">
+
+    <div class="stories-container unit size1of2">
+        <h2><span>Recent Stories</span></h2>
       #{list recentStories, as: 's'}
         <div class="item one-col">
-            <div class="media small">
-              <img src='${views.context.package.thumbnailUrl(s.thumbnail)}' width="50" alt="${s.name}"/>
+            <div class="media medium">
+              <img src='${views.context.package.thumbnailUrl(s.thumbnail)}' width="100" alt="${s.name}"/>
             </div>
             <div class="metadata">
                 <div class="bd">
@@ -85,20 +111,7 @@
       #{/list}
     </div>
     #{/if}
+
 </div>
 
-<div class="grid_8 omega">
-    #{if recentObjects.size() > 0}
-    <h2><span>Recent Objects</span></h2>
 
-    <div class="objects-container ">
-        #{list recentObjects, as: 'o'}
-        <div class="item">
-            <div class="media medium">
-                <a href="/${o.userName}/object/${o.id}"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' width="100" alt="${o.title}"/></a>
-            </div>
-        </div>
-        #{/list}
-    </div>
-    #{/if}
-</div>

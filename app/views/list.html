@@ -2,7 +2,7 @@
 #{set title: title /}
 #{breadcrumbs /}
 
-<div class="grid_16 alpha" id="items">
+
 
     #{if browsedUserName}
     <h2>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h2>
@@ -19,30 +19,29 @@
     #{/else}
 
     <div class="clear"></div>
-    <div class="items">
-    #{list items, as: 'i'}
-    <div class="item two-col">
-      <div class="inner">
-        <div class="media medium">
+    <ul class="items">
+
+        #{list items, as: 'i'}
+        <li class="item">
+        <!--<div class="media medium">-->
             <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' width="84" alt="${i.title}"/>
-        </div>
-        <div class="metadata">
-            <div class="hd">
-                <h4><a href="/${i.userName}/${itemName}/${i.id}">${i.title}</a></h4>
-            </div>
-            <div class="bd">
-                ${i.description}
-            </div>
-            <div class="ft">
+        <!--</div>-->
+        <!--<div class="metadata">-->
+            <!--<div class="hd">-->
+                <h2><a href="/${i.userName}/${itemName}/${i.id}">${i.title}</a></h2>
+            <!--</div>-->
+            <!--<div class="bd">-->
+               *{*** ${i.description} ***}*
+            <!--</div>-->
+            <!--<div class="ft">-->
             #{if i.userName == userName}
             <div class="actions">
                 <a class="action edit dui-button" href="/${i.userName}/${itemName}/${i.id}/update">Edit ${itemName.capitalize()}</a>
             </div>
             #{/if}
-            </div>
-        </div>
-       </div>
-    </div>
+            <!--</div>-->
+        <!--</div>-->
+     </li>
     #{/list}
-    </div>
-</div>
+
+    </ul>

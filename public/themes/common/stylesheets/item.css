@@ -1,127 +1,162 @@
-.item {
-    display: block;
+/* ITEM LIST *************************************************************************************/
+
+ul.items {
+    list-style: none outside none;
+    margin: 10px 0;
+    overflow: auto;
+    padding: 0;
+}
+
+ul.items li {
+    float: left;
+    margin: 10px 20px 10px 0;
+    min-height: 150px;
     position: relative;
-    overlow: hidden;
+    width: 180px;
 }
 
-
-.item h4 {
-    font-weight: bold;
-    margin: 0;
-    padding: 0 20px 0 0;
+ul.items li.item {
+    position: relative;
 }
 
-.item h4 a:link,
-.item h4 a:visited {
-    color: #0066cc;
+ul.items h2 {
+    position: relative;
+    bottom: 0px;
+    font-size: 90%;
+    height: 28px;
+    margin: 5px 0 0;
+    overflow: hidden;
+    /*width: 129px;*/
+}
+
+ul.items a {
     text-decoration: none;
 }
 
-.item h4 a:hover {
-    color: #0066cc;
-    text-decoration: underline;
-}
+/*.item {*/
+    /*display: block;*/
+    /*position: relative;*/
+    /*overlow: hidden;*/
+/*}*/
 
-.item .media {
-    float: left;
+
+/*.item h4 {*/
+    /*font-weight: bold;*/
+    /*margin: 0;*/
+    /*padding: 0 20px 0 0;*/
+/*}*/
+
+/*.item h4 a:link,*/
+/*.item h4 a:visited {*/
+    /*color: #0066cc;*/
+    /*text-decoration: none;*/
+/*}*/
+
+/*.item h4 a:hover {*/
+    /*color: #0066cc;*/
+    /*text-decoration: underline;*/
+/*}*/
+
+/*.item .media {*/
+    /*float: left;*/
     /*display: table-cell;*/
-    position: relative;
-    margin: 0 10px 10px 0;
+    /*position: relative;*/
+    /*margin: 0 10px 10px 0;*/
     /*clear: left;*/
-}
+/*}*/
 
-.item .media.small {
-    width: 50px;
-    height: 40px;
-}
+/*.item .media.small {*/
+    /*width: 50px;*/
+    /*height: 40px;*/
+/*}*/
 
-.item .media.medium {
-    width: 100px;
-    height: 75px;
-}
+/*.item .media.medium {*/
+    /*width: 100px;*/
+    /*height: 75px;*/
+/*}*/
 
-.item .media.large {
+/*.item .media.large {*/
 
-}
+/*}*/
 
-.item .media.small img {
-    position:absolute;
-    clip:rect(0px,50px,40px,0px);
-}
+/*.item .media.small img {*/
+    /*position:absolute;*/
+    /*clip:rect(0px,50px,40px,0px);*/
+/*}*/
 
-.item .media.medium img{
-    position:absolute;
-    clip:rect(0px,100px,75px,0px);
-}
+/*.item .media.medium img{*/
+    /*position:absolute;*/
+    /*clip:rect(0px,100px,75px,0px);*/
+/*}*/
 
-.item .media.large img{
+/*.item .media.large img{*/
 
-}
+/*}*/
 
-.item .metadata {
-     display: table-cell;
-    font-size: 85%;
-    line-height: 136%;
-}
+/*.item .metadata {*/
+     /*display: table-cell;*/
+    /*font-size: 85%;*/
+    /*line-height: 136%;*/
+/*}*/
 
-.item .metadata .hd {
+/*.item .metadata .hd {*/
 
-}
+/*}*/
 
-.item .metadata .bd {
-    margin-bottom: 4px;
-}
+/*.item .metadata .bd {*/
+    /*margin-bottom: 4px;*/
+/*}*/
 
-.item .metadata .ft {
+/*.item .metadata .ft {*/
 
-}
+/*}*/
 
-.item h2 {
-    font-size: 120%;
-    margin:  0;
-}
-
-
-.item p {
-    margin: 0;
-}
+/*.item h2 {*/
+    /*font-size: 120%;*/
+    /*margin:  0;*/
+/*}*/
 
 
-.metadata p {
-   margin-bottom: 10px;
-}
+/*.item p {*/
+    /*margin: 0;*/
+/*}*/
 
-.item .detail {
-    display: inline-block;
-    font-size: 90%;
-    margin-right: 10px;
-}
 
-    .one-col {
-        clear: both;
-        padding: 0 1% 1em 1%;
-    }
+/*.metadata p {*/
+   /*margin-bottom: 10px;*/
+/*}*/
 
-    .two-col {
-        display: inline-block;
-        float: left;
-        margin: 0 2% 1em 0;
-        width: 48%;
-    }
+/*.item .detail {*/
+    /*display: inline-block;*/
+    /*font-size: 90%;*/
+    /*margin-right: 10px;*/
+/*}*/
 
-    .three-col {
-        display: inline-block;
-        float: left;
-        margin: 0 2% 1em 0;
-        width: 31.33%;
-    }
+    /*.one-col {*/
+        /*clear: both;*/
+        /*padding: 0 1% 1em 1%;*/
+    /*}*/
 
-    .four-col {
-        display: inline-block;
-        float: left;
-        margin: 0 2% 1em 0;
-        width: 23%;
-     }
+    /*.two-col {*/
+        /*display: inline-block;*/
+        /*float: left;*/
+        /*margin: 0 2% 1em 0;*/
+        /*width: 48%;*/
+    /*}*/
+
+    /*.three-col {*/
+        /*display: inline-block;*/
+        /*float: left;*/
+        /*margin: 0 2% 1em 0;*/
+        /*width: 31.33%;*/
+    /*}*/
+
+    /*.four-col {*/
+        /*display: inline-block;*/
+        /*float: left;*/
+        /*margin: 0 2% 1em 0;*/
+        /*width: 23%;*/
+     /*}*/
 
 
 
