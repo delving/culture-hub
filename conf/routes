@@ -138,9 +138,6 @@ DELETE     /file/{id}                                                        use
 # Delving object Server module
 *          /                                                                 module:dos
 
-# Image Cache
-GET        /image/cache                                                      Images.image
-
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
 POST       /image/upload                                                     ImageUpload.uploadFile
