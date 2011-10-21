@@ -38,11 +38,18 @@
             <tr>
                 <td><a href="/${i.userName}/dataset/${i.spec}">${i.spec}</a></td>
                 <td>${i.total_records}</td>
-                <td id="description${i.spec}">${i.state.description()}</td>
+                <td id="description${i.spec}">
+                  #{if i.state == models.DataSetState.ERROR()}
+                    <span style="color: red;">${i.state.description()}</span>
+                  #{/if}
+                  #{else}
+                    ${i.state.description()}
+                  #{/else}
+                </td>
                 <td>
                   #{if i.userName == userName}
                       <a class="action edit image-edit" href="/${i.userName}/dataset/${i.spec}/update">Edit DataSet</a>
-                      #{if i.state == models.DataSetState.UPLOADED()}
+                      #{if i.state == models.DataSetState.UPLOADED() || i.state == models.DataSetState.ERROR()}
                       <form action="/${i.userName}/dataset/${i.spec}/index" method="POST">
                         <button class="action index">Index</button>
                       </form>
@@ -67,7 +74,7 @@
                             minTimeout: 2000
                           }, function (data) {
                             var d = $.parseJSON(data);
-                            if(d.state == '${models.DataSetState.INDEXING().name()}') {
+                            if(d.state == '${models.DataSetState.INDEXING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
                               // yadaaa
                               document.location = "/${i.userName}/dataset";
                             }

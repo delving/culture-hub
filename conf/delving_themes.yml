@@ -22,8 +22,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    metadataPrefix:
-    text:
+    metadataPrefix: icn
+    text: Hello
 
 - !!models.PortalTheme
     name: frieseverhalen
@@ -48,7 +48,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    metadataPrefix:
+    metadataPrefix: icn
+    text: Hello
 
 - !!models.PortalTheme
     name: nassau
@@ -74,30 +75,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    metadataPrefix:
-
-- !!models.PortalTheme
-    name: norvegiana
-    templateDir: norvegiana
-    subdomain: norvegiana
-    displayName: Kulturnett.no
-    defaultLanguage: no
-    colorScheme: azure
-    solrSelectUrl: "http://localhost:8983/solr"
-    cacheUrl: "http://localhost:8983/services/image?"
-    emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
-        systemFrom: noreply@delving.eu
-        feedbackFrom: noreply@delving.eu
-    localiseQueryKeys:
-    hiddenQueryFilter:
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
-    homePage:
-    metadataPrefix:
+    metadataPrefix: icn
+    text: Hello
 
 - !!models.PortalTheme
     name: friesmuseum
@@ -123,7 +102,7 @@
     addThisTrackingCode:
     homePage:
     metadataPrefix: icn
-    text:
+    text: Hello
 
 - !!models.PortalTheme
     name: thuisinbrabant
@@ -149,4 +128,4 @@
     addThisTrackingCode:
     homePage:
     metadataPrefix: icn
-    text:
+    text: Hello
