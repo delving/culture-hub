@@ -12,6 +12,7 @@
 }
 
 .pagination a, .pagination span {
+    background:  #fff;
     background: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1) repeat scroll 0 0 transparent;
     border: 1px solid rgba(0, 0, 0, 0.1);
     -moz-border-radius:border-radius: 2px 2px 2px 2px;

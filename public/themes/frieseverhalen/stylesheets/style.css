@@ -1,5 +1,6 @@
 body {
-    background:  #fff;
+    background:  #fff url(../images/body-bg.jpg) -300px center no-repeat;
+    /*background:  #bbbbb0;*/
     font: 15px/1.5 Arial,Helvetica,sans-serif;
     margin:  0;
 }
