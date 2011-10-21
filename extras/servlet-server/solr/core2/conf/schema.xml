@@ -529,6 +529,7 @@
    <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="last_modified" type="date" indexed="true" stored="true"/>
    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="europeana_uri" type="string" indexed="true" stored="true" multiValued="true"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -589,6 +590,28 @@
 
    <dynamicField name="random_*" type="random" />
 
+     <dynamicField name="md_*" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+     <!-- Any field prefixed with summ will be stored for the summary on the brief result page -->
+     <dynamicField name="summ_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+     <!--  This dynamic field will index any field prefixed with facet_* as a facet field.
+       No uppercasing is necessary any more. -->
+     <dynamicField name="facet_*" type="string" indexed="true" stored="true" multiValued="true" />
+
+    <!-- dynamic field for sort purposes -->
+     <dynamicField name="sort_all_*" type="string" indexed="true" stored="false" multiValued="false" termVectors="true"/>
+     <dynamicField name="sort_*" type="alphaOnlySort" indexed="true" stored="false" multiValued="false" termVectors="true"/>
+
+     <!-- Temporary convenience fields to simplify the schema.xml-->
+     <dynamicField name="dc_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <dynamicField name="dcterms_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <dynamicField name="europeana_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <dynamicField name="icn_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <dynamicField name="abm_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <dynamicField name="delving_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+
    <!-- uncomment the following to ignore any fields that don't already match an existing 
         field name or dynamic field, rather than reporting them as an error. 
         alternately, change the type="ignored" to some other type e.g. "text" if you want 
@@ -600,7 +623,7 @@
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>id</uniqueKey>
+ <uniqueKey>europeana_uri</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>
@@ -612,15 +635,73 @@
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-    <copyField source="*" dest="text"/>
+       <!-- Europeana copy fields -->
+    <!-- Text copy-to-field -->
+    <!--<copyField source="europeana_isShownBy" dest="text" />-->
+    <!--<copyField source="europeana_isShownAt" dest="text" />-->
+    <!--<copyField source="europeana_type" dest="text" />-->
+    <!--<copyField source="europeana_userTag" dest="text" />-->
+    <!--<copyField source="dcterms_references" dest="text" />-->
 
-   <!--<copyField source="cat" dest="text"/>-->
-   <!--<copyField source="name" dest="text"/>-->
-   <!--<copyField source="manu" dest="text"/>-->
-   <!--<copyField source="features" dest="text"/>-->
-   <!--<copyField source="includes" dest="text"/>-->
-   <!--<copyField source="manu" dest="manu_exact"/>-->
-	
+     <!--&lt;!&ndash;Spellcheck fields&ndash;&gt;-->
+    <!--<copyField source="dc_contributor" dest="spell" />-->
+    <!--<copyField source="dc_creator" dest="spell" />-->
+    <!--<copyField source="dc_subject" dest="spell"/>-->
+    <!--<copyField source="dc_title" dest="spell"/>-->
+
+    <!--<copyField source="dc_contributor" dest="creator" />-->
+    <!--<copyField source="dc_creator" dest="creator" />-->
+
+    <!--<copyField source="dc_date" dest="date" />-->
+    <!--<copyField source="dcterms_created" dest="date" />-->
+    <!--<copyField source="dcterms_issued" dest="date" />-->
+
+    <!--<copyField source="dc_description" dest="description" />-->
+    <!--<copyField source="dcterms_tableOfContents" dest="description" />-->
+
+    <!--<copyField source="dcterms_spatial" dest="location" />-->
+
+    <!--<copyField source="dc_subject" dest="subject" />-->
+    <!--<copyField source="dc_coverage" dest="subject" />-->
+    <!--<copyField source="dcterms_spatial" dest="subject" />-->
+    <!--<copyField source="dcterms_temporal" dest="subject" />-->
+
+    <!--<copyField source="dc_source" dest="source" />-->
+
+    <!--<copyField source="dc_title" dest="title" />-->
+    <!--<copyField source="dcterms_alternative" dest="title" />-->
+
+    <!--&lt;!&ndash; FACETS &ndash;&gt;-->
+    <!--<copyField source="europeana_type" dest="TYPE"/>-->
+    <!--<copyField source="dc_type" dest="DCTYPE"/>-->
+    <!--&lt;!&ndash;<copyField source="europeana_userTag" dest="USERTAGS" />&ndash;&gt;-->
+    <!--<copyField source="europeana_userTag" dest="tag" />-->
+    <!--<copyField source="europeana_language" dest="LANGUAGE" />-->
+    <!--<copyField source="europeana_country" dest="COUNTRY" />-->
+    <!--<copyField source="europeana_year" dest="YEAR" />-->
+    <!--<copyField source="europeana_provider" dest="PROVIDER" />-->
+    <!--<copyField source="dc_date" dest="DCDATE" />-->
+    <!--<copyField source="dc_subject" dest="SUBJECT" />-->
+    <!--<copyField source="europeana_hasDigitalObject" dest="HASDIGITALOBJECT" />-->
+    <!--<copyField source="europeana_dataProvider" dest="DATAPROVIDER" />-->
+    <!--<copyField source="europeana_collectionTitle" dest="COLLECTION" />-->
+    <!--&lt;!&ndash; ICN Facets &ndash;&gt;-->
+    <!--<copyField source="icn_technique" dest="TECHNIQUE" />-->
+    <!--<copyField source="icn_material" dest="MATERIAAL" />-->
+    <!--<copyField source="icn_collectionPart" dest="COLLPART" />-->
+    <!--&lt;!&ndash; ABM Facets &ndash;&gt;-->
+    <!--<copyField source="abm_landedProperty" dest="LANDEDPROPERTY" />-->
+    <!--<copyField source="abm_municipality" dest="MUNICIPALITY" />-->
+    <!--<copyField source="abm_aboutPerson" dest="ABOUTPERSON" />-->
+    <!--<copyField source="abm_county" dest="COUNTY" />-->
+    <!--<copyField source="abm_namedPlace" dest="NAMEDPLACE" />-->
+
+     <copyField source="dc_*" dest="text"/>
+     <copyField source="dcterms_*" dest="text"/>
+     <copyField source="abm_*" dest="text"/>
+     <copyField source="icn_*" dest="text"/>
+     <copyField source="europeana_*" dest="text"/>
+
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
 	  destination field is to use the dynamic field syntax. 

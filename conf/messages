@@ -29,7 +29,7 @@ dataSetState.queued=DataSet is queued for indexing
 dataSetState.indexing=DataSet is being indexed
 dataSetState.enabled=DataSet is enabled
 dataSetState.disabled=DataSet is disabled
-dataSetState.error=DataSet has an error
+dataSetState.error=Error occured while indexing DataSet
 
 
 
