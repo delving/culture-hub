@@ -15,6 +15,7 @@ body {
     overflow:  auto;
     position: relative;
     width: 980px;
+    padding-top: 360px;
     /*margin-top: 20px;*/
 }
 
@@ -45,7 +46,21 @@ body {
 
 #user-nav {
     position: absolute;
-    top: 0px;
+    top: 5px;
+}
+
+#user-nav .inner {
+    padding: 0;
+}
+
+#user-nav .buttons {
+    width: 400px;
+    float: right;
+    padding:  0;
+    background:  transparent;
+    margin:  0;
+    border:  none;
+    text-align: right;
 }
 
 #header {
@@ -54,7 +69,8 @@ body {
 }
 
 #content {
-   margin-top: 360px;
+   display: block;
+   /*margin-top: 360px;*/
     clear: both;
     overflow:  hidden;
 }

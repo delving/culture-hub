@@ -8,13 +8,14 @@ ul.items {
 }
 
 ul.items li {
-    /*background:  #f1f1f1;*/
+    background:  #fffff0;
+    border:  1px solid #e1e1e1;
     display: inline-block;
     float: left;
     margin: 10px 20px 10px 0;
-    min-height: 150px;
+    min-height: 180px;
     position: relative;
-    width: 180px;
+    width: 210px;
 }
 
 ul.items li.item {
@@ -27,27 +28,57 @@ ul.items li.item a {
     height: 100%;
 }
 
-ul.items h2 {
 
-    color: #555;
-    position: absolute;
-    bottom: 0px;
-    font-size: 90%;
-    font-weight: normal;
-    height: 30px;
-    /*margin: 5px 0 0;*/
-    overflow: hidden;
-    width: 100%;
-}
 
 ul.items a {
     text-decoration: none;
 }
 
-ul.items li.item .more-info {
-    font-size: 85%;
+/* media items */
+
+.media.medium.container {
+    /*background:  #f1f1f1;*/
+    width:inherit;
+    height: 120px;
+    line-height:120px;
+    text-align:center;
+    overflow:  hidden;
+}
+
+.media.medium.container img
+{
+        vertical-align: middle;
+        max-width: 150px;
+        max-height: 150px;
+        display: -moz-inline-box; /* Firefox 2 */
+        display: inline-block;
+        text-align: center;
+        /*position:relative;left:-100px*/
+}
+
+/* metadata */
+
+.metadata {
+   /*padding:  4px;*/
+   width: 100%;
+}
+
+ul.items .metadata .title {
+    color: #000;
+    position: absolute;
+    bottom: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    height: 32px;
+    margin: 5px 0 0;
+    line-height: 14px;
+}
+
+ul.items .metadata .more-info {
+    visibility: hidden;
+    font-size: 12px;
     font-weight: normal;
-    line-height: 100%;
+    line-height: 14px;
     position: absolute;
     overflow: hidden;
     bottom: 0;
@@ -57,16 +88,19 @@ ul.items li.item .more-info {
     max-height: 75%;
     opacity: 0;
     color: white;
+    background-color: #000;
     background-color: rgba(0, 0, 0, .8);
     -moz-transition: .25s linear opacity;
     -webkit-transition: .25s linear opacity;
     margin: 0;
-    padding: 5px;
+    /*padding: 5px;*/
 }
 
-ul.items li:hover .more-info {
+ul.items li:hover .metadata .more-info {
+visibility: visible;
 opacity: 1;
 }
+
 
 /*.item {*/
     /*display: block;*/
