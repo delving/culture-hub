@@ -1,3 +1,3 @@
 jQuery(document).ready(function() {
-    jQuery('#carousel-1').jcarousel();
+    jQuery('#recent-objects-list').jcarousel();
 });

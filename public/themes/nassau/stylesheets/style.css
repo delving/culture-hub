@@ -36,15 +36,13 @@ body#authenticate {
 #user-nav {
     position: absolute;
     top: 10px;
-    right: 0px;
     height: 30px;
-    text-align: right;
 }
 
 #branding {
     position: absolute;
-    top: 30px;
-    width: 500px;
+    top: 60px;
+    left: 470px;
     height: 30px;
 }
 
@@ -219,8 +217,24 @@ a {
 
 /* User nav */
 
-#user-nav .divider {
-    padding:  0 10px;
+#user-nav .outer {
+    text-align: right;
+}
+
+#user-nav .inner {
+    padding:  0;
+}
+
+#user-nav ul {
+    float: right;
+}
+
+#user-nav ul a {
+    text-decoration: none;
+}
+
+#user-nav ul a:hover {
+    text-decoration: underline;
 }
 
 /* SEARCH */

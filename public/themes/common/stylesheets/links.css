@@ -1,8 +1,30 @@
-a, a:active, a:visited { color: #0673b9; }
+a, a:active, a:visited { color: #0066ff; }
 a:hover { color: #10a1ff; }
 
 a.current {
     font-weight: bold;
+}
+
+/* MAIN NAV, #USER-NAV *****************************************************************************************/
+
+ul.nav{
+    margin:  0;
+    padding:  0;
+}
+
+ul.nav li{
+    margin:  0;
+    padding:  0 10px;
+    display: inline-block;
+    float: left;
+}
+
+ul.nav li {
+    border-left:  1px solid #ccc;
+}
+
+ul.nav li:first-of-type {
+    border-left:  none;
 }
 
 span.pipe {
@@ -11,10 +33,12 @@ span.pipe {
     padding:  0;
     color: #777
 }
+
 .breadcrumbs {
     height: 20px;
     margin-bottom: 20px;
 }
+
 .breadcrumbs span.arrow {
     background:  transparent url(../images/arrows-next-horizontal.png) -80px 4px no-repeat;
     display: inline-block;

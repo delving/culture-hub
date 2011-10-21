@@ -51,9 +51,9 @@ ul#user-menu a.user {
 
 ul#user-menu li .sub {
 	position: absolute; /*--Important--*/
-	top: 64px; left: -200px;
+	top: 32px; left: -200px;
 	z-index: 99999;
-	background: #336699;
+	background: #f1f1f1;
 	padding: 10px;
 	float: left;
 	/*--Bottom right rounded corner--*/
@@ -89,7 +89,7 @@ ul#user-menu .sub ul li h2 { /*--Sub nav heading style--*/
 	padding: 0;  margin: 0;
 	/*font-size: 1.3em;*/
 	font-weight: normal;
-    color: gold;
+    /*color: gold;*/
 }
 /*ul#user-menu .sub ul li h2 a { *//*--Sub nav heading link style--*/
 	/*padding: 5px 0;*/
@@ -109,7 +109,7 @@ ul#user-menu .sub ul li a {
 	/*color: #fff;*/
 }
 ul#user-menu .sub ul li a:hover {
-    color: #fff;
+    /*color: #fff;*/
     text-decoration: underline;
 	/*color: #ddd;*/
 	/*background-position: 5px 12px ;*//*--Override background position--*/
