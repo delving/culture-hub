@@ -7,7 +7,7 @@ TEXT DEFAULTS
 
 body
 {
-	/*font: 13px/1.5 Helvetica, Arial, 'Liberation Sans', FreeSans, sans-serif;*/
+	font: 13px/1.5 Helvetica, Arial, 'Liberation Sans', FreeSans, sans-serif;
 }
 
 a:focus
@@ -65,42 +65,36 @@ h1, .h1 {
     font-size: 196%;
     font-weight: normal;
     font-style: normal;
-    color: #AE0345;
 }
 
 h2, .h2 {
     /*font-size: 167%;*/
     font-weight: normal;
     font-style: normal;
-    color: #AE0345;
 }
 
 h3, .h3 {
     /*font-size: 146.5%;*/
     font-weight: normal;
     font-style: normal;
-    color: #DF2B72;
 }
 
 h4, .h4 {
     /*font-size: 123.1%;*/
     font-weight: normal;
     font-style: normal;
-    color: #333;
 }
 
 h5, .h5 {
     /*font-size: 108%;*/
     font-weight: bold;
     font-style: normal;
-    color: #AE0345;
 }
 
 h6, .h6 {
     /*font-size: 108%;*/
     font-weight: normal;
     font-style: italic;
-    color: #333;
 }
 
 /* =Spacing

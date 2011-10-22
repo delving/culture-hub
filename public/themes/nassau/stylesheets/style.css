@@ -118,6 +118,10 @@ body#authenticate {
     border-bottom:  20px solid #FBC800;
 }
 
+#branding .outer {
+    width: 100px;
+}
+
 #branding .inner {
     padding:  0;
 }

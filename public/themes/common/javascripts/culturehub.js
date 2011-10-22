@@ -2,6 +2,8 @@
  * Initialize elements based on classes
  */
 function initializeElements() {
+    $("#page").height($(document).height());
+
     $(".saveButton").button();
 
     $.preloadImages (
@@ -459,6 +461,9 @@ $.preloadImages = function() {
 		img.src = arguments[i];
 	}
 }
+
+
+
 
 
 
