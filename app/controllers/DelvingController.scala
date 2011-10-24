@@ -11,7 +11,7 @@ import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
-import util.LocalizedFieldNames
+import util.{ProgrammerException, LocalizedFieldNames}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -27,9 +27,9 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
     user foreach {
       u => {
-        renderArgs.put("fullName", u.fullname)
-        renderArgs.put("userName", u.reference.username)
-        renderArgs.put("userId", u._id)
+        renderArgs += ("fullName", u.fullname)
+        renderArgs += ("userName", u.reference.username)
+        renderArgs += ("userId", u._id)
       }
     }
   }
@@ -39,11 +39,11 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
       val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
       user match {
         case Some(u) =>
-          renderArgs.put("browsedFullName", u.fullname)
-          renderArgs.put("browsedUserId", u._id)
-          renderArgs.put("browsedUserName", u.reference.username)
+          renderArgs += ("browsedFullName", u.fullname)
+          renderArgs += ("browsedUserId", u._id)
+          renderArgs += ("browsedUserName", u.reference.username)
         case None =>
-          renderArgs.put("browsedUserNotFound", userName)
+          renderArgs += ("browsedUserNotFound", userName)
       }
     }
   }
@@ -55,6 +55,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
       params.put("page", "1")
     }
   }
+
+  @Before def setViewUtils() {
+    renderArgs += ("viewUtils", new ViewUtils(theme))
+  }
+
+  @Util def viewUtils: ViewUtils = renderArgs.get("viewUtils").asInstanceOf[ViewUtils]
 
   @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
@@ -214,6 +220,36 @@ trait ThemeAware { self: Controller =>
   def cleanup() {
     themeThreadLocal.remove()
     lookupThreadLocal.remove()
+  }
+
+}
+
+/**
+ * This class will hold all sort of utility methods that need to be called form the templates. It is meant to be initalized at each request
+ * and be passed to the view using the renderArgs.
+ *
+ * It should replace the old views.context package object
+ */
+class ViewUtils(theme: PortalTheme) {
+
+  def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
+    val key = "themes.%s.%s".format(theme.name, property)
+    val value = Option(Play.configuration.getProperty(key)) match {
+      case Some(prop) => prop
+      case None =>
+        Option(Play.configuration.getProperty("themes.default.%s".format(property))) match {
+          case Some(prop) => prop
+          case None => throw new ProgrammerException("No default value, nor actual value, defined for property '%s' in application.conf".format(property))
+        }
+    }
+
+    val INT = classOf[Int]
+    val result = mf.erasure match {
+      case INT => Integer.parseInt(value)
+      case _ => value
+    }
+
+    result.asInstanceOf[T]
   }
 
 }
