@@ -8,6 +8,7 @@ import models._
 import models.DataSetState._
 import controllers.{ShortDataSet, DelvingController}
 import java.util.Date
+import components.Indexing
 
 
 /**
@@ -78,9 +79,15 @@ object DataSets extends DelvingController with UserSecured {
     // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
     dataSet.state match {
-      case DISABLED | UPLOADED =>
-        changeState(dataSet, DataSetState.QUEUED)
-        Ok
+      case DISABLED | UPLOADED | ERROR =>
+        if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
+          DataSet.addIndexingMapping(dataSet, theme.metadataPrefix)
+          DataSet.changeState(dataSet, DataSetState.QUEUED)
+        } else {
+          // TODO give the user some decent feedback
+          DataSet.changeState(dataSet, DataSetState.ERROR)
+        }
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be indexed in the current state")
     }
   }
@@ -93,11 +100,39 @@ object DataSets extends DelvingController with UserSecured {
 
     dataSet.state match {
       case ENABLED =>
-        changeState(dataSet, DataSetState.QUEUED)
-        Ok
+        DataSet.addIndexingMapping(dataSet, theme.metadataPrefix)
+        DataSet.changeState(dataSet, DataSetState.QUEUED)
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be re-indexed in the current state")
     }
 
+  }
+
+  def cancel(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    dataSet.state match {
+      case QUEUED | INDEXING =>
+        DataSet.changeState(dataSet, DataSetState.UPLOADED)
+        try {
+          Indexing.deleteFromSolr(dataSet)
+        } catch {
+          case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
+        }
+        Redirect("/%s/dataset".format(connectedUser))
+      case _ => Error("DataSet cannot be cancelled in the current state")
+    }
+  }
+
+  def state(spec: String): Result = {
+    Json(Map("state" -> DataSet.getStateBySpec(spec).name))
+  }
+
+  def indexingStatus(spec: String): Result = {
+    val state = DataSet.getIndexingState(spec) match {
+      case (a, b) if a == b => "DONE"
+      case (a, b) => ((a.toDouble / b) * 100).round
+    }
+    Json(Map("status" -> state))
   }
 
   def disable(spec: String): Result = {
@@ -108,10 +143,24 @@ object DataSets extends DelvingController with UserSecured {
 
     dataSet.state match {
       case QUEUED | INDEXING | ERROR | ENABLED =>
-        val updatedDataSet = changeState(dataSet, DataSetState.DISABLED)
-        DataSet.deleteFromSolr(updatedDataSet)
-        Ok
+        val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
+        Indexing.deleteFromSolr(updatedDataSet)
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be disabled in the current state")
+    }
+  }
+
+  def enable(spec: String): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+
+    // TODO
+    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+
+    dataSet.state match {
+      case DISABLED =>
+        DataSet.changeState(dataSet, DataSetState.ENABLED)
+        Redirect("/%s/dataset".format(connectedUser))
+      case _ => Error("DataSet cannot be enabled in the current state")
     }
   }
 
@@ -124,17 +173,9 @@ object DataSets extends DelvingController with UserSecured {
     dataSet.state match {
       case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
         DataSet.delete(dataSet)
-        Ok
+        Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be deleted in the current state")
     }
   }
-
-  private def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
-    val mappings = dataSet.mappings.transform((key, map) => map.copy(rec_indexed = 0))
-    val updatedDataSet = dataSet.copy(state = state, mappings = mappings)
-    DataSet.save(updatedDataSet)
-    updatedDataSet
-  }
-
 }
 

@@ -1,7 +1,8 @@
 package jobs
 
 import play.jobs.{Every, Job}
-import models.DataSet
+import components.Indexing
+import models.{DataSetState, DataSet}
 
 /**
  *
@@ -14,6 +15,15 @@ class SolrIndexing extends Job {
 
   override def doJob() {
     val dataSet = DataSet.findCollectionForIndexing()
-    if (dataSet != None) DataSet.indexInSolr(dataSet.get, "icn") // todo add default index format later via DataSet
+    if (dataSet != None) {
+      dataSet.get.indexingMappings foreach {
+        prefix =>
+          try {
+            Indexing.indexInSolr(dataSet.get, prefix)
+          } catch {
+            case t => DataSet.updateState(dataSet.get, DataSetState.ERROR)
+          }
+      }
+    }
   }
 }

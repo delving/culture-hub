@@ -49,6 +49,6 @@
       handleSubmit('/${userName}/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/${userName}/dataset/' + dataSetModel.spec.call(); });
     });
 
-    load('/${userName}/dataset/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
+    load('/${userName}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
   });
 </script>
