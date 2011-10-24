@@ -2,35 +2,36 @@
 #{set title:'Register!' /}
 
 <div id="register">
-    <h1>Register for <span>${views.context.package.themeDisplayName()}</span></h1>
+
 
     <form id="registrationForm" action="@{Registration.register()}" method="POST" class="grid_16">
-
+        <h3>Register for <span>${views.context.package.themeDisplayName()}</span></h3>
+        <hr>
         #{if !errors.isEmpty()}
         <p class="error">
             Error creating your account, please check the errors marked in red
         </p>
         #{/if}
-        <fieldset>
+
+
         #{textField name:"registration.firstName", label:"First name" /}
         #{textField name:"registration.lastName", label:"Last name" /}
         #{textField name:"registration.email", label:"E-mail" /}
-        </fieldset>
-
-        <fieldset>
+        <hr>
         #{textField name:"registration.displayName", label:"User name" /}
         #{passwordField name:"registration.password1", label:"Password" /}
         #{passwordField name:"registration.password2", label:"Password (repeat)" /}
-        </fieldset>
 
+        <hr>
         <fieldset>
         <div class="field">
-            <label for="code">Please type the code below</label>
-            <img src="@{Registration.captcha(randomId)}">
-            <br>
-            <input type="text" name="code" id="code" size="18" value="">
+            <label for="code">Enter the code you see beside the input field</label>
+            <div class="inputs">
+
+            <input type="text" name="code" id="code" size="18" value=""><img src="@{Registration.captcha(randomId)}">
             <input type="hidden" name="randomID" value="${randomId}">
             <span class="error">${views.context.package.showError("code")}</span>
+            </div>
         </div>
         </fieldset>
 
