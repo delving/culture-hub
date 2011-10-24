@@ -1,0 +1,198 @@
+/* COLORS ***************************************************************/
+
+@color-1: #FFFFFF;
+@color-2: #E7E8DF;
+@color-3: #CC3333;
+@color-3-lite: @color-3 + #888;
+@color-4: #039de9;
+@color-5: #01689B;
+@color-5-lite: @color-5 + #555;
+@color-6: #000000;
+
+/* WIDTHS ***************************************************************/
+
+@page-width: 960px;
+@container-width: 960px;
+@container-margin: 0 auto;
+@content-width: 940px;
+@content-margin: 0 10px;
+
+/* POSITIONS ************************************************************/
+
+@position: absolute;
+
+@primary-branding-top: 40px;
+@secondary-branding-top: 40px;
+
+@user-nav-top: 5px;
+@user-nav-height: 30px;
+
+@main-nav-top: 5px;
+@main-nav-height: 30px;
+
+@header-top: @user-nav-height;
+@header-height: 100px;
+@header-home-height: 300px;
+
+@search-top: @header-top + @header-height;
+@search-height: 60px;
+@search-home-top: @header-top + @header-home-height;
+
+@main-top: @search-top + @search-height;
+@main-home-top: @main-nav-height + @header-home-height + @search-height;
+
+@footer-height: 100px;
+
+body {
+    background-color: @color-1;
+}
+
+#page {
+    height: auto;
+    background: @color-1;
+    position: relative;
+    margin: 0 auto;
+    width: @page-width;
+}
+
+.container {
+    width: @container-width;
+    margin: @container-margin;
+}
+
+.content {
+    width: @content-width;
+}
+
+/* CONTAINER AND CONTENT SHRINKING FOR ABSOLUTE POSITION ELEMENTS *************************************/
+
+#primary-branding .container,
+#secondary-branding .container,
+#main-nav .container,
+#user-nav .container {
+    width: auto;
+}
+
+#primary-branding .content,
+#secondary-branding .content,
+#main-nav .content,
+#user-nav .content {
+    width: auto;
+}
+
+/* MAJOR PAGE AREAS ***********************************************************************************/
+
+#site-name {
+    text-indent: -1000px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+}
+
+#primary-branding {
+    position: @position;
+    top: @primary-branding-top;
+    left: 0px;
+    z-index: 10;
+}
+
+#secondary-branding {
+    position: @position;
+    top: @secondary-branding-top;
+    right: 0px;
+    z-index: 10;
+}
+
+#user-nav{
+    position: @position;
+    top: @user-nav-top;
+    right: 0px;
+
+}
+
+#main-nav {
+    position: @position;
+    top: @main-nav-top;
+}
+
+#header {
+    background: @color-2 url(../images/header-bg.png) top left no-repeat;
+    position: @position;
+    top: @header-top;
+    height: @header-height;
+    z-index: 9;
+}
+
+#search {
+    background-color: @color-2;
+    position: @position;
+    top: @search-top;
+    height: @search-height
+}
+
+#main {
+//    background: @color-2;
+    position: static;
+    margin-top: @main-top;
+    top: @main-top;
+}
+
+#content {
+   position: @position;
+}
+
+#footer {
+    position: static;
+    height: @footer-height;
+}
+
+/* HOME-PAGE ************************************************************************/
+
+#home #header {
+    height: @header-home-height;
+}
+
+#home #search {
+    top: @search-home-top;
+}
+
+#home #main {
+     margin-top: @main-home-top;
+}
+
+/* SEARCH ************************************************************************/
+
+#search {
+    text-align: center;
+}
+
+#search .content {
+    padding: 12px;
+}
+
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    border: medium none;
+    /*border:  1px solid #d1d1d1;*/
+    padding: 8px;
+    width: 400px;
+}
+
+#search input[type="submit"]  {
+    background: none repeat scroll 0 0 #336699;
+    border: medium none;
+    color: #FFFFFF;
+    cursor: pointer;
+    margin-left: -4px;
+    padding: 8px;
+    text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.7);
+    text-transform: uppercase;
+    width: 80px;
+}
+
+#search input {
+    /*border-radius: 4px 4px 4px 4px;*/
+    /*font-size: 12px;*/
+    font-weight: bold;
+    vertical-align: top;
+}

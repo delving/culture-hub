@@ -5,39 +5,75 @@
 
 <h1>${dobject.name}</h1>
 
-<div class="grid_4 alpha">
+<div class="line">
+<div class="unit size1of3">
     <img src='${views.context.package.imageUrl(dobject._id)}' width="220" alt="${dobject.name}"/>
+
+#{if userName == browsedUserName}
+<div class="buttons">
+    <a class="button" href="/${dobject.userName}/object/${dobject._id}/update">
+        <span class="icon icon145"></span>
+        <span class="label">Edit Object</span>
+    </a>
+</div>
+#{/}
 </div>
 
-<div class="grid_12 omega">
+<div class="unit size2of3">
 
-    <div class="item metadata">
-        <h2>Name</h2>
+    <div class="metadata">
+        <h4>Name:</h4>
         <p>${dobject.name}</p>
 
-        <h2>Description:</h2>
+        <h4>Description:</h4>
         <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description.get())}</p>
 
-        <h2>Owner</h2>
+        <h4>Owner:</h4>
         <p>${browsedFullName}</p>
 
-        <h2>Date created</h2>
+        <h4>Date created:</h4>
         <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
 
-        <h2>Label(s)</h2>
+        <h4>Label(s):</h4>
         <p class="labels">
             #{list labels, as: 'l'}
             <span class="label">${l.labelType} - ${l.value}</span><br/>
             #{/list}
         </p>
     </div>
+
+    <hr/>
+
+
+    <div id="add-label-dialog" title="Add a label">
+        <div class="inputs">
+            <input type="text" class="textinput"/>
+        </div>
+        <div class="buttons">
+            <button>
+                <span class="icon icon3"></span>
+                <span class="label">Add a label</span>
+            </button>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div id="add-comment-dialog" title="Add a comment">
+        <div class="inputs">
+        <textarea name="comment" id="comment"></textarea>
+        </div>
+        <div class="buttons">
+            <button>
+                <span class="icon icon3"></span>
+                <span class="label">Add a comment</span>
+            </button>
+        </div>
+    </div>
+
+</div>
 </div>
 
-#{if userName == browsedUserName}
-<div class="actions ar grid_16 alpha">
-    <a class="edit" href="/${dobject.userName}/object/${dobject._id}/update">Edit Object</a>
-</div>
-#{/}
 <!--<div class="grid_8">-->
 <!--<div class="dui-buttonset dui-buttonset-single">-->
 <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-left" id="add-comment">Comment</button>-->
@@ -113,17 +149,3 @@
     });
 
 </script>
-
-<div id="add-comment-dialog" title="Add a comment">
-    <div class="inputs">
-        <textarea name="comment" id="comment"></textarea>
-        <button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>
-    </div>
-</div>
-
-<div id="add-label-dialog" title="Add a label">
-    <div class="inputs">
-        <input type="text" class="textinput"/>
-        <button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>
-    </div>
-</div>

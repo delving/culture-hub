@@ -11,14 +11,19 @@
             Error creating your account, please check the errors marked in red
         </p>
         #{/if}
-
+        <fieldset>
         #{textField name:"registration.firstName", label:"First name" /}
         #{textField name:"registration.lastName", label:"Last name" /}
         #{textField name:"registration.email", label:"E-mail" /}
+        </fieldset>
+
+        <fieldset>
         #{textField name:"registration.displayName", label:"User name" /}
         #{passwordField name:"registration.password1", label:"Password" /}
         #{passwordField name:"registration.password2", label:"Password (repeat)" /}
+        </fieldset>
 
+        <fieldset>
         <div class="field">
             <label for="code">Please type the code below</label>
             <img src="@{Registration.captcha(randomId)}">
@@ -27,9 +32,14 @@
             <input type="hidden" name="randomID" value="${randomId}">
             <span class="error">${views.context.package.showError("code")}</span>
         </div>
+        </fieldset>
 
-        <div class="actions">
-            <button type="submit" class="submit">Register!</button>
+        <!--<fieldset>-->
+        <div class="buttons">
+            <button type="submit" class="action green">
+                <span class="label">Register!</span>
+            </button>
         </div>
+
     </form>
 </div>

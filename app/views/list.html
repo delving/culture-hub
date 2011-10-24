@@ -5,10 +5,10 @@
 
 
     #{if browsedUserName}
-    <h2>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h2>
+    <h1>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h1>
     #{/if}
     #{else}
-    <h2>Browse ${itemName.pluralize()} (${count})</h2>
+    <h1>Browse ${itemName.pluralize()} (${count})</h1>
     #{/else}
 
     #{if items.length() > 0}

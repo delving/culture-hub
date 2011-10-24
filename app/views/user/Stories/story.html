@@ -34,6 +34,8 @@
             <span class="required-note"><span>*</span> Required Fields</span>
 
             <form id="storyForm">
+
+
                 #{textField name:"name", label:"Name", dataBind:"value: name, valueUpdate: 'afterkeydown'", labelClass:"required" /}
                 #{textArea name:"description", label:"Description", dataBind:"value: description, valueUpdate: 'afterkeydown'", labelClass:"required" /}
 
@@ -47,7 +49,7 @@
                 </div>
 
                 #{if id.isEmpty()}
-                <div class="actions">
+                <div class="buttons">
                     <button class="action page add dui-button" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
                 </div>
                 #{/if}
@@ -63,10 +65,15 @@
             <p id="no-pages-found" data-bind="visible: pages().length == 0">No pages found</p>
             <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-            <div class="actions">
+            <div class="buttons">
 
-                <a class="action story read dui-button" href="#" target="_blank" data-bind="click: makeStoryUrl" rel="nofollow" >View your story</a>
-                <button class="action add page dui-button f-right" id="btn-add-page" data-bind="click: function() { this.addPage(); }">Add a new page</button>
+                <a class="button" href="#" target="_blank" data-bind="click: makeStoryUrl" rel="nofollow" >
+                    View your story
+                </a>
+                <a class="button" id="btn-add-page" data-bind="click: function() { this.addPage(); }">
+                    <span class="icon icon3"></span>
+                    <span class="label">Add a new page</span>
+                </a>
             </div>
 
         </div>
@@ -85,7 +92,10 @@
 <div class="line" id="save-story">
 <hr/>
     <div class="actions">
-      <button class="action save dui-button" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">Save Story</button>
+      <button class="blue" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">
+          <span class="icon icon67"></span>
+          <span class="label">Save story</span>
+      </button>
       <div class="wait"></div>
     </div>
 </div>
@@ -124,14 +134,20 @@
     <div class="field">
         <div class="inputs">
             <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            <button class="action add image dui-button" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">Add an image from this collection</button>
+            <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">
+                <span class="icon icon3"></span>
+                <span class="label">Add an image from this collection</span>
+            </button>
         </div>
     </div>
 
     <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
-    <div class="actions">
-            <button class="action save dui-button"  type="submit" data-bind="click: saveCurrentPage">Save Page</button>
+    <div class="buttons">
+            <button type="submit" data-bind="click: saveCurrentPage">
+                <span class="icon icon67"></span>
+                <span class="label">Save Page</span>
+            </button>
     </div>
   </form>
 
@@ -154,8 +170,15 @@
                     <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
                 </td>
                 <td>
-                    <a class="action edit" href="#" data-bind="click: function() { this.editPage(page); }">Edit</a>
-                    <a class="action delete" href="#" data-bind="click: function() { this.deletePage(page); }">Delete</a>
+                    <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
+                        <span class="icon icon145"></span>
+                        <span class="label">Edit</span>
+                    </a>
+                    <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
+                        <span class="icon icon186"></span>
+                        <span class="label">Delete</span>
+
+                    </a>
                 </td>
             </tr>
             {{/each}}

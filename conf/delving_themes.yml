@@ -1,7 +1,7 @@
 - !!models.PortalTheme
     name: default
     templateDir: default
-    isDefault: true
+    isDefault: false
     subdomain: default
     displayName: Delving Culture Hub
     defaultLanguage: nl
@@ -54,7 +54,7 @@
 - !!models.PortalTheme
     name: nassau
     templateDir: nassau
-    isDefault: false
+    isDefault: true
     subdomain: nassau
     displayName: De Friese Nassau's
     defaultLanguage: nl

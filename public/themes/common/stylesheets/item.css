@@ -8,7 +8,7 @@ ul.items {
 }
 
 ul.items li {
-    background:  #fffff0;
+    background:  #ffffff;
     border:  1px solid #e1e1e1;
     display: inline-block;
     float: left;
@@ -16,6 +16,11 @@ ul.items li {
     min-height: 180px;
     position: relative;
     width: 210px;
+}
+
+ul.items.small li {
+    width: 120px;
+    min-height: 80px;
 }
 
 ul.items li.item {
@@ -43,23 +48,28 @@ ul.items a {
     line-height:120px;
     text-align:center;
     overflow:  hidden;
+    position: relative;
 }
 
 .media.medium.container img
 {
         vertical-align: middle;
-        max-width: 150px;
-        max-height: 150px;
+        /*max-width: 120px;*/
+        /*max-height: 150px;*/
         display: -moz-inline-box; /* Firefox 2 */
         display: inline-block;
         text-align: center;
         /*position:relative;left:-100px*/
+
+position:absolute;
+clip:rect(0px,150px,150px,0px);
 }
+
 
 /* metadata */
 
 .metadata {
-   /*padding:  4px;*/
+   /*padding:  4px 8px;*/
    width: 100%;
 }
 

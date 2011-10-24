@@ -9,7 +9,10 @@
             <option value="When">When</option>
         </select>
         <input type="text" class="textinput" id="$item.name" name="$item.name" maxlength="40" data-bind="value: $item.labelValue"/>
-        <button class="action add label dui-button" name="add-annotations-button" id="add-annotation-button" data-bind="click: $item.addLabel">Add Label</button>
+        <a class="button" name="add-annotations-button" id="add-annotation-button" data-bind="click: $item.addLabel">
+            <span class="icon icon3"></span>
+            <span class="label">Add Label</span>
+        </a>
     </div>
 </div>
 {{if $item.labels().length > 0}}

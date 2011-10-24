@@ -1,8 +1,9 @@
 #{extends 'header.html' /}
 #{set title: id.isEmpty() ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
+
 #{breadcrumbs /}
 
-<section id="edit-collection">
+<div id="edit-collection">
 
 <h1>${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
 
@@ -41,7 +42,6 @@
 </form>
 </div>
 
-</section>
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {

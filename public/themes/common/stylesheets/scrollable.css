@@ -3,10 +3,10 @@
 	when scrolling occurs this element stays still.
 */
 .story-container {
-    background:  #fff url(../images/bg-book.png) bottom center no-repeat;
+    /*background:  #fff url(../images/bg-book.png) bottom center no-repeat;*/
     width: 940px;
     margin: 0 auto;
-	height:500px;
+	/*height:500px;*/
     position: relative;
 }
 
@@ -35,7 +35,7 @@
 	overflow-y: auto;
     width: 860px;
     margin:  0 auto;
-    height: 500px;
+    height: 800px;
 
 	/* custom decorations */
     top: 40px;
@@ -76,7 +76,7 @@
 }
 
 .scrollable .title-page {
-    text-align: center;
+    text-align: left;
 }
 
 .scrollable .title-page h1 {

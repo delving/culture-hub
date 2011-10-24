@@ -15,8 +15,12 @@ form.box {
 }
 
 label {
-    display: block;
     color: #555;
+    display: inline-block;
+    font-weight: bold;
+    width: 120px;
+    text-align: right;
+    margin-right: 10px;
 }
 
 .required-note {
@@ -37,16 +41,20 @@ div.field {
     position: relative;
 }
 
-div.field label,
-div.field div.label {
-    color: #444444;
-    display: block;
+/*div.field label,*/
+/*div.field div.label {*/
+    /*color: #444444;*/
+    /*display: inline-block;*/
     /*float: left;*/
     /*font-size: 1.1em;*/
-    font-weight: bold;
-    margin-bottom: 0.5em;
-    text-align: left;
-    width: 200px;
+    /*font-weight: bold;*/
+    /*margin-bottom: 0.5em;*/
+    /*text-align: right;*/
+    /*width: 150px;*/
+/*}*/
+
+div.field .inputs {
+    display: inline-block;
 }
 
 label.fileinput-button {
@@ -72,11 +80,11 @@ div.field label.required:after {
     font-weight: normal;
 }
 
-.field .inputs {
+/*.field .inputs {*/
     /*float: left;*/
-    overflow: hidden;
-    width: 100%;
-}
+    /*overflow: hidden;*/
+    /*width: 100%;*/
+/*}*/
 
 .field .help {
     display: block;
@@ -151,6 +159,35 @@ button[disabled] {
 .wait {
     display: inline-block;
     margin-left: 5px;
+}
+
+form {
+    background-color: #eaeaea;
+    padding:  10px;
+    margin:  10px 0;
+}
+
+fieldset {
+    background-color: ivory;
+    padding:  10px;
+    margin-bottom:  10px;
+    /*border-bottom:  1px solid #fff;*/
+}
+
+legend {
+    font-weight: bold;
+}
+
+p.success {
+    background-color: green;
+    color: #fff;
+    padding:  4px;
+}
+
+p.error {
+    background-color: #cc0000;
+    color: #fff;
+    padding:  4px;
 }
 
 

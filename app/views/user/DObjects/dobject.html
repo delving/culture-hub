@@ -12,6 +12,7 @@
         #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
         #{textArea name:"description", label:"Description", dataBind:"value: description" /}
 
+
         <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
 
         <div class="field">
@@ -36,8 +37,11 @@
             </div>
         </div>
 
-        <div class="actions">
-          <button class="action save dui-button" id="saveButton" type="submit">Save Object</button>
+        <div class="buttons">
+          <button class="blue" id="saveButton" type="submit">
+              <span class="icon icon67"></span>
+              <span class="label">Save Object</span>
+          </button>
           <div class="wait"></div>
         </div>
 

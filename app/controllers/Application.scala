@@ -12,9 +12,9 @@ object Application extends DelvingController {
 
   def index: Result = {
 
-    val recentCollections: List[ShortCollection] = UserCollection.findRecent(4).toList
-    val recentStories: List[ShortStory] = Story.findRecent(4).toList
-    val recentObjects: List[ListItem] = DObject.findRecent(4).toList
+    val recentCollections: List[ShortCollection] = UserCollection.findRecent(6).toList
+    val recentStories: List[ShortStory] = Story.findRecent(6).toList
+    val recentObjects: List[ListItem] = DObject.findRecent(6).toList
 
     Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects)
   }

@@ -1,3 +1,5 @@
+
 jQuery(document).ready(function() {
-    jQuery('#recent-objects-list').jcarousel();
+//$('#recent-objects').addClass('jcarousel-skin-default');
+//    jQuery('#recent-objects-list').jcarousel();
 });
