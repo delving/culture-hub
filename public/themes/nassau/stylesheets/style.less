@@ -9,19 +9,20 @@
 
 @page-width: 960px;
 @container-width: 960px;
-@content-width: 940px;
+@content-width: 960px;
 
 /* MARGINS **************************************************************/
 
 @container-margin: 0 auto;
-@content-margin: 0 10px;
+@content-margin: 0 0;
 
 /* POSITIONS & HEIGHTS **************************************************/
 
 @position: absolute;
 
-@primary-branding-top: 55px;
 @primary-branding-height: 60px;
+@primary-branding-left: 0px;
+@primary-branding-top: 55px;
 
 @secondary-branding-top: 18px;
 @secondary-branding-height: 65px;
@@ -36,9 +37,10 @@
 @header-height: 50px;
 @header-home-height: 420px;
 
-@search-top: @header-top + 10px;
 @search-height: 40px;
-@search-home-top: @header-top + @header-home-height;
+@search-right: 10px;
+@search-top: @header-top + 10px;
+@search-home-top: @header-home-height + 4px;
 
 @main-top: @header-top + @header-height + @crumbs-height;
 @main-home-top: @header-top + @header-home-height + 10px;
@@ -129,7 +131,7 @@ body {
     height: @primary-branding-height;
     position: @position;
     top: @primary-branding-top;
-    left: -10px;
+    left: @primary-branding-left;
     z-index: 10;
 }
 
@@ -256,7 +258,11 @@ body {
     top: @search-top;
     height: @search-height;
     z-index: 10;
-    right: -2px;
+    right: @search-right;
+}
+
+#home #search {
+    top: @search-home-top;
 }
 
 #search form {
