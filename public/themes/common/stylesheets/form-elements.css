@@ -93,7 +93,8 @@ div.field label.required:after {
 .field .help {
     display: block;
     color: #888;
-    font-size: 85%;
+    /*font-size: 85%;*/
+    font-style: italic;
 }
 
 input.textinput, select, textarea {
@@ -107,9 +108,15 @@ select {
     padding: 2px;
 }
 
+
+
 .inputs textarea {
     width: 98.5%;
     min-height: 150px;
+}
+
+.inputs .buttons .button {
+    margin-left: 0px;
 }
 
 input.textdisplay {

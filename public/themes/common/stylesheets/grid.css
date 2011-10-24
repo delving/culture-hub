@@ -17,3 +17,13 @@
     margin-left: 5%;
     width: 55%;
 }
+
+.size1of2.space:first-of-type {
+    width: 49%;
+    margin-right: 1%;
+}
+
+.size1of2.space:last-of-type {
+    width: 49%;
+    margin-left: 1%;
+}
