@@ -40,10 +40,34 @@
 @search-height: 40px;
 @search-home-top: @header-top + @header-home-height;
 
-@main-top: @header-top + @header-height + 10px;
+@main-top: @header-top + @header-height + @crumbs-height;
 @main-home-top: @header-top + @header-home-height + 10px;
 
+@crumbs-top: @header-top + @header-height;
+@crumbs-height:32px;
+
 @footer-height: 100px;
+
+/* borders ********/
+@radius: 2px;
+
+.border-all (@radius) {
+  border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+.border-top (@radius) {
+  border-radius: @radius @radius 0 0;
+  -moz-border-radius: @radius @radius 0 0;
+  -webkit-border-radius: @radius @radius 0 0;
+}
+
+.border-bot (@radius) {
+  border-radius: 0 0 @radius @radius;
+  -moz-border-radius: 0 0 @radius @radius;
+  -webkit-border-radius: 0 0 @radius @radius;
+}
 
 /* STYLES ********************************************************************************************/
 
@@ -69,6 +93,7 @@ body {
     margin: @content-margin;
     width: @content-width;
 }
+
 
 /* CONTAINER AND CONTENT SHRINKING FOR ABSOLUTE POSITION ELEMENTS *************************************/
 
@@ -104,7 +129,7 @@ body {
     height: @primary-branding-height;
     position: @position;
     top: @primary-branding-top;
-    left: 0px;
+    left: -10px;
     z-index: 10;
 }
 
@@ -144,7 +169,8 @@ body {
 
 #main-nav ul li {
     background: @color-2;
-    border: none;
+    border-color: #fff;
+	.border-top(@radius);
 }
 
 #main-nav ul li:hover {
@@ -241,15 +267,18 @@ body {
 
 #search input[type=text] {
     background: none repeat scroll 0 0 #fff;
-    border: medium none;
-    /*border:  1px solid #d1d1d1;*/
+    /*border: medium none;*/
+    border:  1px solid #d1d1d1;
+    .border-all(@radius);
     padding: 8px;
     width: 414px;
 }
 
 #search input[type="submit"]  {
     background: none repeat scroll 0 0 @color-1;
-    border: medium none;
+    /*border: medium none;*/
+    border:  1px solid #555;
+    .border-all(@radius);
     color: #fff;
     cursor: pointer;
     margin-left: 4px;
@@ -262,6 +291,9 @@ body {
 #search input {
     font-weight: bold;
     vertical-align: top;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
 }
 
 /* ITEMS ************************************************************************/
@@ -374,4 +406,21 @@ ul#user-menu li .sub {
 
 fieldset {
     background-color: transparent;
+}
+
+/* BREADCRUMBS  **********************************************************************************/
+
+.breadcrumbs {
+    background-color: @color-1-lite;
+    position: @position;
+    top: @crumbs-top;
+    left: 0px;
+    height: @crumbs-height;
+    line-height: @crumbs-height;
+    width: 100%;
+}
+
+.breadcrumbs .inner {
+    margin-left: 10px;
+    width: auto;
 }

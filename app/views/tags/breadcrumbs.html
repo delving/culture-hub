@@ -1,4 +1,5 @@
 <div class="breadcrumbs">
+    <div class="inner">
 #{list views.context.package.crumble(), as: 'c'}
   #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
   ${c._1._2.shorten(50)}
@@ -10,4 +11,5 @@
   <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
   #{/}
 #{/}
+</div>
 </div>
