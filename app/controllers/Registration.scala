@@ -81,7 +81,7 @@ object Registration extends DelvingController {
 
   def captcha(id: String) = {
     val captcha = play.libs.Images.captcha
-    val code = captcha.getText("#E4EAFD")
+    val code = captcha.getText("#000000")
     Cache.set(id, code, "10mn")
     captcha
   }
