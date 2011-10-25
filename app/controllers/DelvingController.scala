@@ -12,6 +12,7 @@ import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
 import util.{ProgrammerException, LocalizedFieldNames}
+import reflect.Manifest
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -231,6 +232,10 @@ trait ThemeAware { self: Controller =>
  * It should replace the old views.context package object
  */
 class ViewUtils(theme: PortalTheme) {
+
+  def themeProperty(property: String) = {
+    themeProperty[String](property, classOf[String])
+  }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
     val key = "themes.%s.%s".format(theme.name, property)
