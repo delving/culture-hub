@@ -55,7 +55,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Continue
   }
 
-  def getConnectedUser: User = connectedUser.getOrElse(throw new AccessKeyException("No access token provided"))
+  def getConnectedUser: User = connectedUser.getOrElse({
+    Logger.warn("Attemtping to connect with an invalid access token")
+    throw new AccessKeyException("No access token provided")
+  })
 
   def getConnectedUserId = getConnectedUser._id
 
@@ -91,7 +94,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   }
 
     def unlock(spec: String): Result = {
-      val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec), 404))
+      val dataSet = DataSet.findBySpec(spec).getOrElse({
+        val msg = "Unknown spec %s".format(spec)
+        Logger.warn(msg)
+        return TextError(msg, 404)
+      })
       val updated = dataSet.copy(lockedBy = None)
       DataSet.save(updated)
       Ok
@@ -107,7 +114,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
    */
   def acceptFileList(spec: String): Result = {
 
-    val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse(return Error("DataSet with spec %s not found".format(spec)))
+    val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse({
+      val msg = "DataSet with spec %s not found".format(spec)
+      logErrorWithUser(msg)
+      return TextError(msg, 404)
+    })
     val fileList: String = request.params.get("body")
 
     Logger.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
@@ -132,11 +143,18 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def acceptFile: Result = {
     val spec = params.get("spec")
     val fileName = params.get("fileName")
-    Logger.info(String.format("Accepting file %s for DataSet %s", fileName, spec))
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec)))
+    Logger.info("Accepting file %s for DataSet %s".format(fileName, spec))
+    val dataSet = DataSet.findBySpec(spec).getOrElse({
+      val msg = "Unknown spec %s".format(spec)
+      logErrorWithUser(msg)
+      return TextError(msg, 404)})
 
     val FileName(hash, kind, prefix, extension) = fileName
-    if(hash.isEmpty) return TextError("No hash available for file name " + fileName)
+    if(hash.isEmpty) {
+      val msg = "No hash available for file name " + fileName
+      logErrorWithUser(msg)
+      return TextError(msg)
+    }
 
     val inputStream: InputStream = if (request.contentType == "application/x-gzip") new GZIPInputStream(request.body) else request.body
 
@@ -145,7 +163,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       case "hints"   if extension == "txt" => receiveHints(dataSet, inputStream)
       case "source"  if extension == "xml.gz" => receiveSource(dataSet, inputStream)
       case "validation"   if extension == "int" => receiveInvalidRecords(dataSet, prefix, inputStream)
-      case _ => return TextError("Unknown file type %s".format(kind))
+      case _ => {
+        val msg = "Unknown file type %s".format(kind)
+        logErrorWithUser(msg)
+        return TextError(msg)
+      }
     }
 
     actionResult match {
@@ -155,7 +177,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         Ok
       }
       case Left(houston) => {
-      Logger.info("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
+        logErrorWithUser("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
         TextError(houston)
       }
     }
@@ -227,7 +249,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   }
 
   def fetchSIP(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec), 404))
+    val dataSet = DataSet.findBySpec(spec).getOrElse({
+      val msg = "Unknown spec %s".format(spec)
+      logErrorWithUser(msg)
+      return TextError(msg, 404)
+    })
 
     val name = "%s-sip".format(spec)
     val tmpFile = File.createTempFile(name, "zip")
@@ -317,6 +343,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     pw.println(content)
     pw.flush()
     out.flush()
+  }
+
+  def logErrorWithUser(msg: String) {
+    Logger.error(connectedUser.getOrElse("NotConnected").toString + ": " + msg)
   }
 
 }
