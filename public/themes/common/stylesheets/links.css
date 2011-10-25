@@ -28,9 +28,9 @@ ul.nav li a {
     padding:  0 10px;
 }
 
-ul.nav li:last-of-type a {
-    padding: 0 0 0 10px;
-}
+/*ul.nav li:last-of-type a {*/
+    /*padding: 0 0 0 10px;*/
+/*}*/
 
 span.pipe {
     display: inline-block;

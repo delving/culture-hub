@@ -1,144 +1,151 @@
-/* COLORS ***************************************************************/
-
-@color-1: #FFFFFF;
-@color-2: #E7E8DF;
-@color-3: #CC3333;
-@color-3-lite: @color-3 + #888;
-@color-4: #039de9;
-@color-5: #01689B;
-@color-5-lite: @color-5 + #555;
-@color-6: #000000;
+/* less declarations */
 
 /* WIDTHS ***************************************************************/
 
-@page-width: 960px;
+@page-width: 100%;
 @container-width: 960px;
-@container-margin: 0 auto;
 @content-width: 940px;
-@content-margin: 0 10px;
 
-/* POSITIONS ************************************************************/
+/* MARGINS **************************************************************/
+
+@container-margin: 0 auto;
+@content-margin: 0 0;
+
+/* POSITIONS & HEIGHTS **************************************************/
 
 @position: absolute;
 
-@primary-branding-top: 40px;
-@secondary-branding-top: 40px;
+@sitename-height: 50px;
+@sitename-left: 0px;
+@sitename-top: 0px;
 
-@user-nav-top: 5px;
+@primary-branding-height: 50px;
+@primary-branding-left: 0;
+@primary-branding-top: 0px;
+
+@secondary-branding-height: 50px;
+@secondary-branding-left: 0px;
+@secondary-branding-top: 150px;
+
+@user-nav-left: 0;
+@user-nav-top: 60px;
 @user-nav-height: 30px;
 
-@main-nav-top: 5px;
+@main-nav-left: 0px;
+@main-nav-top: 100px;
 @main-nav-height: 30px;
 
-@header-top: @user-nav-height;
-@header-height: 100px;
-@header-home-height: 300px;
+@header-left: 0px;
+@header-top: 50px;
+@header-height: 300px;
+@header-home-height: 420px;
 
-@search-top: @header-top + @header-height;
-@search-height: 60px;
-@search-home-top: @header-top + @header-home-height;
 
-@main-top: @search-top + @search-height;
-@main-home-top: @main-nav-height + @header-home-height + @search-height;
+@search-height: 40px;
+@search-right: 10px;
+@search-left: 0px;
+@search-top: 0px;
+
+@crumbs-top: @header-top + @header-height;
+@crumbs-height:32px;
+
+@main-top: @header-top + @header-height + @crumbs-height;
+@main-home-top: @header-top + @header-home-height + 10px;
 
 @footer-height: 100px;
 
-body {
-    background-color: @color-1;
+html {
+    height: 100%;
+    width: 100%;
 }
+
+/* LAYOUT **********************************************************************************************************/
+
+/*#header, #search {*/
+    /*width: 100%;*/
+/*}*/
 
 #page {
     height: auto;
-    background: @color-1;
-    position: relative;
+    background: #ccc;
     margin: 0 auto;
     width: @page-width;
+    position: absolute;
 }
 
 .container {
-    width: @container-width;
     margin: @container-margin;
+    width: @container-width;
 }
 
 .content {
+    margin: @content-margin;
     width: @content-width;
 }
 
-/* CONTAINER AND CONTENT SHRINKING FOR ABSOLUTE POSITION ELEMENTS *************************************/
-
-#primary-branding .container,
-#secondary-branding .container,
-#main-nav .container,
-#user-nav .container {
-    width: auto;
-}
-
-#primary-branding .content,
-#secondary-branding .content,
-#main-nav .content,
-#user-nav .content {
-    width: auto;
-}
-
-/* MAJOR PAGE AREAS ***********************************************************************************/
-
 #site-name {
-    text-indent: -1000px;
-    height: 1px;
-    margin: 0;
-    padding: 0;
+    height: @sitename-height;
+    position: @position;
+    top: @sitename-top;
+    left: @sitename-left;
+    z-index: 11;
+}
+
+
+#header  {
+    height: @header-height;
+    position: @position;
+    top: @header-top;
+    left: @header-left;
+    width: 100%;
+    z-index: 9;
 }
 
 #primary-branding {
+    height: @primary-branding-height;
     position: @position;
     top: @primary-branding-top;
-    left: 0px;
+    left: @primary-branding-left;
+    right: 0;
     z-index: 10;
 }
 
 #secondary-branding {
+    height: @secondary-branding-height;
     position: @position;
     top: @secondary-branding-top;
-    right: 0px;
+    left: @secondary-branding-left;
+    right: 0;
+    z-index: 10;
+}
+
+#main-nav {
+    height: @main-nav-height;
+    position: @position;
+    top: @main-nav-top;
+    left: @main-nav-left;
     z-index: 10;
 }
 
 #user-nav{
+    height: @user-nav-height;
     position: @position;
     top: @user-nav-top;
-    right: 0px;
+    left: @user-nav-left;
+    right: 0;
 
-}
-
-#main-nav {
-    position: @position;
-    top: @main-nav-top;
-}
-
-#header {
-    background: @color-2 url(../images/header-bg.png) top left no-repeat;
-    position: @position;
-    top: @header-top;
-    height: @header-height;
-    z-index: 9;
 }
 
 #search {
-    background-color: @color-2;
+    height: @search-height;
     position: @position;
     top: @search-top;
-    height: @search-height
+    left: @search-left;
 }
 
 #main {
-//    background: @color-2;
     position: static;
     margin-top: @main-top;
-    top: @main-top;
-}
-
-#content {
-   position: @position;
 }
 
 #footer {
@@ -146,53 +153,36 @@ body {
     height: @footer-height;
 }
 
-/* HOME-PAGE ************************************************************************/
+/* COLORS AND BACKGROUNDS ***************************************************************************/
 
-#home #header {
-    height: @header-home-height;
+#primary-branding {
+    background-color: #ccffff;
 }
 
-#home #search {
-    top: @search-home-top;
+#secondary-branding .container {
+    background-color: #ccccff;
 }
 
-#home #main {
-     margin-top: @main-home-top;
+#header {
+   background-color: #ccc;
 }
 
-/* SEARCH ************************************************************************/
+#main-nav{
+   background-color: #ffccff;
+}
+
+#user-nav{
+    background-color: #ffffcc;
+}
 
 #search {
-    text-align: center;
+    background-color: #ccff99;
 }
 
-#search .content {
-    padding: 12px;
+#main {
+    background-color: #fff;
 }
 
-#search input[type=text] {
-    background: none repeat scroll 0 0 #fff;
-    border: medium none;
-    /*border:  1px solid #d1d1d1;*/
-    padding: 8px;
-    width: 400px;
-}
-
-#search input[type="submit"]  {
-    background: none repeat scroll 0 0 #336699;
-    border: medium none;
-    color: #FFFFFF;
-    cursor: pointer;
-    margin-left: -4px;
-    padding: 8px;
-    text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.7);
-    text-transform: uppercase;
-    width: 80px;
-}
-
-#search input {
-    /*border-radius: 4px 4px 4px 4px;*/
-    /*font-size: 12px;*/
-    font-weight: bold;
-    vertical-align: top;
+#footer {
+    background-color: #9999ff;
 }

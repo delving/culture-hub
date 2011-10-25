@@ -1,4 +1,5 @@
-@import url("../../common/stylesheets/normalize.css");
+/*@import url("../../common/stylesheets/normalize.css");*/
+@import url("../../common/stylesheets/reset.css");
 @import url("../../common/stylesheets/typography.css");
 @import url("../../common/stylesheets/grid.css");
 /*@import url("../../common/stylesheets/jquery.fileupload-ui.css");*/

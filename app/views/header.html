@@ -100,11 +100,11 @@
     <div id="secondary-branding">
         <div class="container">
             <div class="content">
-                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+                <a href="" target="_blank" title="9999u"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
     </div>
-    
+
     <div id="header" role="banner">
         <div class="container">
             <div class="content">
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-     <div id="search" role="search">
+    <div id="search" role="search">
         <div class="container">
             <div class="content">
                 <form method="get" action="">
@@ -126,9 +126,9 @@
 
     <div id="main">
         <div class="container">
-                <div class="content">
-                    #{doLayout /}
-                </div>
+            <div class="content">
+                #{doLayout /}
+            </div>
         </div>
     </div>
 
@@ -147,48 +147,58 @@
     </div>
 
     <div id="user-nav" role="nav" style="z-index: 12">
-        <div class="containers">
-            <div class="contents">
+        <div class="container">
+            <div class="content">
                 #{if !userName}
                 <div class="buttons">
-                    <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
+                    <ul class="nav">
+                    <li><a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
                         <span class="label">Login</span>
-                    </a>
-                    <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
+                    </a></li>
+                    <li><a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
                         <span class="label">Register</span>
                     </a>
+                        </li>
+                    </ul>
                 </div>
                 #{/if}
                 #{else}
 
                 <div class="buttons">
-                <!--Hi ${fullName}-->
-                <div class="dropdown">
-                  <a href="#" class="button"><span class="icon icon9"></span><span class="label">Go to</span><span class="toggle"></span></a>
-                  <div class="dropdown-slider">
-                      <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
-                      <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
-                      <a href="/${userName}/collection" class="ddm"></span><span class="label">Your collections</span></a>
-                      <a href="/${userName}/story" class="ddm"></span><span class="label">Your stories</span></a>
-                      <a href="/${userName}/dataset" class="ddm"></span><span class="label">Your data-sets</span></a>
-                  </div> <!-- /.dropdown-slider -->
-                </div> <!-- /.dropdown -->
+                    <!--Hi ${fullName}-->
+                    <div class="dropdown">
+                        <a href="#" class="button"><span class="icon icon9"></span><span class="label">Go to</span><span class="toggle"></span></a>
 
-                <div class="dropdown">
-                  <a href="#" class="button"><span class="icon icon144"></span><span class="label">Create</span><span class="toggle"></span></a>
-                  <div class="dropdown-slider">
-                    <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
-                    <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
-                    <a href="/${userName}/story/add" class="ddm"><span class="label">New story</span></a>
-                    <a href="/${userName}/dataset/add" class="ddm"><span class="label">New data-set</span></a>
-                  </div> <!-- /.dropdown-slider -->
+                        <div class="dropdown-slider">
+                            <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
+                            <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
+                            <a href="/${userName}/collection" class="ddm"></span>
+                                <span class="label">Your collections</span></a>
+                            <a href="/${userName}/story" class="ddm"></span><span class="label">Your stories</span></a>
+                            <a href="/${userName}/dataset" class="ddm"></span><span class="label">Your data-sets</span></a>
+                        </div>
+                        <!-- /.dropdown-slider -->
+                    </div>
+                    <!-- /.dropdown -->
 
-                </div> <!-- /.dropdown -->
+                    <div class="dropdown">
+                        <a href="#" class="button"><span class="icon icon144"></span><span class="label">Create</span><span class="toggle"></span></a>
 
-                <a class="button" href="/logout">
-                    <span class="label">Logout</span>
+                        <div class="dropdown-slider">
+                            <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
+                            <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
+                            <a href="/${userName}/story/add" class="ddm"><span class="label">New story</span></a>
+                            <a href="/${userName}/dataset/add" class="ddm"><span class="label">New data-set</span></a>
+                        </div>
+                        <!-- /.dropdown-slider -->
 
-                </a>
+                    </div>
+                    <!-- /.dropdown -->
+
+                    <a class="button" href="/logout">
+                        <span class="label">Logout</span>
+
+                    </a>
                 </div>
 
                 #{/else}
@@ -206,8 +216,12 @@
 
 </div>
 
-<div id="extraDiv1"><span></span></div><div id="extraDiv2"><span></span></div><div id="extraDiv3"><span></span></div>
-<div id="extraDiv4"><span></span></div><div id="extraDiv5"><span></span></div><div id="extraDiv6"><span></span></div>
+<div id="extraDiv1"><span></span></div>
+<div id="extraDiv2"><span></span></div>
+<div id="extraDiv3"><span></span></div>
+<div id="extraDiv4"><span></span></div>
+<div id="extraDiv5"><span></span></div>
+<div id="extraDiv6"><span></span></div>
 
 </body>
 </html>
