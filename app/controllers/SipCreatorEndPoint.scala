@@ -211,7 +211,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     } catch {
       case t: Throwable => {
-        t.printStackTrace()
+        log.warn("Problem receiving source", t)
         return Left("Error parsing records: " + t.getMessage)
       }
     }
