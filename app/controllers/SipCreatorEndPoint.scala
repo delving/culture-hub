@@ -1,11 +1,10 @@
 package controllers
 
 import models._
-import play.mvc
+import play.{Logger, mvc}
 import mvc.results.{RenderBinary, Result}
 import mvc.{Before, Controller}
 import eu.delving.metadata.{RecordMapping, MetadataModel}
-import org.apache.log4j.Logger
 import cake.ComponentRegistry
 import models.DataSet
 import models.HarvestStep
@@ -34,7 +33,6 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
-  private val log: Logger = Logger.getLogger(getClass)
   private val fileCleaningTracker = new FileCleaningTracker
 
   val DOT_PLACEHOLDER = "--"
@@ -47,10 +45,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   @Before def setUser(): Result = {
     val accessToken: String = params.get("accessKey")
     if (accessToken == null || accessToken.isEmpty) {
-      log.warn("Service Access Key missing")
+      Logger.warn("Service Access Key missing")
       return TextError("No access token provided", 401)
     } else if (!OAuth2TokenEndpoint.isValidToken(accessToken)) {
-      log.warn("Service Access Key %s invalid!".format(accessToken))
+      Logger.warn("Service Access Key %s invalid!".format(accessToken))
       return TextError(("Access Key %s not accepted".format(accessToken)), 401)
     }
     connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
@@ -112,7 +110,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse(return Error("DataSet with spec %s not found".format(spec)))
     val fileList: String = request.params.get("body")
 
-    log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
+    Logger.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
 
     val lines = fileList split('\n')
 
@@ -134,7 +132,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def acceptFile: Result = {
     val spec = params.get("spec")
     val fileName = params.get("fileName")
-    log.info(String.format("Accepting file %s for DataSet %s", fileName, spec))
+    Logger.info(String.format("Accepting file %s for DataSet %s", fileName, spec))
     val dataSet = DataSet.findBySpec(spec).getOrElse(return TextError("Unknown spec %s".format(spec)))
 
     val FileName(hash, kind, prefix, extension) = fileName
@@ -153,11 +151,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     actionResult match {
       case Right(ok) => {
         DataSet.addHash(dataSet, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
-        log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
+        Logger.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
         Ok
       }
       case Left(houston) => {
-      log.info("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
+      Logger.info("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
         TextError(houston)
       }
     }
@@ -211,7 +209,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     } catch {
       case t: Throwable => {
-        t.printStackTrace()
+        Logger.error(t, "Error occured while parsing records")
         return Left("Error parsing records: " + t.getMessage)
       }
     }
