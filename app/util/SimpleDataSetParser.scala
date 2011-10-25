@@ -7,8 +7,6 @@ import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
 import eu.delving.metadata.{Hasher, Tag, Path}
 import models.{MetadataRecord, DataSet}
-import com.mongodb.casbah.Implicits._
-import com.mongodb.casbah.Imports._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -26,6 +24,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var hasParsedOne = false
     var recordCounter = 0
     var inRecord = false
+    var inIdentifierElement = false
     val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
     val path = new Path()
 
@@ -63,23 +62,23 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case elemStart@EvElemStart(prefix, label, attrs, scope) =>
-          if (inRecord) {
-            path.push(Tag.create(prefix, label))
-            recordXml.append(elemStartToString(elemStart))
-          }
-        case EvText(text) =>
-          if (inRecord) {
-            recordXml.append(text)
-            fieldValueXml.append(text)
-          }
-        case elemEnd@EvElemEnd(_, _) =>
-          if (inRecord) {
-            valueMap.addBinding(path.toString, fieldValueXml.toString())
-            recordXml.append(elemEndToString(elemEnd))
-            path.pop()
-            fieldValueXml.clear()
-          }
+        case EvElemStart(prefix, "_id", attrs, scope) if(inRecord) =>
+          inIdentifierElement = true
+        case EvElemEnd(_, "_id") if(inRecord) =>
+          inIdentifierElement = false
+        case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
+          path.push(Tag.create(prefix, label))
+          recordXml.append(elemStartToString(elemStart))
+        case EvText(text) if(inRecord && inIdentifierElement) =>
+          recordId = text
+        case EvText(text) if(inRecord && !inIdentifierElement) =>
+          recordXml.append(text)
+          fieldValueXml.append(text)
+        case elemEnd@EvElemEnd(_, _) if(inRecord) =>
+          valueMap.addBinding(path.toString, fieldValueXml.toString())
+          recordXml.append(elemEndToString(elemEnd))
+          path.pop()
+          fieldValueXml.clear()
         case some@_ =>
       }
     }
