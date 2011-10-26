@@ -1,4 +1,4 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? 'Create new story for user ' + fullName : 'Update story for user ' + fullName /}
 #{breadcrumbs /}
 

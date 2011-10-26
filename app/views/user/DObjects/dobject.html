@@ -1,4 +1,4 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
 #{breadcrumbs /}
 <div class="line">

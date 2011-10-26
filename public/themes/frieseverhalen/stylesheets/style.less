@@ -9,40 +9,40 @@
 /* MARGINS **************************************************************/
 
 @container-margin: 0 auto;
-@content-margin: 0 0;
+@content-margin: 0 auto;
 
 /* POSITIONS & HEIGHTS **************************************************/
 
-@position: absolute;
+@position: static;
 
-@sitename-height: 50px;
+@sitename-height: 0px;
 @sitename-left: 0px;
 @sitename-top: 0px;
 
-@primary-branding-height: 50px;
+@header-left: 0px;
+@header-top: 40px;
+@header-height: 200px;
+@header-home-height: 200px;
+
+@primary-branding-height: 0px;
 @primary-branding-left: 0;
 @primary-branding-top: 0px;
 
-@secondary-branding-height: 50px;
+@secondary-branding-height: 0px;
 @secondary-branding-left: 0px;
-@secondary-branding-top: 150px;
+@secondary-branding-top: 0px;
 
 @user-nav-left: 0;
-@user-nav-top: 60px;
-@user-nav-height: 30px;
+@user-nav-top: 0px;
+@user-nav-height: 40px;
 
-@main-nav-left: 0px;
-@main-nav-top: 100px;
-@main-nav-height: 30px;
-
-@header-left: 0px;
-@header-top: 50px;
-@header-height: 300px;
-@header-home-height: 420px;
+@site-nav-left: 0px;
+@site-nav-top: 0px;
+@site-nav-height: 40px;
 
 
-@search-height: 40px;
-@search-right: 10px;
+@search-height: 0px;
+@search-right: 0px;
 @search-left: 0px;
 @search-top: 0px;
 
@@ -54,28 +54,19 @@
 
 @footer-height: 100px;
 
-html {
-    height: 100%;
-    width: 100%;
-}
 
 /* LAYOUT **********************************************************************************************************/
 
-/*#header, #search {*/
-    /*width: 100%;*/
-/*}*/
-
-#page {
-    height: auto;
-    background: #ccc;
-    margin: 0 auto;
-    width: @page-width;
-    position: absolute;
+body {
+    background-color: #fff;
 }
+
+
 
 .container {
     margin: @container-margin;
     width: @container-width;
+    position: relative;
 }
 
 .content {
@@ -83,100 +74,128 @@ html {
     width: @content-width;
 }
 
-#site-name {
-    height: @sitename-height;
-    position: @position;
-    top: @sitename-top;
-    left: @sitename-left;
-    z-index: 11;
-}
-
-
 #header  {
     height: @header-height;
-    position: @position;
-    top: @header-top;
-    left: @header-left;
-    width: 100%;
-    z-index: 9;
+    position: relative;
 }
 
-#primary-branding {
-    height: @primary-branding-height;
-    position: @position;
-    top: @primary-branding-top;
-    left: @primary-branding-left;
-    right: 0;
-    z-index: 10;
+#header .container {
+    position: relative;
+    height: inherit;
+}
+
+#site-name {
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    width: 200px;
 }
 
 #secondary-branding {
-    height: @secondary-branding-height;
-    position: @position;
-    top: @secondary-branding-top;
-    left: @secondary-branding-left;
-    right: 0;
+    position: absolute;
+    right: 0px;
+    top: 10px;
+    width: 200px;
+}
+
+#site-nav {
+//    height: @site-nav-height;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
     z-index: 10;
 }
 
-#main-nav {
-    height: @main-nav-height;
-    position: @position;
-    top: @main-nav-top;
-    left: @main-nav-left;
-    z-index: 10;
-}
-
-#user-nav{
+#user-nav {
     height: @user-nav-height;
-    position: @position;
-    top: @user-nav-top;
-    left: @user-nav-left;
-    right: 0;
-
 }
 
-#search {
-    height: @search-height;
-    position: @position;
-    top: @search-top;
-    left: @search-left;
+#user-nav ul {
+    float: right;
 }
 
-#main {
-    position: static;
-    margin-top: @main-top;
+#primary-branding {
+    display: none;
 }
+
+
+
+
+
+//
+//#primary-branding {
+//    height: @primary-branding-height;
+//    position: @position;
+//    top: @primary-branding-top;
+//    left: @primary-branding-left;
+//    right: 0;
+//    z-index: 10;
+//}
+//
+//#secondary-branding {
+//    height: @secondary-branding-height;
+//    position: @position;
+//    top: @secondary-branding-top;
+//    left: @secondary-branding-left;
+//    right: 0;
+//    z-index: 10;
+//}
+//
+
+//
+//#search {
+//    height: @search-height;
+//    position: @position;
+//    top: @search-top;
+//    left: @search-left;
+//}
+//
+//#main {
+//    position: static;
+//    margin-top: @main-top;
+//}
 
 #footer {
     position: static;
     height: @footer-height;
 }
 
-/* COLORS AND BACKGROUNDS ***************************************************************************/
+/* DECORATION - BASE ***************************************************************************/
+
+h1#site-name {
+    color: #F5BF71;
+    font-family: Georgia, Garamond, Times, serif;
+    font-style: italic;
+}
+
+#nav .container {
+    background-color: #fff;
+    height: inherit;
+}
 
 #primary-branding {
-    background-color: #ccffff;
+    background-color: transparent;
 }
 
-#secondary-branding .container {
-    background-color: #ccccff;
+#secondary-branding {
+    background-color: transparent;
 }
 
-#header {
-   background-color: #ccc;
+#header  {
+   background: #113B63 url(../images/header-bg.gif) repeat-x top left;
+   border-bottom: 15px solid #669ACC;
 }
 
-#main-nav{
-   background-color: #ffccff;
+#site-nav{
+   background-color: transparent;
 }
 
 #user-nav{
-    background-color: #ffffcc;
+    background-color: #fff;
 }
 
 #search {
-    background-color: #ccff99;
+    background-color: #fff;
 }
 
 #main {
@@ -185,4 +204,24 @@ html {
 
 #footer {
     background-color: #9999ff;
+}  
+
+/* site nav */
+#site-nav ul {
+    /*bottom: 0px;*/
+    /*position: absolute;*/
+    padding: 0;
+    margin: 0;
 }
+#site-nav ul li {
+    display: inline-block;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+#site-nav a {
+    color: #fff;
+    font-size: 200%;
+    padding: 0;
+}
+
