@@ -51,11 +51,13 @@ a:hover {color: @color-1}
 #header  {
     height: 180px;
     position: relative;
+
 }
 
 #header .container {
     position: relative;
     height: inherit;
+    z-index: 9;
 }
 
 #site-name {
@@ -87,7 +89,9 @@ a:hover {color: @color-1}
 }
 
 #user-nav {
+    position: relative;
     height: 40px;
+    z-index: 10;
 }
 
 #user-nav ul {
@@ -304,4 +308,31 @@ h1#site-name {
 .pagination .current.prev, .pagination .current.next {
     background: #eaeaea;
     color: #999;
+}
+
+/* BREADCRUMBS  **********************************************************************************/
+
+.breadcrumbs {
+    border-bottom: 1px solid @color-6;
+    height: 40px;
+    line-height: 40px;
+    width: 100%;
+}
+
+.breadcrumbs .inner {
+    /*margin-left: 10px;*/
+    width: auto;
+}
+
+/* COLLUMNS ************************************************************************************/
+
+.sidebar {
+    float: left;
+    width: 40%;
+}
+
+.input {
+    float: left;
+    width: 55%;
+    margin-left: 5%;
 }
