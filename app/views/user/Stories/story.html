@@ -2,11 +2,9 @@
 #{set title: id.isEmpty() ? 'Create new story for user ' + fullName : 'Update story for user ' + fullName /}
 #{breadcrumbs /}
 
-<section id="edit-story">
+<div id="edit-story">
 
-    <header>
-        <h1>${id.isEmpty() ? "Create a new story" : "Update a story" }</h1>
-    </header>
+    <h1>${id.isEmpty() ? "Create a new story" : "Update a story" }</h1>
 
     <div data-bind="text: errors().global"></div>
 
@@ -102,7 +100,7 @@
     </div>
 </div>
 
-</section>
+</div>
 
 <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
   <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: currentPage.selectedObjectIds, availableObjects: currentPage.availableObjects}}"></div>

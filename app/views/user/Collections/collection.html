@@ -3,19 +3,22 @@
 
 #{breadcrumbs /}
 
-<div id="edit-collection">
+<div id="edit-collection" class="line">
+
+<div class="unit size2of3 space">
 
 <h1>${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
 
-<div data-bind="text: errors().global"></div>
-  <form method="post" action="" id="collectionForm">
+    <div data-bind="text: errors().global"></div>
+
+    <form method="post" action="" id="collectionForm">
 
     <span class="required-note"><span>*</span> Required Fields</span>
 
     #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
     #{textArea name:"description", label:"Description", dataBind:"value: description", labelClass:"required" /}
 
-    <div class="actions">
+    <div class="buttons">
       <button class="action add image dui-button" id="addObject">Add object(s)</button>
     </div>
 
@@ -34,12 +37,14 @@
         </div>
     </div>
 
-    <div class="actions">
+    <div class="buttons">
       <button class="action save collection dui-button" id="saveButton" type="submit">Save Collection</button>
       <div class="wait"></div>
     </div>
 
 </form>
+</div>
+
 </div>
 
 
