@@ -58,6 +58,13 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
+  @Before(priority = 1) def setViewUtils() {
+    renderArgs += ("viewUtils", new ViewUtils(theme))
+  }
+
+
+  @Util def viewUtils: ViewUtils = renderArgs.get("viewUtils").asInstanceOf[ViewUtils]
+
   @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   @Before(priority = 1) def checkBrowsedUser(): Result = {
@@ -200,22 +207,16 @@ trait ThemeAware { self: Controller =>
   private val themeThreadLocal: ThreadLocal[PortalTheme] = new ThreadLocal[PortalTheme]
   private val lookupThreadLocal: ThreadLocal[LocalizedFieldNames.Lookup] = new ThreadLocal[LocalizedFieldNames.Lookup]
 
-  @Util implicit def theme = themeThreadLocal.get()
+  implicit def theme = themeThreadLocal.get()
 
-  @Util implicit def lookup = lookupThreadLocal.get()
+  implicit def lookup = lookupThreadLocal.get()
 
-  @Util def viewUtils: ViewUtils = renderArgs.get("viewUtils").asInstanceOf[ViewUtils]
-  
   @Before(priority = 0)
   def setTheme() {
     val portalTheme = themeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
     renderArgs.put("theme", theme)
-  }
-
-  @Before(priority = 1) def setViewUtils() {
-    renderArgs += ("viewUtils", new ViewUtils(theme))
   }
 
   @Finally

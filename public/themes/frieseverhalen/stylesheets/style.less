@@ -1,81 +1,34 @@
 /* less declarations */
 
-/* WIDTHS ***************************************************************/
+/*colors */
 
-@page-width: 100%;
-@container-width: 960px;
-@content-width: 940px;
+@color-1: #113B63;
+@color-2: #336799;
+@color-3: #669ACC;
+@color-4: #F5BF71;
+@color-5: #555;
 
-/* MARGINS **************************************************************/
+/* BASE ***********************************************************************************************************/
 
-@container-margin: 0 auto;
-@content-margin: 0 auto;
-
-/* POSITIONS & HEIGHTS **************************************************/
-
-@position: static;
-
-@sitename-height: 0px;
-@sitename-left: 0px;
-@sitename-top: 0px;
-
-@header-left: 0px;
-@header-top: 40px;
-@header-height: 200px;
-@header-home-height: 200px;
-
-@primary-branding-height: 0px;
-@primary-branding-left: 0;
-@primary-branding-top: 0px;
-
-@secondary-branding-height: 0px;
-@secondary-branding-left: 0px;
-@secondary-branding-top: 0px;
-
-@user-nav-left: 0;
-@user-nav-top: 0px;
-@user-nav-height: 40px;
-
-@site-nav-left: 0px;
-@site-nav-top: 0px;
-@site-nav-height: 40px;
-
-
-@search-height: 0px;
-@search-right: 0px;
-@search-left: 0px;
-@search-top: 0px;
-
-@crumbs-top: @header-top + @header-height;
-@crumbs-height:32px;
-
-@main-top: @header-top + @header-height + @crumbs-height;
-@main-home-top: @header-top + @header-home-height + 10px;
-
-@footer-height: 100px;
-
+a { color: @color-2; }
+a:visited {color: @color-3;}
+a:hover {color: @color-1}
 
 /* LAYOUT **********************************************************************************************************/
 
-body {
-    background-color: #fff;
-}
-
-
-
 .container {
-    margin: @container-margin;
-    width: @container-width;
+    margin: 0 auto;
+    width: 960px;
     position: relative;
 }
 
 .content {
-    margin: @content-margin;
-    width: @content-width;
+    margin: 0 auto;
+    width: 960px;
 }
 
 #header  {
-    height: @header-height;
+    height: 180px;
     position: relative;
 }
 
@@ -86,28 +39,34 @@ body {
 
 #site-name {
     position: absolute;
-    top: 20px;
+    top: 15px;
     left: 0px;
-    width: 200px;
+    width: 250px;
 }
+
+#site-slogan {
+    left: 250px;
+    position: absolute;
+    top: 30px;
+}
+
 
 #secondary-branding {
     position: absolute;
     right: 0px;
-    top: 10px;
-    width: 200px;
+    top: 13px;
+    width: 175px;
 }
 
 #site-nav {
-//    height: @site-nav-height;
     position: absolute;
-    bottom: 10px;
+    bottom: 0px;
     width: 100%;
     z-index: 10;
 }
 
 #user-nav {
-    height: @user-nav-height;
+    height: 40px;
 }
 
 #user-nav ul {
@@ -119,58 +78,24 @@ body {
 }
 
 
-
-
-
-//
-//#primary-branding {
-//    height: @primary-branding-height;
-//    position: @position;
-//    top: @primary-branding-top;
-//    left: @primary-branding-left;
-//    right: 0;
-//    z-index: 10;
-//}
-//
-//#secondary-branding {
-//    height: @secondary-branding-height;
-//    position: @position;
-//    top: @secondary-branding-top;
-//    left: @secondary-branding-left;
-//    right: 0;
-//    z-index: 10;
-//}
-//
-
-//
-//#search {
-//    height: @search-height;
-//    position: @position;
-//    top: @search-top;
-//    left: @search-left;
-//}
-//
-//#main {
-//    position: static;
-//    margin-top: @main-top;
-//}
-
 #footer {
     position: static;
-    height: @footer-height;
+    height: 100px;
 }
 
 /* DECORATION - BASE ***************************************************************************/
 
 h1#site-name {
-    color: #F5BF71;
+    color: @color-4;
     font-family: Georgia, Garamond, Times, serif;
+    font-size: 32px;
     font-style: italic;
 }
 
-#nav .container {
-    background-color: #fff;
-    height: inherit;
+#site-slogan {
+    color: @color-3;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 #primary-branding {
@@ -181,17 +106,20 @@ h1#site-name {
     background-color: transparent;
 }
 
+
+
 #header  {
-   background: #113B63 url(../images/header-bg.gif) repeat-x top left;
-   border-bottom: 15px solid #669ACC;
+   background: @color-1 url(../images/header-bg.gif) repeat-x top left;
+   border-bottom: 15px solid @color-3;
 }
 
 #site-nav{
    background-color: transparent;
 }
 
-#user-nav{
-    background-color: #fff;
+#user-nav .buttons {
+    text-align: right;
+    float: right;
 }
 
 #search {
@@ -203,13 +131,11 @@ h1#site-name {
 }
 
 #footer {
-    background-color: #9999ff;
+    background-color: @color-1;
 }  
 
 /* site nav */
 #site-nav ul {
-    /*bottom: 0px;*/
-    /*position: absolute;*/
     padding: 0;
     margin: 0;
 }
@@ -217,11 +143,106 @@ h1#site-name {
     display: inline-block;
     border: none;
     padding: 0;
-    margin: 0;
+    margin: 0 30px 0 0;
 }
 #site-nav a {
     color: #fff;
-    font-size: 200%;
-    padding: 0;
+    display: block;
+    font-size: 150%;
+    padding-bottom: 15px;
+    margin: 0;
+    text-decoration: none;
 }
 
+#site-nav ul li.current,
+#site-nav ul li:hover {
+    background: url(../images/site-nav-bg-current.jpg) no-repeat bottom center;
+}
+
+/* MEDIA ************************************************************************************************/
+
+.media .img {
+    width:inherit;
+    height: 150px;
+    line-height:150px;
+    text-align:center;
+    overflow:  hidden;
+    position: relative;
+    vertical-align: top;
+}
+
+.media .img img {
+    vertical-align: top;
+    max-width: 150px;
+    max-height: 150px;
+    display: -moz-inline-box;
+    display: inline-block;
+    text-align: center;
+}
+
+.object li,
+.collection li,
+.story li {
+    width: 47%;
+}
+
+.media .title {
+    font-weight: bold;
+}
+
+/*.object .media .bd {*/
+    /*clear: both;*/
+/*}*/
+
+/*.object .media .title {*/
+    /*color: #000;*/
+    /*position: absolute;*/
+    /*bottom: 20px;*/
+    /*font-size: 14px;*/
+    /*font-weight: bold;*/
+    /*height: 32px;*/
+    /*margin: 5px 0 0;*/
+    /*line-height: 14px;*/
+/*}*/
+
+/*.object .media .more-info {*/
+    /*visibility: hidden;*/
+    /*font-size: 12px;*/
+    /*font-weight: normal;*/
+    /*line-height: 14px;*/
+    /*position: absolute;*/
+    /*overflow: hidden;*/
+    /*bottom: 0;*/
+    /*left: 0;*/
+    /*width: 100%;*/
+    /*height: auto;*/
+    /*max-height: 75%;*/
+    /*opacity: 0;*/
+    /*color: white;*/
+    /*background-color: #000;*/
+    /*background-color: rgba(0, 0, 0, .8);*/
+    /*-moz-transition: .25s linear opacity;*/
+    /*-webkit-transition: .25s linear opacity;*/
+    /*margin: 0;*/
+    /*padding: 5px;*/
+/*}*/
+
+/* PAGINATION ***************************************************************************/
+
+/* PAGINATION ************************************************************************/
+/* pagination.css overrides */
+
+.pagination .current {
+    background: @color-2;
+    /*border: solid 1px #AAE;*/
+}
+
+.pagination .prev,
+.pagination .next {
+    background: #eaeaea;
+}
+
+.pagination .current.prev, .pagination .current.next {
+    background: #eaeaea;
+    color: #999;
+}
