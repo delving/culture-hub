@@ -7,6 +7,27 @@
 @color-3: #669ACC;
 @color-4: #F5BF71;
 @color-5: #555;
+@color-6: #eaeaea;
+
+@radius: 2px;
+
+.border-all (@radius) {
+  border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+.border-top (@radius) {
+  border-radius: @radius @radius 0 0;
+  -moz-border-radius: @radius @radius 0 0;
+  -webkit-border-radius: @radius @radius 0 0;
+}
+
+.border-bot (@radius) {
+  border-radius: 0 0 @radius @radius;
+  -moz-border-radius: 0 0 @radius @radius;
+  -webkit-border-radius: 0 0 @radius @radius;
+}
 
 /* BASE ***********************************************************************************************************/
 
@@ -77,13 +98,16 @@ a:hover {color: @color-1}
     display: none;
 }
 
+#search {
+    height: 50px;
+}
 
 #footer {
     position: static;
     height: 100px;
 }
 
-/* DECORATION - BASE ***************************************************************************/
+/* DECORATION  ***************************************************************************/
 
 h1#site-name {
     color: @color-4;
@@ -106,8 +130,6 @@ h1#site-name {
     background-color: transparent;
 }
 
-
-
 #header  {
    background: @color-1 url(../images/header-bg.gif) repeat-x top left;
    border-bottom: 15px solid @color-3;
@@ -123,7 +145,7 @@ h1#site-name {
 }
 
 #search {
-    background-color: #fff;
+    background-color: @color-6;
 }
 
 #main {
@@ -134,7 +156,6 @@ h1#site-name {
     background-color: @color-1;
 }  
 
-/* site nav */
 #site-nav ul {
     padding: 0;
     margin: 0;
@@ -157,6 +178,46 @@ h1#site-name {
 #site-nav ul li.current,
 #site-nav ul li:hover {
     background: url(../images/site-nav-bg-current.jpg) no-repeat bottom center;
+}
+
+/* SEARCH ********************************************************************************/
+
+#search form {
+    background: transparent;
+    margin: 0;
+    padding: 8px;
+    text-align: center;
+}
+
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    /*border: medium none;*/
+    border:  1px solid #d1d1d1;
+    .border-all(@radius);
+    padding: 8px;
+    width: 414px;
+}
+
+#search input[type="submit"]  {
+    background: none repeat scroll 0 0 @color-1;
+    /*border: medium none;*/
+    border:  1px solid #555;
+    .border-all(@radius);
+    color: #fff;
+    cursor: pointer;
+    margin-left: 4px;
+    padding: 8px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    text-transform: uppercase;
+    width: 80px;
+}
+
+#search input {
+    font-weight: bold;
+    vertical-align: top;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
 }
 
 /* MEDIA ************************************************************************************************/
@@ -226,8 +287,6 @@ h1#site-name {
     /*margin: 0;*/
     /*padding: 5px;*/
 /*}*/
-
-/* PAGINATION ***************************************************************************/
 
 /* PAGINATION ************************************************************************/
 /* pagination.css overrides */
