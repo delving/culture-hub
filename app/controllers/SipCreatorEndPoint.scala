@@ -249,16 +249,22 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   }
 
   def fetchSIP(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse({
-      val msg = "Unknown spec %s".format(spec)
-      logErrorWithUser(msg)
-      return TextError(msg, 404)
-    })
+    val dataSet = {
+      DataSet.findBySpec(spec).getOrElse({
+        val msg = "Unknown spec %s".format(spec)
+        logErrorWithUser(msg)
+        return TextError(msg, 404)
+      })
+      // lock it right away
+      val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
+      DataSet.save(updatedDataSet)
+      updatedDataSet
+    }
 
     val name = "%s-sip".format(spec)
     val tmpFile = File.createTempFile(name, "zip")
     tmpFile.deleteOnExit()
-    fileCleaningTracker.track(tmpFile, dataSet)
+    fileCleaningTracker.track(tmpFile, updatedDataSet)
 
     val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
 
@@ -319,12 +325,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     zipOut.close()
 
-    try {
-      new RenderBinary(tmpFile, name + ".zip")
-    } finally {
-      val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
-      DataSet.save(updatedDataSet)
-    }
+    new RenderBinary(tmpFile, name + ".zip")
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
