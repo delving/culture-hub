@@ -29,11 +29,12 @@
         #{/if}
 
             <div class="unit size1of3 ${counter == 3 ? 'lastUnit' : ''}">
-            <div class="media ${itemName}">
 
-                <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
-                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100"/>
-                </a>
+                <div class="media ${itemName}">
+
+                    <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
+                        <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100"/>
+                    </a>
 
                 <div class="bd">
                     <div class="metadata">
