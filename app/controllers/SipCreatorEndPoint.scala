@@ -264,7 +264,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val name = "%s-sip".format(spec)
     val tmpFile = File.createTempFile(name, "zip")
     tmpFile.deleteOnExit()
-    fileCleaningTracker.track(tmpFile, updatedDataSet)
+    fileCleaningTracker.track(tmpFile, dataSet)
 
     val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
 
