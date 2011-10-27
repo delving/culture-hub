@@ -250,13 +250,13 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
   def fetchSIP(spec: String): Result = {
     val dataSet = {
-      DataSet.findBySpec(spec).getOrElse({
+      val dS = DataSet.findBySpec(spec).getOrElse({
         val msg = "Unknown spec %s".format(spec)
         logErrorWithUser(msg)
         return TextError(msg, 404)
       })
       // lock it right away
-      val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
+      val updatedDataSet = dS.copy(lockedBy = Some(getConnectedUserId))
       DataSet.save(updatedDataSet)
       updatedDataSet
     }
