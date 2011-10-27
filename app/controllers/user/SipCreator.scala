@@ -49,7 +49,6 @@ object SipCreator extends DelvingController {
         <jar href="commons-codec-1.4.jar"/>
         <jar href="log4j-1.2.16.jar"/>
         <jar href="commons-lang-2.3.jar"/>
-        <jar href="joda-time-1.6.jar"/>
         <jar href="commons-io-2.0.jar"/>
         <jar href="xstream-1.3.1.jar"/>
         <jar href="xpp3_min-1.1.4c.jar"/>
