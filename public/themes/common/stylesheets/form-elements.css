@@ -104,6 +104,11 @@ input.textinput, select, textarea {
     padding: 3px;
 }
 
+.textinput.required {
+    border-color:  #cc0000;
+    background-color: #fee7e7;
+}
+
 select {
     padding: 2px;
 }

@@ -28,7 +28,8 @@
             <label for="code">Enter the code you see beside the input field</label>
             <div class="inputs">
 
-            <input type="text" name="code" id="code" size="18" value=""><img src="@{Registration.captcha(randomId)}">
+            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.context.package.showError('code')}required #{/if}">
+                <img src="@{Registration.captcha(randomId)}">
             <input type="hidden" name="randomID" value="${randomId}">
             <span class="error">${views.context.package.showError("code")}</span>
             </div>

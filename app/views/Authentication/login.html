@@ -20,15 +20,10 @@
     </p>
     #{/if}
 
-    <p id="username-field">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username">
-    </p>
 
-    <p id="password-field">
-        <label for="password">Your password</label>
-        <input type="password" id="password" name="password" value="">
-    </p>
+    #{textField name:"username", label:"Username" /}
+    #{passwordField name:"password", label:"Password" /}
+
 
     <p id="remember-field">
         <label for="remember">Remember me</label>
@@ -40,6 +35,9 @@
         <button class="action green" type="submit" id="signin">
             <span class="label">Login</span>
         </button>
+        <a href="@{Registration.lostPassword()}" class="button">
+            <span class="label">I forgot my password</span>
+        </a>
     </div>
 
     #{/form}
