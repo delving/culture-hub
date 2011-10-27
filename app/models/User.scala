@@ -19,6 +19,8 @@ case class User(_id: ObjectId = new ObjectId,
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None) {
   val fullname = firstName + " " + lastName
+
+  override def toString = email
 }
 
 /** Unique reference to a user across the CultureHub space. This is useful to lookup users based on their username **/

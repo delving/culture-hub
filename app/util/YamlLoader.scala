@@ -59,7 +59,6 @@ object YamlLoader {
           case n: ScalarNode if n.getTag.getClassName == "Id[Int]" => play.db.anorm.Id(java.lang.Integer.parseInt(n.getValue, 10))
 
           case n: ScalarNode if n.getTag.getClassName == "ObjectId" => new org.bson.types.ObjectId(n.getValue)
-          case n: ScalarNode if n.getType.getName == "org.joda.time.DateTime" => new org.joda.time.DateTime(n.getValue)
 
           // TODO probably we also need to do this for other scalar types
           case n: ScalarNode if n.getType.getName == "scala.Option" && n.getTag.getClassName == "bool" => Some(n.getValue.toBoolean)
