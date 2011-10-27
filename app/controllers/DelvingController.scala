@@ -1,6 +1,6 @@
 package controllers
 
-import extensions.AdditionalActions
+import dos.StoredFile
 import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
@@ -11,8 +11,9 @@ import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
-import util.{ProgrammerException, LocalizedFieldNames}
-import reflect.Manifest
+import util.LocalizedFieldNames
+import extensions.AdditionalActions
+import util.ProgrammerException
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.

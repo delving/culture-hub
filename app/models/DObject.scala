@@ -5,6 +5,7 @@ import salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.SalatDAO
 import java.util.Date
+import controllers.dos.StoredFile
 
 /**
  * 
