@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.util.regex.{Pattern, Matcher}
+import javax.imageio.spi.IIORegistry
 import models.salatContext._
 import play.exceptions.ConfigurationException
 import play.jobs._
@@ -16,6 +17,12 @@ import play.Play
 
     // this is explicitely here because if we leave it to its own devices we sometimes get a race condition in dev mode when modifying model files
     initSalat()
+
+    // see http://download.oracle.com/javase/1.4.2/docs/api/javax/imageio/spi/IIORegistry.html#registerApplicationClasspathSpis():
+    // "Service providers found on the system classpath (e.g., the jre/lib/ext directory in Sun's implementation of J2SDK) are automatically loaded as soon as this class is instantiated."
+    // this causes a ConcurrentModificationException with Play's classloading mechanism
+
+    IIORegistry.getDefaultInstance
 
     // also retrieve user-based properties when running in test mode
     if (Play.id == "test") {

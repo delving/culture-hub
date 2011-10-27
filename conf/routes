@@ -25,6 +25,13 @@ GET         /logout                                                          Aut
 GET         /authorize                                                       OAuth2Authenticator.authenticate
 GET         /token                                                           OAuth2TokenEndpoint.token
 
+# Image Upload - with authentication
+POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
+DELETE     /file/{id}                                                        user.FileUpload.deleteFile
+
+# Delving object Server module
+*          /                                                                 module:dos
+
 # Backwards compatibility with the old services module
 GET         /services/                                                       Services.index
 GET         /services/api/solr/select                                        Services.solrSearchProxy
@@ -130,17 +137,6 @@ POST       /admin/themes/submit                                              adm
 
 GET        /admin/tool/thumbnailize/                                         admin.ThumbnailIngest.ingest
 GET        /admin/tool/thumbnailize/remove/                                  admin.ThumbnailIngest.remove
-
-# File Store
-GET        /file/{id}                                                        FileStore.get
-POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
-GET        /file/image/{id}                                                  FileStore.displayImage
-GET        /thumbnail/{id}/{width}?                                          FileStore.displayThumbnail
-GET        /thumbnail/{id}                                                   FileStore.displayThumbnail
-DELETE     /file/{id}                                                        user.FileUpload.deleteFile
-
-# Image Cache
-GET        /image/cache                                                      Images.image
 
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload

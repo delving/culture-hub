@@ -3,7 +3,6 @@
 
 - db.cultureHub.name
 - db.fileStore.name
-- image.graphicsmagic.cmd
 - image.store.path
 - image.tmp.path
 - iipsrv.url

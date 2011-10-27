@@ -7,6 +7,7 @@ require:
     - play
 #    - play -> scala 0.9.1
     - scala-head -> scala-head
+    - dos -> dos
     - commons-httpclient -> commons-httpclient 3.1
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
@@ -18,12 +19,9 @@ require:
     - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
         exclude:
             - org.scala-lang -> *
-    - com.thebuzzmedia -> imgscalr-lib 3.2
     - de.micromata.jak -> JavaAPIforKml 2.2.0
     - com.thoughtworks.xstream -> xstream 1.3
     - xpp3 -> xpp3_min 1.1.4c
-    - provided -> magicktiler-lib 0.9
-    - provided -> im4java 1.1.0
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
@@ -55,11 +53,6 @@ repositories:
             - org.specs2.*
             - net.debasishg.*
             - net.databinder.*
-    - theBuzzMedia:
-        type: iBiblio
-        root: "http://maven.thebuzzmedia.com"
-        contains:
-            - com.thebuzzmedia.*
     - codahale:
         type: iBiblio
         root: "http://repo.codahale.com/"
@@ -103,3 +96,4 @@ repositories:
         artifact: ${application.path}/module-extra/[module]
         contains:
             - scala-head
+            - dos
