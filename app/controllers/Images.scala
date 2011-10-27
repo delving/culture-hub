@@ -1,19 +1,7 @@
 package controllers
 
-import com.mongodb.casbah.Imports._
-import org.apache.log4j.Logger
-import java.util.Date
-import java.awt.image.BufferedImage
-import com.thebuzzmedia.imgscalr.Scalr
-import javax.imageio.ImageIO
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
-import com.mongodb.casbah.gridfs.{GridFSInputFile, GridFSDBFile, GridFS}
-import play.mvc.Http.Response
-import play.mvc.results.{NotFound, RenderBinary, Result}
-import org.apache.commons.httpclient.methods.GetMethod
-import org.apache.commons.httpclient.Header
+import play.mvc.results.Result
 import play.Play
-import play.utils.Utils
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -25,7 +13,7 @@ object Images extends DelvingController {
   def view(image: String): AnyRef = {
 
     // just for testing
-    //val smallballs = getPath("image.store.path") + "/" + image + ".tif"
+    // val smallballs = getPath("image.store.path") + "/" + image + ".tif"
     val smallballs = Play.applicationPath.getAbsolutePath + "/public/images/smallballs.tif"
 
     if (image.isEmpty || image.equalsIgnoreCase("smallballs")) Template('image -> smallballs)

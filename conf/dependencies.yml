@@ -21,8 +21,6 @@ require:
     - de.micromata.jak -> JavaAPIforKml 2.2.0
     - com.thoughtworks.xstream -> xstream 1.3
     - xpp3 -> xpp3_min 1.1.4c
-    - provided -> magicktiler-lib 0.9
-    - provided -> im4java 1.1.0
     - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
@@ -54,11 +52,6 @@ repositories:
             - org.specs2.*
             - net.debasishg.*
             - net.databinder.*
-    - theBuzzMedia:
-        type: iBiblio
-        root: "http://maven.thebuzzmedia.com"
-        contains:
-            - com.thebuzzmedia.*
     - codahale:
         type: iBiblio
         root: "http://repo.codahale.com/"
