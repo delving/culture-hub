@@ -82,9 +82,17 @@ echo ===================================
 echo
 echo
 cd module-extra
-git clone git://github.com/delving/dos.git dos
+git clone git@github.com:delving/dos.git dos
 cd dos
-play deps --sync
+
+# TODO simplify
+mkdir src
+mkdir lib
+play deps
+cd modules
+rm -rf scala-0.9.1
+ln -s ../../scala-head scala-head
+cd ..
 ant -Dplay.path=../../../play
 cd ../../
 
