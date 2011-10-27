@@ -48,7 +48,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           DataSet.save(updatedDataSet)
         case EvElemStart(pre, "input", attrs, _) =>
           inRecord = true
-          val mayId = attrs("id").headOption
+          val mayId = attrs.get("id").headOption
           if(mayId != None) recordId = mayId.get.text
         case EvElemEnd(_, "input") =>
           inRecord = false
