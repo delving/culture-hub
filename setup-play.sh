@@ -88,7 +88,7 @@ cd dos
 # TODO simplify
 mkdir src
 mkdir lib
-play deps
+../../../play/play deps
 cd modules
 rm -rf scala-0.9.1
 ln -s ../../scala-head scala-head
