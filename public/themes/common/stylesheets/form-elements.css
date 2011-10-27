@@ -172,11 +172,11 @@ button[disabled] {
     margin-left: 5px;
 }
 
-form {
-    background-color: #eaeaea;
-    padding:  10px;
-    margin:  10px 0;
-}
+/*form {*/
+    /*background-color: #eaeaea;*/
+    /*padding:  10px;*/
+    /*margin:  10px 0;*/
+/*}*/
 
 fieldset {
     background-color: ivory;

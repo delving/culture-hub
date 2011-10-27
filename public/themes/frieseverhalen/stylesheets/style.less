@@ -8,6 +8,7 @@
 @color-4: #F5BF71;
 @color-5: #555;
 @color-6: #eaeaea;
+@color-7: #fff;
 
 @radius: 2px;
 
@@ -30,10 +31,10 @@
 }
 
 /* BASE ***********************************************************************************************************/
-
+body { background-color: @color-1;}
 a { color: @color-2; }
 a:visited {color: @color-3;}
-a:hover {color: @color-1}
+a:hover {color: @color-1;}
 
 /* LAYOUT **********************************************************************************************************/
 
@@ -118,6 +119,7 @@ h1#site-name {
     font-family: Georgia, Garamond, Times, serif;
     font-size: 32px;
     font-style: italic;
+    margin: 0;
 }
 
 #site-slogan {
@@ -143,6 +145,10 @@ h1#site-name {
    background-color: transparent;
 }
 
+#user-nav {
+    background-color: @color-7;
+}
+
 #user-nav .buttons {
     text-align: right;
     float: right;
@@ -153,7 +159,7 @@ h1#site-name {
 }
 
 #main {
-    background-color: #fff;
+    background-color: @color-7;
 }
 //
 //#main .container {
@@ -235,7 +241,7 @@ h1#site-name {
 
 /* MEDIA ************************************************************************************************/
 
-.media .img {
+.media.object .img {
     width:inherit;
     height: 150px;
     line-height:150px;
@@ -245,7 +251,7 @@ h1#site-name {
     vertical-align: top;
 }
 
-.media .img img {
+.media.object .img img {
     vertical-align: top;
     max-width: 150px;
     max-height: 150px;
@@ -254,52 +260,16 @@ h1#site-name {
     text-align: center;
 }
 
-.object li,
-.collection li,
-.story li {
-    width: 47%;
-}
-
 .media .title {
     font-weight: bold;
 }
-
-/*.object .media .bd {*/
-    /*clear: both;*/
-/*}*/
-
-/*.object .media .title {*/
-    /*color: #000;*/
-    /*position: absolute;*/
-    /*bottom: 20px;*/
-    /*font-size: 14px;*/
-    /*font-weight: bold;*/
-    /*height: 32px;*/
-    /*margin: 5px 0 0;*/
-    /*line-height: 14px;*/
-/*}*/
-
-/*.object .media .more-info {*/
-    /*visibility: hidden;*/
-    /*font-size: 12px;*/
-    /*font-weight: normal;*/
-    /*line-height: 14px;*/
-    /*position: absolute;*/
-    /*overflow: hidden;*/
-    /*bottom: 0;*/
-    /*left: 0;*/
-    /*width: 100%;*/
-    /*height: auto;*/
-    /*max-height: 75%;*/
-    /*opacity: 0;*/
-    /*color: white;*/
-    /*background-color: #000;*/
-    /*background-color: rgba(0, 0, 0, .8);*/
-    /*-moz-transition: .25s linear opacity;*/
-    /*-webkit-transition: .25s linear opacity;*/
-    /*margin: 0;*/
-    /*padding: 5px;*/
-/*}*/
+.metadata h4 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.metadata p {
+    margin-top: 0px;
+}
 
 /* PAGINATION ************************************************************************/
 /* pagination.css overrides */
@@ -323,15 +293,8 @@ h1#site-name {
 
 .breadcrumbs {
     border-bottom: 1px solid @color-6;
-    height: 40px;
-    line-height: 40px;
-    width: 100%;
 }
 
-.breadcrumbs .inner {
-    /*margin-left: 10px;*/
-    width: auto;
-}
 
 /* COLLUMNS ************************************************************************************/
 
@@ -344,4 +307,10 @@ h1#site-name {
     float: left;
     width: 55%;
     margin-left: 5%;
+}
+
+/* HELPERS ************************************************************************************/
+
+.clear {
+    clear:both;
 }

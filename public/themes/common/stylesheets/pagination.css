@@ -1,15 +1,15 @@
-.pager {
+/*.pager {*/
     /*background:  #ccc;*/
-    display: block;
-    margin-bottom: 20px;
+    /*display: block;*/
+    /*margin-bottom: 20px;*/
     /*width: 100%;*/
-}
+/*}*/
 
-.pagination {
-    font-size: 14px;
-    width: 100%;
-    height: inherit;
-}
+/*.pagination {*/
+    /*font-size: 14px;*/
+    /*width: 100%;*/
+    /*height: inherit;*/
+/*}*/
 
 .pagination a, .pagination span {
     background:  #fff;

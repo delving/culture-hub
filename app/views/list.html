@@ -10,47 +10,60 @@
     #{/else}
 
     #{if items.length() > 0}
-        <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+        <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
     #{else}
-      <p>There are currently no ${itemName.pluralize()} available</p>
+        <p>There are currently no ${itemName.pluralize()} available</p>
     #{/else}
 
 
-    <ul class="items ${itemName}">
+
+
+
+        %{ def counter = 1 }%
 
         #{list items, as: 'i'}
-        <li class="item">
 
-            <div class="media">
+        #{if counter == 1}
+        <div class="line">
+        #{/if}
+
+            <div class="unit size1of3 ${counter == 3 ? 'lastUnit' : ''}">
+            <div class="media ${itemName}">
 
                 <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
-                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}"/>
+                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100"/>
                 </a>
 
                 <div class="bd">
-                        <div class="metadata">
+                    <div class="metadata">
 
-                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
+                        <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
 
-                         #{if i.description}
-                            <div class="more-info">
-                                <div class="inner">
-                                ${i.description.shorten(150)}
-                                </div>
+                        #{if i.description}
+                        <div class="more-info">
+                            <div class="inner">
+                                ${i.description.shorten(100)}
                             </div>
+                        </div>
                         #{/if}
 
-                       </div>
+                    </div>
                 </div>
             </div>
+            </div>
+
+        %{ counter++ }%
+
+        #{if counter > 3 || i_isLast }
+        </div><!-- end line -->
+        %{ counter = 1 }%
+        #{/if}
+
+        #{/list}
 
 
-     </li>
-    #{/list}
-
-    </ul>
 
     #{if items.length() > 0}
-        <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+        <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}

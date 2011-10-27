@@ -4,43 +4,45 @@
 
 <h1>${story.name}</h1>
 
-<div class="unit size1of3">
-    <img src='${views.context.package.thumbnailUrl(story.thumbnail)}' width="220" alt="${story.name}"/>
-</div>
-<div class="unit size2of3">
-
-    <div class="item metadata">
-        <h4>Description</h4>
-        <p>${story.description}</p>
-
-        <h4>Date created</h4>
-        <p>${views.context.package.niceTime(story._id.getTime())}</p>
-
-        <h4>Last modified</h4>
-        <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
-
-        <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
-        <h4>Pages:</h4>
-        <ul>
-            #{list story.pages, as: 'page'}
-
-            <li>${page.title}</li>
-            <!--<li>${page.text}</li>-->
-            #{/list}
-        </ul>
-    </div>
-
-    <div class="buttons">
+<div class="media ${itemName}">
+    <img src='${views.context.package.thumbnailUrl(story.thumbnail)}' width="250" alt="${story.name}" class="img"/>
         #{if story.userName == userName}
-        <a class="button" href="/${story.userName}/story/${story._id}/update">
+        <a class="button clear" href="/${story.userName}/story/${story._id}/update">
             <span class="icon icon145"></span>
             <span class="label">Edit story</span>
         </a>
         #{/if}
 
-        <a class="button" href="/${story.userName}/story/${story._id}/read">
+        <a class="button clear" href="/${story.userName}/story/${story._id}/read">
             <span class="icon icon140"></span>
             <span class="label">Read story</span>
         </a>
-    </div>
+    <div class="bd">
+        <div class="metadata">
+            <h4>Description</h4>
+            <p>${story.description}</p>
+
+            <h4>Date created</h4>
+            <p>${views.context.package.niceTime(story._id.getTime())}</p>
+
+            <h4>Last modified</h4>
+            <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
+
+            <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
+            <h4>Pages:</h4>
+            <ul>
+                #{list story.pages, as: 'page'}
+
+                <li>${page.title}</li>
+                <!--<li>${page.text}</li>-->
+                #{/list}
+            </ul>
+        </div>
+
+
+
+
+
+
+     </div>
 </div>

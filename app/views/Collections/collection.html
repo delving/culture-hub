@@ -5,117 +5,103 @@
 
 <h1>${collection.name}</h1>
 
-<div class="unit size1of3">
+<div class="media ${itemName}">
 
-    <img src="${views.context.package.thumbnailUrl(collection.thumbnail_object_id)}" width="220" alt="${collection.name}"/>
+    <img src="${views.context.package.thumbnailUrl(collection.thumbnail_object_id)}" width="250" alt="${collection.name}" class="img"/>
+    #{if userName == browsedUserName}
+    <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
+        <span class="icon icon145"></span>
+        <span class="label">Edit Collection</span>
+    </a>
+    #{/if}
 
-</div>
+    <div class="bd">
+        <div class="metadata">
+            <h4>Owner:</h4>
+            <p>${browsedFullName}</p>
 
-<div class="unit size2of3">
-    <div class="item metadata">
-        <h4>Owner:</h4>
-        <p>${browsedFullName}</p>
+            <h4>Date created:</h4>
+            <p>${views.context.package.niceTime(collection._id.getTime())}</p>
 
-        <h4>Date created:</h4>
-        <p>${views.context.package.niceTime(collection._id.getTime())}</p>
+            <h4>Date modified:</h4>
+            <p>${views.context.package.niceTime(collection.TS_update)}</p>
 
-        <h4>Date modified:</h4>
-        <p>${views.context.package.niceTime(collection.TS_update)}</p>
+            <h4>Description:</h4>
+            <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description.get())}</p>
 
-        <h4>Description:</h4>
-        <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description.get())}</p>
+            <h4>Number of objects:</h4>
+            <p>${objects.length()}</p>
 
-        <h4>Objects:</h4>
-        #{if objects.length() > 0}
-        <ul class="items small">
-            #{list objects, as: 'o'}
+        </div>
 
+        <!--<hr/>-->
 
-            <li class="item">
+        <!--<div id="add-label-dialog" title="Add a label">-->
+            <!--<div class="inputs">-->
+                <!--<input type="text" class="textinput"/>-->
+            <!--</div>-->
+            <!--<div class="buttons">-->
+                <!--<button>-->
+                    <!--<span class="icon icon3"></span>-->
+                    <!--<span class="label">Add a label</span>-->
+                <!--</button>-->
+            <!--</div>-->
+        <!--</div>-->
 
-                <a href="/${o.userName}/collection/${collection._id}/object/${o.id}" rel="nofollow">
+        <hr/>
 
-                    <div class="media medium container">
-                        <div class="inner">
-                            <img src='${views.context.package.thumbnailUrl(o.thumbnail)}' alt="${o.title}"/>
-                        </div>
-                    </div>
+        <div id="add-comment-dialog" title="Add a comment">
+            <div class="inputs">
+                <textarea name="comment" id="comment"></textarea>
+            </div>
+            <div class="buttons">
+                <button>
+                    <span class="icon icon3"></span>
+                    <span class="label">Add a comment</span>
+                </button>
+            </div>
+        </div>
 
-                    <div class="metadata">
-                        <div class="title">
-                            <div class="inner">
-                                ${o.title.shorten(50)}
-                            </div>
-                        </div>
-                        <div class="more-info">
-                            <div class="inner">
-                                <span class="detail">${views.context.package.fullName(o.userName)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-
-
-
-            </li>
-
-
-            #{/list}
-        </ul>
-        #{/if}
-        #{else}
-        <p>No objects found for this collection</p>
-        #{/else}
     </div>
 
 </div>
 
-#{if userName == browsedUserName}
-<div class="buttons">
-    <a class="button" href="/${collection.userName}/collection/${collection._id}/update">
-        <span class="icon icon145"></span>
-        <span class="label">Edit Collection</span>
-    </a>
-</div>
-#{/if}
-
 <!--<div id="add-comment-dialog" title="Add a comment">-->
-    <!--<h3>Add a comment</h3>-->
-    <!--<div class="inputs">-->
-        <!--<textarea name="comment" id="comment"></textarea>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
-    <!--</div>-->
+<!--<h3>Add a comment</h3>-->
+<!--<div class="inputs">-->
+<!--<textarea name="comment" id="comment"></textarea>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
+<!--</div>-->
 <!--</div>-->
 
 <!--<div id="add-label-dialog" title="Add a label">-->
-    <!--<h3>Add a label</h3>-->
-    <!--<div class="inputs">-->
-        <!--<input type="text" class="textinput"/>-->
-        <!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
-    <!--</div>-->
+<!--<h3>Add a label</h3>-->
+<!--<div class="inputs">-->
+<!--<input type="text" class="textinput"/>-->
+<!--<button class="dui-button ui-state-default ui-priority-primary ui-corner-all">Add</button>-->
+<!--</div>-->
 <!--</div>-->
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
 //        jQuery('#itemcarousel').jcarousel();
         jQuery("#add-comment").click(function(event) {
-          event.preventDefault();
-          jQuery("#add-comment-dialog").dialog({
-              modal: true,
-              close: function(event, ui) {
-                  $("#add-comment").removeClass("ui-state-active");
-              }
-          });
+            event.preventDefault();
+            jQuery("#add-comment-dialog").dialog({
+                modal: true,
+                close: function(event, ui) {
+                    $("#add-comment").removeClass("ui-state-active");
+                }
+            });
         });
         jQuery("#add-label").click(function(event) {
-          event.preventDefault();
-          jQuery("#add-label-dialog").dialog({
-              modal: true,
-              close: function(event, ui) {
-                  $("#add-label").removeClass("ui-state-active");
-              }
-          });
+            event.preventDefault();
+            jQuery("#add-label-dialog").dialog({
+                modal: true,
+                close: function(event, ui) {
+                    $("#add-label").removeClass("ui-state-active");
+                }
+            });
         })
     });
 </script>
