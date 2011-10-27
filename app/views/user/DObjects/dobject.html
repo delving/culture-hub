@@ -11,7 +11,7 @@
 
         <div data-bind="text: errors().global"></div>
 
-        <form id="objectForm" method="post" action="">
+        <form id="objectForm" method="post" action="" class="box">
             <span class="required-note"><span>*</span> Required Fields</span>
             #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"required field" /}
             #{textArea name:"description", label:"Description", dataBind:"value: description" /}

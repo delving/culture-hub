@@ -7,11 +7,7 @@ form {
 
 form.box {
     background: #eaeaea;
-    border: 1px solid #ccc;
-    padding: 1em;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
+    padding:  10px;
 }
 
 label {

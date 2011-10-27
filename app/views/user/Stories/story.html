@@ -31,11 +31,11 @@
 
             <span class="required-note"><span>*</span> Required Fields</span>
 
-            <form id="storyForm">
+            <form id="storyForm" class="box">
 
 
-                #{textField name:"name", label:"Name", dataBind:"value: name, valueUpdate: 'afterkeydown'", labelClass:"required" /}
-                #{textArea name:"description", label:"Description", dataBind:"value: description, valueUpdate: 'afterkeydown'", labelClass:"required" /}
+                #{textField name:"name", label:"Name", dataBind:"value: name, valueUpdate: 'afterkeydown'", labelClass:"required", help:"Required" /}
+                #{textArea name:"description", label:"Description", dataBind:"value: description, valueUpdate: 'afterkeydown'", labelClass:"required", help:"Required" /}
 
                 <div class="field" for="objectVisibility">
                     <label>Public</label>
@@ -114,7 +114,7 @@
 <script id='delving-wysiyg' src="@{'/public/themes/common/javascripts/tiny_mce/tiny_mce.js'}" type='text/javascript'></script>
 
 <script type="text/html" id="pageTemplate">
-  <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="">
+  <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
 
     <div class="field">
       <label for="title"  class="required">Title</label>

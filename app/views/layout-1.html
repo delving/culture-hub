@@ -151,7 +151,6 @@
 
     <div id="header">
         <div class="container">
-            <!--<div class="content">-->
 
                 <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
@@ -169,7 +168,7 @@
                     <!--site nav-->
                     <ul>
                         <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
-                        <li class='${"DObjects.list".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
+                        <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
                         <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
                         <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
                         <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
@@ -177,7 +176,6 @@
                 </div>
 
             </div>
-        <!--</div>-->
     </div>
 
     <div id="search" role="search">
