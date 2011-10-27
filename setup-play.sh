@@ -76,6 +76,21 @@ cd ../../
 
 echo
 echo
+echo ===================================
+echo Installing Delving object Server...
+echo ===================================
+echo
+echo
+cd module-extra
+git clone git://github.com/delving/dos.git dos
+cd dos
+play deps --sync
+ant -Dplay.path=../../../play
+cd ../../
+
+
+echo
+echo
 echo ======================
 echo Resolving dependencies
 echo ======================
