@@ -29,7 +29,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
                        homePage:                            Option[String] = Some(""),
-                       metadataPrefix:                      Option[String] = Some("icn"),
+                       metadataPrefix:                      Option[String] = None,
                        facets:                              List[FacetElement] = List(),
                        text:                                String = "") {
 
