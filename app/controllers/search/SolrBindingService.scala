@@ -1,4 +1,4 @@
-package search
+package controllers.search
 
 /*
  * Copyright 2011 DELVING BV

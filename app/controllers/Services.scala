@@ -64,8 +64,8 @@ object Services extends DelvingController with HTTPClient {
   }
 
   def searchApi : Result = {
-    import play.mvc.results.RenderXml
-    new RenderXml("<sjoerd>rocks</sjoerd>")
+    import search.SearchService
+    SearchService.getApiResult(request)
   }
 
   def retrieveRecord(spec: String, id: String): Result = {
