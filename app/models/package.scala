@@ -11,7 +11,7 @@ package object salatContext {
 
   val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.cultureHub.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
 
-  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context").toBoolean ) {
+  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context").toBoolean || Play.mode == Play.Mode.DEV) {
     Logger.info("Starting Mongo in Test Mode connecting to localhost:27017")
     MongoConnection()(connectionName)
   }
