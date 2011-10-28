@@ -83,6 +83,6 @@ case class ThemeViewModel(id: Option[ObjectId] = None,
                           cacheUrl: String = "http://localhost:8983/services/image?",
                           emailTarget: EmailTarget = EmailTarget(),
                           homePage: Option[String] = None,
-                          metadataPrefix: String = "icn",
+                          metadataPrefix: Option[String] = Some("icn"),
                           text: String = "",
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
