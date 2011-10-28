@@ -2,9 +2,6 @@ package controllers.search
 
 import models.PortalTheme
 import scala.collection.JavaConversions._
-import org.apache.solr.client.solrj.SolrQuery
-import play.mvc.Scope.Params
-import org.apache.solr.client.solrj.response.FacetField
 
 /**
  *
@@ -16,7 +13,9 @@ object SearchService {
 
   import play.mvc.results.Result
   import play.mvc.Http.Request
+  import xml.PrettyPrinter
 
+  val prettyPrinter = new PrettyPrinter(150, 5)
 
   /**
    * This function parses the response for with output format needs to be rendered
@@ -52,10 +51,84 @@ object SearchService {
 //        errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
 //    }
 //    aro.response setCharacterEncoding ("UTF-8")
-    new RenderXml("<sjoerd>rocks</sjoerd>")
+//    new RenderXml("<sjoerd>rocks</sjoerd>")
+    errorResponse(format = format)
+  }
+
+   def errorResponse(error : String = "Unable to respond to the API request",
+                    errorMessage: String = "Unable to determine the cause of the Failure", format : String = "xml") : Result = {
+
+     import play.mvc.results.{RenderXml, RenderJson}
+
+     def toXML : String = {
+      val response =
+        <results>
+         <error>
+           <title>{error}</title>
+           <description>{errorMessage}</description>
+         </error>
+       </results>
+    "<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response)
+    }
+
+    def toJSON : String = {
+      import net.liftweb.json.JsonAST._
+      import net.liftweb.json.{Extraction, Printer}
+      import collection.immutable.ListMap
+      //      aro.response setContentType ("text/javascript")
+      implicit val formats = net.liftweb.json.DefaultFormats
+      val docMap = ListMap("status" -> error, "message" -> errorMessage)
+      Printer pretty (render(Extraction.decompose(docMap)))
+    }
+
+    val response = format match {
+       case x : String if x.startsWith("json") || x.startsWith("simile") => new RenderJson(toJSON)
+       case _ => new RenderXml(toXML)
+     }
+
+//    aro.response setStatus (HttpServletResponse.SC_BAD_REQUEST)
+     // todo set error response
+    response
   }
 
 }
+
+case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
+
+  import xml.Elem
+
+  def renderAsXML(authorized : Boolean) : Elem = {
+      val response: Elem =
+      <result xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
+              xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
+        <item>
+          {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, Array("delving_pmhId")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
+          SolrQueryService.renderXMLFields(field, chResponse)}
+        </item>
+      </result>
+    response
+    }
+
+    def renderAsJSON(authorized : Boolean) : String = {
+      import collection.immutable.ListMap
+      import net.liftweb.json.{JsonAST, Extraction, Printer}
+      implicit val formats = net.liftweb.json.DefaultFormats
+
+      val recordMap = collection.mutable.ListMap[String, Any]()
+      fullResult.getFullDoc.getFieldValuesFiltered(false, Array("delving_pmhId","europeana:collectionName", "europeana:collectionTitle"))
+                              .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, fv.getValueAsArray))
+
+      val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
+        ListMap("result" ->
+              ListMap("item" -> ListMap(recordMap.toSeq : _*))
+        )
+      )))
+      outputJson
+    }
+}
+
+
 
 case class ExplainItem(label: String, options: List[String] = List(), description: String = "") {
 
@@ -141,3 +214,5 @@ case class ExplainResponse(theme : PortalTheme) {
     outputJson
   }
 }
+
+case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean = false)

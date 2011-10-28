@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import play.mvc.Scope.Params
 import models.PortalTheme
 import org.apache.solr.client.solrj.response.FacetField
+import controllers.SolrServer
 
 /**
  *
@@ -11,9 +12,9 @@ import org.apache.solr.client.solrj.response.FacetField
  * @since 10/28/11 10:52 AM  
  */
 
-object SolrQueryService {
+object SolrQueryService extends SolrServer {
 
-    import org.apache.log4j.Logger
+  import org.apache.log4j.Logger
   import xml.Elem
   import play.mvc.Http.Request
   import java.net.URLEncoder
@@ -146,6 +147,142 @@ case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boo
 }
 
 case class FacetQueryLinks(facetType: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false)
+
+
+trait ResultPagination {
+
+  def isPrevious: Boolean
+
+  def isNext: Boolean
+
+  def getPreviousPage: Int
+
+  def getNextPage: Int
+
+  def getLastViewableRecord: Int
+
+  def getNumFound: Int
+
+  def getRows: Int
+
+  def getStart: Int
+
+  def getPageLinks: List[PageLink]
+
+  def getBreadcrumbs: List[BreadCrumb]
+
+  def getPresentationQuery: PresentationQuery
+
+  def getPageNumber: Int
+}
+
+
+trait PresentationQuery {
+  def getUserSubmittedQuery: String
+
+  def getQueryForPresentation: String
+
+  def getQueryToSave: String
+
+  def getTypeQuery: String
+
+  def getParsedQuery: String
+}
+
+/**
+ * todo: javadoc
+ *
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Gerald de Jong <geralddejong@gmail.com>
+ */
+abstract trait FullItemView {
+
+  def getDocIdWindowPager: DocIdWindowPager
+
+  def getRelatedItems: List[BriefDocItem]
+
+  def getFullDoc: FullDocItem
+}
+
+/**
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @since Jan 9, 2010 12:47:37 PM
+ */
+abstract trait DocIdWindowPager {
+
+
+  def getDocIdWindow: DocIdWindow
+
+  def isNext: Boolean
+
+  def isPrevious: Boolean
+
+  def getQueryStringForPaging: String
+
+  def getFullDocUri: String
+
+  def getNextFullDocUrl: String
+
+  def getPreviousFullDocUrl: String
+
+  def getNextUri: String
+
+  def getNextInt: Int
+
+  def getPreviousUri: String
+
+  def getPreviousInt: Int
+
+  def getQuery: String
+
+  def getReturnToResults: String
+
+  def getPageId: String
+
+  def getTab: String
+
+  override def toString: String
+
+  def getStartPage: String
+
+  def getBreadcrumbs: List[BreadCrumb]
+
+  def getNumFound: Int
+
+  def getFullDocUriInt: Int
+
+  def setPortalName(portalName: String): Unit
+
+//  def initialize(httpParameters: Map[String, Array[String]], breadcrumbFactory: BreadcrumbFactory, locale: Locale, originalBriefSolrQuery: SolrQuery, queryModelFactory: QueryModelFactory, metadataModel: RecordDefinition): Unit
+
+  def getSortBy: String
+}
+
+/**
+ * @author Gerald de Jong <geralddejong@gmail.com>
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ */
+trait DocIdWindow extends PagingWindow {
+  def getIds: List[_ <: DocId]
+}
+
+/**
+ * @author Gerald de Jong <geralddejong@gmail.com>
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ */
+trait PagingWindow {
+  def getOffset: Integer
+
+  def getHitCount: Integer
+}
+
+/**
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @since Feb 20, 2010 8:40:07 PM
+ */
+trait DocId {
+  def getEuropeanaUri: String
+}
 
 class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
