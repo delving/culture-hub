@@ -1,19 +1,18 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
 #{breadcrumbs /}
-<div class="line">
 
-    <div class="unit size1of2 space">
+
+
         <h1>${id.isEmpty() ? "Create new object" : "Update object" }</h1>
-    </div>
 
-    <div class="unit size1of2 space">
+
 
         <div data-bind="text: errors().global"></div>
 
         <form id="objectForm" method="post" action="" class="box">
             <span class="required-note"><span>*</span> Required Fields</span>
-            #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"required field" /}
+            #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"Required field" /}
             #{textArea name:"description", label:"Description", dataBind:"value: description" /}
 
             <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
@@ -42,18 +41,15 @@
             </div>
 
             <div class="buttons">
-                <button class="blue" id="saveButton" type="submit">
-                    <span class="icon icon67"></span>
-                    <span class="label">Save Object</span>
-                </button>
+                #{btnButton label:"Save object", extraClass:"blue", type:"submit" /}
                 <div class="wait"></div>
             </div>
 
         </form>
 
-    </div>
 
-</div>
+
+
 
 <script type="text/javascript">
     $(document).ready(function() {

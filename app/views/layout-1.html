@@ -94,12 +94,8 @@
             <div class="content">
             #{if !userName}
             <div class="buttons">
-                <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
-                    <span class="label">Login</span>
-                </a>
-                <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
-                    <span class="label">Register</span>
-                </a>
+                #{btnHref label:"Login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
+                #{btnHref label:"Register", extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
             </div>
             #{/if}
             #{else}
@@ -107,8 +103,8 @@
             <div class="buttons">
                 <!--Hi ${fullName}-->
                 <div class="dropdown">
-                    <a href="#" class="button"><span class="icon icon9"></span><span class="label">Go to</span><span class="toggle"></span></a>
 
+                    #{btnHref label:"Go to", iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
                         <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
                         <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
@@ -122,8 +118,7 @@
                 <!-- /.dropdown -->
 
                 <div class="dropdown">
-                    <a href="#" class="button"><span class="icon icon144"></span><span class="label">Create</span><span class="toggle"></span></a>
-
+                    #{btnHref label:"Create", iconClass:"icon144", toggle:true/}
                     <div class="dropdown-slider">
                         <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
                         <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
@@ -134,11 +129,8 @@
 
                 </div>
                 <!-- /.dropdown -->
+                #{btnHref label:"Logout", href:"/logout"     /}
 
-                <a class="button" href="/logout">
-                    <span class="label">Logout</span>
-
-                </a>
             </div>
 
             #{/else}

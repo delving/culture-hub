@@ -48,7 +48,7 @@
 
                 #{if id.isEmpty()}
                 <div class="buttons">
-                    <button class="action page add dui-button" id="btn-add-pages" data-bind="enable: name().length > 0 && description().length > 0, click: addPages">Add Page(s)</button>
+                    #{btnButton label:"Add pages", extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages" /}
                 </div>
                 #{/if}
             </form>
@@ -65,15 +65,9 @@
 
             <div class="buttons">
 
+                #{btnHref label:"View story", iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+                #{btnHref label:"Add a new page", iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
 
-                <a class="button" href="#" data-bind="click: makeStoryUrl" rel="nofollow">
-                    <span class="icon icon140"></span>
-                    <span class="label">View story</span>
-                </a>
-                <a class="button" id="btn-add-page" data-bind="click: function() { this.addPage(); }">
-                    <span class="icon icon3"></span>
-                    <span class="label">Add a new page</span>
-                </a>
             </div>
 
         </div>
@@ -92,10 +86,7 @@
 <div class="line" id="save-story">
 <hr/>
     <div class="actions">
-      <button class="blue" data-bind="enable: name().length > 0 && description().length > 0, click: saveTheStory">
-          <span class="icon icon67"></span>
-          <span class="label">Save story</span>
-      </button>
+      #{btnButton label:"Save story", extraClass:"blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
       <div class="wait"></div>
     </div>
 </div>
@@ -134,20 +125,17 @@
     <div class="field">
         <div class="inputs">
             <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            <button id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">
+            <href class="button" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">
                 <span class="icon icon3"></span>
                 <span class="label">Add an image from this collection</span>
-            </button>
+            </href>
         </div>
     </div>
 
     <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
     <div class="buttons">
-            <button type="submit" data-bind="click: saveCurrentPage">
-                <span class="icon icon67"></span>
-                <span class="label">Save Page</span>
-            </button>
+            #{btnButton label:"Save page", dataBind:"click:saveCurrentPage", extraClass:"green", type:"submit"/}
     </div>
   </form>
 

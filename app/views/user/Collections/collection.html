@@ -19,7 +19,7 @@
     #{textArea name:"description", label:"Description", dataBind:"value: description", labelClass:"required" /}
 
     <div class="buttons">
-      <button class="action add image dui-button" id="addObject">Add object(s)</button>
+        #{btnHref label:"Add object(s)", iconClass:"icon3", id:"addObject" /}
     </div>
 
     <div id="objectList" class="data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
@@ -38,7 +38,7 @@
     </div>
 
     <div class="buttons">
-      <button class="action save collection dui-button" id="saveButton" type="submit">Save Collection</button>
+      #{btnButton label:"Save collection", id:"saveButton", extraClass:"blue", type:"submit"  /}
       <div class="wait"></div>
     </div>
 
