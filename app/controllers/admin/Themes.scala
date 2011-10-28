@@ -2,7 +2,7 @@ package controllers.admin
 
 import cake.ComponentRegistry
 import play.mvc.results.Result
-import extensions.CHJson
+import extensions.JJson
 import org.bson.types.ObjectId
 import models.{EmailTarget, PortalTheme}
 import controllers.{ViewModel, DelvingController}
@@ -35,7 +35,7 @@ object Themes extends DelvingController {
   def themeUpdate(id: String): Result = Template('id -> Option(id))
 
   def themeSubmit(data: String): Result = {
-    val theme = CHJson.parse[ThemeViewModel](data)
+    val theme = JJson.parse[ThemeViewModel](data)
 
     val persistedTheme = theme.id match {
       case None => {

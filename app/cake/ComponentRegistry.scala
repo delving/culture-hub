@@ -1,6 +1,5 @@
 package cake
 
-import extensions.{ObjectIdTypeBinder, ScalaListTypeBinder}
 import util.{ThemeHandler, ThemeHandlerComponent}
 import scala.collection.JavaConversions._
 import eu.delving.metadata.MetadataModel
@@ -39,10 +38,6 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
   //  val metaRepo = new MetaRepoImpl
   //  metaRepo.setResponseListSize(Play.configuration.getProperty("services.pmh.responseListSize").trim)
   //  metaRepo.setHarvestStepSecondsToLive(180)
-
-  // TODO remove this when we have replaced the old code for theme handling
-  play.data.binding.Binder.register(classOf[scala.collection.immutable.List[String]], new ScalaListTypeBinder)
-  play.data.binding.Binder.register(classOf[org.bson.types.ObjectId], new ObjectIdTypeBinder)
 
   init()
 
