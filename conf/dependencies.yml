@@ -1,13 +1,9 @@
 # Application dependencies
 
-# Note about scala dependencies: Play-Scala comes with Scala packaged in, therefore we need to exclude the scala dependencies
-# from those artifacts
-
 require:
     - play
-#    - play -> scala 0.9.1
-    - scala-head -> scala-head
-    - dos -> dos
+    - delving -> dos 1.0
+    - delving -> scala 0.9.1_20111028
     - commons-httpclient -> commons-httpclient 3.1
     - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
         exclude:
@@ -86,6 +82,11 @@ repositories:
         contains:
             - eu.delving.*
             - eu.europeana.*
+    - delving-modules:
+        type:       http
+        artifact:   "http://development.delving.org/dist/[module]-[revision].zip"
+        contains:
+            - delving -> *
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"

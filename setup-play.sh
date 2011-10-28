@@ -3,15 +3,15 @@
 ## uncomment the lines below to install the default play version. For now we need a patched version
 
 #echo ================================
-#echo Installing play in ../play-1.2.2
+#echo Installing play in ../play-1.2.3
 #echo ================================
 #echo
 #echo
 
 #cd ..
-#wget http://download.playframework.org/releases/play-1.2.2.zip
-#unzip play-1.2.2.zip
-#cd play-1.2.2
+#wget http://download.playframework.org/releases/play-1.2.3.zip
+#unzip play-1.2.3.zip
+#cd play-1.2.3
 
 # Starting with the patched version
 
@@ -52,50 +52,6 @@ echo
 cd play/framework
 ant
 cd ../../culture-hub
-
-echo
-echo
-echo ========================
-echo Installing play-scala...
-echo ========================
-echo
-echo
-
-# until we have a new release we use the latest version
-# ../play/play install scala-0.9.1
-
-mkdir module-extra
-cd module-extra
-git clone git://github.com/delving/play-scala.git scala-head --depth 1
-cd scala-head
-
-# http://play.lighthouseapp.com/projects/74274-play-scala/tickets/44-jvmmemory-configuration-option-not-taken-into-account#ticket-44-2
-git apply ../../jvm-args-patch.patch
-ant -Dplay.path=../../../play
-cd ../../
-
-echo
-echo
-echo ===================================
-echo Installing Delving object Server...
-echo ===================================
-echo
-echo
-cd module-extra
-git clone git@github.com:delving/dos.git dos
-cd dos
-
-# TODO simplify
-mkdir src
-mkdir lib
-../../../play/play deps
-cd modules
-rm -rf scala-0.9.1
-ln -s ../../scala-head scala-head
-cd ..
-ant -Dplay.path=../../../play
-cd ../../
-
 
 echo
 echo
