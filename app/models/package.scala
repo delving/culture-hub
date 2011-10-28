@@ -3,12 +3,35 @@ package models {
 import com.novus.salat._
 import play.Play
 import com.mongodb.casbah.{MongoDB, MongoConnection}
+import play.Logger
 
 package object salatContext {
 
+  import com.mongodb.ServerAddress
+
   val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.cultureHub.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
 
-  val connection: MongoDB = MongoConnection()(connectionName)
+  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context").toBoolean ) {
+    Logger.info("Starting Mongo in Test Mode connecting to localhost:27017")
+    MongoConnection()(connectionName)
+  }
+  else if (mongoServerAddresses.isEmpty || mongoServerAddresses.size > 2) {
+    Logger.info("Starting Mongo in Replicaset Mode connecting to %s".format(mongoServerAddresses.mkString(", ")))
+    MongoConnection(mongoServerAddresses)(connectionName)
+  }
+  else {
+    Logger.info("Starting Mongo in Single Target Mode connecting to %s".format(mongoServerAddresses.head.toString))
+    MongoConnection(mongoServerAddresses.head)(connectionName)
+  }
+
+  lazy val mongoServerAddresses: List[ServerAddress] = {
+    List(1, 2, 3).map {
+      serverNumber =>
+        val host = Play.configuration.getProperty("mongo.server%d.host".format(serverNumber)).stripMargin
+        val port = Play.configuration.getProperty("mongo.server%d.port".format(serverNumber)).stripMargin
+        (host, port)
+    }.filter(entry => !entry._1.isEmpty && !entry._2.isEmpty).map(entry => new ServerAddress(entry._1, entry._2.toInt))
+  }
 
   lazy val userCollection = connection("Users")
   lazy val groupCollection = connection("Groups")
