@@ -1,12 +1,12 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: spec.isEmpty() ? 'Create new dataset for user ' + fullName : 'Update dataset for user ' + fullName /}
+#{set bodyId: 'dataset-create'/}
 #{breadcrumbs /}
 
-<h1 class="grid_16">${spec.isEmpty() ? "Create a new dataset" : "Update a dataset" }</h1>
+<h1>${spec.isEmpty() ? "Create a new dataset" : "Update a dataset" }</h1>
 
-<form method="post" action="" id="collectionForm" class="grid_16">
-
-    <div class="grid_8 alpha">
+<div class="mod">
+<form method="post" action="" id="collectionForm">
 
     <h2>Data Set Information</h2>
 
@@ -21,25 +21,25 @@
       #{else}
         #{textField name:factDef.name + "_field", label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
       #{/else}
-      #{if i == 4}
-      </div>
-      <div class="grid_8 omega">
-      #{/if}
-    %{ } }%
+
+    %{ }}%
+
     <h2>Record Definitions</h2>
     #{list recordDefinitions, as: 'recordDef'}
       #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
     #{/list}
-    </div>
 
-    <div class="clear"></div>
-    <div class="actions">
-        <input id="saveButton" type="submit" value="Save DataSet" />
-    </div>
+   <div class="buttons">
+       <a href="#" class="button blue" id="saveButton">
+           <span class="label">Save DataSet</span>
+       </a>
+   </div>
+   #{hrefButton name:"saveButton", label:"Save DataSet", extraClass:"blue"/}
 
-  </div>
+
+
 </form>
-
+</div>
 <script type="text/javascript">
   $(document).ready(function() {
     var dataSetModel = {};

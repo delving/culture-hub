@@ -1,5 +1,5 @@
-%{ }%
-<a class="button" name="${_name}" id="{_id}" rel="${_rel}">
-    <span class="icon ${_class}"></span>
+%{ def isHref = _href != null ? _href : "#" }%
+<a class="button ${_extraClass}" id="${_id}" name="${_name}" href="${isHref}" rel="${_rel}">
+    #{if _iconClass}<span class="icon ${_iconClass}"></span>#{/if}
     <span class="label">${_label}</span>
 </a>
