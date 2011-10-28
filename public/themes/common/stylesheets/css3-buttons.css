@@ -28,7 +28,7 @@ DROPDOWN MENU
 /*------------------------------------*\
 	$BUTTON
 \*------------------------------------*/
-button,
+/*button,*/
 .button {
 	text-decoration: none;
 	text-shadow: 0 1px 0 #fff;
@@ -61,7 +61,7 @@ button {
 	cursor: pointer;
 }
 
-button.left, 
+/*button.left, */
 .button.left {
 	margin: 5px 0 5px 5px;
 	
