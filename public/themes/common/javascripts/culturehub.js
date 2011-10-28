@@ -2,9 +2,7 @@
  * Initialize elements based on classes
  */
 function initializeElements() {
-    $("#page").height($(document).height());
-
-    $(".saveButton").button();
+//    $("#page").height($(document).height());
 
     $.preloadImages (
         "/public/themes/common/images/spinner.gif"
