@@ -151,15 +151,12 @@
             <div class="content">
                 #{if !userName}
                 <div class="buttons">
-                    <ul class="nav">
-                    <li><a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
+                    <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
                         <span class="label">Login</span>
-                    </a></li>
-                    <li><a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
+                    </a>
+                    <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
                         <span class="label">Register</span>
                     </a>
-                        </li>
-                    </ul>
                 </div>
                 #{/if}
                 #{else}
