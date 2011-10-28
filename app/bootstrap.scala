@@ -15,9 +15,6 @@ import play.Play
     import play.test._
     import scala.collection.JavaConversions._
 
-    // this is explicitely here because if we leave it to its own devices we sometimes get a race condition in dev mode when modifying model files
-    initSalat()
-
     // see http://download.oracle.com/javase/1.4.2/docs/api/javax/imageio/spi/IIORegistry.html#registerApplicationClasspathSpis():
     // "Service providers found on the system classpath (e.g., the jre/lib/ext directory in Sun's implementation of J2SDK) are automatically loaded as soon as this class is instantiated."
     // this causes a ConcurrentModificationException with Play's classloading mechanism

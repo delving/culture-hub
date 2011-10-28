@@ -1,7 +1,7 @@
 package controllers.user
 
 import play.mvc.results.Result
-import extensions.CHJson._
+import extensions.JJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.SalatDAOUpdateError
 import play.libs.Codec
