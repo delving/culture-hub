@@ -1,6 +1,7 @@
 /* FORM ELEMENT STYLES */
 
 form {
+    background: #f1f1f1;
     margin: 0;
     padding: 0;
 }
@@ -91,6 +92,8 @@ div.field label.required:after {
     color: #888;
     /*font-size: 85%;*/
     font-style: italic;
+    word-wrap: break-word;
+    max-width: 600px;
 }
 
 input.textinput, select, textarea {
