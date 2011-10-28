@@ -1,4 +1,4 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title:_title /}
 
 #{breadcrumbs /}
@@ -11,7 +11,7 @@
 #{/else}
 
 #{if items.length() > 0}
-    <div class="data-grid">
+    <div class="mod data-grid">
         <table>
             <thead>
             <tr>
@@ -24,8 +24,14 @@
             <tfoot>
             <tr>
                 <td colspan="4">
+                    <a class="button" href="/${userName}/dataset/add">
+                        <span class="label">Creat a new DataSet</span>
+                    </a>
+                    <a class="button" href="/${userName}/sip-creator/">
+                        <span class="label">Sip-Creator</span>
+                    </a>
                         #{if items.length() > 0}
-                        <div id="pager">#{pagination selector: "#pager", count: count, start: page /}</div>
+                        <div id="pager" class="mtm">#{pagination selector: "#pager", count: count, start: page /}</div>
                         #{/}
                         #{else}
                         <p>There are currently no DataSets available</p>
@@ -112,7 +118,7 @@
             </tbody>
         </table>
     </div>
-        <a class="dui-button" href="/${userName}/sip-creator/">Sip-Creator</a>
+
 
 
 #{/}
