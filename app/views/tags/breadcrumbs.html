@@ -1,15 +1,17 @@
 #{if views.context.package.crumble().size() > 1}
-<div class="breadcrumbs pam">
+<div class="breadcrumb pam">
     #{list views.context.package.crumble(), as: 'c'}
+    <li>
     #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
     ${c._1._2.shorten(50)}
     #{/}
     #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
-    <a href="${c._1._1}">${c._1._2.shorten(50)}</a> <span class="arrow"> &gt; </span>
+    <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
     #{/}
     #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
     <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
     #{/}
+    </li>
     #{/}
 </div>
 #{/if}
