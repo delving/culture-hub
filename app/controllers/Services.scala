@@ -65,7 +65,7 @@ object Services extends DelvingController with HTTPClient {
 
   def searchApi : Result = {
     import search.SearchService
-    SearchService.getApiResult(request)
+    SearchService.getApiResult(request, theme)
   }
 
   def retrieveRecord(spec: String, id: String): Result = {

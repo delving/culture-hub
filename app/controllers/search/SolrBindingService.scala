@@ -312,12 +312,12 @@ case class BriefDocItem(solrDocument : SolrDocument) {
     def getLanguage : String = assign("europeana_language")
 //    def getType : DocType = DocType.get(assign("europeana_type"))
 
-    @BeanProperty var index : Int = _
-    @BeanProperty var fullDocUrl: String = _
+    var index : Int = _
+    var fullDocUrl: String = _
 
     // debug and scoring information
-    @BeanProperty var score : Int = _
-    @BeanProperty var debugQuery : String = _
+    var score : Int = _
+    var debugQuery : String = _
 }
 
 case class FullDocItem(solrDocument : SolrDocument) {

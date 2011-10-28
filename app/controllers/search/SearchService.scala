@@ -2,58 +2,116 @@ package controllers.search
 
 import models.PortalTheme
 import scala.collection.JavaConversions._
+import play.mvc.Http.Request
+import play.Logger
+import play.mvc.results.Result
 
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 10/17/11 2:25 PM  
  */
-
 object SearchService {
 
+  def getApiResult(request: Request, theme: PortalTheme) : Result =
+    new SearchService(request, theme).getApiResult
+
+}
+
+class SearchService(request: Request, theme: PortalTheme) {
+
   import play.mvc.results.Result
-  import play.mvc.Http.Request
   import xml.PrettyPrinter
 
   val prettyPrinter = new PrettyPrinter(150, 5)
+  val params = request.params
+  val paramMap = params.all()
+  val format = paramMap.getOrElse("format", Array[String]("default")).head
 
   /**
    * This function parses the response for with output format needs to be rendered
    */
 
-  def getApiResult(request: Request) : Result = {
-    import play.mvc.results.RenderXml
-    import play.mvc.Http.Request
-    val format =  request.params.all().getOrElse("format", Array[String]("default")).head
+  def getApiResult : Result = {
 
-    //    val response = try {
-//      if (aro.restrictedApiAccess) {
-//        val wskey = aro.params.getOrElse("wskey", Array[String]("unknown")).head
-//        if (!aro.accessKey.checkKey(wskey)) {
-//          import eu.delving.services.exceptions.AccessKeyException
-//          log.warn(String.format("Service Access Key %s invalid!", wskey));
-//          throw new AccessKeyException(String.format("Access Key %s not accepted", wskey));
-//        }
-//      }
-//      format match {
-//        case "json" => getJSONResultResponse()
-//        case "jsonp" =>
-//          getJSONResultResponse(callback = aro.params.get("callback").getOrElse(Array[String]("delvingCallback")).head)
-//        case "simile" => getSimileResultResponse()
-//        case "similep" =>
-//          getSimileResultResponse(aro.params.get("callback").getOrElse(Array[String]("delvingCallback")).head)
-//        case _ => getXMLResultResponse(true)
-//      }
-//    }
-//    catch {
-//      case ex : Exception =>
-//        log.error("something went wrong", ex)
-//        errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
-//    }
-//    aro.response setCharacterEncoding ("UTF-8")
-//    new RenderXml("<sjoerd>rocks</sjoerd>")
+      val response = try {
+      if (theme.apiWsKey) {
+        val wskey = paramMap.getOrElse("wskey", Array[String]("unknown")).head
+        // todo add proper wskey checking
+        if (wskey.isEmpty) {
+          import models.AccessKeyException
+          Logger.warn(String.format("Service Access Key %s invalid!", wskey));
+          throw new AccessKeyException(String.format("Access Key %s not accepted", wskey));
+        }
+      }
+      format match {
+        case "json" => getJSONResultResponse()
+        case "jsonp" =>
+          getJSONResultResponse(callback = paramMap.getOrElse("callback", Array[String]("delvingCallback")).head)
+          // todo add simile and similep support later
+        case _ => getXMLResultResponse()
+      }
+    }
+    catch {
+      case ex : Exception =>
+        Logger.error("something went wrong", ex)
+        errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
+    }
     errorResponse(format = format)
   }
+
+  def getJSONResultResponse(authorized: Boolean = true, callback : String = ""): Result = {
+    import play.mvc.results.RenderJson
+    require(params._contains("query") || params._contains("id") || params._contains("explain"))
+
+    val response : String = paramMap match {
+      case x : Map[String, Array[String]] if x.containsKey("explain") => ExplainResponse(theme).renderAsJson
+//      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsJSON(authorized)
+//      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsJSON(authorized)
+    }
+    new RenderJson(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response)
+
+  }
+
+  def getXMLResultResponse(authorized: Boolean = true): Result  = {
+    import xml.Elem
+    import play.mvc.results.RenderXml
+    require(params._contains("query") || params._contains("id") || params._contains("explain"))
+
+    val response : Elem = paramMap match {
+      case x : Map[String, Array[String]] if x.containsKey("explain") => ExplainResponse(theme).renderAsXml
+//      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsXML(true)
+//      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsXML(authorized)
+    }
+
+    new RenderXml("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response))
+  }
+
+  // todo implement this
+//  private def getBriefResultsFromSolr: BriefBeanView = {
+//    val userQuery = aro.request.getParameter("query")
+//    require(!userQuery.isEmpty)
+//    val jParams = aro.request.getParameterMap.asInstanceOf[JMap[String, Array[String]]]
+//    val solrQuery: SolrQuery = SolrQueryUtil.createFromQueryParams(jParams, aro.queryAnalyzer, aro.locale, ThemeFilter.getTheme.getRecordDefinition)
+//
+//    if (jParams.containsKey("fl")) solrQuery.setFields(jParams.get("fl").headOption.getOrElse("*,score")) else solrQuery.setFields("*,score")
+//    if (jParams.contains("facet.limit")) solrQuery.setFacetLimit(Integer.valueOf(jParams.get("facet.limit").headOption.getOrElse("100")))
+//
+//    val briefResultView = aro.beanQueryModelFactory.getBriefResultView(solrQuery, solrQuery.getQuery, jParams, aro.locale)
+//    aro.clickStreamLogger.logApiBriefView(aro.request, briefResultView, solrQuery)
+//    briefResultView
+//  }
+
+    // todo implement this
+//  private def getFullResultsFromSolr : FullBeanView = {
+//    val idQuery = aro.request.getParameter("id")
+//    require(!idQuery.isEmpty)
+//    val jParams = aro.request.getParameterMap.asInstanceOf[JMap[String, Array[String]]]
+//    val fullView = aro.beanQueryModelFactory.getFullResultView(jParams, aro.locale)
+//    aro.clickStreamLogger.logApiFullView(aro.request, fullView, idQuery)
+//    fullView
+//  }
+
 
    def errorResponse(error : String = "Unable to respond to the API request",
                     errorMessage: String = "Unable to determine the cause of the Failure", format : String = "xml") : Result = {
@@ -92,6 +150,135 @@ object SearchService {
   }
 
 }
+
+case class SearchSummary(result : BriefBeanView, language: String = "en", chResponse: CHResponse) {
+
+  import collection.mutable.LinkedHashMap
+  import xml.Elem
+
+  private val pagination = result.getPagination
+  private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
+  private val startPage = pagination.getStart
+
+  def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
+
+  def localiseKey(metadataField: String, defaultLabel: String = "unknown", language: String = "en"): String = {
+    import java.util.Locale
+    val locale = new Locale(language)
+//    val localizedName: String = aro.lookup.toLocalizedName(metadataField.replace(":", "_"), locale)
+    val localizedName: String = metadataField.replace(":", "_")
+    if (localizedName != null && !defaultLabel.startsWith("#")) localizedName else defaultLabel
+  }
+
+  val layoutMap = LinkedHashMap[String, String]("#thumbnail" -> "europeana:object", "#title" -> "dc:title", "#uri" -> "europeana:uri",
+    "#isShownAt" -> "europeana:isShownAt", "#description" -> "dc:description", "Creator" -> "dc:creator",
+    "Subject(s)" -> "dc:subject", "County" -> "abm:county", "Municipality" -> "abm:municipality", "Place" -> "abm:namedPlace",
+    "Person(s)" -> "abm:aboutPerson")
+
+  def renderAsXML(authorized : Boolean) : Elem = {
+
+    val response : Elem =
+      <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+               xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
+               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
+        <query numFound={pagination.getNumFound.toString}>
+            <terms>{searchTerms}</terms>
+            <breadCrumbs>
+              {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>{bc.display}</breadcrumb>)}
+            </breadCrumbs>
+        </query>
+        <pagination>
+            <start>{pagination.getStart}</start>
+            <rows>{pagination.getRows}</rows>
+            <numFound>{pagination.getNumFound}</numFound>
+            {if (pagination.isNext) <nextPage>{pagination.getNextPage}</nextPage>}
+            {if (pagination.isPrevious) <previousPage>{pagination.getPreviousPage}</previousPage>}
+            <currentPage>{pagination.getStart}</currentPage>
+            <links>
+              {pagination.getPageLinks.map(pageLink =>
+              <link start={pageLink.start.toString} isLinked={pageLink.isLinked.toString}>{pageLink.display}</link>)}
+            </links>
+        </pagination>
+        <layout>
+          <drupal>
+            {layoutMap.map(item =>
+              <field>
+                <key>{localiseKey(item._2, item._1, language)}</key>
+                <value>{item._2}</value>
+              </field>
+              )
+            }
+          </drupal>
+        </layout>
+        <items>
+          {result.getBriefDocs.map(item =>
+          <item>
+          {item.getFieldValuesFiltered(false, Array("delving_pmhId","europeana:collectionName", "europeana:collectionTitle")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
+          </item>
+        )}
+        </items>
+        <facets>
+          {result.getFacetQueryLinks.map(fql =>
+            <facet name={fql.facetType} isSelected={fql.facetSelected.toString}>
+              {fql.links.map(link =>
+                    <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{link.value} ({link.value})</link>
+            )}
+            </facet>
+          )}
+        </facets>
+      </results>
+    response
+  }
+
+  def renderAsJSON(authorized : Boolean) : String = {
+    import collection.immutable.ListMap
+    import net.liftweb.json.{Extraction, JsonAST, Printer}
+    implicit val formats = net.liftweb.json.DefaultFormats
+
+    def createJsonRecord(doc : BriefDocItem) : ListMap[String, Any]= {
+      val recordMap = collection.mutable.ListMap[String, Any]();
+      doc.getFieldValuesFiltered(false, Array("delving_pmhId", "europeana:collectionName", "europeana:collectionTitle"))
+                              .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, SolrQueryService.encodeUrl(fv.getValueAsArray, fv.getKey, chResponse)))
+      ListMap(recordMap.toSeq: _*)
+    }
+
+    def createLayoutItems : ListMap[String, Any] = {
+      val recordMap = collection.mutable.ListMap[String, Any]();
+      layoutMap.map(item =>
+              recordMap.put(localiseKey(item._2, item._1, language), item._2))
+      ListMap(recordMap.toSeq: _*)
+    }
+
+    def createFacetList: List[ListMap[String, Any]] = {
+      result.getFacetQueryLinks.map(fql =>
+        ListMap("name" -> fql.facetType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
+          ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
+      ).toList
+    }
+
+    val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
+      ListMap("result" ->
+              ListMap("query" ->
+                      ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
+                        "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
+                "pagination" ->
+                        ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
+                          "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
+                          "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
+                          "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
+                        ),
+                "layout" ->
+                        ListMap[String, Any]("drupal" -> createLayoutItems),
+                "items" ->
+                        result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
+                "facets" -> createFacetList
+              )
+      )
+    )))
+    outputJson
+  }
+}
+
 
 case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
 

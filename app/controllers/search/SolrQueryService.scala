@@ -113,6 +113,9 @@ object SolrQueryService extends SolrServer {
   def createRandomNumber: Int = scala.util.Random.nextInt(1000)
 
   def createRandomSortKey : String = "random_%i".format(createRandomNumber)
+
+  //todo implement this
+//  def getFullItemView(chQuery: CHQuery): FullItemView
 }
 case class FilterQuery(field: String, value: String)
 
@@ -195,7 +198,26 @@ trait PresentationQuery {
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Gerald de Jong <geralddejong@gmail.com>
  */
-abstract trait FullItemView {
+trait BriefBeanView {
+
+  import org.apache.solr.client.solrj.response.SpellCheckResponse
+
+  def getBriefDocs: List[_ <: BriefDocItem]
+
+  def getFacetQueryLinks: List[FacetQueryLinks]
+
+  def getPagination: ResultPagination
+
+  def getFacetLogs: Map[String, String]
+
+  def getMatchDoc: BriefDocItem
+
+  def getSpellCheck: SpellCheckResponse
+
+  def getFacetMap: FacetMap
+}
+
+trait FullItemView {
 
   def getDocIdWindowPager: DocIdWindowPager
 
@@ -204,11 +226,7 @@ abstract trait FullItemView {
   def getFullDoc: FullDocItem
 }
 
-/**
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @since Jan 9, 2010 12:47:37 PM
- */
-abstract trait DocIdWindowPager {
+trait DocIdWindowPager {
 
 
   def getDocIdWindow: DocIdWindow

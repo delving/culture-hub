@@ -31,6 +31,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        homePage:                            Option[String] = Some(""),
                        metadataPrefix:                      Option[String] = None,
                        facets:                              List[FacetElement] = List(),
+                       apiWsKey:                            Boolean = false,
                        text:                                String = "") {
 
   def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
