@@ -2,7 +2,7 @@ package controllers.user
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import extensions.CHJson._
+import extensions.JJson._
 import models._
 import controllers._
 import play.data.validation.Annotations._

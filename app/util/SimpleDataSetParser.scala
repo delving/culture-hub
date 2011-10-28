@@ -130,8 +130,6 @@ object SimpleDataSetParser {
 
     import models.salatContext._
 
-    initSalat()
-
     val ds = DataSet.findBySpec("Verzetsmuseum").get
 
     val txt =

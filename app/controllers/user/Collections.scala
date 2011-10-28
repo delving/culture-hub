@@ -4,7 +4,7 @@ import play.mvc.results.Result
 import org.bson.types.ObjectId
 import com.mongodb.WriteConcern
 import com.novus.salat.dao.SalatDAOUpdateError
-import extensions.CHJson._
+import extensions.JJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
 import controllers._

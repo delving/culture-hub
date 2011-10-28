@@ -1,7 +1,7 @@
 package controllers.user
 
 import play.mvc.results.Result
-import extensions.CHJson
+import extensions.JJson
 import scala.collection.JavaConversions._
 import com.mongodb.BasicDBObject
 import models._
@@ -24,7 +24,7 @@ object DataSets extends DelvingController with UserSecured {
   // TODO check rights for the accessed dataset
   def dataSetSubmit(data: String): Result = {
 
-    val dataSet = CHJson.parse[ShortDataSet](data)
+    val dataSet = JJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
     val factsObject = new BasicDBObject(dataSet.facts)
 
