@@ -11,6 +11,14 @@ form.box {
     padding:  10px;
 }
 
+form h3 {
+    background-color: #555;
+    color: #fff;
+    /*font-size: 18px;*/
+    margin:  0 0 10px 0;
+    padding: 0 10px;
+}
+
 .field {
     clear: both;
     margin-bottom: 10px;
@@ -24,13 +32,56 @@ label.label {
     width: 120px;
     text-align: right;
     margin-right: 10px;
+    vertical-align: top;
 }
 
 .field .inputs {
     display: inline-block;
-    /*float: left;*/
     width: auto;
 }
+
+.field .inputs textarea,
+.field .inputs input {
+    vertical-align: top;
+}
+
+
+.field .help {
+    display: block;
+    color: #888;
+    font-size: 85%;
+    font-style: italic;
+    word-wrap: break-word;
+    max-width: 600px;
+}
+
+.field .input[type=radio] {
+    display: block;
+}
+
+.field input.textinput,
+.field select,
+.field textarea {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDAD3;
+    padding: 3px;
+}
+
+.field textarea {
+   min-width: 300px;
+   min-height: 100px;
+}
+
+.success {
+    background-color: green;
+    color: #fff;
+    padding:  4px;
+}
+.error {
+    background-color: #cc0000;
+    color: #fff;
+    padding:  4px;
+/*}*/
 
 /*.required-note {*/
     /*color: #777777;*/

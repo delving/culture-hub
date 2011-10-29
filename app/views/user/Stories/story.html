@@ -124,11 +124,13 @@
 
     <div class="field">
         <div class="inputs">
-            <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            <href class="button" id="addObject" data-bind="enable: currentPage.availableObjects().length > 0, click: function() { $('#objects-dialogue').dialog('open'); }">
-                <span class="icon icon3"></span>
-                <span class="label">Add an image from this collection</span>
-            </href>
+            <select style="float:left" id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+            #{btnHref
+                label:"Add an image from this collection",
+                id:"addObject",
+                iconClass:"icon3",
+                dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw()
+            /}
         </div>
     </div>
 
