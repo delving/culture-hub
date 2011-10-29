@@ -54,18 +54,18 @@ class SearchService(request: Request, theme: PortalTheme) {
     }
     catch {
       case ex : Exception =>
-        Logger.error("something went wrong", ex)
+        Logger.error("something went wrong", ex.getStackTraceString)
         errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
     }
-    errorResponse(format = format)
+    response
   }
 
   def getJSONResultResponse(authorized: Boolean = true, callback : String = ""): Result = {
     import play.mvc.results.RenderJson
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
-    val response : String = paramMap match {
-      case x : Map[String, Array[String]] if x.containsKey("explain") => ExplainResponse(theme).renderAsJson
+    val response : String = paramMap.keys.toList match {
+      case x : List[String] if x.contains("explain") => ExplainResponse(theme).renderAsJson
 //      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsJSON(authorized)
 //      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsJSON(authorized)
     }
@@ -78,8 +78,8 @@ class SearchService(request: Request, theme: PortalTheme) {
     import play.mvc.results.RenderXml
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
-    val response : Elem = paramMap match {
-      case x : Map[String, Array[String]] if x.containsKey("explain") => ExplainResponse(theme).renderAsXml
+    val response : Elem = paramMap.keys.toList match {
+      case x : List[String] if x.contains("explain") => ExplainResponse(theme).renderAsXml
 //      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsXML(true)
 //      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsXML(authorized)
     }
@@ -333,6 +333,8 @@ case class ExplainItem(label: String, options: List[String] = List(), descriptio
   def toJson : ListMap[String, Any] = {
     if (!options.isEmpty && !description.isEmpty)
       ListMap("label" -> label, "options" -> options.toSeq, "description" -> description)
+    else if (!options.isEmpty)
+      ListMap("label" -> label, "options" -> options.toSeq)
     else
       ListMap("label" -> label)
   }
@@ -392,7 +394,7 @@ case class ExplainResponse(theme : PortalTheme) {
       ListMap("results" ->
               ListMap("api" ->
                      ListMap(
-                    // "parameters" -> paramOptions.map(param => param.toJson), todo fix this
+                    "parameters" -> paramOptions.map(param => param.toJson).toIterable,
                         "search-fields" -> theme.getRecordDefinition.getFieldNameList.
                 filterNot(field => excludeList.contains(field)).map(facet => ExplainItem(facet).toJson),
                         "facets" -> theme.getRecordDefinition.getFacetMap.map(facet => ExplainItem(facet._1).toJson)))
