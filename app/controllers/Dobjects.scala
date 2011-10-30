@@ -21,7 +21,7 @@ object DObjects extends DelvingController {
 
     val items: List[ListItem] = objectsPage._1
     request.format match {
-      case "html" => Template("/list.html", 'title -> listPageTitle("object"), 'itemName -> "object", 'items -> items, 'page -> page, 'count -> objectsPage._2)
+      case "html" => Template("/user/list.html", 'title -> listPageTitle("object"), 'itemName -> "object", 'items -> items, 'page -> page, 'count -> objectsPage._2)
       case "json" => Json(items)
     }
   }
