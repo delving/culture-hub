@@ -33,7 +33,7 @@ object Users extends DelvingController {
     val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
 
     val items: List[ListItem] = usersPage.toList
-    Template("/User/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length)
+    Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length)
   }
 
   def listAsTokens(q: String): Result = {
