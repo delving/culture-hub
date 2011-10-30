@@ -63,9 +63,3 @@ repositories:
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"
         contains:
           - provided -> *
-    - localModules:
-        type: local
-        artifact: ${application.path}/module-extra/[module]
-        contains:
-            - scala-head
-            - dos
