@@ -2,13 +2,19 @@
 
 /*colors */
 
-@color-1: #113B63;
-@color-2: #336799;
+@color-1: #618100;
+@color-2: #9ACC00;
 @color-3: #669ACC;
-@color-4: #F5BF71;
+@color-4: #EBA83C;
 @color-5: #555;
-@color-6: #eaeaea;
+@color-6: #EBBA6B;
 @color-7: #fff;
+
+/* font-sizes */
+
+@fsize-1: 14px;
+@fsize-2: 18px;
+@fsize-3: 22px;
 
 @radius: 2px;
 
@@ -50,9 +56,13 @@ a:hover {color: @color-1;}
 }
 
 #header  {
-    height: 180px;
+    height: 150px;
     position: relative;
 
+}
+
+#home #header {
+    height: 550px;
 }
 
 #header .container {
@@ -112,11 +122,19 @@ a:hover {color: @color-1;}
     height: 100px;
 }
 
-/* DECORATION  ***************************************************************************/
+#home #main {
+   margin-top: -530px;
+   top: 0px;
+}
 
+/* DECORATION  ***************************************************************************/
+.branding {
+    background-color: #648FC7;
+    height: 75px;
+}
 h1#site-name {
     color: @color-4;
-    font-family: Georgia, Garamond, Times, serif;
+    font-family: "Times New Roman", Times, serif;
     font-size: 32px;
     font-style: italic;
     margin: 0;
@@ -137,8 +155,8 @@ h1#site-name {
 }
 
 #header  {
-   background: @color-1 url(../images/header-bg.gif) repeat-x top left;
-   border-bottom: 15px solid @color-3;
+   background-color: #7B9628;
+   border-bottom: 15px solid #224068;
 }
 
 #site-nav{
@@ -159,7 +177,7 @@ h1#site-name {
 }
 
 #main {
-    background-color: @color-7;
+    background-color: transparent;
     min-height: 300px;
 }
 //
@@ -225,15 +243,16 @@ h1#site-name {
     .border-all(@radius);
     color: #fff;
     cursor: pointer;
+    font-size: @fsize-1;
     margin-left: 4px;
-    padding: 8px;
+    padding: 6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     text-transform: uppercase;
     width: 80px;
 }
 
 #search input {
-    font-weight: bold;
+    /*font-weight: bold;*/
     vertical-align: top;
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
@@ -270,6 +289,50 @@ h1#site-name {
 }
 .metadata p {
     margin-top: 0px;
+}
+
+/* media block in recent wrapper */
+
+.mod.recent{
+    background-color: #fff;
+}
+
+.recent h3 {
+    color: @color-5;
+    text-transform:uppercase;
+    font-size: @fsize-1;
+    font-weight: bold;
+    margin-bottom: 0px;
+}
+
+
+.recent .metadata {
+    /*margin-top: 200px;*/
+}
+
+.recent .media p {
+    margin: 0;
+}
+
+.recent .media .clip {
+    display: block;
+    height: 210px;
+    overflow: hidden;
+}
+
+.clip img {
+    position:absolute;
+    clip:rect(0px,280px,200px,0px);
+}
+
+.recent .media .img {
+    clear: both;
+    margin: 0;
+    float: none;
+}
+
+.recent .title {
+    display: block;
 }
 
 /* PAGINATION ************************************************************************/

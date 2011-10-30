@@ -87,13 +87,13 @@
 
 <!--<div id="page">-->
 
-
-
-    <div id="user-nav" role="nav">
-        <div class="container">
-            <div class="content">
+<div id="user-nav" role="nav">
+    <div class="container">
+        <div class="content">
             #{if !userName}
             <div class="buttons">
+                <!--#{a @Authentication.login()}Login #{/a}-->
+                <!--#{a @Registration.index()}Register #{/a}-->
                 #{btnHref label:"Login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
                 #{btnHref label:"Register", extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
             </div>
@@ -129,74 +129,76 @@
 
                 </div>
                 <!-- /.dropdown -->
-                #{btnHref label:"Logout", href:"/logout"     /}
+                #{btnHref label:"Logout", href:"/logout" /}
             </div>
 
             #{/else}
-            </div>
         </div>
-
     </div>
 
+</div>
 
-
-    <div id="header">
+<div id="header">
+    <!--<div class="container">-->
+    <div class="branding">
         <div class="container">
+            <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
-                <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
+            <div id="site-slogan">${viewUtils.themeProperty('siteSlogan')}</div>
 
-                <div id="primary-branding">
-                    <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
-                </div>
-
-                <div id="secondary-branding" role="banner">
-                     <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
-                </div>
-
-                <div id="site-slogan">${viewUtils.themeProperty('siteSlogan')}</div>
-
-                <div id="site-nav" role="nav">
-                    <!--site nav-->
-                    <ul>
-                        <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
-                        <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
-                        <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
-                        <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
-                        <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
-                    </ul>
-                </div>
-
+            <div id="primary-branding">
+                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
             </div>
-    </div>
 
-    <div id="search" role="search">
-        <div class="container">
-            <div class="content">
-                <form method="get" action="">
-                    <input type="text" id="query" name="query" value='${params.query}'/>
-                    <input type="submit" value="Search">
-                </form>
+            <div id="secondary-branding" role="banner">
+                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+            </div>
+
+        </div>
+
+        <div id="site-nav" role="nav">
+            <div class="container">
+                <!--site nav-->
+                <ul>
+                    <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
+                    <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
+                    <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
+                    <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
+                    <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
+                </ul>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="main">
-        <div class="container pbm ptm">
+<!--</div>-->
 
-                #{doLayout /}
+<div id="search" role="search">
+    <div class="container">
+        <div class="content">
+            <form method="get" action="">
+                <input type="text" id="query" name="query" value='${params.query}'/>
+                <input type="submit" value="Search">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="main">
+    <div class="container pbm ptm">
+
+        #{doLayout /}
+
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container">
+        <div class="content">
 
         </div>
     </div>
-
-
-
-    <div id="footer">
-        <div class="container">
-            <div class="content">
-
-            </div>
-        </div>
-    </div>
+</div>
 
 <!--</div>-->
 

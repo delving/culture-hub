@@ -2,10 +2,13 @@
 #{set title:'Welcome' /}
 #{set bodyId:'home' /}
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/carousel.css'}"/>
+
 #{/set}
+
 #{set 'moreScripts'}
+
 <script src='${views.context.package.themePath("javascripts/index.js")}' type='text/javascript' language="javascript"></script>
+
 #{/set}
 
 <div class="messages-container">
@@ -48,124 +51,89 @@
     </div>
 </div>
 
-#{if recentObjects.size() > 0}
-<div id="recent-objects">
-    <div class="inner">
+<div class="line">
 
-        <h1><span>Recent Objects</span></h1>
+    #{if recentObjects.size() > 0}
+    <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd">
+						<h3>Recent Object</h3>
+					</div>
+					<div class="bd">
+                        #{list recentObjects, as: 'o'}
+                        <div class="media">
+                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" width="300" alt="${o.title}"/></a>
 
-            <ul id="recent-objects-list" class="items">
-            #{list recentObjects, as: 'o'}
-            <li class="item">
-
-                <a href="/${o.userName}/object/${o.id}" rel="nofollow">
-
-                    <div class="media medium container">
-                        <div class="inner">
-                            <img src='${views.context.package.thumbnailUrl(o.thumbnail)}' alt="${o.title}"/>
-                        </div>
-                    </div>
-
-                    <div class="metadata">
-                        <div class="title">
-                            <div class="inner">
-                                ${o.title.shorten(50)}
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${o.title.shorten(50)}</a></span>
+                                    <p>${o.description.shorten(100)}</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="more-info">
-                            <div class="inner">
-                                <span class="detail">${views.context.package.fullName(o.userName)}</span>
-                            </div>
-                        </div>
+                        #{/list}
                     </div>
-                </a>
-
-
-
-
-            </li>
-            #{/list}
-        </ul>
-        <a href="/objects" class="">More objects</a>
+            </div>
         </div>
     </div>
-#{/if}
+    #{/if}
 
+    #{if recentCollections.size() > 0}
+     <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd">
+						<h3>Recent Collection</h3>
+					</div>
+					<div class="bd">
+                        #{list recentCollections, as: 'c'}
+                        <div class="media">
+                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.name}"/></a>
 
-#{if recentCollections.size() > 0}
-    <div id="recent-collections">
-         <div class="inner">
-
-             <h1><span>Recent Collections</span></h1>
-             <ul class="items">
-            #{list recentCollections, as: 'c'}
-
-            <li class="item">
-
-                <a href="/${c.userName}/collection/${c.id}" rel="nofollow">
-
-                    <div class="media medium container">
-                        <div class="inner">
-                            <img src='${views.context.package.thumbnailUrl(c.thumbnail)}' alt="${c.name}"/>
-                        </div>
-                    </div>
-
-                    <div class="metadata">
-                        <div class="title">
-                            <div class="inner">
-                                ${c.name.shorten(50)}
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${c.name.shorten(50)}</a></span>
+                                    *{<p>${c.description.shorten(100)}</p>}*
+                                </div>
                             </div>
                         </div>
-                        <div class="more-info">
-                            <div class="inner">
-                                <span class="detail">${views.context.package.fullName(c.userName)}</span>
-                                <span class="detail">${views.context.package.niceTime(c.TS_update)}</span>
-                            </div>
-                        </div>
+                        #{/list}
                     </div>
-                </a>
-            </li>
-            #{/list}
-        </ul>
-             <a href="/collections" class="">More collections</a>
+            </div>
         </div>
     </div>
-#{/if}
+    #{/if}
 
-#{if recentStories.size() > 0}
-    <div id="recent-stories">
-        <div class="inner">
+    #{if recentCollections.size() > 0}
+    <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd">
+						<h3>Recent Stroy</h3>
+					</div>
+					<div class="bd">
+                        #{list recentStories, as: 's'}
+                        <div class="media">
+                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.name}"/></a>
 
-            <h1><span>Recent Stories</span></h1>
-            <ul class="items">
-            #{list recentStories, as: 's'}
-            <li class="item">
-                <a href="/${s.userName}/story/${s.id}" rel="nofollow">
-                    <div class="media medium container">
-                        <div class="inner">
-                            <img src='${views.context.package.thumbnailUrl(s.thumbnail)}' alt="${s.name}"/>
-                        </div>
-                    </div>
-
-                    <div class="metadata">
-                        <div class="title">
-                            <div class="inner">${s.name.shorten(50)}</div>
-                        </div>
-                        <div class="more-info">
-                            <div class="inner">
-                                <span class="detail">${views.context.package.fullName(s.userName)}</span>
-                                <span class="detail">${views.context.package.niceTime(s.TS_update)}</span>
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${s.name.shorten(50)}</a></span>
+                                    *{<p>${s.description.shorten(100)}</p>}*
+                                </div>
                             </div>
                         </div>
+                        #{/list}
                     </div>
-                </a>
-            </li>
-            #{/list}
-        </ul>
-            <a href="/stories" class="">More stories</a>
+            </div>
         </div>
     </div>
-#{/if}
+    #{/if}
+</div>
+
+
+
 
 
 
