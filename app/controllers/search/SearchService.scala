@@ -261,23 +261,23 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
       ListMap("result" ->
-//              ListMap("query" ->
-//                      ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
-//                        "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
-//                "pagination" ->
-//                        ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
-//                          "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
-//                          "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
-//                          "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
-//                        ),
-//                "layout" ->
-//                        ListMap[String, Any]("drupal" -> createLayoutItems),
+              ListMap("query" ->
+                      ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
+                        "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
+                "pagination" ->
+                        ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
+                          "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
+                          "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
+                          "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
+                        ),
+                "layout" ->
+                        ListMap[String, Any]("drupal" -> createLayoutItems),
                 "items" ->
                         result.getBriefDocs.map(doc => createJsonRecord(doc)).toList
 //                "facets" -> createFacetList
               )
       )
-    ))
+    )))
     outputJson
   }
 }
