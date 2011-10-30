@@ -6,7 +6,7 @@ require:
     - delving -> dos 1.0
     - delving -> scala 0.9.1_20111028
     - commons-httpclient -> commons-httpclient 3.1
-    - net.liftweb -> lift-json-ext_2.8.1 2.4-M3:
+    - net.liftweb -> lift-json-ext_2.8.1 2.4-M4:
         exclude:
             - org.scala-lang -> *
     - de.micromata.jak -> JavaAPIforKml 2.2.0
@@ -14,7 +14,6 @@ require:
     - xpp3 -> xpp3_min 1.1.4c
     - provided -> magicktiler-lib 0.9
     - provided -> im4java 1.1.0
-    - org.apache.solr -> solr-solrj 3.3.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
     # delving dependencies

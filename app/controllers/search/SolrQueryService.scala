@@ -108,18 +108,21 @@ object SolrQueryService extends SolrServer {
             if (!values.isEmpty) query setStart (values.head.toInt)
           case "rows" =>
             if (!values.isEmpty) query setRows (values.head.toInt)
-          case "format" =>
-//            if (!values.isEmpty) query ssetRows (values.head.toInt)
           case "qf" =>
           case "hqf" =>
-          case "id" =>
-          case "explain" =>
+          case "fl" =>
+          case "facet.limit" =>
           case _ =>
         }
     }
     query
   }
 
+  def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true): CHQuery = {
+    val format = if (request.params._contains("format") && !request.params.get("format").isEmpty) request.params.get("format").trim() else "xml"
+    val query = parseRequest(request, theme)
+    CHQuery(query, format)
+  }
 
   //todo implement this
 //  def getFullItemView(chQuery: CHQuery): FullItemView
@@ -163,7 +166,7 @@ object SolrQueryService extends SolrServer {
 }
 case class FilterQuery(field: String, value: String)
 
-case class CHQuery(solrQuery: SolrQuery, responseFormat: String, filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty) {
+case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty) {
 
 }
 
@@ -259,23 +262,23 @@ case class PresentationQuery(chResponse: CHResponse, requestQueryString: String)
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Gerald de Jong <geralddejong@gmail.com>
  */
-trait BriefBeanView {
+case class BriefItemView(response: QueryResponse, chQuery: CHQuery) {
 
-  import org.apache.solr.client.solrj.response.SpellCheckResponse
+  import java.util.List
 
-  def getBriefDocs: List[_ <: BriefDocItem]
+  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(response)
 
-  def getFacetQueryLinks: List[FacetQueryLinks]
-
-  def getPagination: ResultPagination
-
-  def getFacetLogs: Map[String, String]
-
-  def getMatchDoc: BriefDocItem
-
-  def getSpellCheck: SpellCheckResponse
-
-  def getFacetMap: FacetMap
+//  def getFacetQueryLinks: List[FacetQueryLinks]
+//
+//  def getPagination: ResultPagination
+//
+//  def getFacetLogs: Map[String, String]
+//
+//  def getMatchDoc: BriefDocItem
+//
+//  def getSpellCheck: SpellCheckResponse
+//
+//  def getFacetMap: FacetMap
 }
 
 case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {

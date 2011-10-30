@@ -71,7 +71,10 @@ class SearchService(request: Request, theme: PortalTheme) {
         val fullItemView = getFullResultsFromSolr
         val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "json"), response = fullItemView.response)
         FullView(fullItemView, response1).renderAsJSON(authorized)
-//      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsJSON(authorized)
+      case _ =>
+        val briefView = getBriefResultsFromSolr
+        val chResponse = CHResponse(params = params, theme = theme, chQuery = briefView.chQuery, response = briefView.response)
+        SearchSummary(result = briefView, chResponse = chResponse).renderAsJSON(authorized)
     }
     new RenderJson(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response)
 
@@ -89,26 +92,25 @@ class SearchService(request: Request, theme: PortalTheme) {
         val fullItemView = getFullResultsFromSolr
         val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "xml"), response = fullItemView.response)
         FullView(fullItemView, response1).renderAsXML(authorized)
-//      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsXML(authorized)
+      case _ =>
+        val briefView = getBriefResultsFromSolr
+        val chResponse = CHResponse(params = params, theme = theme, chQuery = briefView.chQuery, response = briefView.response)
+        SearchSummary(result = briefView, chResponse = chResponse).renderAsXML(authorized)
     }
 
     new RenderXml("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response))
   }
 
   // todo implement this
-//  private def getBriefResultsFromSolr: BriefBeanView = {
-//    val userQuery = aro.request.getParameter("query")
-//    require(!userQuery.isEmpty)
-//    val jParams = aro.request.getParameterMap.asInstanceOf[JMap[String, Array[String]]]
-//    val solrQuery: SolrQuery = SolrQueryUtil.createFromQueryParams(jParams, aro.queryAnalyzer, aro.locale, ThemeFilter.getTheme.getRecordDefinition)
-//
+  private def getBriefResultsFromSolr: BriefItemView = {
+    require(!paramMap.get("query").head.isEmpty)
+    val chQuery = SolrQueryService.createCHQuery(request, theme, true)
+
 //    if (jParams.containsKey("fl")) solrQuery.setFields(jParams.get("fl").headOption.getOrElse("*,score")) else solrQuery.setFields("*,score")
 //    if (jParams.contains("facet.limit")) solrQuery.setFacetLimit(Integer.valueOf(jParams.get("facet.limit").headOption.getOrElse("100")))
-//
-//    val briefResultView = aro.beanQueryModelFactory.getBriefResultView(solrQuery, solrQuery.getQuery, jParams, aro.locale)
-//    aro.clickStreamLogger.logApiBriefView(aro.request, briefResultView, solrQuery)
-//    briefResultView
-//  }
+    BriefItemView(SolrQueryService.runQuery(chQuery.solrQuery, theme.solrSelectUrl), chQuery)
+
+  }
 
     // todo implement this
   private def getFullResultsFromSolr : FullItemView = {
@@ -161,14 +163,14 @@ class SearchService(request: Request, theme: PortalTheme) {
 
 }
 
-case class SearchSummary(result : BriefBeanView, language: String = "en", chResponse: CHResponse) {
+case class SearchSummary(result : BriefItemView, language: String = "en", chResponse: CHResponse) {
 
   import collection.mutable.LinkedHashMap
   import xml.Elem
 
-  private val pagination = result.getPagination
-  private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val startPage = pagination.getStart
+//  private val pagination = result.getPagination
+//  private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
+//  private val startPage = pagination.getStart
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
@@ -191,7 +193,7 @@ case class SearchSummary(result : BriefBeanView, language: String = "en", chResp
       <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
-        <query numFound={pagination.getNumFound.toString}>
+        <!--query numFound={pagination.getNumFound.toString}>
             <terms>{searchTerms}</terms>
             <breadCrumbs>
               {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>{bc.display}</breadcrumb>)}
@@ -219,7 +221,7 @@ case class SearchSummary(result : BriefBeanView, language: String = "en", chResp
               )
             }
           </drupal>
-        </layout>
+        </layout-->
         <items>
           {result.getBriefDocs.map(item =>
           <item>
@@ -227,7 +229,7 @@ case class SearchSummary(result : BriefBeanView, language: String = "en", chResp
           </item>
         )}
         </items>
-        <facets>
+        <!--facets>
           {result.getFacetQueryLinks.map(fql =>
             <facet name={fql.facetType} isSelected={fql.facetSelected.toString}>
               {fql.links.map(link =>
@@ -235,7 +237,7 @@ case class SearchSummary(result : BriefBeanView, language: String = "en", chResp
             )}
             </facet>
           )}
-        </facets>
+        </facets-->
       </results>
     response
   }
@@ -259,32 +261,32 @@ case class SearchSummary(result : BriefBeanView, language: String = "en", chResp
       ListMap(recordMap.toSeq: _*)
     }
 
-    def createFacetList: List[ListMap[String, Any]] = {
-      result.getFacetQueryLinks.map(fql =>
-        ListMap("name" -> fql.facetType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
-          ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
-      ).toList
-    }
+//    def createFacetList: List[ListMap[String, Any]] = {
+//      result.getFacetQueryLinks.map(fql =>
+//        ListMap("name" -> fql.facetType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
+//          ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
+//      ).toList
+//    }
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
       ListMap("result" ->
-              ListMap("query" ->
-                      ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
-                        "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
-                "pagination" ->
-                        ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
-                          "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
-                          "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
-                          "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
-                        ),
-                "layout" ->
-                        ListMap[String, Any]("drupal" -> createLayoutItems),
+//              ListMap("query" ->
+//                      ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
+//                        "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
+//                "pagination" ->
+//                        ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
+//                          "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
+//                          "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
+//                          "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
+//                        ),
+//                "layout" ->
+//                        ListMap[String, Any]("drupal" -> createLayoutItems),
                 "items" ->
-                        result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
-                "facets" -> createFacetList
+                        result.getBriefDocs.map(doc => createJsonRecord(doc)).toList
+//                "facets" -> createFacetList
               )
       )
-    )))
+    ))
     outputJson
   }
 }

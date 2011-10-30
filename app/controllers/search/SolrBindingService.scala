@@ -22,7 +22,6 @@ package controllers.search
  */
 
 import scala.collection.JavaConversions._
-import scala.reflect.BeanProperty
 import org.apache.solr.common.SolrDocumentList
 import java.util. {Date, ArrayList, List => JList}
 import java.lang.{Boolean => JBoolean, Float => JFloat}
@@ -115,15 +114,10 @@ object SolrBindingService {
     asJavaList(docIds)
   }
 
-  def getBriefDocs(queryResponse: QueryResponse): JList[BriefDocItem] = getBriefDocs(queryResponse.getResults)
+  def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = getBriefDocs(queryResponse.getResults)
 
-  def getBriefDocs(resultList: SolrDocumentList): JList[BriefDocItem] = {
-    val briefDocs = new ListBuffer[BriefDocItem]
-    getSolrDocumentList(resultList).foreach{
-      doc =>
-        briefDocs add (BriefDocItem(doc))
-    }
-    asJavaList(briefDocs)
+  def getBriefDocs(resultList: SolrDocumentList): List[BriefDocItem] = {
+    getSolrDocumentList(resultList).map(doc => BriefDocItem(doc))
   }
 
   def getFullDoc(queryResponse: QueryResponse): FullDocItem = {
@@ -132,15 +126,10 @@ object SolrBindingService {
     results.head
   }
 
-  def getFullDocs(queryResponse: QueryResponse): JList[FullDocItem] = getFullDocs(queryResponse.getResults)
+  def getFullDocs(queryResponse: QueryResponse): List[FullDocItem] = getFullDocs(queryResponse.getResults)
 
-  def getFullDocs(matchDoc: SolrDocumentList): JList[FullDocItem] = {
-    val fullDocs = new ListBuffer[FullDocItem]
-    getSolrDocumentList(matchDoc).foreach{
-      doc =>
-        fullDocs add (FullDocItem(doc))
-    }
-    asJavaList(fullDocs)
+  def getFullDocs(matchDoc: SolrDocumentList): List[FullDocItem] = {
+    getSolrDocumentList(matchDoc).map(doc => FullDocItem(doc))
   }
 
   def createFacetMap(links : JList[FacetQueryLinks]) = FacetMap(links.toList)
@@ -171,7 +160,7 @@ case class FacetStatisticsMap(private val facets: List[FacetField]) {
 
   def facetExists(key: String): Boolean = facetsMap.containsKey(key)
 
-  def availableFacets : JList[String] = facetsMap.keys.toList
+  def availableFacets : List[String] = facetsMap.keys.toList
 
   private def getDummyFacetField : FacetField = {
     val facetField = new FacetField("unknown")
