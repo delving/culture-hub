@@ -6,6 +6,7 @@ import models.salatContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
 import eu.delving.metadata.MetadataModelImpl
+import controllers.search.FacetElement
 
 /**
  *
@@ -39,7 +40,5 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
   }
 
 }
-
-case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
 
 object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) with Resolver[PortalTheme] with Commons[PortalTheme]

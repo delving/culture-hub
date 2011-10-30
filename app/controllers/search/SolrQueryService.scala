@@ -22,9 +22,6 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "&query="
 
-  private val MARGIN: Int = 5
-  private val PAGE_NUMBER_THRESHOLD: Int = 7
-
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     field.getValueAsArray.map(value =>
       try {
@@ -65,7 +62,7 @@ object SolrQueryService extends SolrServer {
 
   import org.apache.solr.client.solrj.SolrQuery
   import play.mvc.Http.Request
-  import models.{PortalTheme, FacetElement}
+  import models.PortalTheme
 
   def getSolrQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
 
@@ -81,16 +78,16 @@ object SolrQueryService extends SolrServer {
     query
   }
 
-  def getSolrFullItemQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
-    // todo finish this
-    val query = new SolrQuery("*:*")
-    query set ("edismax")
-    query setRows 12
-    query setStart 0
-    query
-  }
+//  def getSolrFullItemQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
+//    // todo finish this
+//    val query = new SolrQuery("*:*")
+//    query set ("edismax")
+//    query setRows 12
+//    query setStart 0
+//    query
+//  }
 
-  def parseRequest(request: Request, theme: PortalTheme) : SolrQuery = {
+  def parseSolrQueryFromRequest(request: Request, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val query = getSolrQueryWithDefaults(theme.facets)
@@ -98,36 +95,71 @@ object SolrQueryService extends SolrServer {
     val params = request.params
 //    require(params._contains("query") && !params.get("query").isEmpty)
 
-    params.all().foreach{
+    params.all().filter(!_._2.isEmpty).foreach{
       key =>
+        import play.Logger
         val values = key._2
-        key._1 match {
-          case "query" =>
-            query setQuery (values.head)
-          case "start" =>
-            if (!values.isEmpty) query setStart (values.head.toInt)
-          case "rows" =>
-            if (!values.isEmpty) query setRows (values.head.toInt)
-          case "qf" =>
-          case "hqf" =>
-          case "fl" =>
-          case "facet.limit" =>
-          case _ =>
+        try {
+          key._1 match {
+            case "query" =>
+              query setQuery (booleanOperatorsToUpperCase(values.head))
+            case "start" =>
+              query setStart (values.head.toInt)
+            case "rows" =>
+              query setRows (values.head.toInt)
+            case "fl" =>
+              query setFields (values.mkString(","))
+            case "facet.limit" =>
+              query setFacetLimit (values.head.toInt)
+            case "sortBy" =>
+              val sortOrder = if (params._contains("sortOrder") && !params.get("sortOrder").equalsIgnoreCase("desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+              query setSortField (
+                      values.head,
+                      sortOrder
+                      )
+            case "facet.field" =>
+              val facets = if (query.getFacetFields != null) query.getFacetFields ++ values else values
+              query addFacetField (facets).mkString(",")
+            case _ =>
+          }
+        }
+        catch {
+          case ex: Exception =>
+            Logger error (ex, "Unable to process parameter %s with values %s".format(key._1, values.mkString(",")))
         }
     }
     query
   }
 
   def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true): CHQuery = {
-    val format = if (request.params._contains("format") && !request.params.get("format").isEmpty) request.params.get("format").trim() else "xml"
-    val query = parseRequest(request, theme)
-    CHQuery(query, format)
+
+    def createFilterQueryList(values: Array[String]): List[FilterQuery] = {
+      if (values == null)
+        List[FilterQuery]()
+      else
+        values.filter(_.split(":").size == 2).map(
+          fq => {
+            val split = fq.split(":")
+            FilterQuery(split.head, split.last)
+          }
+        ).toList
+    }
+
+    val paramMap = request.params.all()
+    val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
+    // todo add support for "qf[]"
+    val filterQueries = createFilterQueryList(request.params.getAll("qf"))
+    val hiddenQueryFilters = createFilterQueryList(
+      if (!theme.hiddenQueryFilter.get.isEmpty) request.params.getAll("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
+    )
+    val query = parseSolrQueryFromRequest(request, theme)
+    CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
 
   //todo implement this
 //  def getFullItemView(chQuery: CHQuery): FullItemView
 
-  private def getSolrResponseFromServer(solrQuery: SolrQuery, solrSelectUrl: String, decrementStart: Boolean = false): QueryResponse = {
+  def getSolrResponseFromServer(solrQuery: SolrQuery, solrSelectUrl: String, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
     import play.Logger
     import org.apache.solr.client.solrj.SolrServerException
@@ -141,6 +173,7 @@ object SolrQueryService extends SolrServer {
       solrQuery.setStart(solrQuery.getStart.intValue() - 1)
     }
     try {
+      Logger.info(solrQuery.toString)
       runQuery(solrQuery, solrSelectUrl)
     }
     catch {
@@ -163,16 +196,63 @@ object SolrQueryService extends SolrServer {
   def createRandomNumber: Int = scala.util.Random.nextInt(1000)
   def createRandomSortKey : String = "random_%i".format(createRandomNumber)
 
+  def createBreadCrumbList(chQuery: CHQuery) : List[BreadCrumb] = {
+    val solrQueryString = chQuery.solrQuery.getQuery
+    val breadCrumbs = List[BreadCrumb](
+      BreadCrumb(
+        href = QUERY_PROMPT + encode(solrQueryString),
+        display = solrQueryString,
+        value = solrQueryString
+      ))
+    val fqCrumbs = chQuery.filterQueries.map {
+      fq =>
+        BreadCrumb(
+        href = "%s%s:%s".format(FACET_PROMPT, fq.field, fq.value),
+        display = "%s:%s".format(fq.field, fq.value),
+        field = fq.field,
+        value = fq.value
+        )
+    }
+    if (fqCrumbs.isEmpty) {
+      breadCrumbs.head.copy(isLast = true)
+      breadCrumbs
+    }
+    else
+      fqCrumbs.last.copy(isLast = true)
+      breadCrumbs ::: fqCrumbs
+  }
+
+  def booleanOperatorsToUpperCase(query: String): String = {
+    query.split(" ").map{
+      item =>
+        item match {
+          case "and" | "or" | "not" => item.toUpperCase
+          case _ => item
+        }
+    }.mkString(" ")
+  }
+
+  //todo implement this
+  def createPager(chResponse: CHResponse): Pager = {
+    val solrStart = chResponse.chQuery.solrQuery.getStart
+    Pager(
+      numFound = chResponse.response.getResults.getNumFound.intValue,
+      start = if (solrStart != null) solrStart.intValue() + 1 else 1,
+      rows = chResponse.chQuery.solrQuery.getRows.intValue()
+    )
+  }
 }
 case class FilterQuery(field: String, value: String)
 
-case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty) {
+case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
 
-}
+case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty)
 
-case class CHResponse(breadCrumbs: List[BreadCrumb] = List.empty, params: Params, theme: PortalTheme, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
+case class CHResponse(params: Params, theme: PortalTheme, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
 
   def useCacheUrl: Boolean = if (params._contains("cache") && params.get("cache").equalsIgnoreCase("true")) true else false
+
+  lazy val breadCrumbs: List[BreadCrumb] = SolrQueryService.createBreadCrumbList(chQuery)
 
 }
 
@@ -184,7 +264,7 @@ case class PageLink(start: Int, display: Int, isLinked: Boolean = false) {
   override def toString: String = if (isLinked) "%i:%i".format(display, start) else display.toString
 }
 
-case class BreadCrumb(href: String, display: String, field: String, localisedField: String, value: String, isLast: Boolean) {
+case class BreadCrumb(href: String, display: String, field: String = "", localisedField: String = "", value: String, isLast: Boolean = false) {
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
@@ -198,36 +278,63 @@ case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boo
 
 case class FacetQueryLinks(facetType: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false)
 
+case class Pager(numFound: Int, start: Int = 1, rows: Int = 12) {
 
-trait ResultPagination {
+  private val MARGIN: Int = 5
+  private val PAGE_NUMBER_THRESHOLD: Int = 7
 
-  def isPrevious: Boolean
+  val totalPages = if (numFound % rows != 0) numFound / rows + 1 else numFound / rows
+  val currentPageNumber = start / rows + 1
+  val hasPreviousPage = start > 1
+  val previousPageNumber = start - rows
+  var fromPage: Int = 1
+  var toPage: Int = scala.Math.min(totalPages, MARGIN * 2)
+  if (currentPageNumber > PAGE_NUMBER_THRESHOLD) {
+    fromPage = currentPageNumber - MARGIN
+    toPage = Math.min(currentPageNumber + MARGIN - 1, totalPages)
+  }
+  if (toPage - fromPage < MARGIN * 2 - 1) {
+    fromPage = Math.max(1, toPage - MARGIN * 2 + 1)
+  }
+  val hasNextPage = totalPages > 1 && currentPageNumber < toPage
+  val nextPageNumber = start + rows
+  val pageLinks = (fromPage to toPage).map(page => PageLink(page, ((page - 1) * rows + 1), currentPageNumber != page)).toList
+  val lastViewableRecord = scala.Math.min(nextPageNumber - 1, numFound)
+}
 
-  def isNext: Boolean
+case class ResultPagination (chResponse: CHResponse) {
 
-  def getPreviousPage: Int
+  lazy val pager = SolrQueryService.createPager(chResponse)
 
-  def getNextPage: Int
+  def isPrevious: Boolean = pager.hasPreviousPage
 
-  def getLastViewableRecord: Int
+  def isNext: Boolean = pager.hasNextPage
 
-  def getNumFound: Int
+  def getPreviousPage: Int = pager.previousPageNumber
 
-  def getRows: Int
+  def getNextPage: Int = pager.nextPageNumber
 
-  def getStart: Int
+  def getLastViewableRecord: Int = pager.lastViewableRecord
 
-  def getPageLinks: List[PageLink]
+  def getNumFound: Int = pager.numFound
 
-  def getBreadcrumbs: List[BreadCrumb]
+  def getRows: Int = pager.rows
 
-  def getPresentationQuery: PresentationQuery
+  def getStart: Int = pager.start
 
-  def getPageNumber: Int
+  def getPageNumber: Int = pager.currentPageNumber
+
+  def getPageLinks: List[PageLink] = pager.pageLinks
+
+  def getBreadcrumbs: List[BreadCrumb] = chResponse.breadCrumbs
+
+  def getPresentationQuery: PresentationQuery = PresentationQuery(chResponse)
 }
 
 // implemented
-case class PresentationQuery(chResponse: CHResponse, requestQueryString: String) {
+case class PresentationQuery(chResponse: CHResponse) {
+
+  val requestQueryString = chResponse.chQuery.solrQuery.getQuery
 
   def getUserSubmittedQuery: String = chResponse.chQuery.solrQuery.getQuery
 
@@ -262,15 +369,15 @@ case class PresentationQuery(chResponse: CHResponse, requestQueryString: String)
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Gerald de Jong <geralddejong@gmail.com>
  */
-case class BriefItemView(response: QueryResponse, chQuery: CHQuery) {
+case class BriefItemView(chResponse: CHResponse) {
 
   import java.util.List
 
-  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(response)
+  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(chResponse.response)
 
 //  def getFacetQueryLinks: List[FacetQueryLinks]
 //
-//  def getPagination: ResultPagination
+  def getPagination: ResultPagination = ResultPagination(chResponse)
 //
 //  def getFacetLogs: Map[String, String]
 //
@@ -292,7 +399,6 @@ case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
 }
 
 trait DocIdWindowPager {
-
 
   def getDocIdWindow: DocIdWindow
 
@@ -363,8 +469,8 @@ trait PagingWindow {
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since Feb 20, 2010 8:40:07 PM
  */
-trait DocId {
-  def getEuropeanaUri: String
+case class DocId(solrIdentifier: String)  {
+  def getEuropeanaUri: String = solrIdentifier
 }
 
 class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {

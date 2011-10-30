@@ -73,8 +73,7 @@ class SearchService(request: Request, theme: PortalTheme) {
         FullView(fullItemView, response1).renderAsJSON(authorized)
       case _ =>
         val briefView = getBriefResultsFromSolr
-        val chResponse = CHResponse(params = params, theme = theme, chQuery = briefView.chQuery, response = briefView.response)
-        SearchSummary(result = briefView, chResponse = chResponse).renderAsJSON(authorized)
+        SearchSummary(result = briefView, chResponse = briefView.chResponse).renderAsJSON(authorized)
     }
     new RenderJson(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response)
 
@@ -94,8 +93,7 @@ class SearchService(request: Request, theme: PortalTheme) {
         FullView(fullItemView, response1).renderAsXML(authorized)
       case _ =>
         val briefView = getBriefResultsFromSolr
-        val chResponse = CHResponse(params = params, theme = theme, chQuery = briefView.chQuery, response = briefView.response)
-        SearchSummary(result = briefView, chResponse = chResponse).renderAsXML(authorized)
+        SearchSummary(result = briefView, chResponse = briefView.chResponse).renderAsXML(authorized)
     }
 
     new RenderXml("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response))
@@ -105,11 +103,7 @@ class SearchService(request: Request, theme: PortalTheme) {
   private def getBriefResultsFromSolr: BriefItemView = {
     require(!paramMap.get("query").head.isEmpty)
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
-
-//    if (jParams.containsKey("fl")) solrQuery.setFields(jParams.get("fl").headOption.getOrElse("*,score")) else solrQuery.setFields("*,score")
-//    if (jParams.contains("facet.limit")) solrQuery.setFacetLimit(Integer.valueOf(jParams.get("facet.limit").headOption.getOrElse("100")))
-    BriefItemView(SolrQueryService.runQuery(chQuery.solrQuery, theme.solrSelectUrl), chQuery)
-
+    BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery))
   }
 
     // todo implement this
@@ -117,10 +111,7 @@ class SearchService(request: Request, theme: PortalTheme) {
     import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("id") || params._contains("did"))
     // todo must be coded differently in the future
-    val response = SolrQueryService.runQuery(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))), theme.solrSelectUrl)
-//    val jParams = aro.request.getParameterMap.asInstanceOf[JMap[String, Array[String]]]
-//    val fullView = aro.beanQueryModelFactory.getFullResultView(jParams, aro.locale)
-//    aro.clickStreamLogger.logApiFullView(aro.request, fullView, idQuery)
+    val response = SolrQueryService.getSolrResponseFromServer(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))), theme.solrSelectUrl)
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
 
@@ -168,9 +159,9 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
   import collection.mutable.LinkedHashMap
   import xml.Elem
 
-//  private val pagination = result.getPagination
-//  private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-//  private val startPage = pagination.getStart
+  private val pagination = result.getPagination
+  private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
+  private val startPage = pagination.getStart
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
@@ -193,7 +184,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
       <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
-        <!--query numFound={pagination.getNumFound.toString}>
+        <query numFound={pagination.getNumFound.toString}>
             <terms>{searchTerms}</terms>
             <breadCrumbs>
               {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>{bc.display}</breadcrumb>)}
@@ -221,7 +212,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
               )
             }
           </drupal>
-        </layout-->
+        </layout>
         <items>
           {result.getBriefDocs.map(item =>
           <item>
