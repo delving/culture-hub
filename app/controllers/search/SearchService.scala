@@ -54,7 +54,7 @@ class SearchService(request: Request, theme: PortalTheme) {
     }
     catch {
       case ex : Exception =>
-        Logger.error("something went wrong", ex.getStackTraceString)
+        Logger.error(ex, "something went wrong")
         errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
     }
     response
@@ -62,11 +62,15 @@ class SearchService(request: Request, theme: PortalTheme) {
 
   def getJSONResultResponse(authorized: Boolean = true, callback : String = ""): Result = {
     import play.mvc.results.RenderJson
+    import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response : String = paramMap.keys.toList match {
       case x : List[String] if x.contains("explain") => ExplainResponse(theme).renderAsJson
-//      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsJSON(authorized)
+      case x : List[String] if x.contains("id") && !paramMap.get("id").head.isEmpty =>
+        val fullItemView = getFullResultsFromSolr
+        val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "json"), response = fullItemView.response)
+        FullView(fullItemView, response1).renderAsJSON(authorized)
 //      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsJSON(authorized)
     }
     new RenderJson(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response)
@@ -80,7 +84,11 @@ class SearchService(request: Request, theme: PortalTheme) {
 
     val response : Elem = paramMap.keys.toList match {
       case x : List[String] if x.contains("explain") => ExplainResponse(theme).renderAsXml
-//      case x : Map[String, Array[String]] if x.containsKey("id") && !x.get("id").isEmpty => FullView(getFullResultsFromSolr, aro).renderAsXML(true)
+      case x : List[String] if x.contains("id") && !paramMap.get("id").head.isEmpty =>
+        import org.apache.solr.client.solrj.SolrQuery
+        val fullItemView = getFullResultsFromSolr
+        val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "xml"), response = fullItemView.response)
+        FullView(fullItemView, response1).renderAsXML(authorized)
 //      case _ => SearchSummary(getBriefResultsFromSolr, aro).renderAsXML(authorized)
     }
 
@@ -103,14 +111,16 @@ class SearchService(request: Request, theme: PortalTheme) {
 //  }
 
     // todo implement this
-//  private def getFullResultsFromSolr : FullBeanView = {
-//    val idQuery = aro.request.getParameter("id")
-//    require(!idQuery.isEmpty)
+  private def getFullResultsFromSolr : FullItemView = {
+    import org.apache.solr.client.solrj.SolrQuery
+    require(params._contains("id") || params._contains("did"))
+    // todo must be coded differently in the future
+    val response = SolrQueryService.runQuery(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))), theme.solrSelectUrl)
 //    val jParams = aro.request.getParameterMap.asInstanceOf[JMap[String, Array[String]]]
 //    val fullView = aro.beanQueryModelFactory.getFullResultView(jParams, aro.locale)
 //    aro.clickStreamLogger.logApiFullView(aro.request, fullView, idQuery)
-//    fullView
-//  }
+    FullItemView(SolrBindingService.getFullDoc(response), response)
+  }
 
 
    def errorResponse(error : String = "Unable to respond to the API request",

@@ -1,10 +1,11 @@
 package controllers.search
 
-import org.apache.solr.client.solrj.SolrQuery
 import play.mvc.Scope.Params
 import models.PortalTheme
-import org.apache.solr.client.solrj.response.FacetField
 import controllers.SolrServer
+import scala.collection.JavaConversions._
+import org.apache.solr.client.solrj.{SolrResponse, SolrQuery}
+import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 
 /**
  *
@@ -14,12 +15,15 @@ import controllers.SolrServer
 
 object SolrQueryService extends SolrServer {
 
-  import org.apache.log4j.Logger
   import xml.Elem
   import play.mvc.Http.Request
   import java.net.URLEncoder
 
-  private val log : Logger = Logger.getLogger("RichSearchAPIService")
+  val FACET_PROMPT: String = "&qf="
+  val QUERY_PROMPT: String = "&query="
+
+  private val MARGIN: Int = 5
+  private val PAGE_NUMBER_THRESHOLD: Int = 7
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     field.getValueAsArray.map(value =>
@@ -29,11 +33,14 @@ object SolrQueryService extends SolrServer {
       }
       catch {
         case ex : Exception =>
-          log error ("unable to parse " + value + "for field " + field.getKeyAsXml)
+          import play.Logger
+          Logger error (ex, "unable to parse " + value + "for field " + field.getKeyAsXml)
           <error/>
       }
     ).toSeq
   }
+
+  def encode(text: String): String = URLEncoder.encode(text, "utf-8")
 
   def encodeUrl(field: FieldValue, request: Request, response: CHResponse): String = {
     import java.net.URLEncoder
@@ -43,7 +50,6 @@ object SolrQueryService extends SolrServer {
   }
 
   def encodeUrl(fields: Array[String], label: String, response: CHResponse): Array[String] = {
-
     if (response.useCacheUrl && label == "europeana_object")
       fields.map(fieldEntry => response.theme.cacheUrl + URLEncoder.encode(fieldEntry, "utf-8"))
     else fields
@@ -57,7 +63,7 @@ object SolrQueryService extends SolrServer {
     else content.replaceAll(" & ", "&amp;")
   }
 
-   import org.apache.solr.client.solrj.SolrQuery
+  import org.apache.solr.client.solrj.SolrQuery
   import play.mvc.Http.Request
   import models.{PortalTheme, FacetElement}
 
@@ -67,15 +73,22 @@ object SolrQueryService extends SolrServer {
     query set ("edismax")
     query setRows 12
     query setStart 0
-    // todo get facets from themes
     query setFacet true
     query setFacetLimit (1)
     query setFacetLimit (100)
     facets foreach (facet => query setFacetPrefix (facet.facetPrefix, facet.facetName))
-
+    query setFields ("*,score")
     query
   }
 
+  def getSolrFullItemQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
+    // todo finish this
+    val query = new SolrQuery("*:*")
+    query set ("edismax")
+    query setRows 12
+    query setStart 0
+    query
+  }
 
   def parseRequest(request: Request, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
@@ -84,8 +97,6 @@ object SolrQueryService extends SolrServer {
 
     val params = request.params
 //    require(params._contains("query") && !params.get("query").isEmpty)
-
-
 
     params.all().foreach{
       key =>
@@ -100,7 +111,6 @@ object SolrQueryService extends SolrServer {
           case "format" =>
 //            if (!values.isEmpty) query ssetRows (values.head.toInt)
           case "qf" =>
-
           case "hqf" =>
           case "id" =>
           case "explain" =>
@@ -110,12 +120,46 @@ object SolrQueryService extends SolrServer {
     query
   }
 
-  def createRandomNumber: Int = scala.util.Random.nextInt(1000)
-
-  def createRandomSortKey : String = "random_%i".format(createRandomNumber)
 
   //todo implement this
 //  def getFullItemView(chQuery: CHQuery): FullItemView
+
+  private def getSolrResponseFromServer(solrQuery: SolrQuery, solrSelectUrl: String, decrementStart: Boolean = false): QueryResponse = {
+    import org.apache.solr.common.SolrException
+    import play.Logger
+    import org.apache.solr.client.solrj.SolrServerException
+
+    // solr is 0 based so we need to decrement from our page start
+    if (solrQuery.getStart != null && solrQuery.getStart.intValue() < 0) {
+      solrQuery.setStart(0)
+      Logger.warn("Solr Start cannot be negative")
+    }
+    if (decrementStart && solrQuery.getStart != null && solrQuery.getStart.intValue() > 0) {
+      solrQuery.setStart(solrQuery.getStart.intValue() - 1)
+    }
+    try {
+      runQuery(solrQuery, solrSelectUrl)
+    }
+    catch {
+      case e: SolrException => {
+        Logger.error("unable to execute SolrQuery", e)
+        throw new MalformedQueryException("Malformed Query", e)
+      }
+      case e: SolrServerException if e.getMessage.equalsIgnoreCase("Error executing query") => {
+        Logger.error("Unable to fetch result", e)
+        throw new MalformedQueryException("Malformed Query", e)
+      }
+      case e: SolrServerException => {
+        import models.SolrConnectionException
+        Logger.error("Unable to connect to Solr Server", e)
+        throw new SolrConnectionException("SOLR_UNREACHABLE", e)
+      }
+    }
+  }
+
+  def createRandomNumber: Int = scala.util.Random.nextInt(1000)
+  def createRandomSortKey : String = "random_%i".format(createRandomNumber)
+
 }
 case class FilterQuery(field: String, value: String)
 
@@ -123,9 +167,9 @@ case class CHQuery(solrQuery: SolrQuery, responseFormat: String, filterQueries: 
 
 }
 
-case class CHResponse(breadCrumbs: List[BreadCrumb], params: Params, theme: PortalTheme) { // todo extend with the other response elements
+case class CHResponse(breadCrumbs: List[BreadCrumb] = List.empty, params: Params, theme: PortalTheme, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
 
-  def useCacheUrl: Boolean = if (!params._contains("cache") && !params.get("cache").equalsIgnoreCase("true")) true else false
+  def useCacheUrl: Boolean = if (params._contains("cache") && params.get("cache").equalsIgnoreCase("true")) true else false
 
 }
 
@@ -179,17 +223,34 @@ trait ResultPagination {
   def getPageNumber: Int
 }
 
+// implemented
+case class PresentationQuery(chResponse: CHResponse, requestQueryString: String) {
 
-trait PresentationQuery {
-  def getUserSubmittedQuery: String
+  def getUserSubmittedQuery: String = chResponse.chQuery.solrQuery.getQuery
 
-  def getQueryForPresentation: String
+  def getQueryForPresentation: String = createQueryForPresentation(chResponse.chQuery.solrQuery)
 
-  def getQueryToSave: String
+  def getQueryToSave: String = requestQueryString
 
-  def getTypeQuery: String
+  def getTypeQuery: String = removePresentationFilters(requestQueryString)
 
-  def getParsedQuery: String
+  def getParsedQuery: String = {
+    val debug = chResponse.chQuery.solrQuery.getBool("debugQuery").booleanValue()
+    if (debug != null && debug)
+      String.valueOf(chResponse.response.getDebugMap.get("parsedquery_toString"))
+    else
+      "Information not available"
+  }
+
+  private def removePresentationFilters(requestQueryString: String): String = {
+    var filterQueries: Array[String] = requestQueryString.split("&")
+    filterQueries.filter(fq => fq.startsWith("qf=TYPE:") || fq.startsWith("tab=") || fq.startsWith("view=") || fq.startsWith("start=")).mkString("&")
+  }
+
+  private def createQueryForPresentation(solrQuery: SolrQuery): String = {
+    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=", "&qf=", ""))
+  }
+
 }
 
 /**
@@ -217,13 +278,14 @@ trait BriefBeanView {
   def getFacetMap: FacetMap
 }
 
-trait FullItemView {
+case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
+//case class FullItemView(pager: DocIdWindowPager, relatedItems: List[BriefDocItem], fullItem: FullDocItem) {
 
-  def getDocIdWindowPager: DocIdWindowPager
+//  def getDocIdWindowPager: DocIdWindowPager = pager
+//
+//  def getRelatedItems: List[BriefDocItem] = relatedItems
 
-  def getRelatedItems: List[BriefDocItem]
-
-  def getFullDoc: FullDocItem
+  def getFullDoc: FullDocItem = fullItem
 }
 
 trait DocIdWindowPager {

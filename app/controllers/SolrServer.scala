@@ -17,11 +17,21 @@ trait SolrServer {
   def getStreamingUpdateServer = SolrServer.streamingUpdateServer
   def getTestServer = SolrServer.solrTestServer
 
-  def runQuery(query: SolrQuery): QueryResponse = getSolrServer.query(query)
+  def runQuery(query: SolrQuery, solrBaseUrl: String): QueryResponse = SolrServer.getSolrServer(solrBaseUrl).query(query)
 }
 
 object SolrServer {
   import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
+
+  def getSolrServer(url: String) = {
+    solrServer.setBaseURL(url)
+    solrServer
+  }
+
+  def getSolrUpdateServer(url: String) = {
+    streamingUpdateServer.setBaseURL(url)
+    streamingUpdateServer
+  }
 
   private val url = "http://localhost:8983/solr/core2"
   private val solrServer = new CommonsHttpSolrServer( url )
