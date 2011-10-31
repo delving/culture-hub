@@ -20,7 +20,7 @@ object SolrQueryService extends SolrServer {
   import java.net.URLEncoder
 
   val FACET_PROMPT: String = "&qf="
-  val QUERY_PROMPT: String = "&query="
+  val QUERY_PROMPT: String = "query="
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     field.getValueAsArray.map(value =>
@@ -93,7 +93,6 @@ object SolrQueryService extends SolrServer {
     val query = getSolrQueryWithDefaults(theme.facets)
 
     val params = request.params
-//    require(params._contains("query") && !params.get("query").isEmpty)
 
     params.all().filter(!_._2.isEmpty).foreach{
       key =>
@@ -131,24 +130,24 @@ object SolrQueryService extends SolrServer {
     query
   }
 
+  def createFilterQueryList(values: Array[String]): List[FilterQuery] = {
+    if (values == null)
+      List[FilterQuery]()
+    else
+      values.filter(_.split(":").size == 2).map(
+        fq => {
+          val split = fq.split(":")
+          FilterQuery(split.head, split.last)
+        }
+      ).toList
+  }
+
   def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true): CHQuery = {
 
     val paramMap = request.params.all()
 
-    def createFilterQueryList(values: Array[String]): List[FilterQuery] = {
-      if (values == null)
-        List[FilterQuery]()
-      else
-        values.filter(_.split(":").size == 2).map(
-          fq => {
-            val split = fq.split(":")
-            FilterQuery(split.head, split.last)
-          }
-        ).toList
-    }
-
     def getAllFilterQueries(fqKey: String): Array[String] = {
-      paramMap.filter(key => key.toString().equalsIgnoreCase(fqKey) || key.toString().equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
+      paramMap.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
     }
 
     val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
@@ -198,29 +197,33 @@ object SolrQueryService extends SolrServer {
   def createRandomSortKey : String = "random_%i".format(createRandomNumber)
 
   def createBreadCrumbList(chQuery: CHQuery) : List[BreadCrumb] = {
+    import collection.mutable.ListBuffer
     val solrQueryString = chQuery.solrQuery.getQuery
+    val hrefBuilder = new ListBuffer[String]()
+    hrefBuilder append (QUERY_PROMPT + encode(solrQueryString))
     val breadCrumbs = List[BreadCrumb](
       BreadCrumb(
-        href = QUERY_PROMPT + encode(solrQueryString),
+        href = hrefBuilder.mkString,
         display = solrQueryString,
         value = solrQueryString
       ))
     val fqCrumbs = chQuery.filterQueries.map {
       fq =>
+        hrefBuilder append (fq.toFacetString)
         BreadCrumb(
-        href = "%s%s:%s".format(FACET_PROMPT, fq.field, fq.value),
-        display = "%s:%s".format(fq.field, fq.value),
+        href = hrefBuilder.mkString(FACET_PROMPT),
+        display = fq.toFacetString,
         field = fq.field,
         value = fq.value
         )
     }
     if (fqCrumbs.isEmpty) {
-      breadCrumbs.head.copy(isLast = true)
-      breadCrumbs
+      List(breadCrumbs.head.copy(isLast = true))
     }
-    else
-      fqCrumbs.last.copy(isLast = true)
-      breadCrumbs ::: fqCrumbs
+    else {
+      val breadCrumb = fqCrumbs.last.copy(isLast = true)
+      breadCrumbs ::: fqCrumbs.init ::: List(breadCrumb)
+    }
   }
 
   def booleanOperatorsToUpperCase(query: String): String = {
@@ -298,7 +301,10 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 
 
-case class FilterQuery(field: String, value: String)
+case class FilterQuery(field: String, value: String) {
+  def toFacetString = "%s:%s".format(field, value)
+  def toPrefixedFacetString = "%s%s:%s".format(SolrQueryService.FACET_PROMPT, field, value)
+}
 
 case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
 
