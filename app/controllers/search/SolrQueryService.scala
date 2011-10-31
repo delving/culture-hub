@@ -4,7 +4,7 @@ import play.mvc.Scope.Params
 import models.PortalTheme
 import controllers.SolrServer
 import scala.collection.JavaConversions._
-import org.apache.solr.client.solrj.{SolrResponse, SolrQuery}
+import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 
 /**
@@ -133,6 +133,8 @@ object SolrQueryService extends SolrServer {
 
   def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true): CHQuery = {
 
+    val paramMap = request.params.all()
+
     def createFilterQueryList(values: Array[String]): List[FilterQuery] = {
       if (values == null)
         List[FilterQuery]()
@@ -145,19 +147,18 @@ object SolrQueryService extends SolrServer {
         ).toList
     }
 
-    val paramMap = request.params.all()
+    def getAllFilterQueries(fqKey: String): Array[String] = {
+      paramMap.filter(key => key.toString().equalsIgnoreCase(fqKey) || key.toString().equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
+    }
+
     val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
-    // todo add support for "qf[]"
-    val filterQueries = createFilterQueryList(request.params.getAll("qf"))
+    val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(
-      if (!theme.hiddenQueryFilter.get.isEmpty) request.params.getAll("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
+      if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
     )
     val query = parseSolrQueryFromRequest(request, theme)
     CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
-
-  //todo implement this
-//  def getFullItemView(chQuery: CHQuery): FullItemView
 
   def getSolrResponseFromServer(solrQuery: SolrQuery, solrSelectUrl: String, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
@@ -339,12 +340,12 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = 12) {
     toPage = Math.min(currentPageNumber + MARGIN - 1, totalPages)
   }
   if (toPage - fromPage < MARGIN * 2 - 1) {
-    fromPage = Math.max(1, toPage - MARGIN * 2 + 1)
+    fromPage = scala.math.max(1, toPage - MARGIN * 2 + 1)
   }
   val hasNextPage = totalPages > 1 && currentPageNumber < toPage
   val nextPageNumber = start + rows
   val pageLinks = (fromPage to toPage).map(page => PageLink(page, ((page - 1) * rows + 1), currentPageNumber != page)).toList
-  val lastViewableRecord = scala.Math.min(nextPageNumber - 1, numFound)
+  val lastViewableRecord = scala.math.min(nextPageNumber - 1, numFound)
 }
 
 case class ResultPagination (chResponse: CHResponse) {
@@ -408,12 +409,6 @@ case class PresentationQuery(chResponse: CHResponse) {
 
 }
 
-/**
- * todo: javadoc
- *
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @author Gerald de Jong <geralddejong@gmail.com>
- */
 case class BriefItemView(chResponse: CHResponse) {
 
   import java.util.List
@@ -442,6 +437,8 @@ case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
 
   def getFullDoc: FullDocItem = fullItem
 }
+
+// todo implement the traits as case classes
 
 trait DocIdWindowPager {
 

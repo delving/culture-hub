@@ -251,12 +251,12 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
       ListMap(recordMap.toSeq: _*)
     }
 
-//    def createFacetList: List[ListMap[String, Any]] = {
-//      result.getFacetQueryLinks.map(fql =>
-//        ListMap("name" -> fql.facetType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
-//          ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
-//      ).toList
-//    }
+    def createFacetList: List[ListMap[String, Any]] = {
+      result.getFacetQueryLinks.map(fql =>
+        ListMap("name" -> fql.getType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
+          ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
+      ).toList
+    }
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
       ListMap("result" ->
@@ -272,8 +272,8 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
                 "layout" ->
                         ListMap[String, Any]("drupal" -> createLayoutItems),
                 "items" ->
-                        result.getBriefDocs.map(doc => createJsonRecord(doc)).toList
-//                "facets" -> createFacetList
+                        result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
+                "facets" -> createFacetList
               )
       )
     )))
