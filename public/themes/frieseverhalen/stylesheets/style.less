@@ -2,19 +2,25 @@
 
 /*colors */
 
-@color-1: #618100;
-@color-2: #9ACC00;
-@color-3: #669ACC;
-@color-4: #EBA83C;
-@color-5: #555;
-@color-6: #EBBA6B;
+@color-1: #555;
+@color-2: #97B851;
+@color-3: #A94A82;
+@color-4: #4470CF;
+@color-5: #26a2fe;
 @color-7: #fff;
+
+/* font-family */
+
+@ffam-1: Arial, Helvetica, Verdana, sans;
+@ffam-2: Calibri, Arial, Helvetica, sans;
 
 /* font-sizes */
 
 @fsize-1: 14px;
 @fsize-2: 18px;
 @fsize-3: 22px;
+@fsize-4: 44px;
+@fsize-5: 88px;
 
 @radius: 2px;
 
@@ -37,194 +43,136 @@
 }
 
 /* BASE ***********************************************************************************************************/
-body { background-color: @color-7;}
-a { color: @color-2; }
-a:visited {color: @color-3;}
-a:hover {color: @color-1;}
+body {
+    background: #fff url(../images/body-bg.png) repeat-x top left;
+    font-family: @ffam-1;
+}
+a { color: @color-4; }
+a:visited {color: darken(@color-4, 30%);}
+a:hover {color: @color-3;}
 
 /* LAYOUT **********************************************************************************************************/
 
-.container {
+body#home  {
+    background: #fff url(../images/body-bg-home.png) repeat-x top left;
+}
+
+
+
+.wrapper {
     margin: 0 auto;
     width: 960px;
     position: relative;
 }
 
-.content {
-    margin: 0 auto;
-    width: 960px;
+/* USER-NAV **********************************************************************************************************/
+
+.user-nav {
+    float: right;
+    /*height: 60px;*/
+    position: absolute;
+    top: 10px;
+    right: 0px;
 }
 
-#header  {
-    height: 150px;
-    position: relative;
-
-}
-
-#home #header {
-    height: 550px;
-}
-
-#header .container {
-    position: relative;
-    height: inherit;
-    z-index: 9;
-}
+/* SITE NAME **********************************************************************************************************/
 
 #site-name {
+    color: @color-3;
+    font-family: @ffam-2;
+    font-size: @fsize-4;
     position: absolute;
-    top: 15px;
+    top: 0px;
     left: 0px;
-    width: 250px;
+    margin: 0;
 }
 
-#site-slogan {
-    left: 250px;
-    position: absolute;
-    top: 30px;
-}
-
-
-#secondary-branding {
-    position: absolute;
-    right: 0px;
-    top: 13px;
-    width: 175px;
-}
-
-#site-nav {
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-    z-index: 10;
-}
-
-#user-nav {
-    position: relative;
-    height: 40px;
-    z-index: 10;
-}
-
-#user-nav ul {
-    float: right;
-}
+/* PRIMARY BRANDING **********************************************************************************************************/
 
 #primary-branding {
     display: none;
 }
 
-#search {
-    height: 50px;
-}
-
-#footer {
-    position: static;
-    height: 100px;
-}
-
-#home #main {
-   margin-top: -530px;
-   top: 0px;
-}
-
-/* DECORATION  ***************************************************************************/
-.branding {
-    background-color: #648FC7;
-    height: 75px;
-}
-h1#site-name {
-    color: @color-4;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 32px;
-    font-style: italic;
-    margin: 0;
-}
-
-#site-slogan {
-    color: @color-3;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-#primary-branding {
-    background-color: transparent;
-}
+/* SECONDARY BRANDING **********************************************************************************************************/
 
 #secondary-branding {
-    background-color: transparent;
+    position: absolute;
+    top: 10px;
+    left: 300px;
 }
 
-#header  {
-   background-color: #7B9628;
-   border-bottom: 15px solid #224068;
+/* SITE NAV **********************************************************************************************************/
+
+#site-nav {
+    height: 50px;
+    position: absolute;
+    top: 62px;
 }
-
-#site-nav{
-   background-color: transparent;
-}
-
-#user-nav {
-    background-color: @color-7;
-}
-
-#user-nav .buttons {
-    text-align: right;
-    float: right;
-}
-
-#search {
-    background-color: @color-6;
-}
-
-#main {
-    background-color: transparent;
-    min-height: 300px;
-}
-//
-//#main .container {
-//    background-color: #fff;
-//    .border-all(4px);
-//}
-//
-//#main .content {
-//    width: 940px;
-//}
-
-//#footer {
-//    background-color: @color-1;
-//}
-
 #site-nav ul {
-    padding: 0;
-    margin: 0;
+    margin: 0px;
+    padding: 0px;
 }
 #site-nav ul li {
     display: inline-block;
-    border: none;
-    padding: 0;
-    margin: 0 30px 0 0;
-}
-#site-nav a {
-    color: #fff;
-    display: block;
-    font-size: 150%;
-    padding-bottom: 15px;
-    margin: 0;
-    text-decoration: none;
+    margin: 0 60px 0 0;
+    height: 64px;
+    line-height: 50px;
 }
 
 #site-nav ul li.current,
 #site-nav ul li:hover {
-    background: url(../images/site-nav-bg-current.jpg) no-repeat bottom center;
+    background: transparent url(../images/site-nav-bg-active.png) no-repeat bottom center;
+    cursor: pointer;
 }
 
-/* SEARCH ********************************************************************************/
+#site-nav a {
+    color: @color-7;
+    font-family: @ffam-2;
+    font-size: @fsize-2;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* SITE SLOGAN **********************************************************************************************************/
+
+#site-slogan {
+    display: none;
+}
+
+#home #site-slogan {
+    color: @color-7;
+    display: block;
+    font-family: @ffam-2;
+    font-size: @fsize-5;
+    line-height: @fsize-5;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 170px;
+    width: 100%;
+}
+
+/* HEADER **********************************************************************************************************/
+
+.header {
+    height: 55px;
+}
+
+#home .header {
+    height: 465px;
+}
+
+/* SEARCH **********************************************************************************************************/
+
+#search {
+    position: absolute;
+    top: 70px;
+    right: 0px;
+}
 
 #search form {
     background: transparent;
-    margin: 0;
-    padding: 8px;
-    text-align: center;
 }
 
 #search input[type=text] {
@@ -233,17 +181,18 @@ h1#site-name {
     border:  1px solid #d1d1d1;
     .border-all(@radius);
     padding: 8px;
-    width: 414px;
+    width: 250px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 @color-1;
+    background: none repeat scroll 0 0 @color-3;
     /*border: medium none;*/
-    border:  1px solid #555;
+    border:  1px solid @color-3;
     .border-all(@radius);
     color: #fff;
     cursor: pointer;
     font-size: @fsize-1;
+    font-weight: bold;
     margin-left: 4px;
     padding: 6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
@@ -257,6 +206,17 @@ h1#site-name {
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
+}
+
+/* MAIN **********************************************************************************************************/
+.main {
+    position: absolute;
+    top: 160px;
+    width: 960px;
+}
+
+#home .main {
+    top: 465px;
 }
 
 /* MEDIA ************************************************************************************************/
@@ -273,7 +233,7 @@ h1#site-name {
 
 .media.object .img img {
     vertical-align: top;
-    max-width: 150px;
+    max-width: 120px;
     max-height: 150px;
     display: -moz-inline-box;
     display: inline-block;
@@ -293,14 +253,14 @@ h1#site-name {
 
 /* media block in recent wrapper */
 
-.mod.recent{
+.mod.recent .inner{
     background-color: #fff;
 }
 
 .recent h3 {
-    color: @color-5;
+    color: @color-3;
     text-transform:uppercase;
-    font-size: @fsize-1;
+    font-size: @fsize-2;
     font-weight: bold;
     margin-bottom: 0px;
 }
@@ -372,3 +332,4 @@ h1#site-name {
 .clear {
     clear:both;
 }
+

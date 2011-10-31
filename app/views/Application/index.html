@@ -55,7 +55,7 @@
 
     #{if recentObjects.size() > 0}
     <div class="unit size1of3">
-        <div class="mod recent">
+        <div class="mod simple recent">
             <div class="inner">
 					<div class="hd">
 						<h3>Recent Object</h3>
@@ -63,7 +63,7 @@
 					<div class="bd">
                         #{list recentObjects, as: 'o'}
                         <div class="media">
-                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" width="300" alt="${o.title}"/></a>
+                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" width="300" alt="${o.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
@@ -81,7 +81,7 @@
 
     #{if recentCollections.size() > 0}
      <div class="unit size1of3">
-        <div class="mod recent">
+        <div class="mod simple recent">
             <div class="inner">
 					<div class="hd">
 						<h3>Recent Collection</h3>
@@ -89,7 +89,7 @@
 					<div class="bd">
                         #{list recentCollections, as: 'c'}
                         <div class="media">
-                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.name}"/></a>
+                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.name}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
@@ -107,7 +107,7 @@
 
     #{if recentCollections.size() > 0}
     <div class="unit size1of3">
-        <div class="mod recent">
+        <div class="mod simple recent">
             <div class="inner">
 					<div class="hd">
 						<h3>Recent Stroy</h3>
@@ -115,7 +115,7 @@
 					<div class="bd">
                         #{list recentStories, as: 's'}
                         <div class="media">
-                            <a href="" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.name}"/></a>
+                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.name}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
@@ -131,6 +131,7 @@
     </div>
     #{/if}
 </div>
+
 
 
 
