@@ -142,7 +142,7 @@ case class FacetMap(private val links : List[FacetQueryLinks]) {
   val facetMap = Map[String, FacetQueryLinks]()
   links.foreach{
     facet =>
-      facetMap put (facet.facetType, facet)
+      facetMap put (facet.getType, facet)
   }
 
   def getFacetList = links

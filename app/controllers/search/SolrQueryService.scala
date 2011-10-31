@@ -71,7 +71,7 @@ object SolrQueryService extends SolrServer {
     query setRows 12
     query setStart 0
     query setFacet true
-    query setFacetLimit (1)
+    query setFacetMinCount (1)
     query setFacetLimit (100)
     facets foreach (facet => query setFacetPrefix (facet.facetPrefix, facet.facetName))
     query setFields ("*,score")
@@ -119,7 +119,7 @@ object SolrQueryService extends SolrServer {
                       )
             case "facet.field" =>
               val facets = if (query.getFacetFields != null) query.getFacetFields ++ values else values
-              query addFacetField (facets).mkString(",")
+              facets foreach (facet => query addFacetField (facet))
             case _ =>
           }
         }
@@ -232,7 +232,6 @@ object SolrQueryService extends SolrServer {
     }.mkString(" ")
   }
 
-  //todo implement this
   def createPager(chResponse: CHResponse): Pager = {
     val solrStart = chResponse.chQuery.solrQuery.getStart
     Pager(
@@ -241,7 +240,63 @@ object SolrQueryService extends SolrServer {
       rows = chResponse.chQuery.solrQuery.getRows.intValue()
     )
   }
+
+  def createFacetQueryLinks(chResponse: CHResponse): List[FacetQueryLinks] = {
+    chResponse.response.getFacetFields.map{
+      facetField =>
+      FacetQueryLinks(
+        facetName = facetField.getName,
+        links = buildFacetCountLinks(facetField, chResponse.chQuery.filterQueries),
+        facetSelected = !chResponse.chQuery.filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).isEmpty
+      )
+    }.toList
+  }
+
+  def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]) : List[FacetCountLink] = {
+    val links = facetField.getValues.map{
+      facetCount =>
+        val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
+        FacetCountLink(
+          facetCount = facetCount,
+          url = makeFacetQueryUrls(facetField, filterQueries, facetCount, remove),
+          remove = remove
+        )
+    }.toList
+    links
+  }
+
+  def makeFacetQueryUrls(facetField: FacetField, filterQueries: List[FilterQuery], facetCount: FacetField.Count, remove: Boolean): String = {
+    val facetTerms: List[String] = filterQueries.filterNot(_ == FilterQuery(facetField.getName, facetCount.getName)).map {
+      fq => "%s:%s".format(fq.field, fq.value)
+    }
+    val href = remove match {
+      case true => facetTerms
+      case false =>
+        (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, facetCount.getName)))
+    }
+    if (!href.isEmpty) href.mkString(FACET_PROMPT,FACET_PROMPT,"") else ""
+  }
+
 }
+
+case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
+
+  def value = facetCount.getName
+  def count = facetCount.getCount
+
+  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
+}
+
+case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false) {
+
+  def getType: String = facetName
+  def getLinks: List[FacetCountLink] = links
+  def isFacetSelected: Boolean =facetSelected
+
+}
+
+
+
 case class FilterQuery(field: String, value: String)
 
 case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
@@ -267,16 +322,6 @@ case class PageLink(start: Int, display: Int, isLinked: Boolean = false) {
 case class BreadCrumb(href: String, display: String, field: String = "", localisedField: String = "", value: String, isLast: Boolean = false) {
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
-
-case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
-
-  def value = facetCount.getName
-  def count = facetCount.getCount
-
-  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
-}
-
-case class FacetQueryLinks(facetType: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false)
 
 case class Pager(numFound: Int, start: Int = 1, rows: Int = 12) {
 
@@ -375,8 +420,8 @@ case class BriefItemView(chResponse: CHResponse) {
 
   def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(chResponse.response)
 
-//  def getFacetQueryLinks: List[FacetQueryLinks]
-//
+  def getFacetQueryLinks: List[FacetQueryLinks] = SolrQueryService.createFacetQueryLinks(chResponse = chResponse)
+
   def getPagination: ResultPagination = ResultPagination(chResponse)
 //
 //  def getFacetLogs: Map[String, String]

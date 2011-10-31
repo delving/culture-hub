@@ -161,7 +161,6 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val startPage = pagination.getStart
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
@@ -220,15 +219,15 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
           </item>
         )}
         </items>
-        <!--facets>
+        <facets>
           {result.getFacetQueryLinks.map(fql =>
-            <facet name={fql.facetType} isSelected={fql.facetSelected.toString}>
+            <facet name={fql.getType} isSelected={fql.facetSelected.toString}>
               {fql.links.map(link =>
                     <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{link.value} ({link.value})</link>
             )}
             </facet>
           )}
-        </facets-->
+        </facets>
       </results>
     response
   }
