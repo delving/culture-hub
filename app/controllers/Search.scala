@@ -9,6 +9,10 @@ package controllers
 object Search extends DelvingController {
 
   def index = {
+    import search.{BriefItemView, CHResponse, SolrQueryService}
+    val chQuery = SolrQueryService.createCHQuery(request, theme, true)
+    val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery)
+    val briefItemView = BriefItemView(response)
     Template
   }
 }
