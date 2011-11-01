@@ -81,7 +81,7 @@ object DataSets extends DelvingController with UserSecured {
     dataSet.state match {
       case DISABLED | UPLOADED | ERROR =>
         if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
-          DataSet.addIndexingMapping(dataSet, theme.metadataPrefix)
+          DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
           DataSet.changeState(dataSet, DataSetState.QUEUED)
         } else {
           // TODO give the user some decent feedback
@@ -100,7 +100,7 @@ object DataSets extends DelvingController with UserSecured {
 
     dataSet.state match {
       case ENABLED =>
-        DataSet.addIndexingMapping(dataSet, theme.metadataPrefix)
+        DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
         DataSet.changeState(dataSet, DataSetState.QUEUED)
         Redirect("/%s/dataset".format(connectedUser))
       case _ => Error("DataSet cannot be re-indexed in the current state")

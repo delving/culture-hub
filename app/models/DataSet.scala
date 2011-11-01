@@ -183,7 +183,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   // TODO should we cache the constructions of these objects?
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR = {
+  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR  = {
     val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
