@@ -1,5 +1,6 @@
 #{if views.context.package.crumble().size() > 1}
-<div class="breadcrumb pam">
+<div class="breadcrumb ptm bbt">
+    <ul>
     #{list views.context.package.crumble(), as: 'c'}
     <li>
     #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
@@ -13,5 +14,6 @@
     #{/}
     </li>
     #{/}
+    </ul>
 </div>
 #{/if}
