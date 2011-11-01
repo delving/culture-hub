@@ -99,14 +99,12 @@ class SearchService(request: Request, theme: PortalTheme) {
     new RenderXml("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response))
   }
 
-  // todo implement this
   private def getBriefResultsFromSolr: BriefItemView = {
     require(!paramMap.get("query").head.isEmpty)
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery))
   }
 
-    // todo implement this
   private def getFullResultsFromSolr : FullItemView = {
     import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("id") || params._contains("did"))
@@ -354,6 +352,7 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep")),
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
     ExplainItem("id", List("any valid europeana_uri identifier"), "Will output a full-view"),
+    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal"), "//todo complete this"),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
     ExplainItem("start", List("any non negative integer")),
@@ -361,11 +360,14 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("hqf", List("any valid Facet as defined in the facets block"), "This link is not used for the display part of the API." +
             "It is used to send hidden constraints to the API to create custom API views"),
     ExplainItem("explain", List("all")),
-    ExplainItem("sortBy", List("any valid sort field prefixed by 'sort_'"), "When during"),
+    ExplainItem("sortBy", List("any valid sort field prefixed by 'sort_'", "geodist()"), "Geodist is can be used to sort the results by distance."),
     ExplainItem("sortOrder", List("asc", "desc"), "The sort order of the field specified by sortBy"),
     ExplainItem("lang", List("any valid iso 2 letter lang codes"), "Feature still experimental. In the future it will allow you to get " +
             "localised strings back for the metadata fields, search fields and facets blocks"),
-    ExplainItem("wskey", List("any valid webservices key"), "When the API has been marked as closed")
+    ExplainItem("wskey", List("any valid webservices key"), "When the API has been marked as closed"),
+    ExplainItem("geoType", List("bbox", "geofilt"), "Type of geosearch. Default = geofilt"),
+    ExplainItem("d", List("any non negative integer"), "When this is specified, the geosearch is limited to this range in kilometers. Default = 5"),
+    ExplainItem("pt", List("Standard latitude longitude separeded by a comma"), "The point around which the geo-search is executed with the type of query specified by geoType")
   )
 
   def renderAsXml : Elem = {

@@ -91,8 +91,33 @@ object SolrQueryService extends SolrServer {
     import scala.collection.JavaConversions._
 
     val query = getSolrQueryWithDefaults(theme.facets)
-
     val params = request.params
+
+    def addGeoParams(hasGeoType: Boolean)  {
+      if (!hasGeoType) query setFilterQueries ("{!%s}".format("geofilt"))
+      // set defaults
+      query setParam ("d", "5")
+      query setParam ("sfield", "location")
+
+      params.allSimple().filterKeys(key => List("geoType", "d", "sfield").contains(key)).foreach {
+        item =>
+          item._1 match {
+            case "geoType" =>
+              params.get("geoType") match {
+                case "bbox" =>
+                  query setFilterQueries ("{!%s}".format("bbox"))
+                case _ =>
+                  query setFilterQueries ("{!%s}".format("geofilt"))
+              }
+            case "d" =>
+              query setParam("d", item._2)
+            case "sfield" =>
+              query setParam("sfield", item._2)
+            case _ =>
+          }
+      }
+    }
+
 
     params.all().filter(!_._2.isEmpty).foreach{
       key =>
@@ -119,6 +144,10 @@ object SolrQueryService extends SolrServer {
             case "facet.field" =>
               val facets = if (query.getFacetFields != null) query.getFacetFields ++ values else values
               facets foreach (facet => query addFacetField (facet))
+            case "pt" =>
+              val ptField = values.head
+              if (ptField.split(",").size == 2) query setParam ("pt", ptField)
+              addGeoParams(params._contains("geoType"))
             case _ =>
           }
         }
