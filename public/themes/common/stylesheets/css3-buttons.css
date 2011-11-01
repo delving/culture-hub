@@ -38,17 +38,17 @@ DROPDOWN MENU
 	
 	display: inline-block;
 	float: left;
-	
+    font-size: 100%;
 	margin: 5px;
 	padding: 5px 6px 4px 6px;
-	
+
 	background: #F3F3F3;
 	border: solid 1px #D9D9D9;
-	
+
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
-	
+
 	-webkit-transition: border-color .20s;
 	-moz-transition: border-color .20s;
 	-o-transition: border-color .20s;
@@ -95,6 +95,17 @@ button.right,
 	-webkit-border-bottom-left-radius: 0;
 	-moz-border-radius-bottomleft: 0;
 }
+
+button.fleft,
+.button.fleft {
+    float: left;
+}
+
+button.fright,
+.button.fright {
+    float: right;
+}
+
 
 button:hover, 
 .button:hover {
@@ -689,7 +700,7 @@ div.dropdown-slider .ddm {
 	
 	text-decoration: none;
 	text-shadow: 0 1px 0 #fff;
-	font: bold 11px Helvetica, Arial, sans-serif;
+	font: bold 100% Helvetica, Arial, sans-serif;
 	line-height: 18px;
 	height: 18px;
 	

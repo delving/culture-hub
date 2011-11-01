@@ -86,7 +86,7 @@
 <div class="line" id="save-story">
 <hr/>
     <div class="actions">
-      #{btnButton label:"Save story", extraClass:"blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+      #{btnButton label:"Save story", extraClass:"action blue fright", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
       <div class="wait"></div>
     </div>
 </div>
@@ -124,21 +124,12 @@
 
     <div class="field">
         <div class="inputs">
+
             <select style="float:left" id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            #{btnHref
-                label:"Add an image from this collection",
-                id:"addObject",
-                iconClass:"icon3",
-                dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw()
-            /}
+            #{btnHref label:"Add an image from this collection", id:"addObject", iconClass:"icon3", dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw() /}
         </div>
     </div>
 
-    <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
-
-    <div class="buttons">
-            #{btnButton label:"Save page", dataBind:"click:saveCurrentPage", extraClass:"green", type:"submit"/}
-    </div>
   </form>
 
 </script>

@@ -44,7 +44,7 @@
 
 /* font-family */
 
-@ffam-1: Chevin, Arial, Helvetica, Verdana, sans;
+@ffam-1: Arial, Helvetica, Verdana, sans;
 @ffam-2: Chevin, Calibri, Arial, Helvetica, sans;
 
 
@@ -54,7 +54,7 @@
 @fsize-2: 18px;
 @fsize-3: 22px;
 @fsize-4: 44px;
-@fsize-5: 88px;
+@fsize-5: 72px;
 
 @radius: 2px;
 
@@ -85,6 +85,10 @@ a { color: @color-4; }
 a:visited {color: darken(@color-4, 30%);}
 a:hover {color: @color-3;}
 
+h1, h2, h3 {
+    font-family: @ffam-2;
+}
+
 /* LAYOUT **********************************************************************************************************/
 
 body#home  {
@@ -102,14 +106,19 @@ body#home  {
 /* USER-NAV **********************************************************************************************************/
 
 .user-nav {
+    background: @color-2;
+    .border-top(4px);
     float: right;
     /*height: 60px;*/
     position: absolute;
-    top: 10px;
+    top: 34px;
     right: 0px;
     z-index: 10;
 }
 
+.user-nav .content {
+    /*padding:10px;*/
+}
 /* SITE NAME **********************************************************************************************************/
 
 #site-name {
@@ -132,8 +141,8 @@ body#home  {
 
 #secondary-branding {
     position: absolute;
-    top: 10px;
-    left: 300px;
+    top: 21px;
+    left: 290px;
 }
 
 /* SITE NAV **********************************************************************************************************/
@@ -141,7 +150,7 @@ body#home  {
 #site-nav {
     height: 70px;
     position: absolute;
-    top: 85px;
+    top: 80px;
 }
 #site-nav ul {
     margin: 0px;
@@ -150,7 +159,7 @@ body#home  {
 #site-nav ul li {
     display: inline-block;
     margin: 0 60px 0 0;
-    height: 72px;
+    height: 75px;
     line-height: 50px;
 }
 
@@ -162,7 +171,7 @@ body#home  {
 
 #site-nav a {
     color: @color-7;
-    font-family: @ffam-2;
+    font-family: @ffam-1;
     font-size: @fsize-2;
     font-weight: bold;
     text-decoration: none;
@@ -179,31 +188,35 @@ body#home  {
     color: @color-7;
     display: block;
     font-family: @ffam-2;
+    font-weight: bold;
     font-size: @fsize-5;
     line-height: @fsize-5;
     text-align: center;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     position: absolute;
-    top: 200px;
+    top: 280px;
     width: 100%;
 }
 
 /* HEADER **********************************************************************************************************/
 
 .header {
-    height: 55px;
+    height: 90px;
 }
 
 #home .header {
     height: 465px;
 }
 
+
+
 /* SEARCH **********************************************************************************************************/
 
 #search {
-    position: absolute;
-    top: 90px;
-    right: 0px;
+    position: relative;
+    top: 165px;
+    /*right: 0px;*/
+    text-align: center;
 }
 
 #search form {
@@ -216,16 +229,17 @@ body#home  {
     border:  1px solid #d1d1d1;
     .border-all(@radius);
     padding: 8px;
-    width: 250px;
+    width: 450px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 @color-3;
+    background: none repeat scroll 0 0 @color-2;
     /*border: medium none;*/
-    border:  1px solid @color-3;
+    border:  1px solid @color-2;
     .border-all(@radius);
     color: #fff;
     cursor: pointer;
+    font-family: @ffam-2;
     font-size: @fsize-1;
     font-weight: bold;
     margin-left: 4px;
@@ -245,14 +259,27 @@ body#home  {
 
 /* MAIN **********************************************************************************************************/
 .main {
-    position: absolute;
-    top: 190px;
     width: 960px;
+    margin-top: 150px;
 }
 
 #home .main {
-    top: 495px;
+    /*top: 495px;*/
+    /*margin-top: 0px;*/
 }
+
+/* FOOTER **********************************************************************************************************/
+
+.footer {
+    border-top: 1px solid #eaeaea;
+    display: relative;
+    margin-top: 40px;
+}
+
+.footer .content {
+    padding: 10px;
+}
+
 
 /* MEDIA ************************************************************************************************/
 
@@ -289,20 +316,15 @@ body#home  {
 /* media block in recent wrapper */
 
 .mod.recent .inner{
-    background-color: #fff;
+    /*background-color: #fff;*/
 }
 
 .recent h3 {
     color: @color-3;
     text-transform:uppercase;
     font-size: @fsize-2;
-    font-weight: bold;
+    font-weight: normal;
     margin-bottom: 0px;
-}
-
-
-.recent .metadata {
-    /*margin-top: 200px;*/
 }
 
 .recent .media p {
@@ -334,7 +356,7 @@ body#home  {
 /* pagination.css overrides */
 
 .pagination .current {
-    background: @color-2;
+    background: @color-3;
     /*border: solid 1px #AAE;*/
 }
 
@@ -348,6 +370,15 @@ body#home  {
     color: #999;
 }
 
+/* BREADCRUMBS ************************************************************************/
+
+.breadcrumb {
+    border-bottom: 1px solid #ccc;
+}
+
+.breadcrumb li {
+    margin-left: 0px;
+}
 
 /* COLLUMNS ************************************************************************************/
 

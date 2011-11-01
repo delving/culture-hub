@@ -55,9 +55,9 @@
 
     #{if recentObjects.size() > 0}
     <div class="unit size1of3">
-        <div class="mod simple recent">
+        <div class="mod recent">
             <div class="inner">
-					<div class="hd">
+					<div class="hd section">
 						<h3>Recent Object</h3>
 					</div>
 					<div class="bd">
@@ -81,7 +81,7 @@
 
     #{if recentCollections.size() > 0}
      <div class="unit size1of3">
-        <div class="mod simple recent">
+        <div class="mod recent">
             <div class="inner">
 					<div class="hd">
 						<h3>Recent Collection</h3>
@@ -94,7 +94,7 @@
                             <div class="bd">
                                 <div class="metadata">
                                     <span class="title"><a href="">${c.name.shorten(50)}</a></span>
-                                    *{<p>${c.description.shorten(100)}</p>}*
+                                    <p>${c.shortDescription.shorten(100)}</p>
                                 </div>
                             </div>
                         </div>
@@ -107,10 +107,10 @@
 
     #{if recentCollections.size() > 0}
     <div class="unit size1of3">
-        <div class="mod simple recent">
+        <div class="mod recent">
             <div class="inner">
 					<div class="hd">
-						<h3>Recent Stroy</h3>
+						<h3>Recent Story</h3>
 					</div>
 					<div class="bd">
                         #{list recentStories, as: 's'}
@@ -120,7 +120,7 @@
                             <div class="bd">
                                 <div class="metadata">
                                     <span class="title"><a href="">${s.name.shorten(50)}</a></span>
-                                    *{<p>${s.description.shorten(100)}</p>}*
+                                    <p>${s.shortDescription.shorten(100)}</p>
                                 </div>
                             </div>
                         </div>

@@ -45,7 +45,7 @@
                 <td><a href="/${i.userName}/dataset/${i.spec}">${i.spec}</a></td>
                 <td>${i.total_records}</td>
                 <td id="description${i.spec}">
-                  #{if i.state == models.DataSetState.ERROR()}
+                  #{if i.state.name() == models.DataSetState.ERROR().name()}
                     <span style="color: red;">${i.state.description()}</span>
                   #{/if}
                   #{else}
@@ -54,26 +54,29 @@
                 </td>
                 <td>
                   #{if i.userName == userName}
-                      <a class="action edit image-edit" href="/${i.userName}/dataset/${i.spec}/update">Edit DataSet</a>
-                      #{if i.state == models.DataSetState.UPLOADED() || i.state == models.DataSetState.ERROR()}
-                      <form action="/${i.userName}/dataset/${i.spec}/index" method="POST">
-                        <button class="action index">Index</button>
+                    <div class="buttons">
+                      <a class="button" href="/${i.userName}/dataset/${i.spec}/update">
+                          <span class="label">Edit DataSet</span>
+                      </a>
+                      #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
+                      <form action="/${i.userName}/dataset/${i.spec}/index" method="POST" class="data-set">
+                        <button class="action green index"><span class="label">Index</span></button>
                       </form>
                       #{/if}
-                      #{if i.state == models.DataSetState.ENABLED()}
-                      <form action="/${i.userName}/dataset/${i.spec}/reindex" method="POST">
-                        <button class="action reIndex">Re-Index</button>
+                      #{if i.state.name() == models.DataSetState.ENABLED().name()}
+                      <form action="/${i.userName}/dataset/${i.spec}/reindex" method="POST" class="data-set">
+                        <button class="button reIndex"><span class="label">Re-Index</span></button>
                       </form>
-                      <form action="/${i.userName}/dataset/${i.spec}/disable" method="POST">
-                        <button class="action reIndex">Disable</button>
-                      </form>
-                      #{/if}
-                      #{if i.state == models.DataSetState.QUEUED() || i.state == models.DataSetState.INDEXING()}
-                      <form action="/${i.userName}/dataset/${i.spec}/cancel" method="POST">
-                        <button class="action cancel">Cancel indexing</button>
+                      <form action="/${i.userName}/dataset/${i.spec}/disable" method="POST" class="data-set">
+                        <button class="button reIndex"><span class="label">Disable</span></button>
                       </form>
                       #{/if}
-                      #{if i.state == models.DataSetState.QUEUED()}
+                      #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
+                      <form action="/${i.userName}/dataset/${i.spec}/cancel" method="POST" class="data-set">
+                        <button class="button action cancel"><span class="label">Cancel indexing</span></button>
+                      </form>
+                      #{/if}
+                      #{if i.state.name() == models.DataSetState.QUEUED().name()}
                       <script type="text/javascript">
                           $('#description${i.spec}').smartupdater({
                             url : "/${i.userName}/dataset/${i.spec}/state",
@@ -87,7 +90,7 @@
                           });
                         </script>
                       #{/if}
-                      #{if i.state == models.DataSetState.INDEXING()}
+                      #{if i.state.name() == models.DataSetState.INDEXING().name()}
                         <div id="indexCounter${i.spec}"></div>
                         <script type="text/javascript">
                           $('#indexCounter${i.spec}').progressbar();
@@ -106,12 +109,13 @@
                           });
                         </script>
                       #{/if}
-                    #{if i.state == models.DataSetState.DISABLED()}
+                    #{if i.state.name() == models.DataSetState.DISABLED().name()}
                       <form action="/${i.userName}/dataset/${i.spec}/enable" method="POST">
-                        <button class="action enable">Enable</button>
+                        <button class="button action enable">Enable</button>
                       </form>
                     #{/if}
                     #{/if}
+                   </div>
                 </td>
             </tr>
             #{/list}

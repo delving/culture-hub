@@ -11,6 +11,11 @@ form.box {
     padding:  10px;
 }
 
+form.data-set {
+    display: inline-block;
+    background:  transparent;
+}
+
 form h3 {
     background-color: #555;
     color: #fff;
@@ -22,8 +27,12 @@ form h3 {
 .field {
     clear: both;
     margin-bottom: 10px;
+    padding:  10px;
 }
 
+form .buttons {
+    padding:  10px;
+}
 label.label {
     color: #555;
     display: inline-block;
@@ -73,15 +82,13 @@ label.label {
 }
 
 .success {
-    background-color: green;
-    color: #fff;
-    padding:  4px;
+    color: green;
+    /*padding:  4px;*/
 }
 .error {
-    background-color: #cc0000;
-    color: #fff;
-    padding:  4px;
-/*}*/
+    color: #cc0000;
+    /*padding:  4px;*/
+}
 
 /*.required-note {*/
     /*color: #777777;*/
