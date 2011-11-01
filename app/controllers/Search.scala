@@ -10,7 +10,7 @@ import search.{BriefItemView, CHResponse, SolrQueryService}
 object Search extends DelvingController {
 
   def index = {
-    if(!params._contains("query") || !params._contains("id") || !params._contains("explain")) {
+    if(!(params._contains("query") || params._contains("id") || params._contains("explain"))) {
       params.put("query", "*:*")
     }
 
