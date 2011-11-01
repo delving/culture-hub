@@ -40,28 +40,28 @@
         <hr/>
 
         <div id="add-label-dialog" title="Add a label">
+            <div class="field">
             <div class="inputs">
                 <input type="text" class="textinput"/>
             </div>
             <div class="buttons">
-                <button>
-                    <span class="icon icon3"></span>
-                    <span class="label">Add a label</span>
-                </button>
+            #{btnButton label:"Add a label", iconClass:"icon3"/}
             </div>
+            </div>
+
         </div>
 
         <hr/>
 
         <div id="add-comment-dialog" title="Add a comment">
+            <div class="field">
             <div class="inputs">
                 <textarea name="comment" id="comment"></textarea>
             </div>
+
             <div class="buttons">
-                <button>
-                    <span class="icon icon3"></span>
-                    <span class="label">Add a comment</span>
-                </button>
+                #{btnButton label:"Add a comment", iconClass:"icon3" /}
+            </div>
             </div>
         </div>
     </div>

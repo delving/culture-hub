@@ -432,3 +432,65 @@ fieldset {
     margin-left: 10px;
     width: auto;
 }
+
+/* BREADCRUMBS ************************************************************************/
+/* breadcrumb.css overrides */
+
+.breadcrumb {
+    background-color: @color-1-lite;
+    border-bottom: 1px solid #ccc;
+    position: @position;
+    top: @crumbs-top;
+    left: 0px;
+//    height: @crumbs-height;
+//    line-height: @crumbs-height;
+    width: 100%;
+}
+
+.breadcrumb ul {
+    margin: 0;
+    /*padding: 0;*/
+}
+
+
+.breadcrumb li {
+    margin-left: 0px;
+}
+
+/* MEDIA ************************************************************************************************/
+
+.media.object .img {
+    width:inherit;
+    height: 150px;
+    line-height:150px;
+    text-align:center;
+    overflow:  hidden;
+    position: relative;
+    vertical-align: top;
+}
+
+.media.object .img img {
+    vertical-align: top;
+    max-width: 120px;
+    max-height: 150px;
+    display: -moz-inline-box;
+    display: inline-block;
+    text-align: center;
+}
+
+.media .title {
+    font-weight: bold;
+}
+.metadata h4 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.metadata p {
+    margin-top: 0px;
+}
+
+/* HELPERS ************************************************************************************/
+
+.clear {
+    clear:both;
+}
