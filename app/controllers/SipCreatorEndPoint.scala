@@ -301,7 +301,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
         var count = 0
         for(record <- records.find(MongoDBObject())) {
-          pw.println("""<input id="%s">""".format(record.localRecordKey))
+          pw.println("<input>")
+          pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
           pw.println(record.getXmlString())
           pw.println("</input>")
 
