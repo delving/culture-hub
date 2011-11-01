@@ -350,8 +350,8 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = 12) {
   }
   val hasNextPage = totalPages > 1 && currentPageNumber < toPage
   val nextPageNumber = start + rows
-  val pageLinks = (fromPage to toPage).map(page => PageLink(page, ((page - 1) * rows + 1), currentPageNumber != page)).toList
-  val lastViewableRecord = scala.math.min(nextPageNumber - 1, numFound)
+  val pageLinks = (fromPage to toPage).map(page => PageLink(((page - 1) * rows + 1), page, currentPageNumber != page)).toList
+  val lastViewableRecord = scala.math.min(nextPageNumber, numFound)
 }
 
 case class ResultPagination (chResponse: CHResponse) {
