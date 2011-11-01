@@ -116,8 +116,16 @@ object SolrBindingService {
 
   def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = getBriefDocs(queryResponse.getResults)
 
+  def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse.getResults), start)
+
   def getBriefDocs(resultList: SolrDocumentList): List[BriefDocItem] = {
     getSolrDocumentList(resultList).map(doc => BriefDocItem(doc))
+  }
+
+  // todo test this
+  def addIndexToBriefDocs(docs: List[BriefDocItem], start: Int): List[BriefDocItem] = {
+    docs.foreach(doc => doc.index = docs.indexOf(doc) + start)
+    docs
   }
 
   def getFullDoc(queryResponse: QueryResponse): FullDocItem = {

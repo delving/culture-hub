@@ -419,11 +419,13 @@ case class BriefItemView(chResponse: CHResponse) {
 
   import java.util.List
 
-  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(chResponse.response)
+  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocsWithIndex(chResponse.response, pagination.getStart)
 
   def getFacetQueryLinks: List[FacetQueryLinks] = SolrQueryService.createFacetQueryLinks(chResponse = chResponse)
 
-  def getPagination: ResultPagination = ResultPagination(chResponse)
+  val pagination = ResultPagination(chResponse)
+
+  def getPagination: ResultPagination = pagination
 //
 //  def getFacetLogs: Map[String, String]
 //
