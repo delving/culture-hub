@@ -290,7 +290,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val records = DataSet.getRecords(dataSet)
 
     if(records.count() > 0) {
-      writeEntry("records.xml", zipOut) { out =>
+      writeEntry("source.xml", zipOut) { out =>
         val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
 
         val builder = new StringBuilder
