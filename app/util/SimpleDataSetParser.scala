@@ -25,6 +25,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var recordCounter = 0
     var inRecord = false
     var inIdentifierElement = false
+    var justLeftIdentifierElement = false
     val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
     val path = new Path()
 
@@ -66,14 +67,17 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           inIdentifierElement = true
         case EvElemEnd(_, "_id") if(inRecord) =>
           inIdentifierElement = false
+          justLeftIdentifierElement = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
           path.push(Tag.create(prefix, label))
           recordXml.append(elemStartToString(elemStart))
         case EvText(text) if(inRecord && inIdentifierElement) =>
           recordId = text
-        case EvText(text) if(inRecord && !inIdentifierElement) =>
+        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
           recordXml.append(text)
           fieldValueXml.append(text)
+        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
+          justLeftIdentifierElement = false
         case elemEnd@EvElemEnd(_, _) if(inRecord) =>
           valueMap.addBinding(path.toString, fieldValueXml.toString())
           recordXml.append(elemEndToString(elemEnd))
