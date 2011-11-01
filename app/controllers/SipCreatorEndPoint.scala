@@ -290,7 +290,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     val records = DataSet.getRecords(dataSet)
 
     if(records.count() > 0) {
-      writeEntry("records.xml", zipOut) { out =>
+      writeEntry("source.xml", zipOut) { out =>
         val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
 
         val builder = new StringBuilder
@@ -301,8 +301,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
         var count = 0
         for(record <- records.find(MongoDBObject())) {
-          pw.println("""<input id="%s">""".format(record.localRecordKey))
-          pw.println(record.getXmlString())
+          pw.println("<input>")
+          pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
+          pw.print(record.getXmlString())
           pw.println("</input>")
 
           if(count % 100 == 0) {
