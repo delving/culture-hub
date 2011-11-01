@@ -3,7 +3,6 @@ package models
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
-import com.mongodb.casbah.commons.MongoDBObject
 import cake.ComponentRegistry
 import eu.delving.metadata.MetadataModelImpl
 import controllers.search.FacetElement
@@ -29,7 +28,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        solrSelectUrl:                       String = "http://localhost:8983/solr",
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
-                       homePage:                            Option[String] = Some(""),
+                       homePage:                            Option[String] = None,
                        metadataPrefix:                      Option[String] = None,
                        facets:                              List[FacetElement] = List(),
                        apiWsKey:                            Boolean = false,
