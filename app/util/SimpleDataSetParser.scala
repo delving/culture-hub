@@ -80,7 +80,15 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           justLeftIdentifierElement = false
         case elemEnd@EvElemEnd(_, _) if(inRecord) =>
           valueMap.addBinding(path.toString, fieldValueXml.toString())
-          recordXml.append(elemEndToString(elemEnd))
+          val open = "<%s%s>".format(prefix(elemEnd.pre), elemEnd.label)
+          if(recordXml.toString().endsWith(open)) {
+            val rollback = recordXml.substring(0, recordXml.length - open.length)
+            recordXml.clear()
+            recordXml.append(rollback)
+            recordXml.append(elemEndToEmptyElement(elemEnd))
+          } else {
+            recordXml.append(elemEndToString(elemEnd))
+          }
           path.pop()
           fieldValueXml.clear()
         case some@_ =>
@@ -102,9 +110,11 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     mappings.filterNot(_.length == 0).toList
   }
 
-  private def elemStartToString(start: EvElemStart): String = "<%s%s%s>".format(prefix(start.pre), start.label, start.attrs.toString())
+  private def elemStartToString(start: EvElemStart): String = "<%s%s%s>".format(prefix(start.pre), start.label, scala.xml.Utility.sort(start.attrs).toString())
 
   private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
+
+  private def elemEndToEmptyElement(end: EvElemEnd): String = "<%s%s />".format(prefix(end.pre), end.label)
 
   private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
 

@@ -243,8 +243,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
 
-    val ds = dataSet.copy(details = details, state = DataSetState.UPLOADED)
-    DataSet.save(ds)
+    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the latest one, it may have been modified by the parser (namespaces)
+    DataSet.save(updatedDataSet)
     Right("Goodbye and thanks for all the fish")
   }
 
@@ -294,6 +294,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
 
         val builder = new StringBuilder
+        builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
         builder.append("<delving-sip-source ")
         for(ns <- dataSet.namespaces) builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
         builder.append(">")
