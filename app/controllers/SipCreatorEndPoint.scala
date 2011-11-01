@@ -303,7 +303,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         for(record <- records.find(MongoDBObject())) {
           pw.println("<input>")
           pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
-          pw.println(record.getXmlString())
+          pw.print(record.getXmlString())
           pw.println("</input>")
 
           if(count % 100 == 0) {
