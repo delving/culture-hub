@@ -549,10 +549,8 @@
    <!-- Uncommenting the following will create a "timestamp" field using
         a default value of "NOW" to indicate when each document was indexed.
      -->
-   <!--
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
-     -->
-   
+
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
@@ -623,7 +621,7 @@
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>europeana_uri</uniqueKey>
+ <uniqueKey>id</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>

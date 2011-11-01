@@ -6,7 +6,7 @@
     displayName: Delving Culture Hub
     defaultLanguage: nl
     colorScheme: default
-    solrSelectUrl: "http://localhost:8983/solr"
+    solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com
@@ -32,7 +32,7 @@
     displayName: Friese Verhalen
     defaultLanguage: nl
     colorScheme: default
-    solrSelectUrl: "http://localhost:8983/solr"
+    solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com
@@ -59,7 +59,7 @@
     displayName: De Friese Nassau's
     defaultLanguage: nl
     colorScheme: default
-    solrSelectUrl: "http://localhost:8983/solr"
+    solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com
@@ -85,7 +85,7 @@
     displayName: Fries Museum
     defaultLanguage: no
     colorScheme: azure
-    solrSelectUrl: "http://localhost:8983/solr"
+    solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com
@@ -111,7 +111,7 @@
     displayName: Thuis in Brabant
     defaultLanguage: no
     colorScheme: default
-    solrSelectUrl: "http://localhost:8983/solr"
+    solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com
