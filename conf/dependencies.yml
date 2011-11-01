@@ -12,8 +12,6 @@ require:
     - de.micromata.jak -> JavaAPIforKml 2.2.0
     - com.thoughtworks.xstream -> xstream 1.3
     - xpp3 -> xpp3_min 1.1.4c
-    - provided -> magicktiler-lib 0.9
-    - provided -> im4java 1.1.0
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
     # delving dependencies
@@ -45,11 +43,6 @@ repositories:
          root: "https://repository.apache.org/content/groups/snapshots-group/"
          contains:
             - org.apache.amber -> *
-    - novus:
-        type: iBiblio
-        root: "http://repo.novus.com/snapshots/"
-        contains:
-            - com.novus.*
     - twitter:
         type: iBiblio
         root: "http://maven.twttr.com/"
