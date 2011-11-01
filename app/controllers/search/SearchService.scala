@@ -180,7 +180,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
     val response : Elem =
       <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
+               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/">
         <query numFound={pagination.getNumFound.toString}>
             <terms>{searchTerms}</terms>
             <breadCrumbs>
