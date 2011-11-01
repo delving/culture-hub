@@ -1,5 +1,6 @@
 package controllers
 
+import search.{BriefItemView, CHResponse, SolrQueryService}
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -9,10 +10,13 @@ package controllers
 object Search extends DelvingController {
 
   def index = {
-    import search.{BriefItemView, CHResponse, SolrQueryService}
+    if(!params._contains("query") || !params._contains("id") || !params._contains("explain")) {
+      params.put("query", "*:*")
+    }
+
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery)
     val briefItemView = BriefItemView(response)
-    Template
+    Template('briefDocs -> briefItemView.getBriefDocs)
   }
 }
