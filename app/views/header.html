@@ -52,7 +52,7 @@
     </script>
 
     <script type="text/html" id="uploadFileTemplate">
-        <form action="" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
                     <span>Add files...</span>
@@ -69,7 +69,7 @@
     </script>
 
     <script type="text/html" id="simpleUploadFileTemplate">
-        <form action="" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
                     <span>Add files...</span>
@@ -116,7 +116,7 @@
     <div id="search" role="search">
         <div class="container">
             <div class="content">
-                <form method="get" action="">
+                <form method="get" action="#">
                     <input type="text" id="query" name="query" value='${params.query}'/>
                     <input type="submit" value="Search">
                 </form>
@@ -132,7 +132,7 @@
         </div>
     </div>
 
-    <div id="main-nav" role="nav">
+    <div id="main-nav">
         <div class="container">
             <div class="content">
                 <ul class="nav">
@@ -146,7 +146,7 @@
         </div>
     </div>
 
-    <div id="user-nav" role="nav" style="z-index: 12">
+    <div id="user-nav">
         <div class="container">
             <div class="content">
                 #{if !userName}
@@ -206,7 +206,7 @@
     <div id="footer">
         <div class="container">
             <div class="content">
-
+                <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="Powered by DELVING.EU"/></a>
             </div>
         </div>
     </div>

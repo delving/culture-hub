@@ -1,73 +1,102 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
+
 #{set title: id.isEmpty() ? 'Add new Portal Theme' : 'Update Portal Theme' /}
 
-<div class="grid_8">
-  <h1>${id.isEmpty() ? 'Add a new theme' : 'Update a theme'}</h1>
+<div class="admin-themes">
+    <h1>${id.isEmpty() ? 'Add a new theme' : 'Update a theme'}</h1>
 
-  <form id="themeForm" method="post" action="">
-    <span class="required-note"><span>*</span> Required Fields</span>
-    #{textField name: "name", label: "Name", dataBind: "value: name", help: "", disabled: false, labelClass: "required" /}
-    #{checkboxField name: "isDefault", label: "Is default", dataBind: "checked: isDefault" /}
-    #{textField name: "displayName", label: "Display Name", dataBind: "value: displayName" /}
-    #{textField name: "templateDir", label: "Template directory", dataBind: "value: templateDir" /}
-    #{textField name: "googleAnalyticsTrackingCode", label: "Google Analytics code", dataBind: "value: googleAnalyticsTrackingCode" /}
-    #{textField name: "addThisTrackingCode", label: "Add this code", dataBind: "value: addThisTrackingCode" /}
-    #{textField name: "defaultLanguage", label: "Default language", dataBind: "value: defaultLanguage" /}
-    #{textField name: "colorScheme", label: "Color scheme", dataBind: "value: colorScheme" /}
-    #{textField name: "solrSelectUrl", label: "Solr select URL", dataBind: "value: solrSelectUrl" /}
-    #{textField name: "cacheUrl", label: "Cache URL", dataBind: "value: cacheUrl" /}
-    #{textField name: "homePage", label: "Homepage", dataBind: "value: homePage" /}
-    <div class="field">
-      <label for="localisedQueryKeys">Localised query keys</label>
+    <form id="themeForm" method="post" action="#">
+        <div class="line">
+            <div class="unit size1of2">
+                <div class="mod">
+                    <h3>System information</h3>
+                    #{textField name: "name", label: "Theme name", dataBind: "value: name", help: "Required. The system theme name.", disabled: false /}
+                    #{checkboxField name: "isDefault", label: "Is default", dataBind: "checked: isDefault" /}
 
-      <div>
-        <select id="localisedQueryKeys" multiple="multiple" width="50" name="localisedQueryKeys" data-bind="options: localisedQueryKeys, selectedOptions: selectedQueryKeys"></select>
-        <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"'/>
-        <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">Add</button>
-        <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">Remove</button>
-      </div>
-    </div>
-    #{textField name: "metadataPrefix", label: "Metadata prefix", dataBind: "value: metadataPrefix" /}
-    #{textField name: "hiddenQueryFilter", label: "Hidden Query filter", dataBind: "value: hiddenQueryFilter" /}
-    #{textField name: "adminTo", label: "Admin to", dataBind: "value: emailTarget.adminTo" /}
-    #{textField name: "exceptionTo", label: "Exception to", dataBind: "value: emailTarget.exceptionTo" /}
-    #{textField name: "feedbackTo", label: "Feedback to", dataBind: "value: emailTarget.feedbackTo" /}
-    #{textField name: "registerTo", label: "Register to", dataBind: "value: emailTarget.registerTo" /}
-    #{textField name: "systemFrom", label: "System from", dataBind: "value: emailTarget.systemFrom" /}
-    #{textField name: "feedbackFrom", label: "Feedback from", dataBind: "value: emailTarget.feedbackFrom" /}
+                    #{textField name: "templateDir", label: "Template directory", dataBind: "value: templateDir", help:"Required" /}
 
-    <div class="actions">
-      <div class="wait"></div>
-      <button class="save" id="saveButton" type="submit">Save Theme</button>
-    </div>
+                </div>
+            </div>
+            <div class="unit size1of2">
+                <div class="mod">
+                    <h3>Display information</h3>
+                    #{textField name: "displayName", label: "Display Name", dataBind: "value: displayName", help:"Required", extHelp:"The display name of the theme as you would like it to appear on the website." /}
+                    #{textField name: "homePage", label: "Homepage", dataBind: "value: homePage", help:"Required" /}<!-- todo: this should become the secondary branding url -->
+                    #{textField name: "defaultLanguage", label: "Default language", dataBind: "value: defaultLanguage", help:"Required" /}
+                    #{textField name: "colorScheme", label: "Color scheme", dataBind: "value: colorScheme" /}
+                </div>
+            </div>
+        </div>
 
-  </form>
+        <div class="line">
+            <div class="unit size1of2">
+                <div class="mod">
+                    <h3>Search configuration</h3>
+                    #{textField name: "solrSelectUrl", label: "Solr select URL", dataBind: "value: solrSelectUrl", help:"Required" /}
+                    #{textField name: "cacheUrl", label: "Cache URL", dataBind: "value: cacheUrl", help:"Required" /}
+                    <div class="field">
+                        <label class="label" for="localisedQueryKeys">Localised query keys</label>
+                        <div>
+                            <select id="localisedQueryKeys" multiple="multiple" width="50" name="localisedQueryKeys" data-bind="options: localisedQueryKeys, selectedOptions: selectedQueryKeys"></select>
+                            <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"'/>
+                            <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">Add</button>
+                            <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">Remove</button>
+                        </div>
+                    </div>
+                    #{textField name: "metadataPrefix", label: "Metadata prefix", dataBind: "value: metadataPrefix" /}
+                    #{textField name: "hiddenQueryFilter", label: "Hidden Query filter", dataBind: "value: hiddenQueryFilter" /}
+                    #{textField name: "adminTo", label: "Admin to", dataBind: "value: emailTarget.adminTo" /}
+                    #{textField name: "exceptionTo", label: "Exception to", dataBind: "value: emailTarget.exceptionTo" /}
+                    #{textField name: "feedbackTo", label: "Feedback to", dataBind: "value: emailTarget.feedbackTo" /}
+                    #{textField name: "registerTo", label: "Register to", dataBind: "value: emailTarget.registerTo" /}
+                    #{textField name: "systemFrom", label: "System from", dataBind: "value: emailTarget.systemFrom" /}
+                    #{textField name: "feedbackFrom", label: "Feedback from", dataBind: "value: emailTarget.feedbackFrom" /}
+                </div>
+            </div>
+            <div class="unit size1of2">
+                <div class="mod">
+                    <h3>Extras</h3>
+                    #{textField name: "googleAnalyticsTrackingCode", label: "Google Analytics code", dataBind: "value: googleAnalyticsTrackingCode" /}
+                    #{textField name: "addThisTrackingCode", label: "Add this code", dataBind: "value: addThisTrackingCode" /}
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <div class="wait"></div>
+            <!--<button class="save" id="saveButton" type="submit">Save Theme</button>-->
+            #{btnButton label:"Save theme", extraClass:"action blue", id:"saveButton", type:"submit" /}
+        </div>
+
+    </form>
 
 </div>
 
 <script type="text/javascript">
-  $(document).ready(function() {
+    $(document).ready(function() {
 
-    var themeModel = {
-      addQueryKeys: ko.observable(""),
-      selectedQueryKeys: ko.observableArray([]),
-      addItem: function() {
-        if (themeModel.addQueryKeys() != "") {
-          themeModel.localisedQueryKeys.push(themeModel.addQueryKeys());
-          themeModel.addQueryKeys("");
-        }
-      },
-      removeSelected: function() {
-          themeModel.localisedQueryKeys.removeAll(themeModel.selectedQueryKeys());
-          themeModel.selectedQueryKeys([]);
-        }
-    };
+        var themeModel = {
+            addQueryKeys: ko.observable(""),
+            selectedQueryKeys: ko.observableArray([]),
+            addItem: function() {
+                if (themeModel.addQueryKeys() != "") {
+                    themeModel.localisedQueryKeys.push(themeModel.addQueryKeys());
+                    themeModel.addQueryKeys("");
+                }
+            },
+            removeSelected: function() {
+                themeModel.localisedQueryKeys.removeAll(themeModel.selectedQueryKeys());
+                themeModel.selectedQueryKeys([]);
+            }
+        };
 
-    $('#saveButton').click(function(event) {
-      event.preventDefault();
-      handleSubmit('/admin/themes/submit', themeModel, '#themeForm', null, function() { document.location = '/admin/themes'});
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            handleSubmit('/admin/themes/submit', themeModel, '#themeForm', null, function() {
+                document.location = '/admin/themes'
+            });
+        });
+
+        load('/admin/themes/load/${id.isEmpty() ? "" : id.get()}', themeModel);
     });
-
-    load('/admin/themes/load/${id.isEmpty() ? "" : id.get()}', themeModel);
-  });
 </script>

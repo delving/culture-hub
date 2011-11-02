@@ -3,7 +3,7 @@
  */
 function initializeElements() {
 //    $("#page").height($(document).height());
-
+    $('.extHelp').tipTip();
     $('.cancelButton').click(function(e) {
       e.preventDefault();
       document.location = document.referrer;
