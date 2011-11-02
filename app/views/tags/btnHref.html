@@ -1,0 +1,7 @@
+%{ def isHref = _href != null ? _href : "#" }%
+<a class="button ${_extraClass}" data-bind="${_dataBind}" id="${_id}" name="${_name}" href="${isHref}" rel="${_rel}">
+    #{if _iconClass}<span class="icon ${_iconClass}"></span>#{/if}
+    #{if _label}<span class="label">${_label}</span>#{/if}
+    #{if _toggle}<span class="toggle"></span>#{/if}
+</a>
+

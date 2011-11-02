@@ -1,4 +1,4 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: title /}
 #{breadcrumbs /}
 
@@ -28,15 +28,13 @@
                 <h4><a href="/${i.userName}/">${i.title}</a></h4>
             </div>
             <div class="bd">
-                ${i.description}
+              ${i.description}
             </div>
             <div class="ft">
             #{if i.userName == userName}
-<!--
             <div class="actions">
                 <a class="action edit image-edit" href="/${i.userName}/profile/update">Edit your profile</a>
             </div>
--->
             #{/if}
             </div>
         </div>

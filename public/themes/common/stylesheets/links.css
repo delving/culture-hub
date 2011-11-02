@@ -1,9 +1,36 @@
-a, a:active, a:visited { color: #0673b9; }
+a, a:active, a:visited { color: #0066ff; }
 a:hover { color: #10a1ff; }
 
 a.current {
     font-weight: bold;
 }
+
+/* MAIN NAV, #USER-NAV *****************************************************************************************/
+
+ul.nav{
+    margin:  0;
+    padding:  0;
+}
+
+ul.nav li{
+    border-left:  1px solid #ccc;
+    margin:  0;
+    padding:  0;
+    display: inline-block;
+    float: left;
+}
+
+ul.nav li:first-of-type {
+    border-left:  none;
+}
+
+ul.nav li a {
+    padding:  0 10px;
+}
+
+/*ul.nav li:last-of-type a {*/
+    /*padding: 0 0 0 10px;*/
+/*}*/
 
 span.pipe {
     display: inline-block;
@@ -11,10 +38,12 @@ span.pipe {
     padding:  0;
     color: #777
 }
+
 .breadcrumbs {
-    height: 20px;
-    margin-bottom: 20px;
+    /*height: 20px;*/
+    /*margin-bottom: 20px;*/
 }
+
 .breadcrumbs span.arrow {
     background:  transparent url(../images/arrows-next-horizontal.png) -80px 4px no-repeat;
     display: inline-block;
