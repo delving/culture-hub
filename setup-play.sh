@@ -51,6 +51,7 @@ echo
 
 cd play/framework
 ant
+ln -s play-1.2.*.jar play.jar
 cd ../../culture-hub
 
 echo
