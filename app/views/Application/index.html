@@ -1,6 +1,15 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title:'Welcome' /}
 #{set bodyId:'home' /}
+#{set 'moreCss'}
+
+#{/set}
+
+#{set 'moreScripts'}
+
+<script src='${views.context.package.themePath("javascripts/index.js")}' type='text/javascript' language="javascript"></script>
+
+#{/set}
 
 <div class="messages-container">
     <div class="messages">
@@ -42,63 +51,91 @@
     </div>
 </div>
 
-<div class="grid_8 alpha">
-    #{if recentCollections.size() > 0}
-    <h2><span>Recent Collections</span></h2>
+<div class="line">
 
-    <div class="collections-container items">
-        #{list recentCollections, as: 'c'}
-        <div class="item one-col">
-            <div class="media small">
-                <img src='${views.context.package.thumbnailUrl(c.thumbnail)}' width="50" alt="${c.name}"/>
-            </div>
-            <div class="metadata">
-                <div class="hd"></div>
-                <div class="bd">
-                    <h4><a href="/${c.userName}/collection/${c.id}">${c.name}</a></h4>
-                    <span class="detail">${views.context.package.fullName(c.userName)}</span>
-                    <span class="detail">${views.context.package.niceTime(c.TS_update)}</span>
-                </div>
-             </div>
-        </div>
-        #{/list}
-    </div>
-    #{/if}
-
-    #{if recentStories.size() > 0}
-    <h2><span>Recent Stories</span></h2>
-
-    <div class="stories-container">
-      #{list recentStories, as: 's'}
-        <div class="item one-col">
-            <div class="media small">
-              <img src='${views.context.package.thumbnailUrl(s.thumbnail)}' width="50" alt="${s.name}"/>
-            </div>
-            <div class="metadata">
-                <div class="bd">
-                    <h4 class="story"><a href="/${s.userName}/story/${s.id}">${s.name}</a></h4>
-                    <span class="detail">${views.context.package.fullName(s.userName)}</span>
-                    <span class="detail">${views.context.package.niceTime(s.TS_update)}</span>
-                </div>
-            </div>
-        </div>
-      #{/list}
-    </div>
-    #{/if}
-</div>
-
-<div class="grid_8 omega">
     #{if recentObjects.size() > 0}
-    <h2><span>Recent Objects</span></h2>
+    <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd section">
+						<h3>Recent Object</h3>
+					</div>
+					<div class="bd">
+                        #{list recentObjects, as: 'o'}
+                        <div class="media">
+                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" width="300" alt="${o.title}"/></a>
 
-    <div class="objects-container ">
-        #{list recentObjects, as: 'o'}
-        <div class="item">
-            <div class="media medium">
-                <a href="/${o.userName}/object/${o.id}"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' width="100" alt="${o.title}"/></a>
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${o.title.shorten(50)}</a></span>
+                                    <p>${o.description.shorten(100)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        #{/list}
+                    </div>
             </div>
         </div>
-        #{/list}
+    </div>
+    #{/if}
+
+    #{if recentCollections.size() > 0}
+     <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd">
+						<h3>Recent Collection</h3>
+					</div>
+					<div class="bd">
+                        #{list recentCollections, as: 'c'}
+                        <div class="media">
+                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.name}"/></a>
+
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${c.name.shorten(50)}</a></span>
+                                    <p>${c.shortDescription.shorten(100)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        #{/list}
+                    </div>
+            </div>
+        </div>
+    </div>
+    #{/if}
+
+    #{if recentCollections.size() > 0}
+    <div class="unit size1of3">
+        <div class="mod recent">
+            <div class="inner">
+					<div class="hd">
+						<h3>Recent Story</h3>
+					</div>
+					<div class="bd">
+                        #{list recentStories, as: 's'}
+                        <div class="media">
+                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.name}"/></a>
+
+                            <div class="bd">
+                                <div class="metadata">
+                                    <span class="title"><a href="">${s.name.shorten(50)}</a></span>
+                                    <p>${s.shortDescription.shorten(100)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        #{/list}
+                    </div>
+            </div>
+        </div>
     </div>
     #{/if}
 </div>
+
+
+
+
+
+
+
+

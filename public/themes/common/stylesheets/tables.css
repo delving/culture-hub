@@ -79,7 +79,7 @@ table.files{
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#E1E1E1', endColorstr = '#E1E1E1');
     background-color: #E1E1E1;
     color: #555555;
-    font-size: 12px;
+    /*font-size: 12px;*/
     font-weight: bold;
     border-left: 1px solid #F1F1F1;
 }
@@ -91,7 +91,7 @@ table.files{
 .data-grid table tbody td {
     color: #000000;
     border-left: 1px solid #F1F1F1;
-    font-size: 12px;
+    /*font-size: 12px;*/
     font-weight: normal;
 }
 
