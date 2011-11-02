@@ -302,7 +302,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         write(builder.toString(), pw, out)
 
         var count = 0
-        for(record <- records.find(MongoDBObject())) {
+        for(record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
           pw.println("<input>")
           pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
           pw.print(record.getXmlString())
