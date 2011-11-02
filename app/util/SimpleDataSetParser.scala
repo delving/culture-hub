@@ -73,6 +73,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
           path.push(Tag.create(prefix, label))
           recordXml.append(elemStartToString(elemStart))
+          elementHasContent = false;
         case EvText(text) if(inRecord && inIdentifierElement) =>
           recordId = text
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
@@ -80,7 +81,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           recordXml.append(text)
           fieldValueXml.append(text)
         case EvEntityRef(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
-          if(text != null && text.size > 0) elementHasContent = true
+          elementHasContent = true
           recordXml.append("&%s;".format(text))
           fieldValueXml.append(text)
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
