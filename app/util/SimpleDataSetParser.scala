@@ -7,6 +7,7 @@ import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
 import eu.delving.metadata.{Hasher, Tag, Path}
 import models.{MetadataRecord, DataSet}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -75,6 +76,9 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           recordId = text
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
           recordXml.append(text)
+          fieldValueXml.append(text)
+        case EvEntityRef(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
+          recordXml.append("&%s;".format(text))
           fieldValueXml.append(text)
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
           justLeftIdentifierElement = false
