@@ -1,98 +1,111 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
+
 #{set title: id.isEmpty() ? 'Create new object for user ' + fullName : 'Update object for user ' + fullName /}
+
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/jquery.multiselect.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/jquery.multiselect.filter.css'}"/>
+#{/set}
+
+
 #{breadcrumbs /}
 
-<div class="grid_8">
-  <h1>${id.isEmpty() ? "Create new object" : "Update object" }</h1>
 
-  <div data-bind="text: errors().global"></div>
 
-  <form id="objectForm" method="post" action="">
-        <span class="required-note"><span>*</span> Required Fields</span>
-        #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
-        #{textArea name:"description", label:"Description", dataBind:"value: description" /}
+        <h1>${id.isEmpty() ? "Create new object" : "Update object" }</h1>
 
-        <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
 
-        <div class="field">
-            <label for="collection">Add to collection</label>
 
-            <select id="collection" name="repositories" multiple="multiple" data-bind="jqMultiSelect: { filter: false }, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'" ></select>
-        </div>
+        <div data-bind="text: errors().global"></div>
 
-        <div class="field" for="objectVisibility">
-            <label>Public</label>
+        <form id="objectForm" method="post" action="" class="box">
+            <span class="required-note"><span>*</span> Required Fields</span>
+            #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"Required field" /}
+            #{textArea name:"description", label:"Description", dataBind:"value: description" /}
 
-            <div class="inputs">
-                <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
-                <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
+
+
+            <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
+
+            <div class="field">
+                <label class="label" for="collection">Add to collection</label>
+
+                <select id="collection" name="repositories" multiple="multiple" data-bind="jqMultiSelect: { filter: false }, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'"></select>
             </div>
-        </div>
 
-        <div class="field">
-            <label>File</label>
-            <div class="inputs">
-              <div id="fileupload"></div>
+            <div class="field" for="objectVisibility">
+                <label class="label">Public</label>
+
+                <div class="inputs">
+                    <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>Not Public
+                    <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>Public
+                </div>
             </div>
-        </div>
 
-        <div class="actions">
-          <button class="action save dui-button" id="saveButton" type="submit">Save Object</button>
-          <div class="wait"></div>
-        </div>
+            <div class="field">
+                <label class="label">File</label>
 
-  </form>
+                <div class="inputs">
+                    <div id="fileupload"></div>
+                </div>
+            </div>
 
-</div>
+            <div class="buttons">
+                #{btnButton label:"Save object", extraClass:"blue", id:"saveButton", type:"submit" /}
+                <div class="wait"></div>
+            </div>
 
-<div class="grid_8">
+        </form>
 
-</div>
+
+
 
 
 <script type="text/javascript">
-  $(document).ready(function() {
+    $(document).ready(function() {
 
-      // load templates
-      $.get("@{'/public/themes/common/templates/_addLabel.tmpl.html'}", null, function(template) {
-        addTemplate('addLabelTemplate', template);
-      });
+        // load templates
+        $.get("@{'/public/themes/common/templates/_addLabel.tmpl.html'}", null, function(template) {
+            addTemplate('addLabelTemplate', template);
+        });
 
-    $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
-    initUploadWidget();
-    $('#fileupload').fileupload({
-      url: '@{user.FileUpload.uploadFile(uid)}',
-      autoUpload: true
+        $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
+        initUploadWidget();
+        $('#fileupload').fileupload({
+            url: '@{user.FileUpload.uploadFile(uid)}',
+            autoUpload: true
+        });
+
+        var objectModel = {
+            labelType: ko.observable(""),
+            labelValue: ko.observable(""),
+            addLabel: function() {
+                objectModel.labels.push({labelType: objectModel.labelType(), value: objectModel.labelValue()});
+                objectModel.labelType("");
+                objectModel.labelValue("");
+            },
+            removeLabel: function(label) {
+                objectModel.labels.remove(function(it) {
+                    return it.labelType === label.labelType && it.value === label.value
+                });
+            }
+        };
+
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
+        });
+
+        load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
+            var files = ko.toJS(objectModel.files);
+            var fu = $('#fileupload').data('fileupload');
+            fu._adjustMaxNumberOfFiles(-files.length);
+            fu._renderDownload(files)
+                    .appendTo($('#fileupload .files'))
+                    .fadeIn(function () {
+                        // Fix for IE7 and lower:
+                        $(this).show();
+                    });
+        });
     });
-
-    var objectModel = {
-      labelType: ko.observable(""),
-      labelValue: ko.observable(""),
-      addLabel: function() {
-        objectModel.labels.push({labelType: objectModel.labelType(), value: objectModel.labelValue()});
-        objectModel.labelType("");
-        objectModel.labelValue("");
-      },
-      removeLabel: function(label) {
-        objectModel.labels.remove(function(it) {return it.labelType === label.labelType && it.value === label.value});
-      }
-    };
-
-    $('#saveButton').click(function(event) {
-      event.preventDefault();
-      handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
-    });
-
-    load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
-      var files = ko.toJS(objectModel.files);
-      var fu = $('#fileupload').data('fileupload');
-      fu._adjustMaxNumberOfFiles(-files.length);
-      fu._renderDownload(files)
-          .appendTo($('#fileupload .files'))
-          .fadeIn(function () {
-              // Fix for IE7 and lower:
-              $(this).show();
-          });
-    });
-  });
 </script>

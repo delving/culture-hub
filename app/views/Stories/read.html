@@ -1,4 +1,4 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title:'Story ' + story.name + ' of user ' + browsedFullName /}
 #{breadcrumbs /}
 
@@ -21,13 +21,15 @@
             <div class="items">
 
                 <div class="page title-page">
-                    <div class="page-left" style="text-align: center">
-                          &#160;
-                    </div>
-                    <div class="page-right" style="text-align: center">
-                           <h1>${story.name}</h1>
+                    <div class="page-left">
+
                          <div><img src="${views.context.package.thumbnailUrl(story.thumbnail)}" /></div>
-                          <h2>By: ${browsedFullName}</h2>
+
+                    </div>
+                    <div class="page-right">
+                        <h2>${story.name}</h2>
+                        <h3>By: ${browsedFullName}</h3>
+                         <p>${story.description}</p>
                     </div>
                 </div>
 

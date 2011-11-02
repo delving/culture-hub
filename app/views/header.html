@@ -5,15 +5,17 @@
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
 
-    <title>#{get 'title' /}</title>
+    <title>#{get 'title' /} </title>
     <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/common.css")}'/>
     <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css'}"/>
-    <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/style.css")}'/>
+    #{get 'moreCss' /}
+    <link rel="stylesheet" type="text/less" href='${views.context.package.themePath("stylesheets/style.less")}'/>
 
-    <!--[if lt IE 9]>
-      <script src="@{'/public/themes/common/javascripts/excanvas.js'}' type='text/javascript'></script>
-    <![endif]-->
+    <script>
+        var themePath = "${views.context.package.themePath('')}";
+    </script>
     <script src="@{'/public/themes/common/javascripts/modernizr-2.0.6.min.js'}" type='text/javascript'></script>
+    <script src="@{'/public/themes/common/javascripts/less-1.1.3.min.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/jquery-1.6.2.min.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/jquery.hoverIntent.minified.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/jquery-ui-1.8.13.custom.min.js'}" type='text/javascript'></script>
@@ -34,178 +36,189 @@
     <script src="@{'/public/themes/common/javascripts/jquery.multiselect.min.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/jquery.multiselect.filter.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/jquery.tools.min.js'}" type='text/javascript'></script>
+    <script src="@{'/public/themes/common/javascripts/jquery.tiptip.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/smartupdater.js'}" type='text/javascript'></script>
+    <script src="@{'/public/themes/common/javascripts/carousel.js'}" type='text/javascript'></script>
     <script src="@{'/public/themes/common/javascripts/culturehub.js'}" type='text/javascript'></script>
+
+    #{get 'moreScripts' /}
 
     <script type="text/javascript">
         $(document).ready(function() {
             initializeElements();
             $.metadata.setType('html5');
+
         });
     </script>
 
     <script type="text/html" id="uploadFileTemplate">
-      <form action="" method="post" enctype="multipart/form-data">
-        <div class="fileupload-buttonbar">
-          <label class="fileinput-button">
-            <span>Add files...</span>
-            <input type="file" name="files[]" multiple="true"/>
-          </label>
-          <button type="submit" class="start">Start upload</button>
-          <button type="reset" class="cancel">Cancel upload</button>
-          <button type="button" class="delete">Delete files</button>
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="fileupload-buttonbar">
+                <label class="fileinput-button">
+                    <span>Add files...</span>
+                    <input type="file" name="files[]" multiple="true"/>
+                </label>
+                <button type="submit" class="start">Start upload</button>
+                <button type="reset" class="cancel">Cancel upload</button>
+                <button type="button" class="delete">Delete files</button>
+            </div>
+        </form>
+        <div class="fileupload-content">
+            <table class="files"></table>
         </div>
-      </form>
-      <div class="fileupload-content">
-        <table class="files"></table>
-      </div>
     </script>
 
     <script type="text/html" id="simpleUploadFileTemplate">
-      <form action="" method="post" enctype="multipart/form-data">
-        <div class="fileupload-buttonbar">
-          <label class="fileinput-button">
-            <span>Add files...</span>
-            <input type="file" name="files[]" multiple="true"/>
-          </label>
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="fileupload-buttonbar">
+                <label class="fileinput-button">
+                    <span>Add files...</span>
+                    <input type="file" name="files[]" multiple="true"/>
+                </label>
+            </div>
+        </form>
+        <div class="fileupload-content">
+            <table class="files"></table>
         </div>
-      </form>
-      <div class="fileupload-content">
-        <table class="files"></table>
-      </div>
     </script>
 </head>
+
 <body id="#{get 'bodyId' /}">
 
-<div id="wrapper">
+<div id="page">
 
-    <header id="header">
+    <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
-        <div id="header-top" class="clearfix">
-            <div class="container_16">
-                <div class="grid_10" id="hub-navigation">
-                    <a class='${"Application".isCurrent()}' href="@{Application.index()}"><span>Home</span></a><span class="pipe">|</span>
-                    <a class='${"Users".isCurrent()}' href="/users"><span>Users</span></a><span class="pipe">|</span>
-                    <a class='${"DObjects.list".isCurrent()}' href="/objects"><span>Objects</span></a><span class="pipe">|</span>
-                    <a class='${"Collections".isCurrent()}' href="/collections"><span>Collections</span></a><span class="pipe">|</span>
-                    <a class='${"Stories".isCurrent()}' href="/stories"><span>Stories</span></a>
-
-                </div>
-                <div class="grid_6" id="login-registration">
-                    #{if !userName}
-                    <a href="/login"><span>Login</span></a><span class="pipe">|</span>
-                    <a class='${"Registration.index".isCurrent()}' href="@{Registration.index()}"><span>Register</span></a><span class="pipe">|</span>
-                    <a class='${"Registration.lostPassword".isCurrent()}' href="@{Registration.lostPassword()}"><span>Forgot Password</span></a>
-                    #{/if}
-                    #{else}
-                    <div id="user-tools" class="">
-                       <ul id="user-menu">
-                           <li>
-                               <a href="#" class="user"> Hi ${fullName}</a>
-                                 <div class="sub">
-                                    <ul>
-                                        <li><h2>Go to</h2></li>
-                                        <li><a class="action goto" href='/${userName}'><span>Your Profile</span></a></li>
-                                        <li><a class="action goto" href='/${userName}/object'><span>Your Objects</span></a></li>
-                                        <li><a class="action goto" href='/${userName}/collection'><span>Your Collections</span></a></li>
-                                        <li><a class="action goto" href='/${userName}/story'><span>Your Stories</span></a></li>
-                                        <li><a class="action goto" href='/${userName}/dataset'><span>Your DataSets</span></a></li>
-                                    </ul>
-                                    <ul>
-                                        <li><h2>Create</h2></li>
-                                       <li ><a class="action add image-add" href='/${userName}/object/add'>Create new object</a></li>
-                                       <li><a class="action add collection-add" href='/${userName}/collection/add'>Create new collection</a></li>
-                                       <li><a class="action add story-add" href='/${userName}/story/add'>Create new story</a></li>
-                                       <li><a class="action add collection-add" href='/${userName}/dataset/add'>Create new dataset</a></li>
-                                    </ul>
-
-                                </div>
-
-                           </li>
-                           <li><span class="pipe">|</span><a href="/logout"><span>Logout</span></a></li>
-                       </ul>
-                        <!--<span class="pipe">|</span><a href="/logout"><span>Logout</span></a>-->
-                    </div>
-                    #{/else}
-                </div>
-            </div>
-
-        </div>
-
-        <div id="header-main" class="clearfix">
-            <div class="container_16">
-                <div class="grid_16" id="branding">
-
-                    <h1 class="ir"><span>${views.context.package.themeDisplayName()}</span></h1>
-
-                    <div id="header-text">
-                        <p>This is the development environment for the Delving Culture-Hub. This is a place where objects come to life through
-                            contextual grouping in collections and through story-telling. We believe that every object tells a story, but that story depends on context. So
-                            one object may be able to tell a different story depending on its context.</p>
-
-                        <p>
-                            <a href="@{Registration.index()}">Register</a> or
-                            <a href="/login">login</a> and start adding and grouping objects. You can work on your own collections and stories or collaborate with other users to create collections and tell stories.
-                        </p>
-                    </div>
-
-                </div>
+    <div id="primary-branding">
+        <div class="container">
+            <div class="content">
+                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
             </div>
         </div>
+    </div>
 
-        <div id="header-bot" class="clearfix">
-            <div class="container_16">
-                <div class="grid_16">
-
-                </div>
+    <div id="secondary-branding">
+        <div class="container">
+            <div class="content">
+                <a href="" target="_blank" title="9999u"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
+    </div>
 
-    </header>
+    <div id="header" role="banner">
+        <div class="container">
+            <div class="content">
 
-    <div id="search" class="clearfix">
-        <div class="container_16">
-            <div class="grid_16">
+            </div>
+        </div>
+    </div>
+
+    <div id="search" role="search">
+        <div class="container">
+            <div class="content">
                 <form method="get" action="">
-                    <input type="text" id="query" name="query" value='${params.query}' />
+                    <input type="text" id="query" name="query" value='${params.query}'/>
                     <input type="submit" value="Search">
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="page" class="clearfix">
-
-        <div id="messages-container">
-            <div class="container_16">
-                <div class="grid_16">
-
-                </div>
+    <div id="main">
+        <div class="container">
+            <div class="content">
+                #{doLayout /}
             </div>
         </div>
+    </div>
 
-        <div id="page-main">
-            <div class="container_16">
-                <div class="grid_16">
-                     #{doLayout /}
-                </div>
+    <div id="main-nav" role="nav">
+        <div class="container">
+            <div class="content">
+                <ul class="nav">
+                    <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
+                    <li class='${"DObjects.list".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
+                    <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
+                    <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
+                    <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
+                </ul>
             </div>
         </div>
+    </div>
 
+    <div id="user-nav" role="nav" style="z-index: 12">
+        <div class="container">
+            <div class="content">
+                #{if !userName}
+                <div class="buttons">
+                    <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
+                        <span class="label">Login</span>
+                    </a>
+                    <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
+                        <span class="label">Register</span>
+                    </a>
+                </div>
+                #{/if}
+                #{else}
+
+                <div class="buttons">
+                    <!--Hi ${fullName}-->
+                    <div class="dropdown">
+                        <a href="#" class="button"><span class="icon icon9"></span><span class="label">Go to</span><span class="toggle"></span></a>
+
+                        <div class="dropdown-slider">
+                            <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
+                            <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
+                            <a href="/${userName}/collection" class="ddm"></span>
+                                <span class="label">Your collections</span></a>
+                            <a href="/${userName}/story" class="ddm"></span><span class="label">Your stories</span></a>
+                            <a href="/${userName}/dataset" class="ddm"></span><span class="label">Your data-sets</span></a>
+                        </div>
+                        <!-- /.dropdown-slider -->
+                    </div>
+                    <!-- /.dropdown -->
+
+                    <div class="dropdown">
+                        <a href="#" class="button"><span class="icon icon144"></span><span class="label">Create</span><span class="toggle"></span></a>
+
+                        <div class="dropdown-slider">
+                            <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
+                            <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
+                            <a href="/${userName}/story/add" class="ddm"><span class="label">New story</span></a>
+                            <a href="/${userName}/dataset/add" class="ddm"><span class="label">New data-set</span></a>
+                        </div>
+                        <!-- /.dropdown-slider -->
+
+                    </div>
+                    <!-- /.dropdown -->
+
+                    <a class="button" href="/logout">
+                        <span class="label">Logout</span>
+
+                    </a>
+                </div>
+
+                #{/else}
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <div class="content">
+
+            </div>
+        </div>
     </div>
 
 </div>
 
-<div id="footer">
-    <div class="container_16">
-        <div class="grid_16">
-            &#160;
-        </div>
-    </div>
-</div>
-
-
-
+<div id="extraDiv1"><span></span></div>
+<div id="extraDiv2"><span></span></div>
+<div id="extraDiv3"><span></span></div>
+<div id="extraDiv4"><span></span></div>
+<div id="extraDiv5"><span></span></div>
+<div id="extraDiv6"><span></span></div>
 
 </body>
 </html>

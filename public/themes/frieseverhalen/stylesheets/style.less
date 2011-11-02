@@ -1,0 +1,407 @@
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-light-webfont.eot');
+    src: url('fonts/chevinstd-light-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-light-webfont.woff') format('woff'),
+         url('fonts/chevinstd-light-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-light-webfont.svg#webfontAMscb632') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-bold-webfont.eot');
+    src: url('fonts/chevinstd-bold-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-bold-webfont.woff') format('woff'),
+         url('fonts/chevinstd-bold-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-bold-webfont.svg#webfontI4Pr0yzS') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-lightitalic-webfont.eot');
+    src: url('fonts/chevinstd-lightitalic-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-lightitalic-webfont.woff') format('woff'),
+         url('fonts/chevinstd-lightitalic-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-lightitalic-webfont.svg#webfontQakXPFlZ') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* less declarations */
+
+/*colors */
+
+@color-1: #555;
+@color-2: #97B851;
+@color-3: #A94A82;
+@color-4: #4470CF;
+@color-5: #26a2fe;
+@color-7: #fff;
+
+/* font-family */
+
+@ffam-1: Arial, Helvetica, Verdana, sans;
+@ffam-2: Chevin, Calibri, Arial, Helvetica, sans;
+
+
+/* font-sizes */
+
+@fsize-1: 14px;
+@fsize-2: 18px;
+@fsize-3: 22px;
+@fsize-4: 44px;
+@fsize-5: 72px;
+
+@radius: 2px;
+
+.border-all (@radius) {
+  border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+.border-top (@radius) {
+  border-radius: @radius @radius 0 0;
+  -moz-border-radius: @radius @radius 0 0;
+  -webkit-border-radius: @radius @radius 0 0;
+}
+
+.border-bot (@radius) {
+  border-radius: 0 0 @radius @radius;
+  -moz-border-radius: 0 0 @radius @radius;
+  -webkit-border-radius: 0 0 @radius @radius;
+}
+
+/* BASE ***********************************************************************************************************/
+body {
+    background: #fff url(../images/body-bg.png) repeat-x top left;
+    font-family: @ffam-1;
+}
+a { color: @color-4; }
+a:visited {color: darken(@color-4, 30%);}
+a:hover {color: @color-3;}
+
+h1, h2, h3 {
+    font-family: @ffam-2;
+}
+
+/* LAYOUT **********************************************************************************************************/
+
+body#home  {
+    background: #fff url(../images/body-bg-home.png) repeat-x top left;
+}
+
+
+
+.wrapper {
+    margin: 0 auto;
+    width: 960px;
+    position: relative;
+}
+
+/* USER-NAV **********************************************************************************************************/
+
+.user-nav {
+    background: @color-2;
+    .border-top(4px);
+    float: right;
+    /*height: 60px;*/
+    position: absolute;
+    top: 34px;
+    right: 0px;
+    z-index: 10;
+}
+
+.user-nav .content {
+    /*padding:10px;*/
+}
+/* SITE NAME **********************************************************************************************************/
+
+#site-name {
+    color: @color-3;
+    font-family: @ffam-2;
+    font-size: @fsize-4;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin: 0;
+}
+
+/* PRIMARY BRANDING **********************************************************************************************************/
+
+#primary-branding {
+    display: none;
+}
+
+/* SECONDARY BRANDING **********************************************************************************************************/
+
+#secondary-branding {
+    position: absolute;
+    top: 21px;
+    left: 290px;
+}
+
+/* SITE NAV **********************************************************************************************************/
+
+#site-nav {
+    height: 70px;
+    position: absolute;
+    top: 80px;
+}
+#site-nav ul {
+    margin: 0px;
+    padding: 0px;
+}
+#site-nav ul li {
+    display: inline-block;
+    margin: 0 60px 0 0;
+    height: 75px;
+    line-height: 50px;
+}
+
+#site-nav ul li.current,
+#site-nav ul li:hover {
+    background: transparent url(../images/site-nav-bg-active.png) no-repeat bottom center;
+    cursor: pointer;
+}
+
+#site-nav a {
+    color: @color-7;
+    font-family: @ffam-1;
+    font-size: @fsize-2;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* SITE SLOGAN **********************************************************************************************************/
+
+#site-slogan {
+    display: none;
+}
+
+#home #site-slogan {
+    color: @color-7;
+    display: block;
+    font-family: @ffam-2;
+    font-weight: bold;
+    font-size: @fsize-5;
+    line-height: @fsize-5;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 280px;
+    width: 100%;
+}
+
+/* HEADER **********************************************************************************************************/
+
+.header {
+    height: 90px;
+}
+
+#home .header {
+    height: 465px;
+}
+
+
+
+/* SEARCH **********************************************************************************************************/
+
+#search {
+    position: relative;
+    top: 165px;
+    /*right: 0px;*/
+    text-align: center;
+}
+
+#search form {
+    background: transparent;
+}
+
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    /*border: medium none;*/
+    border:  1px solid #d1d1d1;
+    .border-all(@radius);
+    padding: 8px;
+    width: 450px;
+}
+
+#search input[type="submit"]  {
+    background: none repeat scroll 0 0 @color-2;
+    /*border: medium none;*/
+    border:  1px solid @color-2;
+    .border-all(@radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: @ffam-2;
+    font-size: @fsize-1;
+    font-weight: bold;
+    margin-left: 4px;
+    padding: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    text-transform: uppercase;
+    width: 80px;
+}
+
+#search input {
+    /*font-weight: bold;*/
+    vertical-align: top;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+}
+
+/* MAIN **********************************************************************************************************/
+.main {
+    width: 960px;
+    margin-top: 150px;
+}
+
+#home .main {
+    /*top: 495px;*/
+    /*margin-top: 0px;*/
+}
+
+/* FOOTER **********************************************************************************************************/
+
+.footer {
+    border-top: 1px solid #eaeaea;
+    display: relative;
+    margin-top: 40px;
+}
+
+.footer .content {
+    padding: 10px;
+}
+
+
+/* MEDIA ************************************************************************************************/
+
+.media.object .img {
+    width:inherit;
+    height: 150px;
+    line-height:150px;
+    text-align:center;
+    overflow:  hidden;
+    position: relative;
+    vertical-align: top;
+}
+
+.media.object .img img {
+    vertical-align: top;
+    max-width: 120px;
+    max-height: 150px;
+    display: -moz-inline-box;
+    display: inline-block;
+    text-align: center;
+}
+
+.media .title {
+    font-weight: bold;
+}
+.metadata h4 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.metadata p {
+    margin-top: 0px;
+}
+
+/* media block in recent wrapper */
+
+.mod.recent .inner{
+    /*background-color: #fff;*/
+}
+
+.recent h3 {
+    color: @color-3;
+    text-transform:uppercase;
+    font-size: @fsize-2;
+    font-weight: normal;
+    margin-bottom: 0px;
+}
+
+.recent .media p {
+    margin: 0;
+}
+
+.recent .media .clip {
+    display: block;
+    height: 210px;
+    overflow: hidden;
+}
+
+.clip img {
+    position:absolute;
+    clip:rect(0px,280px,200px,0px);
+}
+
+.recent .media .img {
+    clear: both;
+    margin: 0;
+    float: none;
+}
+
+.recent .title {
+    display: block;
+}
+
+/* PAGINATION ************************************************************************/
+/* pagination.css overrides */
+
+.pagination .current {
+    background: @color-3;
+    /*border: solid 1px #AAE;*/
+}
+
+.pagination .prev,
+.pagination .next {
+    background: #eaeaea;
+}
+
+.pagination .current.prev, .pagination .current.next {
+    background: #eaeaea;
+    color: #999;
+}
+
+/* BREADCRUMBS ************************************************************************/
+/* breadcrumb.css overrides */
+
+.breadcrumb {
+    border-bottom: 1px solid #ccc;
+}
+
+.breadcrumb ul {
+    margin: 0;
+}
+
+
+.breadcrumb li {
+    margin-left: 0px;
+}
+
+/* COLLUMNS ************************************************************************************/
+
+.sidebar {
+    float: left;
+    width: 40%;
+}
+
+.input {
+    float: left;
+    width: 55%;
+    margin-left: 5%;
+}
+
+/* HELPERS ************************************************************************************/
+
+.clear {
+    clear:both;
+}
+

@@ -1,32 +1,41 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
+
 #{breadcrumbs /}
 
-<h1 class="grid_16 alpha">${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
+<h1>${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
 
-<div data-bind="text: errors().global"></div>
+<div id="edit-collection" class="mod">
 
-<div class="grid_8 alpha">
+    <div data-bind="text: errors().global"></div>
 
-  <form method="post" action="" id="collectionForm">
+    <form method="post" action="" id="collectionForm">
+    <h3>
+        Collection Info
+    </h3>
 
-    <span class="required-note"><span>*</span> Required Fields</span>
+    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"Required" /}
+    #{textArea name:"description", label:"Description", dataBind:"value: description", help:"Required" /}
 
-    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required" /}
-    #{textArea name:"description", label:"Description", dataBind:"value: description", labelClass:"required" /}
 
-    <div class="actions">
-      <button class="action add image dui-button" id="addObject">Add object(s)</button>
+    <h3>
+        Collection Objects
+    </h3>
+
+    <div class="buttons">
+        #{btnHref label:"Add object(s)", iconClass:"icon3", id:"addObject" /}
     </div>
 
-    <div id="objectList" class="data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
+    <div id="objectList" class="mod data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
 
     <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
         <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
     </div>
 
+
+    <h3>Collection Status</h3>
     <div class="field">
-        <label for="public-0">Public</label>
+        <label for="public-0" class="label">Public</label>
 
         <div class="inputs">
             <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
@@ -34,13 +43,18 @@
         </div>
     </div>
 
-    <div class="actions">
-      <button class="action save collection dui-button" id="saveButton" type="submit">Save Collection</button>
+    <hr/>
+
+    <div class="buttons">
+      #{btnButton label:"Save collection", id:"saveButton", extraClass:"blue", type:"submit"  /}
       <div class="wait"></div>
     </div>
 
 </form>
 </div>
+
+
+
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
