@@ -29,6 +29,7 @@
     <div class="buttons">
         #{btnButton label:"Login", extraClass:"action green", type:"submit" /}
         #{btnHref label:"I forgot my password", href:@Registration.lostPassword(), rel:"nofollow" /}
+        #{btnHref label:"Cancel", href:'#', id:"cancel", rel:"nofollow" /}
     </div>
     #{/form}
 
@@ -38,5 +39,9 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $('#username').focus();
+    $('#cancel').click(function(e) {
+      e.preventDefault();
+      document.location = document.referrer;
+    });
   });
 </script>

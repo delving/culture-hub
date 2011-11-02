@@ -4,6 +4,10 @@
 function initializeElements() {
 //    $("#page").height($(document).height());
 
+    $('.cancelButton').click(function(e) {
+      e.preventDefault();
+      document.location = document.referrer;
+    });
     $.preloadImages (
         "/public/themes/common/images/spinner.gif"
     );
