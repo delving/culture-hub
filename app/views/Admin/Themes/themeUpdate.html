@@ -10,19 +10,19 @@
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>System information</h3>
-                    #{textField name: "name", label: "Theme name", dataBind: "value: name", help: "Required. The system theme name.", disabled: false /}
+                    #{textField name: "name", label: "Theme name", dataBind: "value: name", help: "The system theme name.", required: true, disabled: false /}
                     #{checkboxField name: "isDefault", label: "Is default", dataBind: "checked: isDefault" /}
 
-                    #{textField name: "templateDir", label: "Template directory", dataBind: "value: templateDir", help:"Required" /}
+                    #{textField name: "templateDir", label: "Template directory", dataBind: "value: templateDir", required: true /}
 
                 </div>
             </div>
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>Display information</h3>
-                    #{textField name: "displayName", label: "Display Name", dataBind: "value: displayName", help:"Required", extHelp:"The display name of the theme as you would like it to appear on the website." /}
-                    #{textField name: "homePage", label: "Homepage", dataBind: "value: homePage", help:"Required" /}<!-- todo: this should become the secondary branding url -->
-                    #{textField name: "defaultLanguage", label: "Default language", dataBind: "value: defaultLanguage", help:"Required" /}
+                    #{textField name: "displayName", label: "Display Name", dataBind: "value: displayName", required: true, extHelp:"The display name of the theme as you would like it to appear on the website." /}
+                    #{textField name: "homePage", label: "Homepage", dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
+                    #{textField name: "defaultLanguage", label: "Default language", dataBind: "value: defaultLanguage", required: true /}
                     #{textField name: "colorScheme", label: "Color scheme", dataBind: "value: colorScheme" /}
                 </div>
             </div>
@@ -32,8 +32,8 @@
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>Search configuration</h3>
-                    #{textField name: "solrSelectUrl", label: "Solr select URL", dataBind: "value: solrSelectUrl", help:"Required" /}
-                    #{textField name: "cacheUrl", label: "Cache URL", dataBind: "value: cacheUrl", help:"Required" /}
+                    #{textField name: "solrSelectUrl", label: "Solr select URL", dataBind: "value: solrSelectUrl", required: true /}
+                    #{textField name: "cacheUrl", label: "Cache URL", dataBind: "value: cacheUrl", required: true /}
                     <div class="field">
                         <label class="label" for="localisedQueryKeys">Localised query keys</label>
                         <div>

@@ -5,3 +5,7 @@
     display: inline-block;
     float:  none !important;
 }
+
+strong {
+    font-weight: bold;
+}

@@ -1,9 +1,11 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title:'Register!' /}
 
-<div id="register" class="line">
- <div class="unit size1of2 prependSize1of4">
+<div id="register">
+
+
     <form id="registrationForm" action="@{Registration.register()}" method="POST" class="grid_16">
+
         <h3>Register for <span>${views.context.package.themeDisplayName()}</span></h3>
 
         #{if !errors.isEmpty()}
@@ -13,13 +15,13 @@
         #{/if}
 
 
-        #{textField name:"registration.firstName", label:"First name" /}
-        #{textField name:"registration.lastName", label:"Last name" /}
-        #{textField name:"registration.email", label:"E-mail" /}
+        #{textField name:"registration.firstName", label:"First name", required: true /}
+        #{textField name:"registration.lastName", label:"Last name", required: true /}
+        #{textField name:"registration.email", label:"E-mail", required: true /}
         <hr>
-        #{textField name:"registration.displayName", label:"User name" /}
-        #{passwordField name:"registration.password1", label:"Password" /}
-        #{passwordField name:"registration.password2", label:"Password (repeat)" /}
+        #{textField name:"registration.displayName", label:"User name", required: true /}
+        #{passwordField name:"registration.password1", label:"Password", required: true /}
+        #{passwordField name:"registration.password2", label:"Password (repeat)", required: true /}
 
         <hr>
         <fieldset>
@@ -31,6 +33,7 @@
                 <img src="@{Registration.captcha(randomId)}">
             <input type="hidden" name="randomID" value="${randomId}">
             <span class="error">${views.context.package.showError("code")}</span>
+            <span class="help"><strong>&{'form.required'}</strong></span>
             </div>
         </div>
         </fieldset>
@@ -42,5 +45,5 @@
         </div>
 
     </form>
- </div>
- </div>
+</div>
+
