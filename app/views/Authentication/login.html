@@ -1,16 +1,13 @@
-#{extends 'Authentication/layout.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: 'Login' /}
 
-<section id="login">
+
+<div id="login" class="line">
+    <div class="unit size1of2 prependSize1of4">
+    <!--<h1>Login</h1>-->
 
     #{form @authenticate()}
-
-    <div id="branding">
-        <h1><span>${views.context.package.themeDisplayName()}</span></h1>
-    </div>
-
-    <h2>Login</h2>
-
+    <h3>Login</h3>
     #{if flash.error}
     <p class="error">
         ${flash.error}
@@ -22,34 +19,22 @@
     </p>
     #{/if}
 
-    <p id="username-field">
-        <label for="username">Username: </label>
-        <input type="text" id="username" name="username">
-    </p>
 
-    <p id="password-field">
-        <label for="password">Your password: </label>
-        <input type="password" id="password" name="password" value="">
-    </p>
+    #{textField name:"username", label:"Username" /}
+    #{passwordField name:"password", label:"Password" /}
 
-    <p id="remember-field">
-        <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
-        <label for="remember">Remember me</label>
-    </p>
+    <label for="remember" class="label">Remember me</label>
+    <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
 
-    <p id="signin-field">
-        <input type="submit" id="signin" class="dui-button" value="Login"/>
-    </p>
+    <div class="buttons">
+        #{btnButton label:"Login", extraClass:"action green", type:"submit" /}
+        #{btnHref label:"I forgot my password", href:@Registration.lostPassword(), rel:"nofollow" /}
+    </div>
     #{/form}
 
-    <nav>
-        <a href="@{Application.index()}"><span>Home</span></a><span class="pipe">|</span>
-        <a href="@{Registration.index()}"><span>Register</span></a><span class="pipe">|</span>
-        <a href="@{Registration.lostPassword()}"><span>Forgot Password</span></a>
-    </nav>
 
-</section>
-
+</div>
+</div>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#username').focus();

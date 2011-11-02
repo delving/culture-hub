@@ -1,13 +1,19 @@
-<div class="breadcrumbs">
-#{list views.context.package.crumble(), as: 'c'}
-  #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
-  ${c._1._2}
-  #{/}
-  #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
-    <a href="${c._1._1}">${c._1._2}</a> <span class="arrow"> &gt; </span>
-  #{/}
-  #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
-  <a href="${c._1._1}">${c._1._2}</a>
-  #{/}
-#{/}
+#{if views.context.package.crumble().size() > 1}
+<div class="breadcrumb ptm bbt">
+    <ul>
+    #{list views.context.package.crumble(), as: 'c'}
+    <li>
+    #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+    ${c._1._2.shorten(50)}
+    #{/}
+    #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+    <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+    #{/}
+    #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
+    <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+    #{/}
+    </li>
+    #{/}
+    </ul>
 </div>
+#{/if}

@@ -1,0 +1,73 @@
+/* **************** BLOCK SKINS ***************** */
+/* ====== Contour blocks ====== */
+/* remove background-image:" to default to square corners for IE */
+/* ----- simple (extends mod) ----- */
+.simple .inner {
+    border: 1px solid #D7D7D7;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+}
+
+.simple b {
+    background-image: url(../images/simple_corners.png) \9;
+}
+
+/* ----- basic (extends mod) ----- */
+.basic .inner {
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+}
+
+.basic b {
+    background-image: url(../images/round.png) \9;
+}
+
+/* ----- simpleExt (extends mod) ----- */
+.simpleExt, .simpleExt .inner {
+    border: 1px solid #c7c7c7;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+}
+
+.simpleExt .inner {
+    border-color: #fff;
+    border-width: 4px;
+    background-color: #e2e2e2;
+}
+
+.simpleExt b {
+    background-image: url(../images/simple_extended.png) \9;
+}
+
+.simpleExt .tl {
+    left: -1px;
+    top: -1px;
+    height: 12px;
+    width: 12px;
+}
+
+.simpleExt .tr {
+    right: -1px;
+    top: -1px;
+    height: 12px;
+    width: 12px;
+}
+
+.simpleExt .bl {
+    left: -1px;
+    bottom: -1px;
+    height: 12px;
+    width: 12px;
+    margin-top: -12px;
+}
+
+.simpleExt .br {
+    right: -1px;
+    bottom: -1px;
+    height: 12px;
+    width: 12px;
+    margin-top: -12px;
+}

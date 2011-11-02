@@ -16,4 +16,13 @@ public class ViewExtensions extends JavaExtensions {
         return !singular.endsWith("y") ? singular + "s" : singular.substring(0, singular.length() - 1) + "ies";
     }
 
+    public static String shorten(String source, Integer length) {
+         return source.length() > length ? source.substring(0, length) + "..." : source;
+    }
+
+
+
+
 }
+
+

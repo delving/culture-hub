@@ -1,48 +1,70 @@
-#{extends 'header.html' /}
+#{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: title /}
 #{breadcrumbs /}
 
-<div class="grid_16 alpha" id="items">
-
     #{if browsedUserName}
-    <h2>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h2>
+    <h1>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h1>
     #{/if}
     #{else}
-    <h2>Browse ${itemName.pluralize()} (${count})</h2>
+    <h1>Browse ${itemName.pluralize()} (${count})</h1>
     #{/else}
 
     #{if items.length() > 0}
-        <div id="pager">#{pagination selector: "#pager", count: count, start: page /}</div>
+        <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
     #{else}
-      <p>There are currently no ${itemName.pluralize()} available</p>
+        <p>There are currently no ${itemName.pluralize()} available</p>
     #{/else}
 
-    <div class="clear"></div>
-    <div class="items">
-    #{list items, as: 'i'}
-    <div class="item two-col">
-      <div class="inner">
-        <div class="media medium">
-            <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' width="84" alt="${i.title}"/>
-        </div>
-        <div class="metadata">
-            <div class="hd">
-                <h4><a href="/${i.userName}/${itemName}/${i.id}">${i.title}</a></h4>
+
+
+
+
+        %{ def counter = 1 }%
+
+        #{list items, as: 'i'}
+
+        #{if counter == 1}
+        <div class="line">
+        #{/if}
+
+            <div class="unit size1of3 ${counter == 3 ? 'lastUnit' : ''}">
+
+                <div class="media ${itemName}">
+
+                    <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
+                        <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100"/>
+                    </a>
+
+                <div class="bd">
+                    <div class="metadata">
+
+                        <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
+
+                        #{if i.description}
+                        <div class="more-info">
+                            <div class="inner">
+                                ${i.description.shorten(100)}
+                            </div>
+                        </div>
+                        #{/if}
+
+                    </div>
+                </div>
             </div>
-            <div class="bd">
-                ${i.description}
             </div>
-            <div class="ft">
-            #{if i.userName == userName}
-            <div class="actions">
-                <a class="action edit dui-button" href="/${i.userName}/${itemName}/${i.id}/update">Edit ${itemName.capitalize()}</a>
-            </div>
-            #{/if}
-            </div>
-        </div>
-       </div>
-    </div>
-    #{/list}
-    </div>
-</div>
+
+        %{ counter++ }%
+
+        #{if counter > 3 || i_isLast }
+        </div><!-- end line -->
+        %{ counter = 1 }%
+        #{/if}
+
+        #{/list}
+
+
+
+    #{if items.length() > 0}
+        <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    #{/if}
