@@ -296,8 +296,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         val builder = new StringBuilder
         builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
         builder.append("<delving-sip-source ")
-        for(ns <- dataSet.namespaces) builder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
-        builder.append(">")
+        val attrBuilder = new StringBuilder
+        for(ns <- dataSet.namespaces) attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+        builder.append("%s>".format(attrBuilder.toString().trim()))
         write(builder.toString(), pw, out)
 
         var count = 0

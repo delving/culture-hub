@@ -110,11 +110,17 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     mappings.filterNot(_.length == 0).toList
   }
 
-  private def elemStartToString(start: EvElemStart): String = "<%s%s%s>".format(prefix(start.pre), start.label, scala.xml.Utility.sort(start.attrs).toString())
+  private def elemStartToString(start: EvElemStart): String = {
+      val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
+      if (attrs.isEmpty)
+        "<%s%s>".format(prefix(start.pre), start.label)
+      else
+        "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
+  }
 
   private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
 
-  private def elemEndToEmptyElement(end: EvElemEnd): String = "<%s%s />".format(prefix(end.pre), end.label)
+  private def elemEndToEmptyElement(end: EvElemEnd): String = "<%s%s/>".format(prefix(end.pre), end.label)
 
   private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
 
