@@ -41,7 +41,7 @@
     $('#username').focus();
     $('#cancel').click(function(e) {
       e.preventDefault();
-      history.back();
+      document.location = document.referrer;
     });
   });
 </script>

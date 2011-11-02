@@ -6,7 +6,7 @@ function initializeElements() {
 
     $('.cancelButton').click(function(e) {
       e.preventDefault();
-      history.back();
+      document.location = document.referrer;
     });
     $.preloadImages (
         "/public/themes/common/images/spinner.gif"
