@@ -9,3 +9,13 @@
 strong {
     font-weight: bold;
 }
+
+.toolbar {
+    position: relative;
+    z-index: 11;
+}
+.toolbar .pager {
+    display: inline-block;
+    float: left;
+    margin-top: 5px;
+}
