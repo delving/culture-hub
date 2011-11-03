@@ -25,9 +25,16 @@ form h3 {
 }
 
 .field {
+    display: table;
     clear: both;
-    margin-bottom: 10px;
-    padding:  10px;
+    /*margin-bottom: 10px;*/
+    padding: 5px 0;
+    /*padding:  10px;*/
+}
+
+.field:hover,
+.field:active {
+    background-color: #fff;
 }
 
 form .buttons {
@@ -36,17 +43,17 @@ form .buttons {
 label.label {
     color: #555;
     display: inline-block;
-    /*float: left;*/
     font-weight: bold;
     width: 120px;
     text-align: right;
-    margin-right: 10px;
+    margin-right: 6px;
     vertical-align: top;
+
 }
 
 .field .inputs {
-    display: inline-block;
-    width: auto;
+    display: table-cell;
+    width: 100%;
 }
 
 .field .inputs textarea,
@@ -61,7 +68,6 @@ label.label {
     font-size: 85%;
     font-style: italic;
     word-wrap: break-word;
-    max-width: 600px;
 }
 
 .field .input[type=radio] {

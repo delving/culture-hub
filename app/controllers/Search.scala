@@ -10,9 +10,10 @@ import search.{BriefItemView, CHResponse, SolrQueryService}
 object Search extends DelvingController {
 
   def index = {
-    if(!(params._contains("query") || params._contains("id") || params._contains("explain"))) {
-      params.put("query", "*:*")
-    }
+  if(!params._contains("query") || !params._contains("id") || !params._contains("explain")) {
+     params.put("query", "*:*")
+     params.put("facet.field", Array("TYPE", "YEAR"))
+   }
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery)

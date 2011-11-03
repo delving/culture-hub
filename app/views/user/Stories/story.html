@@ -34,8 +34,8 @@
             <form id="storyForm" class="box">
 
 
-                #{textField name:"name", label:"Name", dataBind:"value: name, valueUpdate: 'afterkeydown'", labelClass:"required", help:"Required" /}
-                #{textArea name:"description", label:"Description", dataBind:"value: description, valueUpdate: 'afterkeydown'", labelClass:"required", help:"Required" /}
+                #{textField name:"name", label:"Name", dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
+                #{textArea name:"description", label:"Description", dataBind:"value: description, valueUpdate: 'afterkeydown'", required: true /}
 
                 <div class="field" for="objectVisibility">
                     <label>Public</label>
@@ -108,14 +108,15 @@
   <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
 
     <div class="field">
-      <label for="title"  class="required">Title</label>
+      <label for="title"  class="label">Title</label>
       <div class="inputs">
         <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: 'Required'}}" />
+
       </div>
     </div>
 
     <div class="field">
-        <label for="page-text" class="required">Free Text</label>
+        <label for="page-text" class="label">Free Text</label>
         <div class="inputs">
             <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
             <span class="error"></span>
