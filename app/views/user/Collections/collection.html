@@ -14,8 +14,8 @@
         Collection Info
     </h3>
 
-    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", help:"Required" /}
-    #{textArea name:"description", label:"Description", dataBind:"value: description", help:"Required" /}
+    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", required: true /}
+    #{textArea name:"description", label:"Description", dataBind:"value: description", required: true, help:"A short description of your collection" /}
 
 
     <h3>

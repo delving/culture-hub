@@ -31,7 +31,7 @@ dataSetState.enabled=DataSet is enabled
 dataSetState.disabled=DataSet is disabled
 dataSetState.error=Error occured while indexing DataSet
 
-
+form.required=Required
 
 _action.OpenInNewWindow=Opens in a new window
 _action.add.annotation=Add annotation

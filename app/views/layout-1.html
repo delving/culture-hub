@@ -4,10 +4,13 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
+    <meta charset="utf-8">
 
     <title>#{get 'title' /} </title>
+
     <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/common.css")}'/>
     <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css'}"/>
+
     #{get 'moreCss' /}
     <link rel="stylesheet" type="text/less" href='${views.context.package.themePath("stylesheets/style.less")}'/>
 
@@ -52,7 +55,7 @@
     </script>
 
     <script type="text/html" id="uploadFileTemplate">
-        <form action="" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
                     <span>Add files...</span>
@@ -69,7 +72,7 @@
     </script>
 
     <script type="text/html" id="simpleUploadFileTemplate">
-        <form action="" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
                     <span>Add files...</span>
@@ -87,7 +90,7 @@
 
 <div class="wrapper">
 
-    <div class="user-nav" role="nav">
+    <div class="user-nav">
         <div class="content">
             #{if !userName}
             <div class="buttons">
@@ -150,7 +153,7 @@
                 <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
-        <div id="site-nav" role="nav">
+        <div id="site-nav">
             <!--site nav-->
             <ul>
                 <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
@@ -162,7 +165,7 @@
         </div>
 
         <div id="search" role="search">
-            <form method="get" action="">
+            <form method="get" action="/search">
                 <input type="text" id="query" name="query" value='${params.query}'/>
                 <input type="submit" value="Search">
             </form>
