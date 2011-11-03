@@ -24,12 +24,12 @@ object Stories extends DelvingController {
   }
 
   def story(user: String, id: String): Result = {
-    val story = Story.findById(id) getOrElse (return NotFound("Story with ID %s could not be found".format(id)))
+    val story = Story.findById(id) getOrElse (return NotFound(&("user.stories.storyNotFound", id)))
     Template('story -> story)
   }
 
   def read(user: String, id: String): Result = {
-    val story = Story.findById(id) getOrElse (return NotFound("Story with ID %s not found".format(id)))
+    val story = Story.findById(id) getOrElse (return NotFound(&("user.stories.storyNotFound", id)))
     Template('story -> story)
   }
 

@@ -22,9 +22,6 @@
 
 # Views
 
-secure.error=Login incorrect
-secure.logout=You were logged out successfully
-secure.notactive.error=Your account is not yet active. Active it following the link in the mail.
 
 form.required=Required
 
@@ -35,6 +32,8 @@ form.required=Required
 
 # Controllers
 
+user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
+
 dataSetState.incomplete=DataSet is incomplete
 dataSetState.uploaded=DataSet is uploaded and ready for indexing
 dataSetState.queued=DataSet is queued for indexing
@@ -43,17 +42,45 @@ dataSetState.enabled=DataSet is enabled
 dataSetState.disabled=DataSet is disabled
 dataSetState.error=Error occured while indexing DataSet
 
-admin.themes.themeNotFound=Theme with ID %s not found
+admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
-user.collections.objectNotFound=Object with id %s not found
+user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
-user.datasets.dataSetNotFound=DataSet %s not found
+user.datasets.dataSetNotFound=DataSet %s was not found
 user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
 user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
 user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
 user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
 user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
 user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+user.dobjects.objectNotFound=Object with id %s was not found
+user.dobjects.saveError=Error saving object %s
+user.fileupload.removeError=Error removing file, invalid id %s
+user.stories.storyNotFound=Story with id %s was not found
+collections.invalidCollectionId=Invalid collection id %s
+datasets.dataSetNotFound=DataSet %s was not found
+delvingcontroller.userNotFound=User %s was not found
+delvingcontroller.listBrowsingUser=List of %s for user %s
+delvingcontroller.listBrowsing=List of %s
+
+registration.invalidCode=Invalid code. Please type it again
+registration.duplicateEmail=There is already a user with this email address
+registration.duplicateDisplayName=There is already a user with this user name
+registration.errorCreating=Error creating your account, please try again
+registration.accountNotFoundWithEmail=No account could be found with this email address
+registration.accountNotActive=This account is not active yet. Please activate your account with the link sent in the registration e-mail
+registration.resetTokenNotFound=Reset password token not found
+registration.errorPasswordChange=Error changing your password. Try resetting it again.
+registration.passwordsDiffer=Passwords are not the same
+
+authentication.usernameRequired=Username is required
+authentication.passwordRequired=Password is required
+authentication.error=Login incorrect
+authentication.logout=You were logged out successfully
+authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
+servicessecurity.userNotFound=User %s was not found
+
+stories.storyNotFound=
 
 # Old stuff
 

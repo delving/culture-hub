@@ -62,7 +62,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   @Before(priority = 1) def checkBrowsedUser(): Result = {
-    if(!browsedUserExists) return NotFound("User %s was not found".format(renderArgs.get("browsedUserNotFound", classOf[String])))
+    if(!browsedUserExists) return NotFound(&("delvingcontroller.userNotFound", renderArgs.get("browsedUserNotFound", classOf[String])))
     Continue
   }
 
@@ -92,7 +92,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util def listPageTitle(itemName: String) = if(browsingUser) "List of %s for user %s".format(extensions.ViewExtensions.pluralize(itemName), browsedUserName) + browsedFullName else "List of " + extensions.ViewExtensions.pluralize(itemName)
+  @Util def listPageTitle(itemName: String) = if(browsingUser) &("delvingcontroller.listBrowsingUser", extensions.ViewExtensions.pluralize(itemName), browsedUserName) + browsedFullName else &("delvingcontroller.listBrowsing", extensions.ViewExtensions.pluralize(itemName))
 
   /**
    * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
@@ -227,7 +227,7 @@ trait ThemeAware { self: Controller =>
 
 }
 
-trait Internationalization { self: Controller =>
+trait Internationalization {
 
   import play.i18n.Messages
   import play.i18n.Lang

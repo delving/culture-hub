@@ -39,7 +39,7 @@ object FileUpload extends DelvingController with Secure {
     }
 
     // remove referring objects
-    val oid = if (ObjectId.isValid(id)) new ObjectId(id) else (return Error("Invalid file ID " + id))
+    val oid = if (ObjectId.isValid(id)) new ObjectId(id) else (return Error(&("user.fileupload.removeError", id)))
     DObject.removeFile(oid)
 
     Ok
