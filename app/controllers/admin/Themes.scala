@@ -1,11 +1,11 @@
 package controllers.admin
 
-import cake.ComponentRegistry
 import play.mvc.results.Result
 import extensions.JJson
 import org.bson.types.ObjectId
 import models.{EmailTarget, PortalTheme}
 import controllers.{ViewModel, DelvingController}
+import util.ThemeHandler
 
 /**
  * TODO add Access Control
@@ -56,7 +56,7 @@ object Themes extends DelvingController {
 
     persistedTheme match {
       case Some(theTheme) => {
-        ComponentRegistry.themeHandler.update()
+        ThemeHandler.update()
         Json(theTheme)
       }
       case None => Error(&("admin.themes.saveError", theme.name))

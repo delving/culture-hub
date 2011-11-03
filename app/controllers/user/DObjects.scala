@@ -102,6 +102,8 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         Json(theObject)
       }
       case None => Error(&("user.dobjects.saveError", objectModel.name))
+
+        
     }
   }
 }

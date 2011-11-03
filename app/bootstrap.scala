@@ -6,6 +6,7 @@ import play.exceptions.ConfigurationException
 import play.jobs._
 import play.libs.IO
 import play.Play
+import util.ThemeHandler
 
 @OnApplicationStart class BootStrap extends Job {
 
@@ -20,6 +21,8 @@ import play.Play
     // this causes a ConcurrentModificationException with Play's classloading mechanism
 
     IIORegistry.getDefaultInstance
+
+    ThemeHandler.startup()
 
     // also retrieve user-based properties when running in test mode
     if (Play.id == "test") {

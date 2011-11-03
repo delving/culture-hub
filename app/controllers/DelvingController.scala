@@ -1,20 +1,17 @@
 package controllers
 
 import dos.StoredFile
-import java.io.File
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
 import scala.collection.JavaConversions._
-import cake.ComponentRegistry
 import play.mvc._
 import results.Result
 import models._
 import org.bson.types.ObjectId
 import play.data.validation.Validation
-import util.LocalizedFieldNames
 import extensions.AdditionalActions
-import util.ProgrammerException
 import play.i18n.{Lang, Messages}
+import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -181,7 +178,6 @@ trait ParameterCheck {
 
 trait ThemeAware { self: Controller =>
 
-  val themeHandler = ComponentRegistry.themeHandler
   val localizedFieldNames = new LocalizedFieldNames
 
   private val themeThreadLocal: ThreadLocal[PortalTheme] = new ThreadLocal[PortalTheme]
@@ -195,7 +191,7 @@ trait ThemeAware { self: Controller =>
   
   @Before(priority = 0)
   def setTheme() {
-    val portalTheme = themeHandler.getByRequest(Http.Request.current())
+    val portalTheme = ThemeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
     renderArgs.put("theme", theme)
