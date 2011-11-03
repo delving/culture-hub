@@ -26,12 +26,13 @@
 	<!--</script>-->
 <div id="items">
 
-    <h2>Search Results for: <span>[query]</span></h2>
+    <h2>&{'search.resultsfor'} <span>[query]</span></h2>
 
     <div class="item-nav">
 
         <div class="item-count">
             Found: <span>12358</span> results
+            ${viewUtils.getKey('nrfound', '1234567890')}
         </div>
 
     </div>
@@ -47,23 +48,13 @@
                 #{/if}
 
                 <div class="dropdown">
-                    #{btnHref label:"Sort by", toggle:true/}
+                    #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
                     <div class="dropdown-slider">
-                        <a href="/${userName}/object/add" class="ddm"><span class="label">Object</span></a>
-                        <a href="/${userName}/collection/add" class="ddm"><span class="label">Collection</span></a>
+                        <a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>
+                        <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
                     </div>
                 </div>
-                #{if userName}
-                <div class="dropdown">
-                    #{btnHref label:"Add selected items to collection", toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="#" class="ddm">Collection 1</a>
-                        <a href="#" class="ddm">Collection 2</a>
-                        <a href="#" class="ddm">Collection 3</a>
-                        <a href="#" class="ddm">Collection 4</a>
-                    </div>
-                </div>
-                #{/if}
+
             </div>
 
             %{ def counter = 1 }%
@@ -123,13 +114,26 @@
                     </div>
                 </div>
             </div>
-            <!--<div class="mod simple">-->
-                <!--<div class="inner thingBucket">-->
-                    <!--<ol>-->
-                    <!--<li class="placeHolder">Drag objects you want to add to you collection here.</li>-->
-                    <!--</ol>-->
-                <!--</div>-->
-            <!--</div>-->
+            #{if userName}
+            <div class="mod simple">
+                <div class="inner thingBucket">
+                    <ol>
+                    <li class="placeHolder">&{'search.dragitems'}</li>
+                    </ol>
+                </div>
+
+                <div class="dropdown">
+                    #{btnHref label: viewUtils.getKey('search.additemstocollection'), toggle:true/}
+                    <div class="dropdown-slider">
+                        <a href="#" class="ddm">Collection 1</a>
+                        <a href="#" class="ddm">Collection 2</a>
+                        <a href="#" class="ddm">Collection 3</a>
+                        <a href="#" class="ddm">Collection 4</a>
+                    </div>
+                </div>
+            </div>
+
+                #{/if}
         </div>
 
     </div>

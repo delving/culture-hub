@@ -121,9 +121,9 @@ user.nav.newdataset=New dataset
 site.nav.home=Home
 
 
-# Views #################################################
+# Views
 
-# Admin.Themes view
+## Admin.Themes view
 admin.themes.title=Themes administration
 admin.themes.title.new=Add a new theme
 admin.themes.title.update=Update a theme
@@ -158,7 +158,7 @@ admin.themes.label.ga=Google Analytics code
 admin.themes.label.addthis=AddThis code
 admin.themes.label.savetheme=Save theme
 
-# Application (homepage)
+##Application (homepage)
 home.recentobject=Recent object
 home.recentobjects=Recent objects
 home.recentcollection=Recent collection
@@ -166,37 +166,116 @@ home.recentcollections=Recent collections
 home.recentstory=Recent story
 home.recentstories=Recent stories
 
-#Authentication login
+##Authentication login
 authentication.label.forgotpassword=I forgot my password
 authentication.label.rememberme=Remember me
 
-#DataSets
+##DataSets
 dataset.index=Index
 dataset.reindex=Re-index
 dataset.cancelindex=Cancel indexing
 dataset.disable=Disable
 dataset.enable=Enable
 
-#Mails
+##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
 mail.message.resetpassword=In order to reset your password for %s, please follow the link below
 
-#Profiles
+##Profiles
 profile.title=Profile page for
 profile.activesince=Active since
 
-#Registration
+##Registration
 registration.lostpassword=Lost password
 registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
 registration.resetpassword=Reset password
 registration.newpassword=Enter a new password below
 
-#story
-story.read=Read story
-story.pages=Pages
-story.previouspage=Previous page
-story.nextpage=Next page
+##Search
+search.additemstocollection=Add to collection
+search.dragitems=Drag items you want to add to a collection to here
+search.facets=Facets
+search.nrfound= Found %s results
+search.resultsfor=Search results for
+search.sortby= Sort by
 
+##Story
+story.pages=Pages
+story.nextpage=Next page
+story.read=Read story
+story.previouspage=Previous page
+
+#metadata
+metadata.abm.contentProvider=Content Provider
+metadata.abm.county=County
+metadata.abm.data.provider=Data Provider
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.abm.aboutPerson=About Person
+
+metadata.dc.contributor=Contributor
+metadata.dc.coverage=Coverage
+metadata.dc.creator=Author
+metadata.dc.date=Date
+metadata.dc.description=Description
+metadata.dc.format=Format
+metadata.dc.identifier=Identifier
+metadata.dc.language=Language
+metadata.dc.publisher=Publisher
+metadata.dc.relation=Relation
+metadata.dc.rights=Rights
+metadata.dc.source=Source
+metadata.dc.subject=Subject
+metadata.dc.title=Title
+metadata.dc.type=Type
+
+metadata.dcterms.alternative=Alternative Title
+metadata.dcterms.conformsTo=Conforms to
+metadata.dcterms.created=Date
+metadata.dcterms.hasFormat=Has format
+metadata.dcterms.hasPart=Has part
+metadata.dcterms.isFormatOf=Is format of
+metadata.dcterms.isPartOf=Is Part of
+metadata.dcterms.isReferencedBy=Is referenced by
+metadata.dcterms.isReplacedBy=Is replaced by
+metadata.dcterms.provenance=Provenance
+metadata.dcterms.references=References
+metadata.dcterms.replaces=Replaces
+metadata.dcterms.requires=Requires
+metadata.dcterms.spatial=Spatial coverage
+metadata.dcterms.temporal=Temporal coverage
+
+metadata.delving.dimensions=Dimensions
+metadata.delving.owner=Owner
+
+metadata.europeana.country=Country
+metadata.europeana.dataProvider=Data Provider
+metadata.europeana.provider=Provider
+metadata.europeana.type=Type
+metadata.europeana.year=Year
+
+metadata.icn.material=Material
+metadata.icn.collection=Collection
+metadata.icn.technique=Technique
+metadata.icn.creatorYearOfBirth=Creator Birth
+metadata.icn.acquisitionMeans=Means of Aquisition
+metadata.icn.acquisitionYear=Year Acquired
+metadata.icn.acquiredWithHelpFrom=Acquired with help from
+metadata.icn.collectionPart=Part
+metadata.icn.location=Location
+metadata.icn.physicalState=Physical State
+metadata.icn.province=Province
+metadata.icn.purchasePrice=Purchase Price
+
+metadata.is.about=Is about
+metadata.searchfield.contributor=Contributor
+metadata.searchfield.dataprovider=Provider
+metadata.type.all=All
+metadata.type.images=Images
+metadata.type.sounds=Sounds
+metadata.type.texts=Texts
+metadata.type.video=Video
+metadata.type.videos=Videos
 
 #Users
 
@@ -438,74 +517,6 @@ _locale.sk=Slovak (slo)
 _locale.sl=Slovenian (slv)
 _locale.sr=Serbian (scc)
 _locale.sv=Swedish (sve/swe)
-_metadata.abm.contentProvider=Content Provider
-_metadata.abm.county=County
-_metadata.abm.data.provider=Data Provider
-_metadata.abm.municipality=Municipality
-_metadata.abm.namedPlace=Named place
-_metadata.abm.aboutPerson=About Person
-_metadata.dc.contributor=Contributor
-_metadata.dc.coverage=Coverage
-_metadata.dc.creator=Author
-_metadata.dc.date=Date
-_metadata.dc.description=Description
-_metadata.dc.format=Format
-_metadata.dc.identifier=Identifier
-_metadata.dc.language=Language
-_metadata.dc.publisher=Publisher
-_metadata.dc.relation=Relation
-_metadata.dc.rights=Rights
-_metadata.dc.source=Source
-_metadata.dc.subject=Subject
-_metadata.dc.title=Title
-_metadata.dc.type=Type
-_metadata.dcterms.alternative=Alternative Title
-_metadata.dcterms.conformsTo=Conforms to
-_metadata.dcterms.created=Date
-_metadata.dcterms.hasFormat=Has format
-_metadata.dcterms.hasPart=Has part
-_metadata.dcterms.isFormatOf=Is format of
-_metadata.dcterms.isPartOf=Is Part of
-_metadata.dcterms.isReferencedBy=Is referenced by
-_metadata.dcterms.isReplacedBy=Is replaced by
-_metadata.dcterms.provenance=Provenance
-_metadata.dcterms.references=References
-_metadata.dcterms.replaces=Replaces
-_metadata.dcterms.requires=Requires
-_metadata.dcterms.spatial=Spatial coverage
-_metadata.dcterms.temporal=Temporal coverage
-_metadata.delving.dimensions=Dimensions
-_metadata.delving.owner=Owner
-_metadata.europeana.country=Country
-_metadata.europeana.dataProvider=Data Provider
-_metadata.europeana.provider=Provider
-_metadata.europeana.type=Type
-_metadata.europeana.year=Year
-
-
-_metadata.icn.material=Material
-_metadata.icn.collection=Collection
-_metadata.icn.technique=Technique
-_metadata.icn.creatorYearOfBirth=Creator Birth
-
-_metadata.icn.acquisitionMeans=Means of Aquisition
-_metadata.icn.acquisitionYear=Year Acquired
-_metadata.icn.acquiredWithHelpFrom=Acquired with help from
-_metadata.icn.collectionPart=Part
-_metadata.icn.location=Location
-_metadata.icn.physicalState=Physical State
-_metadata.icn.province=Province
-_metadata.icn.purchasePrice=Purchase Price
-
-_metadata.is.about=Is about
-_metadata.searchfield.contributor=Contributor
-_metadata.searchfield.dataprovider=Provider
-_metadata.type.all=All
-_metadata.type.images=Images
-_metadata.type.sounds=Sounds
-_metadata.type.texts=Texts
-_metadata.type.video=Video
-_metadata.type.videos=Videos
 _mine.change.password.success=Password successfully changed
 _mine.date.saved=Date saved
 _mine.delete=Delete
