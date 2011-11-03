@@ -2,7 +2,7 @@ package controllers
 
 import models._
 import play.{Logger, mvc}
-import mvc.results.{RenderBinary, Result}
+import mvc.results.Result
 import mvc.{Before, Controller}
 import eu.delving.metadata.{RecordMapping, MetadataModel}
 import cake.ComponentRegistry
@@ -12,10 +12,11 @@ import extensions.AdditionalActions
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import play.libs.IO
 import com.mongodb.casbah.commons.MongoDBObject
-import java.io._
 import util.SimpleDataSetParser
-import org.apache.commons.io.{FileCleaningTracker, IOUtils}
+import org.apache.commons.io.IOUtils
 import java.util.Date
+import java.io._
+import java.nio.ByteBuffer
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -33,7 +34,6 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
-  private val fileCleaningTracker = new FileCleaningTracker
 
   val DOT_PLACEHOLDER = "--"
 
@@ -262,11 +262,25 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     }
 
     val name = "%s-sip".format(spec)
-    val tmpFile = File.createTempFile(name, "zip")
-    tmpFile.deleteOnExit()
-    fileCleaningTracker.track(tmpFile, dataSet)
+    response.setHeader("Content-Disposition", "attachment; filename=\"%s\"".format("attachment", name + ".zip"))
 
-    val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
+    val zipOut = new ZipOutputStream(new OutputStream {
+      // if you see this, look away until I refactor it. I mean there must be a circular buffer of sorts to do this for us
+      def write(i: Int) {
+        val buffer = ByteBuffer.allocate(8092)
+        var count = 0
+        if(count == 8092) {
+          var a = new Array[Byte](8092)
+          buffer.get(a)
+          response.writeChunk(a)
+          a = new Array[Byte](8092)
+          buffer.clear()
+        } else {
+          buffer.put(i.toByte)
+          count = count + 1
+        }
+      }
+    })
 
     writeEntry("dataset_facts.txt", zipOut) { out =>
       writeContent(dataSet.details.getFactsAsText, out)
@@ -328,7 +342,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
     zipOut.close()
 
-    new RenderBinary(tmpFile, name + ".zip")
+    Ok
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
