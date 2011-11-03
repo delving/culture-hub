@@ -42,6 +42,7 @@ ui.label.logout=Logout
 ui.label.remove=Remove
 ui.label.create=Create %s
 ui.label.edit=Edit %s
+ui.label.delete=Delete
 ui.label.status=Status
 ui.label.options=Options
 ui.label.nritems=Nr. of items
@@ -77,6 +78,7 @@ thing.datemodified=Date modified
 thing.description=Description
 thing.name=Name
 thing.title=Title
+thing.actions=Actions
 thing.objectcount=Number of objects
 thing.collectioncount=Number of collections
 thing.storycount=Number of stories
@@ -228,7 +230,28 @@ user.collection.save=Save object
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
+##Stories
+user.story.title.create=Create new story for user %s
+user.story.title.update=Update story for user %s
+user.story.create=Create a story
+user.story.update=Update a story
 
+user.story.storyInformation=Step 1: Story Information
+user.story.bulletPoint1=Enter the basic story information: a name and short description, and optionally add annotations
+user.story.bulletPoint2=You should initially keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
+user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
+user.story.label.addPages=Add pages
+user.story.storyPages=Step 2: Story Pages
+user.story.noPagesFound=No pages found
+user.story.label.viewStory=View story
+user.story.label.addPage=Add a new page
+user.story.label.freeText=Free Text
+user.story.label.addImageFromCollection=Add an image from this collection
+user.story.noCollection=No collection
+user.story.existingPage=Existing pages
+user.story.save=Save story
+user.story.title.deletePage=Delete the page?
+user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
 # Controllers
 
