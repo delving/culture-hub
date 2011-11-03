@@ -22,6 +22,7 @@
 
 # Global  ##########################################
 ui.label.welcome=Welcome
+ui.label.hi=Hi
 ui.label.add=Add
 ui.label.remove=Remove
 ui.label.search=Search
@@ -79,6 +80,7 @@ thing.collaborators=Collaborators
 thing.createnew=Create a new %s
 thing.browse=Browse %s
 thing.browse.ownedby=Browse %s owned by
+
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: %s
@@ -87,7 +89,8 @@ ui.message.activation.error=Error activating your account.
 ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
 ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
-
+mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
+mail.message.resetpassword=In order to reset your password for %s, please follow the link below
 # User navigation
 user.nav.register=Register
 user.nav.goto=Go to
