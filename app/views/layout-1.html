@@ -97,7 +97,7 @@
                 <!--#{a @Authentication.login()}Login #{/a}-->
                 <!--#{a @Registration.index()}Register #{/a}-->
                 #{btnHref label: viewUtils.getKey('ui.label.login'), extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
-                #{btnHref label: viewUtils.getKey('user.nav.register'), extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('ui.label.register'), extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
             </div>
             #{/if}
             #{else}

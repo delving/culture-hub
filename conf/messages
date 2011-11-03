@@ -21,35 +21,37 @@
 
 
 # Global  ##########################################
-ui.label.welcome=Welcome
-ui.label.hi=Hi
 ui.label.add=Add
-ui.label.remove=Remove
-ui.label.search=Search
+ui.label.addcomment=Add comment
+ui.label.addlabel=Add label
 ui.label.cancel=Cancel
-ui.label.next=Next
-ui.label.previous=Previous
-ui.label.first=First
-ui.label.last=Last
-ui.label.username=Username
-ui.label.fullname=Full name
-ui.label.firstname=First name
-ui.label.lastname=Last name
-ui.label.email=Email
-ui.label.password=Password
-ui.label.login=Login
-ui.label.logout=Logout
-ui.label.remove=Remove
+ui.label.captcha=Enter the code you see here
 ui.label.create=Create %s
 ui.label.edit=Edit %s
-ui.label.status=Status
-ui.label.options=Options
+ui.label.email=Email
+ui.label.first=First
+ui.label.firstname=First name
+ui.label.fullname=Full name
+ui.label.hi=Hi
+ui.label.last=Last
+ui.label.lastname=Last name
+ui.label.login=Login
+ui.label.logout=Logout
+ui.label.next=Next
 ui.label.nritems=Nr. of items
+ui.label.options=Options
+ui.label.password=Password
+ui.label.passwordrepeat=Password (repeat)
+ui.label.poweredby=Powered by DELVING.EU
+ui.label.previous=Previous
+ui.label.register=Register
+ui.label.remove=Remove
 ui.label.required=Required
+ui.label.search=Search
 ui.label.sipcreator=Sip-Creator
-ui.poweredby=Powered by DELVING.EU
-ui.label.addlabel=Add label
-ui.label.addcomment=Add comment
+ui.label.status=Status
+ui.label.username=Username
+ui.label.welcome=Welcome
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -98,7 +100,7 @@ ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
 
 # User navigation
-user.nav.register=Register
+
 user.nav.goto=Go to
 user.nav.create=Create
 user.nav.yourprofile=Your profile
@@ -179,6 +181,11 @@ mail.message.resetpassword=In order to reset your password for %s, please follow
 profile.title=Profile page for
 profile.activesince=Active since
 
+#Registration
+registration.lostpassword=Lost password
+registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
+registration.resetpassword=Reset password
+registration.newpassword=Enter a new password below
 
 
 
