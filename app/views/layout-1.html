@@ -96,8 +96,8 @@
             <div class="buttons">
                 <!--#{a @Authentication.login()}Login #{/a}-->
                 <!--#{a @Registration.index()}Register #{/a}-->
-                #{btnHref label:"Login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
-                #{btnHref label:"Register", extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('ui.label.login'), extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('user.nav.register'), extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
             </div>
             #{/if}
             #{else}
@@ -106,32 +106,32 @@
                 <!--Hi ${fullName}-->
                 <div class="dropdown">
 
-                    #{btnHref label:"Go to", iconClass:"icon9", toggle:true/}
+                    #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
-                        <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
-                        <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
+                        <a href="/${userName}" class="ddm"><span class="label">&{'user.nav.yourprofile'}</span></a>
+                        <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
                         <a href="/${userName}/collection" class="ddm"></span>
-                            <span class="label">Your collections</span></a>
-                        <a href="/${userName}/story" class="ddm"></span><span class="label">Your stories</span></a>
-                        <a href="/${userName}/dataset" class="ddm"></span><span class="label">Your data-sets</span></a>
+                            <span class="label">&{'user.nav.yourcollections'}</span></a>
+                        <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
+                        <a href="/${userName}/dataset" class="ddm"></span><span class="label">&{'user.nav.yourdatasets'}</span></a>
                     </div>
                     <!-- /.dropdown-slider -->
                 </div>
                 <!-- /.dropdown -->
 
                 <div class="dropdown">
-                    #{btnHref label:"Create", iconClass:"icon144", toggle:true/}
+                    #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
                     <div class="dropdown-slider">
-                        <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
-                        <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
-                        <a href="/${userName}/story/add" class="ddm"><span class="label">New story</span></a>
-                        <a href="/${userName}/dataset/add" class="ddm"><span class="label">New data-set</span></a>
+                        <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
+                        <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
+                        <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
+                        <a href="/${userName}/dataset/add" class="ddm"><span class="label">&{'user.nav.newdataset'}</span></a>
                     </div>
                     <!-- /.dropdown-slider -->
 
                 </div>
                 <!-- /.dropdown -->
-                #{btnHref label:"Logout", href:"/logout" /}
+                #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
 
             #{/else}
@@ -156,18 +156,18 @@
         <div id="site-nav">
             <!--site nav-->
             <ul>
-                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
-                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
-                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
-                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
-                <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
+                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>&{'thing.stories'}</span></a>
+                <li class='${"Users".isCurrent()}'><a href="/users"><span>&{'thing.users'}</span></a></li>
             </ul>
         </div>
 
         <div id="search" role="search">
             <form method="get" action="/search">
                 <input type="text" id="query" name="query" value='${params.query}'/>
-                <input type="submit" value="Search">
+                <input type="submit" value="&{'ui.label.search'}">
             </form>
         </div>
     </div>
@@ -184,8 +184,7 @@
 
 <div class="footer">
     <div class="content">
-
-        <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="Powered by DELVING.EU"/></a>
+        <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
     </div>
 </div>
 

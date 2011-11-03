@@ -20,14 +20,14 @@
     #{/if}
 
 
-    #{textField name:"username", label:"Username" /}
-    #{passwordField name:"password", label:"Password" /}
+    #{textField name:"username", label: viewUtils.getKey("ui.label.username") /}
+    #{passwordField name:"password", label: viewUtils.getKey("ui.label.password") /}
 
-    <label for="remember" class="label">Remember me</label>
+    <label for="remember" class="label">${viewUtils.getKey("authentication.label.rememberme")}</label>
     <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
 
     <div class="buttons">
-        #{btnButton label:"Login", extraClass:"action green", type:"submit" /}
+        #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action green", type:"submit" /}
         #{btnHref label:"I forgot my password", href:@Registration.lostPassword(), rel:"nofollow" /}
         #{btnHref label:"Cancel", href:'#', id:"cancel", rel:"nofollow" /}
     </div>

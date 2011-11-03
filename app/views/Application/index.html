@@ -15,37 +15,37 @@
     <div class="messages">
         #{if flash.registrationSuccess}
         <p class="success">
-            Your account was successfully created! An email has been sent to ${flash.registrationSuccess} for activation
+            viewUtils.getKey("ui.message.registration.success", flash.registrationSuccess)
         </p>
         #{/}
         #{if flash.registrationError}
         <p class="error">
-            Error creating your account, please try again. The cause of the error is: "${flash.registrationError}"
+            viewUtils.getKey("ui.message.registration.error", flash.registrationError)
         </p>
         #{/}
         #{if flash.activation && flash.activation == "true"}
         <p class="success">
-            Your account is now active!
+            viewUtils.getKey("ui.message.activation.success")
         </p>
         #{/}
         #{if flash.activation && flash.activation == "false"}
         <p class="error">
-            Error activating your account.
+            viewUtils.getKey("ui.message.activation.error")
         </p>
         #{/}
         #{if flash.resetPasswordEmail && flash.resetPasswordEmail == "true"}
         <p class="success">
-            An e-mail has been sent to you with a link to reset your password
+            viewUtils.getKey("ui.message.resetpassword.email.success")
         </p>
         #{/}
         #{if flash.resetPasswordError}
         <p class="error">
-            Error resetting your password: ${flash.resetPasswordError}
+            viewUtils.getKey("ui.message.resetpassword.error", flash.resetPasswordError)
         </p>
         #{/}
         #{if flash.resetPasswordSuccess && flash.resetPasswordSuccess == "true"}
         <p class="success">
-            Your password has been successfully changed
+            viewUtils.getKey("ui.message.resetpassword.success")
         </p>
         #{/}
     </div>
@@ -58,7 +58,7 @@
         <div class="mod simple recent">
             <div class="inner">
 					<div class="hd section">
-						<h3>Recent Object</h3>
+						<h3>&{'home.recentobject'}</h3>
 					</div>
 					<div class="bd">
                         #{list recentObjects, as: 'o'}
@@ -84,7 +84,7 @@
         <div class="mod simple recent">
             <div class="inner">
 					<div class="hd section">
-						<h3>Recent Collection</h3>
+						<h3>&{'home.recentcollection'}</h3>
 					</div>
 					<div class="bd">
                         #{list recentCollections, as: 'c'}
@@ -110,7 +110,7 @@
         <div class="mod simple recent">
             <div class="inner">
 					<div class="hd section">
-						<h3>Recent Story</h3>
+						<h3>&{'home.recentstory'}</h3>
 					</div>
 					<div class="bd">
                         #{list recentStories, as: 's'}

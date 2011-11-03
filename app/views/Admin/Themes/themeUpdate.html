@@ -3,26 +3,26 @@
 #{set title: id.isEmpty() ? 'Add new Portal Theme' : 'Update Portal Theme' /}
 
 <div class="admin-themes">
-        <h1>${id.isEmpty() ? play.i18n.Messages.get('admin.themes.title.new') : play.i18n.Messages.get('admin.themes.title.update')}</h1>
+        <h1>${id.isEmpty() ? viewUtils.getKey('admin.themes.title.new') : viewUtils.getKey('admin.themes.title.update')}</h1>
     <form id="themeForm" method="post" action="#">
         <div class="line">
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>&{'admin.themes.section.systeminfo'}</h3>
-                    #{textField name: "name", label: play.i18n.Messages.get('admin.themes.label.themename'), dataBind: "value: name", help: play.i18n.Messages.get('admin.themes.help.themename'), required: true, disabled: false /}
-                    #{checkboxField name: "isDefault", label: play.i18n.Messages.get('admin.themes.label.isdefault'), dataBind: "checked: isDefault" /}
+                    #{textField name: "name", label: viewUtils.getKey('admin.themes.label.themename'), dataBind: "value: name", help: viewUtils.getKey('admin.themes.help.themename'), required: true, disabled: false /}
+                    #{checkboxField name: "isDefault", label: viewUtils.getKey('admin.themes.label.isdefault'), dataBind: "checked: isDefault" /}
 
-                    #{textField name: "templateDir", label: play.i18n.Messages.get('admin.themes.label.templatedir'), dataBind: "value: templateDir", required: true /}
+                    #{textField name: "templateDir", label: viewUtils.getKey('admin.themes.label.templatedir'), dataBind: "value: templateDir", required: true /}
 
                 </div>
             </div>
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>&{'admin.themes.section.displayinfo'}</h3>
-                    #{textField name: "displayName", label: play.i18n.Messages.get('admin.themes.label.displayname'), dataBind: "value: displayName", required: true, extHelp: play.i18n.Messages.get('admin.themes.help.displayname') /}
-                    #{textField name: "homePage", label: play.i18n.Messages.get('admin.themes.label.homepage'), dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
-                    #{textField name: "defaultLanguage", label: play.i18n.Messages.get('admin.themes.label.defaultlanguage'), dataBind: "value: defaultLanguage", required: true /}
-                    #{textField name: "colorScheme", label: play.i18n.Messages.get('admin.themes.label.colorscheme'), dataBind: "value: colorScheme" /}
+                    #{textField name: "displayName", label: viewUtils.getKey('admin.themes.label.displayname'), dataBind: "value: displayName", required: true, extHelp: viewUtils.getKey('admin.themes.help.displayname') /}
+                    #{textField name: "homePage", label: viewUtils.getKey('admin.themes.label.homepage'), dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
+                    #{textField name: "defaultLanguage", label: viewUtils.getKey('admin.themes.label.defaultlanguage'), dataBind: "value: defaultLanguage", required: true /}
+                    #{textField name: "colorScheme", label: viewUtils.getKey('admin.themes.label.colorscheme'), dataBind: "value: colorScheme" /}
                 </div>
             </div>
         </div>
@@ -31,35 +31,35 @@
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>&{'admin.themes.section.systeminfo'}</h3>
-                    #{textField name: "solrSelectUrl", label: play.i18n.Messages.get('admin.themes.label.solrurl'), dataBind: "value: solrSelectUrl", required: true /}
-                    #{textField name: "cacheUrl", label: play.i18n.Messages.get('admin.themes.label.cacheurl'), dataBind: "value: cacheUrl", required: true /}
+                    #{textField name: "solrSelectUrl", label: viewUtils.getKey('admin.themes.label.solrurl'), dataBind: "value: solrSelectUrl", required: true /}
+                    #{textField name: "cacheUrl", label: viewUtils.getKey('admin.themes.label.cacheurl'), dataBind: "value: cacheUrl", required: true /}
                     <div class="field">
                         <label class="label" for="localisedQueryKeys">&{'admin.themes.label.localizedquerykeys'}</label>
                         <div>
                             <select id="localisedQueryKeys" multiple="multiple" width="50" name="localisedQueryKeys" data-bind="options: localisedQueryKeys, selectedOptions: selectedQueryKeys"></select>
                             <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"'/>
-                            <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">&{'ui.action.add'}</button>
-                            <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">&{'ui.action.remove'}</button>
+                            <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">&{'ui.label.add'}</button>
+                            <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">&{'ui.label.remove'}</button>
                         </div>
                     </div>
-                    #{textField name: "metadataPrefix", label:play.i18n.Messages.get('admin.themes.label.metadataprefix'), dataBind: "value: metadataPrefix" /}
-                    #{textField name: "hiddenQueryFilter", label: play.i18n.Messages.get('admin.themes.label.hiddenqf'), dataBind: "value: hiddenQueryFilter" /}
+                    #{textField name: "metadataPrefix", label:viewUtils.getKey('admin.themes.label.metadataprefix'), dataBind: "value: metadataPrefix" /}
+                    #{textField name: "hiddenQueryFilter", label: viewUtils.getKey('admin.themes.label.hiddenqf'), dataBind: "value: hiddenQueryFilter" /}
                 </div>
             </div>
             <div class="unit size1of2">
                 <div class="mod">
                     <h3>&{'admin.themes.section.mailconfig'}</h3>
-                     #{textField name: "adminTo", label: play.i18n.Messages.get('admin.themes.label.adminto'), dataBind: "value: emailTarget.adminTo" /}
-                    #{textField name: "exceptionTo", label: play.i18n.Messages.get('admin.themes.label.exceptionto'), dataBind: "value: emailTarget.exceptionTo" /}
-                    #{textField name: "feedbackTo", label: play.i18n.Messages.get('admin.themes.label.feedbackto'), dataBind: "value: emailTarget.feedbackTo" /}
-                    #{textField name: "registerTo", label: play.i18n.Messages.get('admin.themes.label.registerto'), dataBind: "value: emailTarget.registerTo" /}
-                    #{textField name: "systemFrom", label: play.i18n.Messages.get('admin.themes.label.systemfrom'), dataBind: "value: emailTarget.systemFrom" /}
-                    #{textField name: "feedbackFrom", label: play.i18n.Messages.get('admin.themes.label.feedbackfrom'), dataBind: "value: emailTarget.feedbackFrom" /}
+                     #{textField name: "adminTo", label: viewUtils.getKey('admin.themes.label.adminto'), dataBind: "value: emailTarget.adminTo" /}
+                    #{textField name: "exceptionTo", label: viewUtils.getKey('admin.themes.label.exceptionto'), dataBind: "value: emailTarget.exceptionTo" /}
+                    #{textField name: "feedbackTo", label: viewUtils.getKey('admin.themes.label.feedbackto'), dataBind: "value: emailTarget.feedbackTo" /}
+                    #{textField name: "registerTo", label: viewUtils.getKey('admin.themes.label.registerto'), dataBind: "value: emailTarget.registerTo" /}
+                    #{textField name: "systemFrom", label: viewUtils.getKey('admin.themes.label.systemfrom'), dataBind: "value: emailTarget.systemFrom" /}
+                    #{textField name: "feedbackFrom", label: viewUtils.getKey('admin.themes.label.feedbackfrom'), dataBind: "value: emailTarget.feedbackFrom" /}
                 </div>
                 <div class="mod">
                     <h3>Extras</h3>
-                    #{textField name: "googleAnalyticsTrackingCode", label: play.i18n.Messages.get('admin.themes.label.ga'), dataBind: "value: googleAnalyticsTrackingCode" /}
-                    #{textField name: "addThisTrackingCode", label:play.i18n.Messages.get('admin.themes.label.addthis'), dataBind: "value: addThisTrackingCode" /}
+                    #{textField name: "googleAnalyticsTrackingCode", label: viewUtils.getKey('admin.themes.label.ga'), dataBind: "value: googleAnalyticsTrackingCode" /}
+                    #{textField name: "addThisTrackingCode", label: viewUtils.getKey('admin.themes.label.addthis'), dataBind: "value: addThisTrackingCode" /}
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
         <div class="buttons">
             <div class="wait"></div>
             <!--<button class="save" id="saveButton" type="submit">Save Theme</button>-->
-            #{btnButton label:"Save theme", extraClass:"action blue", id:"saveButton", type:"submit" /}
+            #{btnButton label: viewUtils.getKey('admin.themes.label.savetheme'), extraClass:"action blue", id:"saveButton", type:"submit" /}
         </div>
 
     </form>
