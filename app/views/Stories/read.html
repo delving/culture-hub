@@ -1,5 +1,6 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title:'Story ' + story.name + ' of user ' + browsedFullName /}
+
+#{set title: viewUtils.getKey('thing.story') + ' ' + story.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 #{breadcrumbs /}
 
 <link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
@@ -11,8 +12,8 @@
     <div class="story-container">
 
         <div class="story-navigation">
-            <a class="prev browse left">Previous page</a>
-            <a class="next browse right">Next page</a>
+            <a class="prev browse left">&{'story.previouspage'}</a>
+            <a class="next browse right"&{'story.nextpage'}</a>
         </div>
 
         <div class="scrollable">
