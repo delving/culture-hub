@@ -3,18 +3,23 @@
 
 <h1 class="grid_16">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
 
-<div class="item metadata">
+<div class="line">
 
-    <div class="grid_8">
+    <div class="unit size1of2">
     %{
       for (i in 0..facts.size() - 1) {
         def fact = facts.get(i);
     }%
-        <h4>${fact.prompt}</h4>
-        <p>${fact.value}</p>
+        <div class="field">
+            <label class="label">${fact.prompt}</label>
+
+            <div class="inputs">
+                <p>${fact.value}</p>
+            </div>
+        </div>
       #{if i == 4}
         </div>
-        <div class="grid_8">
+        <div class="unit size1of2">
       #{/if}
     %{}}%
     </div>

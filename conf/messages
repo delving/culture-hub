@@ -21,6 +21,7 @@
 
 
 # Global  ##########################################
+
 ui.label.add=Add
 ui.label.remove=Remove
 ui.label.search=Search
@@ -39,7 +40,7 @@ ui.label.edit=Edit %s
 ui.label.status=Status
 ui.label.options=Options
 ui.label.nritems=Nr. of items
-
+ui.label.required=Required
 ui.label.sipcreator=Sip-Creator
 ui.poweredby=Powered by DELVING.EU
 
@@ -56,7 +57,6 @@ thing.user=User
 thing.users=Users
 thing.notavailable.single=There is currently no %s available
 thing.notavailable.plural=There are currently no %s available
-
 thing.owner=Owner
 thing.datecreated=Date created
 thing.datemodified=Date modified
@@ -71,7 +71,6 @@ thing.comments=Comments
 thing.addcomment=Add comment
 thing.collaborators=Collaborators
 thing.createnew=Create a new %s
-
 thing.browse=Browse %s
 thing.browse.ownedby=Browse %s owned by: %s
 
