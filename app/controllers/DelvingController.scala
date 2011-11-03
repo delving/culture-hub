@@ -14,6 +14,7 @@ import play.data.validation.Validation
 import util.LocalizedFieldNames
 import extensions.AdditionalActions
 import util.ProgrammerException
+import play.i18n.{Lang, Messages}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -21,7 +22,7 @@ import util.ProgrammerException
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
@@ -226,6 +227,15 @@ trait ThemeAware { self: Controller =>
 
 }
 
+trait Internationalization { self: Controller =>
+
+  import play.i18n.Messages
+  import play.i18n.Lang
+
+  def &(msg: String, args: String*) = Messages.get(msg, args.toArray)
+
+}
+
 /**
  * This class will hold all sort of utility methods that need to be called form the templates. It is meant to be initalized at each request
  * and be passed to the view using the renderArgs.
@@ -257,5 +267,10 @@ class ViewUtils(theme: PortalTheme) {
 
     result.asInstanceOf[T]
   }
+
+  def getKey(msg: String, args: String): String = {
+    Messages.get(msg, args)
+  }
+  def getKey(msg: String): String = Messages.get(msg)
 
 }

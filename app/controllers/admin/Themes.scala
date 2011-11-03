@@ -47,7 +47,7 @@ object Themes extends DelvingController {
       }
       case Some(oid) => {
         val existing = PortalTheme.findOneByID(oid)
-        if(existing == None) return NotFound("Theme with ID %s not found".format(oid))
+        if(existing == None) return NotFound(&("admin.themes.themeNotFound", oid))
         val updated = existing.get.copy(name = theme.name, templateDir = theme.templateDir, isDefault = theme.isDefault, localiseQueryKeys = theme.localisedQueryKeys, hiddenQueryFilter = theme.hiddenQueryFilter, subdomain = theme.subdomain, displayName = theme.displayName, googleAnalyticsTrackingCode = theme.googleAnalyticsTrackingCode, addThisTrackingCode = theme.addThisTrackingCode, defaultLanguage = theme.defaultLanguage, colorScheme = theme.colorScheme, solrSelectUrl = theme.solrSelectUrl, cacheUrl = theme.cacheUrl, emailTarget = theme.emailTarget, homePage = theme.homePage, metadataPrefix = theme.metadataPrefix, text = theme.text)
         PortalTheme.save(updated)
         Some(theme)
@@ -59,7 +59,7 @@ object Themes extends DelvingController {
         ComponentRegistry.themeHandler.update()
         Json(theTheme)
       }
-      case None => Error("Error saving theme")
+      case None => Error(&("admin.themes.saveError", theme.name))
     }
 
   }
