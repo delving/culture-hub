@@ -50,6 +50,9 @@ ui.label.sipcreator=Sip-Creator
 ui.poweredby=Powered by DELVING.EU
 ui.label.addlabel=Add label
 ui.label.addcomment=Add comment
+ui.label.scope=Scope
+ui.label.scope.public=Public
+ui.label.scope.notpublic=Not public
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -182,6 +185,25 @@ profile.activesince=Active since
 
 
 
+#Users
+
+##Admin
+user.admin.index.title=Account space
+
+##Collections
+user.collection.title.create=Create new collection for user %s
+user.collection.title.update=Update collection for user %s
+user.collection.create=Create a collection
+user.collection.update=Update a collection
+user.collection.info=Collection information
+user.collection.objects=Collection objects
+user.collection.status=Collection status
+user.collection.label.description=Description
+user.collection.help.description=A short description of your collection
+user.collection.label.addObjects=Add object(s)
+user.collection.title.objectsList=Objects in your collection
+user.collection.title.selectObjects=Select Object(s)
+user.collection.save=Save collection
 
 
 # Controllers
