@@ -19,9 +19,21 @@
 # permissions and limitations under the Licence.
 #
 
+
+# Views
+
 secure.error=Login incorrect
 secure.logout=You were logged out successfully
 secure.notactive.error=Your account is not yet active. Active it following the link in the mail.
+
+form.required=Required
+
+
+
+
+
+
+# Controllers
 
 dataSetState.incomplete=DataSet is incomplete
 dataSetState.uploaded=DataSet is uploaded and ready for indexing
@@ -31,7 +43,17 @@ dataSetState.enabled=DataSet is enabled
 dataSetState.disabled=DataSet is disabled
 dataSetState.error=Error occured while indexing DataSet
 
-form.required=Required
+
+
+
+
+
+
+
+
+
+
+# Old stuff
 
 _action.OpenInNewWindow=Opens in a new window
 _action.add.annotation=Add annotation
