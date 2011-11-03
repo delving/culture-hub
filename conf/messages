@@ -50,9 +50,9 @@ ui.label.sipcreator=Sip-Creator
 ui.poweredby=Powered by DELVING.EU
 ui.label.addlabel=Add label
 ui.label.addcomment=Add comment
-ui.label.scope=Scope
-ui.label.scope.public=Public
-ui.label.scope.notpublic=Not public
+ui.label.visibility=Visibility
+ui.label.visibility.public=Public
+ui.label.visibility.notpublic=Not public
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -205,6 +205,18 @@ user.collection.title.objectsList=Objects in your collection
 user.collection.title.selectObjects=Select Object(s)
 user.collection.save=Save collection
 
+##DObjects
+user.object.title.create=Create new object for user %s
+user.object.title.update=Update object for user %s
+user.object.create=Create an object
+user.object.update=Update an object
+user.object.label.addToCollection=Add to collection
+user.object.label.file=File
+user.collection.save=Save object
+
+
+
+
 
 # Controllers
 
@@ -264,7 +276,7 @@ authentication.logout=You were logged out successfully
 authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
 servicessecurity.userNotFound=User %s was not found
 
-stories.storyNotFound=
+stories.storyNotFound=Story with id %s was not found
 
 # Old stuff
 

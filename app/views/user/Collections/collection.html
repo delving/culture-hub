@@ -12,8 +12,8 @@
     <form method="post" action="" id="collectionForm">
     <h3>&{'user.collection.info'}</h3>
 
-    #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", required: true /}
-    #{textArea name:"description", label:viewUtils.getKey('user.collection.label.description'), dataBind:"value: description", required: true, help:viewUtils.getKey('user.collection.help.description') /}
+    #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", labelClass:"required", required: true /}
+    #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true, help:viewUtils.getKey('user.collection.help.description') /}
 
     <h3>&{'user.collection.objects'}</h3>
 
@@ -30,11 +30,11 @@
 
     <h3>&{'user.collection.status'}</h3>
     <div class="field">
-        <label for="public-0" class="label">&{'ui.label.scope'}</label>
+        <label for="public-0" class="label">&{'ui.label.visibility'}</label>
 
         <div class="inputs">
-            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.scope.notpublic'}
-            <input type="radio" value="1" id="public-1" name="public">&{'ui.label.scope.public'}
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.visibility.scope.notpublic'}
+            <input type="radio" value="1" id="public-1" name="public">&{'ui.visibility.scope.public'}
         </div>
     </div>
 
