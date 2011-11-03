@@ -1,25 +1,29 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title:'Search results' /}
-	<script>
-	$(function() {
-		$( ".thing .title" ).draggable({
-             helper: "clone"
-		});
-		$( ".thingBucket ol" ).droppable({
-			activeClass: "ui-state-default",
-			hoverClass: "ui-state-hover",
-			drop: function( event, ui ) {
+	<!--<script>-->
+	<!--$(function() {-->
+		<!--$( ".thing" ).draggable({-->
+             <!--helper: "clone",-->
+            <!--cursor: "move",-->
+            <!--helper: thingHelper-->
+		<!--});-->
+		<!--$( ".thingBucket ol" ).droppable({-->
+			<!--activeClass: "ui-state-default",-->
+			<!--hoverClass: "ui-state-hover",-->
+			<!--drop: function( event, ui ) {-->
 
-				$(this).find(".placeholder").remove();
-                $("<li></li>").append(ui.draggable.contents().clone()).appendTo(this);
-//                $("<li></li>").append(ui.draggable.text()).appendTo(this);
+				<!--$(this).find(".placeholder").remove();-->
+                <!--$("<li></li>").append(ui.draggable.contents().clone()).appendTo(this);-->
+<!--//                $("<li></li>").append(ui.draggable.text()).appendTo(this);-->
 
-			}
-		});
-
-	});
-	</script>
+			<!--}-->
+		<!--});-->
+	<!--});-->
+        <!--function thingHelper( event ) {-->
+          <!--return '<div id="draggableHelper">'+$(this).next(".title").text()+'</div>';-->
+        <!--}-->
+	<!--</script>-->
 <div id="items">
 
     <h2>Search Results for: <span>[query]</span></h2>
@@ -83,11 +87,6 @@
                                     <div class="bd">
                                         ${doc.getFieldValue("dc_description").getFirst()}
                                     </div>
-                                    <div class="ft">
-
-                                        <input type="checkbox" name="addToCollection"/>
-
-                                    </div>
                                 </div>
                             </div>
 
@@ -124,13 +123,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mod simple">
-                <div class="inner thingBucket">
-                    <ol>
-                    <li class="placeHolder">Drag objects you want to add to you collection here.</li>
-                    </ol>
-                </div>
-            </div>
+            <!--<div class="mod simple">-->
+                <!--<div class="inner thingBucket">-->
+                    <!--<ol>-->
+                    <!--<li class="placeHolder">Drag objects you want to add to you collection here.</li>-->
+                    <!--</ol>-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
 
     </div>
