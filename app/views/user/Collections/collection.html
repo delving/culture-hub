@@ -1,52 +1,47 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: id.isEmpty() ? 'Create new collection for user ' + fullName : 'Update collection for user ' + fullName /}
+#{set title: id.isEmpty() ? viewUtils.getKey('user.collection.title.create', fullName) : viewUtils.getKey('user.collection.title.update', fullName) /}
 
 #{breadcrumbs /}
 
-<h1>${id.isEmpty() ? "Create a collection" : "Update collection" }</h1>
+<h1>${id.isEmpty() ? viewUtils.getKey('user.collection.create') : viewUtils.getKey('user.collection.update') }</h1>
 
 <div id="edit-collection" class="mod">
 
     <div data-bind="text: errors().global"></div>
 
     <form method="post" action="" id="collectionForm">
-    <h3>
-        Collection Info
-    </h3>
+    <h3>&{'user.collection.info'}</h3>
 
     #{textField name:"name", label:"Name", dataBind:"value: name", labelClass:"required", required: true /}
-    #{textArea name:"description", label:"Description", dataBind:"value: description", required: true, help:"A short description of your collection" /}
+    #{textArea name:"description", label:viewUtils.getKey('user.collection.label.description'), dataBind:"value: description", required: true, help:viewUtils.getKey('user.collection.help.description') /}
 
-
-    <h3>
-        Collection Objects
-    </h3>
+    <h3>&{'user.collection.objects'}</h3>
 
     <div class="buttons">
-        #{btnHref label:"Add object(s)", iconClass:"icon3", id:"addObject" /}
+        #{btnHref label:viewUtils.getKey('user.collection.label.addObjects'), iconClass:"icon3", id:"addObject" /}
     </div>
 
-    <div id="objectList" class="mod data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: 'Objects in your collection', objects: objects, thumbnail: thumbnail} }"></div>
+    <div id="objectList" class="mod data-grid" data-bind="template: {name:'objectsList', templateOptions: {title: '&{'user.collection.title.objectsList'}', objects: objects, thumbnail: thumbnail} }"></div>
 
-    <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
+    <div class="objects-container" id="objects-dialogue" title="&{'user.collection.title.selectObjects'}">
         <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
     </div>
 
 
-    <h3>Collection Status</h3>
+    <h3>&{'user.collection.status'}</h3>
     <div class="field">
-        <label for="public-0" class="label">Public</label>
+        <label for="public-0" class="label">&{'ui.label.scope'}</label>
 
         <div class="inputs">
-            <input type="radio" checked="checked" value="0" id="public-0" name="public">Not Public
-            <input type="radio" value="1" id="public-1" name="public">Public
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.scope.notpublic'}
+            <input type="radio" value="1" id="public-1" name="public">&{'ui.label.scope.public'}
         </div>
     </div>
 
     <hr/>
 
     <div class="buttons">
-      #{btnButton label:"Save collection", id:"saveButton", extraClass:"blue", type:"submit"  /}
+      #{btnButton label:viewUtils.getKey('user.collection.save'), id:"saveButton", extraClass:"blue", type:"submit"  /}
       <div class="wait"></div>
     </div>
 
