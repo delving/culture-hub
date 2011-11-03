@@ -32,6 +32,10 @@ ui.label.previous=Previous
 ui.label.first=First
 ui.label.last=Last
 ui.label.username=Username
+ui.label.fullname=Full name
+ui.label.firstname=First name
+ui.label.lastname=Last name
+ui.label.email=Email
 ui.label.password=Password
 ui.label.login=Login
 ui.label.logout=Logout
@@ -71,6 +75,9 @@ thing.description=Description
 thing.name=Name
 thing.title=Title
 thing.objectcount=Number of objects
+thing.collectioncount=Number of collections
+thing.storycount=Number of stories
+thing.datasetcount=Number of DataSets
 thing.objects=Objects
 thing.labels=Labels
 thing.addlabel=Add label
@@ -89,8 +96,7 @@ ui.message.activation.error=Error activating your account.
 ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
 ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
-mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
-mail.message.resetpassword=In order to reset your password for %s, please follow the link below
+
 # User navigation
 user.nav.register=Register
 user.nav.goto=Go to
@@ -165,9 +171,14 @@ dataset.cancelindex=Cancel indexing
 dataset.disable=Disable
 dataset.enable=Enable
 
+#Mails
+mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
+mail.message.resetpassword=In order to reset your password for %s, please follow the link below
 
+#Profiles
+profile.title=Profile page for
+profile.activesince=Active since
 
-form.required=Required
 
 
 
