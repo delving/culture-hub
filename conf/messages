@@ -45,13 +45,15 @@ dataSetState.error=Error occured while indexing DataSet
 
 admin.themes.themeNotFound=Theme with ID %s not found
 admin.themes.saveError=Error saving theme %s
-
-
-
-
-
-
-
+user.collections.objectNotFound=Object with id %s not found
+user.collections.saveError=Error saving collection %s
+user.datasets.dataSetNotFound=DataSet %s not found
+user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 
 # Old stuff
 

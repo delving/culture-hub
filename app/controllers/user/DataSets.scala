@@ -73,53 +73,53 @@ object DataSets extends DelvingController with UserSecured {
   }
 
   def index(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    withDataSet(spec) { dataSet =>
+      // TODO
+      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    // TODO
-    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
-    dataSet.state match {
-      case DISABLED | UPLOADED | ERROR =>
-        if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
-          DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
-          DataSet.changeState(dataSet, DataSetState.QUEUED)
-        } else {
-          // TODO give the user some decent feedback
-          DataSet.changeState(dataSet, DataSetState.ERROR)
-        }
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be indexed in the current state")
+      dataSet.state match {
+        case DISABLED | UPLOADED | ERROR =>
+          if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
+            DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
+            DataSet.changeState(dataSet, DataSetState.QUEUED)
+          } else {
+            // TODO give the user some decent feedback
+            DataSet.changeState(dataSet, DataSetState.ERROR)
+          }
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeIndexed"))
+      }
     }
   }
 
   def reIndex(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    withDataSet(spec) { dataSet =>
+      // TODO
+      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    // TODO
-    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
-    dataSet.state match {
-      case ENABLED =>
-        DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
-        DataSet.changeState(dataSet, DataSetState.QUEUED)
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be re-indexed in the current state")
+      dataSet.state match {
+        case ENABLED =>
+          DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
+          DataSet.changeState(dataSet, DataSetState.QUEUED)
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeReIndexed"))
+      }
     }
-
   }
 
   def cancel(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
-    dataSet.state match {
-      case QUEUED | INDEXING =>
-        DataSet.changeState(dataSet, DataSetState.UPLOADED)
-        try {
-          Indexing.deleteFromSolr(dataSet)
-        } catch {
-          case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
-        }
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be cancelled in the current state")
+    withDataSet(spec) { dataSet =>
+      dataSet.state match {
+        case QUEUED | INDEXING =>
+          DataSet.changeState(dataSet, DataSetState.UPLOADED)
+          try {
+            Indexing.deleteFromSolr(dataSet)
+          } catch {
+            case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
+          }
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeCancelled"))
+      }
     }
   }
 
@@ -136,46 +136,54 @@ object DataSets extends DelvingController with UserSecured {
   }
 
   def disable(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    withDataSet(spec) { dataSet =>
 
-    // TODO
-    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+      // TODO
+      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.state match {
-      case QUEUED | INDEXING | ERROR | ENABLED =>
-        val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
-        Indexing.deleteFromSolr(updatedDataSet)
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be disabled in the current state")
+      dataSet.state match {
+        case QUEUED | INDEXING | ERROR | ENABLED =>
+          val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
+          Indexing.deleteFromSolr(updatedDataSet)
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeDisabled"))
+      }
     }
   }
 
   def enable(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    withDataSet(spec) { dataSet =>
 
-    // TODO
-    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+      // TODO
+      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.state match {
-      case DISABLED =>
-        DataSet.changeState(dataSet, DataSetState.ENABLED)
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be enabled in the current state")
+      dataSet.state match {
+        case DISABLED =>
+          DataSet.changeState(dataSet, DataSetState.ENABLED)
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeEnabled"))
+      }
     }
   }
 
   def delete(spec: String): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound("DataSet %s not found".format(spec)))
+    withDataSet(spec) { dataSet =>
 
-    // TODO
-    // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
+      // TODO
+      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
-    dataSet.state match {
-      case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
-        DataSet.delete(dataSet)
-        Redirect("/%s/dataset".format(connectedUser))
-      case _ => Error("DataSet cannot be deleted in the current state")
+      dataSet.state match {
+        case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
+          DataSet.delete(dataSet)
+          Redirect("/%s/dataset".format(connectedUser))
+        case _ => Error(&("user.datasets.cannotBeDeleted"))
+      }
     }
+  }
+
+  def withDataSet(spec: String)(operation: DataSet => Result): Result = {
+    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound(&("user.datasets.dataSetNotFound", spec)))
+    operation(dataSet)
   }
 }
 
