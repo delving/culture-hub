@@ -187,8 +187,11 @@ registration.lostpassword.message=If you have forgotten your password you can re
 registration.resetpassword=Reset password
 registration.newpassword=Enter a new password below
 
-
-
+#story
+story.read=Read story
+story.pages=Pages
+story.previouspage=Previous page
+story.nextpage=Next page
 
 
 # Controllers
