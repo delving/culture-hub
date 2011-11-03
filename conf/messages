@@ -43,8 +43,8 @@ dataSetState.enabled=DataSet is enabled
 dataSetState.disabled=DataSet is disabled
 dataSetState.error=Error occured while indexing DataSet
 
-
-
+admin.themes.themeNotFound=Theme with ID %s not found
+admin.themes.saveError=Error saving theme %s
 
 
 
