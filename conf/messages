@@ -21,7 +21,7 @@
 
 
 # Global  ##########################################
-
+ui.label.welcome=Welcome
 ui.label.add=Add
 ui.label.remove=Remove
 ui.label.search=Search
@@ -72,8 +72,7 @@ thing.addcomment=Add comment
 thing.collaborators=Collaborators
 thing.createnew=Create a new %s
 thing.browse=Browse %s
-thing.browse.ownedby=Browse %s owned by: %s
-
+thing.browse.ownedby=Browse %s owned by
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: %s
@@ -104,7 +103,7 @@ site.nav.home=Home
 # Views #################################################
 
 # Admin.Themes view
-admin.themes.title=CultureHub themes administration
+admin.themes.title=Themes administration
 admin.themes.title.new=Add a new theme
 admin.themes.title.update=Update a theme
 admin.themes.section.systeminfo=System information

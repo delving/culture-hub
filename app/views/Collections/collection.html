@@ -1,6 +1,5 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title:'Collection ' + collection.name + ' of user ' + browsedFullName /}
-
+#{set title: viewUtils.getKey('thing.collection') + ' ' + collection.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 #{breadcrumbs /}
 
 <h1>${collection.name}</h1>
