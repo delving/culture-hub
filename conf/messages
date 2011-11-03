@@ -22,12 +22,49 @@
 
 # Views
 
+# Global texts
+ui.action.add=Add
+ui.action.remove=Remove
+
+# Admin.Themes view
+admin.themes.title=CultureHub themes administration
+admin.themes.title.new=Add a new theme
+admin.themes.title.update=Update a theme
+admin.themes.section.systeminfo=System information
+admin.themes.section.displayinfo=Display information
+admin.themes.section.searchconfig=Search configuration
+admin.themes.section.mailconfig=Email configuration
+admin.themes.section.extras=Extras
+admin.themes.label.themename=Theme name
+admin.themes.help.themename=The name of the theme used by the system
+admin.themes.label.isdefault=Is default
+admin.themes.label.templatedir=Template directory
+admin.themes.label.displayname=Display name
+admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
+admin.themes.label.homepage=Homepage
+admin.themes.label.secondarybrandingname=
+admin.themes.label.secondarybrandingurl=
+admin.themes.label.defaultlanguage=Default language
+admin.themes.label.colorscheme=Color scheme
+admin.themes.label.solrurl=Solr select URL
+admin.themes.label.cacheurl=Cache URL
+admin.themes.label.localizedquerykeys=Localized query keys
+admin.themes.label.metadataprefix=Metadata prefix
+admin.themes.label.hiddenqf=Hidden query filter
+admin.themes.label.adminto=Admin to
+admin.themes.label.exceptionto=Exception to
+admin.themes.label.feedbackto=Feedback to
+admin.themes.label.registerto=Register to
+admin.themes.label.systemfrom=System from
+admin.themes.label.feedbackfrom=Feedback from
+admin.themes.label.ga=Google Analytics code
+admin.themes.label.addthis=AddThis code
+
 secure.error=Login incorrect
 secure.logout=You were logged out successfully
 secure.notactive.error=Your account is not yet active. Active it following the link in the mail.
 
 form.required=Required
-
 
 
 
