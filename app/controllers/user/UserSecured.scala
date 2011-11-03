@@ -13,7 +13,7 @@ trait UserSecured extends Secure { self: DelvingController =>
 
   @Before def checkUser(): Result = {
     if (connectedUser != params.get("user")) {
-      return Forbidden("You do not have access here")
+      return Forbidden(&("user.secured.noAccess"))
     }
     Continue
   }
