@@ -1,6 +1,5 @@
 package cake
 
-import util.{ThemeHandler, ThemeHandlerComponent}
 import scala.collection.JavaConversions._
 import eu.delving.metadata.MetadataModel
 import eu.delving.metadata.MetadataModelImpl
@@ -30,10 +29,9 @@ trait MetaRepoComponent {
 
 // =======================
 // instantiate the services in a module
-object ComponentRegistry extends MetadataModelComponent with ThemeHandlerComponent with MetaRepoComponent {
+object ComponentRegistry extends MetadataModelComponent with MetaRepoComponent {
 
   val metadataModel: MetadataModel = new MetadataModelImpl
-  val themeHandler: ThemeHandler = new ThemeHandler
 
   //  val metaRepo = new MetaRepoImpl
   //  metaRepo.setResponseListSize(Play.configuration.getProperty("services.pmh.responseListSize").trim)
@@ -46,8 +44,6 @@ object ComponentRegistry extends MetadataModelComponent with ThemeHandlerCompone
       val metadataModelImpl = metadataModel.asInstanceOf[MetadataModelImpl]
       metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
       metadataModelImpl.setRecordDefinitionFiles(RecordDefinition.getRecordDefinitionFiles : _*)
-
-      themeHandler.startup()
     } catch {
       case t: Throwable => t.printStackTrace()
     }
