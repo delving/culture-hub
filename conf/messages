@@ -25,7 +25,7 @@ ui.label.welcome=Welcome
 ui.label.add=Add
 ui.label.remove=Remove
 ui.label.search=Search
-ui.label.cancel=Canel
+ui.label.cancel=Cancel
 ui.label.next=Next
 ui.label.previous=Previous
 ui.label.first=First
@@ -43,8 +43,14 @@ ui.label.nritems=Nr. of items
 ui.label.required=Required
 ui.label.sipcreator=Sip-Creator
 ui.poweredby=Powered by DELVING.EU
+ui.label.addlabel=Add label
+ui.label.addcomment=Add comment
 
 # General 'thing' like object, collection or story
+thing.label=Label
+thing.labels=Labels
+thing.comment=Comment
+thing.comments=Comments
 thing.dataset=DataSet
 thing.datasets=DataSets
 thing.object=Object

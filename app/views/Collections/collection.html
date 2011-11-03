@@ -10,25 +10,25 @@
     #{if userName == browsedUserName}
     <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
         <span class="icon icon145"></span>
-        <span class="label">Edit Collection</span>
+        <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.collection'))}</span>
     </a>
     #{/if}
 
     <div class="bd">
         <div class="metadata">
-            <h4>Owner:</h4>
+            <h4>&{'thing.owner'}:</h4>
             <p>${browsedFullName}</p>
 
-            <h4>Date created:</h4>
+            <h4>&{'thing.datecreated'}:</h4>
             <p>${views.context.package.niceTime(collection._id.getTime())}</p>
 
-            <h4>Date modified:</h4>
+            <h4>&{'thing.datemodified'}:</h4>
             <p>${views.context.package.niceTime(collection.TS_update)}</p>
 
-            <h4>Description:</h4>
+            <h4>&{'thing.description'}:</h4>
             <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description.get())}</p>
 
-            <h4>Number of objects:</h4>
+            <h4>&{'thing.objectcount'}:</h4>
             <p>${objects.length()}</p>
 
         </div>
@@ -49,15 +49,14 @@
 
         <hr/>
 
-        <div id="add-comment-dialog" title="Add a comment">
+        <div id="add-comment-dialog" title="&{'ui.label.addcomment'}">
             <div class="field">
-            <div class="inputs">
-                <textarea name="comment" id="comment"></textarea>
+                <div class="inputs">
+                    <textarea name="comment" id="comment"></textarea>
+                </div>
             </div>
-
             <div class="buttons">
-                #{btnButton label:"Add a comment", iconClass:"icon3" /}
-            </div>
+                #{btnButton label: viewUtils.getKey('ui.label.addcomment'), iconClass:"icon3" /}
             </div>
         </div>
 
