@@ -60,8 +60,16 @@ user.stories.storyNotFound=Story with id %s was not found
 collections.invalidCollectionId=Invalid collection id %s
 datasets.dataSetNotFound=DataSet %s was not found
 delvingcontroller.userNotFound=User %s was not found
-delvingcontroller.listBrowsingUser=List of %s for user %s
-delvingcontroller.listBrowsing=List of %s
+
+listPageTitle.object.user=List of object for user %s
+listPageTitle.object.all=List of objects
+listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.all=List of collections
+listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.all=List of datasets
+listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.all=List of stories
+listPageTitle.user.all=List of users
 
 registration.invalidCode=Invalid code. Please type it again
 registration.duplicateEmail=There is already a user with this email address

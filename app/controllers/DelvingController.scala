@@ -75,7 +75,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(userName), "isActive" -> true)) match {
     case Some(user) => Right(user)
-    case None => Left(NotFound("Could not find user " + userName))
+    case None => Left(NotFound(&("delvingcontroller.userNotFound", userName)))
   }
 
   @Util def browsedUserName: String = renderArgs.get("browsedUserName", classOf[String])
@@ -92,21 +92,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util def listPageTitle(itemName: String) = if(browsingUser) &("delvingcontroller.listBrowsingUser", extensions.ViewExtensions.pluralize(itemName), browsedUserName) + browsedFullName else &("delvingcontroller.listBrowsing", extensions.ViewExtensions.pluralize(itemName))
-
-  /**
-   * Gets a path from the file system, based on configuration key. If the key or path is not found, an exception is thrown.
-   */
-  @Util def getPath(key: String, create: Boolean = false): File = {
-    val path = Option(Play.configuration.get(key)).getOrElse(throw new RuntimeException("You need to configure %s in conf/application.conf" format (key))).asInstanceOf[String]
-    val store = new File(path)
-    if (!store.exists() && create) {
-      store.mkdirs()
-    } else if(!store.exists()) {
-      throw new RuntimeException("Could not find path %s for key %s" format (store.getAbsolutePath, key))
-    }
-    store
-  }
+  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else "listPageTitle.%s.all".format(itemName)
 
   @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
     for(file <- files) if(file.contentType.contains("image")) return Some(file)
