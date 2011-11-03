@@ -18,6 +18,381 @@
 # See the Licence for the specific language governing
 # permissions and limitations under the Licence.
 #
+
+# Global  ##########################################
+ui.label.add=Toevoegen
+ui.label.addcomment=Commentaar toevoegen
+ui.label.addlabel=Label toevoegen
+ui.label.cancel=Annuleer
+ui.label.captcha=Vul de code hier in
+ui.label.create=Aanmaken
+ui.label.edit=Bewerken
+ui.label.email=E-mail
+ui.label.first=Eeste
+ui.label.firstname=Voornaam
+ui.label.fullname=Volledige naam
+ui.label.hi=Hallo
+ui.label.last=Laatste
+ui.label.lastname=Achternaam
+ui.label.login=Inloggen
+ui.label.logout=Uitloggen
+ui.label.next=Volgende
+ui.label.nritems=Aantal items
+ui.label.options=Opties
+ui.label.password=Wachtwoord
+ui.label.passwordrepeat=Wachtwoord (herhalen)
+ui.label.poweredby=Powered by DELVING.EU
+ui.label.previous=Vorige
+ui.label.register=Registreren
+ui.label.remove=Verwijder
+ui.label.required=Verplicht
+ui.label.scope=Scope
+ui.label.scope.public=Publiek
+ui.label.scope.notpublic=Niet publiek
+ui.label.search=Zoeken
+ui.label.sipcreator=Sip-Creator
+ui.label.status=Status
+ui.label.username=Gerbruikersnaam
+ui.label.visibility=Zichtbaarheid
+ui.label.visibility.public=Zichtbaar
+ui.label.visibility.notpublic=Niet zichtbaar
+ui.label.welcome=Welkom
+
+# General 'thing' like object, collection or story
+thing.label=Label
+thing.labels=Labels
+thing.comment=Comment
+thing.comments=Comments
+thing.dataset=DataSet
+thing.datasets=DataSets
+thing.object=Object
+thing.objects=Objectem
+thing.collection=Collectie
+thing.collections=Collecties
+thing.story=Verhaal
+thing.stories=Verhalen
+thing.user=Gebruiker
+thing.users=Gebruikers
+thing.notavailable.single=Er is momenteel geen %s beschikbaar
+thing.notavailable.plural=Er zijn momenteel geen %s beschikbaar
+thing.owner=Eigenaar
+thing.datecreated=Datum aangemaakt
+thing.datemodified=Datum aangepast
+thing.description=Beschrijving
+thing.name=Naam
+thing.title=Titel
+thing.actions=Acties
+thing.objectcount=Aantal objecten
+thing.collectioncount=Aantal collecties
+thing.storycount=Aantal verhalen
+thing.datasetcount=Aantal DataSets
+thing.objects=Objecten
+thing.labels=Labels
+thing.addlabel=Label toevoegen
+thing.comments=Comments
+thing.addcomment=Comment toevoegen
+thing.collaborators=Collaborators
+thing.createnew=Maak een nieuw %s aan
+thing.browse=Browse %s
+thing.browse.ownedby=Browse %s van gebruiker
+
+# Account registration and activation messages
+ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar %s om het account te activeren
+ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: %
+ui.message.activation.success=Uw account is nu actief!
+ui.message.activation.error=Er is een fout opgetreded met het activeren van uw account.
+ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met een link om uw wachtwoord opnieuw aan te maken
+ui.message.resetpassword.success=Uw wachtwoord is aangepast
+ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
+
+# User navigation
+
+user.nav.goto=Ga naar
+user.nav.create=Aanmaken
+user.nav.yourprofile=Jouw profiel
+user.nav.yourobjects=Jouw objecten
+user.nav.yourcollections=Jouw collecties
+user.nav.yourstories=Jouw verhalen
+user.nav.yourdatasets=Jouw DataSets
+user.nav.newobject=Nieuw object
+user.nav.newcollection=Nieuwe collectie
+user.nav.newstory=Nieuw verhaal
+user.nav.newdataset=Nieuw DataSet
+
+# Site navigation
+site.nav.home=Home
+
+# Views
+
+## Admin.Themes view
+admin.themes.title=Themes administration
+admin.themes.title.new=Add a new theme
+admin.themes.title.update=Update a theme
+admin.themes.section.systeminfo=System information
+admin.themes.section.displayinfo=Display information
+admin.themes.section.searchconfig=Search configuration
+admin.themes.section.mailconfig=Email configuration
+admin.themes.section.extras=Extras
+admin.themes.label.themename=Theme name
+admin.themes.help.themename=The name of the theme used by the system
+admin.themes.label.isdefault=Is default
+admin.themes.label.templatedir=Template directory
+admin.themes.label.displayname=Display name
+admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
+admin.themes.label.homepage=Homepage
+admin.themes.label.secondarybrandingname=
+admin.themes.label.secondarybrandingurl=
+admin.themes.label.defaultlanguage=Default language
+admin.themes.label.colorscheme=Color scheme
+admin.themes.label.solrurl=Solr select URL
+admin.themes.label.cacheurl=Cache URL
+admin.themes.label.localizedquerykeys=Localized query keys
+admin.themes.label.metadataprefix=Metadata prefix
+admin.themes.label.hiddenqf=Hidden query filter
+admin.themes.label.adminto=Admin to
+admin.themes.label.exceptionto=Exception to
+admin.themes.label.feedbackto=Feedback to
+admin.themes.label.registerto=Register to
+admin.themes.label.systemfrom=System from
+admin.themes.label.feedbackfrom=Feedback from
+admin.themes.label.ga=Google Analytics code
+admin.themes.label.addthis=AddThis code
+admin.themes.label.savetheme=Save theme
+
+##Application (homepage)
+home.recentobject=Recent object
+home.recentobjects=Recente objecten
+home.recentcollection=Recente collecties
+home.recentcollections=Recente collectie
+home.recentstory=Recent verhaal
+home.recentstories=Recente verhalen
+
+##Authentication login
+authentication.label.forgotpassword=Ik ben mijn wachtwoord vergeten
+authentication.label.rememberme=Herinner mij
+
+##DataSets
+dataset.index=Index
+dataset.reindex=Re-index
+dataset.cancelindex=Cancel indexing
+dataset.disable=Disable
+dataset.enable=Enable
+
+##Mails
+mail.message.activateaccount=uw account voor %s is aangemaakt. Om uw account te activeren, klik op de onderstaande link
+mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor %s opnieuw in te stellen
+
+##Profiles
+profile.title=Profiel pagina voor
+profile.activesince=Actief sinds
+
+##Registration
+registration.lostpassword=Wachtwoord vergeten
+registration.lostpassword.message=Wachtwoord vergeten? Vul het e-mail adres van uw account hieronder in
+registration.resetpassword=Wachtwoord herstellen
+registration.newpassword=Voer een nieuw wachtwoord in
+
+##Search
+search.additemstocollection=Voeg toe aan collectie
+search.dragitems=Drag items you want to add to a collection to here
+search.dragitems=Sleep items hier in om aan een collectie toe te voegen
+search.facets=Facetten
+search.nrfound= %s resultaten gevonden
+search.resultsfor=Zoekresultate voor
+search.sortby= Sorteer op
+
+##Story
+story.pages=Pagina's
+story.nextpage=Volgende pagina
+story.read=Lees verhaal
+story.previouspage=Vorige pagina
+
+#metadata
+metadata.dc.contributor=Met bijdrage(n) van
+metadatadc.coverage=Vervaardiging plaats
+metadata.dc.creator=Vervaardiger
+metadata.dc.date=Vervaardigingsdatum
+metadata.dc.description=Beschrijving
+metadata.dc.format=Formaat
+metadata.dc.identifier=Identificatie
+metadata.dc.language=Taal
+metadata.dc.provider=Aanbieder
+metadata.dc.publisher=Uitgever
+metadata.dc.relation=Verwijzing(en)
+metadata.dc.rights=Rechten
+metadata.dc.source=Bron
+metadata.dc.subject=Trefwoorden
+metadata.dc.title=Titel
+metadata.dc.type=Soort object
+metadata.dcterms.alternative=Alternatief
+metadata.dcterms.conformsTo=Voldoet aan
+metadata.dcterms.hasFormat=Heeft formaat
+metadata.dcterms.hasPart=Is onderdeel
+metadata.dcterms.isFormatOf=Is formaat van
+metadata.dcterms.isPartOf=Is deel van
+metadata.dcterms.isReferencedBy=Is verwezen door
+metadata.dcterms.isReplacedBy=Is vervangen door
+metadata.dcterms.provenance=Herkomst
+metadata.dcterms.references=Referenties
+metadata.dcterms.replaces=Vervangt
+metadata.dcterms.requires=Vereist
+metadata.dcterms.spatial=Plaats van vervaardiging
+metadata.dcterms.temporal=Periode
+metadata.delving.dimensions=Afmeting
+metadata.delving.owner=Eigenaar
+metadata.europeana.country=Land
+metadata.europeana.dataProvider=Data-aanbieder
+metadata.europeana.provider=Aanbieder
+metadataeuropeana.type=Type
+metadata.europeana.year=Jaar
+metadataicn.acquisitionMeans=Wijze van verwerving
+metadata.icn.acquisitionYear=Jaar van verwerving
+metadata.icn.acquiredWithHelpFrom=Verworven met steun van
+metadataicn.collectionPart=Deelcollectie
+metadata.icn.collection=Collectie
+metadataicn.creatorYearOfBirth=Vervaardiger geboortejaar
+metadataicn.location=Locatie
+metadata.icn.material=Materiaal
+metadata.icn.physicalState=Fysieke staat
+metadata.icn.province=Provincie
+metadata.icn.purchasePrice=Aankoopbedrag
+metadata.icn.technique=Techniek
+metadata.searchfield.contributor=Bijdragende organisatie
+metadata.type.all=Alle
+metadata.type.images=Beelden
+metadata.type.sounds=Geluiden
+metadata.type.texts=Teksten
+metadata.type.video=Video
+metadata.type.videos=Videos
+
+#Users
+
+##Admin
+user.admin.index.title=Account space
+
+##Collections
+user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
+user.collection.title.update=Collectie aanpassen voor gebruiker %s
+user.collection.create=Collectie aanmaken
+user.collection.update=Collectie aanpassen
+user.collection.info=Collectie informatie
+user.collection.objects=Collectie objecten
+user.collection.status=Collectie status
+user.collection.label.description=Beschrijving
+user.collection.help.description=Een korte beschrijving van uw collectie
+user.collection.label.addObjects=Object(en) toevoegen
+user.collection.title.objectsList=Objecten in uw collectie
+user.collection.title.selectObjects=Object(en) selecteren
+user.collection.save=Bewaar collectie
+
+##DataSets
+user.dataset.title.create=Create new dataset for user %s
+user.dataset.title.update=Update dataset for user %s
+user.dataset.create=Create a dataset
+user.dataset.update=Update a dataset
+user.dataset.info=Data Set Information
+user.dataset.label.identifier=Identifier
+user.dataset.help.identifier=The unique identifier of this DataSet
+user.dataset.save=Save DataSet
+
+##DObjects
+user.object.title.create=Nieuw object aanmaken voor gebruiker %s
+user.object.title.update=Object aanpassen voor gebruiker %s
+user.object.create=Object aanmaken
+user.object.update=Object aanpassen
+user.object.label.addToCollection=Voeg toe aan collectie
+user.object.label.file=Bestand
+user.collection.save=Bewaar object
+
+##Sip-Creator
+user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+##Stories
+user.story.title.create=Nieuw verhaal aanmaken voor gebruiker %s
+user.story.title.update=Verhaal aanpassen voor gebruiker %s
+user.story.create=Verhaal aanmaken
+user.story.update=Verhaal aanpassen
+
+user.story.storyInformation=Stap 1: Verhaal informatie
+user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een naam, korte beschrijving (verplicht) en optioneel labels
+user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Niet zichtbaar" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Zichtbaar" zodat andere het kunnen vinden en bekijken.
+user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
+user.story.bulletPoint3=Als de bovenstaande stappen zijn voltooid kunt u pagina's toevoegen
+user.story.label.addPages=Pagina's toevoege
+user.story.storyPages=Stap 2: Verhaal pagina's
+user.story.noPagesFound=Geen pagina's gevonden
+user.story.label.viewStory=Bekijk het verhaal
+user.story.label.addPage=Nieuwe pagina toevoegen
+user.story.label.freeText=Vrije tekst
+user.story.label.addImageFromCollection=Voeg een object van een collectie toe
+user.story.noCollection=Geen collectie
+user.story.existingPage=Bestaande paginas
+user.story.save=Bewaar verhaal
+user.story.title.deletePage=Pagina verwijderen?
+user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
+
+# Controllers
+
+user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
+user.secured.noAccess=Het spijt ons, echt waar! Maar u heeft geen toegang hier.
+
+dataSetState.incomplete=DataSet is incomplete
+dataSetState.uploaded=DataSet is uploaded and ready for indexing
+dataSetState.queued=DataSet is queued for indexing
+dataSetState.indexing=DataSet is being indexed
+dataSetState.enabled=DataSet is enabled
+dataSetState.disabled=DataSet is disabled
+dataSetState.error=Error occured while indexing DataSet
+
+admin.themes.themeNotFound=Theme with id %s was not found
+admin.themes.saveError=Error saving theme %s
+user.collections.objectNotFound=Object with id %s was not found
+user.collections.saveError=Error saving collection %s
+user.datasets.dataSetNotFound=DataSet %s was not found
+user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+user.dobjects.objectNotFound=Object with id %s was not found
+user.dobjects.saveError=Error saving object %s
+user.fileupload.removeError=Error removing file, invalid id %s
+user.stories.storyNotFound=Story with id %s was not found
+collections.invalidCollectionId=Invalid collection id %s
+datasets.dataSetNotFound=DataSet %s was not found
+delvingcontroller.userNotFound=User %s was not found
+
+listPageTitle.object.user=List of object for user %s
+listPageTitle.object.all=List of objects
+listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.all=List of collections
+listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.all=List of datasets
+listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.all=List of stories
+listPageTitle.user.all=List of users
+
+registration.invalidCode=Invalid code. Please type it again
+registration.duplicateEmail=There is already a user with this email address
+registration.duplicateDisplayName=There is already a user with this user name
+registration.errorCreating=Error creating your account, please try again
+registration.accountNotFoundWithEmail=No account could be found with this email address
+registration.accountNotActive=This account is not active yet. Please activate your account with the link sent in the registration e-mail
+registration.resetTokenNotFound=Reset password token not found
+registration.errorPasswordChange=Error changing your password. Try resetting it again.
+registration.passwordsDiffer=Passwords are not the same
+
+authentication.usernameRequired=Username is required
+authentication.passwordRequired=Password is required
+authentication.error=Login incorrect
+authentication.logout=You were logged out successfully
+authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
+servicessecurity.userNotFound=User %s was not found
+
+stories.storyNotFound=Story with id %s was not found
+
 _action.OpenInNewWindow=Opent in een nieuw venster
 _action.add.annotation=null
 _action.add.tag=Voeg een tag toe

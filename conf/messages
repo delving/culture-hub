@@ -26,8 +26,8 @@ ui.label.addcomment=Add comment
 ui.label.addlabel=Add label
 ui.label.cancel=Cancel
 ui.label.captcha=Enter the code you see here
-ui.label.create=Create %s
-ui.label.edit=Edit %s
+ui.label.create=Create
+ui.label.edit=Edit
 ui.label.email=Email
 ui.label.first=First
 ui.label.firstname=First name
@@ -54,6 +54,9 @@ ui.label.search=Search
 ui.label.sipcreator=Sip-Creator
 ui.label.status=Status
 ui.label.username=Username
+ui.label.visibility=Visibility
+ui.label.visibility.public=Visible
+ui.label.visibility.notpublic=Not visible
 ui.label.welcome=Welcome
 
 
@@ -112,11 +115,11 @@ user.nav.yourprofile=Your profile
 user.nav.yourobjects=Your objects
 user.nav.yourcollections=Your collections
 user.nav.yourstories=Your stories
-user.nav.yourdatasets=Your datasets
+user.nav.yourdatasets=Your DataSets
 user.nav.newobject=New object
 user.nav.newcollection=New collection
 user.nav.newstory=New story
-user.nav.newdataset=New dataset
+user.nav.newdataset=New DataSet
 
 # Site navigation
 site.nav.home=Home
@@ -329,7 +332,7 @@ user.story.update=Update a story
 
 user.story.storyInformation=Step 1: Story Information
 user.story.bulletPoint1=Enter the basic story information: a name and short description, and optionally add annotations
-user.story.bulletPoint2=You should initially keep the story publication status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
+user.story.bulletPoint2=You should initially keep the story visibility status as "Not visible". Once you have your story as you like it you can come back and set the status to "Visible" so that others may find and view it
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.label.addPages=Add pages
 user.story.storyPages=Step 2: Story Pages
