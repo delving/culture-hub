@@ -1,6 +1,6 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
-#{set title: id.isEmpty() ? iewUtils.getKey('admin.themes.title.new') :iewUtils.getKey('admin.themes.title.update') /}
+#{set title: id.isEmpty() ? viewUtils.getKey('admin.themes.title.new') :viewUtils.getKey('admin.themes.title.update') /}
 
 <div class="admin-themes">
         <h1>${id.isEmpty() ? viewUtils.getKey('admin.themes.title.new') : viewUtils.getKey('admin.themes.title.update')}</h1>

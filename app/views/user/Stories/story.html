@@ -36,10 +36,10 @@
                 #{textArea name:"description", label: viewUtils.getKey('thing.description'), dataBind:"value: description, valueUpdate: 'afterkeydown'", required: true /}
 
                 <div class="field" for="objectVisibility">
-                    <label>&{'ui.label.visibility'}</label>
+                    <label class="label">&{'ui.label.visibility'}</label>
 
                     <div class="inputs">
-                        <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
+                        <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
                         <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
                     </div>
                 </div>
@@ -130,7 +130,6 @@
   </form>
 
 </script>
-
 <script type="text/html" id="pageList">
         <table class="list">
             <caption>&{'user.story.existingPages'}:</caption>
@@ -149,7 +148,7 @@
                 <td>
                     <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
                         <span class="icon icon145"></span>
-                        <span class="label">&{'ui.label.edit'}</span>
+                        <span class="label">&{'ui.label.edit'} </span>
                     </a>
                     <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
                         <span class="icon icon186"></span>
