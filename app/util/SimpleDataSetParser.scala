@@ -7,6 +7,7 @@ import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
 import eu.delving.metadata.{Hasher, Tag, Path}
 import models.{MetadataRecord, DataSet}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -26,6 +27,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var inRecord = false
     var inIdentifierElement = false
     var justLeftIdentifierElement = false
+    var elementHasContent = false
     val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
     val path = new Path()
 
@@ -71,21 +73,25 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
           path.push(Tag.create(prefix, label))
           recordXml.append(elemStartToString(elemStart))
+          elementHasContent = false;
         case EvText(text) if(inRecord && inIdentifierElement) =>
           recordId = text
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
+          if(text != null && text.size > 0) elementHasContent = true
           recordXml.append(text)
+          fieldValueXml.append(text)
+        case EvEntityRef(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
+          elementHasContent = true
+          recordXml.append("&%s;".format(text))
           fieldValueXml.append(text)
         case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
           justLeftIdentifierElement = false
         case elemEnd@EvElemEnd(_, _) if(inRecord) =>
           valueMap.addBinding(path.toString, fieldValueXml.toString())
-          val open = "<%s%s>".format(prefix(elemEnd.pre), elemEnd.label)
-          if(recordXml.toString().endsWith(open)) {
-            val rollback = recordXml.substring(0, recordXml.length - open.length)
+          if(!elementHasContent) {
+            val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
-            recordXml.append(rollback)
-            recordXml.append(elemEndToEmptyElement(elemEnd))
+            recordXml.append(rollback).append("/>")
           } else {
             recordXml.append(elemEndToString(elemEnd))
           }
@@ -110,11 +116,15 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     mappings.filterNot(_.length == 0).toList
   }
 
-  private def elemStartToString(start: EvElemStart): String = "<%s%s%s>".format(prefix(start.pre), start.label, scala.xml.Utility.sort(start.attrs).toString())
+  private def elemStartToString(start: EvElemStart): String = {
+      val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
+      if (attrs.isEmpty)
+        "<%s%s>".format(prefix(start.pre), start.label)
+      else
+        "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
+  }
 
   private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
-
-  private def elemEndToEmptyElement(end: EvElemEnd): String = "<%s%s />".format(prefix(end.pre), end.label)
 
   private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
 
