@@ -1,7 +1,30 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title:'Search results' /}
 
-<div class="grid_12 alpha" id="items">
+#{set title:'Search results' /}
+	<!--<script>-->
+	<!--$(function() {-->
+		<!--$( ".thing" ).draggable({-->
+             <!--helper: "clone",-->
+            <!--cursor: "move",-->
+            <!--helper: thingHelper-->
+		<!--});-->
+		<!--$( ".thingBucket ol" ).droppable({-->
+			<!--activeClass: "ui-state-default",-->
+			<!--hoverClass: "ui-state-hover",-->
+			<!--drop: function( event, ui ) {-->
+
+				<!--$(this).find(".placeholder").remove();-->
+                <!--$("<li></li>").append(ui.draggable.contents().clone()).appendTo(this);-->
+<!--//                $("<li></li>").append(ui.draggable.text()).appendTo(this);-->
+
+			<!--}-->
+		<!--});-->
+	<!--});-->
+        <!--function thingHelper( event ) {-->
+          <!--return '<div id="draggableHelper">'+$(this).next(".title").text()+'</div>';-->
+        <!--}-->
+	<!--</script>-->
+<div id="items">
 
     <h2>Search Results for: <span>[query]</span></h2>
 
@@ -11,86 +34,104 @@
             Found: <span>12358</span> results
         </div>
 
-        <div class="item-pager">
-            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
-            <span>1</span><span class="pipe"> | </span>
-            <a href="#">2</a><span class="pipe"> | </span>
-            <a href="#">3</a><span class="pipe"> | </span>
-            <a href="#">4</a><span class="pipe"> | </span>
-            <a href="#">5</a><span class="pipe"> | </span>
-            <a href="#">6</a><span class="pipe"> | </span>
-            <a href="#">7</a><span class="pipe"> | </span>
-            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
-        </div>
-
     </div>
 
-    <div class="clear"></div>
+    <div class="line">
+        <div class="unit size3of4">
 
-    <div class="items">
+            <div class="buttons toolbar">
 
-      #{list briefDocs, as: 'doc'}
+                <!-- TODO: get result count and feed to pager -->
+                #{if briefDocs.size() > 0}
+                <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+                #{/if}
 
-        <div class="item two-col">
-            <img src="${doc.getThumbnail()}" width="84"/>
+                <div class="dropdown">
+                    #{btnHref label:"Sort by", toggle:true/}
+                    <div class="dropdown-slider">
+                        <a href="/${userName}/object/add" class="ddm"><span class="label">Object</span></a>
+                        <a href="/${userName}/collection/add" class="ddm"><span class="label">Collection</span></a>
+                    </div>
+                </div>
+                #{if userName}
+                <div class="dropdown">
+                    #{btnHref label:"Add selected items to collection", toggle:true/}
+                    <div class="dropdown-slider">
+                        <a href="#" class="ddm">Collection 1</a>
+                        <a href="#" class="ddm">Collection 2</a>
+                        <a href="#" class="ddm">Collection 3</a>
+                        <a href="#" class="ddm">Collection 4</a>
+                    </div>
+                </div>
+                #{/if}
+            </div>
 
-            <h4 class="collection"><a href="">${doc.getTitle()}</a></h4>
-            <span class="description">
-              ${doc.getFieldValue("dc_description").getFirst()}
-            </span>
-            <span class="options">
-                <input type="checkbox" value="${i}"/>
-            </span>
+            %{ def counter = 1 }%
 
+            #{list briefDocs, as: 'doc'}
+
+            #{if counter == 1}
+            <div class="line">
+                #{/if}
+
+                <div class="unit size1of2 ${counter == 2 ? 'lastUnit' : ''}">
+                    <div class="media thing">
+                        <img src="${doc.getThumbnail()}" width="84" class="img"/>
+
+                        <div class="bd">
+                            <div class="mod">
+                                <div class="inner">
+                                    <div class="hd title">
+                                        ${doc.getTitle()}
+                                    </div>
+                                    <div class="bd">
+                                        ${doc.getFieldValue("dc_description").getFirst()}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                %{ counter++ }%
+
+                #{if counter > 2 || i_isLast }
+            </div>
+            <!-- end line -->
+            %{ counter = 1 }%
+            #{/if}
+
+            #{/list}
+
+            <div class="buttons toolbar">
+
+                <!-- TODO: get result count and feed to pager -->
+                #{if briefDocs.size() > 0}
+                <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+                #{/if}
+
+            </div>
         </div>
-      #{/list}
+        <div class="unit size1of4 lastUnit">
 
-    </div>
+            <div class="mod simple">
+                <div class="inner">
+                    <div class="hd"><h3>Facets</h3></div>
+                    <div class="bd">
 
-    <div class="clear"></div>
-
-    <div class="item-nav">
-        <div class="item-count">
-            Found: <span>12358</span> results
+                    </div>
+                </div>
+            </div>
+            <!--<div class="mod simple">-->
+                <!--<div class="inner thingBucket">-->
+                    <!--<ol>-->
+                    <!--<li class="placeHolder">Drag objects you want to add to you collection here.</li>-->
+                    <!--</ol>-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
-        <div class="item-pager">
-            <span class="ltarrow">&lt;</span> Previous<span class="pipe"> | </span>
-            <span>1</span><span class="pipe"> | </span>
-            <a href="#">2</a><span class="pipe"> | </span>
-            <a href="#">3</a><span class="pipe"> | </span>
-            <a href="#">4</a><span class="pipe"> | </span>
-            <a href="#">5</a><span class="pipe"> | </span>
-            <a href="#">6</a><span class="pipe"> | </span>
-            <a href="#">7</a><span class="pipe"> | </span>
-            <a href="#" class="next">Next <span class="gtarrow">&gt;</span></a>
-        </div>
-    </div>
 
-</div>
-
-<div class="grid_4 omega sidebar">
-
-    <h3>Options</h3>
-
-    <div class="container">
-        <div class="head"></div>
-        <div class="body">
-
-            <label>Sort by</label>
-                <a href="" class=""><img src="@{'/public/images/icon-object.png'}" width="16" alt="Sort by object"/>Object</a>
-            <a href="" class=""><img src="@{'/public/images/icon-collection.png'}" width="16" alt="Sort by collection"/>Collection</a>
-
-            <p>
-                Add <strong>selected</strong> objects to a collection
-            </p>
-            <select id="collection-name" name="collection-name">
-                <option value="">Collection 1</option>
-                <option value="">Collection 2</option>
-                <option value="">Collection 3</option>
-                <option value="">Collection 4</option>
-            </select>
-            <button>Add Objects</button>
-        </div>
     </div>
 
 </div>

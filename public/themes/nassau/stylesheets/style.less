@@ -233,9 +233,16 @@ body {
    margin-bottom: 0px;
 }
 
+/* FOOTER ********************************************************************************/
+
 #footer {
+    border-top: 1px solid lighten(@color-2, 40%);
     position: static;
     height: @footer-height;
+}
+
+#footer .content {
+    padding: 20px 0;
 }
 
 /* HOME-PAGE SPECIFIC ********************************************************************/
@@ -459,6 +466,10 @@ fieldset {
 
 /* MEDIA ************************************************************************************************/
 
+.media .img {
+    margin-right: 10px;
+}
+
 .media.object .img {
     width:inherit;
     height: 150px;
@@ -496,9 +507,9 @@ fieldset {
 }
 
 .recent h3 {
+    color: @color-3;
     text-transform:uppercase;
     font-weight: normal;
-    margin-bottom: 0px;
 }
 
 .recent .media p {

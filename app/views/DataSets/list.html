@@ -46,7 +46,7 @@
                 <td>${i.total_records}</td>
                 <td id="description${i.spec}">
                   #{if i.state.name() == models.DataSetState.ERROR().name()}
-                    <span style="color: red;">${i.state.description()}</span>
+                    <span class="error">${i.state.description()}</span>
                   #{/if}
                   #{else}
                     ${i.state.description()}
