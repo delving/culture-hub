@@ -48,7 +48,7 @@
             <tbody>
             #{list items, as: 'i'}
             <tr>
-                <td><a href="/${i.userName}/dataset/${i.spec}">${i.spec}</a></td>
+                <td><a href="/${i.username}/dataset/${i.spec}">${i.spec}</a></td>
                 <td>${i.total_records}</td>
                 <td id="description${i.spec}">
                   #{if i.state.name() == models.DataSetState.ERROR().name()}

@@ -38,7 +38,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
             anObject.name,
             anObject.description,
             anObject.user_id,
-            anObject.visibility.toString,
+            anObject.visibility.value,
             anObject.collections,
             availableCollections,
             (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList,
@@ -74,7 +74,18 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(DObject(TS_update = new Date(), name = objectModel.name, description = objectModel.description, user_id = connectedUserId, userName = connectedUser, collections = objectModel.collections, files = files, labels = labels))
+        val inserted: Option[ObjectId] = DObject.insert(
+          DObject(
+            TS_update = new Date(),
+            name = objectModel.name,
+            description = objectModel.description,
+            user_id = connectedUserId,
+            username = connectedUser,
+            visibility = Visibility.get(objectModel.visibility),
+            thumbnail_id = None,
+            collections = objectModel.collections,
+            files = files,
+            labels = labels))
         inserted match {
           case Some(iid) => {
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
@@ -86,7 +97,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
-        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
           controllers.dos.FileUpload.markFilesAttached(uid, id)
@@ -112,9 +123,9 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
 case class ObjectModel(id: Option[ObjectId] = None,
                        @Required name: String = "",
-                       description: Option[String] = Some(""),
+                       description: String = "",
                        owner: ObjectId = new ObjectId(),
-                       visibility: String = "Private",
+                       visibility: Int = Visibility.PUBLIC.value,
                        collections: List[ObjectId] = List.empty[ObjectId],
                        availableCollections: List[CollectionReference] = List.empty[CollectionReference],
                        labels: List[ShortLabel] = List.empty[ShortLabel],

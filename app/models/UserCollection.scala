@@ -5,7 +5,6 @@ import com.novus.salat.dao.SalatDAO
 import salatContext._
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.conversions.scala._
 import java.util.Date
 
 /**
@@ -14,14 +13,13 @@ import java.util.Date
  */
 
 case class UserCollection(_id: ObjectId = new ObjectId,
-                          TS_update: Date,
-                          user_id: ObjectId,
-                          userName: String,
-                          name: String,
-                          thumbnail_object_id: Option[ObjectId] = None, // points to the object of which we take the thumbnail
-                          node: String,
-                          description: Option[String]) extends Repository {
-}
+                           TS_update: Date,
+                           user_id: ObjectId,
+                           username: String,
+                           name: String,
+                           description: String,
+                           visibility: Visibility,
+                           thumbnail_id: Option[ObjectId]) extends Thing
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] with AccessControl {
 

@@ -4,10 +4,10 @@
 #{breadcrumbs /}
 
 <!-- TODO extend header -->
-<h1>&{'profile.title'}: <span>${user.fullName}</span></h1>
-&{'ui.label.username'}: ${user.userName}<br/>
-Full Name: ${user.fullName}<br/>
-&{'profile.activesince'}: ${views.context.package.niceTime(user.id.getTime())}<br/>
-&{'thing.objectcount'}: <a href="/${user.userName}/object"> ${objects.length()}</a><br/>
-&{'thing.collectionscount'}: <a href="/${user.userName}/collection">${collections.length()}</a><br/>
-&{'thing.storycount'}: <a href="/${user.userName}/story">${stories.length()}</a><br/>
+<h1>&{'profile.title'}: <span>${user.fullname()}</span></h1>
+&{'ui.label.username'}: ${user.reference.username}<br/>
+Full Name: ${user.fullname()}<br/>
+&{'profile.activesince'}: ${views.context.package.niceTime(user._id.getTime())}<br/>
+&{'thing.objectcount'}: <a href="/${user.username}/object"> ${objects.length()}</a><br/>
+&{'thing.collectionscount'}: <a href="/${user.username}/collection">${collections.length()}</a><br/>
+&{'thing.storycount'}: <a href="/${user.username}/story">${stories.length()}</a><br/>

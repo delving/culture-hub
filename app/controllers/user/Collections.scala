@@ -8,10 +8,10 @@ import extensions.JJson._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
 import controllers._
-import models.{DObject, UserCollection}
 import play.data.validation.Annotations._
 import java.util.Date
 import play.mvc.Before
+import models.{Visibility, DObject, UserCollection}
 
 /**
  * Manipulation of user collections
@@ -33,7 +33,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
       case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_object_id))
+        Json(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
       }
     }
   }
@@ -46,22 +46,22 @@ object Collections extends DelvingController with UserAuthentication with Secure
     val collectionModel: CollectionViewModel = parse[CollectionViewModel](data)
     validate(collectionModel).foreach { errors => return JsonBadRequest(collectionModel.copy(errors = errors)) }
 
-    val persistedUserCollection = collectionModel.id match {
+    val persistedUserCollection: Option[CollectionViewModel] = collectionModel.id match {
       case None =>
         val inserted: Option[ObjectId] = UserCollection.insert(
           UserCollection(TS_update = new Date(),
             name = collectionModel.name,
-            node = getNode,
             user_id = connectedUserId,
-            userName = connectedUser,
+            username = connectedUser,
             description = collectionModel.description,
-            thumbnail_object_id = collectionModel.thumbnail))
+            visibility = Visibility.get(collectionModel.visibility),
+            thumbnail_id = collectionModel.thumbnail))
 //            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
-        val existingObject = UserCollection.findOneByID(id)
-        if (existingObject == None) Error(&("user.collections.objectNotFound", id))
-        val updatedUserCollection = existingObject.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_object_id = collectionModel.thumbnail)
+        val existingCollection = UserCollection.findOneByID(id)
+        if (existingCollection == None) Error(&("user.collections.objectNotFound", id))
+        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail)
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)
@@ -72,10 +72,10 @@ object Collections extends DelvingController with UserAuthentication with Secure
     }
 
     persistedUserCollection match {
-      case Some(theObject) => {
+      case Some(theCollection) => {
         val objectIds = for(o <- collectionModel.objects) yield o.id.get
-        DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theObject.id.get)), false, true)
-        Json(theObject)
+        DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theCollection.id.get)), false, true)
+        Json(theCollection)
       }
       case None => Error(&("user.collections.saveError", collectionModel.name))
     }
@@ -91,9 +91,10 @@ object Collections extends DelvingController with UserAuthentication with Secure
 
 case class CollectionViewModel(id: Option[ObjectId] = None,
                               @Required name: String = "",
-                              description: Option[String] = Some(""),
+                              @Required description: String = "",
                               objects: List[ObjectModel] = List.empty[ObjectModel],
                               allObjects: List[ObjectModel] = List.empty[ObjectModel],
                               availableObjects: List[ObjectModel] = List.empty[ObjectModel],
+                              visibility: Int = Visibility.PUBLIC.value,
                               thumbnail: String = "",
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

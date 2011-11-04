@@ -12,7 +12,7 @@
 
     <img src='${views.context.package.imageUrl(dobject._id)}' width="250" alt="${dobject.name}" class="img"/>
          #{if userName == browsedUserName}
-        <a class="button clear" href="/${dobject.userName}/object/${dobject._id}/update">
+        <a class="button clear" href="/${dobject.username}/object/${dobject._id}/update">
             <span class="icon icon145"></span>
             <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.object'))}</span>
         </a>
@@ -23,7 +23,7 @@
             <p>${dobject.name}</p>
 
             <h4>&{'thing.description'}:</h4>
-            <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description.get())}</p>
+            <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>
 
             <h4>&{'thing.owner'}:</h4>
             <p>${browsedFullName}</p>

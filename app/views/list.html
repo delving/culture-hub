@@ -31,14 +31,14 @@
 
                 <div class="media ${itemName}">
 
-                    <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
+                    <a href="/${i.username}/${itemName}/${i.id}" class="img" rel="nofollow">
                         <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100" class="img"/>
                     </a>
 
                 <div class="bd">
                     <div class="metadata">
 
-                        <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
+                        <a href="/${i.username}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
 
                         #{if i.description}
                         <div class="more-info">

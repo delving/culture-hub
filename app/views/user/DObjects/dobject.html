@@ -84,10 +84,10 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
+            handleSubmit('/${username}/object/submit', objectModel, '#objectForm', '/${username}/object/', null, null, {uid: '${uid}'});
         });
 
-        load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
+        load('/${username}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
             var files = ko.toJS(objectModel.files);
             var fu = $('#fileupload').data('fileupload');
             fu._adjustMaxNumberOfFiles(-files.length);
