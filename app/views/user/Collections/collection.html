@@ -33,7 +33,7 @@
         <label for="public-0" class="label">&{'ui.label.visibility'}</label>
 
         <div class="inputs">
-            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}<br/>
             <input type="radio" value="1" id="public-1" name="public">&{'ui.label.visibility.public'}
         </div>
     </div>
@@ -73,7 +73,7 @@
         $('#objects-dialogue').dialog({
             autoOpen: false,
             buttons: {
-                "Add selected objects": function() {
+                "&{'user.collection.label.addObjects'}": function() {
                     addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects);
                     $(this).dialog('close');
                 }

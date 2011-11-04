@@ -114,21 +114,25 @@
             <span class="error"></span>
         </div>
     </div>
-
+    <hr/>
+    <h4>Object toevoegen</h4>
     <div class="field">
+        <label class="label">&{'ui.label.collectionSelect'}</label>
         <div class="inputs">
 
-            <select style="float:left" id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: 'Choose...', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+            <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: '&{'ui.label.choose'}', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
             #{btnHref label: viewUtils.getKey('user.story.label.addImageFromCollection'), id:"addObject", iconClass:"icon3", dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw() /}
+
         </div>
     </div>
+      <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
 
   </form>
 
 </script>
 <script type="text/html" id="pageList">
         <table class="list">
-            <caption>&{'user.story.existingPages'}:</caption>
+            <caption>&{'user.story.existingPage'}:</caption>
             <thead>
             <tr>
                 <th>&{'thing.name'}</th>
@@ -272,7 +276,7 @@
         autoOpen: false,
         modal: true,
         buttons: {
-          "Add selected objects": function() {
+          "&{'user.collection.label.addObjects'}": function() {
             addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
             $(this).dialog('close');
           }
