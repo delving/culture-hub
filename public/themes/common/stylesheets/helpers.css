@@ -19,3 +19,17 @@ strong {
     float: left;
     margin-top: 5px;
 }
+
+/* button addition class */
+
+
+.button.prominent {
+    width: 98%;
+    clear: both;
+    text-align: center;
+}
+
+.button.prominent .label {
+    float: none;
+    margin:  0 auto;
+}
