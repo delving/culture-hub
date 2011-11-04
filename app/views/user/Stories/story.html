@@ -9,10 +9,10 @@
 
     <div data-bind="text: errors().global"></div>
 
-    <div id="story-info" class="line">
+    <div class="line">
 
-        <div class="sidebar">
-
+        <div class="unit size1of2">
+            <div class="mod">
             <h3>&{'user.story.storyInformation'}</h3>
             <p>${viewUtils.getKey('user.story.storyDescription').raw()}</p>
 
@@ -21,11 +21,13 @@
                 <li>&{'user.story.bulletPoint2'}</li>
                 <li>&{'user.story.bulletPoint3'}</li>
             </ol>
+            </div>
+
 
         </div>
 
-        <div class="input">
-
+        <div class="unit size1of2   ">
+            <div class="mod">
             <form id="storyForm" class="box">
 
                 #{textField name:"name", label: viewUtils.getKey('thing.name'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
@@ -46,6 +48,8 @@
                 </div>
                 #{/if}
             </form>
+            </div>
+
         </div>
 
     </div>
