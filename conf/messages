@@ -94,13 +94,13 @@ thing.datemodified=Date modified
 thing.description=Description
 thing.name=Name
 thing.title=Title
+thing.action=Action
 thing.actions=Actions
 thing.objectcount=Number of objects
 thing.collectioncount=Number of collections
 thing.storycount=Number of stories
 thing.datasetcount=Number of DataSets
 thing.objects=Objects
-thing.labels=Labels
 thing.addlabel=Add label
 thing.comments=Comments
 thing.addcomment=Add comment
@@ -136,6 +136,9 @@ user.nav.newdataset=New DataSet
 site.nav.home=Home
 
 
+# jQuery templates
+tmpl.selectedObjects.useAsDefault=Use as default
+tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
 # Views
 
 ## Admin.Themes view
