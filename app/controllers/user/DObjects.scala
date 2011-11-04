@@ -85,7 +85,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         }
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
-        if(existingObject == None) Error("Object with id %s not found".format(id))
+        if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
         val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.withName(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
@@ -101,7 +101,9 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       case Some(theObject) => {
         Json(theObject)
       }
-      case None => Error("Error saving object")
+      case None => Error(&("user.dobjects.saveError", objectModel.name))
+
+        
     }
   }
 }

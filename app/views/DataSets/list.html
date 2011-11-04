@@ -1,13 +1,19 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title:_title /}
+
+#{if browsedUserName}
+    #{set title: viewUtils.getKey('thing.browse.ownedby', viewUtils.getKey('thing.datasets')) + ': ' + browsedUserName /}
+#{/if}
+#{else}
+    #{set title: viewUtils.getKey('thing.browse', viewUtils.getKey('thing.datasets')) /}
+#{/else}
 
 #{breadcrumbs /}
 
 #{if browsedUserName}
-<h2>Browse DataSets owned by: <span>${browsedUserName}</span> (${count})</h2>
+    <h2>${viewUtils.getKey('thing.browse.ownedby', viewUtils.getKey('thing.datasets'))}: <span>${browsedUserName}</span> (${count})</h2>
 #{/if}
 #{else}
-<h2>Browse DataSets (${count})</h2>
+    <h2>Browse DataSets (${count})</h2>
 #{/else}
 
 #{if items.length() > 0}
@@ -15,26 +21,26 @@
         <table>
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Nr. of items</th>
-                <th>Status</th>
-                <th>Options</th>
+                <th>&{'thing.name'}</th>
+                <th>&{'ui.label.nritems'}</th>
+                <th>&{'ui.label.status'}</th>
+                <th>&{'ui.label.options'}</th>
             </tr>
             </thead>
             <tfoot>
             <tr>
                 <td colspan="4">
                     <a class="button" href="/${userName}/dataset/add">
-                        <span class="label">Creat a new DataSet</span>
+                        <span class="label">${viewUtils.getKey('user.dataset.create')}</span>
                     </a>
                     <a class="button" href="/${userName}/sip-creator/">
-                        <span class="label">Sip-Creator</span>
+                        <span class="label">&{'ui.label.sipcreator'}</span>
                     </a>
                         #{if items.length() > 0}
                         <div id="pager" class="mtm">#{pagination selector: "#pager", count: count, start: page /}</div>
                         #{/}
                         #{else}
-                        <p>There are currently no DataSets available</p>
+                        <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
                         #{/}
                 </td>
             </tr>
@@ -56,24 +62,24 @@
                   #{if i.userName == userName}
                     <div class="buttons">
                       <a class="button" href="/${i.userName}/dataset/${i.spec}/update">
-                          <span class="label">Edit DataSet</span>
+                          <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
                       </a>
                       #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
                       <form action="/${i.userName}/dataset/${i.spec}/index" method="POST" class="data-set">
-                        <button class="action green index"><span class="label">Index</span></button>
+                        <button class="action green index"><span class="label">&{'dataset.index'}</span></button>
                       </form>
                       #{/if}
                       #{if i.state.name() == models.DataSetState.ENABLED().name()}
                       <form action="/${i.userName}/dataset/${i.spec}/reindex" method="POST" class="data-set">
-                        <button class="button reIndex"><span class="label">Re-Index</span></button>
+                        <button class="button reIndex"><span class="label">&{'dataset.reindex'}</span></button>
                       </form>
                       <form action="/${i.userName}/dataset/${i.spec}/disable" method="POST" class="data-set">
-                        <button class="button reIndex"><span class="label">Disable</span></button>
+                        <button class="button reIndex"><span class="label">&{'dataset.disable'}</span></button>
                       </form>
                       #{/if}
                       #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
                       <form action="/${i.userName}/dataset/${i.spec}/cancel" method="POST" class="data-set">
-                        <button class="button action cancel"><span class="label">Cancel indexing</span></button>
+                        <button class="button action cancel"><span class="label">&{'dataset.cancelindex'}</span></button>
                       </form>
                       #{/if}
                       #{if i.state.name() == models.DataSetState.QUEUED().name()}
@@ -111,7 +117,7 @@
                       #{/if}
                     #{if i.state.name() == models.DataSetState.DISABLED().name()}
                       <form action="/${i.userName}/dataset/${i.spec}/enable" method="POST">
-                        <button class="button action enable">Enable</button>
+                        <button class="button action enable">&{'dataset.enable'}</button>
                       </form>
                     #{/if}
                     #{/if}
@@ -127,5 +133,5 @@
 
 #{/}
 #{else}
-    <p>There are currently no DataSets available</p>
+    <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
 #{/}

@@ -19,3 +19,26 @@ strong {
     float: left;
     margin-top: 5px;
 }
+
+/* button addition class */
+
+
+.button.prominent {
+    width: 98%;
+    clear: both;
+    text-align: center;
+}
+
+.button.prominent .label {
+    float: none;
+    margin:  0 auto;
+}
+
+button[disabled],
+.button[disabled]{
+    cursor: default;
+    -moz-opacity: 0.50;
+    opacity: 0.50;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+
+}

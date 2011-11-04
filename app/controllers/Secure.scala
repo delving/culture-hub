@@ -81,8 +81,8 @@ object Authentication extends Controller with ThemeAware {
     val password: String = params.get("password")
     val remember: Boolean = params.get("remember") == "true"
 
-    Validation.required("username", username).message("Username is required")
-    Validation.required("password", password).message("Password is required")
+    Validation.required("username", username).message("authentication.usernameRequired")
+    Validation.required("password", password).message("authentication.passwordRequired")
 
     if (Validation.hasErrors) {
       loginError()
@@ -106,13 +106,13 @@ object Authentication extends Controller with ThemeAware {
   }
 
   def loginError(): Result = {
-    flash.error(Messages.get("secure.error"))
+    flash.error(Messages.get("authentication.error"))
     params.flash()
     Template("/Authentication/login.html")
   }
 
   def userNotActiveError(): Result = {
-    flash.error(Messages.get("secure.notactive.error"))
+    flash.error(Messages.get("authentication.notactive.error"))
     params.flash()
     Template("/Authentication/login.html")
   }
@@ -120,7 +120,7 @@ object Authentication extends Controller with ThemeAware {
   def logout = {
     session.clear()
     response.removeCookie("rememberme")
-    flash.success(Messages.get("secure.logout"))
+    flash.success(Messages.get("authentication.logout"))
     Action(login)
   }
 

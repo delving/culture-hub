@@ -1,10 +1,10 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title:'Register!' /}
+#{set title: viewUtils.getKey('register') /}
 
-<div id="register">
+<div id="register" class="line">
 
-
-    <form id="registrationForm" action="@{Registration.register()}" method="POST" class="grid_16">
+    <div class="unit size3of5 prependSize1of5">
+    <form id="registrationForm" action="@{Registration.register()}" method="POST">
 
         <h3>Register for <span>${views.context.package.themeDisplayName()}</span></h3>
 
@@ -15,35 +15,38 @@
         #{/if}
 
 
-        #{textField name:"registration.firstName", label:"First name", required: true /}
-        #{textField name:"registration.lastName", label:"Last name", required: true /}
-        #{textField name:"registration.email", label:"E-mail", required: true /}
+        #{textField name:"registration.firstName", label: viewUtils.getKey('ui.label.firstname') , required: true /}
+        #{textField name:"registration.lastName", label: viewUtils.getKey('ui.label.lastname') , required: true /}
+        #{textField name:"registration.email", label: viewUtils.getKey('ui.label.email') , required: true /}
         <hr>
-        #{textField name:"registration.displayName", label:"User name", required: true /}
-        #{passwordField name:"registration.password1", label:"Password", required: true /}
-        #{passwordField name:"registration.password2", label:"Password (repeat)", required: true /}
+        #{textField name:"registration.displayName", label:  viewUtils.getKey('ui.label.username') , required: true /}
+        #{passwordField name:"registration.password1", label: viewUtils.getKey('ui.label.password') , required: true /}
+        #{passwordField name:"registration.password2", label: viewUtils.getKey('ui.label.passwordrepeat') , required: true /}
 
         <hr>
-        <fieldset>
-        <div class="field">
-            <label class="label" for="code">Enter the code you see beside the input field</label>
-            <div class="inputs">
+        <!--<fieldset>-->
+            <div class="field">
+                <label class="label" for="code">&{'ui.label.captcha'}</label>
+                   <div class="inputs">
+                            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.context.package.showError('code')}required #{/if}">
 
-            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.context.package.showError('code')}required #{/if}">
-                <img src="@{Registration.captcha(randomId)}">
-            <input type="hidden" name="randomID" value="${randomId}">
-            <span class="error">${views.context.package.showError("code")}</span>
-            <span class="help"><strong>&{'form.required'}</strong></span>
+                            <input type="hidden" name="randomID" value="${randomId}">
+                            <span class="error">${views.context.package.showError("code")}</span>
+                            <span class="help"><strong>&{'ui.label.required'}</strong></span>
+
+                       <div class="extra">
+                           <img src="@{Registration.captcha(randomId)}" align="top"/>
+                       </div>
+                </div>
             </div>
-        </div>
-        </fieldset>
+        <!--</fieldset>-->
 
         <!--<fieldset>-->
         <div class="buttons">
-            #{btnButton label:"Register", extraClass:"action green"/}
-            #{btnButton label:"Cancel", extraClass:"action cancelButton"/}
+            #{btnButton label: viewUtils.getKey('ui.label.register')  , extraClass:"action green"/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel') , extraClass:"action cancelButton"/}
         </div>
 
     </form>
+    </div>
 </div>
-

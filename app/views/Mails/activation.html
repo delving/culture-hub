@@ -1,9 +1,8 @@
 <html>
 <body>
-<p>Hi ${user.fullname} !</p>
+<p>&{'ui.label.hi'} ${user.fullname} !</p>
 
-<p>Your account on Culturehub has been created. In order to activate it, please click the link below:</p>
-
+<p>${play.i18n.Messages.get('mail.message.activateaccount', views.context.package.themeDisplayName())}:</p>
 <p><a href="@@{application.index}registration/activate/${activationToken}">@@{application.index}registration/activate/${activationToken}</a></p>
 
 </body>

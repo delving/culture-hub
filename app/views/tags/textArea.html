@@ -4,6 +4,6 @@
         <textarea class="textinput" id="${_name}" value="${params.get(_name)}" data-bind="${_dataBind}" data-validate="${views.context.package.printValidationRules(_name)}"></textarea>
         #{if _extHelp}<span class="icon extHelp" title="${_extHelp}"></span>#{/if}
         <span class="error">${views.context.package.showError(name)}</span>
-        <span class="help">#{if _required}<strong>&{'form.required'}.#{/if}</strong> ${_help}</span>
+        <span class="help">#{if _required}<strong>&{'ui.label.required'}.#{/if}</strong> ${_help}</span>
     </div>
 </div>

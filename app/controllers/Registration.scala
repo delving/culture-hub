@@ -37,16 +37,15 @@ object Registration extends DelvingController {
     Validation.required("registration.password1", r.password1)
     Validation.required("registration.password2", r.password2)
     if (r.password1 != r.password2) {
-      Validation.addError("registration.password1", "Passwords are not the same", r.password1)
-      Validation.addError("registration.password2", "Passwords are not the same", r.password2)
+      Validation.addError("registration.password2", "registration.passwordsDiffer", r.password2)
     }
 
     if (Play.id != "test") {
-      Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("Invalid code. Please type it again")
+      Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("registration.invalidCode")
     }
 
-    if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "There is already a user with this email address", r.email)
-    if (User.existsWithUsername(r.displayName, getNode)) Validation.addError("registration.displayName", "There is already a user with this display name", r.displayName)
+    if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "registration.duplicateEmail", r.email)
+    if (User.existsWithUsername(r.displayName, getNode)) Validation.addError("registration.displayName", "registration.duplicateDisplayName", r.displayName)
 
     Cache.delete(randomId)
 
@@ -72,7 +71,7 @@ object Registration extends DelvingController {
             }
           }
         case None =>
-          flash += ("registrationError" -> "Error creating your account, please try again")
+          flash += ("registrationError" -> &("registration.errorCreating"))
       }
 
       Action(controllers.Application.index)
@@ -109,11 +108,11 @@ object Registration extends DelvingController {
       // second validation pass
       val user = User.findByEmail(email)
       if(user == None) {
-        Validation.addError("email", "No account could be found with this email address", email)
+        Validation.addError("email", "registration.accountNotFoundWithEmail", email)
       } else {
         val u = user.get
         if(!u.isActive) {
-          Validation.addError("email", "This account is not active yet. Please activate your account with the link sent in the registration e-mail", email)
+          Validation.addError("email", "registration.accountNotActive", email)
         }
       }
       if(Validation.hasErrors) {
@@ -133,12 +132,12 @@ object Registration extends DelvingController {
 
   def resetPassword(resetPasswordToken: Option[String]): AnyRef = {
     if (resetPasswordToken == None) {
-      flash += ("resetPasswordError" -> "Reset token not found")
+      flash += ("resetPasswordError" -> &("registration.resetTokenNotFound"))
       Action(controllers.Application.index)
     } else {
       val canChange = User.canChangePassword(resetPasswordToken.get)
       if(!canChange) {
-        flash += ("resetPasswordError" -> "Error changing your password. Try resetting it again.")
+        flash += ("resetPasswordError" -> &("registration.errorPasswordChange"))
         Action(controllers.Application.index)
       } else {
         Template('resetPasswordToken -> resetPasswordToken.get)
@@ -153,14 +152,13 @@ object Registration extends DelvingController {
     val password1: String = params.get("password1")
     val password2: String = params.get("password2")
 
-    if(resetPasswordToken == None) Validation.addError("", "Reset password token not found")
+    if(resetPasswordToken == None) Validation.addError("", "registration.resetTokenNotFound")
 
     Validation.required("password1", password1)
     Validation.required("password2", password2)
 
     if (password1 != password2) {
-      Validation.addError("password1", "Passwords are not the same", password1)
-      Validation.addError("password2", "Passwords are not the same", password2)
+      Validation.addError("password2", "registration.passwordsDiffer", password2)
     }
 
     if(Validation.hasErrors) {

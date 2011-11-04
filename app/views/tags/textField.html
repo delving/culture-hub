@@ -5,6 +5,6 @@
         <input type="text" class="textinput #{if views.context.package.showError(_name)}required #{/if}" id="${_name}" name="${_name}" value="${params.get(_name)}" size="40" data-bind="${_dataBind}" data-validate="${views.context.package.printValidationRules(_name)}" ${isDisabled} />
         #{if _extHelp}<span class="icon extHelp" title="${_extHelp}"></span>#{/if}
         <span class="error" data-bind="text: errors().${_name}">${views.context.package.showError(_name)}</span>
-        <span class="help">#{if _required}<strong>&{'form.required'}#{/if}</strong> ${_help}</span>
+        <span class="help">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help}</span>
     </div>
 </div>

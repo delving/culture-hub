@@ -23,21 +23,16 @@
 # Global  ##########################################
 ui.label.add=Add
 ui.label.addcomment=Add comment
+ui.label.addlabel=Add label
 ui.label.cancel=Cancel
 ui.label.captcha=Enter the code you see here
-ui.label.collectionSelect=Select a collection
 ui.label.create=Create
-ui.label.delete=Delete
-ui.label.delete=Delete
 ui.label.edit=Edit
 ui.label.email=Email
-ui.label.filesadd=Add files...
-ui.label.filesdelete=Delete files
 ui.label.first=First
 ui.label.firstname=First name
 ui.label.fullname=Full name
 ui.label.hi=Hi
-ui.label.labeladd=Add label
 ui.label.labelwho=Who
 ui.label.labelwhat=What
 ui.label.labelwhere=Where
@@ -61,9 +56,7 @@ ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
 ui.label.search=Search
 ui.label.sipcreator=Sip-Creator
-ui.label.startupload=Start upload
 ui.label.status=Status
-ui.label.uploadcancel=Cancel upload
 ui.label.username=Username
 ui.label.visibility=Visibility
 ui.label.visibility.public=Visible
@@ -94,13 +87,13 @@ thing.datemodified=Date modified
 thing.description=Description
 thing.name=Name
 thing.title=Title
-thing.action=Action
 thing.actions=Actions
 thing.objectcount=Number of objects
 thing.collectioncount=Number of collections
 thing.storycount=Number of stories
 thing.datasetcount=Number of DataSets
 thing.objects=Objects
+thing.labels=Labels
 thing.addlabel=Add label
 thing.comments=Comments
 thing.addcomment=Add comment
@@ -136,9 +129,6 @@ user.nav.newdataset=New DataSet
 site.nav.home=Home
 
 
-# jQuery templates
-tmpl.selectedObjects.useAsDefault=Use as default
-tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
 # Views
 
 ## Admin.Themes view
@@ -297,14 +287,6 @@ metadata.type.videos=Videos
 
 #Users
 
-##Index
-user.index.title=User %s
-
-##List
-user.list.browse=Browse users
-user.list.noUsers=There are currently no users in the system (how did you even get here?)
-user.list.editProfile=Edit your profile
-
 ##Admin
 user.admin.index.title=Account space
 
@@ -313,7 +295,6 @@ user.collection.title.create=Create new collection for user %s
 user.collection.title.update=Update collection for user %s
 user.collection.create=Create a collection
 user.collection.update=Update a collection
-user.collection.updateCollection=Update collection %s
 user.collection.info=Collection information
 user.collection.objects=Collection objects
 user.collection.status=Collection status
@@ -339,7 +320,6 @@ user.object.title.create=Create new object for user %s
 user.object.title.update=Update object for user %s
 user.object.create=Create an object
 user.object.update=Update an object
-user.object.updateObject=Update object %s
 user.object.label.addToCollection=Add to collection
 user.object.label.file=File
 user.collection.save=Save object
@@ -353,14 +333,13 @@ user.story.title.create=Create new story for user %s
 user.story.title.update=Update story for user %s
 user.story.create=Create a story
 user.story.update=Update a story
-user.story.updateStory=Update story %s
+
 user.story.storyInformation=Step 1: Story Information
-user.story.bulletPoint1=Enter the basic story information: a name and short description
+user.story.bulletPoint1=Enter the basic story information: a name and short description, and optionally add annotations
 user.story.bulletPoint2=You should initially keep the story visibility status as "Not visible". Once you have your story as you like it you can come back and set the status to "Visible" so that others may find and view it
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.label.addPages=Add pages
 user.story.storyPages=Step 2: Story Pages
-user.story.storyDescription=A <strong>story</strong> can be created from objects in a <strong>collection</strong>. So before you can compose a story, you must have a collection with objects in it.
 user.story.noPagesFound=No pages found
 user.story.label.viewStory=View story
 user.story.label.addPage=Add a new page
