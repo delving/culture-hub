@@ -56,7 +56,7 @@
     $(document).ready(function() {
 
         // load templates
-        $.get("@{'/public/themes/common/templates/_addLabel.tmpl.html'}", null, function(template) {
+        $.get("/asset?path=/public/themes/common/templates/_addLabel.tmpl.html", null, function(template) {
             addTemplate('addLabelTemplate', template);
         });
 

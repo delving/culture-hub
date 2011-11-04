@@ -55,10 +55,10 @@
     $(document).ready(function() {
 
         // load templates
-        $.get("@{'/public/themes/common/templates/_availableObjects.tmpl.html'}", null, function(template) {
+        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
           addTemplate('availableObjectsList', template);
         });
-        $.get("@{'/public/themes/common/templates/_selectedObjects.tmpl.html'}", null, function(template) {
+        $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
           addTemplate('objectsList', template);
         });
 
