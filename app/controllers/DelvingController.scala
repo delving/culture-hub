@@ -56,6 +56,25 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
+  @Before def setLanguage() {
+
+    // if a lang param is passed, this is a request to explicitely change the language
+    // and will change it in the user's cookie
+    val lang: String = params.get("lang")
+    if(lang != null) {
+      Lang.change(lang)
+    }
+
+    // if there is no language for this cookie / user set, set the default one from the PortalTheme
+    val cn: String = Play.configuration.getProperty("application.lang.cookie", "PLAY_LANG")
+    if (request.cookies.containsKey(cn)) {
+      val localeFromCookie: String = request.cookies.get(cn).value
+      if (localeFromCookie == null || localeFromCookie != null && localeFromCookie.trim.length == 0) {
+        Lang.set(theme.defaultLanguage)
+      }
+    }
+  }
+
   @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   @Before(priority = 1) def checkBrowsedUser(): Result = {
