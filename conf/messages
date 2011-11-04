@@ -283,6 +283,14 @@ metadata.type.videos=Videos
 
 #Users
 
+##Index
+user.index.title=User %s
+
+##List
+user.list.browse=Browse users
+user.list.noUsers=There are currently no users in the system (how did you even get here?)
+user.list.editProfile=Edit your profile
+
 ##Admin
 user.admin.index.title=Account space
 
@@ -329,13 +337,13 @@ user.story.title.create=Create new story for user %s
 user.story.title.update=Update story for user %s
 user.story.create=Create a story
 user.story.update=Update a story
-
 user.story.storyInformation=Step 1: Story Information
 user.story.bulletPoint1=Enter the basic story information: a name and short description, and optionally add annotations
 user.story.bulletPoint2=You should initially keep the story visibility status as "Not visible". Once you have your story as you like it you can come back and set the status to "Visible" so that others may find and view it
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.label.addPages=Add pages
 user.story.storyPages=Step 2: Story Pages
+user.story.storyDescription=A <strong>story</strong> can be created from objects in a <strong>collection</strong>. So before you can compose a story, you must have a collection with objects in it.
 user.story.noPagesFound=No pages found
 user.story.label.viewStory=View story
 user.story.label.addPage=Add a new page

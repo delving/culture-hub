@@ -4,7 +4,7 @@
 
 <div class="grid_16 alpha" id="items">
 
-    <h2>Browse users (${count})</h2>
+    <h2>&{'user.list.browse'} (${count})</h2>
 
     #{if items.length() > 0}
     <div class="item-nav">
@@ -12,7 +12,7 @@
     </div>
     #{/if}
     #{else}
-      <p>There are currently no users in the system (how did you even get here?)</p>
+      <p>&{'user.list.noUsers'}</p>
     #{/else}
 
     <div class="clear"></div>
@@ -33,7 +33,7 @@
             <div class="ft">
             #{if i.userName == userName}
             <div class="actions">
-                <a class="action edit image-edit" href="/${i.userName}/profile/update">Edit your profile</a>
+                <a class="action edit image-edit" href="/${i.userName}/profile/update">&{'user.list.editProfile'}</a>
             </div>
             #{/if}
             </div>
