@@ -233,7 +233,7 @@ trait Internationalization {
   import play.i18n.Messages
   import play.i18n.Lang
 
-  def &(msg: String, args: String*) = Messages.get(msg, args.toArray)
+  def &(msg: String, args: String*) = Messages.get(msg, args : _ *)
 
 }
 
@@ -273,5 +273,6 @@ class ViewUtils(theme: PortalTheme) {
     Messages.get(msg, args)
   }
   def getKey(msg: String): String = Messages.get(msg)
+
 
 }
