@@ -107,7 +107,7 @@ ul
 
 li
 {
-	margin-left: 10px;
+	margin-left: 20px;
 }
 
 p,
@@ -127,4 +127,8 @@ address,
 fieldset
 {
 	margin-bottom: 20px;
+}
+
+ol {
+    list-style-type: decimal;
 }

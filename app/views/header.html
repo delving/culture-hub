@@ -55,12 +55,12 @@
         <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
-                    <span>Add files...</span>
+                    <span>&{'ui.label.filesadd'}</span>
                     <input type="file" name="files[]" multiple="true"/>
                 </label>
-                <button type="submit" class="start">Start upload</button>
-                <button type="reset" class="cancel">Cancel upload</button>
-                <button type="button" class="delete">Delete files</button>
+                <button type="submit" class="start">&{'ui.label.uploadstart'}</button>
+                <button type="reset" class="cancel">&{'ui.label.uploadcancel'}</button>
+                <button type="button" class="delete">&{'ui.label.filesdelete'}</button>
             </div>
         </form>
         <div class="fileupload-content">
@@ -72,7 +72,7 @@
         <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
-                    <span>Add files...</span>
+                    <span>&{'ui.label.filesadd'}</span>
                     <input type="file" name="files[]" multiple="true"/>
                 </label>
             </div>
@@ -118,7 +118,7 @@
             <div class="content">
                 <form method="get" action="#">
                     <input type="text" id="query" name="query" value='${params.query}'/>
-                    <input type="submit" value="Search">
+                    <input type="submit" value="&{'ui.label.search'}">
                 </form>
             </div>
         </div>
@@ -136,11 +136,11 @@
         <div class="container">
             <div class="content">
                 <ul class="nav">
-                    <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>Home</span></a></li>
-                    <li class='${"DObjects.list".isCurrent()}'><a href="/objects"><span>Objects</span></a></li>
-                    <li class='${"Collections".isCurrent()}'><a href="/collections"><span>Collections</span></a></li>
-                    <li class='${"Stories".isCurrent()}'><a href="/stories"><span>Stories</span></a>
-                    <li class='${"Users".isCurrent()}'><a href="/users"><span>Users</span></a></li>
+                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>&{'thing.stories'}</span></a>
+                <li class='${"Users".isCurrent()}'><a href="/users"><span>&{'thing.users'}</span></a></li>
                 </ul>
             </div>
         </div>
@@ -152,10 +152,10 @@
                 #{if !userName}
                 <div class="buttons">
                     <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
-                        <span class="label">Login</span>
+                        <span class="label">&{'ui.label.login'}</span>
                     </a>
                     <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
-                        <span class="label">Register</span>
+                        <span class="label">&{'ui.label.register'}</span>
                     </a>
                 </div>
                 #{/if}
@@ -164,28 +164,27 @@
                 <div class="buttons">
                     <!--Hi ${fullName}-->
                     <div class="dropdown">
-                        <a href="#" class="button"><span class="icon icon9"></span><span class="label">Go to</span><span class="toggle"></span></a>
-
-                        <div class="dropdown-slider">
-                            <a href="/${userName}" class="ddm"><span class="label">Your profile</span></a>
-                            <a href="/${userName}/object" class="ddm"></span><span class="label">Your objects</span></a>
-                            <a href="/${userName}/collection" class="ddm"></span>
-                                <span class="label">Your collections</span></a>
-                            <a href="/${userName}/story" class="ddm"></span><span class="label">Your stories</span></a>
-                            <a href="/${userName}/dataset" class="ddm"></span><span class="label">Your data-sets</span></a>
-                        </div>
+                    #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
+                    <div class="dropdown-slider">
+                        <a href="/${userName}" class="ddm"><span class="label">&{'user.nav.yourprofile'}</span></a>
+                        <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
+                        <a href="/${userName}/collection" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourcollections'}</span></a>
+                        <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
+                        <a href="/${userName}/dataset" class="ddm"></span><span class="label">&{'user.nav.yourdatasets'}</span></a>
+                    </div>
                         <!-- /.dropdown-slider -->
                     </div>
                     <!-- /.dropdown -->
 
                     <div class="dropdown">
-                        <a href="#" class="button"><span class="icon icon144"></span><span class="label">Create</span><span class="toggle"></span></a>
+                        #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
 
                         <div class="dropdown-slider">
-                            <a href="/${userName}/object/add" class="ddm"><span class="label">New object</span></a>
-                            <a href="/${userName}/collection/add" class="ddm"><span class="label">New collection</span></a>
-                            <a href="/${userName}/story/add" class="ddm"><span class="label">New story</span></a>
-                            <a href="/${userName}/dataset/add" class="ddm"><span class="label">New data-set</span></a>
+                        <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
+                        <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
+                        <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
+                        <a href="/${userName}/dataset/add" class="ddm"><span class="label">&{'user.nav.newdataset'}</span></a>
                         </div>
                         <!-- /.dropdown-slider -->
 
@@ -206,7 +205,9 @@
     <div id="footer">
         <div class="container">
             <div class="content">
+
                 <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="Powered by DELVING.EU"/></a>
+
             </div>
         </div>
     </div>

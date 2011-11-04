@@ -1,9 +1,9 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: id.isEmpty() ? viewUtils.getKey('user.dataset.title.create', fullName) : viewUtils.getKey('user.dataset.title.update', fullName) /}
+#{set title: viewUtils.getKey('user.dataset.create') /}
 #{set bodyId: 'dataset-create'/}
 #{breadcrumbs /}
 
-<h1>${id.isEmpty() ? viewUtils.getKey('user.dataset.create') : viewUtils.getKey('user.dataset.update') }</h1>
+<h1>${viewUtils.getKey('user.dataset.create') }</h1>
 
 <div class="mod">
 <form method="post" action="" id="collectionForm">

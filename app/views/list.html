@@ -3,10 +3,10 @@
 #{breadcrumbs /}
 
     #{if browsedUserName}
-    <h1>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h1>
+        <h1>Browse ${itemName.pluralize()} owned by: <span>${browsedUserName}</span> (${count})</h1>
     #{/if}
     #{else}
-    <h1>Browse ${itemName.pluralize()} (${count})</h1>
+        <h1>Browse ${itemName.pluralize()} (${count})</h1>
     #{/else}
 
     #{if items.length() > 0}
