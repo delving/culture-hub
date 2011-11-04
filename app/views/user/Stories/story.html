@@ -42,7 +42,8 @@
 
                 #{if id.isEmpty()}
                 <div class="buttons">
-                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages" /}
+                                         #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
+
                 </div>
                 #{/if}
             </form>
