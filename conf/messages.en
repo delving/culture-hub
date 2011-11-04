@@ -1,0 +1,748 @@
+#
+# Copyright 2011 DELVING BV
+#
+# Licensed under the EUPL, Version 1.1 or as soon they
+# will be approved by the European Commission - subsequent
+# versions of the EUPL (the "Licence");
+# you may not use this work except in compliance with the
+# Licence.
+# You may obtain a copy of the Licence at:
+#
+# http://ec.europa.eu/idabc/eupl
+#
+# Unless required by applicable law or agreed to in
+# writing, software distributed under the Licence is
+# distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied.
+# See the Licence for the specific language governing
+# permissions and limitations under the Licence.
+#
+
+
+# Global  ##########################################
+ui.label.add=Add
+ui.label.addcomment=Add comment
+ui.label.addlabel=Add label
+ui.label.cancel=Cancel
+ui.label.captcha=Enter the code you see here
+ui.label.create=Create
+ui.label.edit=Edit
+ui.label.email=Email
+ui.label.first=First
+ui.label.firstname=First name
+ui.label.fullname=Full name
+ui.label.hi=Hi
+ui.label.labelwho=Who
+ui.label.labelwhat=What
+ui.label.labelwhere=Where
+ui.label.labelwhen=When
+ui.label.last=Last
+ui.label.lastname=Last name
+ui.label.login=Login
+ui.label.logout=Logout
+ui.label.next=Next
+ui.label.nritems=Nr. of items
+ui.label.options=Options
+ui.label.password=Password
+ui.label.passwordrepeat=Password (repeat)
+ui.label.poweredby=Powered by DELVING.EU
+ui.label.previous=Previous
+ui.label.register=Register
+ui.label.remove=Remove
+ui.label.required=Required
+ui.label.scope=Scope
+ui.label.scope.public=Public
+ui.label.scope.notpublic=Not public
+ui.label.search=Search
+ui.label.sipcreator=Sip-Creator
+ui.label.status=Status
+ui.label.username=Username
+ui.label.visibility=Visibility
+ui.label.visibility.public=Visible
+ui.label.visibility.notpublic=Not visible
+ui.label.welcome=Welcome
+
+
+# General 'thing' like object, collection or story
+thing.label=Label
+thing.labels=Labels
+thing.comment=Comment
+thing.comments=Comments
+thing.dataset=DataSet
+thing.datasets=DataSets
+thing.object=Object
+thing.objects=Objects
+thing.collection=Collection
+thing.collections=Collections
+thing.story=Story
+thing.stories=Stories
+thing.user=User
+thing.users=Users
+thing.notavailable.single=There is currently no %s available
+thing.notavailable.plural=There are currently no %s available
+thing.owner=Owner
+thing.datecreated=Date created
+thing.datemodified=Date modified
+thing.description=Description
+thing.name=Name
+thing.title=Title
+thing.actions=Actions
+thing.objectcount=Number of objects
+thing.collectioncount=Number of collections
+thing.storycount=Number of stories
+thing.datasetcount=Number of DataSets
+thing.objects=Objects
+thing.labels=Labels
+thing.addlabel=Add label
+thing.comments=Comments
+thing.addcomment=Add comment
+thing.collaborators=Collaborators
+thing.createnew=Create a new %s
+thing.browse=Browse %s
+thing.browse.ownedby=Browse %s owned by
+
+# Account registration and activation messages
+ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
+ui.message.registration.error=Error creating your account, please try again. The cause of the error is: %s
+ui.message.activation.success=Your account is now active!
+ui.message.activation.error=Error activating your account.
+ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
+ui.message.resetpassword.success=Your password has been successfully changed
+ui.message.resetpassword.error=Error resetting your password: %s
+
+# User navigation
+
+user.nav.goto=Go to
+user.nav.create=Create
+user.nav.yourprofile=Your profile
+user.nav.yourobjects=Your objects
+user.nav.yourcollections=Your collections
+user.nav.yourstories=Your stories
+user.nav.yourdatasets=Your DataSets
+user.nav.newobject=New object
+user.nav.newcollection=New collection
+user.nav.newstory=New story
+user.nav.newdataset=New DataSet
+
+# Site navigation
+site.nav.home=Home
+
+
+# Views
+
+## Admin.Themes view
+admin.themes.title=Themes administration
+admin.themes.title.new=Add a new theme
+admin.themes.title.update=Update a theme
+admin.themes.section.systeminfo=System information
+admin.themes.section.displayinfo=Display information
+admin.themes.section.searchconfig=Search configuration
+admin.themes.section.mailconfig=Email configuration
+admin.themes.section.extras=Extras
+admin.themes.label.themename=Theme name
+admin.themes.help.themename=The name of the theme used by the system
+admin.themes.label.isdefault=Is default
+admin.themes.label.templatedir=Template directory
+admin.themes.label.displayname=Display name
+admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
+admin.themes.label.homepage=Homepage
+admin.themes.label.secondarybrandingname=
+admin.themes.label.secondarybrandingurl=
+admin.themes.label.defaultlanguage=Default language
+admin.themes.label.colorscheme=Color scheme
+admin.themes.label.solrurl=Solr select URL
+admin.themes.label.cacheurl=Cache URL
+admin.themes.label.localizedquerykeys=Localized query keys
+admin.themes.label.metadataprefix=Metadata prefix
+admin.themes.label.hiddenqf=Hidden query filter
+admin.themes.label.adminto=Admin to
+admin.themes.label.exceptionto=Exception to
+admin.themes.label.feedbackto=Feedback to
+admin.themes.label.registerto=Register to
+admin.themes.label.systemfrom=System from
+admin.themes.label.feedbackfrom=Feedback from
+admin.themes.label.ga=Google Analytics code
+admin.themes.label.addthis=AddThis code
+admin.themes.label.savetheme=Save theme
+
+##Application (homepage)
+home.recentobject=Recent object
+home.recentobjects=Recent objects
+home.recentcollection=Recent collection
+home.recentcollections=Recent collections
+home.recentstory=Recent story
+home.recentstories=Recent stories
+
+##Authentication login
+authentication.label.forgotpassword=I forgot my password
+authentication.label.rememberme=Remember me
+
+##DataSets
+dataset.index=Index
+dataset.reindex=Re-index
+dataset.cancelindex=Cancel indexing
+dataset.disable=Disable
+dataset.enable=Enable
+
+##Mails
+mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
+mail.message.resetpassword=In order to reset your password for %s, please follow the link below
+
+##Profiles
+profile.title=Profile page for
+profile.activesince=Active since
+
+##Registration
+registration.lostpassword=Lost password
+registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
+registration.resetpassword=Reset password
+registration.newpassword=Enter a new password below
+
+##Search
+search.additemstocollection=Add to collection
+search.dragitems=Drag items you want to add to a collection to here
+search.facets=Facets
+search.nrfound= Found %s results
+search.resultsfor=Search results for
+search.sortby= Sort by
+
+##Story
+story.pages=Pages
+story.nextpage=Next page
+story.read=Read story
+story.previouspage=Previous page
+
+#metadata
+metadata.abm.contentProvider=Content Provider
+metadata.abm.county=County
+metadata.abm.data.provider=Data Provider
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.abm.aboutPerson=About Person
+
+metadata.dc.contributor=Contributor
+metadata.dc.coverage=Coverage
+metadata.dc.creator=Author
+metadata.dc.date=Date
+metadata.dc.description=Description
+metadata.dc.format=Format
+metadata.dc.identifier=Identifier
+metadata.dc.language=Language
+metadata.dc.publisher=Publisher
+metadata.dc.relation=Relation
+metadata.dc.rights=Rights
+metadata.dc.source=Source
+metadata.dc.subject=Subject
+metadata.dc.title=Title
+metadata.dc.type=Type
+
+metadata.dcterms.alternative=Alternative Title
+metadata.dcterms.conformsTo=Conforms to
+metadata.dcterms.created=Date
+metadata.dcterms.hasFormat=Has format
+metadata.dcterms.hasPart=Has part
+metadata.dcterms.isFormatOf=Is format of
+metadata.dcterms.isPartOf=Is Part of
+metadata.dcterms.isReferencedBy=Is referenced by
+metadata.dcterms.isReplacedBy=Is replaced by
+metadata.dcterms.provenance=Provenance
+metadata.dcterms.references=References
+metadata.dcterms.replaces=Replaces
+metadata.dcterms.requires=Requires
+metadata.dcterms.spatial=Spatial coverage
+metadata.dcterms.temporal=Temporal coverage
+
+metadata.delving.dimensions=Dimensions
+metadata.delving.owner=Owner
+
+metadata.europeana.country=Country
+metadata.europeana.dataProvider=Data Provider
+metadata.europeana.provider=Provider
+metadata.europeana.type=Type
+metadata.europeana.year=Year
+
+metadata.icn.material=Material
+metadata.icn.collection=Collection
+metadata.icn.technique=Technique
+metadata.icn.creatorYearOfBirth=Creator Birth
+metadata.icn.acquisitionMeans=Means of Aquisition
+metadata.icn.acquisitionYear=Year Acquired
+metadata.icn.acquiredWithHelpFrom=Acquired with help from
+metadata.icn.collectionPart=Part
+metadata.icn.location=Location
+metadata.icn.physicalState=Physical State
+metadata.icn.province=Province
+metadata.icn.purchasePrice=Purchase Price
+
+metadata.is.about=Is about
+metadata.searchfield.contributor=Contributor
+metadata.searchfield.dataprovider=Provider
+metadata.type.all=All
+metadata.type.images=Images
+metadata.type.sounds=Sounds
+metadata.type.texts=Texts
+metadata.type.video=Video
+metadata.type.videos=Videos
+
+#Users
+
+##Admin
+user.admin.index.title=Account space
+
+##Collections
+user.collection.title.create=Create new collection for user %s
+user.collection.title.update=Update collection for user %s
+user.collection.create=Create a collection
+user.collection.update=Update a collection
+user.collection.info=Collection information
+user.collection.objects=Collection objects
+user.collection.status=Collection status
+user.collection.label.description=Description
+user.collection.help.description=A short description of your collection
+user.collection.label.addObjects=Add object(s)
+user.collection.title.objectsList=Objects in your collection
+user.collection.title.selectObjects=Select Object(s)
+user.collection.save=Save collection
+
+##DataSets
+user.dataset.title.create=Create new dataset for user %s
+user.dataset.title.update=Update dataset for user %s
+user.dataset.create=Create a dataset
+user.dataset.update=Update a dataset
+user.dataset.info=Data Set Information
+user.dataset.label.identifier=Identifier
+user.dataset.help.identifier=The unique identifier of this DataSet
+user.dataset.save=Save DataSet
+
+##DObjects
+user.object.title.create=Create new object for user %s
+user.object.title.update=Update object for user %s
+user.object.create=Create an object
+user.object.update=Update an object
+user.object.label.addToCollection=Add to collection
+user.object.label.file=File
+user.collection.save=Save object
+
+##Sip-Creator
+user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+##Stories
+user.story.title.create=Create new story for user %s
+user.story.title.update=Update story for user %s
+user.story.create=Create a story
+user.story.update=Update a story
+
+user.story.storyInformation=Step 1: Story Information
+user.story.bulletPoint1=Enter the basic story information: a name and short description, and optionally add annotations
+user.story.bulletPoint2=You should initially keep the story visibility status as "Not visible". Once you have your story as you like it you can come back and set the status to "Visible" so that others may find and view it
+user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
+user.story.label.addPages=Add pages
+user.story.storyPages=Step 2: Story Pages
+user.story.noPagesFound=No pages found
+user.story.label.viewStory=View story
+user.story.label.addPage=Add a new page
+user.story.label.freeText=Free Text
+user.story.label.addImageFromCollection=Add an image from this collection
+user.story.noCollection=No collection
+user.story.existingPage=Existing pages
+user.story.save=Save story
+user.story.title.deletePage=Delete the page?
+user.story.title.deletePageConfirm=Are you sure you want to delete this page?
+
+# Controllers
+
+user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
+
+dataSetState.incomplete=DataSet is incomplete
+dataSetState.uploaded=DataSet is uploaded and ready for indexing
+dataSetState.queued=DataSet is queued for indexing
+dataSetState.indexing=DataSet is being indexed
+dataSetState.enabled=DataSet is enabled
+dataSetState.disabled=DataSet is disabled
+dataSetState.error=Error occured while indexing DataSet
+
+admin.themes.themeNotFound=Theme with id %s was not found
+admin.themes.saveError=Error saving theme %s
+user.collections.objectNotFound=Object with id %s was not found
+user.collections.saveError=Error saving collection %s
+user.datasets.dataSetNotFound=DataSet %s was not found
+user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+user.dobjects.objectNotFound=Object with id %s was not found
+user.dobjects.saveError=Error saving object %s
+user.fileupload.removeError=Error removing file, invalid id %s
+user.stories.storyNotFound=Story with id %s was not found
+collections.invalidCollectionId=Invalid collection id %s
+datasets.dataSetNotFound=DataSet %s was not found
+delvingcontroller.userNotFound=User %s was not found
+
+listPageTitle.object.user=List of object for user %s
+listPageTitle.object.all=List of objects
+listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.all=List of collections
+listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.all=List of datasets
+listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.all=List of stories
+listPageTitle.user.all=List of users
+
+registration.invalidCode=Invalid code. Please type it again
+registration.duplicateEmail=There is already a user with this email address
+registration.duplicateDisplayName=There is already a user with this user name
+registration.errorCreating=Error creating your account, please try again
+registration.accountNotFoundWithEmail=No account could be found with this email address
+registration.accountNotActive=This account is not active yet. Please activate your account with the link sent in the registration e-mail
+registration.resetTokenNotFound=Reset password token not found
+registration.errorPasswordChange=Error changing your password. Try resetting it again.
+registration.passwordsDiffer=Passwords are not the same
+
+authentication.usernameRequired=Username is required
+authentication.passwordRequired=Password is required
+authentication.error=Login incorrect
+authentication.logout=You were logged out successfully
+authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
+servicessecurity.userNotFound=User %s was not found
+
+stories.storyNotFound=Story with id %s was not found
+
+# Old stuff
+
+_action.OpenInNewWindow=Opens in a new window
+_action.add.annotation=Add annotation
+_action.add.tag=Add a tag
+_action.advanced.search=Advanced search
+_action.alt.list.view=List view
+_action.alt.more.info=Click for more information
+_action.alt.next.page=Click here for next page of results
+_action.alt.previous.page=click here for previous page of results
+_action.alt.table.view=Table view
+_action.chooselanguage=Choose a language
+_action.form.submit=Submit
+_action.personal.page=My Personal Page
+_action.previous=Previous
+_action.refine.your.search=Refine your search
+_action.return.to.results=Return to results
+_action.save.this.search=Save this search
+_action.save.to.mine=Save to my personal page
+_action.search=Search
+_action.search.order.by=Order by
+_action.see.all.related.items=See all related items
+_action.send=Send
+_action.share.with.friend=Share with a friend
+_action.view.alternate=Alternate view
+_action.view.basic=Basic view
+_action.view.enlarge.image=Enlarge image
+_action.view.in.original.context=View in original context
+_cms.administration.images=Image administration
+_cms.administration.pages=Page administration
+_cms.administration.title=Administration
+_cms.administration.users=User administration
+_cms.cancel=Cancel
+_cms.change=Change
+_cms.create=Create
+_cms.delete=Delete
+_cms.edit=Edit
+_cms.existing.images=Existing images
+_cms.existing.pages=Existing pages
+_cms.find=find
+_cms.goto.upload=Go to Upload
+_cms.html.editor.show.hide=Show / Hide HTML editor
+_cms.image.change=Change this image
+_cms.image.choose=Choose an image
+_cms.image.create=Create new image
+_cms.image.delete.fail=Image could not be deleted
+_cms.image.delete.question=Delete this image?
+_cms.image.list=Image list
+_cms.image.new.path=Change image path
+_cms.image.not.exist=This image does not exist
+_cms.image.rename=Rename this image
+_cms.image.upload.new=Upload new image
+_cms.page.create=Create a new page
+_cms.page.create.step.1=To create a new page enter the path (optional) and the name of the new page. The name must end with .dml
+_cms.page.create.step.2=The base path will be automatically created. Paths that follow are not mandatory but can help you with creating a logical structure for organizing and grouping pages.
+_cms.page.edit=Edit this page
+_cms.page.list=Page list
+_cms.page.not.exist=This page does not exist
+_cms.rename=Rename
+_cms.save=Save
+_cms.update=Update
+_cms.upload=Upload
+_cms.user.change.role.step.1=Fill in the name or email of the user whose role you want to change
+_cms.user.change.role.step.2=Press "Find"
+_cms.user.change.role.step.3=Select the new role for the user from the drop-down list
+_cms.user.change.role.step.4=Press "Change"
+_cms.user.find=Find a user_cms.versions=Versions
+_cms.user.not.found=No user found matching your input
+_cms.user.remove.confirm=By clicking OK you will permanently remove the user registration and all saved items. Click Cancel to abort.
+_cms.user.role.administrator=Administrator
+_cms.user.role.choose=Choose a user-role
+_cms.user.role.current=Current role
+_cms.user.role.new=New role
+_cms.user.role.public=Reqular user
+_cms.user.role.set.to=now has the role
+_cms.user.role.super=Super user
+_cms.version.management=version management
+_cms.version.approve=Approve this version
+_cms.version.approve.explain=By approving a version you permanently delete all the other versions of the page
+_cms.versions=Versions
+_facet.by.collection=By collection
+_facet.by.country=By country
+_facet.by.date=By date
+_facet.by.language=By language
+_facet.by.provider=By provider
+_facet.by.type=By type
+_facet.by.user.tag=By us
+_facet.by.year=By year
+_facet.has.digital.object=Has digital object
+_facet.has.images.only=Images only
+_locale.AL=Albania
+_locale.AM=Armenia
+_locale.AT=Austria
+_locale.AZ=Azerbaijan
+_locale.BE=Belgium
+_locale.BG=Bulgaria
+_locale.CH=Switzerland
+_locale.CY=Cyprus
+_locale.CZ=Czech Republic
+_locale.DE=Germany
+_locale.EE=Estonia
+_locale.ES=Spain
+_locale.FI=Finland
+_locale.FR=France
+_locale.GB=United Kingdom
+_locale.GE=Georgia
+_locale.GR=Greece
+_locale.HR=Croatia
+_locale.HU=Hungary
+_locale.IE=Ireland
+_locale.IS=Iceland
+_locale.IT.florence=Italy-Florence
+_locale.IT.rome=Italy-Rome
+_locale.LI=Liechtenstein
+_locale.LT=Lithuania
+_locale.LU=Luxembourg
+_locale.LV=Latvia
+_locale.MD=Moldova
+_locale.MT=Malta
+_locale.NL=Netherlands
+_locale.NO=Norway
+_locale.PL=Poland
+_locale.PT=Portugal
+_locale.RO=Romania
+_locale.RS=Serbia
+_locale.RU.moscow=Russia - Moscow
+_locale.RU.st.petersburg=Russia - Saint Petersburg
+_locale.SE=Sweden
+_locale.SK=Slovakia
+_locale.TR=Turkey
+_locale.UA=Ukraine
+_locale.cs=Czech (cze/cse)
+_locale.da=Denmark
+_locale.danish=Danish (dan)
+_locale.de=German (deu)
+_locale.el=Greek (ell/gre)
+_locale.en=English (eng)
+_locale.es=Spanish (esp)
+_locale.et=Estonian (est)
+_locale.fi=Finnish (fin)
+_locale.fr=French (fre)
+_locale.hr=Croatian (hrv)
+_locale.hu=Hungarian (hun)
+_locale.is=Icelandic (ice)
+_locale.it=Italian (ita)
+_locale.lb=Luxemburgish (ltz)
+_locale.lt=Lithuanian (lit)
+_locale.lv=Latvian (lav)
+_locale.mt=Maltese (mlt)
+_locale.nl=Dutch (dut)
+_locale.norwegian=Norwegian (nor)
+_locale.pl=Polish (pol)
+_locale.pt=Portuguese (por)
+_locale.ro=Romanian (rom)
+_locale.ru=Russian (rus)
+_locale.sk=Slovak (slo)
+_locale.sl=Slovenian (slv)
+_locale.sr=Serbian (scc)
+_locale.sv=Swedish (sve/swe)
+_mine.change.password.success=Password successfully changed
+_mine.date.saved=Date saved
+_mine.delete=Delete
+_mine.email.address=Email address
+_mine.firstname=First name
+_mine.forgotpassword=I forgot my password
+_mine.forgotpassword.new.password=New password
+_mine.forgotpassword.new.password.repeat=Repeat new password
+_mine.itemsaved=Item saved
+_mine.itemsavefailed=Save item failed
+_mine.last.name=Last name
+_mine.loggedinas=Logged in as
+_mine.login=Login
+_mine.logout=Log out
+_mine.nosaveditems=No saved items
+_mine.nosavedsearches=No saved searches
+_mine.nosavedtags=No saved tags
+_mine.saved.items=Saved items
+_mine.saved.searches=Saved searches
+_mine.saved.tags=Saved tags
+_mine.user.information=User information
+_mine.user.last.login.date=Last login date
+_mine.user.remember.me=Remember me
+_mine.user.notification.emailformaterror=Please make sure your email is correctly formatted and try again
+_mine.user.notification.emailnotregistered=Email address is not registered
+_mine.user.notification.emailsendfailed=Email could not be sent
+_mine.user.notification.emailsent=Email sent
+_mine.user.notification.failure.search.saved=Saving search failed
+_mine.user.notification.login.failed=Login failed. Please try again
+_mine.user.notification.login.required=You must login or register
+_mine.user.register-request.emailalreadyregistered=This email is already registered
+_mine.user.register.email.has.been.sent=An email has been sent to the following address
+_mine.user.register.emailclicktoconfirm=Please click on the following link to confirm your registration
+_mine.user.register.emailuse=You will use your email together with your password to log into the site
+_mine.user.register.entervalidemail=Please enter a valid email address
+_mine.user.register.enteryouremail=Enter your email
+_mine.user.register.errordetails=Error details
+_mine.user.register.finishregistration=Finish registration
+_mine.user.register.iagree=I agree
+_mine.user.register.linkexpired=The link you used to complete registration is invalid or has expired.
+_mine.user.register.mycodeofconduct=I understand that the Delving portal gives me the opportunity to create tags for any item I wish. I agree that I will not create any tags that could be considered libelous, harmful, threatening, unlawful, defamatory, infringing, abusive, inflammatory, harassing, pornographic, obscene, fraudulent, invasive of privacy or publicity rights, hateful, or racially, ethnically or otherwise objectionable. By clicking this box I agree to abide by this agreement, and understand that if I don't my login on the portal will be terminated.
+_mine.user.register.mycodeofconductrequired=You must agree to our code of conduct to register for portal membership
+_mine.user.register.password=Password
+_mine.user.register.password.choose=Choose a password
+_mine.user.register.password.explain=Passwords must be 6-30 characters in length
+_mine.user.register.pick.user.name=Your username will be displayed when you have logged in
+_mine.user.register.please.follow.link=Please follow the link provided in the email and finish the registration process
+_mine.user.register.register=Register
+_mine.user.register.registration.failed=An error occurred while trying to process your registration. Please try again
+_mine.user.register.repeat.password=Repeat password
+_mine.user.register.requiredfield=This is a required field
+_mine.user.register.username.choose=Choose a username
+_mine.user.register.username.explain=Your username will be displayed when you have logged in
+_mine.user.registration.date=Registration date
+_mine.user.registration.notification.succeed=You have successfully registered
+_mine.user.validation.disclaimer.unchecked=Disclaimer must be accepted
+_mine.user.validation.password.long=Password is too long
+_mine.user.validation.password.mismatch=Passwords do not match
+_mine.user.validation.password.tooshort=Password is too short
+_mine.user.validation.username.in.use=is in use. Please choose another username
+_mine.user.validation.username.invalid=Username may be 2 to 24 characters, only lowercase, numbers and single underscores
+_mine.username=Username
+_portal.menu.languagedropdownlist=Language
+_portal.ui.message.actions=Actions
+_portal.ui.message.less=Less
+_portal.ui.message.more=More
+_portal.ui.message.noscript=To make optimal use of this website you need to have JavaScript activated
+_portal.ui.message.relatedcontent=Related content
+_portal.ui.message.success.search.saved=Search saved
+_portal.ui.message.usertags=User tags
+_portal.ui.messages.items=Items
+_portal.ui.navigation.matchesfor=Matches for
+_portal.ui.navigation.next=Next
+_portal.ui.navigation.of=of
+_portal.ui.navigation.page=Page
+_portal.ui.navigation.results=Results
+_portal.ui.notification.error=Error
+_portal.ui.notification.generalErrorMessage=Something went wrong! An email has been sent to inform our technical staff.
+_portal.ui.notification.malFormedQuery=Unable to fulfil your request due to malformed query parameters.
+_portal.ui.notification.noitemsfound=No items found
+_portal.ui.notification.pleaseRegisterAgain=Please <a href="/${portalName}/login.html">register your email again</a> to finish registration.
+_portal.ui.notification.recordNotFound=<strong>Alert:</strong> Unable to find the requested Europeana Record. <strong>Please</strong> try another search.
+_portal.ui.notification.recordNotIndexed=<strong>Attention:</strong> Requested Europeana Record is yet indexed. <strong>Please</strong> try another search.
+_portal.ui.notification.recordRevoked=<strong>Attention:</strong> This item has been withdrawn by the provider. <strong>Please</strong> try another search.
+_portal.ui.notification.registrationIsExpired=The link you used to complete registration is invalid or has expired.
+_portal.ui.notification.solrUnreachable=<strong>Alert:</strong> Unable to get a response from the Search Engine. <strong>Please</strong> try another search later.
+_portal.ui.notification.tryAnotherSearch=<strong>Please</strong> try another search.
+_portal.ui.reset.searchbox=Reset
+_portal.ui.statistics=Statistics
+_portal.ui.statistics.records=Nr. of records
+_portal.ui.statistics.objects=Nr. of digital objects
+_portal.ui.statistics.providers=Providers
+_portal.ui.viewingrelateditems=You are viewing related items
+_search.boolean.and=and
+_search.boolean.not=not
+_search.boolean.or=or
+_search.field.any.field=Any field
+_search.field.collection=Collection
+_search.field.country=Country
+_search.field.creator=Creator
+_search.field.date=Date
+_search.field.date.range=Date range
+_search.field.description=Description
+_search.field.keyword=Keyword
+_search.field.provider=Provider
+_search.field.subject=Subject
+_search.field.title=Title
+_search.in=Search in
+_search.select=Select
+_statistics.graph.not.rendered=Currently this data-set cannot be rendered as a graph
+_statistics.not.available=No statistics available
+_toberemoved.althome=Click here to return to the Europeana homepage
+_toberemoved.altlogoeuropeana=logo Europeana think culture
+_toberemoved.checkthefaqs=Check the FAQs - they may cover your feedback
+_toberemoved.communities=Communities
+_toberemoved.contributorexplain=These are the organisations that are contributing content - digitised paintings, books, broadcasts etc. Some of these contributors are  aggregators*, Culture.fr is the largest aggregator, providing content from about 480 organisations in France, including the Louvre and the Musée d’Orsay. The number of organisations contributing to an aggregator is shown in brackets after the aggregator’s name, e.g. Videoactive (10)
+_toberemoved.emaileuropeanateam=The Europeana Team
+_toberemoved.using.europeana=Using Europeana
+_unused.about.us=About us
+_unused.accessibility=Accessibility
+_unused.add=Add
+_unused.aggregator.explain=*An aggregator collects material from a range of other contributors, displays it on their own website and also channels it into Europeana.
+_unused.altprint=Print this page
+_unused.aplacetoshareideas=a place for inspiration and ideas. Search through the cultural collections of Europe, connect to other user pathways and share your discoveries.
+_unused.bosnia.and.herzegovina=Bosnia and Herzegovina
+_unused.browse.through.time=Browse through time
+_unused.contacts=Contacts
+_unused.contributors=Contributors
+_unused.createaccount=Create an account
+_unused.emailwelcome=Welcome to My Personal Page
+_unused.enewsoptin=Keep me in touch with new developments to Europeana
+_unused.featuredisabled=This feature is currently disabled.
+_unused.feedbackresponse=Thank you very much for your feedback. If your feedback requires a response a member of the Europeana team will get back to you as soon as possible. For faster response feedback should be submitted in English.
+_unused.findoutmore=Find out more
+_unused.fromourparnters=From our partner museums, archives, libraries and audio-visual collections
+_unused.fundedby=co-funded by the European Union
+_unused.fyrom=Former Yugoslav Republic Of Macedonia
+_unused.hideadvancedsearch=Hide advanced search
+_unused.image=Image
+_unused.invalidquery=Invalid query
+_unused.itemdetails=Item details
+_unused.languagepolicy=Language policy
+_unused.newcontent=New content
+_unused.other=Other
+_unused.partner=Partner
+_unused.partnerexplain=This is the network of partners who collaborated to make Europeana happen, and who represent Europeana in their countries and professional associations.
+_unused.partners=Partners
+_unused.peoplearecurrentlythinkingabout=People are currently thinking about
+_unused.privacy=Privacy
+_unused.registeragain=Register again
+_unused.remember.me=Remember me on this computer
+_unused.remove=Remove
+_unused.sector=Sector
+_unused.send.feedback=Send us feedback
+_unused.share.your.ideas=Share your ideas
+_unused.show.all=Show all
+_unused.sign.in=Sign in
+_unused.site.map=Sitemap
+_unused.slovenia=Slovenia
+_unused.sound=Sound
+_unused.strorylinecredits=Storyline and credits
+_unused.tag.added=Tag added
+_unused.tag.addition.failed=Tag addition failed
+_unused.tagging=Tagging
+_unused.terms.and.conditions=Terms and conditions
+_unused.text=Text
+_unused.thisiseuropeana=This is Europeana
+_unused.thoughtlab=Thought lab
+_unused.timeline=Timeline
+_unused.timelinenavigator=Timeline navigator
+_unused.userconduct=User Conduct
+_unused.userconductagree=I understand that the Delving portal gives me the opportunity to create tags for any item I wish. I agree that I will not create any tags that could be considered libelous, harmful, threatening, unlawful, defamatory, infringing, abusive, inflammatory, harassing, pornographic, obscene, fraudulent, invasive of privacy or publicity rights, hateful, or racially, ethnically or otherwise objectionable. By clicking this box I agree to abide by this agreement, and understand that if I don't my login on the portal will be terminated. CLICK TO AGREE
+_unused_portal.ui.message.view.as.xml=View as XML
+_unused_portal.ui.message.view.with.labels=View with labels
+_unused_portal.ui.message.view.without.labels=View without labels
+_unused_portal.ui.message.you.have.search.for=You have searched for
