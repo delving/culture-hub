@@ -4,13 +4,13 @@ import play.data.validation.Validation
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
 import play.mvc.Http
-import controllers.{ViewModel}
 import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
 import controllers.dos.ImageDisplay
+import controllers.{Internationalization, ViewModel}
 
-package object context {
+package object context extends Internationalization {
 
   val PAGE_SIZE = 12
 
@@ -73,31 +73,31 @@ package object context {
     val crumbList = request.path.split("/").drop(1).toList
     val crumbs = crumbList match {
 
-      case "users" :: Nil => List(("/users", "Users"))
-      case "objects" :: Nil => List(("/objects", "Objects"))
-      case "collections" :: Nil => List(("/collections", "Collections"))
-      case "stories" :: Nil => List(("/stories", "Stories"))
+      case "users" :: Nil => List(("/users", &("thing.users")))
+      case "objects" :: Nil => List(("/objects", &("thing.objects")))
+      case "collections" :: Nil => List(("/collections", &("thing.collection")))
+      case "stories" :: Nil => List(("/stories", &("thing.stories")))
 
       case user :: Nil => List(("/" + user, user))
 
-      case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"))
-      case user :: "object" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"))
-      case user :: "dataset" :: Nil => List(("/" + user, user), ("/" + user + "/dataset", "DataSets"))
-      case user :: "story" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"))
+      case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")))
+      case user :: "object" :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")))
+      case user :: "dataset" :: Nil => List(("/" + user, user), ("/" + user + "/dataset", &("thing.datasets")))
+      case user :: "story" :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")))
 
-      case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/add", "Create new object"))
-      case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/add", "Create new collection"))
-      case user :: "story" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/add", "Create new story"))
+      case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")), ("/" + user + "/object/add", &("user.object.create")))
+      case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")), ("/" + user + "/collection/add", &("user.collection.create")))
+      case user :: "story" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/add", &("user.story.create")))
 
-      case user :: "object" :: id :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/" + id, DObject.fetchName(id)))
-      case user :: "collection" :: id :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + id, UserCollection.fetchName(id)))
-      case user :: "story" :: id :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/" + id, models.Story.fetchName(id)))
+      case user :: "object" :: id :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")), ("/" + user + "/object/" + id, DObject.fetchName(id)))
+      case user :: "collection" :: id :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")), ("/" + user + "/collection/" + id, UserCollection.fetchName(id)))
+      case user :: "story" :: id :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/" + id, models.Story.fetchName(id)))
 
-      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", "Objects"), ("/" + user + "/object/" + id, "Update object \"" + DObject.fetchName(id) + "\""))
-      case user :: "collection" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + id, "Update collection \"" + UserCollection.fetchName(id)  + "\"" ))
-      case user :: "story" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/story", "Stories"), ("/" + user + "/story/" + id, "Update story \"" + models.Story.fetchName(id) + "\""))
+      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")), ("/" + user + "/object/" + id, &("user.object.updateObject", DObject.fetchName(id))))
+      case user :: "collection" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")), ("/" + user + "/collection/" + id, &("user.collection.update", UserCollection.fetchName(id))))
+      case user :: "story" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/" + id, &("user.story.updateStory", models.Story.fetchName(id))))
 
-      case user :: "collection" :: cid :: "object" :: oid ::Nil => List(("/" + user, user), ("/" + user + "/collection", "Collections"), ("/" + user + "/collection/" + cid, UserCollection.fetchName(cid)), ("/" + user + "/collection/" + cid + "/object/" + oid, DObject.fetchName(oid)))
+      case user :: "collection" :: cid :: "object" :: oid ::Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")), ("/" + user + "/collection/" + cid, UserCollection.fetchName(cid)), ("/" + user + "/collection/" + cid + "/object/" + oid, DObject.fetchName(oid)))
 
       case _ => List()
     }

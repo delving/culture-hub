@@ -22,16 +22,25 @@
 # Global  ##########################################
 ui.label.add=Toevoegen
 ui.label.addcomment=Commentaar toevoegen
-ui.label.addlabel=Label toevoegen
 ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
+ui.label.collectionSelect=Selecteer een collectie
+ui.label.choose=Kiezen...
 ui.label.create=Aanmaken
-ui.label.edit=Bewerken
+ui.label.delete=Verwijder
+ui.label.edit=Bewerk
 ui.label.email=E-mail
+ui.label.filesadd=Bestand(en) toevoegen...
+ui.label.filesdelete=Bestand(en) verwijderen
 ui.label.first=Eeste
 ui.label.firstname=Voornaam
 ui.label.fullname=Volledige naam
 ui.label.hi=Hallo
+ui.label.labeladd=Label toevoegen
+ui.label.labelwho=Wie
+ui.label.labelwhat=Wat
+ui.label.labelwhere=Waar
+ui.label.labelwhen=Wanneer
 ui.label.last=Laatste
 ui.label.lastname=Achternaam
 ui.label.login=Inloggen
@@ -51,7 +60,9 @@ ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
 ui.label.search=Zoeken
 ui.label.sipcreator=Sip-Creator
+ui.label.startupload=Begin upload
 ui.label.status=Status
+ui.label.uploadcancel=Annuleer upload
 ui.label.username=Gerbruikersnaam
 ui.label.visibility=Zichtbaarheid
 ui.label.visibility.public=Zichtbaar
@@ -172,11 +183,11 @@ authentication.label.forgotpassword=Ik ben mijn wachtwoord vergeten
 authentication.label.rememberme=Herinner mij
 
 ##DataSets
-dataset.index=Index
-dataset.reindex=Re-index
-dataset.cancelindex=Cancel indexing
-dataset.disable=Disable
-dataset.enable=Enable
+dataset.index=Indexeren
+dataset.reindex=Opnieuw indexeren
+dataset.cancelindex=Annuleer indexeren
+dataset.disable=Uitschakelen
+dataset.enable=Inschakelen
 
 ##Mails
 mail.message.activateaccount=uw account voor %s is aangemaakt. Om uw account te activeren, klik op de onderstaande link
@@ -286,14 +297,14 @@ user.collection.title.selectObjects=Object(en) selecteren
 user.collection.save=Bewaar collectie
 
 ##DataSets
-user.dataset.title.create=Create new dataset for user %s
-user.dataset.title.update=Update dataset for user %s
-user.dataset.create=Create a dataset
-user.dataset.update=Update a dataset
-user.dataset.info=Data Set Information
+user.dataset.title.create=Dataset aanmaken voor gebruiker %s
+user.dataset.title.update=Dataset bewerken voor gebruiker %s
+user.dataset.create=Dataset aanmaken
+user.dataset.update=Dataset bewerken
+user.dataset.info=Dataset informatie
 user.dataset.label.identifier=Identifier
-user.dataset.help.identifier=The unique identifier of this DataSet
-user.dataset.save=Save DataSet
+user.dataset.help.identifier=De unieke identifier voor deze dataset
+user.dataset.save=Dataset bewaren
 
 ##DObjects
 user.object.title.create=Nieuw object aanmaken voor gebruiker %s
@@ -304,28 +315,35 @@ user.object.label.addToCollection=Voeg toe aan collectie
 user.object.label.file=Bestand
 user.collection.save=Bewaar object
 
+##List
+user.list.browse=Browse gebruikers
+user.list.noUsers=Er zijn momenteel geen gebruikers in het systeem (hoe kom jij hier eigenlijk?)
+user.list.editProfile=Profiel aanpassen
+
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
 ##Stories
+
 user.story.title.create=Nieuw verhaal aanmaken voor gebruiker %s
 user.story.title.update=Verhaal aanpassen voor gebruiker %s
 user.story.create=Verhaal aanmaken
 user.story.update=Verhaal aanpassen
-
+user.story.updateStory=Aanpassen: %s
 user.story.storyInformation=Stap 1: Verhaal informatie
-user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een naam, korte beschrijving (verplicht) en optioneel labels
+user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een naam, korte beschrijving
 user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Niet zichtbaar" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Zichtbaar" zodat andere het kunnen vinden en bekijken.
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.bulletPoint3=Als de bovenstaande stappen zijn voltooid kunt u pagina's toevoegen
-user.story.label.addPages=Pagina's toevoege
+user.story.label.addPages=Pagina's toevoegen
 user.story.storyPages=Stap 2: Verhaal pagina's
 user.story.noPagesFound=Geen pagina's gevonden
+user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus voor dat u een verhaal kan aanmaken moet u een collectie met objecten aanmaken.
 user.story.label.viewStory=Bekijk het verhaal
 user.story.label.addPage=Nieuwe pagina toevoegen
 user.story.label.freeText=Vrije tekst
-user.story.label.addImageFromCollection=Voeg een object van een collectie toe
+user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas
 user.story.save=Bewaar verhaal
@@ -334,7 +352,6 @@ user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijder
 
 # Controllers
 
-user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
 user.secured.noAccess=Het spijt ons, echt waar! Maar u heeft geen toegang hier.
 
 dataSetState.incomplete=DataSet is incomplete
@@ -384,12 +401,12 @@ registration.resetTokenNotFound=Reset password token not found
 registration.errorPasswordChange=Error changing your password. Try resetting it again.
 registration.passwordsDiffer=Passwords are not the same
 
-authentication.usernameRequired=Username is required
-authentication.passwordRequired=Password is required
-authentication.error=Login incorrect
-authentication.logout=You were logged out successfully
-authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
-servicessecurity.userNotFound=User %s was not found
+authentication.usernameRequired=Gebruikersnaam is verplicht
+authentication.passwordRequired=Wachtwoord is verplicht
+authentication.error=Login niet juist
+authentication.logout=U bent uitgelogd
+authentication.notactive.error=Uw account is nog niet actief. Activeer uw account door op de link in de verzonden email te klikken.
+servicessecurity.userNotFound=De gebruiker %s was niet gevonden
 
 stories.storyNotFound=Story with id %s was not found
 

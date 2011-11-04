@@ -1,29 +1,28 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
-#{set title: id.isEmpty() ? 'Add new Portal Theme' : 'Update Portal Theme' /}
+#{set title: id.isEmpty() ? viewUtils.getKey('admin.themes.title.new') :viewUtils.getKey('admin.themes.title.update') /}
 
 <div class="admin-themes">
-    <h1>${id.isEmpty() ? 'Add a new theme' : 'Update a theme'}</h1>
-
+        <h1>${id.isEmpty() ? viewUtils.getKey('admin.themes.title.new') : viewUtils.getKey('admin.themes.title.update')}</h1>
     <form id="themeForm" method="post" action="#">
         <div class="line">
             <div class="unit size1of2">
                 <div class="mod">
-                    <h3>System information</h3>
-                    #{textField name: "name", label: "Theme name", dataBind: "value: name", help: "The system theme name.", required: true, disabled: false /}
-                    #{checkboxField name: "isDefault", label: "Is default", dataBind: "checked: isDefault" /}
+                    <h3>&{'admin.themes.section.systeminfo'}</h3>
+                    #{textField name: "name", label: viewUtils.getKey('admin.themes.label.themename'), dataBind: "value: name", help: viewUtils.getKey('admin.themes.help.themename'), required: true, disabled: false /}
+                    #{checkboxField name: "isDefault", label: viewUtils.getKey('admin.themes.label.isdefault'), dataBind: "checked: isDefault" /}
 
-                    #{textField name: "templateDir", label: "Template directory", dataBind: "value: templateDir", required: true /}
+                    #{textField name: "templateDir", label: viewUtils.getKey('admin.themes.label.templatedir'), dataBind: "value: templateDir", required: true /}
 
                 </div>
             </div>
             <div class="unit size1of2">
                 <div class="mod">
-                    <h3>Display information</h3>
-                    #{textField name: "displayName", label: "Display Name", dataBind: "value: displayName", required: true, extHelp:"The display name of the theme as you would like it to appear on the website." /}
-                    #{textField name: "homePage", label: "Homepage", dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
-                    #{textField name: "defaultLanguage", label: "Default language", dataBind: "value: defaultLanguage", required: true /}
-                    #{textField name: "colorScheme", label: "Color scheme", dataBind: "value: colorScheme" /}
+                    <h3>&{'admin.themes.section.displayinfo'}</h3>
+                    #{textField name: "displayName", label: viewUtils.getKey('admin.themes.label.displayname'), dataBind: "value: displayName", required: true, extHelp: viewUtils.getKey('admin.themes.help.displayname') /}
+                    #{textField name: "homePage", label: viewUtils.getKey('admin.themes.label.homepage'), dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
+                    #{textField name: "defaultLanguage", label: viewUtils.getKey('admin.themes.label.defaultlanguage'), dataBind: "value: defaultLanguage", required: true /}
+                    #{textField name: "colorScheme", label: viewUtils.getKey('admin.themes.label.colorscheme'), dataBind: "value: colorScheme" /}
                 </div>
             </div>
         </div>
@@ -31,33 +30,36 @@
         <div class="line">
             <div class="unit size1of2">
                 <div class="mod">
-                    <h3>Search configuration</h3>
-                    #{textField name: "solrSelectUrl", label: "Solr select URL", dataBind: "value: solrSelectUrl", required: true /}
-                    #{textField name: "cacheUrl", label: "Cache URL", dataBind: "value: cacheUrl", required: true /}
+                    <h3>&{'admin.themes.section.systeminfo'}</h3>
+                    #{textField name: "solrSelectUrl", label: viewUtils.getKey('admin.themes.label.solrurl'), dataBind: "value: solrSelectUrl", required: true /}
+                    #{textField name: "cacheUrl", label: viewUtils.getKey('admin.themes.label.cacheurl'), dataBind: "value: cacheUrl", required: true /}
                     <div class="field">
-                        <label class="label" for="localisedQueryKeys">Localised query keys</label>
+                        <label class="label" for="localisedQueryKeys">&{'admin.themes.label.localizedquerykeys'}</label>
                         <div>
                             <select id="localisedQueryKeys" multiple="multiple" width="50" name="localisedQueryKeys" data-bind="options: localisedQueryKeys, selectedOptions: selectedQueryKeys"></select>
                             <input id="addQueryKey" data-bind='value: addQueryKeys, valueUpdate: "afterkeydown"'/>
-                            <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">Add</button>
-                            <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">Remove</button>
+                            <button type="button" data-bind="enable: addQueryKeys().length > 0, click: function() { this.addItem(); }">&{'ui.label.add'}</button>
+                            <button data-bind="click: function() { this.removeSelected(); }, enable: selectedQueryKeys().length > 0">&{'ui.label.remove'}</button>
                         </div>
                     </div>
-                    #{textField name: "metadataPrefix", label: "Metadata prefix", dataBind: "value: metadataPrefix" /}
-                    #{textField name: "hiddenQueryFilter", label: "Hidden Query filter", dataBind: "value: hiddenQueryFilter" /}
-                    #{textField name: "adminTo", label: "Admin to", dataBind: "value: emailTarget.adminTo" /}
-                    #{textField name: "exceptionTo", label: "Exception to", dataBind: "value: emailTarget.exceptionTo" /}
-                    #{textField name: "feedbackTo", label: "Feedback to", dataBind: "value: emailTarget.feedbackTo" /}
-                    #{textField name: "registerTo", label: "Register to", dataBind: "value: emailTarget.registerTo" /}
-                    #{textField name: "systemFrom", label: "System from", dataBind: "value: emailTarget.systemFrom" /}
-                    #{textField name: "feedbackFrom", label: "Feedback from", dataBind: "value: emailTarget.feedbackFrom" /}
+                    #{textField name: "metadataPrefix", label:viewUtils.getKey('admin.themes.label.metadataprefix'), dataBind: "value: metadataPrefix" /}
+                    #{textField name: "hiddenQueryFilter", label: viewUtils.getKey('admin.themes.label.hiddenqf'), dataBind: "value: hiddenQueryFilter" /}
                 </div>
             </div>
             <div class="unit size1of2">
                 <div class="mod">
+                    <h3>&{'admin.themes.section.mailconfig'}</h3>
+                     #{textField name: "adminTo", label: viewUtils.getKey('admin.themes.label.adminto'), dataBind: "value: emailTarget.adminTo" /}
+                    #{textField name: "exceptionTo", label: viewUtils.getKey('admin.themes.label.exceptionto'), dataBind: "value: emailTarget.exceptionTo" /}
+                    #{textField name: "feedbackTo", label: viewUtils.getKey('admin.themes.label.feedbackto'), dataBind: "value: emailTarget.feedbackTo" /}
+                    #{textField name: "registerTo", label: viewUtils.getKey('admin.themes.label.registerto'), dataBind: "value: emailTarget.registerTo" /}
+                    #{textField name: "systemFrom", label: viewUtils.getKey('admin.themes.label.systemfrom'), dataBind: "value: emailTarget.systemFrom" /}
+                    #{textField name: "feedbackFrom", label: viewUtils.getKey('admin.themes.label.feedbackfrom'), dataBind: "value: emailTarget.feedbackFrom" /}
+                </div>
+                <div class="mod">
                     <h3>Extras</h3>
-                    #{textField name: "googleAnalyticsTrackingCode", label: "Google Analytics code", dataBind: "value: googleAnalyticsTrackingCode" /}
-                    #{textField name: "addThisTrackingCode", label: "Add this code", dataBind: "value: addThisTrackingCode" /}
+                    #{textField name: "googleAnalyticsTrackingCode", label: viewUtils.getKey('admin.themes.label.ga'), dataBind: "value: googleAnalyticsTrackingCode" /}
+                    #{textField name: "addThisTrackingCode", label: viewUtils.getKey('admin.themes.label.addthis'), dataBind: "value: addThisTrackingCode" /}
                 </div>
             </div>
         </div>
@@ -65,7 +67,7 @@
         <div class="buttons">
             <div class="wait"></div>
             <!--<button class="save" id="saveButton" type="submit">Save Theme</button>-->
-            #{btnButton label:"Save theme", extraClass:"action blue", id:"saveButton", type:"submit" /}
+            #{btnButton label: viewUtils.getKey('admin.themes.label.savetheme'), extraClass:"action blue", id:"saveButton", type:"submit" /}
         </div>
 
     </form>

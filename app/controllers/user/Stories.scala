@@ -60,7 +60,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)
       case Some(id) =>
-        val savedStory = Story.findOneByID(id).getOrElse(return Error("Story with ID %s not found".format(id)))
+        val savedStory = Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id)))
         val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = visibility, thumbnail = thumbnail, isDraft = storyVM.isDraft, pages = pages)
         Story.save(updatedStory)
         storyVM

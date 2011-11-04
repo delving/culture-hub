@@ -60,7 +60,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingObject = UserCollection.findOneByID(id)
-        if (existingObject == None) Error("Object with id %s not found".format(id))
+        if (existingObject == None) Error(&("user.collections.objectNotFound", id))
         val updatedUserCollection = existingObject.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_object_id = collectionModel.thumbnail)
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
@@ -77,7 +77,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
         DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theObject.id.get)), false, true)
         Json(theObject)
       }
-      case None => Error("Error saving object")
+      case None => Error(&("user.collections.saveError", collectionModel.name))
     }
   }
 

@@ -30,7 +30,7 @@
     templateDir: frieseverhalen
     subdomain: frieseverhalen
     displayName: Friese Verhalen
-    defaultLanguage: nl
+    defaultLanguage: fy
     colorScheme: default
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"

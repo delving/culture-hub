@@ -26,15 +26,8 @@ import java.lang.String
 import play.Play
 import play.mvc.Http
 import scala.collection.JavaConversions._
-import cake.MetadataModelComponent
 import models.PortalTheme
 import play.exceptions.ConfigurationException
-
-trait ThemeHandlerComponent {
-  this: MetadataModelComponent =>
-  val themeHandler: ThemeHandler
-}
-
 
 /**
  * ThemHandler taking care of loading themes (initially from YML, then from mongo)
@@ -43,7 +36,7 @@ trait ThemeHandlerComponent {
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 3/9/11 3:25 PM
  */
-class ThemeHandler {
+object ThemeHandler {
 
   private val log: Logger = Logger.getLogger(getClass)
 
@@ -63,7 +56,6 @@ class ThemeHandler {
    * Look into the database if we have some themes. If we don't attempt to load from YML.
    */
   def startup() {
-
     if (PortalTheme.count() == 0) {
       themeList = readThemesFromDisk()
       themeList foreach {
