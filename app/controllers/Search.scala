@@ -21,6 +21,6 @@ object Search extends DelvingController {
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery)
     val briefItemView = BriefItemView(response)
-    Template('briefDocs -> briefItemView.getBriefDocs)
+    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 }

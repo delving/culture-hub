@@ -1,50 +1,27 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title:'Search results' /}
-	<!--<script>-->
-	<!--$(function() {-->
-		<!--$( ".thing" ).draggable({-->
-             <!--helper: "clone",-->
-            <!--cursor: "move",-->
-            <!--helper: thingHelper-->
-		<!--});-->
-		<!--$( ".thingBucket ol" ).droppable({-->
-			<!--activeClass: "ui-state-default",-->
-			<!--hoverClass: "ui-state-hover",-->
-			<!--drop: function( event, ui ) {-->
 
-				<!--$(this).find(".placeholder").remove();-->
-                <!--$("<li></li>").append(ui.draggable.contents().clone()).appendTo(this);-->
-<!--//                $("<li></li>").append(ui.draggable.text()).appendTo(this);-->
+#{breadcrumbs /}
 
-			<!--}-->
-		<!--});-->
-	<!--});-->
-        <!--function thingHelper( event ) {-->
-          <!--return '<div id="draggableHelper">'+$(this).next(".title").text()+'</div>';-->
-        <!--}-->
-	<!--</script>-->
 <div id="items">
 
-    <h2>&{'search.resultsfor'} <span>[query]</span></h2>
+    <h1>&{'search.resultsfor'} <span>[query]</span></h1>
 
     <div class="item-nav">
 
-        <div class="item-count">
-            Found: <span>12358</span> results
-            ${viewUtils.getKey('nrfound', '1234567890')}
+        <div class="mod item-count">
+            ${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}
         </div>
 
     </div>
 
-    <div class="line">
-        <div class="unit size3of4">
+    <div class="row">
+        <div class="g-9of12">
 
             <div class="buttons toolbar">
-
-                <!-- TODO: get result count and feed to pager -->
                 #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber() /}</div>
                 #{/if}
 
                 <div class="dropdown">
@@ -62,10 +39,9 @@
             #{list briefDocs, as: 'doc'}
 
             #{if counter == 1}
-            <div class="line">
+            <div class="row">
                 #{/if}
-
-                <div class="unit size1of2 ${counter == 2 ? 'lastUnit' : ''}">
+                <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
                     <div class="media thing">
                         <img src="${doc.getThumbnail()}" width="84" class="img"/>
 
@@ -73,7 +49,7 @@
                             <div class="mod">
                                 <div class="inner">
                                     <div class="hd title">
-                                        ${doc.getTitle()}
+                                        ${doc.getFieldValue("dc_title").getFirst()}
                                     </div>
                                     <div class="bd">
                                         ${doc.getFieldValue("dc_description").getFirst()}
@@ -104,36 +80,17 @@
 
             </div>
         </div>
-        <div class="unit size1of4 lastUnit">
+        <div class="g-3of12">
 
             <div class="mod simple">
                 <div class="inner">
                     <div class="hd"><h3>Facets</h3></div>
                     <div class="bd">
+                    #{facet facetMap: facets, type: "YEAR" /}
 
                     </div>
                 </div>
             </div>
-            #{if userName}
-            <div class="mod simple">
-                <div class="inner thingBucket">
-                    <ol>
-                    <li class="placeHolder">&{'search.dragitems'}</li>
-                    </ol>
-                </div>
-
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('search.additemstocollection'), toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="#" class="ddm">Collection 1</a>
-                        <a href="#" class="ddm">Collection 2</a>
-                        <a href="#" class="ddm">Collection 3</a>
-                        <a href="#" class="ddm">Collection 4</a>
-                    </div>
-                </div>
-            </div>
-
-                #{/if}
         </div>
 
     </div>
