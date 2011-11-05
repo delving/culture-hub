@@ -64,7 +64,7 @@ object SolrQueryService extends SolrServer {
   import play.mvc.Http.Request
   import models.PortalTheme
 
-  def getSolrQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
+  def getSolrQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
@@ -78,7 +78,7 @@ object SolrQueryService extends SolrServer {
     query
   }
 
-//  def getSolrFullItemQueryWithDefaults(facets: List[FacetElement] = List.empty): SolrQuery = {
+//  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
 //    // todo finish this
 //    val query = new SolrQuery("*:*")
 //    query set ("edismax")
@@ -90,7 +90,7 @@ object SolrQueryService extends SolrServer {
   def parseSolrQueryFromRequest(request: Request, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
 
-    val query = getSolrQueryWithDefaults(theme.facets)
+    val query = getSolrQueryWithDefaults(theme.getFacets)
     val params = request.params
 
     def addGeoParams(hasGeoType: Boolean)  {
@@ -335,7 +335,9 @@ case class FilterQuery(field: String, value: String) {
   def toPrefixedFacetString = "%s%s:%s".format(SolrQueryService.FACET_PROMPT, field, value)
 }
 
-case class FacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
+case class SolrFacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
+
+case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
 
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty)
 
