@@ -19,7 +19,8 @@ object ItinEndPoint extends Controller {
 
   def store(data: String): Result = {
     import models.DrupalEntity
-    val response = DrupalEntity.processStoreRequest(data)((item, list) => println(item.toSolrDocument, list))
+    val response = DrupalEntity.processStoreRequest(data)((item, list) => DrupalEntity.insertInMongoAndIndex(item, list))
+
     val responseString =
     <response recordsProcessed={response.itemsParsed.toString} linksProcessed={response.coRefsParsed.toString}>
       <status>{if (response.success) "succcess" else "failure"}</status>

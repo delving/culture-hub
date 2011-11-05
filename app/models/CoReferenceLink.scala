@@ -2,6 +2,8 @@ package models
 
 import org.bson.types.ObjectId
 import java.util.Date
+import salatContext._
+import com.novus.salat.dao.SalatDAO
 
 /**
  *
@@ -30,6 +32,7 @@ case class CoReferenceLink(_id: ObjectId = new ObjectId,
 
 }
 
+object CoReferenceLink extends SalatDAO[CoReferenceLink, ObjectId](collection = CoRefCollecion) { }
 
 case class LinkAuthor(userUri: String,  name: String,  organisation: String, role: String)
 

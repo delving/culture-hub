@@ -3,6 +3,7 @@ package models
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
+import controllers.SolrServer
 
 /**
  *
@@ -12,12 +13,12 @@ import salatContext._
 
 case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: DrupalEntityId, enrichments: Map[String,  Array[String]] = Map.empty) {
 
-  import org.apache.solr.common.SolrDocument
   import xml.{Node, XML}
+  import org.apache.solr.common.{SolrInputDocument, SolrDocument}
 
   def createSolrFieldLabel(node: Node): String = "%s_%s".format(node.prefix, node.label)
 
-  def nodeToField(node: Node, doc: SolrDocument) {
+  def nodeToField(node: Node, doc: SolrInputDocument) {
     def addField(indexType: String) {doc addField ("%s_%s".format(createSolrFieldLabel(node), indexType), node.text)}
 
     val fieldType = node.attributes.asAttrMap.get("type").getOrElse("text")
@@ -33,11 +34,14 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   }
 
 
-  def toSolrDocument: SolrDocument = {
-    val doc = new SolrDocument
+  def toSolrDocument: SolrInputDocument = {
+    import org.apache.solr.common.SolrInputDocument
+    val doc = new SolrInputDocument
     doc.setField("id", id.nodeId)
+    doc.setField("europeana_uri", id.nodeId)
     doc.setField("europeana_collectionName", id.bundle)
     doc.setField("europeana_provider", "ITIN")
+    doc.setField("delving_recordType", "itin")
     doc.setField("delvingID", "itin:%s".format(_id))
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
@@ -59,9 +63,16 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
 
 case class DrupalEntityId(nodeId: String,  nodeType: String,  bundle: String)
 
-object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) {
+object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) with SolrServer {
 
   import xml.Node
+
+  def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink]) {
+    import com.mongodb.casbah.commons.MongoDBObject
+    import com.mongodb.WriteConcern
+    update(MongoDBObject("id.nodeId" -> entity.id.nodeId), entity, true, false, new WriteConcern())
+    getStreamingUpdateServer.add(entity.toSolrDocument)
+  }
 
   def createDrupalEntityId(attributes: Map[String, String]): DrupalEntityId = {
     val id = attributes.getOrElse("id", "0")
@@ -105,16 +116,24 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     import xml.XML
     val xmlData = XML.loadString(data)
     val records = xmlData \\ "record"
-    val recordCounter = records.foldLeft((0, 0)) {
-      (counter, record) => {
-        val id = createDrupalEntityId(record.attributes.asAttrMap)
-        val coRefs = createCoRefList(record.nonEmptyChildren, id)
-        val entity = DrupalEntity(rawXml = record.toString(), id = id)
-        processBlock(entity, coRefs)
-        (counter._1 + 1, counter._2 + coRefs.length)
+    try {
+      val recordCounter = records.foldLeft((0, 0)) {
+        (counter, record) => {
+          val id = createDrupalEntityId(record.attributes.asAttrMap)
+          val coRefs = createCoRefList(record.nonEmptyChildren, id)
+          val entity = DrupalEntity(rawXml = record.toString(), id = id)
+          processBlock(entity, coRefs)
+          (counter._1 + 1, counter._2 + coRefs.length)
+        }
       }
+      getStreamingUpdateServer.commit
+      StoreResponse(records.length, recordCounter._2)
     }
-    StoreResponse(records.length, recordCounter._2)
+    catch {
+      case ex: Exception =>
+        getStreamingUpdateServer.rollback()
+        StoreResponse(0, 0, false, ex.getMessage)
+    }
   }
 }
 

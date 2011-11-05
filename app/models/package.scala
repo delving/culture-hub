@@ -25,6 +25,7 @@ package object salatContext {
   lazy val userStoriesCollection = connection("UserStories")
   lazy val harvestStepsCollection = connection("HarvestSteps")
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
+  lazy val CoRefCollecion = connection("coRefs")
 
   lazy val organizationCollection = commonsConnection("Organizations")
   organizationCollection.ensureIndex(MongoDBObject("orgId" -> 1))
