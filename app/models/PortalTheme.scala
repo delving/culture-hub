@@ -5,7 +5,8 @@ import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
 import cake.ComponentRegistry
 import eu.delving.metadata.MetadataModelImpl
-import controllers.search.FacetElement
+import controllers.search.SolrFacetElement
+import controllers.search.SolrSortElement
 
 /**
  *
@@ -30,12 +31,44 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        emailTarget:                         EmailTarget = EmailTarget(),
                        homePage:                            Option[String] = None,
                        metadataPrefix:                      Option[String] = None,
-                       facets:                              List[FacetElement] = List(),
+                       facets:                              Option[String] = None, // dc_creator:crea:Creator,dc_type
+                       sortFields:                          Option[String] = None, // dc_creator,dc_provider:desc
                        apiWsKey:                            Boolean = false,
                        text:                                String = "") {
 
+
+
   def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
       ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
+  }
+
+  def getFacets: List[SolrFacetElement] = {
+    facets.getOrElse("").split(",").filter(k => k.length() > 0 && k.length() < 4).map {
+      entry => {
+        val k = entry.split(":")
+        k.length match {
+          case 1 | 2 => SolrFacetElement(k.head, k.head.take(4), k.head)
+          case 3 => SolrFacetElement(k(1), k(2), k(3))
+        }
+      }
+    }.toList
+  }
+
+  def getSortFields: List[SolrSortElement] = {
+    import org.apache.solr.client.solrj.SolrQuery
+    sortFields.getOrElse("").split(",").filter(sf => sf.length() > 0 && sf.length() < 3).map {
+      entry => {
+        val k = entry.split(":")
+        k.length match {
+          case 1 => SolrSortElement(k.head)
+          case 2 =>
+            SolrSortElement(
+              k(1),
+              if (k(2).equalsIgnoreCase("desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+            )
+        }
+      }
+    }.toList
   }
 
 }

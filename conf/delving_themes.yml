@@ -22,6 +22,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
+    facets:
+    sortFields:
     metadataPrefix: icn
     text: Hello
 
@@ -48,6 +50,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
+    facets:
+    sortFields:
     metadataPrefix: icn
     text: Hello
 
@@ -75,6 +79,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
+    facets:
+    sortFields:
     metadataPrefix: icn
     text: Hello
 
@@ -101,6 +107,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
+    facets:
+    sortFields:
     metadataPrefix: icn
     text: Hello
 
@@ -127,5 +135,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
+    facets:
+    sortFields:
     metadataPrefix: icn
     text: Hello
