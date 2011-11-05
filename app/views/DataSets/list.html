@@ -8,15 +8,18 @@
 #{/else}
 
 #{breadcrumbs /}
-
+<h1 class="grid_12">
+    ${viewUtils.getKey('thing.browse', viewUtils.getKey('thing.datasets'))}
+</h1>
 #{if browsedUserName}
-    <h2>${viewUtils.getKey('thing.browse.ownedby', viewUtils.getKey('thing.datasets'))}: <span>${browsedUserName}</span> (${count})</h2>
+<div class="grid_12">
+    &{'thing.owner'}: <span>${browsedUserName}</span><br/>
+    &{'thing.count'}: ${count}
+</div>
 #{/if}
-#{else}
-    <h2>Browse DataSets (${count})</h2>
-#{/else}
 
 #{if items.length() > 0}
+<div class="grid_12">
     <div class="mod data-grid">
         <table>
             <thead>
@@ -128,6 +131,8 @@
             </tbody>
         </table>
     </div>
+</div>
+
 
 
 

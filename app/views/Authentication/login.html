@@ -1,40 +1,41 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('ui.label.login') /}
+#{breadcrumbs /}
+
+<div id="login" class="g-6of12 prefix-3">
+    <div class="mod">
+
+        #{form @authenticate()}
+
+        <h3>Login</h3>
+
+        #{if flash.error}
+        <p class="error">
+            ${flash.error}
+        </p>
+        #{/if}
+        #{if flash.success}
+        <p class="success">
+            ${flash.success}
+        </p>
+        #{/if}
 
 
-<div id="login" class="line">
-    <div class="unit size3of5 prependSize1of5">
-    <!--<h1>Login</h1>-->
+        #{textField name:"username", label: viewUtils.getKey("ui.label.username") /}
+        #{passwordField name:"password", label: viewUtils.getKey("ui.label.password") /}
 
-    #{form @authenticate()}
-    <h3>Login</h3>
-    #{if flash.error}
-    <p class="error">
-        ${flash.error}
-    </p>
-    #{/if}
-    #{if flash.success}
-    <p class="success">
-        ${flash.success}
-    </p>
-    #{/if}
+        <label for="remember" class="label">${viewUtils.getKey("authentication.label.rememberme")}</label>
+        <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
 
-
-    #{textField name:"username", label: viewUtils.getKey("ui.label.username") /}
-    #{passwordField name:"password", label: viewUtils.getKey("ui.label.password") /}
-
-    <label for="remember" class="label">${viewUtils.getKey("authentication.label.rememberme")}</label>
-    <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
-
-    <div class="buttons">
-        #{btnButton label:viewUtils.getKey("ui.label.login"), id:"signin", extraClass:"action green prominent", type:"submit" /}
-        #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:@Registration.lostPassword(), rel:"nofollow" /}
-        #{btnHref label: viewUtils.getKey('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
-    </div>
+        <div class="buttons">
+            #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action green prominent", type:"submit" /}
+            #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:@Registration.lostPassword(), rel:"nofollow" /}
+            #{btnHref label: viewUtils.getKey('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
+        </div>
     #{/form}
 
 
-</div>
+    </div>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {

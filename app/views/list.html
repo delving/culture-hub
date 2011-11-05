@@ -10,7 +10,9 @@
     #{/else}
 
     #{if items.length() > 0}
+    <div class="line">
         <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    </div>
     #{/if}
     #{else}
         <p>There are currently no ${itemName.pluralize()} available</p>
@@ -24,10 +26,10 @@
         #{list items, as: 'i'}
 
         #{if counter == 1}
-        <div class="line">
+        <div class="row">
         #{/if}
 
-            <div class="unit size1of3 ${counter == 3 ? 'lastUnit' : ''}">
+            <div class="g-4of12">
 
                 <div class="media ${itemName}">
 
@@ -65,5 +67,7 @@
 
 
     #{if items.length() > 0}
+    <div class="row">
         <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    </div>
     #{/if}

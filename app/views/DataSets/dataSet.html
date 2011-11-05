@@ -1,11 +1,9 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('thing.dataset') + ' ' + dataSet.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 
-<h1>&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
+<h1 class="grid_12">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
 
-<div class="line">
-
-    <div class="unit size1of2">
+    <div class="grid_6">
     %{
       for (i in 0..facts.size() - 1) {
         def fact = facts.get(i);
@@ -19,9 +17,7 @@
         </div>
       #{if i == 4}
         </div>
-        <div class="unit size1of2 unitLast">
+        <div class="grid_6">
       #{/if}
     %{}}%
     </div>
-
-</div>

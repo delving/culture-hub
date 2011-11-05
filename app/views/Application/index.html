@@ -11,7 +11,7 @@
 
 #{/set}
 
-<div class="messages-container">
+<div class="messages-container row">
     <div class="messages">
         #{if flash.registrationSuccess}
         <p class="success">
@@ -51,11 +51,11 @@
     </div>
 </div>
 
-<div class="line">
 
+<div class="recents row">
     #{if recentObjects.size() > 0}
-    <div class="unit size1of3">
-        <div class="mod simple recent">
+    <div class="g-4of12">
+        <div class="mod recent">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentobject'}</h3>
@@ -80,8 +80,8 @@
     #{/if}
 
     #{if recentCollections.size() > 0}
-     <div class="unit size1of3">
-        <div class="mod simple recent">
+     <div class="g-4of12">
+        <div class="mod recent">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentcollection'}</h3>
@@ -106,8 +106,8 @@
     #{/if}
 
     #{if recentCollections.size() > 0}
-    <div class="unit size1of3">
-        <div class="mod simple recent">
+    <div class="g-4of12">
+        <div class="mod recent">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentstory'}</h3>
