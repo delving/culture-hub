@@ -33,15 +33,10 @@ case class CoReferenceLink(_id: ObjectId = new ObjectId,
 
 case class LinkAuthor(userUri: String,  name: String,  organisation: String, role: String)
 
-case class FromLink (uri: String, extra: Map[String,  String[Array]], crmClass: String, linkType: String)
-case class ToLink(uri: String,  extra: Map[String,  String[Array]], crmClass: String, linkType: String)
+case class FromLink (uri: String, linkType: String, title: String, crmClass: String = "", extra: Map[String, Array[String]] = Map.empty)
+case class ToLink(uri: String, linkType: String, title: String, crmClass: String = "", extra: Map[String, Array[String]] = Map.empty)
 
 case class LinkCreation(creationDate: Date)
 case class LinkOrigin(context: String,  siteUri: String, siteType: String)
 
 case class LinkDescription(linkType: String,  value: String,  note: String,  quality: String)
-
-// todo remove later
-case class CoRefInfo(comments: String, relation: String, relationQuality: String)
-case class LinkInfo(linkType: String, value: String,  note: String,  linkContext: String)
-
