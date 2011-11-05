@@ -1,28 +1,19 @@
-<h4>${_type}</h4>
 #{list _facetMap, as: 'facet'}
-    #{if facet.getType() == _type}
-        #{list facet.getLinks(), as: 'link'}
-        <div class="g-1of3">
-            #{if !link.remove()}
-                <input type="checkbox" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
-            #{/if}
-            #{else}
-                 <input type="checkbox" checked="checked" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
-            #{/else}
-        </div>
-        #{/list}
-    #{/if}
+#{if facet.getType() == _type}
+<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">${_type}</h4>
+<div class="facet-container">
+    #{list facet.getLinks(), as: 'link'}
+    <div class="g-1of3">
+        #{if !link.remove()}
+        <input type="checkbox" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
+        #{/if}
+        #{else}
+        <input type="checkbox" checked="checked" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
+        #{/else}
+    </div>
+    #{/list}
+</div>
+#{/if}
 #{/list}
-*{
-                                        <!--<#if !link.remove = true>-->
-                                    <!--<input type="checkbox" value="?query=${query?html}${facetlink}&amp;${defaultParams}"/>-->
-                                    <!--<a href="?query=${query?html}${facetlink}&amp;${defaultParams}" title="${link.value}">-->
-                                        <!--<@stringLimiter "${displayValue}" "20"/><span>(${link.count})</span>-->
-                                    <!--</a>-->
-                                    <!--<#else>-->
-                                        <!--<input type="checkbox" checked="checked" value="?query=${query?html}${facetlink}&amp;${defaultParams}"/>-->
-                                        <!--<a href="?query=${query?html}${facetlink}&amp;${defaultParams}" title="${link.value}">-->
-                                        <!--<@stringLimiter "${displayValue}" "25"/>(<span>${link.count})</span>-->
-                                        <!--</a>-->
-                                <!--</#if>-->
-}*
+
+
