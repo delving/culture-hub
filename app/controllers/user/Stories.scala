@@ -60,7 +60,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
           TS_update = new Date(),
           description = storyVM.description,
           user_id = connectedUserId,
-          username = connectedUser,
+          userName = connectedUser,
           visibility = Visibility.get(storyVM.visibility),
           thumbnail_id = thumbnail,
           pages = pages,

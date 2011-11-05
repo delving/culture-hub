@@ -52,7 +52,7 @@ object Collections extends DelvingController with UserAuthentication with Secure
           UserCollection(TS_update = new Date(),
             name = collectionModel.name,
             user_id = connectedUserId,
-            username = connectedUser,
+            userName = connectedUser,
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
             thumbnail_id = collectionModel.thumbnail))

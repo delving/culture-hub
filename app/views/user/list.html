@@ -27,15 +27,15 @@
         </div>
         <div class="metadata">
             <div class="hd">
-                <h4><a href="/${i.username}/">${i.title}</a></h4>
+                <h4><a href="/${i.userName}/">${i.title}</a></h4>
             </div>
             <div class="bd">
               ${i.description}
             </div>
             <div class="ft">
-            #{if i.username == userName}
+            #{if i.userName == userName}
             <div class="actions">
-                <a class="action edit image-edit" href="/${i.username}/profile/update">&{'user.list.editProfile'}</a>
+                <a class="action edit image-edit" href="/${i.userName}/profile/update">&{'user.list.editProfile'}</a>
             </div>
             #{/if}
             </div>

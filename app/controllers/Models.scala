@@ -35,9 +35,9 @@ trait ModelImplicits {
 
   // ~~ ListItems
 
-  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), o.username, fullName(o.username))
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, c.username, fullName(c.username))
-  implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, s.username, fullName(s.username))
+  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), o.userName, fullName(o.userName))
+  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, c.userName, fullName(c.userName))
+  implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, s.userName, fullName(s.userName))
   implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, "", None, u.reference.username, u.fullname)
   implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.getUser.reference.username, ds.getUser.fullname) // TODO store username in DS
 

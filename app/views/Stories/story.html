@@ -6,14 +6,14 @@
 
 <div class="media ${itemName}">
     <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
-        #{if story.username == username}
-        <a class="button clear" href="/${story.username}/story/${story._id}/update">
+        #{if story.userName == userName}
+        <a class="button clear" href="/${story.userName}/story/${story._id}/update">
             <span class="icon icon145"></span>
             <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.story'))}</span>
         </a>
         #{/if}
 
-        <a class="button clear" href="/${story.username}/story/${story._id}/read">
+        <a class="button clear" href="/${story.userName}/story/${story._id}/read">
             <span class="icon icon140"></span>
             <span class="label">&{'story.read'}</span>
         </a>

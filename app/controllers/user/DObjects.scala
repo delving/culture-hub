@@ -80,7 +80,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
             name = objectModel.name,
             description = objectModel.description,
             user_id = connectedUserId,
-            username = connectedUser,
+            userName = connectedUser,
             visibility = Visibility.get(objectModel.visibility),
             thumbnail_id = None,
             collections = objectModel.collections,

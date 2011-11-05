@@ -13,7 +13,7 @@ import java.util.Date
 case class Story(_id: ObjectId = new ObjectId,
                  TS_update: Date,
                  user_id: ObjectId,
-                 username: String,
+                 userName: String,
                  name: String,
                  description: String,
                  visibility: Visibility,

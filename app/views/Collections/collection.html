@@ -8,7 +8,7 @@
 
     <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" width="250" alt="${collection.name}" class="img"/>
     #{if userName == browsedUserName}
-    <a class="button clear" href="/${collection.username}/collection/${collection._id}/update">
+    <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
         <span class="icon icon145"></span>
         <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.collection'))}</span>
     </a>

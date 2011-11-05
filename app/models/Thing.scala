@@ -14,7 +14,7 @@ trait Thing {
   val _id: ObjectId
   val TS_update: Date
   val user_id: ObjectId
-  val username: String
+  val userName: String
   val name: String
   val description: String
   val visibility: Visibility

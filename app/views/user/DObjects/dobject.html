@@ -25,12 +25,12 @@
             </div>
 
             <div class="field" for="objectVisibility">
-              <label for="public-0" class="label">&{'ui.label.visibility'}</label>
+                <label class="label">&{'ui.label.visibility'}</label>
 
-              <div class="inputs">
-                  <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}
-                  <input type="radio" value="1" id="public-1" name="public">&{'ui.label.visibility.public'}
-              </div>
+                <div class="inputs">
+                    <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+                    <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                </div>
             </div>
 
             <div class="field">
@@ -84,10 +84,10 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/${username}/object/submit', objectModel, '#objectForm', '/${username}/object/', null, null, {uid: '${uid}'});
+            handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
         });
 
-        load('/${username}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
+        load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
             var files = ko.toJS(objectModel.files);
             var fu = $('#fileupload').data('fileupload');
             fu._adjustMaxNumberOfFiles(-files.length);
