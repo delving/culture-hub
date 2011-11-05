@@ -5,7 +5,7 @@
 <h1>${story.name}</h1>
 
 <div class="media ${itemName}">
-    <img src='${views.context.package.thumbnailUrl(story.thumbnail)}' width="250" alt="${story.name}" class="img"/>
+    <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
         #{if story.userName == userName}
         <a class="button clear" href="/${story.userName}/story/${story._id}/update">
             <span class="icon icon145"></span>

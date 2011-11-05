@@ -29,12 +29,12 @@
 
 
     <h3>&{'user.collection.status'}</h3>
-    <div class="field">
-        <label for="public-0" class="label">&{'ui.label.visibility'}</label>
+    <div class="field" for="objectVisibility">
+        <label class="label">&{'ui.label.visibility'}</label>
 
         <div class="inputs">
-            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}<br/>
-            <input type="radio" value="1" id="public-1" name="public">&{'ui.label.visibility.public'}
+            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
         </div>
     </div>
 

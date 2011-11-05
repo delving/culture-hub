@@ -6,7 +6,7 @@
 
 <div class="media ${itemName}">
 
-    <img src="${views.context.package.thumbnailUrl(collection.thumbnail_object_id)}" width="250" alt="${collection.name}" class="img"/>
+    <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" width="250" alt="${collection.name}" class="img"/>
     #{if userName == browsedUserName}
     <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
         <span class="icon icon145"></span>
@@ -26,7 +26,7 @@
             <p>${views.context.package.niceTime(collection.TS_update)}</p>
 
             <h4>&{'thing.description'}:</h4>
-            <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description.get())}</p>
+            <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>
 
             <h4>&{'thing.objectcount'}:</h4>
             <p>${objects.length()}</p>

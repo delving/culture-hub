@@ -27,7 +27,7 @@
     <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
 
     <div class="buttons">
-        #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action green prominent", type:"submit" /}
+        #{btnButton label:viewUtils.getKey("ui.label.login"), id:"signin", extraClass:"action green prominent", type:"submit" /}
         #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:@Registration.lostPassword(), rel:"nofollow" /}
         #{btnHref label: viewUtils.getKey('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
     </div>

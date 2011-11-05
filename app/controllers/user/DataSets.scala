@@ -55,11 +55,9 @@ object DataSets extends DelvingController with UserSecured {
       case None => DataSet.insert(
         DataSet(
           spec = dataSet.spec,
-          node = getNode,
           user_id = connectedUserId,
           state = DataSetState.INCOMPLETE,
           lastUploaded = new Date(),
-          access = AccessRight(users = Map("foo" -> UserAction(user = UserReference("", "", "")))), // TODO
           details = Details(
             name = dataSet.facts("name").toString,
             facts = factsObject,

@@ -19,7 +19,7 @@
         #{textField name:"registration.lastName", label: viewUtils.getKey('ui.label.lastname') , required: true /}
         #{textField name:"registration.email", label: viewUtils.getKey('ui.label.email') , required: true /}
         <hr>
-        #{textField name:"registration.displayName", label:  viewUtils.getKey('ui.label.username') , required: true /}
+        #{textField name:"registration.userName", label:  viewUtils.getKey('ui.label.username') , required: true /}
         #{passwordField name:"registration.password1", label: viewUtils.getKey('ui.label.password') , required: true /}
         #{passwordField name:"registration.password2", label: viewUtils.getKey('ui.label.passwordrepeat') , required: true /}
 
@@ -43,8 +43,8 @@
 
         <!--<fieldset>-->
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('ui.label.register')  , extraClass:"action green"/}
-            #{btnButton label: viewUtils.getKey('ui.label.cancel') , extraClass:"action cancelButton"/}
+            #{btnButton label: viewUtils.getKey('ui.label.register'), id:"submit", extraClass:"action green"/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"action cancelButton"/}
         </div>
 
     </form>

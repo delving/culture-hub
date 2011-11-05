@@ -31,7 +31,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
         val storyVM = StoryViewModel(id = Some(story._id),
           description = story.description,
           name = story.name,
-          visibility = story.visibility.toString,
+          visibility = story.visibility.value,
           isDraft = story.isDraft,
           thumbnail = story.thumbnail,
           pages = for (p <- story.pages) yield PageViewModel(title = p.title, text = p.text, objects = {
@@ -51,17 +51,25 @@ object Stories extends DelvingController with UserAuthentication with Secure {
     validate(storyVM).foreach { errors => return JsonBadRequest(storyVM.copy(errors = errors)) }
 
     val pages = storyVM.pages map {page => Page(page.title, page.text, page.objects map { o => PageObject(o.id.get) })}
-    val visibility = Visibility.withName(storyVM.visibility)
     val thumbnail = if (ObjectId.isValid(storyVM.thumbnail)) Some(new ObjectId(storyVM.thumbnail)) else None
 
     val persistedStory = storyVM.id match {
       case None =>
-        val story = Story(name = storyVM.name, TS_update = new Date(), description = storyVM.description, user_id = connectedUserId, userName = connectedUser, visibility = visibility, thumbnail = thumbnail, pages = pages, isDraft = storyVM.isDraft)
+        val story = Story(
+          name = storyVM.name,
+          TS_update = new Date(),
+          description = storyVM.description,
+          user_id = connectedUserId,
+          userName = connectedUser,
+          visibility = Visibility.get(storyVM.visibility),
+          thumbnail_id = thumbnail,
+          pages = pages,
+          isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
         storyVM.copy(id = inserted)
       case Some(id) =>
         val savedStory = Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id)))
-        val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = visibility, thumbnail = thumbnail, isDraft = storyVM.isDraft, pages = pages)
+        val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = Visibility.get(storyVM.visibility), thumbnail_id = thumbnail, isDraft = storyVM.isDraft, pages = pages)
         Story.save(updatedStory)
         storyVM
     }
@@ -74,7 +82,7 @@ object Stories extends DelvingController with UserAuthentication with Secure {
 case class StoryViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
                           description: String = "",
-                          visibility: String = Visibility.Public.toString,
+                          visibility: Int = Visibility.PUBLIC.value,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
                           thumbnail: String = "",

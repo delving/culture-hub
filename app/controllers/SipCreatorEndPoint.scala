@@ -74,12 +74,12 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
           <spec>{ds.spec}</spec>
           <name>{ds.details.name}</name>
           <ownership>
-            <username>{user.reference.username}</username>
+            <username>{user.userName}</username>
             <fullname>{user.fullname}</fullname>
             <email>{user.email}</email>
           </ownership>{if (lockedBy != None) {
           <lockedBy>
-            <username>{lockedBy.get.reference.username}</username>
+            <username>{lockedBy.get.userName}</username>
             <fullname>{lockedBy.get.fullname}</fullname>
             <email>{lockedBy.get.email}</email>
           </lockedBy>}}

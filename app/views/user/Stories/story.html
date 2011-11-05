@@ -35,15 +35,14 @@
                     <label class="label">&{'ui.label.visibility'}</label>
 
                     <div class="inputs">
-                        <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
-                        <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                        <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+                        <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
                     </div>
                 </div>
 
                 #{if id.isEmpty()}
                 <div class="buttons">
-                                         #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
-
+                  #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
                 </div>
                 #{/if}
             </form>
@@ -126,7 +125,14 @@
 
         </div>
     </div>
-      <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
+    <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
+
+    <div class="buttons">
+            <button type="submit" data-bind="click: saveCurrentPage">
+                <span class="icon icon67"></span>
+                <span class="label">Save Page</span>
+            </button>
+    </div>
 
   </form>
 
