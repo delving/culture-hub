@@ -2,13 +2,13 @@ package models
 
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
-import dao.{SalatMongoCursor, SalatDAO}
+import dao.SalatDAO
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
 
 case class User(_id: ObjectId = new ObjectId,
-                reference: UserReference = UserReference("", "", ""),
+                userName: String, // userName, unique in the world
                 firstName: String,
                 lastName: String,
                 email: String,
@@ -23,18 +23,15 @@ case class User(_id: ObjectId = new ObjectId,
   override def toString = email
 }
 
-/** Unique reference to a user across the CultureHub space. This is useful to lookup users based on their username **/
-case class UserReference(username: String = "", node: String = "", id: String = "")
-
 /** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
 object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
-  val nobody: User = User(reference = UserReference("", "", ""), firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
+  val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
-  def connect(username: String, password: String, node: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("reference.username" -> username, "reference.node" -> node, "password" -> Crypto.passwordHash(password)))
+  def connect(userName: String, password: String): Boolean = {
+    val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> Crypto.passwordHash(password)))
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
@@ -43,30 +40,26 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def findAll = find(MongoDBObject("isActive" -> true))
 
-  def findAllIdName: List[DBObject] = User.collection.find(MongoDBObject(), MongoDBObject("reference.id" -> 1, "firstName" -> 1, "lastName" -> 1)).toList
-
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
-  def findByUsername(userName: String, node: String) = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> node))
-
-  def findByUserId(id: String) = User.findOne(MongoDBObject("reference.id" -> id))
+  def findByUsername(userName: String, active: Boolean = true) = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> active))
 
   def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
 
-  def existsWithUsername(userName: String, node: String) = User.count(MongoDBObject("reference.username" -> userName, "reference.node" -> node)) != 0
+  def existsWithUsername(userName: String) = User.count(MongoDBObject("userName" -> userName)) != 0
 
   def activateUser(activationToken: String): Boolean = {
     val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return false)
     val activeUser: User = user.copy(isActive = true, activationToken = None)
-    User.update(MongoDBObject("reference.id" -> activeUser.reference.id), activeUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("userName" -> activeUser.userName), activeUser, false, false, new WriteConcern())
     // also log the guy in
-    play.mvc.Scope.Session.current().put("username", activeUser.reference.username)
+    play.mvc.Scope.Session.current().put("username", activeUser.userName)
     true
   }
 
   def preparePasswordReset(user: User, resetPasswordToken: String) {
     val resetUser = user.copy(resetPasswordToken = Some(resetPasswordToken))
-    User.update(MongoDBObject("reference.id" -> resetUser.reference.id), resetUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("userName" -> resetUser.userName), resetUser, false, false, new WriteConcern())
   }
 
   def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0
@@ -81,7 +74,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   def setOauthTokens(user: User, accessToken: String, refreshToken: String) {
-    User.update(MongoDBObject("reference.id" -> user.reference.id), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
+    User.update(MongoDBObject("userName" -> user.userName), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
   }
 
   def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
@@ -90,7 +83,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   def findByAccessToken(token: String): Option[User] = {
-    if(play.Play.mode == play.Play.Mode.DEV && token == "TEST") return User.findOne(MongoDBObject("reference.username" -> "bob"))
+    if(play.Play.mode == play.Play.Mode.DEV && token == "TEST") return User.findOne(MongoDBObject("userName" -> "bob"))
     User.findOne(MongoDBObject("accessToken.token" -> token))
   }
 

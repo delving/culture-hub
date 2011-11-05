@@ -12,7 +12,7 @@ case class ShortLabel(labelType: String, value: String)
 
 case class Token(id: String, name: String)
 
-case class ListItem(id: String, title: String, description: String = "", thumbnail: Option[ObjectId] = None, username: String, fullUserName: String)
+case class ListItem(id: String, title: String, description: String = "", thumbnail: Option[ObjectId] = None, userName: String, fullUserName: String)
 
 
 // ~~ reference objects
@@ -23,14 +23,14 @@ case class CollectionReference(id: ObjectId, name: String)
 trait ModelImplicits {
 
   // TODO temporary! (should be a cache)
-  def fullName(userName: String) = models.User.findByUsername(userName, "cultureHub").get.fullname
+  def fullName(userName: String) = models.User.findByUsername(userName).get.fullname
 
   implicit def oidToString(oid: ObjectId) = oid.toString
 
   // ~~ ShortItems
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
 
-  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.getUser.reference.username)
+  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.getUser.userName)
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
   // ~~ ListItems
@@ -38,8 +38,8 @@ trait ModelImplicits {
   implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), o.userName, fullName(o.userName))
   implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, c.userName, fullName(c.userName))
   implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, s.userName, fullName(s.userName))
-  implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, "", None, u.reference.username, u.fullname)
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.getUser.reference.username, ds.getUser.fullname) // TODO store username in DS
+  implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, "", None, u.userName, u.fullname)
+  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.getUser.userName, ds.getUser.fullname) // TODO store username in DS
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }

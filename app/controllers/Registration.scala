@@ -6,7 +6,7 @@ import play.libs.Codec
 import play.libs.Crypto
 import notifiers.Mails
 import play.Play
-import models.{UserReference, User}
+import models.User
 import play.mvc.results.Result
 
 /**
@@ -45,7 +45,7 @@ object Registration extends DelvingController {
     }
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "registration.duplicateEmail", r.email)
-    if (User.existsWithUsername(r.displayName, getNode)) Validation.addError("registration.displayName", "registration.duplicateDisplayName", r.displayName)
+    if (User.existsWithUsername(r.displayName)) Validation.addError("registration.displayName", "registration.duplicateDisplayName", r.displayName)
 
     Cache.delete(randomId)
 
@@ -55,8 +55,7 @@ object Registration extends DelvingController {
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      // TODO save the node
-      val newUser = User(reference = UserReference(r.displayName, getNode, getUserId(r.displayName)), firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
+      val newUser = User(userName = r.displayName, firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
       val inserted = User.insert(newUser)
 
       inserted match {

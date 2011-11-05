@@ -1,7 +1,6 @@
 package controllers
 
 import models.User
-import com.mongodb.DBObject
 import play.mvc.results.Result
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
@@ -34,14 +33,6 @@ object Users extends DelvingController {
 
     val items: List[ListItem] = usersPage.toList
     Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length)
-  }
-
-  def listAsTokens(q: String): Result = {
-    // TODO this could rather be a mongo query
-    val userTokens: List[Token] = for(u: DBObject <- User.findAllIdName.filter(user => (user.get("firstName") + " " + user.get("lastName")) contains (q))) yield {
-      Token(id = u.get("reference").asInstanceOf[DBObject].get("id").toString, name = u.get("firstName") + " " + u.get("lastName"))
-    }
-    Json(userTokens)
   }
 
 }

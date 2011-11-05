@@ -28,7 +28,6 @@ import play.i18n.Messages
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-                   node: String,
                    user_id: ObjectId,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
@@ -40,8 +39,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
                    indexingMappings: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
-                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]],
-                   access: AccessRight) extends Repository {
+                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
 
   val name = spec
 
@@ -84,7 +82,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
   }
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with AccessControl {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer {
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -144,13 +142,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       allDateSets
   }
 
-  def findAllForUser(user: User) = {
-    val dataSetCursor = findAllByRight(user.reference.username, user.reference.node, "read")
-    (for(ds <- dataSetCursor) yield grater[DataSet].asObject(ds)).toList
-  }
-
   def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user_id" -> owner))
-
 
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
@@ -167,10 +159,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def updateState(dataSet: DataSet, state: DataSetState) {
     val sdbo: MongoDBObject = grater[DataSetState].asDBObject(state)
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
-  }
-
-  def updateGroups(dataSet: DataSet, groups: List[String]) {
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("access.groups" -> groups)), false, false, new WriteConcern())
   }
 
   def addHash(dataSet: DataSet, key: String, hash: String) {
@@ -262,11 +250,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
-  // access control
-
-  protected def getCollection = dataSetsCollection
-
-  protected def getObjectIdField = "spec"
 }
 
 case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {

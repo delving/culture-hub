@@ -1,8 +1,7 @@
 package util
 
 import models.salatContext._
-import com.mongodb.casbah.commons.MongoDBObject._
-import models.{DataSet, UserGroup, User, MetadataRecord}
+import models.{DataSet, User, MetadataRecord}
 import com.mongodb.casbah.commons.MongoDBObject
 
 /**
@@ -25,7 +24,6 @@ trait TestDataGeneric extends TestData {
   YamlLoader.load[List[Any]]("testData.yml").foreach {
     _ match {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
-      case g: UserGroup => UserGroup.insert(g)
       case d: DataSet => DataSet.insert(d)
       case md: MetadataRecord => {
         val ds = DataSet.findBySpec("Verzetsmuseum").get

@@ -117,7 +117,7 @@ package object context extends Internationalization {
   def themePath(path: String) = "/public/themes/%s/%s".format(themeName, path)
 
   // ~~~ temporary helper, should be replaced with cache
-  def fullName(userName: String) = models.User.findByUsername(userName, "cultureHub").get.fullname
+  def fullName(userName: String) = models.User.findByUsername(userName).get.fullname
 
 }
 
