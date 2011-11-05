@@ -6,29 +6,26 @@ Co
 ## XML design of a Co-Reference link
 
     <link>
-     <link_id>URI</link_ref_id>
-     <link_category> </link_category>  
+     <link_uri/>
+     <link_category/> # LINK | CO_REF
 
      <who>
-       <user_uri/>
-       <user_info>
-         <name>
-         <organisation/>
-       </user_info>
+       <user_uri>
+       <name/>
+       <organisation/>
+       <role/>
      </who>
 
      <from>
-       <uri>[uri]</uri>
-       <co-ref extra>
-         <sticky stuff like birthplace, death place, born, dead for actors and hierarchy for places etc>
-       </co-ref extra>  
+       <from_uri/>
+       <from_crm_class/>
+       <from_type/>
      </from>
 
      <to>
-       <uri>[uri]</uri>
-       <co-ref extra>
-         <sticky stuff like birthplace, death place, born, dead for actors and hierarchy for places etc>
-       </co-ref extra>  
+       <to_uri/>
+       <to_crm_class/>
+       <to_type/>
      </to>
 
 
@@ -37,22 +34,16 @@ Co
      <when>
 
      <where>
-      <context>Objects, Collections, Stories etc<context>
-      <site>CultureHub_id</site>
+      <site_uri/> # Defined in Commons
+      <context/> # Objects, Collections, Stories, Essays, Articles etc (context at the creator site)
+      <site_type/> # CULTUREHUB | OTHER_KNOWN TYPES | UNKNOWN
      </where>
 
      <why>
-       <for coref>
-        <statement by creator>comment on why<statement by creator>
-        <relation>Same_As etc</relation>
-        <relation_quality>Sure! | Likely | well, i think it could be this way etc | </relation_quality>
-       </for coref>
-       <for links>
-         <type | tag | comment | etc >
-         <value/>
-         <note/>
-         <context  | object | Collections | Stories etc >
-       </for links>
+         <type/>  # tag | comment | note | Same_As, Part_Of etc
+         <value/> # value of above if text is needed, string
+         <note/> # note for above
+         <quality/> # 100%, 50%, 25% for Same_As etc later on
       </why>
 
     </link>
