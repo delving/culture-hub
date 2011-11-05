@@ -33,7 +33,7 @@ object Registration extends DelvingController {
     Validation.required("registration.lastName", r.lastName)
     Validation.required("registration.email", r.email)
     Validation.email("registration.email", r.email)
-    Validation.required("registration.displayName", r.displayName)
+    Validation.required("registration.userName", r.userName)
     Validation.required("registration.password1", r.password1)
     Validation.required("registration.password2", r.password2)
     if (r.password1 != r.password2) {
@@ -45,7 +45,7 @@ object Registration extends DelvingController {
     }
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "registration.duplicateEmail", r.email)
-    if (User.existsWithUsername(r.displayName)) Validation.addError("registration.displayName", "registration.duplicateDisplayName", r.displayName)
+    if (User.existsWithUsername(r.userName)) Validation.addError("registration.userName", "registration.duplicateDisplayName", r.userName)
 
     Cache.delete(randomId)
 
@@ -55,7 +55,7 @@ object Registration extends DelvingController {
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(userName = r.displayName, firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
+      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
       val inserted = User.insert(newUser)
 
       inserted match {
@@ -176,7 +176,7 @@ object Registration extends DelvingController {
   case class Registration(@Required firstName: String,
                           @Required lastName: String,
                           @Email email: String,
-                          @Required displayName: String,
+                          @Required userName: String,
                           @Required password1: String,
                           @Required password2: String)
 
