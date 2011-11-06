@@ -20,7 +20,8 @@ class ItinEndPointSpec extends UnitSpec with ShouldMatchers {
 
         it("should count the numbers of records returned") {
           import models.DrupalEntity
-          val response = DrupalEntity.processStoreRequest(sampleRecordAsString)((item, list) => println(item.toSolrDocument, list))
+          import xml.XML
+          val response = DrupalEntity.processStoreRequest(XML.loadString(sampleRecordAsString))((item, list) => println(item.toSolrDocument, list))
           response.itemsParsed should equal (2)
           response.coRefsParsed should not equal (0)
         }

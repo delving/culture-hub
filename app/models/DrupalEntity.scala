@@ -47,7 +47,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{
       node =>
-            println(createSolrFieldLabel(node))
+//            println(createSolrFieldLabel(node))
             nodeToField(node, doc)
     }
     // store links
@@ -65,7 +65,7 @@ case class DrupalEntityId(nodeId: String,  nodeType: String,  bundle: String)
 
 object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) with SolrServer {
 
-  import xml.Node
+  import xml.{Elem, Node}
 
   def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink]) {
     import com.mongodb.casbah.commons.MongoDBObject
@@ -112,9 +112,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     }.toList
   }
 
-  def processStoreRequest(data: String)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
-    import xml.XML
-    val xmlData = XML.loadString(data)
+  def processStoreRequest(xmlData: Elem)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
     val records = xmlData \\ "record"
     try {
       val recordCounter = records.foldLeft((0, 0)) {
@@ -137,4 +135,4 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
   }
 }
 
-case class StoreResponse(itemsParsed: Int, coRefsParsed: Int, success: Boolean = true, errorMessage: String = "")
+case class StoreResponse(itemsParsed: Int = 0, coRefsParsed: Int = 0, success: Boolean = true, errorMessage: String = "")
