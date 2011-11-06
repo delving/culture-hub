@@ -14,11 +14,19 @@
 
 #{breadcrumbs queryCrumbs: pagination /}
 
-<div id="items">
+    <div>
+            getPageNumber: ${pagination.getPageNumber()}<br/>
+            getStart: ${pagination.getStart()}<br/>
+            getRows: ${pagination.getRows()}<br/>
+            getNexPage: ${pagination.getNextPage()}<br/>
+            getPreviousPage: ${pagination.getPreviousPage()}</br/>
+            getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
 
-    <div class="item-nav">
+    </div>
+
+    <div class="item-nav g-12of12">
         <div class="mod item-count">
-            ${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}
+            <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
         </div>
     </div>
 
@@ -27,7 +35,7 @@
 
             <div class="buttons toolbar">
                 #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber() /}</div>
+                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1 /}</div>
                 #{/if}
 
                 <div class="dropdown">
@@ -59,7 +67,7 @@
                     <div class="bd">
                         #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                         #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of3", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                         #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     </div>
                 </div>
@@ -68,4 +76,3 @@
 
     </div>
 
-</div>

@@ -44,7 +44,7 @@
 			return this.opts.one_indexed ? this.numPages() : this.numPages()-1;
 		},
 		/**
-		 * Calculate start and end point of pagination links depending on 
+		 * Calculate start and end point of pagination links depending on
 		 * current_page and num_display_entries.
 		 * @returns {Array}
 		 */
@@ -75,7 +75,7 @@
 		/**
 		 * Helper function for generating a single link (or a span tag if it's the current page)
 		 * @param {Number} page_id The page id for the new item
-		 * @param {Number} current_page 
+		 * @param {Number} current_page
 		 * @param {Object} appendopts Options for the new item: text and classes
 		 * @returns {jQuery} jQuery object containing the link
 		 */
@@ -101,7 +101,7 @@
 			lnk.data('page_id', page_id);
 			return lnk;
 		},
-		// Generate a range of numeric links 
+		// Generate a range of numeric links
 		appendRange:function(container, current_page, start, end, opts) {
 			var i;
 			for(i=start; i<end; i++) {
@@ -176,11 +176,11 @@
 			renderer, links, current_page;
 
 		/**
-		 * This is the event handling function for the pagination links. 
+		 * This is the event handling function for the pagination links.
 		 * @param {int} page_id The new page number
 		 */
 		function paginationClickHandler(evt){
-			var links, 
+			var links,
 				new_current_page = $(evt.target).data('page_id'),
 				continuePropagation = selectPage(new_current_page);
 			if (!continuePropagation) {
@@ -190,8 +190,8 @@
 		}
 
 		/**
-		 * This is a utility function for the internal event handlers. 
-		 * It sets the new current page on the pagination container objects, 
+		 * This is a utility function for the internal event handlers.
+		 * It sets the new current page on the pagination container objects,
 		 * generates a new HTMl fragment for the pagination links and calls
 		 * the callback function.
 		 */
@@ -225,7 +225,7 @@
 		var pc = new $.PaginationCalculator(maxentries, opts);
 		var lp = pc.lastPage();
 		var fp = pc.firstPage();
-		containers.bind('setPage', {lastPage:lp}, function(evt, page_id) { 
+		containers.bind('setPage', {lastPage:lp}, function(evt, page_id) {
 				if(page_id >= fp && page_id <= evt.data.lastPage) {
 					selectPage(page_id); return false;
 				}

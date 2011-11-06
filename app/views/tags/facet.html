@@ -8,6 +8,8 @@
         ${_type}
     #{/else}
 </h4>
+
+
 <div class="facet-container">
     #{list facet.getLinks(), as: 'link'}
     %{def qs = '/search?'+ _qString + link.url}%
