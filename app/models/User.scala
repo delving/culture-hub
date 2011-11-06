@@ -13,6 +13,9 @@ case class User(_id: ObjectId = new ObjectId,
                 lastName: String,
                 email: String,
                 password: String,
+                groups: List[ObjectId] = List.empty[ObjectId], // groups this user belongs to
+                organizations: List[ObjectId] = List.empty[ObjectId], // organizations this user belongs to
+                nodes: List[String] = List.empty[String], // nodes this user has access to
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
                 resetPasswordToken: Option[String] = None,

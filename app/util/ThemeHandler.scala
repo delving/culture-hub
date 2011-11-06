@@ -133,10 +133,10 @@ object ThemeHandler {
 
     def getProperty(prop: String): String = Play.configuration.getProperty(prop).trim
 
-    val themeFileName = getProperty("portal.theme.file")
+    val themeFileName = getProperty("cultureHub.portalThemeFile")
 
     if (themeFileName == null) {
-      log.fatal("portal.theme.file path must be defined in application.conf");
+      log.fatal("cultureHub.portalThemeFile path must be defined in application.conf");
       System.exit(1);
     }
 

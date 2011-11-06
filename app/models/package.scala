@@ -4,11 +4,15 @@ import play.Play
 
 package object salatContext {
 
+  def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
+
   val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.cultureHub.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
 
-  val connection = createConnection(connectionName)
+  val cloudConnectionName = "cultureCloud"
 
-  lazy val userCollection = connection("Users")
+  val connection = createConnection(connectionName)
+  val commonsConnection = createConnection(cloudConnectionName)
+
   lazy val groupCollection = connection("Groups")
   lazy val portalThemeCollection = connection("PortalThemes")
   lazy val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
@@ -18,6 +22,9 @@ package object salatContext {
   lazy val labelsCollection = connection("UserLabels") // the labels made by users
   lazy val userStoriesCollection = connection("UserStories")
   lazy val harvestStepsCollection = connection("HarvestSteps")
+
+  lazy val organizationCollection = commonsConnection("Organizations")
+  lazy val userCollection = commonsConnection("Users")
 
   val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved
   val MONGO_ID: String = "_id" // mongo identifier we use
