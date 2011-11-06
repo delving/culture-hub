@@ -1,8 +1,9 @@
 package util
 
 import models.salatContext._
-import models.{DataSet, User, MetadataRecord}
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
+import models._
+import controllers.AccessControl
 
 /**
  * 
@@ -32,6 +33,25 @@ trait TestDataGeneric extends TestData {
       case _ =>
     }
   }
+
+  val delving = Organization(node = "cultureHub", orgId = "delving", name = Map("en" -> "Delving"))
+  val bnf = Organization(node = "cultureHub", orgId = "bnf", name = Map("en" -> "National Library of France", "fr" -> "Bibliothèque nationale de France"))
+
+  val delvingId = Organization.insert(delving)
+  val bnfId = Organization.insert(bnf)
+
+  // all users are in delving
+  val pushDelving = $set ("organizations.delving" -> delvingId.get)
+  User.update(MongoDBObject(), pushDelving)
+
+  val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN)
+  val delvingOwnersId = Group.insert(delvingOwners)
+
+  // bob is an owner
+  val bob = User.findByUsername("bob").get._id
+  AccessControl.addToGroup(bob, delvingOwnersId.get)
+
+
 }
 
 class TestDataLoader extends TestDataGeneric

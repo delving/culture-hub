@@ -130,7 +130,12 @@ GET         /{user}/sip-creator/sip-creator.jnlp                             use
 
 GET         /users/search                                                    Users.listAsTokens
 
-# Portal Administration
+# Organizations
+
+GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
+
+
+# Hub Administration
 GET        /admin/themes                                                     admin.Themes.index
 GET        /admin/themes/load/{id}?                                          admin.Themes.load
 GET        /admin/themes/list                                                admin.Themes.list

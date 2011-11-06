@@ -19,7 +19,7 @@ import models.{Visibility, DObject, UserCollection}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserAuthentication with Secure {
+object Collections extends DelvingController with UserSecured {
 
   @Before def setViewModel() {
     renderArgs += ("viewModel", classOf[CollectionViewModel])

@@ -1,6 +1,7 @@
 package models {
 
 import play.Play
+import com.mongodb.casbah.commons.MongoDBObject
 
 package object salatContext {
 
@@ -24,7 +25,10 @@ package object salatContext {
   lazy val harvestStepsCollection = connection("HarvestSteps")
 
   lazy val organizationCollection = commonsConnection("Organizations")
+  organizationCollection.ensureIndex(MongoDBObject("orgId" -> 1))
+
   lazy val userCollection = commonsConnection("Users")
+  userCollection.ensureIndex(MongoDBObject("userName" -> 1))
 
   val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved
   val MONGO_ID: String = "_id" // mongo identifier we use

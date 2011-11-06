@@ -14,7 +14,7 @@ case class User(_id: ObjectId = new ObjectId,
                 email: String,
                 password: String,
                 groups: List[ObjectId] = List.empty[ObjectId], // groups this user belongs to
-                organizations: List[ObjectId] = List.empty[ObjectId], // organizations this user belongs to
+                organizations: Map[String, ObjectId] = Map.empty[String, ObjectId], // organizations this user belongs to
                 nodes: List[String] = List.empty[String], // nodes this user has access to
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
@@ -41,11 +41,16 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     true
   }
 
+  // ~~~ global finders
+
   def findAll = find(MongoDBObject("isActive" -> true))
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
   def findByUsername(userName: String, active: Boolean = true) = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> active))
+
+
+  // ~~~ user registration, password reset
 
   def existsWithEmail(email: String) = User.count(MongoDBObject("email" -> email)) != 0
 
@@ -75,6 +80,8 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
   }
+
+  // ~~~ OAuth2
 
   def setOauthTokens(user: User, accessToken: String, refreshToken: String) {
     User.update(MongoDBObject("userName" -> user.userName), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())

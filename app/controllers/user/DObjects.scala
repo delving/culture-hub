@@ -22,7 +22,7 @@ import dos.FileUploadResponse
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DObjects extends DelvingController with UserAuthentication with Secure {
+object DObjects extends DelvingController with UserSecured {
 
   @Before def setViewModel() {
     renderArgs += ("viewModel", classOf[ObjectModel])

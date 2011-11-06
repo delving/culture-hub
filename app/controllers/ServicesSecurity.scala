@@ -5,8 +5,7 @@ import play.mvc.Scope.Session
 
 class ServicesSecurity extends Security with Internationalization {
 
-  def authenticate(username: String,
-                   password: String): Boolean = {
+  def authenticate(username: String, password: String): Boolean = {
     User.connect(username, password)
   }
 
@@ -16,5 +15,8 @@ class ServicesSecurity extends Security with Internationalization {
       throw new RuntimeException(&("servicessecurity.userNotFound", username))
     }
     session.put("connectedUserId", user.get._id.toString)
+    session.put(AccessControl.ORGANIZATIONS, user.get.organizations.keys.mkString(","))
+    session.put(AccessControl.GROUPS, user.get.groups.mkString(","))
+
   }
 }

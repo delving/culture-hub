@@ -14,7 +14,7 @@ import play.mvc.Before
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Stories extends DelvingController with UserAuthentication with Secure {
+object Stories extends DelvingController with UserSecured {
 
   @Before def setViewModel() {
     renderArgs += ("viewModel", classOf[StoryViewModel])
