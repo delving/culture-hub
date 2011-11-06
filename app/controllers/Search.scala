@@ -1,7 +1,7 @@
 package controllers
 
-import search.{BriefItemView, CHResponse, SolrQueryService}
 import scala.collection.JavaConversions._
+import search.{PresentationQuery, BriefItemView, CHResponse, SolrQueryService}
 
 /**
  *

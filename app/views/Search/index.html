@@ -1,24 +1,25 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title:'Search results' /}
+
 #{set 'moreCss'}
     <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/facets/facets.css'}"/>
 #{/set}
+
 #{set 'moreScripts'}
      <script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
 #{/set}
-#{breadcrumbs /}
+
+
+
+#{breadcrumbs queryCrumbs: pagination /}
 
 <div id="items">
 
-    <h1>&{'search.resultsfor'} <span>[query]</span></h1>
-
     <div class="item-nav">
-
         <div class="mod item-count">
             ${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}
         </div>
-
     </div>
 
     <div class="row">
@@ -91,8 +92,8 @@
                 <div class="inner">
                     <div class="hd"><h3>Facets</h3></div>
                     <div class="bd">
-                    #{facet facetMap: facets, type: "YEAR" /}
-                    #{facet facetMap: facets, type: "TYPE" /}
+                    #{facet facetMap: facets, type: "YEAR", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "TYPE", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     </div>
                 </div>
             </div>

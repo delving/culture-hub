@@ -3,12 +3,13 @@
 <h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">${_type}</h4>
 <div class="facet-container">
     #{list facet.getLinks(), as: 'link'}
+    %{def qs = '/search?'+ _qString + link.url}%
     <div class="g-1of3">
         #{if !link.remove()}
-        <input type="checkbox" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
+        <input type="checkbox" value="${qs}"/><a href="${qs}">${link.value()}</a>
         #{/if}
         #{else}
-        <input type="checkbox" checked="checked" value="?query=..."/><a href="/search?query=kunst${link.url()}">${link.value()}</a>
+        <input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${link.value()}</a>
         #{/else}
     </div>
     #{/list}
