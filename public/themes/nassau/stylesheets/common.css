@@ -7,6 +7,7 @@
 @import url("../../common/stylesheets/media/media.css");
 /*@import url("../../common/stylesheets/media/media_debug.css");*/
 @import url("../../common/stylesheets/spacing/space.css");
+@import url("../../common/stylesheets/links.css");
 @import url("../../common/stylesheets/breadcrumb/breadcrumb.css");
 @import url("../../common/stylesheets/tables.css");
 @import url("../../common/stylesheets/pagination/pagination.css");
@@ -14,7 +15,6 @@
 @import url("../../common/stylesheets/plugins/token-input.css");
 @import url("../../common/stylesheets/plugins/token-input-facebook.css");
 @import url("../../common/stylesheets/forms/form-elements.css");
-@import url("../../common/stylesheets/links.css");
 @import url("../../common/stylesheets/item.css");
 @import url("../../common/stylesheets/buttons/css3-buttons.css");
 @import url("../../common/stylesheets/tiptip.css");

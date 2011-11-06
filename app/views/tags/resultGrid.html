@@ -1,0 +1,36 @@
+%{ def counter = 1 }%
+
+#{list briefDocs, as: 'doc'}
+
+#{if counter == 1}
+<div class="row">
+    #{/if}
+    <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
+        <div class="media thing">
+            <img src="${doc.getThumbnail()}" width="84" class="img"/>
+
+            <div class="bd">
+                <div class="mod">
+                    <div class="inner">
+                        <div class="hd title">
+                            ${doc.getFieldValue("dc_title").getFirst()}
+                        </div>
+                        <div class="bd">
+                            ${doc.getFieldValue("dc_description").getFirst()}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    %{ counter++ }%
+
+    #{if counter > 2 || i_isLast }
+</div>
+<!-- end line -->
+%{ counter = 1 }%
+#{/if}
+
+#{/list}

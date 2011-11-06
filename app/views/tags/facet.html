@@ -6,10 +6,10 @@
     %{def qs = '/search?'+ _qString + link.url}%
     <div class="g-1of3">
         #{if !link.remove()}
-        <input type="checkbox" value="${qs}"/><a href="${qs}">${link.value()}</a>
+        <input type="checkbox" value="${qs}"/><a href="${qs}">${link.value()}</a> (${link.count()})
         #{/if}
         #{else}
-        <input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${link.value()}</a>
+        <input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${link.value()}</a> (${link.count()})
         #{/else}
     </div>
     #{/list}

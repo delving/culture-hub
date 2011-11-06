@@ -4,6 +4,9 @@
 @color-1-lite: lighten(@color-1, 30%);
 @color-2: #666;
 @color-3: #000;
+@color-4: #BF8530;
+@color-5: #926806;
+
 
 /* WIDTHS ***************************************************************/
 
@@ -78,6 +81,15 @@ body {
     color: @color-2;
 }
 
+a:link{
+    color: @color-4;
+}
+a:visited {
+    color: @color-5;
+}
+.pagination a, .pagination a:visited {
+    color: #666;
+}
 #page {
     height: auto;
     background: #fff;
@@ -522,7 +534,7 @@ fieldset {
     overflow: hidden;
 }
 
-.clip img {
+.recent .clip img {
     position:absolute;
     clip:rect(0px,280px,200px,0px);
 }
@@ -536,6 +548,25 @@ fieldset {
 .recent .title {
     display: block;
 }
+
+/* RESULTS ************************************************************************************/
+
+.results .clip  {
+    /*display: inline-block;*/
+    float:left;
+    height: 80px;
+    overflow: hidden;
+    width: 100px;
+    margin-right: 10px;
+}
+
+.results .clip .img {
+    position:absolute;
+    clip:rect(0px,100px,80px,0px);
+    max-width: 120px;
+}
+
+
 
 /* HELPERS ************************************************************************************/
 
