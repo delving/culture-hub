@@ -143,6 +143,7 @@ GET        /image/upload                                                     Ima
 POST       /image/upload                                                     ImageUpload.uploadFile
 GET        /image/viewer/{image}                                             Images.view
 GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
+GET        /deepzoom/?                                                       Images.iipsrv
 
 # Ignore favicon requests
 GET         /favicon.ico                                                     404
