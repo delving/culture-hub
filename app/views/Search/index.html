@@ -53,14 +53,14 @@
         </div>
         <div class="g-3of12 prefix-1">
 
-            <div class="mod simple">
+            <div class="mod facets">
                 <div class="inner">
-                    <div class="hd"><h3>Facets</h3></div>
+                    <div class="hd"><h5>&{'search.refineYourSearchBy'}:</h5></div>
                     <div class="bd">
-                        #{facet facetMap: facets, type: "PROVIDER", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "COLLECTION", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "YEAR", gClass:"g-1of3", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "TYPE", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of3", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     </div>
                 </div>
             </div>

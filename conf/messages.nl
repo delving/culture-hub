@@ -211,6 +211,11 @@ search.facets=Facetten
 search.nrfound= %s resultaten gevonden
 search.resultsfor=Zoekresultate voor
 search.sortby= Sorteer op
+search.refineYourSearchBy=Zoekopdracht verfijnen per
+search.facet.byYear=Jaar
+search.facet.byProvider=Aanbieder
+search.facet.byObjectType=Soort object
+search.facet.byCollection=Collectie
 
 ##Story
 story.pages=Pagina's

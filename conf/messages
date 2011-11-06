@@ -216,6 +216,12 @@ search.facets=Facets
 search.nrfound= Found %s results
 search.resultsfor=Search results for
 search.sortby= Sort by
+search.refineYourSearchBy=Refine your search by
+search.facet.byYear=Year
+search.facet.byProvider=Provider
+search.facet.byObjectType=Object type
+search.facet.byCollection=Collection
+
 
 ##Story
 story.pages=Pages

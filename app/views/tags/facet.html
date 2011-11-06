@@ -1,6 +1,13 @@
 #{list _facetMap, as: 'facet'}
 #{if facet.getType() == _type}
-<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">${_type}</h4>
+<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">
+    #{if _typeKey}
+        ${_typeKey}
+    #{/if}
+    #{else}
+        ${_type}
+    #{/else}
+</h4>
 <div class="facet-container">
     #{list facet.getLinks(), as: 'link'}
     %{def qs = '/search?'+ _qString + link.url}%
