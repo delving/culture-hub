@@ -7,6 +7,13 @@
 @color-4: #BF8530;
 @color-5: #926806;
 
+/* font-sizes */
+
+@fsize-1: 14px;
+@fsize-2: 18px;
+@fsize-3: 22px;
+@fsize-4: 44px;
+@fsize-5: 72px;
 
 /* WIDTHS ***************************************************************/
 
@@ -79,6 +86,7 @@
 body {
     background: #000 url(../images/body-bg.gif) center top repeat-y;
     color: @color-2;
+    font-size: @fsize-1;
 }
 
 a:link{
@@ -151,7 +159,7 @@ a:visited {
     height: @secondary-branding-height;
     position: @position;
     top: @secondary-branding-top;
-    left: 470px;
+    left: 460px;
     z-index: 10;
 }
 
@@ -202,7 +210,7 @@ a:visited {
     display: block;
     height: 24px;
     line-height: 24px;
-    padding: 4px 20px;
+    padding: 4px 16px;
     text-decoration: none;
 }
 
@@ -568,10 +576,8 @@ fieldset {
 
 /* FACETS *************************************************************************************/
 
-.facets h5 {
-    margin: 0;
-    padding: 0 0 4px 0;
-    border-bottom: 1px solid #ccc;
+.facets h3 {
+    font-size: @fsize-1;
 }
 
 .facet-container {

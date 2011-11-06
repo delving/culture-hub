@@ -1,3 +1,9 @@
+.facets h3 {
+    margin: 0;
+    padding: 0 0 4px 0;
+    border-bottom: 1px solid #ccc;
+}
+
 h4.trigger
 {
 	background:url(../images/togglerch.gif) no-repeat right center;

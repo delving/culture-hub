@@ -80,6 +80,7 @@
 body {
     background: #fff url(../images/body-bg.png) repeat-x top left;
     font-family: @ffam-1;
+    font-size: @fsize-1;
 }
 a { color: @color-4; }
 a:visited {color: darken(@color-4, 30%);}
@@ -340,7 +341,7 @@ body#home  {
     overflow: hidden;
 }
 
-.clip img {
+.recent .clip img {
     position:absolute;
     clip:rect(0px,280px,200px,0px);
 }
@@ -387,6 +388,33 @@ body#home  {
 
 .breadcrumb li {
     margin-left: 0px;
+}
+
+/* RESULTS ************************************************************************************/
+
+.results .clip  {
+    /*display: inline-block;*/
+    float:left;
+    height: 80px;
+    overflow: hidden;
+    width: 100px;
+    margin-right: 10px;
+}
+
+.results .clip .img {
+    position:absolute;
+    clip:rect(0px,100px,80px,0px);
+    max-width: 120px;
+}
+
+/* FACETS *************************************************************************************/
+
+.facets h3 {
+    font-size: @fsize-2;
+}
+
+.facet-container {
+    background-color: lighten(@color-2, 40%);
 }
 
 /* COLLUMNS ************************************************************************************/
