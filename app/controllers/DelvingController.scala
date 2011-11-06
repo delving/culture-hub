@@ -24,11 +24,11 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   // ~~~ user variables handling for view rendering (connected and browsed)
 
   @Before(priority = 0) def setConnectedUser() {
-    val user = User.findOne(MongoDBObject("reference.username" -> connectedUser, "isActive" -> true))
+    val user = User.findByUsername(connectedUser)
     user foreach {
       u => {
         renderArgs += ("fullName", u.fullname)
-        renderArgs += ("userName", u.reference.username)
+        renderArgs += ("userName", u.userName)
         renderArgs += ("userId", u._id)
       }
     }
@@ -36,12 +36,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Before(priority = 0) def setBrowsedUser() {
     Option(params.get("user")) foreach { userName =>
-      val user = User.findOne(MongoDBObject("reference.username" -> userName, "reference.node" -> getNode, "isActive" -> true))
+      val user = User.findByUsername(userName)
       user match {
         case Some(u) =>
           renderArgs += ("browsedFullName", u.fullname)
           renderArgs += ("browsedUserId", u._id)
-          renderArgs += ("browsedUserName", u.reference.username)
+          renderArgs += ("browsedUserName", u.userName)
         case None =>
           renderArgs += ("browsedUserNotFound", userName)
       }
@@ -83,13 +83,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   }
 
   // ~~~ convenience methods to access user information
-
-  // TODO
-  @Util def getNode = "cultureHub"
-
-  @Util def getUserId(username: String): String = username + "#" + getNode
-
-  @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("reference.id" -> getUserId(userName), "isActive" -> true)) match {
+  @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> true)) match {
     case Some(user) => Right(user)
     case None => Left(NotFound(&("delvingcontroller.userNotFound", userName)))
   }

@@ -52,7 +52,7 @@ object OAuth2TokenEndpoint extends Controller {
 
       val user = grantType match {
         // TODO use real node from URL
-        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUserId(oauthRequest.getUsername + "#cultureHub").get
+        case GrantType.PASSWORD => if (!security.authenticate(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
         case GrantType.REFRESH_TOKEN => {
           val maybeUser = User.findByRefreshToken(oauthRequest.getRefreshToken)
           if(maybeUser == None) {

@@ -14,18 +14,20 @@ import play.mvc.Scope.Session
 trait Secure {
   self: DelvingController =>
 
+  import Authentication.USERNAME
+
   @Before(unless = Array("login", "authenticate", "logout"))
   def checkSecurity = {
-    session("username") match {
-      case Some(username) => {
-        val maybeUser: Option[User] = User.findOne(MongoDBObject("reference.id" -> getUserId(username)))
+    session(USERNAME) match {
+      case Some(userName) => {
+        val maybeUser: Option[User] = User.findOne(MongoDBObject(USERNAME -> userName))
         maybeUser match {
           case Some(user) => {
-            renderArgs += "username" -> user
+            renderArgs += USERNAME -> user.userName
             Continue
           }
           case None => {
-            session.remove("username")
+            session.remove(USERNAME)
             session.put("url", if (("GET" == request.method)) request.url else "/")
             Action(Authentication.login())
           }
@@ -42,7 +44,8 @@ trait Secure {
 trait UserAuthentication {
   self: Controller =>
 
-  @Util def connectedUser = session.get("username")
+  import Authentication.USERNAME
+  @Util def connectedUser = session.get(USERNAME)
 }
 
 /**
@@ -57,19 +60,21 @@ trait Security {
 
 object Authentication extends Controller with ThemeAware {
 
+  val USERNAME = "userName"
+
   private val authSec = getSecurity.newInstance.asInstanceOf[ { def authenticate(username: String, password: String): Boolean }]
 
   private val onAuthSec = getSecurity.newInstance.asInstanceOf[ { def onAuthenticated(username: String, session: Session) }]
 
   def login(): AnyRef = {
-    if(session("username").isDefined) Redirect("/")
+    if(session(USERNAME).isDefined) Redirect("/")
 
     val remember = request.cookies.get("rememberme")
     if (remember != null && remember.value.indexOf("-") > 0) {
       val sign: String = remember.value.substring(0, remember.value.indexOf("-"))
       val username: String = remember.value.substring(remember.value.indexOf("-") + 1)
       if (Crypto.sign(username) == sign) {
-        session.put("username", username)
+        session.put(USERNAME, username)
         redirectToOriginalURL
       }
     }
@@ -92,7 +97,7 @@ object Authentication extends Controller with ThemeAware {
           if (remember) {
             response.setCookie("rememberme", Crypto.sign(username) + "-" + username, "30d")
           }
-          session.put("username", username)
+          session.put(USERNAME, username)
           onAuthSec.onAuthenticated(username, session)
           redirectToOriginalURL
         } else {

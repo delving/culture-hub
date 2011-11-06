@@ -7,11 +7,11 @@ class ServicesSecurity extends Security with Internationalization {
 
   def authenticate(username: String,
                    password: String): Boolean = {
-    User.connect(username, password, "cultureHub") // TODO
+    User.connect(username, password)
   }
 
   def onAuthenticated(username: String, session: Session) {
-    val user = User.findByUsername(username, "cultureHub") // TODO
+    val user = User.findByUsername(username)
     if(user == None) {
       throw new RuntimeException(&("servicessecurity.userNotFound", username))
     }

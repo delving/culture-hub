@@ -8,10 +8,10 @@
   type('registration.firstName','Foo')
   type('registration.lastName','Bar')
   type('registration.email','foo@bar.com')
-  type('registration.displayName','foo')
+  type('registration.userName','foo')
   type('registration.password1','foo')
   type('registration.password2','foo')
-  clickAndWait('css=button[type=submit]')
+  clickAndWait('submit')
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
   # Verify if an error is displayed if the account is not active
@@ -24,5 +24,4 @@
   # Verify correct login after account activation
   open('/registration/activate/testActivationToken')
   verifyTextPresent('Your account is now active! ')
-  verifyTextPresent('Foo Bar')
 #{/selenium}

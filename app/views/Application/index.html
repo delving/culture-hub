@@ -89,12 +89,12 @@
 					<div class="bd">
                         #{list recentCollections, as: 'c'}
                         <div class="media">
-                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.name}"/></a>
+                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
-                                    <span class="title"><a href="">${c.name.shorten(50)}</a></span>
-                                    <p>${c.shortDescription.shorten(100)}</p>
+                                    <span class="title"><a href="">${c.title.shorten(50)}</a></span>
+                                    <p>${c.description.shorten(100)}</p>
                                 </div>
                             </div>
                         </div>
@@ -115,12 +115,12 @@
 					<div class="bd">
                         #{list recentStories, as: 's'}
                         <div class="media">
-                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.name}"/></a>
+                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
-                                    <span class="title"><a href="">${s.name.shorten(50)}</a></span>
-                                    <p>${s.shortDescription.shorten(100)}</p>
+                                    <span class="title"><a href="">${s.title.shorten(50)}</a></span>
+                                    <p>${s.description.shorten(100)}</p>
                                 </div>
                             </div>
                         </div>

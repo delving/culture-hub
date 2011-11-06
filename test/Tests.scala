@@ -12,17 +12,15 @@ import eu.delving.metadata.{MetadataModelImpl, MetadataModel}
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
  */
-trait TestEnvironment extends ThemeHandlerComponent with MetadataModelComponent with Suite with MockFactory {
+trait TestEnvironment extends MetadataModelComponent with Suite with MockFactory {
   val metadataModel: MetadataModel = mock[MetadataModel]
-  val themeHandler: ThemeHandler = new ThemeHandler // mock[ThemeHandler]
+  val themeHandler = ThemeHandler // mock[ThemeHandler]
 }
 
 /**
  * Test for the ThemeHandler. We use UnitFlatSpec which is a Play version of the FlatSpec
  */
 class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGeneric with TestEnvironment {
-
-  override val themeHandler = new ThemeHandler
 
   it should "load themes from disk into the database" in {
     themeHandler.startup()
