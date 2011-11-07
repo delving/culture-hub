@@ -1,7 +1,7 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('thing.dataset') + ' ' + dataSet.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 
-<h1>&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
+<h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
 <div class="row">
     <div class="g-6of12">
     %{

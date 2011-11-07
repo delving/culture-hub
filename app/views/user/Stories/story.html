@@ -5,7 +5,7 @@
 
 <div id="edit-story" class="row">
 
-    <h1 class="g-12of12">${id.isEmpty() ? viewUtils.getKey('user.story.create') : viewUtils.getKey('user.story.update') }</h1>
+    <h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.story.create') : viewUtils.getKey('user.story.update') }</h1>
 
     <div data-bind="text: errors().global" class="g-12of12"></div>
 
@@ -67,7 +67,7 @@
 
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.save'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -130,7 +130,7 @@
         </div>
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('ui.label.savepage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
         </div>
     </form>
 

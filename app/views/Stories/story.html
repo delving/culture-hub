@@ -2,7 +2,7 @@
 #{set title: viewUtils.getKey('thing.story') + ': ' + story.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 #{breadcrumbs /}
 
-<h1>${story.name}</h1>
+<h1 class="sep">${story.name}</h1>
 
 <div class="media ${itemName}">
     <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>

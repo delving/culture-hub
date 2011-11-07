@@ -351,7 +351,8 @@ user.story.label.freeText=Vrije tekst
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas
-user.story.save=Bewaar verhaal
+user.story.saveStory=Bewaar verhaal
+user.story.savePage=Bewaar pagina
 user.story.title.deletePage=Pagina verwijderen?
 user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
 

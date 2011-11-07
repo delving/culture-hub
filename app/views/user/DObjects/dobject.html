@@ -7,7 +7,7 @@
 #{/set}
 
 #{breadcrumbs /}
-<h1>${id.isEmpty() ? viewUtils.getKey('user.object.create') : viewUtils.getKey('user.object.update') }</h1>
+<h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.object.create') : viewUtils.getKey('user.object.update') }</h1>
 <form id="objectForm" method="post" action="">
     <div data-bind="text: errors().global"></div>
 
