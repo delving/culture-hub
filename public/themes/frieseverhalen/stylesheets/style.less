@@ -302,7 +302,7 @@ body#home  {
 /* FOOTER **********************************************************************************************************/
 
 .footer {
-    border-top: 2px solid lighten(@color-2, 30%);
+    border-top: 4px solid lighten(@color-2, 40%);
     display: relative;
     margin-top: 40px;
 }
@@ -485,6 +485,27 @@ body#home  {
     /*margin: 30px 0 10px 0;*/
 }
 
+/* FORMS ************************************************************************************/
+/* form-elements.css overrides */
+form h3 {
+background-color: lighten(@color-3, 10%);
+}
+
+/* BUTTONS ************************************************************************************/
+/* css3-buttons.css overrides */
+
+button.green, .button.green {
+border: 1px solid @color-2 !important;
+background: darken(@color-2, 10%);
+background: -webkit-linear-gradient(top, @color-2, darken(@color-2, 10%));
+background: -moz-linear-gradient(top, @color-2, darken(@color-2, 10%));
+background: -ms-linear-gradient(top, @color-2, darken(@color-2, 10%));
+background: -o-linear-gradient(top, @color-2, darken(@color-2, 10%));
+}
+
+button.green:hover, .button.green:hover {
+    background:  darken(@color-2, 10%);
+}
 /* HELPERS ************************************************************************************/
 
 .clear {
