@@ -1,0 +1,29 @@
+#{list _facetMap, as: 'facet'}
+#{if facet.getType() == _type}
+<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">
+    #{if _typeKey}
+        ${_typeKey}
+    #{/if}
+    #{else}
+        ${_type}
+    #{/else}
+</h4>
+
+
+<div class="facet-container">
+    #{list facet.getLinks(), as: 'link'}
+    %{def qs = '/search?'+ _qString + link.url}%
+    <div class="${_gClass}">
+        #{if !link.remove()}
+        <input type="checkbox" value="${qs}"/><a href="${qs}">${link.value()}</a> (${link.count()})
+        #{/if}
+        #{else}
+        <input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${link.value()}</a> (${link.count()})
+        #{/else}
+    </div>
+    #{/list}
+</div>
+#{/if}
+#{/list}
+
+

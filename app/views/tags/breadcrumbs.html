@@ -2,18 +2,28 @@
 <div class="breadcrumb ptm bbt">
     <ul>
     #{list views.context.package.crumble(), as: 'c'}
-    <li>
-    #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
-    ${c._1._2.shorten(50)}
-    #{/}
-    #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
-    <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
-    #{/}
-    #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
-    <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
-    #{/}
-    </li>
-    #{/}
+        <li>
+        #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+            ${c._1._2.shorten(50)}
+        #{/if}
+        #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+            <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+        #{/if}
+        #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
+            <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+        #{/if}
+        </li>
+    #{/list}
+    #{if _queryCrumbs}
+        #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
+            #{ifnot crumb_isLast}
+                <li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>
+           #{/ifnot}
+            #{else}
+                <li><span>${crumb.value()}</span></li>
+            #{/else}
+        #{/list}
+    #{/if}
     </ul>
 </div>
 #{/if}

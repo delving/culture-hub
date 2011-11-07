@@ -3,28 +3,33 @@
 	when scrolling occurs this element stays still.
 */
 .story-container {
-    /*background:  #fff url(../images/bg-book.png) bottom center no-repeat;*/
-    width: 940px;
+    width: 960px;
     margin: 0 auto;
 	/*height:500px;*/
     position: relative;
 }
 
+.story-container h2 {
+    margin-top: 0px;
+    font-size: 24px;
+}
+
 .story-navigation {
+    height: 32px;
     position: relative;
-    top: 40px;
+    top: 0px;
     clear: both;
 }
 
 .story-navigation .prev {
     float: left;
-    margin-left: 75px;
+    /*margin-left: 75px;*/
 
 }
 
 .story-navigation .next {
     float: right;
-    margin-right: 75px;
+    /*margin-right: 75px;*/
 
 }
 
@@ -33,12 +38,12 @@
 	position:relative;
 	overflow:hidden;
 	overflow-y: auto;
-    width: 860px;
+    width: 960px;
     margin:  0 auto;
-    height: 800px;
+    min-height: 500px;
 
 	/* custom decorations */
-    top: 40px;
+    top: 20px;
 }
 
 /*
@@ -56,11 +61,10 @@
 
 .scrollable .page {
 	float:left;
-	width:860px;
+	width:960px;
     position: relative;
     top: 20px;
     left: 0px;
-    /*padding: 50px 70px;*/
 }
 
 .scrollable .page img {
@@ -68,31 +72,35 @@
     max-width: 350px;
 }
 
-.scrollable .page-left,
+.scrollable .page-left {
+    float: left;
+    /*width: 48%;*/
+    /*margin-right:  1%;*/
+}
+
 .scrollable .page-right {
     float: left;
-    width: 42%;
-    margin:  0 4%;
+    /*width: 48%;*/
+    /*margin-left:  1%;*/
 }
 
 .scrollable .title-page {
     text-align: left;
 }
 
-.scrollable .title-page h1 {
-    font-size: 200%;
-    margin: 30px 0 10px 0;
-}
+/*.scrollable .title-page h1 {*/
+    /*font-size: 300%;*/
+    /*margin: 30px 0 10px 0;*/
+/*}*/
 
 .scrollable .title-page h2 {
    color: #000;
-   margin-top: 20px;
 }
 
-.scrollable .page h2 {
-    color: #555;
-    font-size: 150%;
-}
+/*.scrollable .page h2 {*/
+    /*color: #555;*/
+    /*font-size: 150%;*/
+/*}*/
 
 /* single scrollable item */
 /*.scrollable img {*/
@@ -118,4 +126,5 @@
     color: #ccc;
     cursor: default;
 }
+
 

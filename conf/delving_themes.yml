@@ -6,7 +6,7 @@
     displayName: Delving Culture Hub
     defaultLanguage: nl
     colorScheme: default
-    solrSelectUrl: "http://localhost:8983/solr/core2"
+    solrSelectUrl: "http://dimcon.nl/solr"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: username@email.com

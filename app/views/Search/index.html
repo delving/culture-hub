@@ -1,50 +1,41 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title:'Search results' /}
-	<!--<script>-->
-	<!--$(function() {-->
-		<!--$( ".thing" ).draggable({-->
-             <!--helper: "clone",-->
-            <!--cursor: "move",-->
-            <!--helper: thingHelper-->
-		<!--});-->
-		<!--$( ".thingBucket ol" ).droppable({-->
-			<!--activeClass: "ui-state-default",-->
-			<!--hoverClass: "ui-state-hover",-->
-			<!--drop: function( event, ui ) {-->
 
-				<!--$(this).find(".placeholder").remove();-->
-                <!--$("<li></li>").append(ui.draggable.contents().clone()).appendTo(this);-->
-<!--//                $("<li></li>").append(ui.draggable.text()).appendTo(this);-->
+#{set 'moreCss'}
+    <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/facets/facets.css'}"/>
+#{/set}
 
-			<!--}-->
-		<!--});-->
-	<!--});-->
-        <!--function thingHelper( event ) {-->
-          <!--return '<div id="draggableHelper">'+$(this).next(".title").text()+'</div>';-->
-        <!--}-->
-	<!--</script>-->
-<div id="items">
+#{set 'moreScripts'}
+     <script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
+#{/set}
 
-    <h2>&{'search.resultsfor'} <span>[query]</span></h2>
 
-    <div class="item-nav">
 
-        <div class="item-count">
-            Found: <span>12358</span> results
-            ${viewUtils.getKey('nrfound', '1234567890')}
-        </div>
+#{breadcrumbs queryCrumbs: pagination /}
+    *{
+    <div>
+            getPageNumber: ${pagination.getPageNumber()}<br/>
+            getStart: ${pagination.getStart()}<br/>
+            getRows: ${pagination.getRows()}<br/>
+            getNexPage: ${pagination.getNextPage()}<br/>
+            getPreviousPage: ${pagination.getPreviousPage()}</br/>
+            getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
 
     </div>
+    }*
+    <div class="item-nav g-12of12">
+        <div class="mod item-count">
+            <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
+        </div>
+    </div>
 
-    <div class="line">
-        <div class="unit size3of4">
+    <div class="row">
+        <div class="g-8of12">
 
             <div class="buttons toolbar">
-
-                <!-- TODO: get result count and feed to pager -->
                 #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1 /}</div>
                 #{/if}
 
                 <div class="dropdown">
@@ -57,43 +48,7 @@
 
             </div>
 
-            %{ def counter = 1 }%
-
-            #{list briefDocs, as: 'doc'}
-
-            #{if counter == 1}
-            <div class="line">
-                #{/if}
-
-                <div class="unit size1of2 ${counter == 2 ? 'lastUnit' : ''}">
-                    <div class="media thing">
-                        <img src="${doc.getThumbnail()}" width="84" class="img"/>
-
-                        <div class="bd">
-                            <div class="mod">
-                                <div class="inner">
-                                    <div class="hd title">
-                                        ${doc.getTitle()}
-                                    </div>
-                                    <div class="bd">
-                                        ${doc.getFieldValue("dc_description").getFirst()}
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                %{ counter++ }%
-
-                #{if counter > 2 || i_isLast }
-            </div>
-            <!-- end line -->
-            %{ counter = 1 }%
-            #{/if}
-
-            #{/list}
+            #{resultList results: briefDocs /}
 
             <div class="buttons toolbar">
 
@@ -104,38 +59,20 @@
 
             </div>
         </div>
-        <div class="unit size1of4 lastUnit">
+        <div class="g-3of12 prefix-1">
 
-            <div class="mod simple">
+            <div class="mod facets">
                 <div class="inner">
-                    <div class="hd"><h3>Facets</h3></div>
+                    <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                     <div class="bd">
-
+                        #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                        #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     </div>
                 </div>
             </div>
-            #{if userName}
-            <div class="mod simple">
-                <div class="inner thingBucket">
-                    <ol>
-                    <li class="placeHolder">&{'search.dragitems'}</li>
-                    </ol>
-                </div>
-
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('search.additemstocollection'), toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="#" class="ddm">Collection 1</a>
-                        <a href="#" class="ddm">Collection 2</a>
-                        <a href="#" class="ddm">Collection 3</a>
-                        <a href="#" class="ddm">Collection 4</a>
-                    </div>
-                </div>
-            </div>
-
-                #{/if}
         </div>
 
     </div>
 
-</div>

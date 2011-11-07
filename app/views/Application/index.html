@@ -11,7 +11,7 @@
 
 #{/set}
 
-<div class="messages-container">
+<div class="messages-container row">
     <div class="messages">
         #{if flash.registrationSuccess}
         <p class="success">
@@ -51,11 +51,11 @@
     </div>
 </div>
 
-<div class="line">
 
+<div class="row">
     #{if recentObjects.size() > 0}
-    <div class="unit size1of3">
-        <div class="mod simple recent">
+    <div class="g-4of12">
+        <div class="mod recent object">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentobject'}</h3>
@@ -67,7 +67,7 @@
 
                             <div class="bd">
                                 <div class="metadata">
-                                    <span class="title"><a href="">${o.title.shorten(50)}</a></span>
+                                    <span class="title"><a href="/${o.userName}/object/${o.id}" title="${o.title}">${o.title.shorten(50)}</a></span>
                                     <p>${o.description.shorten(100)}</p>
                                 </div>
                             </div>
@@ -80,8 +80,8 @@
     #{/if}
 
     #{if recentCollections.size() > 0}
-     <div class="unit size1of3">
-        <div class="mod simple recent">
+     <div class="g-4of12">
+        <div class="mod recent collection">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentcollection'}</h3>
@@ -93,7 +93,7 @@
 
                             <div class="bd">
                                 <div class="metadata">
-                                    <span class="title"><a href="">${c.title.shorten(50)}</a></span>
+                                    <span class="title"><a href="/${c.userName}/collection/${c.id}" title="${c.title}">${c.title.shorten(50)}</a></span>
                                     <p>${c.description.shorten(100)}</p>
                                 </div>
                             </div>
@@ -105,9 +105,9 @@
     </div>
     #{/if}
 
-    #{if recentCollections.size() > 0}
-    <div class="unit size1of3">
-        <div class="mod simple recent">
+    #{if recentObjects.size() > 0}
+    <div class="g-4of12">
+        <div class="mod recent story">
             <div class="inner">
 					<div class="hd section">
 						<h3>&{'home.recentstory'}</h3>
@@ -119,7 +119,7 @@
 
                             <div class="bd">
                                 <div class="metadata">
-                                    <span class="title"><a href="">${s.title.shorten(50)}</a></span>
+                                    <span class="title"><a href="/${s.userName}/story/${s.id}" title="${s.title}">${s.title.shorten(50)}</a></span>
                                     <p>${s.description.shorten(100)}</p>
                                 </div>
                             </div>

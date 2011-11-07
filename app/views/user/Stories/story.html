@@ -3,16 +3,14 @@
 
 #{breadcrumbs /}
 
-<div id="edit-story">
+<div id="edit-story" class="row">
 
-    <h1>${id.isEmpty() ? viewUtils.getKey('user.story.create') : viewUtils.getKey('user.story.update') }</h1>
+    <h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.story.create') : viewUtils.getKey('user.story.update') }</h1>
 
-    <div data-bind="text: errors().global"></div>
+    <div data-bind="text: errors().global" class="g-12of12"></div>
 
-    <div id="story-info" class="line">
-
-        <div class="sidebar">
-
+    <div class="g-5of12">
+        <div class="mod">
             <h3>&{'user.story.storyInformation'}</h3>
             <p>${viewUtils.getKey('user.story.storyDescription').raw()}</p>
 
@@ -21,11 +19,11 @@
                 <li>&{'user.story.bulletPoint2'}</li>
                 <li>&{'user.story.bulletPoint3'}</li>
             </ol>
-
         </div>
+    </div>
 
-        <div class="input">
-
+    <div class="g-7of12">
+        <div class="mod">
             <form id="storyForm" class="box">
 
                 #{textField name:"name", label: viewUtils.getKey('thing.name'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
@@ -35,268 +33,271 @@
                     <label class="label">&{'ui.label.visibility'}</label>
 
                     <div class="inputs">
-                        <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+                        <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
+                        <br/>
                         <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
                     </div>
                 </div>
 
                 #{if id.isEmpty()}
                 <div class="buttons">
-                  #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
+                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
+
                 </div>
                 #{/if}
             </form>
         </div>
-
     </div>
+</div>
 
-    <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="line">
-        <hr/>
-        <div class="sidebar">
-            <h3>&{'user.story.storyPages'}</h3>
-            <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
-            <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+<div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
+    <div class="g-5of12">
+        <div class="mod">
+         <h3>&{'user.story.storyPages'}</h3>
+        <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
+
+        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+
+        <div class="buttons">
+            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+            #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
+        </div>
+        </div>
+
+         <div id="save-story" class="line">
             <div class="buttons">
-                #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
-                #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                <div class="wait"></div>
             </div>
-
         </div>
-        <div class="input">
-
-            <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
-
-        </div>
-
     </div>
+    <div class="g-7of12">
+        <div class="mod">
+            <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
+        </div>
+    </div>
+
+</div>
 <!-- // story-pages -->
 
 
 
-
-<div class="line" id="save-story">
-<hr/>
-    <div class="actions">
-      #{btnButton label: viewUtils.getKey('user.story.save'), extraClass:"action blue fright", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
-      <div class="wait"></div>
-    </div>
-</div>
-
-</div>
-
 <div class="objects-container" id="objects-dialogue" title="Select Object(s)">
-  <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: currentPage.selectedObjectIds, availableObjects: currentPage.availableObjects}}"></div>
+    <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: currentPage.selectedObjectIds, availableObjects: currentPage.availableObjects}}"></div>
 </div>
 
 <div id="dialog-confirm-page-delete" title="&{'user.story.title.deletePage'}" style="display: none;">
-	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">&{'user.story.title.deletePageConfirm'}</span></p>
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">&{'user.story.title.deletePageConfirm'}</span>
+    </p>
 </div>
-
 
 <script id='delving-wysiyg' src="@{'/public/themes/common/javascripts/tiny_mce/tiny_mce.js'}" type='text/javascript'></script>
 
 <script type="text/html" id="pageTemplate">
-  <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
+    <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
 
-    <div class="field">
-      <label for="title"  class="label">&{'thing.title'}</label>
-      <div class="inputs">
-        <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: '&{'ui.label.required'}'}}" />
+        <div class="field">
+            <label for="title" class="label">&{'thing.title'}</label>
 
-      </div>
-    </div>
+            <div class="inputs">
+                <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: '&{'ui.label.required'}'}}"/>
 
-    <div class="field">
-        <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
-        <div class="inputs">
-            <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
-            <span class="error"></span>
+            </div>
         </div>
-    </div>
-    <hr/>
-    <h4>Object toevoegen</h4>
-    <div class="field">
-        <label class="label">&{'ui.label.collectionSelect'}</label>
-        <div class="inputs">
 
-            <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: '&{'ui.label.choose'}', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
-            #{btnHref label: viewUtils.getKey('user.story.label.addImageFromCollection'), id:"addObject", iconClass:"icon3", dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw() /}
+        <div class="field">
+            <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
 
+            <div class="inputs">
+                <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+                <span class="error"></span>
+            </div>
         </div>
-    </div>
-    <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
+        <hr/>
+        <h4>&{'user.story.label.addObjects'}</h4>
 
-    <div class="buttons">
-            <button type="submit" data-bind="click: saveCurrentPage">
-                <span class="icon icon67"></span>
-                <span class="label">Save Page</span>
-            </button>
-    </div>
+        <div class="field">
+            <label class="label">&{'ui.label.collectionSelect'}</label>
 
-  </form>
+            <div class="inputs">
+
+                <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: '&{'ui.label.choose'}', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+                #{btnHref label: viewUtils.getKey('user.story.label.addImageFromCollection'), id:"addObject", iconClass:"icon3", dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw() /}
+
+            </div>
+        </div>
+        <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
+        <div class="buttons">
+            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
+        </div>
+    </form>
 
 </script>
 <script type="text/html" id="pageList">
-        <table class="list">
-            <caption>&{'user.story.existingPage'}:</caption>
-            <thead>
-            <tr>
-                <th>&{'thing.name'}</th>
-                <th>&{'thing.actions'}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{each(i, page) pages()}}
-            <tr id="#{verbatim}page-${i}#{/}">
-                <td>
-                    <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
-                </td>
-                <td>
-                    <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
-                        <span class="icon icon145"></span>
-                        <span class="label">&{'ui.label.edit'} </span>
-                    </a>
-                    <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
-                        <span class="icon icon186"></span>
-                        <span class="label">&{'ui.label.delete'}</span>
-                    </a>
-                </td>
-            </tr>
-            {{/each}}
-            </tbody>
-        </table>
+    <table class="list">
+        <caption>&{'user.story.existingPage'}:</caption>
+        <thead>
+        <tr>
+            <th>&{'thing.name'}</th>
+            <th>&{'thing.actions'}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each(i, page) pages()}}
+        <tr id="#{verbatim}page-${i}#{/}">
+            <td>
+                <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
+            </td>
+            <td>
+                <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
+                    <span class="icon icon145"></span>
+                    <span class="label">&{'ui.label.edit'} </span>
+                </a>
+                <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
+                    <span class="icon icon186"></span>
+                    <span class="label">&{'ui.label.delete'}</span>
+                </a>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </script>
 
 <script type="text/javascript" language="javascript">
 
     $(document).ready(function() {
 
-      // load templates
-      $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
-        addTemplate('availableObjectsList', template);
-      });
-      $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
-        addTemplate('objectsList', template);
-      });
+        // load templates
+        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
+            addTemplate('availableObjectsList', template);
+        });
+        $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+            addTemplate('objectsList', template);
+        });
 
-      var storyModel = {
-        currentPage: {
-          lock: ko.observable(false),
-          isNew: ko.observable(false),
-          pageRef: ko.observable(),
-          title: ko.observable(),
-          text: ko.observable(),
-          objects: ko.observableArray(),
-          selectedCollection: ko.observable(),
-          availableObjects: ko.observableArray(),
-          selectedObjectIds: ko.observableArray()
-        },
-        addPages: function() {
-          saveStory();
-          storyModel.addPage();
-          $("#story-pages").show("slow");
-        },
-        addPage: function() {
-          storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "&{'user.story.noCollection'}"});
-          storyModel.currentPage.lock(true);
-          storyModel.currentPage.isNew(true);
-          storyModel.currentPage.title("");
-          storyModel.currentPage.text("");
-          storyModel.currentPage.objects([]);
-          storyModel.currentPage.selectedCollection("");
-          storyModel.currentPage.availableObjects([]);
-          storyModel.currentPage.selectedObjectIds([]);
-          $("#form-add-page").show("slow");
-        },
-        editPage: function(page) {
-          storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "No collection"});
-          storyModel.currentPage.isNew(false);
-          storyModel.currentPage.pageRef(page),
-          storyModel.currentPage.title(page.title());
-          storyModel.currentPage.text(page.text());
-          storyModel.currentPage.objects(page.objects());
-          storyModel.currentPage.selectedCollection([]);
-          storyModel.currentPage.selectedObjectIds([]);
-          storyModel.currentPage.availableObjects([]);
-          $("#form-add-page").show("slow");
-        },
-        deletePage: function(page) {
-          confirmDeletion('#dialog-confirm-page-delete', function() {
-            var idx;
-            storyModel.pages.remove(function(item) {
-              return item.title === page.title && item.text === page.text;
-            });
-            saveStory(null, function() {
-            // TODO cry, in despair, and yell.
-            });
-          });
-        },
-        removeObject: function(object) {
-          storyModel.currentPage.objects.remove(object);
-          storyModel.currentPage.availableObjects.push(object);
-        },
-        saveCurrentPage: function() {
-          if(storyModel.currentPage.isNew()) {
-            this.pages.push(ko.toJS(storyModel.currentPage));
-          } else {
-            // find the page and update it
-            var p = ko.toJS(storyModel.currentPage);
-            storyModel.currentPage.pageRef().title(p.title);
-            storyModel.currentPage.pageRef().text(p.text);
-            storyModel.currentPage.pageRef().objects(p.objects);
-          }
-          storyModel.currentPage.lock(false);
-          saveStory(function() {
-            $('#pageForm').resetForm();
-            $("#form-add-page").hide("slow");
-          }, function() {
-            // TODO yell, cry. be desperate
-          });
-        },
-        collectionChanged: function() {
-          storyModel.currentPage.availableObjects.removeAll();
-          if($('#collection-name').val().length > 0) {
-            $.getJSON('/${userName}/collection/' + $('#collection-name').val() + '/objects', {}, function(data) {
-              $.each(data, function(index, obj) {
-                if(storyModel.currentPage.objects.indexOf(obj) < 0) {
-                  storyModel.currentPage.availableObjects.push(obj);
+        var storyModel = {
+            currentPage: {
+                lock: ko.observable(false),
+                isNew: ko.observable(false),
+                pageRef: ko.observable(),
+                title: ko.observable(),
+                text: ko.observable(),
+                objects: ko.observableArray(),
+                selectedCollection: ko.observable(),
+                availableObjects: ko.observableArray(),
+                selectedObjectIds: ko.observableArray()
+            },
+            addPages: function() {
+                saveStory();
+                storyModel.addPage();
+                $("#story-pages").show("slow");
+            },
+            addPage: function() {
+                storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "&{'user.story.noCollection'}"});
+                storyModel.currentPage.lock(true);
+                storyModel.currentPage.isNew(true);
+                storyModel.currentPage.title("");
+                storyModel.currentPage.text("");
+                storyModel.currentPage.objects([]);
+                storyModel.currentPage.selectedCollection("");
+                storyModel.currentPage.availableObjects([]);
+                storyModel.currentPage.selectedObjectIds([]);
+                $("#form-add-page").show("slow");
+            },
+            editPage: function(page) {
+                storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "No collection"});
+                storyModel.currentPage.isNew(false);
+                storyModel.currentPage.pageRef(page),
+                        storyModel.currentPage.title(page.title());
+                storyModel.currentPage.text(page.text());
+                storyModel.currentPage.objects(page.objects());
+                storyModel.currentPage.selectedCollection([]);
+                storyModel.currentPage.selectedObjectIds([]);
+                storyModel.currentPage.availableObjects([]);
+                $("#form-add-page").show("slow");
+            },
+            deletePage: function(page) {
+                confirmDeletion('#dialog-confirm-page-delete', function() {
+                    var idx;
+                    storyModel.pages.remove(function(item) {
+                        return item.title === page.title && item.text === page.text;
+                    });
+                    saveStory(null, function() {
+                        // TODO cry, in despair, and yell.
+                    });
+                });
+            },
+            removeObject: function(object) {
+                storyModel.currentPage.objects.remove(object);
+                storyModel.currentPage.availableObjects.push(object);
+            },
+            saveCurrentPage: function() {
+                if (storyModel.currentPage.isNew()) {
+                    this.pages.push(ko.toJS(storyModel.currentPage));
                 }
-              });
-            });
-          }
-        },
-        saveTheStory: function() {
-          saveStory(function() {
-            window.location.href = '/${userName}/story/' + storyModel.id()
-          }, function() {
-            // TODO yell, shout, be desperate
-          }, false);
-        },
-        makeStoryUrl: function() {
-          window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
-        }
-      };
-      load('/${userName}/story/load/${id.isEmpty() ? "" : id.get()}', storyModel);
+                else {
+                    // find the page and update it
+                    var p = ko.toJS(storyModel.currentPage);
+                    storyModel.currentPage.pageRef().title(p.title);
+                    storyModel.currentPage.pageRef().text(p.text);
+                    storyModel.currentPage.pageRef().objects(p.objects);
+                }
+                storyModel.currentPage.lock(false);
+                saveStory(function() {
+                    $('#pageForm').resetForm();
+                    $("#form-add-page").hide("slow");
+                }, function() {
+                    // TODO yell, cry. be desperate
+                });
+            },
+            collectionChanged: function() {
+                storyModel.currentPage.availableObjects.removeAll();
+                if ($('#collection-name').val().length > 0) {
+                    $.getJSON('/${userName}/collection/' + $('#collection-name').val() + '/objects', {}, function(data) {
+                        $.each(data, function(index, obj) {
+                            if (storyModel.currentPage.objects.indexOf(obj) < 0) {
+                                storyModel.currentPage.availableObjects.push(obj);
+                            }
+                        });
+                    });
+                }
+            },
+            saveTheStory: function() {
+                saveStory(function() {
+                    window.location.href = '/${userName}/story/' + storyModel.id()
+                }, function() {
+                    // TODO yell, shout, be desperate
+                }, false);
+            },
+            makeStoryUrl: function() {
+                window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
+            }
+        };
+        load('/${userName}/story/load/${id.isEmpty() ? "" : id.get()}', storyModel);
 
-      $('#objects-dialogue').dialog({
-        autoOpen: false,
-        modal: true,
-        buttons: {
-          "&{'user.collection.label.addObjects'}": function() {
-            addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
-            $(this).dialog('close');
-          }
-        }
-      });
+        $('#objects-dialogue').dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "&{'user.collection.label.addObjects'}": function() {
+                    addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
+                    $(this).dialog('close');
+                }
+            }
+        });
 
-      function saveStory(onSuccess, onError, isDraft) {
-        if($('#storyForm').validate({meta: 'validate'}).form()) {
-          var draft = typeof isDraft === 'undefined' ? false : isDraft;
-          storyModel.isDraft(draft);
-          storyModel.collections.remove(function(it) { return it.id === "${controllers.Collections.NO_COLLECTION()}" });
-          handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
+        function saveStory(onSuccess, onError, isDraft) {
+            if ($('#storyForm').validate({meta: 'validate'}).form()) {
+                var draft = typeof isDraft === 'undefined' ? false : isDraft;
+                storyModel.isDraft(draft);
+                storyModel.collections.remove(function(it) {
+                    return it.id === "${controllers.Collections.NO_COLLECTION()}"
+                });
+                handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
+            }
         }
-      }
     });
 </script>

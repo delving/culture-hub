@@ -110,6 +110,11 @@ li
 	margin-left: 20px;
 }
 
+
+ol {
+    list-style-type: decimal;
+}
+
 p,
 dl,
 hr,
@@ -127,8 +132,4 @@ address,
 fieldset
 {
 	margin-bottom: 20px;
-}
-
-ol {
-    list-style-type: decimal;
 }
