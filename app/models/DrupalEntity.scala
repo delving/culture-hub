@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
 import controllers.SolrServer
+import com.sun.org.apache.xpath.internal.operations.Bool
 
 /**
  *
@@ -11,7 +12,7 @@ import controllers.SolrServer
  * @since 11/5/11 10:35 AM  
  */
 
-case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: DrupalEntityId, enrichments: Map[String,  Array[String]] = Map.empty) {
+case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: DrupalEntityId, enrichments: Map[String,  Array[String]] = Map.empty, deleted: Boolean = false) {
 
   import xml.{Node, XML}
   import org.apache.solr.common.{SolrInputDocument, SolrDocument}
@@ -21,7 +22,8 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   def nodeToField(node: Node, doc: SolrInputDocument) {
     def addField(indexType: String) {doc addField ("%s_%s".format(createSolrFieldLabel(node), indexType), node.text)}
 
-    val fieldType = node.attributes.asAttrMap.get("type").getOrElse("text")
+    val attrMap = node.attributes.asAttrMap
+    val fieldType = attrMap.get("type").getOrElse("text")
     fieldType match {
       case "location" => addField("l")
       case "date" => addField("tdt")
@@ -31,6 +33,8 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
       case "string" => addField("s")
       case _ => addField("text")
     }
+    if (attrMap.contains("facet") && attrMap.get("facet").getOrElse("false") == "true")
+      doc addField ("%s_facet".format(createSolrFieldLabel(node)), node.text)
   }
 
 
@@ -71,7 +75,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
     update(MongoDBObject("id.nodeId" -> entity.id.nodeId), entity, true, false, new WriteConcern())
-    getStreamingUpdateServer.add(entity.toSolrDocument)
+    if (!entity.deleted) getStreamingUpdateServer.add(entity.toSolrDocument) else getStreamingUpdateServer.deleteById(entity.id.nodeId)
   }
 
   def createDrupalEntityId(attributes: Map[String, String]): DrupalEntityId = {
@@ -105,6 +109,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     val fromUri: String = fields.find(field => createFieldLabel(field).equalsIgnoreCase("drup:path")).get.text
     val fromTitle: String = fields.find(field => createFieldLabel(field).equalsIgnoreCase("drup:pathalias")).get.text
 
+    // todo add more link content types
     fields.filter(node => List("itin:ref_persons", "itin:related_pvb", "itin:ref_period").contains("%s:%s".format(node.prefix, node.label))).map {
       link => {
         createCoRef(fromUri, fromTitle, recordId.nodeType, link.attributes.asAttrMap)
@@ -119,7 +124,9 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
         (counter, record) => {
           val id = createDrupalEntityId(record.attributes.asAttrMap)
           val coRefs = createCoRefList(record.nonEmptyChildren, id)
-          val entity = DrupalEntity(rawXml = record.toString(), id = id)
+          val entity = DrupalEntity(rawXml = record.toString(), id = id,
+            deleted = if (record.attributes.asAttrMap.contains("deleted")) true else false
+          )
           processBlock(entity, coRefs)
           (counter._1 + 1, counter._2 + coRefs.length)
         }

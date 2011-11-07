@@ -596,6 +596,7 @@
      <!--  This dynamic field will index any field prefixed with facet_* as a facet field.
        No uppercasing is necessary any more. -->
      <dynamicField name="facet_*" type="string" indexed="true" stored="true" multiValued="true" />
+     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
 
     <!-- dynamic field for sort purposes -->
      <dynamicField name="sort_all_*" type="string" indexed="true" stored="false" multiValued="false" termVectors="true"/>

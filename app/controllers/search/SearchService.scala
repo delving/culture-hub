@@ -180,7 +180,8 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
     val response : Elem =
       <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/">
+               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
+                 xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace">
         <query numFound={pagination.getNumFound.toString}>
             <terms>{searchTerms}</terms>
             <breadCrumbs>
@@ -377,13 +378,23 @@ case class ExplainResponse(theme : PortalTheme) {
        <parameters>
          {paramOptions.map(param => param.toXML)}
         </parameters>
-        <search-fields>
+        <solr-dynamic>
+            <fields>
+                <field xml="drup:title" search="drup_title_text" fieldType="text">drup_title_text</field>
+            </fields>
+            <facets>
+                <facet xml="drup:title" search="drup_title_facet">drup_title_facet</facet>
+            </facets>
+        </solr-dynamic>
+        <theme-based>
+          <search-fields>
           {theme.getRecordDefinition.getFieldNameList.
                 filterNot(field => excludeList.contains(field)).map(facet => ExplainItem(facet).toXML)}
         </search-fields>
         <facets>
           {theme.getRecordDefinition.getFacetMap.map(facet => ExplainItem(facet._1).toXML)}
         </facets>
+        </theme-based>
       </api>
     </results>
   }
