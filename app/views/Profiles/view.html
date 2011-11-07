@@ -1,21 +1,13 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-
 #{set title: viewUtils.getKey('profile.title') + ': ' + userName /}
 
 #{breadcrumbs /}
 
-<h1 class="sep">&{'profile.title'}: <span>${user.fullname()}</span></h1>
-<div class="row">
-    <div class="g-12of12">
-        <div class="">
-            &{'ui.label.username'}: ${user.userName}<br/>
-            Full Name: ${user.fullname()}<br/>
-            &{'profile.activesince'}: ${views.context.package.niceTime(user._id.getTime())}<br/>
-            &{'thing.objectcount'}: <a href="/${user.userName}/object"> ${objects.length()}</a><br/>
-            &{'thing.collectionscount'}: <a href="/${user.userName}/collection">${collections.length()}</a><br/>
-            &{'thing.storycount'}: <a href="/${user.userName}/story">${stories.length()}</a><br/>
-        </div>
-    </div>
-
-</div>
-
+<!-- TODO extend header -->
+<h1>&{'profile.title'}: <span>${user.fullname()}</span></h1>
+&{'ui.label.username'}: ${user.userName}<br/>
+Full Name: ${user.fullname()}<br/>
+&{'profile.activesince'}: ${views.context.package.niceTime(user._id.getTime())}<br/>
+&{'thing.objectcount'}: <a href="/${user.userName}/object"> ${objects.length()}</a><br/>
+&{'thing.collectionscount'}: <a href="/${user.userName}/collection">${collections.length()}</a><br/>
+&{'thing.storycount'}: <a href="/${user.userName}/story">${stories.length()}</a><br/>

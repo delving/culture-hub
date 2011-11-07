@@ -387,9 +387,11 @@ user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
 # Organizations
 
+### This gets concatenated to a sentence
 org.list.memberCount=%s member(s)
 org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
+org.list.grantType.admin=with rights to modify and to administrate the users of
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount=%s DataSet(s)
 
@@ -457,6 +459,9 @@ stories.storyNotFound=Story with id %s was not found
 
 organizations.admin.userNotFound=Could not find user with userName %s
 
+organizations.group.cannotAddUser=Could not add user with userName %s to group %s
+organizations.group.cannotRemoveUser=Could not remove user with userName %s to group %s
+organizations.group.groupNotFound=Could not find group with ID %s
 
 # Old stuff
 

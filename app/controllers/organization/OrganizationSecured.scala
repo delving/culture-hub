@@ -17,6 +17,7 @@ trait OrganizationSecured extends Secure { self: DelvingController =>
     val organizations = session.get(AccessControl.ORGANIZATIONS)
     if(organizations == null || organizations.isEmpty) return Forbidden(&("user.secured.noAccess"))
     if(!organizations.split(",").contains(orgId)) return Forbidden(&("user.secured.noAccess"))
+    renderArgs += ("orgId" -> orgId)
     Continue
   }
 

@@ -2,7 +2,7 @@ package controllers
 
 import models.User
 import play.mvc.results.Result
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 import java.util.regex.Pattern
 
 /**
@@ -35,9 +35,10 @@ object Users extends DelvingController {
     Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length)
   }
 
-  def listAsTokens(q: String): Result = {
-    val users = User.find(MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
-    val asTokens = users.map(u => Map("id" -> u._id, "name" -> u.userName))
+  def listAsTokens(q: String, orgId: String): Result = {
+    val query = MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
+    val users = if(orgId != null) User.find(query ++ MongoDBObject("organizations" -> orgId)) else User.find(query)
+    val asTokens = users.map(u => Map("id" -> u.userName, "name" -> u.userName))
     Json(asTokens)
   }
 

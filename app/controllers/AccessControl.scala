@@ -15,11 +15,4 @@ object AccessControl {
   val ORGANIZATIONS = "organizations"
   val GROUPS = "groups"
 
-  def addToGroup(user: ObjectId, group: ObjectId): Boolean = {
-    // TODO FIXME make this operation safe
-    User.update(MongoDBObject("_id" -> user), $addToSet ("groups" -> group), false, false, SAFE_WC)
-    Group.update(MongoDBObject("_id" -> group), $addToSet ("users" -> user), false, false, SAFE_WC)
-    true
-  }
-
 }

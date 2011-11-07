@@ -28,6 +28,7 @@ import play.i18n.Messages
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
+//                   orgId: String,
                    user_id: ObjectId,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),

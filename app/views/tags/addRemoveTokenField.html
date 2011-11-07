@@ -1,0 +1,32 @@
+<input type="text" id="${_id}" name="${_name}">
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#${_id}').tokenInput('${_searchUrl}', {
+      prePopulate: ${_prePopulate ? _prePopulate.raw() : "[]"}#{if _submitOnEvent},
+      onAdd: function(item) {
+        $.ajax({
+          type: 'POST',
+          url: '${_addUrl}',
+          data: {id: item.name},
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $('#${_id}').tokenInput('remove', {id: item.id})
+          }
+        });
+      },
+      onDelete: function(item) {
+        $.ajax({
+          type: 'DELETE',
+          url: '${_removeUrl}',
+          data: {id: item.name},
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $('#${_id}').tokenInput('add', {id: item.id})
+          }
+        });
+      }#{/if}
+    });
+    $('#${_id}').blur();
+  });
+</script>

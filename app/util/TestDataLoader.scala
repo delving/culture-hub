@@ -47,10 +47,7 @@ trait TestDataGeneric extends TestData {
   val delvingOwnersId = Group.insert(delvingOwners)
 
   // bob is an owner
-  val bob = User.findByUsername("bob").get._id
-  AccessControl.addToGroup(bob, delvingOwnersId.get)
-
-
+  Group.addUser("bob", delvingOwnersId.get)
 }
 
 class TestDataLoader extends TestDataGeneric

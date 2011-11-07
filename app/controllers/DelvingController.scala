@@ -122,7 +122,13 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
-
+  @Util def checkAuthenticity(): Option[Result] = {
+    if (params.get("authenticityToken") == null || !(params.get("authenticityToken") == session.getAuthenticityToken)) {
+      Some(Forbidden("Bad authenticity token"))
+    } else {
+      None
+    }
+  }
 }
 
 

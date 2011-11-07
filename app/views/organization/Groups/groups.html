@@ -1,0 +1,13 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('thing.groups') /}
+
+<form type="POST" action="/organizations/{orgId}/group/update">
+  #{authenticityToken /}
+
+  <h2>Users</h2>
+    #{addRemoveTokenField id:"users", name: "users", submitOnEvent: groupId, searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+groupId+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+groupId+"/removeUser" /}
+
+  <h2>DataSets</h2>
+
+</form>

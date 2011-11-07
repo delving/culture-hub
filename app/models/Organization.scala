@@ -19,7 +19,7 @@ case class Organization(_id: ObjectId = new ObjectId,
 object Organization extends SalatDAO[Organization, ObjectId](organizationCollection) {
 
   def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
-  def isOwner(user: ObjectId) = Group.count(MongoDBObject("users" -> user, "grantType.value" -> GrantType.OWN.value)) > 0
+  def isOwner(userName: String) = Group.count(MongoDBObject("users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
 
   def addUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
@@ -43,17 +43,31 @@ case class Group(_id: ObjectId = new ObjectId,
                  orgId: String,
                  grantType: GrantType,
                  dataSets: List[ObjectId] = List.empty[ObjectId],
-                 users: List[ObjectId] = List.empty[ObjectId])
+                 users: List[String] = List.empty[String])
 
 object Group extends SalatDAO[Group, ObjectId](groupCollection) {
 
   /** lists all groups a user has access to for a given organization **/
-  def list(user: ObjectId, orgId: String) = {
-    if(Organization.isOwner(user)) {
+  def list(userName: String, orgId: String) = {
+    if(Organization.isOwner(userName)) {
       Group.find(MongoDBObject("orgId" -> orgId))
     } else {
-      Group.find(MongoDBObject("users" -> user, "orgId" -> orgId))
+      Group.find(MongoDBObject("users" -> userName, "orgId" -> orgId))
     }
+  }
+
+  def addUser(userName: String, groupId: ObjectId): Boolean = {
+    // TODO FIXME make this operation safe
+    User.update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, SAFE_WC)
+    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, SAFE_WC)
+    true
+  }
+
+  def removeUser(userName: String, groupId: ObjectId): Boolean = {
+    // TODO FIXME make this operation safe
+    User.update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, SAFE_WC)
+    Group.update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, SAFE_WC)
+    true
   }
 
 }

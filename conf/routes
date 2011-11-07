@@ -69,6 +69,7 @@ POST       /registration/newPassword                                         Reg
 # Delving URL scheme
 
 GET         /users                                                           Users.list
+GET         /users/search                                                    Users.listAsTokens
 GET         /collections                                                     Collections.list
 GET         /objects                                                         DObjects.list
 GET         /stories                                                         Stories.list
@@ -125,8 +126,6 @@ GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 Sip
 GET         /{user}/sip-creator/?                                            user.SipCreator.index
 GET         /{user}/sip-creator/sip-creator.jnlp                             user.SipCreator.jnlp
 
-GET         /users/search                                                    Users.listAsTokens
-
 # Organizations
 
 GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
@@ -134,6 +133,14 @@ GET        /organizations/{orgId}/admin/?                                    org
 POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
 DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
 
+GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
+GET        /organizations/{orgId}/users/search                               Users.listAsTokens
+
+GET        /organizations/{orgId}/groups/create                              organization.Groups.groups
+GET        /organizations/{orgId}/groups/{groupId}/update                    organization.Groups.groups
+POST       /organizations/{orgId}/groups/{groupId}/update                    organization.Groups.update
+POST       /organizations/{orgId}/groups/{groupId}/addUser                   organization.Groups.addUser
+DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                organization.Groups.removeUser
 
 # Hub Administration
 GET        /admin/themes                                                     admin.Themes.index

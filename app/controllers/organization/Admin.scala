@@ -13,15 +13,10 @@ import models.{User, Organization}
 
 object Admin extends DelvingController with OrganizationSecured {
 
-  @Before() def setOrgId() {
-    val orgId = params.get("orgId")
-    renderArgs += ("orgId" -> orgId)
-  }
-
   @Before(priority = 2) def checkOwner(): Result = {
     val orgId = params.get("orgId")
     if (orgId == null || orgId.isEmpty) Error("How did you even get here?")
-    if (!Organization.isOwner(connectedUserId)) return Forbidden(&("user.secured.noAccess"))
+    if (!Organization.isOwner(connectedUser)) return Forbidden(&("user.secured.noAccess"))
     Continue
   }
 
@@ -31,16 +26,22 @@ object Admin extends DelvingController with OrganizationSecured {
     Template('members -> membersAsTokens)
   }
 
-  def addUser(orgId: String, userName: String): Result = {
-    User.findByUsername(userName).getOrElse(return Error(&("organizations.admin.userNotFound", userName)))
-    val success = Organization.addUser(orgId, userName)
+  /**
+   * Add to organization
+   */
+  def addUser(orgId: String, id: String): Result = {
+    User.findByUsername(id).getOrElse(return Error(&("organizations.admin.userNotFound", id)))
+    val success = Organization.addUser(orgId, id)
     // TODO logging
     if (success) Ok else Error
   }
 
-  def removeUser(orgId: String, userName: String): Result = {
-    User.findByUsername(userName).getOrElse(return Error(&("organizations.admin.userNotFound", userName)))
-    val success = Organization.removeUser(orgId, userName)
+  /**
+   * Remove from organization
+   */
+  def removeUser(orgId: String, id: String): Result = {
+    User.findByUsername(id).getOrElse(return Error(&("organizations.admin.userNotFound", id)))
+    val success = Organization.removeUser(orgId, id)
     // TODO logging
     if (success) Ok else Error
   }
