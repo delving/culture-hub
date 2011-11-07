@@ -7,7 +7,7 @@
 <div class="row">
     <div class="media ${itemName}">
 
-        <img src="${views.context.package.thumbnailUrl(collection.thumbnail_object_id)}" alt="${collection.name}" class="img"/>
+        <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" alt="${collection.name}" class="img"/>
         #{if userName == browsedUserName}
         <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
             <span class="icon icon145"></span>

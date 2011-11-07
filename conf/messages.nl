@@ -173,8 +173,8 @@ admin.themes.label.savetheme=Save theme
 ##Application (homepage)
 home.recentobject=Recent object
 home.recentobjects=Recente objecten
-home.recentcollection=Recente collecties
-home.recentcollections=Recente collectie
+home.recentcollection=Recente collectie
+home.recentcollections=Recente collecties
 home.recentstory=Recent verhaal
 home.recentstories=Recente verhalen
 
@@ -318,7 +318,7 @@ user.object.create=Object aanmaken
 user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
 user.object.label.file=Bestand
-user.collection.save=Bewaar object
+user.object.save=Bewaar object
 
 ##List
 user.list.browse=Browse gebruikers

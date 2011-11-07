@@ -7,9 +7,10 @@ body {
     min-width: 960px;
 }
 
-.container_16 {
+.container {
     /*position: relative;*/
-    min-width: 960px;
+    width: 960px;
+    margin: 0 auto;
 }
 
 h1, h2, h3 {
@@ -34,94 +35,46 @@ h3 {
     /*padding: 1.51785em 0;*/
 }
 
-#login #branding h1 {
-    text-align: center;
-    font-size: 200%;
-    font-weight: bold;
+.header {
+    background: #CCE0F1 url(../images/header-bg) repeat-x top left;
+    position: relative;
+    height: 300px;
+
 }
 
-#header {
-    background: #CCE0F1 url(../images/header-bg.png) repeat-x top left;
+.header-bg {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 9;
+    background: #CCE0F1 url(../images/top_image_nbm2.jpg) repeat-x top left;
+    width: 100%;
+    height: 100%;
+
 }
 
-    #header-top {
-        background:  #034D8F ;
-        border-bottom:  1px solid #fff;
-        height: 64px;
-        line-height: 64px;
-        /*font-size: 12px;*/
-    }
+.header .content {
+    position: relative;
+    z-index: 10;
+}
 
-    #header-top a {
-        color: #fff;
-    }
+#primary-branding {
+    position: absolute;
+    top: 30px;
+    left: 0px;
+    height: 200px;
+    z-index: 11;
+}
 
-        #hub-navigation {
-
-        }
-
-        #login-registration {
-           text-align: right;
-        }
-
-        #user-tools {
-
-        }
-
-    #header-main {
-        background: transparent url(../images/top_image_nbm2.jpg) repeat-x top center;
-        height: 140px;
-        display: block;
-    }
-
-    #home #header-main {
-        height: 304px;
-        display: block;
-    }
-
-    #home #header-main .container_16 {
-
-        height: 304px;
-    }
-
-/* Name / Branding */
-
-    #branding h1 {
-        background: url("../images/logo.png") no-repeat scroll 0 -50px transparent;
-        height: 100px;
-        margin: 10px 0 0;
-    }
-
-    #home #branding h1 {
-        background:  transparent url(../images/logo.png) no-repeat top left;
-        font-family: Times, "Times New Roman", serif;
-        height: 250px;
-        margin: 40px 0 0 0;
-        padding: 0;
-    }
-
-    #header #header-text {
-        display: none;
-    }
-
-    #home #header-text {
-        /*display: none;*/
-        margin: 10px 0 0 380px;
-    }
-
-    #header-text a {
-        /*color: #ffff00;*/
-    }
-
-    #home #header-text {
-        display: none;
-        font-size: 150%;
-        line-height: 150%;
-        /*width: 50%;*/
-    }
-
-#home #header-text p:first-of-type {
-    margin-top:  0;
+#secondary-branding {
+    background-color: #003399;
+    opacity: .30;
+    position: absolute;
+    top: 30px;
+    left: 0px;
+    height: 214px;
+    width: 100%;
+    z-index: 10;
 }
 
 /* SEARCH */

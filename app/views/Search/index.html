@@ -13,7 +13,7 @@
 
 
 #{breadcrumbs queryCrumbs: pagination /}
-
+    *{
     <div>
             getPageNumber: ${pagination.getPageNumber()}<br/>
             getStart: ${pagination.getStart()}<br/>
@@ -23,7 +23,7 @@
             getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
 
     </div>
-
+    }*
     <div class="item-nav g-12of12">
         <div class="mod item-count">
             <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>

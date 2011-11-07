@@ -114,7 +114,8 @@ body#home  {
     position: absolute;
     top: 34px;
     right: 0px;
-    z-index: 10;
+    z-index: 12;
+    padding: 2px 5px;
 }
 
 .user-nav .content {
@@ -127,8 +128,8 @@ body#home  {
     font-family: @ffam-2;
     font-size: @fsize-4;
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 5px;
+    left: 10px;
     margin: 0;
 }
 
@@ -142,8 +143,8 @@ body#home  {
 
 #secondary-branding {
     position: absolute;
-    top: 21px;
-    left: 290px;
+    top: 25px;
+    left: 300px;
 }
 
 /* SITE NAV **********************************************************************************************************/
@@ -152,6 +153,8 @@ body#home  {
     height: 70px;
     position: absolute;
     top: 80px;
+    left: 10px;
+    z-index: 11;
 }
 #site-nav ul {
     margin: 0px;
@@ -159,7 +162,8 @@ body#home  {
 }
 #site-nav ul li {
     display: inline-block;
-    margin: 0 60px 0 0;
+    margin: 0 30px 0 0;
+    /*padding: 0 20px;*/
     height: 75px;
     line-height: 50px;
 }
@@ -195,29 +199,56 @@ body#home  {
     text-align: center;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     position: absolute;
-    top: 280px;
+    top: 240px;
     width: 100%;
+    z-index: 10;
 }
 
 /* HEADER **********************************************************************************************************/
 
 .header {
-    height: 90px;
+    height: 170px;
 }
 
 #home .header {
-    height: 465px;
+    height: 570px;
+    position: relative;
 }
 
+
+.header-bg {
+    position: absolute;
+    top: 142px;
+    left: 0px;
+    z-index: 9;
+    background: transparent url(../images/header-bg-2.jpg) repeat-x top left;
+    opacity: .7;
+    width: 100%;
+    height: 414px;
+
+
+}
+
+/* MAIN **********************************************************************************************************/
+.main {
+    width: 960px;
+    margin-top: 0px;
+}
+
+#home .main {
+    /*top: 495px;*/
+    /*margin-top: 110px;*/
+}
 
 
 /* SEARCH **********************************************************************************************************/
 
 #search {
     position: relative;
-    top: 165px;
-    /*right: 0px;*/
-    text-align: center;
+    top: 85px;
+    right: 10px;
+    text-align: right;
+    z-index: 10;
 }
 
 #search form {
@@ -230,11 +261,11 @@ body#home  {
     border:  1px solid #d1d1d1;
     .border-all(@radius);
     padding: 8px;
-    width: 450px;
+    width: 280px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 @color-2;
+    background: none repeat scroll 0 0 @color-3;
     /*border: medium none;*/
     border:  1px solid @color-2;
     .border-all(@radius);
@@ -258,21 +289,12 @@ body#home  {
 	-moz-border-radius: 2px;
 }
 
-/* MAIN **********************************************************************************************************/
-.main {
-    width: 960px;
-    margin-top: 150px;
-}
 
-#home .main {
-    /*top: 495px;*/
-    /*margin-top: 0px;*/
-}
 
 /* FOOTER **********************************************************************************************************/
 
 .footer {
-    border-top: 1px solid #eaeaea;
+    border-top: 2px solid lighten(@color-2, 30%);
     display: relative;
     margin-top: 40px;
 }
@@ -319,20 +341,29 @@ body#home  {
 
 /* media block in recent wrapper */
 
-.mod.recent .inner{
-    /*background-color: #fff;*/
+.mod.recent.object{
+    background-color: lighten(@color-2, 30%);
+}
+.mod.recent.collection{
+    background-color: lighten(@color-3, 40%);
+}
+.mod.recent.story{
+    background-color: lighten(@color-4, 40%);
 }
 
 .recent h3 {
-    color: @color-3;
+    color: @color-7;
     text-transform:uppercase;
     font-size: @fsize-2;
     font-weight: normal;
-    /*margin-bottom: 0px;*/
+    background: @color-2;
+    padding: 4px 10px;
+    margin: 0;
 }
 
 .recent .media p {
     margin: 0;
+    padding: 0;
 }
 
 .recent .media .clip {
@@ -348,12 +379,17 @@ body#home  {
 
 .recent .media .img {
     clear: both;
-    margin: 0;
     float: none;
+
 }
 
 .recent .title {
     display: block;
+}
+
+.recent .bd {
+    margin: 0 10px;
+    width: auto;
 }
 
 /* PAGINATION ************************************************************************/
@@ -378,7 +414,9 @@ body#home  {
 /* breadcrumb.css overrides */
 
 .breadcrumb {
-    border-bottom: 1px solid #ccc;
+    background-color: lighten(@color-2, 30%);
+    /*border-bottom: 1px solid #ccc;*/
+    height: 32px;
 }
 
 .breadcrumb ul {

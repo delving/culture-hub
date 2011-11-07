@@ -348,7 +348,7 @@ user.object.update=Update an object
 user.object.updateObject=Update object %s
 user.object.label.addToCollection=Add to collection
 user.object.label.file=File
-user.collection.save=Save object
+user.object.save=Save object
 
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
