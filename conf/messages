@@ -370,6 +370,7 @@ user.story.storyDescription=A <strong>story</strong> can be created from objects
 user.story.noPagesFound=No pages found
 user.story.label.viewStory=View story
 user.story.label.addPage=Add a new page
+user.story.label.addObjects=Add object(s)
 user.story.label.freeText=Free Text
 user.story.label.addImageFromCollection=Add an image from this collection
 user.story.noCollection=No collection

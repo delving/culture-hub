@@ -347,6 +347,7 @@ user.story.noPagesFound=Geen pagina's gevonden
 user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus voor dat u een verhaal kan aanmaken moet u een collectie met objecten aanmaken.
 user.story.label.viewStory=Bekijk het verhaal
 user.story.label.addPage=Nieuwe pagina toevoegen
+user.story.label.addObjects=Object(en) toevoegen
 user.story.label.freeText=Vrije tekst
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie

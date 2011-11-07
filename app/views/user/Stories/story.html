@@ -33,9 +33,9 @@
                     <label class="label">&{'ui.label.visibility'}</label>
 
                     <div class="inputs">
-                        <input type="radio" name="public" value="Private" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
+                        <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
                         <br/>
-                        <input type="radio" name="public" value="Public" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                        <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
                     </div>
                 </div>
 
@@ -116,7 +116,7 @@
             </div>
         </div>
         <hr/>
-        <h4>Object toevoegen</h4>
+        <h4>&{'user.story.label.addObjects'}</h4>
 
         <div class="field">
             <label class="label">&{'ui.label.collectionSelect'}</label>
