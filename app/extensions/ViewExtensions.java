@@ -9,7 +9,7 @@ import play.templates.JavaExtensions;
 public class ViewExtensions extends JavaExtensions {
 
     public static String isCurrent(String action) {
-        return Http.Request.current().action.startsWith(action) ? "current" : "";
+        return Http.Request.current().action.contains(action) ? "current" : "";
     }
 
     public static String pluralize(String singular) {
