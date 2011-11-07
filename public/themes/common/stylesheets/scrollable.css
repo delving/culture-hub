@@ -17,7 +17,7 @@
 .story-navigation {
     height: 32px;
     position: relative;
-    top: 20px;
+    top: 0px;
     clear: both;
 }
 
@@ -43,7 +43,7 @@
     min-height: 500px;
 
 	/* custom decorations */
-    top: 40px;
+    top: 20px;
 }
 
 /*
