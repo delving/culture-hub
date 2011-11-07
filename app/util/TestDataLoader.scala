@@ -41,8 +41,7 @@ trait TestDataGeneric extends TestData {
   val bnfId = Organization.insert(bnf)
 
   // all users are in delving
-  val pushDelving = $set ("organizations.delving" -> delvingId.get)
-  User.update(MongoDBObject(), pushDelving)
+  User.find(MongoDBObject()).foreach(u => Organization.addUser("delving", u.userName))
 
   val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN)
   val delvingOwnersId = Group.insert(delvingOwners)

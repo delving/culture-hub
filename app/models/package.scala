@@ -2,6 +2,7 @@ package models {
 
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.WriteConcern
 
 package object salatContext {
 
@@ -32,6 +33,10 @@ package object salatContext {
 
   val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved
   val MONGO_ID: String = "_id" // mongo identifier we use
+
+    // http://api.mongodb.org/java/2.6/com/mongodb/WriteConcern.html
+    val IMPORTANT_AS_HELL_WC = WriteConcern(2, 2000, true)
+
 }
 
 }

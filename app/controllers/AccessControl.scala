@@ -16,12 +16,14 @@ object AccessControl {
   val GROUPS = "groups"
 
   def addToGroup(user: ObjectId, group: ObjectId): Boolean = {
-    User.update(MongoDBObject("_id" -> user), $addToSet ("groups" -> group))
+    // TODO FIXME rollback
+
+    User.update(MongoDBObject("_id" -> user), $addToSet ("groups" -> group), false, false, IMPORTANT_AS_HELL_WC)
     val userUpdated = Option(userCollection.lastError().get("updateExisting")) match {
       case None => false
       case Some(e) => e.asInstanceOf[Boolean]
     }
-    Group.update(MongoDBObject("_id" -> group), $addToSet ("users" -> user))
+    Group.update(MongoDBObject("_id" -> group), $addToSet ("users" -> user), false, false, IMPORTANT_AS_HELL_WC)
     val groupUpdated = Option(groupCollection.lastError().get("updateExisting")) match {
       case None => false
       case Some(e) => e.asInstanceOf[Boolean]

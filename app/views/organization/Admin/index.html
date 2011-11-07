@@ -1,0 +1,38 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('org.admin.index.title') /}
+
+<h2>Members</h2>
+
+<input type="text" id="members" name="members">
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#members').tokenInput('/users/search', {
+      prePopulate: ${members.raw()},
+      onAdd: function(item) {
+        $.ajax({
+          type: 'POST',
+          url: '/organizations/${orgId}/admin/users/add',
+          data: {userName: item.name},
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $('#members').tokenInput('remove', {id: item.id})
+          }
+        });
+      },
+      onDelete: function(item) {
+        $.ajax({
+          type: 'DELETE',
+          url: '/organizations/${orgId}/admin/users/remove',
+          data: {userName: item.name},
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $('#members').tokenInput('add', {id: item.id})
+          }
+        });
+      }
+    });
+    $('#members').blur();
+  });
+</script>

@@ -76,7 +76,6 @@ GET         /stories                                                         Sto
 GET         /{user}/?                                                        Profiles.view
 
 GET         /{user}/collection                                               Collections.list
-GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
@@ -99,8 +98,6 @@ POST        /{user}/story/submit                                             use
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
-
-GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
 
 GET         /{user}/admin/?                                                  user.Admin.index
 
@@ -133,6 +130,9 @@ GET         /users/search                                                    Use
 # Organizations
 
 GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
+GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
+POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
+DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
 
 
 # Hub Administration

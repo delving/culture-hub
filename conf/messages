@@ -393,6 +393,7 @@ org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount=%s DataSet(s)
 
+org.admin.index.title=Organization administration
 
 # Controllers
 
@@ -453,6 +454,9 @@ authentication.notactive.error=Your account is not yet active. Active it followi
 servicessecurity.userNotFound=User %s was not found
 
 stories.storyNotFound=Story with id %s was not found
+
+organizations.admin.userNotFound=Could not find user with userName %s
+
 
 # Old stuff
 

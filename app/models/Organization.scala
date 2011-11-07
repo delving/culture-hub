@@ -3,7 +3,7 @@ package models
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 
 /**
  * 
@@ -13,11 +13,32 @@ import com.mongodb.casbah.commons.MongoDBObject
 case class Organization(_id: ObjectId = new ObjectId,
                         node: String, // node on which this organization runs
                         orgId: String, // identifier of this organization, unique in the world, used in the URL
-                        name: Map[String, String] = Map.empty[String, String]) // language - orgName
+                        name: Map[String, String] = Map.empty[String, String], // language - orgName
+                        users: List[String] = List.empty[String]) // member usernames
 
 object Organization extends SalatDAO[Organization, ObjectId](organizationCollection) {
 
-  def isOwner(user: ObjectId) = Group.count(MongoDBObject("users" -> user, "grantType" -> GrantType.OWN)) > 0
+  def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
+  def isOwner(user: ObjectId) = Group.count(MongoDBObject("users" -> user, "grantType.value" -> GrantType.OWN.value)) > 0
+
+  def addUser(orgId: String, userName: String): Boolean = {
+
+    // TODO FIXME rollback
+
+    Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, IMPORTANT_AS_HELL_WC)
+    val addedToOrg = Option(organizationCollection.lastError().get("updateExisting")) match {
+      case None => false
+      case Some(e) => e.asInstanceOf[Boolean]
+    }
+
+    User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, IMPORTANT_AS_HELL_WC)
+    val addedToUser = Option(userCollection.lastError().get("updateExisting")) match {
+      case None => false
+      case Some(e) => e.asInstanceOf[Boolean]
+    }
+    addedToOrg && addedToUser
+  }
+
 }
 
 case class Group(_id: ObjectId = new ObjectId,
