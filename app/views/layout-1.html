@@ -155,10 +155,10 @@
             <!--site nav-->
             <ul>
                 <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>&{'thing.objects'}</span></a></li>
-                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>&{'thing.collections'}</span></a></li>
-                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>&{'thing.stories'}</span></a>
-                <li class='${"Users".isCurrent()}'><a href="/users"><span>&{'thing.users'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'><a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'><a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
+                <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
             </ul>
         </div>
 
