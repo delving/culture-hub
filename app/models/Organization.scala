@@ -22,21 +22,17 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   def isOwner(user: ObjectId) = Group.count(MongoDBObject("users" -> user, "grantType.value" -> GrantType.OWN.value)) > 0
 
   def addUser(orgId: String, userName: String): Boolean = {
+    // TODO FIXME make this operation safe
+    Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, SAFE_WC)
+    User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, SAFE_WC)
+    true
+  }
 
-    // TODO FIXME rollback
-
-    Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, IMPORTANT_AS_HELL_WC)
-    val addedToOrg = Option(organizationCollection.lastError().get("updateExisting")) match {
-      case None => false
-      case Some(e) => e.asInstanceOf[Boolean]
-    }
-
-    User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, IMPORTANT_AS_HELL_WC)
-    val addedToUser = Option(userCollection.lastError().get("updateExisting")) match {
-      case None => false
-      case Some(e) => e.asInstanceOf[Boolean]
-    }
-    addedToOrg && addedToUser
+  def removeUser(orgId: String, userName: String): Boolean = {
+    // TODO FIXME make this operation safe
+    Organization.update(MongoDBObject("orgId" -> orgId), $pull ("users" -> userName), false, false, SAFE_WC)
+    User.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, SAFE_WC)
+    true
   }
 
 }

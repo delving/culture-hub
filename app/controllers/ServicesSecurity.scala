@@ -15,7 +15,7 @@ class ServicesSecurity extends Security with Internationalization {
       throw new RuntimeException(&("servicessecurity.userNotFound", username))
     }
     session.put("connectedUserId", user.get._id.toString)
-    session.put(AccessControl.ORGANIZATIONS, user.get.organizations.keys.mkString(","))
+    session.put(AccessControl.ORGANIZATIONS, user.get.organizations.mkString(","))
     session.put(AccessControl.GROUPS, user.get.groups.mkString(","))
 
   }
