@@ -42,6 +42,8 @@
     -->
     <root localName="record">
         <field prefix="delving" localName="deepZoomUrl"/>
+        <field prefix="tib" localName="thumbLarge"/>
+        <field prefix="tib" localName="thumbSmall"/>
         <field prefix="tib" localName="collection" facetPrefix="src" facetName="bron"/>
         <field prefix="tib" localName="objectSoort" facetPrefix="obs" facetName="objectSoort">
             <options>
