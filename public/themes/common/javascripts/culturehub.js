@@ -13,6 +13,15 @@ function initializeElements() {
     );
 }
 
+function bindCSRFToken(csrfToken) {
+    $("body").bind("ajaxSend", function(elm, xhr, s) {
+      if (s.type == "POST") {
+        xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+      }
+    });
+
+}
+
 /**
  * Helper to fetch a thumbnail URL
  * @param id the ID of the thumbnail

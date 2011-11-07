@@ -21,6 +21,16 @@ import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
 
 trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
 
+  @Before def checkCSRF(): Result = {
+    if(request.method == "POST") {
+      return checkAuthenticity() match {
+        case Some(r) => r
+        case None => Continue
+      }
+    }
+    Continue
+  }
+
   // ~~~ user variables handling for view rendering (connected and browsed)
 
   @Before(priority = 0) def setConnectedUser() {
@@ -30,6 +40,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("fullName", u.fullname)
         renderArgs += ("userName", u.userName)
         renderArgs += ("userId", u._id)
+        renderArgs += ("authenticityToken", session.getAuthenticityToken)
       }
     }
   }
@@ -123,7 +134,9 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   }
 
   @Util def checkAuthenticity(): Option[Result] = {
-    if (params.get("authenticityToken") == null || !(params.get("authenticityToken") == session.getAuthenticityToken)) {
+    val authenticityTokenParam = params.get("authenticityToken")
+    val CSRFHeader = request.headers.get("x-csrf-token")
+    if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == session.getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.value() == session.getAuthenticityToken))) {
       Some(Forbidden("Bad authenticity token"))
     } else {
       None

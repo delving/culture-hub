@@ -44,8 +44,9 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            initializeElements();
-            $.metadata.setType('html5');
+          initializeElements();
+          bindCSRFToken('${authenticityToken}');
+          $.metadata.setType('html5');
 
         });
     </script>
