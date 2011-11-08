@@ -133,7 +133,7 @@ body {
     color: @color14;
     font-family: @font1;
     font-size: 14px;
-    line-height: 1.25;
+    line-height: 1.5;
 }
 
 a:link {
@@ -172,14 +172,24 @@ a:visited {
     display: block;
     font-size: @fsize4;
     font-weight: bold;
+    position: absolute;
+    top: 0px;
 }
 
 .site-slogan {
     color: @color6;
+    font-size: @fsize2;
     font-weight: bold;
+    position: absolute;
+    left: 205px;
+    top: 48px;
 }
 
 .secondary-branding {
+    display: none;
+}
+
+.primary-branding {
     display: none;
 }
 
@@ -323,6 +333,63 @@ a:visited {
    margin: 0 0 10px 10px;
 }
 
+/* media block in recent wrapper */
+
+.recent {
+    .border-all(4px);
+}
+
+.recent.object{
+    background-color: lighten(@color5, 30%);
+}
+.recent.collection{
+    background-color: lighten(@color8, 40%);
+}
+.recent.story{
+    background-color: lighten(@color10, 40%);
+}
+
+.recent h3 {
+    color: @color7;
+    text-transform:uppercase;
+    font-size: @fsize2;
+    font-weight: normal;
+    background: @color2;
+    padding: 4px 10px;
+    margin: 0;
+}
+
+.recent .media p {
+    margin: 0;
+    padding: 0;
+}
+
+.recent .media .clip {
+    display: block;
+    height: 210px;
+    overflow: hidden;
+}
+
+.recent .clip img {
+    position:absolute;
+    clip:rect(0px,280px,200px,0px);
+}
+
+.recent .media .img {
+    clear: both;
+    float: none;
+
+}
+
+.recent .title {
+    display: block;
+}
+
+.recent .bd {
+    margin: 0 10px;
+    width: auto;
+}
+
 
 /* overrides */
 
@@ -340,10 +407,34 @@ form h3 {
     padding: 10px;
 }
 
-
 form legend {
     background: #eeeee0;
     color: @color14;
+}
+
+.pagination .current {
+    background: @color8;
+}
+
+.pagination .prev,
+.pagination .next {
+    background: #f3f3f3;
+}
+
+.pagination .current.prev, .pagination .current.next {
+    background: #f3f3f3;
+}
+
+.facets h3 {
+    font-size: @fsize1;
+}
+
+.facet-container {
+    background: @color2;
+}
+
+.media .img {
+    margin-right: 10px;
 }
 
 

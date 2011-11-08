@@ -11,7 +11,7 @@
 <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
 #{if items.length() > 0}
-<div class="g-12of12">
+<div class="g-12of12 mbm">
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
 </div>
 #{/if}
@@ -60,7 +60,7 @@
     %{ counter++ }%
 
     #{if counter > 3 || i_isLast }
-</div><!-- end line -->
+</div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
 
@@ -68,6 +68,9 @@
 
 #{if items.length() > 0}
 <div class="row">
+<div class="g-12of12 mtm">
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
 </div>
+</div>
+
 #{/if}

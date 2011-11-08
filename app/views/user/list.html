@@ -4,44 +4,74 @@
 
 #{breadcrumbs /}
 
-<div class="line" id="items">
+<h1 class="sep">&{'user.list.browse'} (${count})</h1>
 
-    <h2>&{'user.list.browse'} (${count})</h2>
-
+<div class="g-12of12">
     #{if items.length() > 0}
-    <div class="item-nav">
-        <div id="pager">#{pagination selector: "#pager", count: count, start: page /}</div>
-    </div>
+    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
     #{else}
-      <p>&{'user.list.noUsers'}</p>
+    <p>&{'user.list.noUsers'}</p>
     #{/else}
-
-    <div class="clear"></div>
-    <div class="items">
-    #{list items, as: 'i'}
-    <div class="item two-col">
-      <div class="inner">
-        <div class="media medium">
-            <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' width="84" alt="${i.title}"/>
-        </div>
-        <div class="metadata">
-            <div class="hd">
-                <h4><a href="/${i.userName}/">${i.title}</a></h4>
-            </div>
-            <div class="bd">
-              ${i.description}
-            </div>
-            <div class="ft">
-            #{if i.userName == userName}
-            <div class="actions">
-                <a class="action edit image-edit" href="/${i.userName}/profile/update">&{'user.list.editProfile'}</a>
-            </div>
-            #{/if}
-            </div>
-        </div>
-       </div>
-    </div>
-    #{/list}
-    </div>
 </div>
+
+%{ def counter = 1 }%
+
+#{list items, as: 'i'}
+
+#{if counter == 1}
+<div class="row">
+    #{/if}
+
+    <div class="g-4of12">
+        <div class="mod">
+            <div class="media ${itemName}">
+
+                <a href="/${i.userName}/" class="img" rel="nofollow">
+                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100" class="img"/>
+                </a>
+
+                <div class="bd">
+                    <div class="metadata">
+
+                        <a href="/${i.userName}/" class="title" rel="nofollow">${i.title.shorten(50)}</a>
+
+                        #{if i.description}
+                        <div class="more-info">
+                            <div class="inner">
+                                ${i.description.shorten(100)}
+                                 #{if i.userName == userName}
+                                <div class="actions">
+                                    <a class="action edit image-edit" href="/${i.userName}/profile/update">&{'user.list.editProfile'}</a>
+                                </div>
+                                #{/if}
+                            </div>
+                        </div>
+                        #{/if}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    %{ counter++ }%
+
+    #{if counter > 3 || i_isLast }
+</div><!-- end row -->
+%{ counter = 1 }%
+#{/if}
+
+#{/list}
+
+#{if items.length() > 6}
+<div class="row">
+<div class="g-12of12 mtm">
+    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+</div>
+</div>
+
+#{/if}
+
+
