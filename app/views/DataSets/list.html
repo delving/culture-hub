@@ -13,15 +13,13 @@
 </h1>
 #{if browsedUserName}
 
-<div class="sep">
-    <div class="mod">
+<div class="g-12of12">
         &{'thing.owner'}: <span>${browsedUserName}</span><br/>
         &{'thing.count'}: ${count}
-    </div>
 </div>
 
 #{/if}
-
+<div class="row">
 <div class="g-12of12">
 #{if items.length() > 0}
     <div class="mod data-grid">
@@ -143,4 +141,4 @@
 <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
 #{/}
 </div>
-
+</div>

@@ -2,10 +2,14 @@
 
 #{set title: viewUtils.getKey('admin.themes.title') /}
 
-<h1>&{'admin.themes.title'}</h1>
-
-<ul>
+<h1 class="sep">&{'admin.themes.title'}</h1>
+<div class="row">
+<div class="g-12of12">
+<ol>
   #{list themes, as: 'theme'}
     <li><a href="/admin/themes/${theme._id}/update">${theme.name}</a></li>
   #{/list}
-</ul>
+</ol>
+</div>
+</div>
+
