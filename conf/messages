@@ -116,6 +116,7 @@ thing.addcomment=Add comment
 thing.collaborators=Collaborators
 thing.createnew=Create a new %s
 thing.browse=Browse %s
+thing.browse.of=Browse %s of
 thing.browse.ownedby=Browse %s owned by
 thing.grantType=This group grants
 

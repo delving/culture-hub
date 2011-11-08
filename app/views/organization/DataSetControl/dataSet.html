@@ -42,9 +42,9 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/${userName}/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/${userName}/dataset/' + dataSetModel.spec.call(); });
+      handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call(); });
     });
 
-    load('/${userName}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
+    load('/organizations/${orgId}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
   });
 </script>

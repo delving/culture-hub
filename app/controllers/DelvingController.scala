@@ -45,7 +45,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
-  @Before(priority = 0) def setBrowsedUser() {
+  @Before(priority = 0) def setBrowsed() {
     Option(params.get("user")) foreach { userName =>
       val user = User.findByUsername(userName)
       user match {
@@ -56,6 +56,10 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         case None =>
           renderArgs += ("browsedUserNotFound", userName)
       }
+    }
+    Option(params.get("orgId")) foreach { orgId =>
+      val orgName = Organization.fetchName(orgId)
+      renderArgs += ("browsedOrgName", orgName)
     }
   }
 

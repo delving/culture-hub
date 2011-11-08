@@ -5,7 +5,7 @@ import models._
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
-case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", total_records: Int = 0, state: DataSetState = DataSetState.INCOMPLETE, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], userName: String, errors: Map[String, String] = Map.empty[String, String])
+case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", total_records: Int = 0, state: DataSetState = DataSetState.INCOMPLETE, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], orgId: String, userName: String, errors: Map[String, String] = Map.empty[String, String])
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
@@ -30,7 +30,7 @@ trait ModelImplicits {
   // ~~ ShortItems
   implicit def labelListToShortList(ll: List[ObjectId]): List[ShortLabel] = Label.findAllWithIds(ll).toList map { l => ShortLabel(l.labelType, l.value)}
 
-  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.getUser.userName)
+  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getUser.userName)
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
   // ~~ ListItems

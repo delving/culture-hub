@@ -28,8 +28,8 @@ import play.i18n.Messages
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-//                   orgId: String,
-                   user_id: ObjectId,
+                   user_id: ObjectId, // who created this
+                   orgId: Predef.String,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
@@ -38,7 +38,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   indexingMappings: List[String] = List.empty[String],
+                   idxMappings: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
                    invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
 
@@ -112,8 +112,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.find(MongoDBObject("state.name" -> state.name))
   }
 
-  def getIndexingState(spec: String): (Int, Int) = {
-    val ds = DataSet.findBySpec(spec).getOrElse(return (100, 100))
+  def getIndexingState(orgId: String, spec: String): (Int, Int) = {
+    val ds = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return (100, 100))
     if(ds.state == DataSetState.ENABLED) return (ds.details.total_records, ds.details.total_records)
     (ds.details.indexing_count, ds.details.total_records)
   }
@@ -131,7 +131,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   import eu.delving.sip.IndexDocument
 
   // FIXME: this assumes that the spec is unique accross all users
+  @Deprecated
   def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec))
+
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
   def retrieveBySpec(spec: String): DataSet = findBySpec(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
 
@@ -144,6 +147,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user_id" -> owner))
+
+  def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId))
 
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
@@ -198,7 +203,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
+  @Deprecated
   def getStateBySpec(spec: String) = DataSet.findBySpec(spec).get.state
+
+  def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
   def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpec(dataSet.spec).get

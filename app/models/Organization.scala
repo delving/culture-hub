@@ -18,6 +18,11 @@ case class Organization(_id: ObjectId = new ObjectId,
 
 object Organization extends SalatDAO[Organization, ObjectId](organizationCollection) {
 
+  def fetchName(orgId: String) = organizationCollection.findOne(MongoDBObject("orgId" -> orgId), MongoDBObject("name.en" -> 1)) match {
+    case None => None
+    case Some(org) => Some(org.getAs[String]("name.en"))
+  }
+
   def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
   def isOwner(userName: String) = Group.count(MongoDBObject("users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
 

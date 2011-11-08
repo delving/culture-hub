@@ -1,4 +1,4 @@
-package controllers.user
+package controllers.organization
 
 import play.mvc.results.Result
 import extensions.JJson
@@ -16,13 +16,13 @@ import components.Indexing
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSets extends DelvingController with UserSecured {
+object DataSetControl extends DelvingController with OrganizationSecured {
 
   // TODO check rights for the accessed dataset
-  def dataSet(spec: String): Result = Template('spec -> Option(spec), 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  def dataSet(orgId: String, spec: String): Result = Template('spec -> Option(spec), 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
 
   // TODO check rights for the accessed dataset
-  def dataSetSubmit(data: String): Result = {
+  def dataSetSubmit(orgId: String, data: String): Result = {
 
     val dataSet = JJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
@@ -55,7 +55,7 @@ object DataSets extends DelvingController with UserSecured {
       case None => DataSet.insert(
         DataSet(
           spec = dataSet.spec,
-//          orgId = "todo",
+          orgId = orgId,
           user_id = connectedUserId,
           state = DataSetState.INCOMPLETE,
           lastUploaded = new Date(),
@@ -71,8 +71,8 @@ object DataSets extends DelvingController with UserSecured {
     Json(dataSet)
   }
 
-  def index(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def index(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
       // TODO
       // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
@@ -91,8 +91,8 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def reIndex(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def reIndex(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
       // TODO
       // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
 
@@ -106,8 +106,8 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def cancel(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def cancel(orgId: String, spec: String): Result = {
+    withDataSet(orgId: String, spec) { dataSet =>
       dataSet.state match {
         case QUEUED | INDEXING =>
           DataSet.changeState(dataSet, DataSetState.UPLOADED)
@@ -122,20 +122,20 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def state(spec: String): Result = {
-    Json(Map("state" -> DataSet.getStateBySpec(spec).name))
+  def state(orgId: String, spec: String): Result = {
+    Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
   }
 
-  def indexingStatus(spec: String): Result = {
-    val state = DataSet.getIndexingState(spec) match {
+  def indexingStatus(orgId: String, spec: String): Result = {
+    val state = DataSet.getIndexingState(orgId, spec) match {
       case (a, b) if a == b => "DONE"
       case (a, b) => ((a.toDouble / b) * 100).round
     }
     Json(Map("status" -> state))
   }
 
-  def disable(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def disable(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
 
       // TODO
       // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
@@ -150,8 +150,8 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def enable(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def enable(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
 
       // TODO
       // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
@@ -165,8 +165,8 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def delete(spec: String): Result = {
-    withDataSet(spec) { dataSet =>
+  def delete(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
 
       // TODO
       // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
@@ -180,9 +180,8 @@ object DataSets extends DelvingController with UserSecured {
     }
   }
 
-  def withDataSet(spec: String)(operation: DataSet => Result): Result = {
-    val dataSet = DataSet.findBySpec(spec).getOrElse(return NotFound(&("user.datasets.dataSetNotFound", spec)))
+  def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
+    val dataSet = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return NotFound(&("user.datasets.dataSetNotFound", spec)))
     operation(dataSet)
   }
 }
-
