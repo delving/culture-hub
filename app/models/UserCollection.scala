@@ -17,6 +17,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                            name: String,
                            description: String,
                            visibility: Visibility,
+                           deleted: Boolean = false,
                            thumbnail_id: Option[ObjectId]) extends Thing
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {

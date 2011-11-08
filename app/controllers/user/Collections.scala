@@ -10,7 +10,6 @@ import com.mongodb.casbah.Imports._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
-import play.mvc.Before
 import models.{Visibility, DObject, UserCollection}
 
 /**
@@ -20,10 +19,6 @@ import models.{Visibility, DObject, UserCollection}
  */
 
 object Collections extends DelvingController with UserSecured {
-
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[CollectionViewModel])
-  }
 
   def load(id: String): Result = {
     // TODO access rights
@@ -39,7 +34,10 @@ object Collections extends DelvingController with UserSecured {
   }
 
 
-  def collection(id: String): Result = Template('id -> Option(id))
+  def collection(id: String): Result = {
+    renderArgs += ("viewModel", classOf[CollectionViewModel])
+    Template('id -> Option(id))
+  }
 
   def collectionSubmit(data: String): Result = {
 
@@ -78,7 +76,14 @@ object Collections extends DelvingController with UserSecured {
       }
       case None => Error(&("user.collections.saveError", collectionModel.name))
     }
+
   }
+
+  def remove(id: ObjectId) = {
+    if(UserCollection.owns(connectedUserId, id)) UserCollection.delete(id) else Forbidden("Big brother is watching you")
+  }
+
+
 
   // TODO move someplace generic
   implicit def stringToObjectIdOption(id: String): Option[ObjectId] = if(!ObjectId.isValid(id)) None else Some(new ObjectId(id))

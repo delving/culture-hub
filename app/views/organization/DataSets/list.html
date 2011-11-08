@@ -63,6 +63,15 @@
                         <a class="button" href="/organizations/${orgId}/dataset/${i.spec}/update">
                             <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
                         </a>
+                        <a class="button" id="remove${i.spec}">
+                            <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.dataset'))}</span>
+                        </a>
+                        <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dataset.confirmDeletion'}</p></div>
+                        <script type="text/javascript">
+                          $(document).ready(function() {
+                            remove('#remove${i.spec}', '#removeConfirmation', '/organizations/${orgId}/dataset/${i.spec}/remove', '/organizations/${orgId}/dataset');
+                          });
+                        </script>
                         #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
                         <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
                             <button class="action green index"><span class="label">&{'dataset.index'}</span>

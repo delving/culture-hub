@@ -136,12 +136,37 @@ function updateViewModel(data, viewModel, scope) {
     }
 }
 
+function remove(buttonId, dialogId, removeUrl, redirectUrl) {
+    $(buttonId).click(function(e) {
+      e.preventDefault();
+      confirmDeletion(dialogId, function() {
+          $.ajax({
+            url: removeUrl,
+            type: 'DELETE',
+            complete: function() {
+              document.location = redirectUrl;
+            }
+          });
+      });
+    });
+
+}
+
 // ~~~ common dialogs
+
+function confirmationDialog(elementId, onConfirm, message, title) {
+    var id = '#' + elementId + 'ConfirmationDialog';
+    if($(id).length == 0) {
+        $('<div id="' + id + '" title="' + title + '"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">' + message + '</span></p></div>').insertAfter(id);
+        confirmDeletion(id, onConfirm);
+    }
+    $(id).dialog('open');
+}
 
 function confirmDeletion(elementSelector, onDelete) {
     $(elementSelector).dialog({
         resizable: false,
-        height:140,
+        height: 150,
         modal: true,
         buttons: {
             "Delete": function() {

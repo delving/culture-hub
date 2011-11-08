@@ -82,6 +82,7 @@ GET         /{user}/collection/{collectionId}/object/{id}                    DOb
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
+DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.collection
 
@@ -89,6 +90,7 @@ GET         /{user}/object                                                   DOb
 GET         /{user}/object/add                                               user.DObjects.dobject
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
+DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
 GET         /{user}/object/load/{id}?                                        user.DObjects.load
 GET         /{user}/object/{id}                                              DObjects.dobject
 
@@ -96,6 +98,7 @@ GET         /{user}/story                                                    Sto
 GET         /{user}/story/add                                                user.Stories.story
 GET         /{user}/story/{id}/update                                        user.Stories.story
 POST        /{user}/story/submit                                             user.Stories.storySubmit
+DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
@@ -134,7 +137,7 @@ GET         /organizations/{orgId}/dataset/{spec}/indexingStatus             org
 GET         /organizations/{orgId}/dataset/{spec}/state                      organization.DataSetControl.state
 POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
 POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
-POST        /organizations/{orgId}/dataset/{spec}/delete                     organization.DataSetControl.disable
+DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.disable
 
 GET         /organizations/{orgId}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
 GET         /organizations/{orgId}/dataset/sip-creator/unlock/{spec}                        SipCreatorEndPoint.unlock

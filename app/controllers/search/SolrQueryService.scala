@@ -429,7 +429,7 @@ case class PresentationQuery(chResponse: CHResponse) {
 
   def getParsedQuery: String = {
     val debug = chResponse.chQuery.solrQuery.getBool("debugQuery").booleanValue()
-    if (debug != null && debug)
+    if (debug)
       String.valueOf(chResponse.response.getDebugMap.get("parsedquery_toString"))
     else
       "Information not available"

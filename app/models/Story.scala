@@ -17,6 +17,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  name: String,
                  description: String,
                  visibility: Visibility,
+                 deleted: Boolean = false,
                  thumbnail_id: Option[ObjectId],
                  isDraft: Boolean,
                  pages: List[Page]) extends Thing

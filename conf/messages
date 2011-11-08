@@ -119,6 +119,7 @@ thing.browse=Browse %s
 thing.browse.of=Browse %s of
 thing.browse.ownedby=Browse %s owned by
 thing.grantType=This group grants
+thing.confirmation=Are you sure?
 
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
@@ -150,6 +151,8 @@ site.nav.home=Home
 # jQuery templates
 tmpl.selectedObjects.useAsDefault=Use as default
 tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+
+
 # Views
 
 ## Admin.Themes view
@@ -199,12 +202,20 @@ home.recentstories=Recent stories
 authentication.label.forgotpassword=I forgot my password
 authentication.label.rememberme=Remember me
 
+##DObjects
+dobject.confirmDeletion=Are you sure you want to remove this object?
+
+##Collections
+collection.confirmDeletion=Are you sure you want to remove this collection?
+
+
 ##DataSets
 dataset.index=Index
 dataset.reindex=Re-index
 dataset.cancelindex=Cancel indexing
 dataset.disable=Disable
 dataset.enable=Enable
+dataset.confirmDeletion=Are you sure you want to remove this DataSet?
 
 ##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
@@ -234,12 +245,12 @@ search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
 
-
 ##Story
 story.pages=Pages
 story.nextpage=Next page
 story.read=Read story
 story.previouspage=Previous page
+story.confirmDeletion=Are you sure you want to remove this story?
 
 #metadata
 metadata.abm.contentProvider=Content Provider

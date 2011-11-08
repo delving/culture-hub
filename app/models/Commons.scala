@@ -6,19 +6,24 @@ import com.mongodb.casbah.Imports._
 import salat.dao.{SalatMongoCursor, SalatDAO}
 
 /**
- * 
+ * Common trait to be used with the companion object of a {@link models.Thing }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
+trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
   def visibilityQuery(who: ObjectId) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "user_id" -> who)))
 
-  def browseByUser(id: ObjectId, whoBrowses: ObjectId) = find(MongoDBObject("user_id" -> id) ++ visibilityQuery(whoBrowses))
-  def browseAll(whoBrowses: ObjectId) = find(visibilityQuery(whoBrowses))
+  def browseByUser(id: ObjectId, whoBrowses: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id) ++ visibilityQuery(whoBrowses))
+  def browseAll(whoBrowses: ObjectId) = find(MongoDBObject("deleted" -> false) ++ visibilityQuery(whoBrowses))
 
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
-  def findRecent(howMany: Int) = find(MongoDBObject("visibility" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
+  def findRecent(howMany: Int) = find(MongoDBObject("deleted" -> false, "visibility" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
+
+  def owns(user: ObjectId, id: ObjectId) = count(MongoDBObject("_id" -> id, "user_id" -> user)) > 0
+
+  def delete(id: ObjectId) {
+    update(MongoDBObject("_id" -> id), $set ("deleted" -> true), false, false)
+  }
 }
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>

@@ -31,7 +31,7 @@ object Indexing extends SolrServer {
       records foreach {
         record =>
           if (records.numSeen % 100 == 0) {
-            DataSet.updateIndexingCount(dataSet.spec, records.numSeen)
+            DataSet.updateIndexingCount(dataSet, records.numSeen)
             state = DataSet.getStateBySpec(dataSet.spec)
           }
           val mapping = engine.executeMapping(record.getXmlString())

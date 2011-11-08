@@ -16,10 +16,6 @@ import play.mvc.Before
 
 object Stories extends DelvingController with UserSecured {
 
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[StoryViewModel])
-  }
-
   def load(id: String): Result = {
 
     val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
@@ -44,7 +40,10 @@ object Stories extends DelvingController with UserSecured {
     }
   }
 
-  def story(id: String): Result = Template('id -> Option(id))
+  def story(id: String): Result = {
+    renderArgs += ("viewModel", classOf[StoryViewModel])
+    Template('id -> Option(id))
+  }
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
@@ -73,8 +72,11 @@ object Stories extends DelvingController with UserSecured {
         Story.save(updatedStory)
         storyVM
     }
-
     Json(persistedStory)
+  }
+
+  def remove(id: ObjectId) = {
+    if(Story.owns(connectedUserId, id)) Story.delete(id) else Forbidden("Big brother is watching you")
   }
 
 }

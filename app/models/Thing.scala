@@ -10,7 +10,7 @@ import java.util.Date
  */
 
 @Salat
-trait Thing {
+trait Thing extends AnyRef with Product {
   val _id: ObjectId
   val TS_update: Date
   val user_id: ObjectId
@@ -18,6 +18,7 @@ trait Thing {
   val name: String
   val description: String
   val visibility: Visibility
+  val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
 }
 

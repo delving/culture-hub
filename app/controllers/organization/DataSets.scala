@@ -17,7 +17,7 @@ object DataSets extends DelvingController with OrganizationSecured {
   def list(orgId: String, page: Int = 1): Result = {
     val dataSetsPage = DataSet.findAllByOrgId(orgId).page(page)
     val items: List[ShortDataSet] = dataSetsPage._1
-    Template('title -> listPageTitle("dataset"), 'items -> items, 'page -> page, 'count -> dataSetsPage._2, 'isOwner -> Organization.isOwner(connectedUserId))
+    Template('title -> listPageTitle("dataset"), 'items -> items, 'page -> page, 'count -> dataSetsPage._2, 'isOwner -> Organization.isOwner(connectedUser))
   }
 
   def dataSet(orgId: String, spec: String): Result = {
@@ -33,14 +33,14 @@ object DataSets extends DelvingController with OrganizationSecured {
       case "json" => if (dataSet == None) Json(ShortDataSet(userName = connectedUser, orgId = orgId))
       else {
         val dS = dataSet.get
-        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getUser.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions))
+        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions))
       }
     }
 
   }
 
-  def listAsTokens(q: String): Result = {
-    val dataSets = DataSet.find(MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+  def listAsTokens(orgId: String, q: String): Result = {
+    val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
     val asTokens = dataSets.map(ds => Token(ds._id, ds.spec))
     Json(asTokens)
   }

@@ -24,10 +24,6 @@ import dos.FileUploadResponse
 
 object DObjects extends DelvingController with UserSecured {
 
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[ObjectModel])
-  }
-
   def load(id: String): Result = {
     val availableCollections = UserCollection.browseByUser(connectedUserId, connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findById(id) match {
@@ -47,8 +43,10 @@ object DObjects extends DelvingController with UserSecured {
       }
   }
 
-
-  def dobject(id: String): Result = Template('id -> Option(id), 'uid -> Codec.UUID())
+  def dobject(id: String): Result = {
+    renderArgs += ("viewModel", classOf[ObjectModel])
+    Template('id -> Option(id), 'uid -> Codec.UUID())
+  }
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
@@ -67,7 +65,7 @@ object DObjects extends DelvingController with UserSecured {
         Label.findOne(MongoDBObject("labelType" -> l.labelType, "value" -> l.value)) match {
           case Some(label) => label._id
           // TODO better error handling
-          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, labelType = l.labelType, value = l.value)).get
+          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, TS_update = new Date(), labelType = l.labelType, value = l.value)).get
         }
       }
     }
@@ -113,9 +111,11 @@ object DObjects extends DelvingController with UserSecured {
         Json(theObject)
       }
       case None => Error(&("user.dobjects.saveError", objectModel.name))
-
-        
     }
+  }
+
+  def remove(id: ObjectId) = {
+    if(DObject.owns(connectedUserId, id)) DObject.delete(id) else Forbidden("Big brother is watching you")
   }
 }
 
