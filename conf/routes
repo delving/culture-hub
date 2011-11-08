@@ -142,8 +142,8 @@ POST        /organizations/{orgId}/dataset/sip-creator/submit/{spec}            
 POST        /organizations/{orgId}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
 GET         /organizations/{orgId}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
 
-GET         /{user}/sip-creator/?                                            user.SipCreator.index
-GET         /{user}/sip-creator/sip-creator.jnlp                             user.SipCreator.jnlp
+GET         /organizations/{orgId}/sip-creator/?                                            organization.SipCreator.index
+GET         /organizations/{orgId}/sip-creator/sip-creator.jnlp                             organization.SipCreator.jnlp
 
 # Hub Administration
 GET        /admin/themes                                                     admin.Themes.index
