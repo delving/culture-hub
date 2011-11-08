@@ -137,30 +137,30 @@
 <div class="header">
     <div class="container">
         <div class="branding">
-            <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
+            <h1 class="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
-            <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
+            <div class="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
 
-            <div id="primary-branding">
+            <div class="primary-branding">
                 <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
             </div>
 
-            <div id="secondary-branding" role="banner">
+            <div class="secondary-branding" role="banner">
                 <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
-        <div id="site-nav">
+        <div class="site-nav">
             <!--site nav-->
             <ul>
-                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='first ${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
                 <li class='${"DObjects".isCurrent()}'><a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
                 <li class='${"Collections".isCurrent()}'><a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
                 <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
-                <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
+                <li class='last ${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
             </ul>
         </div>
 
-        <div id="search" role="search">
+        <div class="search" role="search">
             <form method="get" action="/search">
                 <input type="text" id="query" name="query" value='${params.query}'/>
                 <input type="submit" value="&{'ui.label.search'}">

@@ -8,7 +8,10 @@
 
 #{breadcrumbs /}
 <h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.object.create') : viewUtils.getKey('user.object.update') }</h1>
-<form id="objectForm" method="post" action="">
+
+<div class="row">
+
+<form id="objectForm" method="post" action="" class="g-12of12">
     <div data-bind="text: errors().global"></div>
 
     #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
@@ -46,6 +49,8 @@
     </div>
 
 </form>
+
+</div>
 
 <script type="text/javascript">
     $(document).ready(function() {

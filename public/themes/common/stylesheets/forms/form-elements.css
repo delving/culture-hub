@@ -16,6 +16,18 @@ form.data-set {
     background:  transparent;
 }
 
+legend {
+    background:  #555;
+    color: #fff;
+    font-weight: bold;
+    width: 100%;
+}
+
+legend span {
+    display:block;
+    padding:  10px;
+}
+
 form h3 {
     background-color: #555;
     color: #fff;
