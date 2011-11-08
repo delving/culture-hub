@@ -1,6 +1,7 @@
 @import url("../../common/stylesheets/reset.css");
 /*@import url("../../common/stylesheets/normalize.css");*/
 @import url("../../common/stylesheets/grid/grid-zemmy.css");
+@import url("../../common/stylesheets/ui/jquery-ui-1.8.16.custom.css");
 @import url("../../common/stylesheets/buttons/css3-buttons.css");
 @import url("../../common/stylesheets/module/mod.css");
 @import url("../../common/stylesheets/media/media.css");
