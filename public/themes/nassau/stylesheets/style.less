@@ -4,6 +4,16 @@
 @color-1-lite: lighten(@color-1, 30%);
 @color-2: #666;
 @color-3: #000;
+@color-4: #BF8530;
+@color-5: #926806;
+
+/* font-sizes */
+
+@fsize-1: 14px;
+@fsize-2: 18px;
+@fsize-3: 22px;
+@fsize-4: 44px;
+@fsize-5: 72px;
 
 /* WIDTHS ***************************************************************/
 
@@ -22,7 +32,7 @@
 
 @primary-branding-height: 60px;
 @primary-branding-left: 0px;
-@primary-branding-top: 55px;
+@primary-branding-top: 52px;
 
 @secondary-branding-top: 18px;
 @secondary-branding-height: 25px;
@@ -39,7 +49,7 @@
 
 @search-height: 40px;
 @search-right: 10px;
-@search-top: @header-top + 10px;
+@search-top: @header-top + 8px;
 @search-home-top: @header-home-height + 4px;
 
 @main-top: @header-top + @header-height + @crumbs-height;
@@ -76,8 +86,18 @@
 body {
     background: #000 url(../images/body-bg.gif) center top repeat-y;
     color: @color-2;
+    font-size: @fsize-1;
 }
 
+a:link{
+    color: @color-4;
+}
+a:visited {
+    color: @color-5;
+}
+.pagination a, .pagination a:visited {
+    color: #666;
+}
 #page {
     height: auto;
     background: #fff;
@@ -95,7 +115,6 @@ body {
     margin: @content-margin;
     width: @content-width;
 }
-
 
 /* CONTAINER AND CONTENT SHRINKING FOR ABSOLUTE POSITION ELEMENTS *************************************/
 
@@ -140,7 +159,7 @@ body {
     height: @secondary-branding-height;
     position: @position;
     top: @secondary-branding-top;
-    left: 470px;
+    left: 460px;
     z-index: 10;
 }
 
@@ -191,7 +210,7 @@ body {
     display: block;
     height: 24px;
     line-height: 24px;
-    padding: 4px 20px;
+    padding: 4px 16px;
     text-decoration: none;
 }
 
@@ -287,7 +306,7 @@ body {
     border:  1px solid #d1d1d1;
     .border-all(@radius);
     padding: 8px;
-    width: 414px;
+    width: 380px;
 }
 
 #search input[type="submit"]  {
@@ -407,15 +426,15 @@ ul#user-menu li .sub {
 
 /* LOGIN **********************************************************************************************/
 
-#login form {
-    margin: 0 auto;
-    width: 380px;
-}
+/*#login form {*/
+    /*margin: 0 auto;*/
+    /*width: 380px;*/
+/*}*/
 
-#register form {
-    margin: 0 auto;
-    width: 520px;
-}
+/*#register form {*/
+    /*margin: 0 auto;*/
+    /*width: 520px;*/
+/*}*/
 
 /* FORMS *******************************************************************************************/
 /* overrides for form-elements.css */
@@ -523,7 +542,7 @@ fieldset {
     overflow: hidden;
 }
 
-.clip img {
+.recent .clip img {
     position:absolute;
     clip:rect(0px,280px,200px,0px);
 }
@@ -537,6 +556,34 @@ fieldset {
 .recent .title {
     display: block;
 }
+
+/* RESULTS ************************************************************************************/
+
+.results .clip  {
+    /*display: inline-block;*/
+    float:left;
+    height: 80px;
+    overflow: hidden;
+    width: 100px;
+    margin-right: 10px;
+}
+
+.results .clip .img {
+    position:absolute;
+    clip:rect(0px,100px,80px,0px);
+    max-width: 120px;
+}
+
+/* FACETS *************************************************************************************/
+
+.facets h3 {
+    font-size: @fsize-1;
+}
+
+.facet-container {
+    background-color: lighten(@color-1, 47%);
+}
+
 
 /* HELPERS ************************************************************************************/
 

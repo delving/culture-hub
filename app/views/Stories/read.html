@@ -1,19 +1,22 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.story') + ' ' + story.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
-#{breadcrumbs /}
 
+#{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
+#{/set}
+
+#{breadcrumbs /}
 
 <div class="story">
 
-    <h1>${story.name}</h1>
+    <h1 class="sep">${story.name}</h1>
 
     <div class="story-container">
 
         <div class="story-navigation">
-            <a class="prev browse left">&{'story.previouspage'}</a>
-            <a class="next browse right"&{'story.nextpage'}</a>
+            <a class="button prev browse">&{'story.previouspage'}</a>
+            <a class="button next browse">&{'story.nextpage'}</a>
         </div>
 
         <div class="scrollable">
@@ -22,28 +25,29 @@
             <div class="items">
 
                 <div class="page title-page">
-                    <div class="page-left">
+                    <div class="g-12of12">
 
-                         <div><img src="${views.context.package.thumbnailUrl(story.thumbnail_id)}" /></div>
+                        <div style="widht: 100%; text-align:center;">
+                            <h1>${story.name}</h1>
+                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id)}" alt=""/>
 
-                    </div>
-                    <div class="page-right">
-                        <h2>${story.name}</h2>
-                        <h3>By: ${browsedFullName}</h3>
-                         <p>${story.description}</p>
+                            <h3>By: ${browsedFullName}</h3>
+                            <p>${story.description}</p>
+                        </div>
+
                     </div>
                 </div>
 
                 #{list story.pages, as: 'page'}
                 <div class="page">
-                    <div class="page-left">
+                    <div class="page-left g-6of12 alpha">
                         <h2>${page.title}</h2>
                         ${page.text.raw()}
                     </div>
-                    <div class="page-right">
-                       #{list page.objects.headOption(), as: 'o'}
-                          <img src="${views.context.package.imageUrl(o.dobject_id)}" alt="${page.title}">
-                       #{/list}
+                    <div class="page-right g-6of12 omega">
+                        #{list page.objects.headOption(), as: 'o'}
+                        <img src="${views.context.package.imageUrl(o.dobject_id)}" alt="${page.title}">
+                        #{/list}
                     </div>
                 </div>
                 #{/list}

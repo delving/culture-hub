@@ -85,7 +85,7 @@
 
 <body id="#{get 'bodyId' /}">
 
-<div id="page">
+<div id="page" class="container_12">
 
     <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
@@ -116,7 +116,7 @@
     <div id="search" role="search">
         <div class="container">
             <div class="content">
-                <form method="get" action="#">
+                <form method="get" action="/search">
                     <input type="text" id="query" name="query" value='${params.query}'/>
                     <input type="submit" value="&{'ui.label.search'}">
                 </form>
@@ -129,6 +129,7 @@
             <div class="content">
                 #{doLayout /}
             </div>
+            <div class="clear"></div>
         </div>
     </div>
 

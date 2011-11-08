@@ -2,55 +2,50 @@
 #{set title: id.isEmpty() ? viewUtils.getKey('user.object.title.create', fullName) : viewUtils.getKey('user.object.title.update', fullName) /}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/jquery.multiselect.css'}"/>
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/jquery.multiselect.filter.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/plugins/jquery.multiselect.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/plugins/jquery.multiselect.filter.css'}"/>
 #{/set}
 
-
 #{breadcrumbs /}
-        <h1>${id.isEmpty() ? viewUtils.getKey('user.object.create') : viewUtils.getKey('user.object.update') }</h1>
+<h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.object.create') : viewUtils.getKey('user.object.update') }</h1>
+<form id="objectForm" method="post" action="">
+    <div data-bind="text: errors().global"></div>
 
-        <div data-bind="text: errors().global"></div>
+    #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
+    #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true /}
 
-        <form id="objectForm" method="post" action="" class="box">
-            #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
-            #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true /}
+    <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
 
-            <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
+    <div class="field">
+        <label class="label" for="collection">&{'user.object.label.addToCollection'}</label>
+        <select id="collection" name="repositories" multiple="multiple" data-bind="jqMultiSelect: { filter: false }, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'"></select>
+    </div>
 
-            <div class="field">
-                <label class="label" for="collection">&{'user.object.label.addToCollection'}</label>
+    <div class="field" for="objectVisibility">
+        <label for="public-0" class="label">&{'ui.label.visibility'}</label>
 
-                <select id="collection" name="repositories" multiple="multiple" data-bind="jqMultiSelect: { filter: false }, selectedOptions: collections, options: availableCollections, optionsText: 'name', optionsValue: 'id'"></select>
-            </div>
+        <div class="inputs">
+            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}
+            <input type="radio" value="1" id="public-1" name="public">&{'ui.label.visibility.public'}
+        </div>
+    </div>
+    <fieldset>
+    <div class="field">
+        <label class="label">&{'user.object.label.file'}</label>
 
-            <div class="field" for="objectVisibility">
-                <label class="label">&{'ui.label.visibility'}</label>
-
-                <div class="inputs">
-                    <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
-                    <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
-                </div>
-            </div>
-
-            <div class="field">
-                <label class="label">&{'user.object.label.file'}</label>
-
-                <div class="inputs">
-                    <div id="fileupload"></div>
-                </div>
-            </div>
-
-            <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.collection.save'), extraClass:"blue", id:"saveButton", type:"submit" /}
-                <div class="wait"></div>
-            </div>
-
-        </form>
+        <div class="inputs">
+            <div id="fileupload"></div>
+        </div>
+    </div>
+    </fieldset>
 
 
+    <div class="buttons">
+        #{btnButton label: viewUtils.getKey('user.object.save'), extraClass:"blue", id:"saveButton", type:"submit" /}
+        <div class="wait"></div>
+    </div>
 
-
+</form>
 
 <script type="text/javascript">
     $(document).ready(function() {

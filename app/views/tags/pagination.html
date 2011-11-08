@@ -1,20 +1,47 @@
 <script type="text/javascript">
 
-  initPagination();
+//    initPagination();
+//
+//    /**
+//     * Initialisation function for pagination
+//     */
+//    function initPagination() {
+//        var num_entries = '${_count}';
+//        // Create content inside pagination element
+//        $('${_selector}').pagination(num_entries, {
+//            num_edge_entries:1,
+//            prev_text:"&{'ui.label.previous'}",
+//            next_text:"&{'ui.label.next'}",
+//            current_page:  parseInt('${_start}'),
+//            items_per_page: parseInt('${views.context.package.PAGE_SIZE()}'),
+//            link_to: '${views.context.package.paginationUrl().raw()}' + "__id__",
+//            callback: function() {
+//            } // empty callback
+//        });
+//    }
 
-  /**
-   * Initialisation function for pagination
-   */
-  function initPagination() {
-    var num_entries = '${_count}';
-    // Create content inside pagination element
-    $('${_selector}').pagination(num_entries, {
-      one_indexed:true,
-      num_edge_entries:1,
-      current_page:  parseInt('${_start}'),
-      items_per_page: parseInt('${views.context.package.PAGE_SIZE()}'),
-      link_to: '${views.context.package.paginationUrl().raw()}' + "__id__",
-      callback: function() { } // empty callback
+    /**
+     * Initialisation function for pagination
+     */
+    function initPagination() {
+        // count entries inside the hidden content
+        var num_entries = ${_count};
+        // Create content inside pagination element
+        $("${_selector}").pagination(num_entries, {
+            current_page:  parseInt('${_start}'),
+            num_edge_entries:1,
+            num_display_entries: 6,
+            callback: function() {},
+            items_per_page:parseInt('${views.context.package.PAGE_SIZE()}'),
+            prev_text:"&{'ui.label.previous'}",
+            next_text:"&{'ui.label.next'}",
+            link_to: "${_link}"
+        });
+     }
+
+    // When document is ready, initialize pagination
+    $(document).ready(function(){
+        initPagination();
     });
-  }
+
 </script>

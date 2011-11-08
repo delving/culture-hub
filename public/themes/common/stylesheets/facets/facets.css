@@ -1,0 +1,46 @@
+.facets h3 {
+    margin: 0;
+    padding: 0 0 4px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+h4.trigger
+{
+	background:url(../images/togglerch.gif) no-repeat right center;
+	border-bottom:1px solid #ccc;
+    font-family: Arial;
+    font-weight: normal;
+	font-size:100%;
+	margin:0;
+	/*padding:5px 0 5px 25px;*/
+	padding:8px 0;
+    cursor: pointer;
+    color: #336699;
+}
+
+h4.trigger:hover {
+   background:url(../images/togglerc.gif) no-repeat right center;
+    color: #555;
+    text-decoration: underline;
+}
+
+h4.trigger.active {
+   background:url(../images/toggleroh.gif) no-repeat right center;
+}
+
+h4.trigger.active:hover {
+   background:url(../images/togglero.gif) no-repeat right center;
+}
+
+.facet-container
+{
+	background:#f2f7f8;
+	border-bottom:1px solid #ddddd0;
+	clear:both;
+	margin:0;
+	max-height:185px;
+	overflow-x:hidden;
+	overflow-y:auto;
+	padding:5px 0;
+    font-size: 80%;
+}

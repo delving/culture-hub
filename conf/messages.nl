@@ -173,8 +173,8 @@ admin.themes.label.savetheme=Save theme
 ##Application (homepage)
 home.recentobject=Recent object
 home.recentobjects=Recente objecten
-home.recentcollection=Recente collecties
-home.recentcollections=Recente collectie
+home.recentcollection=Recente collectie
+home.recentcollections=Recente collecties
 home.recentstory=Recent verhaal
 home.recentstories=Recente verhalen
 
@@ -211,6 +211,11 @@ search.facets=Facetten
 search.nrfound= %s resultaten gevonden
 search.resultsfor=Zoekresultate voor
 search.sortby= Sorteer op
+search.refineYourSearchBy=Zoekopdracht verfijnen per
+search.facet.byYear=Jaar
+search.facet.byProvider=Aanbieder
+search.facet.byObjectType=Soort object
+search.facet.byCollection=Collectie
 
 ##Story
 story.pages=Pagina's
@@ -313,7 +318,7 @@ user.object.create=Object aanmaken
 user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
 user.object.label.file=Bestand
-user.collection.save=Bewaar object
+user.object.save=Bewaar object
 
 ##List
 user.list.browse=Browse gebruikers
@@ -342,11 +347,13 @@ user.story.noPagesFound=Geen pagina's gevonden
 user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus voor dat u een verhaal kan aanmaken moet u een collectie met objecten aanmaken.
 user.story.label.viewStory=Bekijk het verhaal
 user.story.label.addPage=Nieuwe pagina toevoegen
+user.story.label.addObjects=Object(en) toevoegen
 user.story.label.freeText=Vrije tekst
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas
-user.story.save=Bewaar verhaal
+user.story.saveStory=Bewaar verhaal
+user.story.savePage=Bewaar pagina
 user.story.title.deletePage=Pagina verwijderen?
 user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
 

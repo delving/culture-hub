@@ -216,6 +216,12 @@ search.facets=Facets
 search.nrfound= Found %s results
 search.resultsfor=Search results for
 search.sortby= Sort by
+search.refineYourSearchBy=Refine your search by
+search.facet.byYear=Year
+search.facet.byProvider=Provider
+search.facet.byObjectType=Object type
+search.facet.byCollection=Collection
+
 
 ##Story
 story.pages=Pages
@@ -342,7 +348,7 @@ user.object.update=Update an object
 user.object.updateObject=Update object %s
 user.object.label.addToCollection=Add to collection
 user.object.label.file=File
-user.collection.save=Save object
+user.object.save=Save object
 
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
@@ -364,11 +370,13 @@ user.story.storyDescription=A <strong>story</strong> can be created from objects
 user.story.noPagesFound=No pages found
 user.story.label.viewStory=View story
 user.story.label.addPage=Add a new page
+user.story.label.addObjects=Add object(s)
 user.story.label.freeText=Free Text
 user.story.label.addImageFromCollection=Add an image from this collection
 user.story.noCollection=No collection
 user.story.existingPage=Existing pages
-user.story.save=Save story
+user.story.saveStory=Save story
+user.story.savePage=Save page
 user.story.title.deletePage=Delete the page?
 user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
