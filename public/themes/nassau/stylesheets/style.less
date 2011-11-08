@@ -84,7 +84,7 @@
 /* STYLES ********************************************************************************************/
 
 body {
-    //background: #000 url(../images/body-bg.gif) center top repeat-y;
+    background: #000 url(../images/body-bg.gif) center top repeat-y;
     color: @color-2;
     font-size: @fsize-1;
 }
@@ -110,12 +110,12 @@ h1.sep {
     background: #fff;
     position: relative;
     margin: 0 auto;
-    width: 80%;
+    width: 960px;
 }
 
 .container {
     margin: @container-margin;
-    width: 80%;
+    width: 960px;
 }
 
 //.content {
@@ -468,13 +468,15 @@ fieldset {
     top: @crumbs-top;
     left: 0px;
 //    height: @crumbs-height;
-//    line-height: @crumbs-height;
+
+
+    line-height: @crumbs-height;
     width: 100%;
 }
 
 .breadcrumb ul {
-    margin: 0;
-    /*padding: 0;*/
+    margin: 0 0 0 10px;
+    padding: 0;
 }
 
 
