@@ -34,7 +34,7 @@ h4.trigger.active:hover {
 
 .facet-container
 {
-	background:#f2f7f8;
+	/*background:#f2f7f8;*/
 	border-bottom:1px solid #ddddd0;
 	clear:both;
 	margin:0;
@@ -42,5 +42,5 @@ h4.trigger.active:hover {
 	overflow-x:hidden;
 	overflow-y:auto;
 	padding:5px 0;
-    font-size: 80%;
+    /*font-size: 80%;*/
 }

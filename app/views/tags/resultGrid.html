@@ -1,19 +1,20 @@
 %{ def counter = 1 }%
 
-#{list briefDocs, as: 'doc'}
+#{if _results}
+#{list _results, as: 'doc'}
 
 #{if counter == 1}
 <div class="row">
     #{/if}
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
         <div class="media thing">
-            <img src="${doc.getThumbnail()}" width="84" class="img"/>
+            <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
 
             <div class="bd">
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            ${doc.getFieldValue("dc_title").getFirst()}
+                            <a href=""> ${doc.getFieldValue("dc_title").getFirst()}</a>
                         </div>
                         <div class="bd">
                             ${doc.getFieldValue("dc_description").getFirst()}
@@ -32,5 +33,5 @@
 <!-- end line -->
 %{ counter = 1 }%
 #{/if}
-
 #{/list}
+#{/if}

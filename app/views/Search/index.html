@@ -24,8 +24,8 @@
 
     </div>
     }*
-    <div class="item-nav g-12of12">
-        <div class="mod item-count">
+    <div class="g-12of12">
+        <div class="mod item-count ptm">
             <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
         </div>
     </div>
@@ -33,7 +33,7 @@
     <div class="row">
         <div class="g-8of12">
 
-            <div class="buttons toolbar">
+            <div class="buttons toolbar pbm">
                 #{if briefDocs.size() > 0}
                 <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1 /}</div>
                 #{/if}
@@ -48,7 +48,9 @@
 
             </div>
 
-            #{resultList results: briefDocs /}
+            <div class="results">
+                #{resultGrid results: briefDocs /}
+            </div>
 
             <div class="buttons toolbar">
 
