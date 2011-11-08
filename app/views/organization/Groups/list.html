@@ -8,7 +8,7 @@
   <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'}</li>
   #{/if}
   #{else}
-  <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.' + models.GrantType.name(group.grantType)} &{'org.list.dataSetCount'}</li>
+  <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.' + models.GrantType.name(group.grantType)} &{'org.list.dataSetCount', group.dataSets.size()}</li>
   #{/else}
   #{/list}
 </ul>

@@ -1,10 +1,10 @@
 package controllers.organization
 
-import controllers.DelvingController
 import java.util.regex.Pattern
 import play.mvc.results.Result
 import com.mongodb.casbah.commons.MongoDBObject
 import models.DataSet
+import controllers.{Token, DelvingController}
 
 /**
  * 
@@ -13,9 +13,9 @@ import models.DataSet
 
 object DataSets extends DelvingController with OrganizationSecured {
 
-  def listDataSetsAsTokens(q: String): Result = {
-    val dataSets = DataSet.find(MongoDBObject("orgId" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
-    val asTokens = dataSets.map(ds => Map("id" -> ds._id, "name" -> ds.spec))
+  def listAsTokens(q: String): Result = {
+    val dataSets = DataSet.find(MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+    val asTokens = dataSets.map(ds => Token(ds._id, ds.spec))
     Json(asTokens)
   }
 

@@ -5,8 +5,9 @@ import org.bson.types.ObjectId
 import models.{Organization, GrantType, Group}
 import play.mvc.Util
 import extensions.JJson
+import models.salatContext._
 import play.data.validation.Annotations._
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 import controllers.{Token, ViewModel, DelvingController}
 
 /**
@@ -34,31 +35,50 @@ object Groups extends DelvingController with OrganizationSecured {
 
   def groups(groupId: ObjectId): Result = {
     if(groupId != null && !canUpdateGroup(groupId) || groupId == null && !canCreateGroup) return Forbidden(&("user.secured.noAccess"))
-    val usersAsTokens = Group.findOneByID(groupId) match {
-      case None => JJson.generate(List())
+    val (usersAsTokens, dataSetsAsTokens) = Group.findOneByID(groupId) match {
+      case None => (JJson.generate(List()), JJson.generate(List()))
       case Some(group) =>
-        JJson.generate(group.users.map(m => Map("id" -> m, "name" -> m)))
+        val dataSets = dataSetsCollection.find("_id" $in group.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
+        (JJson.generate(group.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
-    Template('id -> Option(groupId), 'users -> usersAsTokens)
+    Template('id -> Option(groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
   }
 
   def addUser(orgId: String, id: String, groupId: ObjectId): Result = {
-    if(!canUpdateGroup(groupId)) return Forbidden(&("user.secured.noAccess"))
-    if(id == null || groupId == null) return BadRequest
-    Group.addUser(id, groupId) match {
-      case true => Ok
-      case false => Error(&("organizations.group.cannotAddUser", id, groupId))
+    elementAction(orgId, id, groupId, "organizations.group.cannotAddUser") {
+      Group.addUser(_, _)
     }
   }
 
   def removeUser(orgId: String, id: String, groupId: ObjectId): Result = {
+    elementAction(orgId, id, groupId, "organizations.group.cannotRemoveUser") {
+      Group.removeUser(_, _)
+    }
+  }
+
+  def addDataset(orgId: String, id: String, groupId: ObjectId): Result = {
+    elementAction(orgId, id, groupId, "organizations.group.cannotAddDataset") { (id, groupId) =>
+      if(!ObjectId.isValid(id)) false
+      Group.addDataSet(new ObjectId(id), groupId)
+    }
+  }
+
+  def removeDataset(orgId: String, id: String, groupId: ObjectId): Result = {
+    elementAction(orgId, id, groupId, "organizations.group.cannotRemoveDataset") {  (id, groupId) =>
+      if(!ObjectId.isValid(id)) false
+      Group.removeDataSet(new ObjectId(id), groupId)
+    }
+  }
+
+  private def elementAction(orgId: String, id: String, groupId: ObjectId, messageKey: String)(op: (String, ObjectId) => Boolean): Result = {
     if(!canUpdateGroup(groupId)) return Forbidden(&("user.secured.noAccess"))
     if(id == null || groupId == null) return BadRequest
-    Group.removeUser(id, groupId) match {
+    op(id, groupId) match {
       case true => Ok
-      case false => Error(&("organizations.group.cannotRemoveUser", id, groupId))
+      case false => Error(&(messageKey, id, groupId))
     }
+    
   }
 
   def update(orgId: String, groupId: ObjectId, data: String): Result = {
@@ -75,6 +95,7 @@ object Groups extends DelvingController with OrganizationSecured {
           case None => None
           case Some(id) =>
             groupModel.users.foreach(u => Group.addUser(u.id, id))
+            groupModel.dataSets.foreach(ds => Group.addDataSet(new ObjectId(ds.id), id))
             Some(groupModel.copy(id = Some(id)))
         }
       case Some(id) =>
@@ -102,4 +123,5 @@ case class GroupViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
                           @Range(min=0, max=10) grantType: Int = GrantType.VIEW.value,
                           users: List[Token] = List.empty[Token],
+                          dataSets: List[Token] = List.empty[Token],
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

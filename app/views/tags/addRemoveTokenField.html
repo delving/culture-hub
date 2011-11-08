@@ -8,7 +8,7 @@
         $.ajax({
           type: 'POST',
           url: '${_addUrl}',
-          data: {id: item.name},
+          data: {id: item.id},
           error: function(jqXHR, textStatus, errorThrown) {
             // TODO prompt the user that something went wrong
             $('#${_id}').tokenInput('remove', {id: item.id})
@@ -19,7 +19,7 @@
         $.ajax({
           type: 'DELETE',
           url: '${_removeUrl}',
-          data: {id: item.name},
+          data: {id: item.id},
           error: function(jqXHR, textStatus, errorThrown) {
             // TODO prompt the user that something went wrong
             $('#${_id}').tokenInput('add', {id: item.id})

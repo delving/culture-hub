@@ -31,6 +31,12 @@
   #{/else}
 
   <h2>DataSets</h2>
+  #{if id.isDefined()}
+    #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
+  #{/if}
+  #{else}
+    #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+  #{/else}
 
 </form>
 

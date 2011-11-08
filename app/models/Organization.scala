@@ -70,6 +70,18 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
     true
   }
 
+  def addDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
+    // TODO FIXME make this operation safe
+    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("dataSets" -> id), false, false, SAFE_WC)
+    true
+  }
+
+  def removeDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
+    // TODO FIXME make this operation safe
+    Group.update(MongoDBObject("_id" -> groupId), $pull ("dataSets" -> id), false, false, SAFE_WC)
+    true
+  }
+
   def updateGroupInfo(groupId: ObjectId, name: String, grantType: Int): Boolean = {
     Group.update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType.value" -> grantType))
 

@@ -470,6 +470,8 @@ organizations.admin.userNotFound=Could not find user with userName %s
 
 organizations.group.cannotAddUser=Could not add user with userName %s to group %s
 organizations.group.cannotRemoveUser=Could not remove user with userName %s to group %s
+organizations.group.cannotAddDataset=Could not add DataSet with ID %s to group %s
+organizations.group.cannotRemoveDataset=Could not remove DataSet with ID %s from group %s
 organizations.group.groupNotFound=Could not find group with ID %s
 organizations.group.cannotSaveGroup=Could not save group, please try again
 
