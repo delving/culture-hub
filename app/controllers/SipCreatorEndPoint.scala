@@ -40,7 +40,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
-  private var connectedUser: Option[User] = None;
+  private var connectedUser: Option[User] = None
+
+  private var connectedOrg: Option[Organization] = None
 
   @Before def setUser(): Result = {
     val accessToken: String = params.get("accessKey")
@@ -52,6 +54,18 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       return TextError(("Access Key %s not accepted".format(accessToken)), 401)
     }
     connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
+
+    val orgId = params.get("orgId")
+    if(orgId == null || orgId.isEmpty) {
+      logErrorWithUser("Attempting to connect without orgId")
+      return TextError("No orgId provided", 400)
+    }
+    connectedOrg = Organization.findByOrgId(orgId)
+    if(connectedOrg == None) {
+      logErrorWithUser("Unknown organization " + orgId)
+      return TextError("Unknown organization " + orgId)
+    }
+
     Continue
   }
 
@@ -63,21 +77,24 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def getConnectedUserId = getConnectedUser._id
 
   def listAll(): Result = {
-    val dataSets = DataSet.findAllByOwner(getConnectedUserId).toList
+    val dataSets = DataSet.findAllByOrgId(connectedOrg.get.orgId).toList
 
     val dataSetsXml = <data-set-list>
       {dataSets.map {
       ds =>
-        val user = ds.getUser
+        val creator = ds.getCreator
         val lockedBy = ds.getLockedBy
         <data-set>
           <spec>{ds.spec}</spec>
           <name>{ds.details.name}</name>
           <ownership>
-            <username>{user.userName}</username>
-            <fullname>{user.fullname}</fullname>
-            <email>{user.email}</email>
-          </ownership>{if (lockedBy != None) {
+            <orgId>{connectedOrg.get.orgId}</orgId>
+          </ownership>
+          <createdBy>
+            <username>{creator.userName}</username>
+            <fullname>{creator.fullname}</fullname>
+            <email>{creator.email}</email>
+          </createdBy>{if (lockedBy != None) {
           <lockedBy>
             <username>{lockedBy.get.userName}</username>
             <fullname>{lockedBy.get.fullname}</fullname>
@@ -236,7 +253,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     }
 
-    val recordCount: Int = DataSet.getRecordCount(dataSet.spec)
+    val recordCount: Int = DataSet.getRecordCount(dataSet)
 
     val details = dataSet.details.copy(
       total_records = recordCount,
