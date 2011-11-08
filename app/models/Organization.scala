@@ -70,6 +70,12 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
     true
   }
 
+  def updateGroupInfo(groupId: ObjectId, name: String, grantType: Int): Boolean = {
+    Group.update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType.value" -> grantType))
+
+    true
+  }
+
 }
 
 case class GrantType(value: Int)

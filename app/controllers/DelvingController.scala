@@ -142,6 +142,9 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
       None
     }
   }
+
+  @Util def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
+
 }
 
 

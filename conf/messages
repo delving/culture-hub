@@ -20,6 +20,11 @@
 #
 
 
+# Validation rules
+validation.required=Required
+validation.range=Value out of range
+
+
 # Global  ##########################################
 ui.label.add=Add
 ui.label.addcomment=Add comment
@@ -112,6 +117,7 @@ thing.collaborators=Collaborators
 thing.createnew=Create a new %s
 thing.browse=Browse %s
 thing.browse.ownedby=Browse %s owned by
+thing.grantType=This group grants
 
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
@@ -391,9 +397,12 @@ user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 org.list.memberCount=%s member(s)
 org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
-org.list.grantType.admin=with rights to modify and to administrate the users of
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount=%s DataSet(s)
+
+org.group.grantType.view=View rights
+org.group.grantType.modify=Modification rights
+org.group.save=Save group
 
 org.admin.index.title=Organization administration
 
@@ -462,6 +471,32 @@ organizations.admin.userNotFound=Could not find user with userName %s
 organizations.group.cannotAddUser=Could not add user with userName %s to group %s
 organizations.group.cannotRemoveUser=Could not remove user with userName %s to group %s
 organizations.group.groupNotFound=Could not find group with ID %s
+organizations.group.cannotSaveGroup=Could not save group, please try again
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Old stuff
 

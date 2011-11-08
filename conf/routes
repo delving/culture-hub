@@ -137,8 +137,9 @@ GET        /organizations/{orgId}/datasets/search                            org
 GET        /organizations/{orgId}/users/search                               Users.listAsTokens
 
 GET        /organizations/{orgId}/groups/create                              organization.Groups.groups
-GET        /organizations/{orgId}/groups/{groupId}/update                    organization.Groups.groups
-POST       /organizations/{orgId}/groups/{groupId}/update                    organization.Groups.update
+GET        /organizations/{orgId}/groups/update/{groupId}                    organization.Groups.groups
+GET        /organizations/{orgId}/groups/load/{groupId}?                     organization.Groups.load
+POST       /organizations/{orgId}/groups/update                              organization.Groups.update
 POST       /organizations/{orgId}/groups/{groupId}/addUser                   organization.Groups.addUser
 DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                organization.Groups.removeUser
 
