@@ -3,10 +3,7 @@ package models
 import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.MongoDBObject
 import salat.dao.{SalatMongoCursor, SalatDAO}
-import java.util.regex.Pattern
-import salatContext._
 
 /**
  * 
@@ -15,14 +12,13 @@ import salatContext._
 
 trait Commons[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
-  def findByUser(id: ObjectId) = find(MongoDBObject("user_id" -> id))
-  def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
-  def findAll = find(MongoDBObject())
-  def findRecent(howMany: Int) = find(MongoDBObject()).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
+  def visibilityQuery(who: ObjectId) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "user_id" -> who)))
 
-  def queryAll(query: String) = if(queryOk(query)) find(MongoDBObject("name" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else findAll
-  def queryWithUser(query: String, id: ObjectId) = if(queryOk(query)) find(MongoDBObject("user_id" -> id, "name" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else findByUser(id)
-  def queryOk(query: String) = query != null && query.trim().length > 0
+  def browseByUser(id: ObjectId, whoBrowses: ObjectId) = find(MongoDBObject("user_id" -> id) ++ visibilityQuery(whoBrowses))
+  def browseAll(whoBrowses: ObjectId) = find(visibilityQuery(whoBrowses))
+
+  def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
+  def findRecent(howMany: Int) = find(MongoDBObject("visibility" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
 }
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>

@@ -6,6 +6,7 @@ import org.bson.types.ObjectId
 import models.{EmailTarget, PortalTheme}
 import controllers.{ViewModel, DelvingController}
 import util.ThemeHandler
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * TODO add Access Control
@@ -16,7 +17,7 @@ import util.ThemeHandler
 object Themes extends DelvingController {
 
   def index(): Result = {
-    val themeList = PortalTheme.findAll
+    val themeList = PortalTheme.find(MongoDBObject())
     Template('themes -> themeList.toList)
   }
 
@@ -28,7 +29,7 @@ object Themes extends DelvingController {
   }
 
   def list(): AnyRef = {
-    val themeList = PortalTheme.findAll
+    val themeList = PortalTheme.find(MongoDBObject())
     Json(Map("themes" -> themeList))
   }
 

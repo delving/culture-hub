@@ -22,7 +22,7 @@ object Stories extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
 
-    val collections = UserCollection.findByUser(connectedUserId)
+    val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
 
     Story.findById(id) match {

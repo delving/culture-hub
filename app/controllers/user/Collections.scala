@@ -27,7 +27,7 @@ object Collections extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
     // TODO access rights
-    val allObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
+    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
     UserCollection.findById(id) match {
       case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
@@ -56,12 +56,11 @@ object Collections extends DelvingController with UserSecured {
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
             thumbnail_id = collectionModel.thumbnail))
-//            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingCollection = UserCollection.findOneByID(id)
         if (existingCollection == None) Error(&("user.collections.objectNotFound", id))
-        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail)
+        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)

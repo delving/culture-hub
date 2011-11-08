@@ -1,9 +1,9 @@
 package controllers
 
 import play.mvc.results.Result
-import models.{DObject, UserCollection}
 import org.bson.types.ObjectId
 import user.ObjectModel
+import models.{Visibility, DObject, UserCollection}
 
 /**
  *
@@ -12,11 +12,11 @@ import user.ObjectModel
 
 object Collections extends DelvingController {
 
-  def list(user: Option[String], query: String, page: Int = 1): Result = {
+  def list(user: Option[String], page: Int = 1): Result = {
 
     val collectionsPage = user match {
-      case Some(u) => UserCollection.queryWithUser(query, browsedUserId).page(page)
-      case None => UserCollection.queryAll(query).page(page)
+      case Some(u) => UserCollection.browseByUser(browsedUserId, connectedUserId).page(page)
+      case None => UserCollection.browseAll(connectedUserId).page(page)
     }
     val items: List[ListItem] = collectionsPage._1
     Template("/list.html", 'title -> listPageTitle("collection"), 'itemName -> "collection", 'items -> items, 'page -> page, 'count -> collectionsPage._2)
@@ -24,17 +24,17 @@ object Collections extends DelvingController {
 
   def collection(user: String, id: String): Result = {
     UserCollection.findById(id) match {
-      case None => NotFound
-      case Some(collection) => {
-        val objects: List[ListItem] = DObject.findAllWithCollection(collection._id).toList
-        Template('collection -> collection, 'objects -> objects)
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
+        val objects: List[ListItem] = DObject.findAllWithCollection(thing._id).toList
+        Template('collection -> thing, 'objects -> objects)
       }
+      case _ => NotFound
     }
   }
 
   /**list all user collections the connected user can write to as tokens **/
   def listWriteableAsTokens(q: String): Result = {
-    val userCollections = for (userCollection <- UserCollection.findByUser(connectedUserId).filter(c => c.name.toLowerCase contains (q))) yield Token(userCollection._id.toString, userCollection.name)
+    val userCollections = for (userCollection <- UserCollection.browseByUser(connectedUserId, connectedUserId).filter(c => c.name.toLowerCase contains (q))) yield Token(userCollection._id.toString, userCollection.name)
     Json(userCollections)
   }
 

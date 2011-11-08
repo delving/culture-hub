@@ -117,7 +117,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else "listPageTitle.%s.all".format(itemName)
+  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else &("listPageTitle.%s.all".format(itemName))
 
   @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
     for(file <- files) if(file.contentType.contains("image")) return Some(file)

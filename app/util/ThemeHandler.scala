@@ -28,6 +28,7 @@ import play.mvc.Http
 import scala.collection.JavaConversions._
 import models.PortalTheme
 import play.exceptions.ConfigurationException
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * ThemHandler taking care of loading themes (initially from YML, then from mongo)
@@ -82,7 +83,7 @@ object ThemeHandler {
     themeList = readThemesFromDatabase()
   }
 
-  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll.toSeq
+  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
 
 
   def readThemesFromDisk(): Seq[PortalTheme] = {
