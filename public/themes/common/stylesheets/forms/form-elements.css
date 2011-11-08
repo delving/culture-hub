@@ -82,11 +82,15 @@ label.label {
 
 
 .field .help {
-    display: block;
     color: #888;
+    display: block;
     font-size: 85%;
     font-style: italic;
     word-wrap: break-word;
+}
+
+.field .extHelp {
+    cursor:help;
 }
 
 .field .input[type=radio] {
