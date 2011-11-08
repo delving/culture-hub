@@ -342,16 +342,6 @@ user.collection.title.objectsList=Objects in your collection
 user.collection.title.selectObjects=Select Object(s)
 user.collection.save=Save collection
 
-##DataSets
-user.dataset.title.create=Create new dataset for user %s
-user.dataset.title.update=Update dataset for user %s
-user.dataset.create=Create a dataset
-user.dataset.update=Update a dataset
-user.dataset.info=Data Set Information
-user.dataset.label.identifier=Identifier
-user.dataset.help.identifier=The unique identifier of this DataSet
-user.dataset.save=Save DataSet
-
 ##DObjects
 user.object.title.create=Create new object for user %s
 user.object.title.update=Update object for user %s
@@ -361,10 +351,6 @@ user.object.updateObject=Update object %s
 user.object.label.addToCollection=Add to collection
 user.object.label.file=File
 user.object.save=Save object
-
-##Sip-Creator
-user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
-user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
 ##Stories
 user.story.title.create=Create new story for user %s
@@ -407,6 +393,19 @@ org.group.save=Save group
 
 org.admin.index.title=Organization administration
 
+organization.dataset.title.create=Create new dataset for user %s
+organization.dataset.title.update=Update dataset for user %s
+organization.dataset.create=Create a dataset
+organization.dataset.update=Update a dataset
+organization.dataset.info=Data Set Information
+organization.dataset.label.identifier=Identifier
+organization.dataset.help.identifier=The unique identifier of this DataSet
+organization.dataset.save=Save DataSet
+
+organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+
 # Controllers
 
 user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
@@ -423,13 +422,6 @@ admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
 user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
-user.datasets.dataSetNotFound=DataSet %s was not found
-user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
-user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 user.dobjects.objectNotFound=Object with id %s was not found
 user.dobjects.saveError=Error saving object %s
 user.fileupload.removeError=Error removing file, invalid id %s
@@ -476,6 +468,13 @@ organizations.group.cannotRemoveDataset=Could not remove DataSet with ID %s from
 organizations.group.groupNotFound=Could not find group with ID %s
 organizations.group.cannotSaveGroup=Could not save group, please try again
 
+organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 
 
 

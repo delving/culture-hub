@@ -26,7 +26,7 @@ object DataSets extends DelvingController with OrganizationSecured {
 
     request.format match {
       case "html" => {
-        val ds = dataSet.getOrElse(return NotFound(&("datasets.dataSetNotFound", spec)))
+        val ds = dataSet.getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
         val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
         Template('dataSet -> ds, 'facts -> asJavaList(describedFacts))
       }

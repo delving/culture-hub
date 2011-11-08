@@ -86,7 +86,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
             DataSet.changeState(dataSet, DataSetState.ERROR)
           }
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeIndexed"))
+        case _ => Error(&("organization.datasets.cannotBeIndexed"))
       }
     }
   }
@@ -101,7 +101,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
           DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
           DataSet.changeState(dataSet, DataSetState.QUEUED)
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeReIndexed"))
+        case _ => Error(&("organization.datasets.cannotBeReIndexed"))
       }
     }
   }
@@ -117,7 +117,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
             case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
           }
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeCancelled"))
+        case _ => Error(&("organization.datasets.cannotBeCancelled"))
       }
     }
   }
@@ -145,7 +145,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
           val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
           Indexing.deleteFromSolr(updatedDataSet)
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeDisabled"))
+        case _ => Error(&("organization.datasets.cannotBeDisabled"))
       }
     }
   }
@@ -160,7 +160,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         case DISABLED =>
           DataSet.changeState(dataSet, DataSetState.ENABLED)
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeEnabled"))
+        case _ => Error(&("organization.datasets.cannotBeEnabled"))
       }
     }
   }
@@ -175,13 +175,13 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
           DataSet.delete(dataSet)
           Redirect("/%s/dataset".format(connectedUser))
-        case _ => Error(&("user.datasets.cannotBeDeleted"))
+        case _ => Error(&("organization.datasets.cannotBeDeleted"))
       }
     }
   }
 
   def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
-    val dataSet = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return NotFound(&("user.datasets.dataSetNotFound", spec)))
+    val dataSet = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
     operation(dataSet)
   }
 }
