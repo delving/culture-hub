@@ -208,6 +208,7 @@ registration.lostpassword=Lost password
 registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
 registration.resetpassword=Reset password
 registration.newpassword=Enter a new password below
+registration.registerFor=Register for %s
 
 ##Search
 search.additemstocollection=Add to collection

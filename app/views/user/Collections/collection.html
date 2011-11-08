@@ -5,18 +5,23 @@
 
 <h1 class="sep">${id.isEmpty() ? viewUtils.getKey('user.collection.create') : viewUtils.getKey('user.collection.update') }</h1>
 
-<div id="edit-collection" class="mod">
+<div class="row">
+
+    <div id="edit-collection" class="g-12of12">
 
     <div data-bind="text: errors().global"></div>
 
     <form method="post" action="" id="collectionForm">
-    <h3>&{'user.collection.info'}</h3>
+
+    <fieldset>
+    <legend><span>&{'user.collection.info'}</span></legend>
 
     #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", labelClass:"required", required: true /}
     #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true, help:viewUtils.getKey('user.collection.help.description') /}
+    </fieldset>
 
-    <h3>&{'user.collection.objects'}</h3>
-
+    <fieldset>
+    <legend><span>&{'user.collection.objects'}</span></legend>
     <div class="buttons">
         #{btnHref label:viewUtils.getKey('user.collection.label.addObjects'), iconClass:"icon3", id:"addObject" /}
     </div>
@@ -26,19 +31,19 @@
     <div class="objects-container" id="objects-dialogue" title="&{'user.collection.title.selectObjects'}">
         <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
     </div>
-
-
-    <h3>&{'user.collection.status'}</h3>
+    </fieldset>
+    <fieldset>
+        <legend><span>&{'user.collection.status'}</legend>
     <div class="field" for="objectVisibility">
-        <label class="label">&{'ui.label.visibility'}</label>
+        <label class="label">&{'ui.label.visibility'}</span></label>
 
         <div class="inputs">
             <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
             <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
         </div>
     </div>
+    </fieldset>
 
-    <hr/>
 
     <div class="buttons">
       #{btnButton label:viewUtils.getKey('user.collection.save'), id:"saveButton", extraClass:"blue", type:"submit"  /}
@@ -47,6 +52,9 @@
 
 </form>
 </div>
+</div>
+
+
 
 
 

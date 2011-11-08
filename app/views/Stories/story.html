@@ -3,46 +3,45 @@
 #{breadcrumbs /}
 
 <h1 class="sep">${story.name}</h1>
+<div class="row">
+    <div class="g-12of12">
+        <div class="media ${itemName}">
+            <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
+            #{if story.userName == userName}
+            <a class="button clear" href="/${story.userName}/story/${story._id}/update">
+                <span class="icon icon145"></span>
+                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.story'))}</span>
+            </a>
+            #{/if}
 
-<div class="media ${itemName}">
-    <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
-        #{if story.userName == userName}
-        <a class="button clear" href="/${story.userName}/story/${story._id}/update">
-            <span class="icon icon145"></span>
-            <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.story'))}</span>
-        </a>
-        #{/if}
+            <a class="button clear" href="/${story.userName}/story/${story._id}/read">
+                <span class="icon icon140"></span>
+                <span class="label">&{'story.read'}</span>
+            </a>
 
-        <a class="button clear" href="/${story.userName}/story/${story._id}/read">
-            <span class="icon icon140"></span>
-            <span class="label">&{'story.read'}</span>
-        </a>
-    <div class="bd">
-        <div class="metadata">
-            <h4>&{'thing.description'}</h4>
-            <p>${story.description}</p>
+            <div class="bd">
+                <div class="metadata">
+                    <h4>&{'thing.description'}</h4>
+                    <p>${story.description}</p>
 
-            <h4>&{'thing.datecreated'}</h4>
-            <p>${views.context.package.niceTime(story._id.getTime())}</p>
+                    <h4>&{'thing.datecreated'}</h4>
+                    <p>${views.context.package.niceTime(story._id.getTime())}</p>
 
-            <h4>&{'thing.datemodified'}</h4>
-            <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
+                    <h4>&{'thing.datemodified'}</h4>
+                    <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
 
-            <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
-            <h4>&{'story.pages'}:</h4>
-            <ul>
-                #{list story.pages, as: 'page'}
+                    <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
+                    <h4>&{'story.pages'}:</h4>
+                    <ul>
+                        #{list story.pages, as: 'page'}
 
-                <li>${page.title}</li>
-                <!--<li>${page.text}</li>-->
-                #{/list}
-            </ul>
+                        <li>${page.title}</li>
+                        <!--<li>${page.text}</li>-->
+                        #{/list}
+                    </ul>
+                </div>
+
+            </div>
         </div>
-
-
-
-
-
-
-     </div>
+    </div>
 </div>

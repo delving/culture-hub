@@ -202,6 +202,7 @@ registration.lostpassword=Wachtwoord vergeten
 registration.lostpassword.message=Wachtwoord vergeten? Vul het e-mail adres van uw account hieronder in
 registration.resetpassword=Wachtwoord herstellen
 registration.newpassword=Voer een nieuw wachtwoord in
+registration.registerFor=Registreer voor %s
 
 ##Search
 search.additemstocollection=Voeg toe aan collectie

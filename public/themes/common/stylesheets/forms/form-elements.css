@@ -16,6 +16,18 @@ form.data-set {
     background:  transparent;
 }
 
+legend {
+    background:  #555;
+    color: #fff;
+    font-weight: bold;
+    width: 100%;
+}
+
+legend span {
+    display:block;
+    padding:  10px;
+}
+
 form h3 {
     background-color: #555;
     color: #fff;
@@ -70,11 +82,15 @@ label.label {
 
 
 .field .help {
-    display: block;
     color: #888;
+    display: block;
     font-size: 85%;
     font-style: italic;
     word-wrap: break-word;
+}
+
+.field .extHelp {
+    cursor:help;
 }
 
 .field .input[type=radio] {
@@ -102,194 +118,6 @@ label.label {
     color: #cc0000;
     /*padding:  4px;*/
 }
-
-/*.required-note {*/
-    /*color: #777777;*/
-    /*display: block;*/
-    /*font-size: 1em;*/
-/*}*/
-
-/*.required-note span {*/
-    /*color: #cc0000;*/
-/*}*/
-
-/*div.field {*/
-    /*border-bottom: 1px dotted #ccc;*/
-    /*clear: both;*/
-    /*margin-bottom: 10px;*/
-    /*padding-bottom: 10px;*/
-    /*position: relative;*/
-
-/*}*/
-
-/*div.field label,*/
-/*div.field div.label {*/
-    /*color: #444444;*/
-    /*display: inline-block;*/
-    /*float: left;*/
-    /*font-size: 1.1em;*/
-    /*font-weight: bold;*/
-    /*margin-bottom: 0.5em;*/
-    /*text-align: right;*/
-    /*width: 150px;*/
-/*}*/
-/*div.field label {*/
-    /*display: block;*/
-    /*float: left;*/
-/*}*/
-
-/*div.field .inputs {*/
-    /*display: block;*/
-    /*float: left;*/
-    /*width: auto;*/
-/*}*/
-
-/*label.fileinput-button {*/
-    /*margin-bottom:  0 !important;*/
-/*}*/
-
-/*div.field span.error,*/
-/*div.field label.error {*/
-    /*display: inline-block;*/
-    /*color: #b22222;*/
-    /*margin-left: 5px;*/
-    /*font-style: normal;*/
-/*}*/
-
-/*div.field label:after {*/
-    /*content: ":";*/
-/*}*/
-
-/*div.field label.required:after {*/
-    /*color: #cc0000;*/
-    /*content: " *";*/
-    /*font-size: 14px;*/
-    /*font-weight: normal;*/
-/*}*/
-
-/*.field .inputs {*/
-    /*float: left;*/
-    /*overflow: hidden;*/
-    /*width: 100%;*/
-/*}*/
-
-/*.field .help {*/
-    /*display: block;*/
-    /*color: #888;*/
-    /*font-size: 85%;*/
-    /*font-style: italic;*/
-    /*word-wrap: break-word;*/
-    /*max-width: 600px;*/
-/*}*/
-
-/*input.textinput, select, textarea {*/
-    /*background-color: #FFFFFF;*/
-    /*border: 1px solid #DDDAD3;*/
-    /*font-size: 1.1em;*/
-    /*padding: 3px;*/
-/*}*/
-
-/*.textinput.required {*/
-    /*border-color:  #cc0000;*/
-    /*background-color: #fee7e7;*/
-/*}*/
-
-/*select {*/
-    /*padding: 2px;*/
-/*}*/
-
-
-
-/*.inputs textarea {*/
-    /*min-width: 400px;*/
-    /*min-height: 150px;*/
-/*}*/
-
-/*.inputs .buttons .button {*/
-    /*margin-left: 0px;*/
-/*}*/
-
-/*input.textdisplay {*/
-    /*border: none;*/
-/*}*/
-
-/*input[type=submit],*/
-/*input[type=button],*/
-/*input[type=file],*/
-/*button {*/
-    /*border: none;*/
-    /*background-color: #999;*/
-    /*color: #fff;*/
-    /*font-size: 1.1em;*/
-    /*font-weight: bold;*/
-    /*padding: 4px 10px;*/
-    /*border-radius: 4px;*/
-    /*height: 30px;*/
-/*}*/
-
-/*input[type=file] {*/
-    /*background: #fff;*/
-/*}*/
-
-/*input[type=submit]:hover,*/
-/*input[type=button]:hover,*/
-/*input[type=file]:hover,*/
-/*button:hover{*/
-    /*background-color: #555;*/
-/*}*/
-
-/*input[type=submit]:active,*/
-/*input[type=button]:active,*/
-/*input[type=file]:active,*/
-/*button:active{*/
-    /*background-color: #888;*/
-/*}*/
-
-/*input[type=radio],*/
-/*input[type=checkbox] {*/
-    /*margin: 4px 4px 0 0;*/
-/*}*/
-
-/*button[disabled] {*/
-    /*background-color: #888;*/
-    /*cursor: default;*/
-    /*opacity:0.4;*/
-    /*filter:alpha(opacity=40)*/
-/*}*/
-
-/*.wait {*/
-    /*display: inline-block;*/
-    /*margin-left: 5px;*/
-/*}*/
-
-/*form {*/
-    /*background-color: #eaeaea;*/
-    /*padding:  10px;*/
-    /*margin:  10px 0;*/
-/*}*/
-
-/*fieldset {*/
-    /*background-color: ivory;*/
-    /*padding:  10px;*/
-    /*margin-bottom:  10px;*/
-    /*border-bottom:  1px solid #fff;*/
-/*}*/
-
-/*legend {*/
-    /*font-weight: bold;*/
-/*}*/
-
-/*.success {*/
-    /*background-color: green;*/
-    /*color: #fff;*/
-    /*padding:  4px;*/
-/*}*/
-/*.error {*/
-    /*background-color: #cc0000;*/
-    /*color: #fff;*/
-    /*padding:  4px;*/
-/*}*/
-
 
 
 
