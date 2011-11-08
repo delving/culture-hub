@@ -23,7 +23,12 @@
 
 
   <h2>Users</h2>
-    #{addRemoveTokenField id:"users", name: "users", submitOnEvent: id.isDefined(), searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+  #{if id.isDefined()}
+    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+  #{/if}
+  #{else}
+    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
+  #{/else}
 
   <h2>DataSets</h2>
 

@@ -5,9 +5,9 @@ import org.bson.types.ObjectId
 import models.{Organization, GrantType, Group}
 import play.mvc.Util
 import extensions.JJson
-import controllers.{ViewModel, DelvingController}
 import play.data.validation.Annotations._
 import com.mongodb.casbah.commons.MongoDBObject
+import controllers.{Token, ViewModel, DelvingController}
 
 /**
  * 
@@ -73,7 +73,9 @@ object Groups extends DelvingController with OrganizationSecured {
       case None =>
         Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = GrantType.get(groupModel.grantType))) match {
           case None => None
-          case Some(id) => Some(groupModel.copy(id = Some(id)))
+          case Some(id) =>
+            groupModel.users.foreach(u => Group.addUser(u.id, id))
+            Some(groupModel.copy(id = Some(id)))
         }
       case Some(id) =>
         Group.updateGroupInfo(id, groupModel.name, groupModel.grantType)
@@ -96,4 +98,8 @@ object Groups extends DelvingController with OrganizationSecured {
 
 }
 
-case class GroupViewModel(id: Option[ObjectId] = None, @Required name: String = "", @Range(min=0, max=10) grantType: Int = GrantType.VIEW.value, errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+case class GroupViewModel(id: Option[ObjectId] = None,
+                          @Required name: String = "",
+                          @Range(min=0, max=10) grantType: Int = GrantType.VIEW.value,
+                          users: List[Token] = List.empty[Token],
+                          errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
