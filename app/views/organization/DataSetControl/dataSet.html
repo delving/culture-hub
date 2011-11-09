@@ -5,10 +5,12 @@
 
 <h1 class="sep">${viewUtils.getKey('organization.dataset.create') }</h1>
 
-<div class="mod">
-<form method="post" action="" id="collectionForm">
+<div class="row">
+<div class="g-12of12">
 
-    <h2>&{'organization.dataset.info'}</h2>
+    <form method="post" action="" id="collectionForm">
+
+    <h3>&{'organization.dataset.info'}</h3>
 
     #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
     <div class="field">
@@ -32,7 +34,7 @@
 
     %{ }}%
 
-    <h2>Record Definitions</h2>
+    <h3>Record Definitions</h3>
     #{list recordDefinitions, as: 'recordDef'}
       #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
     #{/list}
@@ -44,6 +46,8 @@
 
 </form>
 </div>
+</div>
+
 <script type="text/javascript">
   $(document).ready(function() {
     var dataSetModel = {};
