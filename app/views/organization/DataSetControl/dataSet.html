@@ -11,6 +11,14 @@
     <h2>&{'organization.dataset.info'}</h2>
 
     #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
+    <div class="field">
+        <label class="label">&{'ui.label.visibility'}</label>
+
+        <div class="inputs">
+            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+        </div>
+    </div>
 
     %{for(i in 0..factDefinitions.size() - 1) {
       def factDef = factDefinitions.get(i);

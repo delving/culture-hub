@@ -49,7 +49,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       case Some(id) => {
         val existing = DataSet.findOneByID(id).get
         val updatedDetails = existing.details.copy(facts = factsObject)
-        val updated = existing.copy(spec = spec, details = updatedDetails, mappings = updateMappings(dataSet.recordDefinitions, existing.mappings) )
+        val updated = existing.copy(spec = spec, details = updatedDetails, mappings = updateMappings(dataSet.recordDefinitions, existing.mappings), visibility = Visibility.get(dataSet.visibility))
         DataSet.save(updated)
         }
       case None => DataSet.insert(
@@ -58,6 +58,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
           orgId = orgId,
           user_id = connectedUserId,
           state = DataSetState.INCOMPLETE,
+          visibility = Visibility.get(dataSet.visibility),
           lastUploaded = new Date(),
           details = Details(
             name = dataSet.facts("name").toString,
