@@ -106,11 +106,12 @@ GET         /{user}/story/{id}/read                                          Sto
 GET         /{user}/admin/?                                                  user.Admin.index
 
 # Organizations
-
+GET        /organizations/{orgId}                                            organization.Organization.index
 GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
 GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
 POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
 DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
+
 
 GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
 GET        /organizations/{orgId}/users/search                               Users.listAsTokens
