@@ -104,8 +104,8 @@ h6, .h6 {
 }
 
 h1.sep {
-    margin: 10px;
-    padding-bottom: 5px;
+    margin: 10px 0 5px 10px;
+    /*padding-bottom: 5px;*/
     //border-bottom: 1px solid lighten(@color5, 30%);
 }
 
@@ -391,6 +391,20 @@ a:visited {
     width: auto;
 }
 
+.record .bd {
+    padding: 0 0 0 30px;
+}
+
+.record p {
+    margin-bottom: 10px;
+}
+
+/* labels and comments dialogue*/
+#add-label-dialog,
+#add-comment-dialog {
+    display: none;
+}
+
 
 /* overrides */
 
@@ -436,6 +450,12 @@ form legend {
 
 .media .img {
     margin-right: 10px;
+}
+
+.media .extra {
+    display: block;
+    clear: left;
+    float: left;
 }
 
 #tiptip_content {

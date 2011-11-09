@@ -1,0 +1,68 @@
+<div class="toolbar">
+    <div class="buttons">
+        #{if userName == browsedUserName}
+        <a class="button" href="/${dobject.userName}/object/${dobject._id}/update">
+            <span class="icon icon145"></span>
+            <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.object'))}</span>
+        </a>
+        #{/}
+        #{btnButton label: viewUtils.getKey('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+        #{btnButton label:viewUtils.getKey('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
+        <div class="addthis_toolbox addthis_default_style">
+            #{btnHref extraClass:"addthis_button_preferred_3 left", iconClass:"icon125", label: viewUtils.getKey('ui.label.email')/}
+            #{btnHref extraClass:"addthis_button_preferred_4 middle", iconClass:"icon153", label: viewUtils.getKey('ui.label.print')/}
+            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: viewUtils.getKey('ui.label.share')/}
+            <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
+        </div>
+    </div>
+</div>
+
+<div id="add-label-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
+    <div class="field">
+        <label class="label">&{'thing.label'}</label>
+
+        <div class="inputs">
+            <input type="text" class="textinput"/>
+            #{btnButton label:viewUtils.getKey('ui.label.add'), id:"addLabelSubmit"/}
+        </div>
+    </div>
+</div>
+
+<div id="add-comment-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
+    <div class="field">
+        <label class="label">&{'thing.comment'}</label>
+
+        <div class="inputs">
+            <textarea name="comment" id="comment"></textarea>
+            #{btnButton label:viewUtils.getKey('ui.label.add'), id:"addCommentSubmit"/}
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(function() {
+        var addthis_config = {
+            ui_use_css: true
+        }
+
+        $("#addLabel").click(function() {
+            if ($("#add-comment.dialog")) {
+                $("#addComment").removeClass("on");
+                $("#add-comment-dialog").hide("slow");
+            }
+            $("#add-label-dialog").show("slow");
+            $(this).addClass("on");
+        });
+        $("#addComment").click(function() {
+            if ($("#add-label.dialog")) {
+                $("#addLabel").removeClass("on");
+                $("#add-label-dialog").hide("slow");
+            }
+            $("#add-comment-dialog").show("slow");
+            $(this).addClass("on");
+        });
+    });
+
+</script>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
