@@ -131,7 +131,7 @@ GET         /organizations/{orgId}/dataset/{spec}/indexingStatus             org
 GET         /organizations/{orgId}/dataset/{spec}/state                      organization.DataSetControl.state
 POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
 POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
-DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.disable
+DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.delete
 
 GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
 GET         /organizations/{orgId}/sip-creator/sip-creator.jnlp              organization.SipCreator.jnlp

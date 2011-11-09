@@ -15,11 +15,10 @@ function initializeElements() {
 
 function bindCSRFToken(csrfToken) {
     $("body").bind("ajaxSend", function(elm, xhr, s) {
-      if (s.type == "POST") {
+      if (s.type == "POST" || s.type == "DELETE" || s.type == "PUT") {
         xhr.setRequestHeader('X-CSRF-Token', csrfToken);
       }
     });
-
 }
 
 /**

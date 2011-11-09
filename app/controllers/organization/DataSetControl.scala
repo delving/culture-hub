@@ -181,7 +181,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
   }
 
   def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
-    val dataSet = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
+    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
     operation(dataSet)
   }
 }
