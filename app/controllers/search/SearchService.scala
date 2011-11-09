@@ -102,14 +102,14 @@ class SearchService(request: Request, theme: PortalTheme) {
   private def getBriefResultsFromSolr: BriefItemView = {
     require(!paramMap.get("query").head.isEmpty)
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
-    BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery))
+    BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
   private def getFullResultsFromSolr : FullItemView = {
     import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("id") || params._contains("did"))
     // todo must be coded differently in the future
-    val response = SolrQueryService.getSolrResponseFromServer(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))), theme.solrSelectUrl)
+    val response = SolrQueryService.getSolrResponseFromServer(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))))
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
 

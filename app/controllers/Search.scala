@@ -16,10 +16,11 @@ object Search extends DelvingController {
      params.put("query", "*:*")
    }
    // for now hardcode the facets in
-   params.put("facet.field", Array("TYPE", "YEAR"))
+    if (!params._contains("facet.field"))
+      params.put("facet.field", Array("TYPE", "YEAR"))
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
-    val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, theme.solrSelectUrl, true), chQuery)
+    val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
