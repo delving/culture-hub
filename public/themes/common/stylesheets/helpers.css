@@ -37,6 +37,14 @@ strong {
     margin-top: 5px;
 }
 
+/* dialogs */
+
+/* labels and comments dialogue*/
+#add-label-dialog,
+#add-comment-dialog {
+    display: none;
+}
+
 /* button addition class */
 
 
@@ -72,4 +80,18 @@ button[disabled],
 .info-box .text {
     display: block;
     float: left;
+}
+
+/* metadata */
+
+.metadata h5 {
+    margin:  0;
+}
+
+.object .bd, .story .bd, .collection .bd, .record .bd {
+    padding: 0 0 0 30px;
+}
+
+.metadata p {
+    margin-bottom: 10px;
 }

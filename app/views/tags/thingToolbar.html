@@ -1,3 +1,4 @@
+
 <div class="toolbar">
     <div class="buttons">
         #{btnHref label: viewUtils.getKey('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
@@ -17,10 +18,10 @@
         <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dobject.confirmDeletion'}</p></div>
         <script type="text/javascript">
             $(document).ready(function() {
-            remove('#remove', '#removeConfirmation', '/${owner}/object/${tid}/remove', '/${owner}/object');
+            remove('#remove', '#removeConfirmation', '/${dobject.userName}/object/${dobject._id}/remove', '/${dobject.userName}/object');
             });
         </script>
-        *{#{btnHref label:viewUtils.getKey('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href:"/${owner}/object/${tid}/update" /}}*
+        #{btnHref label:viewUtils.getKey('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href:"/${dobject.userName}/object/${dobject._id}/update" /}
         #{/}
 
 
