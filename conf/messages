@@ -477,6 +477,8 @@ servicessecurity.userNotFound=User %s was not found
 
 stories.storyNotFound=Story with id %s was not found
 
+organizations.organization.orgNotFound=Could not find organization %s
+
 organizations.admin.userNotFound=Could not find user with userName %s
 
 organizations.group.cannotAddUser=Could not add user with userName %s to group %s
