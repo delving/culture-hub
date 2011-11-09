@@ -1,9 +1,9 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
+
 #{set title: viewUtils.getKey('thing.collection') + ' ' + collection.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
+
 #{breadcrumbs /}
- %{def theThing = collection }%
-%{def owner = collection.userName }%
-%{def tid = collection._id %}
+
 <h1 class="sep">${collection.name}</h1>
 
 <div class="row">
@@ -12,28 +12,10 @@
 
             <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" alt="${collection.name}" class="img"/>
 
-            *{
-            #{if userName == browsedUserName}
-            <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.collection'))}</span>
-            </a>
-            <a class="button clear" id="remove">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.collection'))}</span>
-            </a>
-            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'collection.confirmDeletion'}</p></div>
-            <script type="text/javascript">
-              $(document).ready(function() {
-                remove('#remove', '#removeConfirmation', '/${collection.userName}/collection/${collection._id}/remove', '/${collection.userName}/collection');
-              });
-            </script>
-            #{/if}
-
-            }*
-
             <div class="bd">
-                #{include 'inc.label.comment.toolbar.html' /}
+
+                #{thingToolbar owner: collection.userName, id: collection._id, b: browsedUserName, type:"collection"/}
+
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>
@@ -47,7 +29,7 @@
                             <p>${browsedFullName}</p>
 
                             <h5>&{'thing.objectcount'}:</h5>
-                              <p>${objects.length()}</p>
+                            <p>${objects.length()}</p>
                         </div>
 
                         <div class="g-1of2 omega">

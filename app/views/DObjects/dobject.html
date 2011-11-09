@@ -6,34 +6,26 @@
 
 #{breadcrumbs /}
 
-*{
- create a generic name for the objec for feeding info into the toolbar include.
-}*
-
-%{def theThing = dobject }%
-%{def owner = theThing.userName }%
-%{def tid = theThing._id %}
-
-<h1 class="sep">${theThing.name}</h1>
+<h1 class="sep">${dobject.name}</h1>
 
 <div class="row">
     <div class="g-12of12">
         <div class="media record">
 
-            <img src='${views.context.package.imageUrl(theThing._id)}' width="250" alt="${theThing.name}" class="img"/>
+            <img src='${views.context.package.imageUrl(dobject._id)}' width="250" alt="${dobject.name}" class="img"/>
 
 
             <div class="bd">
 
-                #{include 'inc.label.comment.toolbar.html' /}
+                #{thingToolbar owner: dobject.userName, id: dobject._id, b: browsedUserName, type:"object"/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
-                    <p>${views.context.package.niceText(theThing.description.isEmpty() ? "No description available" : theThing.description)}</p>
+                    <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>
 
                     <div class="row">
                         <div class="g-1of2 alpha">
                             <h5>&{'thing.name'}:</h5>
-                            <p>${theThing.name}</p>
+                            <p>${dobject.name}</p>
 
                             <h5>&{'thing.owner'}:</h5>
                             <p>${browsedFullName}</p>
@@ -41,7 +33,7 @@
 
                         <div class="g-1of2 omega">
                             <h5>&{'thing.datecreated'}:</h5>
-                            <p>${views.context.package.niceTime(theThing._id.getTime())}</p>
+                            <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
 
                             <h5>&{'thing.labels'}:</h5>
                             <p class="labels">
