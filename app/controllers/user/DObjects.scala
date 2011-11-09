@@ -123,7 +123,7 @@ object DObjects extends DelvingController with UserSecured {
 
 case class ObjectModel(id: Option[ObjectId] = None,
                        @Required name: String = "",
-                       description: String = "",
+                       @Required description: String = "",
                        owner: ObjectId = new ObjectId(),
                        visibility: Int = Visibility.PUBLIC.value,
                        collections: List[ObjectId] = List.empty[ObjectId],
