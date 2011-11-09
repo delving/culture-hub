@@ -702,6 +702,8 @@
      <copyField source="abm_*" dest="text"/>
      <copyField source="icn_*" dest="text"/>
      <copyField source="europeana_*" dest="text"/>
+     <copyField source="itin_*" dest="text"/>
+     <copyField source="drup_*" dest="text"/>
 
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 

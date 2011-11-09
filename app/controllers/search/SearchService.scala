@@ -288,8 +288,9 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
   def renderAsXML(authorized : Boolean) : Elem = {
       val response: Elem =
       <result xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
-              xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-              xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/">
+              xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
+              xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
+                 xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace">
         <item>
           {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, Array("delving_pmhId")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
           SolrQueryService.renderXMLFields(field, chResponse)}

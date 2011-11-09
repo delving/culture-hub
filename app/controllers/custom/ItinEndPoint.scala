@@ -2,6 +2,7 @@ package controllers.custom
 
 import play.mvc.results.RenderXml
 import play.mvc.Controller
+import controllers.DelvingController
 
 /**
  *
@@ -9,12 +10,13 @@ import play.mvc.Controller
  * @since 11/5/11 10:35 AM  
  */
 
-object ItinEndPoint extends Controller {
+object ItinEndPoint extends DelvingController {
 
   import play.mvc.results.Result
 
   def search: Result = {
-    new RenderXml("<bla>rocks</bla>")
+    import controllers.search.SearchService
+    SearchService.getApiResult(request, theme)
   }
 
   def store(data: String): Result = {

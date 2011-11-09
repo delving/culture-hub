@@ -63,6 +63,22 @@ object SolrServer {
   solrTestServer.setMaxTotalConnections(100)
   solrTestServer.setFollowRedirects(false)  // defaults to false
   
-
+//  def getSolrFields(solrUrl: String) {
+//    import xml.XML
+//    import java.net.URL
+//    val lukeUrl: URL = new URL("%s/admin/luke".format(solrUrl))
+//    val fields = XML.load(lukeUrl) \\ "lst" \\ "lst"
+//    fields.map {
+//      field => {
+//        val fieldName = field.attribute("name").get.text
+//        field.nonEmptyChildren match {
+//          case n @ <str>{text}</str> if (n \ "@name")  == "type" =>
+//        }
+//      }
+//    }
+//  }
   
 }
+
+case class SolrDynamicField(name: String,  fieldType: String,  docs: Int, distinct: Int, topTerms: List[SolrFrequencyItem] = List.empty, histogram: List[SolrFrequencyItem] = List.empty)
+case class SolrFrequencyItem(name: String,  freq: Int)
