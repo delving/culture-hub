@@ -126,6 +126,10 @@
 
                 </div>
                 <!-- /.dropdown -->
+                #{if organizations.length() > 0}
+
+                #{/if}
+
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
 
