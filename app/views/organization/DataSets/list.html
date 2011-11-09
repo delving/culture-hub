@@ -8,141 +8,151 @@
 #{if browsedUserName}
 
 <div class="g-12of12">
-  &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
-  &{'thing.count'}: ${count}
+    &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
+    &{'thing.count'}: ${count}
 </div>
 
 #{/if}
 <div class="row">
-<div class="g-12of12">
-#{if items.length() > 0}
-    <div class="mod data-grid">
-        <table>
-            <thead>
-            <tr>
-                <th>&{'thing.name'}</th>
-                <th>&{'ui.label.nritems'}</th>
-                <th>&{'ui.label.status'}</th>
-                <th>&{'ui.label.options'}</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <td colspan="4">
-                    <a class="button" href="/organizations/${orgId}/dataset/add">
-                        <span class="label">${viewUtils.getKey('organization.dataset.create')}</span>
-                    </a>
-                    <a class="button" href="/organizations/${orgId}/sip-creator/">
-                        <span class="label">&{'ui.label.sipcreator'}</span>
-                    </a>
-                    #{if items.length() > 0}
-                    <div id="pager" class="mtm">#{pagination selector: "#pager", count: count, start: page /}</div>
-                    #{/}
-                    #{else}
-                    <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
-                    #{/}
-                </td>
-            </tr>
-            </tfoot>
-            <tbody>
-            #{list items, as: 'i'}
-            <tr>
-                <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
-                <td>${i.total_records}</td>
-                <td id="description${i.spec}">
-                    #{if i.state.name() == models.DataSetState.ERROR().name()}
-                    <span class="error">${i.state.description()}</span>
-                    #{/if}
-                    #{else}
-                    ${i.state.description()}
-                    #{/else}
-                </td>
-                <td>
-                    #{if isOwner}
-                    <div class="buttons">
-                        <a class="button" href="/organizations/${orgId}/dataset/${i.spec}/update">
-                            <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
-                        </a>
-                        <a class="button" id="remove${i.spec}">
-                            <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.dataset'))}</span>
-                        </a>
-                        <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dataset.confirmDeletion'}</p></div>
-                        <script type="text/javascript">
-                          $(document).ready(function() {
-                            remove('#remove${i.spec}', '#removeConfirmation', '/organizations/${orgId}/dataset/${i.spec}/remove', '/organizations/${orgId}/dataset');
-                          });
-                        </script>
-                        #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
-                        <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
-                            <button class="action green index"><span class="label">&{'dataset.index'}</span>
-                            </button>
-                        </form>
-                        #{/if}
-                        #{if i.state.name() == models.DataSetState.ENABLED().name()}
-                        <form action="/organizations/${orgId}/dataset/${i.spec}/reindex" method="POST" class="data-set">
-                            <button class="button reIndex"><span class="label">&{'dataset.reindex'}</span></button>
-                        </form>
-                        <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set">
-                            <button class="button reIndex"><span class="label">&{'dataset.disable'}</span></button>
-                        </form>
-                        #{/if}
-                        #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
-                        <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
-                            <button class="button action cancel"><span class="label">&{'dataset.cancelindex'}</span>
-                            </button>
-                        </form>
-                        #{/if}
-                        #{if i.state.name() == models.DataSetState.QUEUED().name()}
-                        <script type="text/javascript">
-                            $('#description${i.spec}').smartupdater({
-                                url : "/organizations/${orgId}/dataset/${i.spec}/state",
-                                minTimeout: 2000
-                            }, function (data) {
-                                var d = $.parseJSON(data);
-                                if (d.state == '${models.DataSetState.INDEXING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
-                                    // yadaaa
-                                    document.location = "/organizations/${orgId}/dataset";
-                                }
-                            });
-                        </script>
-                        #{/if}
-                        #{if i.state.name() == models.DataSetState.INDEXING().name()}
-                        <div id="indexCounter${i.spec}"></div>
-                        <script type="text/javascript">
-                            $('#indexCounter${i.spec}').progressbar();
-                            $('#indexCounter${i.spec}').smartupdater({
-                                url : "/organizations/${orgId}/dataset/${i.spec}/indexingStatus",
-                                minTimeout: 2000
-                            }, function (data) {
-                                var d = $.parseJSON(data);
-                                if (d.status == 'DONE') {
-                                    $('#indexCounter${i.spec}').smartupdaterStop();
-                                    $('#indexCounter${i.spec}').progressbar("value", 100);
-                                    document.location = "/organizations/${orgId}/dataset";
-                                }
-                                else {
-                                    $('#indexCounter${i.spec}').progressbar("value", d.status);
-                                }
-                            });
-                        </script>
-                        #{/if}
-                        #{if i.state.name() == models.DataSetState.DISABLED().name()}
-                        <form action="/organizations/${orgId}/dataset/${i.spec}/enable" method="POST">
-                            <button class="button action enable">&{'dataset.enable'}</button>
-                        </form>
-                        #{/if}
-                        #{/if}
-                    </div>
-                </td>
-            </tr>
-            #{/list}
-            </tbody>
-        </table>
+    <div class="toolbar">
+        <div class="buttons">
+            <a class="button" href="/organizations/${orgId}/dataset/add">
+                <span class="label">${viewUtils.getKey('organization.dataset.create')}</span>
+            </a>
+            <a class="button" href="/organizations/${orgId}/sip-creator/">
+                <span class="label">&{'ui.label.sipcreator'}</span>
+            </a>
+        </div>
+
     </div>
-#{/}
-#{else}
-<p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
-#{/}
 </div>
+<div class="row">
+    <div class="g-12of12">
+        #{if items.length() > 0}
+        <div class="mod data-grid">
+            <table>
+                <thead>
+                <tr>
+                    <th>&{'thing.name'}</th>
+                    <th>&{'ui.label.nritems'}</th>
+                    <th>&{'ui.label.status'}</th>
+                    <th>&{'ui.label.options'}</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <td colspan="4">
+                        #{if items.length() > 0}
+                        <div id="pager" class="mtm">#{pagination selector: "#pager", count: count, start: page /}</div>
+                        #{/}
+                        #{else}
+                        <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
+                        #{/}
+                    </td>
+                </tr>
+                </tfoot>
+                <tbody>
+                #{list items, as: 'i'}
+                <tr>
+                    <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
+                    <td>${i.total_records}</td>
+                    <td id="description${i.spec}">
+                        #{if i.state.name() == models.DataSetState.ERROR().name()}
+                        <span class="error">${i.state.description()}</span>
+                        #{/if}
+                        #{else}
+                        ${i.state.description()}
+                        #{/else}
+                    </td>
+                    <td width="300">
+                        #{if isOwner}
+                        <div class="buttons">
+                            <a class="button" href="/organizations/${orgId}/dataset/${i.spec}/update">
+                                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
+                            </a>
+                            <a class="button" id="remove${i.spec}">
+                                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.dataset'))}</span>
+                            </a>
+
+                            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p>
+                                <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dataset.confirmDeletion'}
+                            </p></div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    remove('#remove${i.spec}', '#removeConfirmation', '/organizations/${orgId}/dataset/${i.spec}/remove', '/organizations/${orgId}/dataset');
+                                });
+                            </script>
+                            #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
+                            <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
+                                <button class="action green index"><span class="label">&{'dataset.index'}</span>
+                                </button>
+                            </form>
+                            #{/if}
+                            #{if i.state.name() == models.DataSetState.ENABLED().name()}
+                            <form action="/organizations/${orgId}/dataset/${i.spec}/reindex" method="POST" class="data-set">
+                                <button class="button reIndex"><span class="label">&{'dataset.reindex'}</span></button>
+                            </form>
+                            <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set">
+                                <button class="button reIndex"><span class="label">&{'dataset.disable'}</span></button>
+                            </form>
+                            #{/if}
+                            #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
+                            <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
+                                <button class="button action cancel"><span class="label">&{'dataset.cancelindex'}</span>
+                                </button>
+                            </form>
+                            #{/if}
+                            #{if i.state.name() == models.DataSetState.QUEUED().name()}
+                            <script type="text/javascript">
+                                $('#description${i.spec}').smartupdater({
+                                    url : "/organizations/${orgId}/dataset/${i.spec}/state",
+                                    minTimeout: 2000
+                                }, function (data) {
+                                    var d = $.parseJSON(data);
+                                    if (d.state == '${models.DataSetState.INDEXING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
+                                        // yadaaa
+                                        document.location = "/organizations/${orgId}/dataset";
+                                    }
+                                });
+                            </script>
+                            #{/if}
+                            #{if i.state.name() == models.DataSetState.INDEXING().name()}
+                            <div id="indexCounter${i.spec}"></div>
+                            <script type="text/javascript">
+                                $('#indexCounter${i.spec}').progressbar();
+                                $('#indexCounter${i.spec}').smartupdater({
+                                    url : "/organizations/${orgId}/dataset/${i.spec}/indexingStatus",
+                                    minTimeout: 2000
+                                }, function (data) {
+                                    var d = $.parseJSON(data);
+                                    if (d.status == 'DONE') {
+                                        $('#indexCounter${i.spec}').smartupdaterStop();
+                                        $('#indexCounter${i.spec}').progressbar("value", 100);
+                                        document.location = "/organizations/${orgId}/dataset";
+                                    }
+                                    else {
+                                        $('#indexCounter${i.spec}').progressbar("value", d.status);
+                                    }
+                                });
+                            </script>
+                            #{/if}
+                            #{if i.state.name() == models.DataSetState.DISABLED().name()}
+                            <form action="/organizations/${orgId}/dataset/${i.spec}/enable" method="POST">
+                                <button class="button action enable">&{'dataset.enable'}</button>
+                            </form>
+                            #{/if}
+                            #{/if}
+                        </div>
+                    </td>
+                </tr>
+                #{/list}
+                </tbody>
+            </table>
+        </div>
+        #{/}
+        #{else}
+        <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
+        #{/}
+    </div>
 </div>
 
