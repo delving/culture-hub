@@ -146,6 +146,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       allDateSets
   }
 
+  def findAllForUser(userName: String): List[DataSet] =
+    Group.
+            find(MongoDBObject("users" -> userName)).
+            filter(g => g.grantType == GrantType.MODIFY || g.grantType == GrantType.OWN).
+            map(g => if(g.grantType == GrantType.OWN) DataSet.findAllByOrgId(g.orgId).toList else DataSet.find("_id" $in g.dataSets).toList).
+            toList.flatten.distinct
+
   def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
   def updateById(id: ObjectId, dataSet: DataSet) {

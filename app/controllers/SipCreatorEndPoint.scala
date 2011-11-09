@@ -44,7 +44,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
   private var connectedOrg: Option[Organization] = None
 
-  @Before def setUser(): Result = {
+  @Before() def setUser(): Result = {
     val accessToken: String = params.get("accessKey")
     if (accessToken == null || accessToken.isEmpty) {
       Logger.warn("Service Access Key missing")
@@ -54,7 +54,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       return TextError(("Access Key %s not accepted".format(accessToken)), 401)
     }
     connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
+    Continue
+  }
 
+  @Before(unless = Array("listAll")) def setOrg(): Result = {
     val orgId = params.get("orgId")
     if(orgId == null || orgId.isEmpty) {
       logErrorWithUser("Attempting to connect without orgId")
@@ -65,7 +68,6 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       logErrorWithUser("Unknown organization " + orgId)
       return TextError("Unknown organization " + orgId)
     }
-
     Continue
   }
 
@@ -77,7 +79,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def getConnectedUserId = getConnectedUser._id
 
   def listAll(): Result = {
-    val dataSets = DataSet.findAllByOrgId(connectedOrg.get.orgId).toList
+    val dataSets = DataSet.findAllForUser(connectedUser.get.userName)
 
     val dataSetsXml = <data-set-list>
       {dataSets.map {
@@ -87,9 +89,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
         <data-set>
           <spec>{ds.spec}</spec>
           <name>{ds.details.name}</name>
-          <ownership>
-            <orgId>{connectedOrg.get.orgId}</orgId>
-          </ownership>
+          <orgId>{ds.orgId}</orgId>
           <createdBy>
             <username>{creator.userName}</username>
             <fullname>{creator.fullname}</fullname>

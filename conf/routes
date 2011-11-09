@@ -43,12 +43,6 @@ GET         /services/api/open-search                                        Ser
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
 GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
-GET         /services/dataset                                                SipCreatorEndPoint.listAll
-GET         /services/dataset/{dataSetSpec}/{command}                        SipCreatorEndPoint.indexingControl
-POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     SipCreatorEndPoint.acceptFile
-POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    SipCreatorEndPoint.fetchSIP
-GET         /services/administrator/dataset                                  SipCreatorEndPoint.secureListAll
-GET         /services/administrator/dataset/{dataSetSpec}/{command}          SipCreatorEndPoint.secureIndexingControl
 
 # Backwards compatibility with the old portal module
 GET        /portal/                                                          Portal.index
@@ -139,14 +133,14 @@ POST        /organizations/{orgId}/dataset/{spec}/disable                    org
 POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
 DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.disable
 
-GET         /organizations/{orgId}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
-GET         /organizations/{orgId}/dataset/sip-creator/unlock/{spec}                        SipCreatorEndPoint.unlock
-POST        /organizations/{orgId}/dataset/sip-creator/submit/{spec}                        SipCreatorEndPoint.acceptFileList
-POST        /organizations/{orgId}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
-GET         /organizations/{orgId}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
+GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
+GET         /organizations/{orgId}/sip-creator/sip-creator.jnlp              organization.SipCreator.jnlp
 
-GET         /organizations/{orgId}/sip-creator/?                                            organization.SipCreator.index
-GET         /organizations/{orgId}/sip-creator/sip-creator.jnlp                             organization.SipCreator.jnlp
+GET         /api/sip-creator/list                                            SipCreatorEndPoint.listAll
+GET         /api/sip-creator/unlock/{orgId}/{spec}                           SipCreatorEndPoint.unlock
+POST        /api/sip-creator/submit/{orgId}/{spec}                           SipCreatorEndPoint.acceptFileList
+POST        /api/sip-creator/submit/{orgId}/{spec}/{fileName}                SipCreatorEndPoint.acceptFile
+GET         /api/sip-creator/fetch/{orgId}/{spec}-sip.zip                    SipCreatorEndPoint.fetchSIP
 
 # Hub Administration
 GET        /admin/themes                                                     admin.Themes.index
