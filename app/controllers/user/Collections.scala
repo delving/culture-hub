@@ -79,7 +79,14 @@ object Collections extends DelvingController with UserSecured {
   }
 
   def remove(id: ObjectId) = {
-    if(UserCollection.owns(connectedUserId, id)) UserCollection.delete(id) else Forbidden("Big brother is watching you")
+    if(UserCollection.owns(connectedUserId, id)) {
+      val objects = DObject.findForCollection(id)
+      UserCollection.setObjects(id, objects)
+      DObject.unlinkCollection(id)
+      UserCollection.delete(id)
+    } else {
+      Forbidden("Big brother is watching you")
+    }
   }
 
 

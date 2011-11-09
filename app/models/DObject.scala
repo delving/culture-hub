@@ -2,7 +2,7 @@ package models
 
 import org.bson.types.ObjectId
 import salatContext._
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
@@ -46,6 +46,14 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
 
   def removeFile(oid: ObjectId) {
     DObject.update(MongoDBObject(), (MongoDBObject("$pull" -> MongoDBObject("files" -> MongoDBObject("id" -> oid)))))
+  }
+
+  def findForCollection(collectionId: ObjectId) = {
+    objectsCollection.find(MongoDBObject("collections" -> collectionId), MongoDBObject("_id" -> 1)).map(dbo => dbo.get("_id").asInstanceOf[ObjectId]).toList
+  }
+
+  def unlinkCollection(collectionId: ObjectId) {
+    DObject.update(MongoDBObject("collections" -> collectionId), $pull ("collections" -> collectionId))
   }
 
 }
