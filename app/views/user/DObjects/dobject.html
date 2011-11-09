@@ -1,3 +1,4 @@
+
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.object.title.create', fullName) : viewUtils.getKey('user.object.title.update', fullName) /}
 
@@ -25,13 +26,14 @@
     </div>
 
     <div class="field" for="objectVisibility">
-        <label for="public-0" class="label">&{'ui.label.visibility'}</label>
+        <label class="label">&{'ui.label.visibility'}</label>
 
         <div class="inputs">
-            <input type="radio" checked="checked" value="0" id="public-0" name="public">&{'ui.label.visibility.notpublic'}
-            <input type="radio" value="1" id="public-1" name="public">&{'ui.label.visibility.public'}
+            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
+            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
         </div>
     </div>
+
     <fieldset>
     <div class="field">
         <label class="label">&{'user.object.label.file'}</label>

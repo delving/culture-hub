@@ -1,7 +1,7 @@
 package controllers
 
-import models.Story
 import play.mvc.results.Result
+import models.{Visibility, Story}
 
 /**
  *
@@ -11,12 +11,11 @@ import play.mvc.results.Result
 
 object Stories extends DelvingController {
 
-  def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
+  def list(user: Option[String], page: Int = 1): AnyRef = {
 
-    // TODO access rights
     val storiesPage = user match {
-      case Some(u) => Story.queryWithUser(query, browsedUserId).page(page)
-      case None => Story.queryAll(query).page(page)
+      case Some(u) => Story.browseByUser(browsedUserId, connectedUserId).page(page)
+      case None => Story.browseAll(connectedUserId).page(page)
     }
     val items: List[ListItem] = storiesPage._1
     Template("/list.html", 'title -> listPageTitle("story"), 'itemName -> "story", 'items -> items, 'page -> page, 'count -> storiesPage._2)
@@ -24,13 +23,19 @@ object Stories extends DelvingController {
   }
 
   def story(user: String, id: String): Result = {
-    val story = Story.findById(id) getOrElse (return NotFound(&("user.stories.storyNotFound", id)))
-    Template('story -> story)
+    Story.findByIdUnsecured(id) match {
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
+        Template('story -> thing)
+      case _ => NotFound(&("user.stories.storyNotFound", id))
+    }
   }
 
   def read(user: String, id: String): Result = {
-    val story = Story.findById(id) getOrElse (return NotFound(&("user.stories.storyNotFound", id)))
-    Template('story -> story)
+    Story.findByIdUnsecured(id) match {
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
+        Template('story -> thing)
+      case _ => NotFound(&("user.stories.storyNotFound", id))
+    }
   }
 
 }

@@ -1,4 +1,4 @@
-package controllers.user
+package controllers.organization
 
 import controllers.DelvingController
 import play.mvc.results.Result
@@ -9,14 +9,14 @@ import play.mvc.results.Result
 
 object SipCreator extends DelvingController {
 
-  def index: Result = Template
+  def index(orgId: String): Result = Template('orgId -> orgId)
 
-  def jnlp: Result = {
+  def jnlp(orgId: String): Result = {
 
     response.contentType = "application/x-java-jnlp-file"
 
-    val sipCreatorVersion = "0.4.1"
-    val home = "http://" + request.host + "/" + browsedUserName + "/sip-creator/"
+    val sipCreatorVersion = "0.4.2"
+    val home = "http://" + request.host + "/organizations/" + orgId + "/sip-creator/"
     val codebase = "http://" + request.host + "/public/sip-creator/"
 
     val jnlp = <jnlp spec="1.0+" codebase={ codebase } href={ home + "sip-creator.jnlp" }>
@@ -61,7 +61,7 @@ object SipCreator extends DelvingController {
         <jar href="asm-1.5.3.jar"/>
     </resources>
     <application-desc main-class="eu.delving.sip.Application">
-        <argument>{ browsedUserName }</argument>
+        <argument>{ connectedUser }</argument>
     </application-desc>
 </jnlp>
 

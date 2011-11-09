@@ -16,7 +16,7 @@ require:
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
     # delving dependencies
-    - eu.delving -> sip-core 0.4.0-SNAPSHOT:
+    - eu.delving -> sip-core 0.4.2-SNAPSHOT:
         exclude:
             - cglib -> *
     # remove later

@@ -71,7 +71,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           inIdentifierElement = false
           justLeftIdentifierElement = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
-          path.push(Tag.create(prefix, label))
+          path.push(Tag.element(prefix, label))
           recordXml.append(elemStartToString(elemStart))
           elementHasContent = false;
         case EvText(text) if(inRecord && inIdentifierElement) =>

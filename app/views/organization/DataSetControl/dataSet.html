@@ -1,16 +1,16 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: viewUtils.getKey('user.dataset.create') /}
+#{set title: viewUtils.getKey('organization.dataset.create') /}
 #{set bodyId: 'dataset-create'/}
 #{breadcrumbs /}
 
-<h1 class="sep">${viewUtils.getKey('user.dataset.create') }</h1>
+<h1 class="sep">${viewUtils.getKey('organization.dataset.create') }</h1>
 
 <div class="mod">
 <form method="post" action="" id="collectionForm">
 
-    <h2>&{'user.dataset.info'}</h2>
+    <h2>&{'organization.dataset.info'}</h2>
 
-    #{textField name:"spec", label: viewUtils.getKey('user.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('user.dataset.help.identifier') /}
+    #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
 
     %{for(i in 0..factDefinitions.size() - 1) {
       def factDef = factDefinitions.get(i);
@@ -30,7 +30,7 @@
     #{/list}
 
    <div class="buttons">
-        #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('user.dataset.save'), extraClass:"blue"/}
+        #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"blue"/}
    </div>
 
 
@@ -42,9 +42,9 @@
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
-      handleSubmit('/${userName}/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/${userName}/dataset/' + dataSetModel.spec.call(); });
+      handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {  window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call(); });
     });
 
-    load('/${userName}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
+    load('/organizations/${orgId}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
   });
 </script>

@@ -10,7 +10,6 @@ import com.mongodb.casbah.Imports._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
-import play.mvc.Before
 import models.{Visibility, DObject, UserCollection}
 
 /**
@@ -19,17 +18,12 @@ import models.{Visibility, DObject, UserCollection}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserAuthentication with Secure {
-
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[CollectionViewModel])
-  }
+object Collections extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
-    // TODO access rights
-    val allObjects = (DObject.findByUser(browsedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
+    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
-    UserCollection.findById(id) match {
+    UserCollection.findById(id, connectedUserId) match {
       case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
@@ -39,7 +33,10 @@ object Collections extends DelvingController with UserAuthentication with Secure
   }
 
 
-  def collection(id: String): Result = Template('id -> Option(id))
+  def collection(id: String): Result = {
+    renderArgs += ("viewModel", classOf[CollectionViewModel])
+    Template('id -> Option(id))
+  }
 
   def collectionSubmit(data: String): Result = {
 
@@ -56,12 +53,11 @@ object Collections extends DelvingController with UserAuthentication with Secure
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
             thumbnail_id = collectionModel.thumbnail))
-//            access = AccessRight(users = Map(getUserReference.id -> UserAction(user = getUserReference, read = Some(true), update = Some(true), delete = Some(true), owner = Some(true))))))
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingCollection = UserCollection.findOneByID(id)
         if (existingCollection == None) Error(&("user.collections.objectNotFound", id))
-        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail)
+        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
           Some(collectionModel)
@@ -79,7 +75,21 @@ object Collections extends DelvingController with UserAuthentication with Secure
       }
       case None => Error(&("user.collections.saveError", collectionModel.name))
     }
+
   }
+
+  def remove(id: ObjectId) = {
+    if(UserCollection.owns(connectedUserId, id)) {
+      val objects = DObject.findForCollection(id)
+      UserCollection.setObjects(id, objects)
+      DObject.unlinkCollection(id)
+      UserCollection.delete(id)
+    } else {
+      Forbidden("Big brother is watching you")
+    }
+  }
+
+
 
   // TODO move someplace generic
   implicit def stringToObjectIdOption(id: String): Option[ObjectId] = if(!ObjectId.isValid(id)) None else Some(new ObjectId(id))
@@ -95,6 +105,6 @@ case class CollectionViewModel(id: Option[ObjectId] = None,
                               objects: List[ObjectModel] = List.empty[ObjectModel],
                               allObjects: List[ObjectModel] = List.empty[ObjectModel],
                               availableObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              visibility: Int = Visibility.PUBLIC.value,
+                              visibility: Int = Visibility.PRIVATE.value,
                               thumbnail: String = "",
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

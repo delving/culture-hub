@@ -11,7 +11,7 @@ import play.mvc.results.Result
 
 trait UserSecured extends Secure { self: DelvingController =>
 
-  @Before def checkUser(): Result = {
+  @Before(priority = 1) def checkUser(): Result = {
     if (connectedUser != params.get("user")) {
       return Forbidden(&("user.secured.noAccess"))
     }

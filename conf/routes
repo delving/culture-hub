@@ -43,12 +43,6 @@ GET         /services/api/open-search                                        Ser
 GET         /services/api/open-search.xml                                    Services.index
 GET         /services/oai-pmh                                                Services.oaipmh
 GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
-GET         /services/dataset                                                SipCreatorEndPoint.listAll
-GET         /services/dataset/{dataSetSpec}/{command}                        SipCreatorEndPoint.indexingControl
-POST        /services/dataset/submit/{dataSetSpec}/{fileType}/{fileName}     SipCreatorEndPoint.acceptFile
-POST        /services/dataset/fetch/{dataSetSpec}-sip.zip                    SipCreatorEndPoint.fetchSIP
-GET         /services/administrator/dataset                                  SipCreatorEndPoint.secureListAll
-GET         /services/administrator/dataset/{dataSetSpec}/{command}          SipCreatorEndPoint.secureIndexingControl
 
 # Backwards compatibility with the old portal module
 GET        /portal/                                                          Portal.index
@@ -69,6 +63,7 @@ POST       /registration/newPassword                                         Reg
 # Delving URL scheme
 
 GET         /users                                                           Users.list
+GET         /users/search                                                    Users.listAsTokens
 GET         /collections                                                     Collections.list
 GET         /objects                                                         DObjects.list
 GET         /stories                                                         Stories.list
@@ -76,12 +71,12 @@ GET         /stories                                                         Sto
 GET         /{user}/?                                                        Profiles.view
 
 GET         /{user}/collection                                               Collections.list
-GET         /{user}/collection/writeable/search                              Collections.listWriteableAsTokens
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
+DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.collection
 
@@ -89,6 +84,7 @@ GET         /{user}/object                                                   DOb
 GET         /{user}/object/add                                               user.DObjects.dobject
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
+DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
 GET         /{user}/object/load/{id}?                                        user.DObjects.load
 GET         /{user}/object/{id}                                              DObjects.dobject
 
@@ -96,41 +92,57 @@ GET         /{user}/story                                                    Sto
 GET         /{user}/story/add                                                user.Stories.story
 GET         /{user}/story/{id}/update                                        user.Stories.story
 POST        /{user}/story/submit                                             user.Stories.storySubmit
+DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
 GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
 
-GET         /{user}/repositories/writeable/search                            Repositories.listWriteableAsTokens
-
 GET         /{user}/admin/?                                                  user.Admin.index
 
-GET         /{user}/dataset/?                                                DataSets.list
-GET         /{user}/dataset/add                                              user.DataSets.dataSet
-GET         /{user}/dataset/{spec}/update                                    user.DataSets.dataSet
-POST        /{user}/dataset/submit                                           user.DataSets.dataSetSubmit
-GET         /{user}/dataset/{spec}                                           DataSets.dataSet
-GET         /{user}/dataset/load/{spec}?                                     DataSets.dataSet
-POST        /{user}/dataset/{spec}/index                                     user.DataSets.index
-POST        /{user}/dataset/{spec}/reindex                                   user.DataSets.reIndex
-POST        /{user}/dataset/{spec}/cancel                                    user.DataSets.cancel
-GET         /{user}/dataset/{spec}/indexingStatus                            user.DataSets.indexingStatus
-GET         /{user}/dataset/{spec}/state                                     user.DataSets.state
-POST        /{user}/dataset/{spec}/disable                                   user.DataSets.disable
-POST        /{user}/dataset/{spec}/enable                                    user.DataSets.enable
-POST        /{user}/dataset/{spec}/delete                                    user.DataSets.disable
+# Organizations
 
-GET         /{user}/dataset/sip-creator/list                                 SipCreatorEndPoint.listAll
-GET         /{user}/dataset/sip-creator/unlock/{spec}                        SipCreatorEndPoint.unlock
-POST        /{user}/dataset/sip-creator/submit/{spec}                        SipCreatorEndPoint.acceptFileList
-POST        /{user}/dataset/sip-creator/submit/{spec}/{fileName}             SipCreatorEndPoint.acceptFile
-GET         /{user}/dataset/sip-creator/fetch/{spec}-sip.zip                 SipCreatorEndPoint.fetchSIP
+GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
+GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
+POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
+DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
 
-GET         /{user}/sip-creator/?                                            user.SipCreator.index
-GET         /{user}/sip-creator/sip-creator.jnlp                             user.SipCreator.jnlp
+GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
+GET        /organizations/{orgId}/users/search                               Users.listAsTokens
 
-GET         /users/search                                                    Users.listAsTokens
+GET        /organizations/{orgId}/groups/create                              organization.Groups.groups
+GET        /organizations/{orgId}/groups/update/{groupId}                    organization.Groups.groups
+GET        /organizations/{orgId}/groups/load/{groupId}?                     organization.Groups.load
+POST       /organizations/{orgId}/groups/update                              organization.Groups.update
+POST       /organizations/{orgId}/groups/{groupId}/addUser                   organization.Groups.addUser
+DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                organization.Groups.removeUser
+POST       /organizations/{orgId}/groups/{groupId}/addDataset                organization.Groups.addDataset
+DELETE     /organizations/{orgId}/groups/{groupId}/removeDataset             organization.Groups.removeDataset
 
-# Portal Administration
+GET         /organizations/{orgId}/dataset/?                                 organization.DataSets.list
+GET         /organizations/{orgId}/dataset/add                               organization.DataSetControl.dataSet
+GET         /organizations/{orgId}/dataset/{spec}/update                     organization.DataSetControl.dataSet
+POST        /organizations/{orgId}/dataset/submit                            organization.DataSetControl.dataSetSubmit
+GET         /organizations/{orgId}/dataset/{spec}                            organization.DataSets.dataSet
+GET         /organizations/{orgId}/dataset/load/{spec}?                      organization.DataSets.dataSet
+POST        /organizations/{orgId}/dataset/{spec}/index                      organization.DataSetControl.index
+POST        /organizations/{orgId}/dataset/{spec}/reindex                    organization.DataSetControl.reIndex
+POST        /organizations/{orgId}/dataset/{spec}/cancel                     organization.DataSetControl.cancel
+GET         /organizations/{orgId}/dataset/{spec}/indexingStatus             organization.DataSetControl.indexingStatus
+GET         /organizations/{orgId}/dataset/{spec}/state                      organization.DataSetControl.state
+POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
+POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
+DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.disable
+
+GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
+GET         /organizations/{orgId}/sip-creator/sip-creator.jnlp              organization.SipCreator.jnlp
+
+GET         /api/sip-creator/list                                            SipCreatorEndPoint.listAll
+GET         /api/sip-creator/unlock/{orgId}/{spec}                           SipCreatorEndPoint.unlock
+POST        /api/sip-creator/submit/{orgId}/{spec}                           SipCreatorEndPoint.acceptFileList
+POST        /api/sip-creator/submit/{orgId}/{spec}/{fileName}                SipCreatorEndPoint.acceptFile
+GET         /api/sip-creator/fetch/{orgId}/{spec}-sip.zip                    SipCreatorEndPoint.fetchSIP
+
+# Hub Administration
 GET        /admin/themes                                                     admin.Themes.index
 GET        /admin/themes/load/{id}?                                          admin.Themes.load
 GET        /admin/themes/list                                                admin.Themes.list

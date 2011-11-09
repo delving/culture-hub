@@ -2,27 +2,37 @@ import java.util.Properties
 import java.util.regex.{Pattern, Matcher}
 import javax.imageio.spi.IIORegistry
 import models.salatContext._
+import models.User
 import play.exceptions.ConfigurationException
 import play.jobs._
 import play.libs.IO
 import play.Play
+import play.test._
 import util.ThemeHandler
 
 @OnApplicationStart class BootStrap extends Job {
 
   override def doJob {
 
-    import models._
-    import play.test._
+    val start = System.currentTimeMillis()
+
+    val greeting = """
+ ____       _       _
+|  _ \  ___| |_   _(_)_ __   __ _
+| | | |/ _ \ \ \ / / | '_ \ / _` |
+| |_| |  __/ |\ V /| | | | | (_| |
+|____/ \___|_| \_/ |_|_| |_|\__, |
+                            |___/
+  ____      _ _                  _   _       _
+ / ___|   _| | |_ _   _ _ __ ___| | | |_   _| |__
+| |  | | | | | __| | | | '__/ _ \ |_| | | | | '_ \
+| |__| |_| | | |_| |_| | | |  __/  _  | |_| | |_) |
+ \____\__,_|_|\__|\__,_|_|  \___|_| |_|\__,_|_.__/
+ """
+
+    println(greeting)
+
     import scala.collection.JavaConversions._
-
-    // see http://download.oracle.com/javase/1.4.2/docs/api/javax/imageio/spi/IIORegistry.html#registerApplicationClasspathSpis():
-    // "Service providers found on the system classpath (e.g., the jre/lib/ext directory in Sun's implementation of J2SDK) are automatically loaded as soon as this class is instantiated."
-    // this causes a ConcurrentModificationException with Play's classloading mechanism
-
-    IIORegistry.getDefaultInstance
-
-    ThemeHandler.startup()
 
     // also retrieve user-based properties when running in test mode
     if (Play.id == "test") {
@@ -50,11 +60,25 @@ import util.ThemeHandler
         }
     }
 
+    println("""Starting up with node name "%s"""".format(getNode))
+
+    // TODO bootstrap all lazy Mongo connections here
+
+    // see http://download.oracle.com/javase/1.4.2/docs/api/javax/imageio/spi/IIORegistry.html#registerApplicationClasspathSpis():
+    // "Service providers found on the system classpath (e.g., the jre/lib/ext directory in Sun's implementation of J2SDK) are automatically loaded as soon as this class is instantiated."
+    // this causes a ConcurrentModificationException with Play's classloading mechanism
+
+    IIORegistry.getDefaultInstance
+
+    ThemeHandler.startup()
+
     // Import initial data if the database is empty
     if (User.count() == 0) {
       new util.TestDataLoader
-
     }
+
+    println("Started up in %s ms".format(System.currentTimeMillis() - start))
   }
+
 
 }

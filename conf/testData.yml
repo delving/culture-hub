@@ -39,6 +39,7 @@
 
 - !!models.DataSet
     spec: EmptyCollection
+    orgId: delving
     state: incomplete
     user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
@@ -79,6 +80,7 @@
 
 - !!models.DataSet
     spec: Verzetsmuseum
+    orgId: delving
     state: enabled
     user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"

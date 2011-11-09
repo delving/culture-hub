@@ -14,18 +14,14 @@ import play.mvc.Before
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Stories extends DelvingController with UserAuthentication with Secure {
-
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[StoryViewModel])
-  }
+object Stories extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
 
-    val collections = UserCollection.findByUser(connectedUserId)
+    val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
 
-    Story.findById(id) match {
+    Story.findById(id, connectedUserId) match {
       case None => Json(StoryViewModel(collections = collectionVMs))
       case Some(story) =>
         val storyVM = StoryViewModel(id = Some(story._id),
@@ -44,7 +40,10 @@ object Stories extends DelvingController with UserAuthentication with Secure {
     }
   }
 
-  def story(id: String): Result = Template('id -> Option(id))
+  def story(id: String): Result = {
+    renderArgs += ("viewModel", classOf[StoryViewModel])
+    Template('id -> Option(id))
+  }
 
   def storySubmit(data: String): Result = {
     val storyVM = parse[StoryViewModel](data)
@@ -73,16 +72,19 @@ object Stories extends DelvingController with UserAuthentication with Secure {
         Story.save(updatedStory)
         storyVM
     }
-
     Json(persistedStory)
+  }
+
+  def remove(id: ObjectId) = {
+    if(Story.owns(connectedUserId, id)) Story.delete(id) else Forbidden("Big brother is watching you")
   }
 
 }
 
 case class StoryViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
-                          description: String = "",
-                          visibility: Int = Visibility.PUBLIC.value,
+                          @Required description: String = "",
+                          visibility: Int = Visibility.PRIVATE.value,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
                           thumbnail: String = "",

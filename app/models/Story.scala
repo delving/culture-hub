@@ -17,13 +17,14 @@ case class Story(_id: ObjectId = new ObjectId,
                  name: String,
                  description: String,
                  visibility: Visibility,
+                 deleted: Boolean = false,
                  thumbnail_id: Option[ObjectId],
                  isDraft: Boolean,
                  pages: List[Page]) extends Thing
 
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
 
-  def fetchName(id: String): String = findById(id).get.name
+  def fetchName(id: String): String = fetchName(id, userStoriesCollection)
 
 }
 
