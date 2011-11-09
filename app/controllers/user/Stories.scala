@@ -83,7 +83,7 @@ object Stories extends DelvingController with UserSecured {
 
 case class StoryViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
-                          description: String = "",
+                          @Required description: String = "",
                           visibility: Int = Visibility.PUBLIC.value,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
