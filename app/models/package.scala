@@ -10,7 +10,7 @@ package object salatContext {
 
   val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.cultureHub.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
 
-  val cloudConnectionName = "cultureCloud"
+  val cloudConnectionName = "culturecloud"
 
   val connection = createConnection(connectionName)
   val commonsConnection = createConnection(cloudConnectionName)
