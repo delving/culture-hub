@@ -1,3 +1,9 @@
+hr {
+    border:  none;
+    border-top:  1px solid #ccc;
+    margin:  10px 0;
+}
+
 .extHelp {
     background-image: url(buttons/button-icons-color.png)!important;
     background-position: -72px -90px;
@@ -52,4 +58,18 @@ button[disabled],
     opacity: 0.50;
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
 
+}
+
+.info-box .label {
+    color: #aaa;
+    float: left;
+    clear: left;
+    display: block;
+    width: 120px;
+    text-align: left;
+}
+
+.info-box .text {
+    display: block;
+    float: left;
 }
