@@ -47,6 +47,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             initializeElements();
+            bindCSRFToken('${authenticityToken}');
             $.metadata.setType('html5');
 
         });
