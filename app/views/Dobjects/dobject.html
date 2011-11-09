@@ -18,6 +18,16 @@
                 <span class="icon icon145"></span>
                 <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.object'))}</span>
             </a>
+            <a class="button clear" id="remove">
+                <span class="icon icon145"></span>
+                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.object'))}</span>
+            </a>
+            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dobject.confirmDeletion'}</p></div>
+            <script type="text/javascript">
+              $(document).ready(function() {
+                remove('#remove', '#removeConfirmation', '/${dobject.userName}/object/${dobject._id}/remove', '/${dobject.userName}/object');
+              });
+            </script>
             #{/}
             <div class="bd">
                 <div class="metadata">

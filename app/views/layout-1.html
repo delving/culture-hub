@@ -46,8 +46,8 @@
     <script type="text/javascript">
         $(document).ready(function() {
             initializeElements();
+            bindCSRFToken('${authenticityToken}');
             $.metadata.setType('html5');
-
         });
     </script>
 
@@ -110,7 +110,6 @@
                         <a href="/${userName}/collection" class="ddm"></span>
                             <span class="label">&{'user.nav.yourcollections'}</span></a>
                         <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
-                        <a href="/${userName}/dataset" class="ddm"></span><span class="label">&{'user.nav.yourdatasets'}</span></a>
                     </div>
                     <!-- /.dropdown-slider -->
                 </div>
@@ -122,7 +121,6 @@
                         <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
                         <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
                         <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
-                        <a href="/${userName}/dataset/add" class="ddm"><span class="label">&{'user.nav.newdataset'}</span></a>
                     </div>
                     <!-- /.dropdown-slider -->
 

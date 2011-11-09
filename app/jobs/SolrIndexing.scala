@@ -17,7 +17,7 @@ class SolrIndexing extends Job {
     if (play.Play.started) {
       val dataSet = DataSet.findCollectionForIndexing()
       if (dataSet != None) {
-        dataSet.get.indexingMappings foreach {
+        dataSet.get.idxMappings foreach {
           prefix =>
             try {
               Indexing.indexInSolr(dataSet.get, prefix)

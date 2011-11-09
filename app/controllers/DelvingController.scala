@@ -21,6 +21,16 @@ import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
 
 trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
 
+  @Before def checkCSRF(): Result = {
+    if(request.method == "POST") {
+      return checkAuthenticity() match {
+        case Some(r) => r
+        case None => Continue
+      }
+    }
+    Continue
+  }
+
   // ~~~ user variables handling for view rendering (connected and browsed)
 
   @Before(priority = 0) def setConnectedUser() {
@@ -30,11 +40,12 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("fullName", u.fullname)
         renderArgs += ("userName", u.userName)
         renderArgs += ("userId", u._id)
+        renderArgs += ("authenticityToken", session.getAuthenticityToken)
       }
     }
   }
 
-  @Before(priority = 0) def setBrowsedUser() {
+  @Before(priority = 0) def setBrowsed() {
     Option(params.get("user")) foreach { userName =>
       val user = User.findByUsername(userName)
       user match {
@@ -45,6 +56,10 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         case None =>
           renderArgs += ("browsedUserNotFound", userName)
       }
+    }
+    Option(params.get("orgId")) foreach { orgId =>
+      val orgName = Organization.fetchName(orgId)
+      renderArgs += ("browsedOrgName", orgName)
     }
   }
 
@@ -102,7 +117,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ convenience methods
 
-  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else "listPageTitle.%s.all".format(itemName)
+  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else &("listPageTitle.%s.all".format(itemName))
 
   @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
     for(file <- files) if(file.contentType.contains("image")) return Some(file)
@@ -122,6 +137,17 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
+  @Util def checkAuthenticity(): Option[Result] = {
+    val authenticityTokenParam = params.get("authenticityToken")
+    val CSRFHeader = request.headers.get("x-csrf-token")
+    if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == session.getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.value() == session.getAuthenticityToken))) {
+      Some(Forbidden("Bad authenticity token"))
+    } else {
+      None
+    }
+  }
+
+  @Util def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
 
 }
 

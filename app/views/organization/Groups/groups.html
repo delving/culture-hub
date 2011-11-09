@@ -1,0 +1,53 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('thing.groups') /}
+
+<form action="" id="groupForm">
+  #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
+  <div class="field">
+    <label class="label" for="grantType">&{'thing.grantType'}</label>
+    <div class="inputs">
+        <select id="grantType" name="grantType" data-bind="value: grantType">
+          <option value="${models.GrantType.VIEW().value}">&{'org.group.grantType.view'}</option>
+          <option value="${models.GrantType.MODIFY().value}">&{'org.group.grantType.modify'}</option>
+        </select>
+        <span class="error">${views.context.package.showError('grantType')}</span>
+        <span class="help"><strong>&{'ui.label.required'}</strong></span>
+    </div>
+  </div>
+
+  <div class="buttons">
+      #{btnButton label: viewUtils.getKey('org.group.save'), extraClass:"blue", id:"saveButton", type:"submit" /}
+      <div class="wait"></div>
+  </div>
+
+
+  <h2>Users</h2>
+  #{if id.isDefined()}
+    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+  #{/if}
+  #{else}
+    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
+  #{/else}
+
+  <h2>DataSets</h2>
+  #{if id.isDefined()}
+    #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
+  #{/if}
+  #{else}
+    #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+  #{/else}
+
+</form>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var groupModel = {};
+    load('/organizations/${orgId}/groups/load/${id.isEmpty() ? "" : id.get()}', groupModel);
+
+    $('#saveButton').click(function(event) {
+      event.preventDefault();
+      handleSubmit('/organizations/${orgId}/groups/update', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null, {uid: '${uid}'});
+    });
+  });
+</script>

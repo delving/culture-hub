@@ -22,15 +22,11 @@ import dos.FileUploadResponse
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DObjects extends DelvingController with UserAuthentication with Secure {
-
-  @Before def setViewModel() {
-    renderArgs += ("viewModel", classOf[ObjectModel])
-  }
+object DObjects extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
-    val availableCollections = UserCollection.findByUser(connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
-    DObject.findById(id) match {
+    val availableCollections = UserCollection.browseByUser(connectedUserId, connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
+    DObject.findByIdUnsecured(id) match {
         case None => Json(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
           Json(ObjectModel(
@@ -47,8 +43,10 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
       }
   }
 
-
-  def dobject(id: String): Result = Template('id -> Option(id), 'uid -> Codec.UUID())
+  def dobject(id: String): Result = {
+    renderArgs += ("viewModel", classOf[ObjectModel])
+    Template('id -> Option(id), 'uid -> Codec.UUID())
+  }
 
   def objectSubmit(data: String, uid: String): Result = {
     val objectModel: ObjectModel = parse[ObjectModel](data)
@@ -67,7 +65,7 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         Label.findOne(MongoDBObject("labelType" -> l.labelType, "value" -> l.value)) match {
           case Some(label) => label._id
           // TODO better error handling
-          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, labelType = l.labelType, value = l.value)).get
+          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, TS_update = new Date(), labelType = l.labelType, value = l.value)).get
         }
       }
     }
@@ -113,9 +111,11 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
         Json(theObject)
       }
       case None => Error(&("user.dobjects.saveError", objectModel.name))
-
-        
     }
+  }
+
+  def remove(id: ObjectId) = {
+    if(DObject.owns(connectedUserId, id)) DObject.delete(id) else Forbidden("Big brother is watching you")
   }
 }
 
@@ -123,9 +123,9 @@ object DObjects extends DelvingController with UserAuthentication with Secure {
 
 case class ObjectModel(id: Option[ObjectId] = None,
                        @Required name: String = "",
-                       description: String = "",
+                       @Required description: String = "",
                        owner: ObjectId = new ObjectId(),
-                       visibility: Int = Visibility.PUBLIC.value,
+                       visibility: Int = Visibility.PRIVATE.value,
                        collections: List[ObjectId] = List.empty[ObjectId],
                        availableCollections: List[CollectionReference] = List.empty[CollectionReference],
                        labels: List[ShortLabel] = List.empty[ShortLabel],

@@ -1,0 +1,7 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('org.admin.index.title') /}
+
+<h2>Members</h2>
+
+  #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl: "/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}

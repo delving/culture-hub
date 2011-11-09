@@ -16,7 +16,7 @@ trait Secure {
 
   import Authentication.USERNAME
 
-  @Before(unless = Array("login", "authenticate", "logout"))
+  @Before(priority = 0, unless = Array("login", "authenticate", "logout"))
   def checkSecurity = {
     session(USERNAME) match {
       case Some(userName) => {

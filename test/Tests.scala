@@ -8,6 +8,7 @@ import util._
 import models._
 import org.scalatest.Suite
 import eu.delving.metadata.{MetadataModelImpl, MetadataModel}
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * General test environment. Wire-in components needed for tests here and initialize them with Mocks IF THEY ARE MOCKABLE (e.g. the ThemeHandler is not)
@@ -25,7 +26,7 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGe
   it should "load themes from disk into the database" in {
     themeHandler.startup()
     themeHandler.hasSingleTheme should be(false)
-    PortalTheme.findAll.size should not be (0)
+    PortalTheme.find(MongoDBObject()).size should not be (0)
   }
 
   it should "deliver a default theme" in {

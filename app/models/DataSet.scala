@@ -10,7 +10,6 @@ import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
-import eu.delving.sip.IndexDocument
 import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
 import play.exceptions.ConfigurationException
@@ -18,8 +17,11 @@ import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
+import eu.delving.sip.IndexDocument
 
 /**
+ * DataSet model
+ * The unique ID for this model is the mongo _id. IF YOU WANT TO USE THE SPEC, ALWAYS ALSO USE THE ORG_ID. The spec alone does not provide for unicity accross organizations!
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -28,22 +30,24 @@ import play.i18n.Messages
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-                   user_id: ObjectId,
+                   user_id: ObjectId, // who created this
+                   orgId: Predef.String,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
+                   deleted: Boolean = false,
                    details: Details,
                    lastUploaded: Date,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   indexingMappings: List[String] = List.empty[String],
+                   idxMappings: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
                    invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
 
   val name = spec
 
-  def getUser: User = User.findOneByID(user_id).get // orElse we are in trouble
+  def getCreator: User = User.findOneByID(user_id).get // orElse we are in trouble
 
   def getLockedBy: Option[User] = if(lockedBy == None) None else User.findOneByID(lockedBy.get)
 
@@ -108,11 +112,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def findByState(state: DataSetState) = {
-    DataSet.find(MongoDBObject("state.name" -> state.name))
+    DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
   }
 
-  def getIndexingState(spec: String): (Int, Int) = {
-    val ds = DataSet.findBySpec(spec).getOrElse(return (100, 100))
+  def getIndexingState(orgId: String, spec: String): (Int, Int) = {
+    val ds = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return (100, 100))
     if(ds.state == DataSetState.ENABLED) return (ds.details.total_records, ds.details.total_records)
     (ds.details.indexing_count, ds.details.total_records)
   }
@@ -127,22 +131,29 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
-  import eu.delving.sip.IndexDocument
 
   // FIXME: this assumes that the spec is unique accross all users
+  @Deprecated
   def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec))
 
-  def retrieveBySpec(spec: String): DataSet = findBySpec(spec).getOrElse(throw new DataSetNotFoundException(String.format("String %s does not exist", spec)))
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
   def findAll(publicCollectionsOnly: Boolean = true) = {
-    val allDateSets: List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
+    val allDateSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
     if (publicCollectionsOnly)
       allDateSets.filter(ds => !ds.details.metadataFormat.accessKeyRequired || ds.mappings.forall(ds => ds._2.format.accessKeyRequired == false))
     else
       allDateSets
   }
 
-  def findAllByOwner(owner: ObjectId) = DataSet.find(MongoDBObject("user_id" -> owner))
+  def findAllForUser(userName: String): List[DataSet] =
+    Group.
+            find(MongoDBObject("users" -> userName)).
+            filter(g => g.grantType == GrantType.MODIFY || g.grantType == GrantType.OWN).
+            map(g => if(g.grantType == GrantType.OWN) DataSet.findAllByOrgId(g.orgId).toList else DataSet.find("_id" $in g.dataSets).toList).
+            toList.flatten.distinct
+
+  def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
@@ -150,10 +161,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def upsertById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
-  }
-
-  def updateBySpec(spec: String, dataSet: DataSet) {
-    update(MongoDBObject("spec" -> dataSet.spec), dataSet, false, false, new WriteConcern())
   }
 
   def updateState(dataSet: DataSet, state: DataSetState) {
@@ -167,7 +174,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def delete(dataSet: DataSet) {
     connection("Records." + dataSet.spec).drop()
-    remove(dataSet)
+    update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
   }
 
   // TODO should we cache the constructions of these objects?
@@ -179,7 +186,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def getRecord(identifier: String, metadataFormat: String, accessKey: String): Option[MetadataRecord] = {
-    import org.bson.types.ObjectId
     val parsedId = identifier.split(":")
     // throw exception for illegal id construction
     val spec = parsedId.head
@@ -197,7 +203,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
+  @Deprecated
   def getStateBySpec(spec: String) = DataSet.findBySpec(spec).get.state
+
+  def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
   def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpec(dataSet.spec).get
@@ -208,24 +217,21 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def addIndexingMapping(dataSet: DataSet, mapping: String) {
-    DataSet.update(MongoDBObject("spec" -> dataSet.spec), $addToSet("indexingMappings" -> mapping))
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("indexingMappings" -> mapping))
   }
 
-  def updateIndexingCount(spec: String, count: Int) {
-    DataSet.update(MongoDBObject("spec" -> spec), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
+  def updateIndexingCount(dataSet: DataSet, count: Int) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
 
-  def getRecordCount(dataSet: DataSet): Int = getRecordCount(dataSet.spec)
-
-  def getRecordCount(spec: String): Int = {
-    import com.mongodb.casbah.MongoCollection
-    val records: MongoCollection = connection("Records." + spec)
+  def getRecordCount(dataSet: DataSet): Int = {
+    val records: MongoCollection = connection("Records." + dataSet.spec)
     val count: Long = records.count
     count.toInt
   }
 
   def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    val metadataFormats = findAll(publicCollectionsOnly).flatMap{
+    val metadataFormats = findAll(publicCollectionsOnly).flatMap {
       ds =>
         ds.getMetadataFormats(publicCollectionsOnly)
     }

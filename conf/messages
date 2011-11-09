@@ -20,6 +20,11 @@
 #
 
 
+# Validation rules
+validation.required=Required
+validation.range=Value out of range
+
+
 # Global  ##########################################
 ui.label.add=Add
 ui.label.addcomment=Add comment
@@ -86,6 +91,10 @@ thing.story=Story
 thing.stories=Stories
 thing.user=User
 thing.users=Users
+thing.organization=Organization
+thing.organizations=Organizations
+thing.group=Group
+thing.groups=Groups
 thing.notavailable.single=There is currently no %s available
 thing.notavailable.plural=There are currently no %s available
 thing.owner=Owner
@@ -107,7 +116,10 @@ thing.addcomment=Add comment
 thing.collaborators=Collaborators
 thing.createnew=Create a new %s
 thing.browse=Browse %s
+thing.browse.of=Browse %s of
 thing.browse.ownedby=Browse %s owned by
+thing.grantType=This group grants
+thing.confirmation=Are you sure?
 
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
@@ -139,6 +151,8 @@ site.nav.home=Home
 # jQuery templates
 tmpl.selectedObjects.useAsDefault=Use as default
 tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+
+
 # Views
 
 ## Admin.Themes view
@@ -188,12 +202,20 @@ home.recentstories=Recent stories
 authentication.label.forgotpassword=I forgot my password
 authentication.label.rememberme=Remember me
 
+##DObjects
+dobject.confirmDeletion=Are you sure you want to remove this object?
+
+##Collections
+collection.confirmDeletion=Are you sure you want to remove this collection?
+
+
 ##DataSets
 dataset.index=Index
 dataset.reindex=Re-index
 dataset.cancelindex=Cancel indexing
 dataset.disable=Disable
 dataset.enable=Enable
+dataset.confirmDeletion=Are you sure you want to remove this DataSet?
 
 ##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
@@ -223,12 +245,12 @@ search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
 
-
 ##Story
 story.pages=Pages
 story.nextpage=Next page
 story.read=Read story
 story.previouspage=Previous page
+story.confirmDeletion=Are you sure you want to remove this story?
 
 #metadata
 metadata.abm.contentProvider=Content Provider
@@ -331,16 +353,6 @@ user.collection.title.objectsList=Objects in your collection
 user.collection.title.selectObjects=Select Object(s)
 user.collection.save=Save collection
 
-##DataSets
-user.dataset.title.create=Create new dataset for user %s
-user.dataset.title.update=Update dataset for user %s
-user.dataset.create=Create a dataset
-user.dataset.update=Update a dataset
-user.dataset.info=Data Set Information
-user.dataset.label.identifier=Identifier
-user.dataset.help.identifier=The unique identifier of this DataSet
-user.dataset.save=Save DataSet
-
 ##DObjects
 user.object.title.create=Create new object for user %s
 user.object.title.update=Update object for user %s
@@ -350,10 +362,6 @@ user.object.updateObject=Update object %s
 user.object.label.addToCollection=Add to collection
 user.object.label.file=File
 user.object.save=Save object
-
-##Sip-Creator
-user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
-user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
 ##Stories
 user.story.title.create=Create new story for user %s
@@ -381,6 +389,34 @@ user.story.savePage=Save page
 user.story.title.deletePage=Delete the page?
 user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
+# Organizations
+
+### This gets concatenated to a sentence
+org.list.memberCount=%s member(s)
+org.list.grantType.view=with rights to view
+org.list.grantType.modify=with rights to modify
+org.list.grantType.own=with full access to everything
+org.list.dataSetCount=%s DataSet(s)
+
+org.group.grantType.view=View rights
+org.group.grantType.modify=Modification rights
+org.group.save=Save group
+
+org.admin.index.title=Organization administration
+
+organization.dataset.title.create=Create new dataset for user %s
+organization.dataset.title.update=Update dataset for user %s
+organization.dataset.create=Create a dataset
+organization.dataset.update=Update a dataset
+organization.dataset.info=Data Set Information
+organization.dataset.label.identifier=Identifier
+organization.dataset.help.identifier=The unique identifier of this DataSet
+organization.dataset.save=Save DataSet
+
+organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+
 # Controllers
 
 user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
@@ -397,13 +433,6 @@ admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
 user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
-user.datasets.dataSetNotFound=DataSet %s was not found
-user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
-user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 user.dobjects.objectNotFound=Object with id %s was not found
 user.dobjects.saveError=Error saving object %s
 user.fileupload.removeError=Error removing file, invalid id %s
@@ -440,6 +469,47 @@ authentication.notactive.error=Your account is not yet active. Active it followi
 servicessecurity.userNotFound=User %s was not found
 
 stories.storyNotFound=Story with id %s was not found
+
+organizations.admin.userNotFound=Could not find user with userName %s
+
+organizations.group.cannotAddUser=Could not add user with userName %s to group %s
+organizations.group.cannotRemoveUser=Could not remove user with userName %s to group %s
+organizations.group.cannotAddDataset=Could not add DataSet with ID %s to group %s
+organizations.group.cannotRemoveDataset=Could not remove DataSet with ID %s from group %s
+organizations.group.groupNotFound=Could not find group with ID %s
+organizations.group.cannotSaveGroup=Could not save group, please try again
+
+organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Old stuff
 

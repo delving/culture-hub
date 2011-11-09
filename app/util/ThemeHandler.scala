@@ -21,13 +21,13 @@
 
 package util
 
-import org.apache.log4j.Logger
 import java.lang.String
-import play.Play
 import play.mvc.Http
 import scala.collection.JavaConversions._
 import models.PortalTheme
 import play.exceptions.ConfigurationException
+import com.mongodb.casbah.commons.MongoDBObject
+import play.{Logger, Play}
 
 /**
  * ThemHandler taking care of loading themes (initially from YML, then from mongo)
@@ -37,8 +37,6 @@ import play.exceptions.ConfigurationException
  * @since 3/9/11 3:25 PM
  */
 object ThemeHandler {
-
-  private val log: Logger = Logger.getLogger(getClass)
 
   private var themeList: Seq[PortalTheme] = List()
 
@@ -66,7 +64,7 @@ object ThemeHandler {
         themeList = readThemesFromDatabase()
       } catch {
         case t: Throwable =>
-          log.error("Error reading Themes from the database.", t)
+          Logger.error("Error reading Themes from the database.", t)
       }
     }
 
@@ -82,7 +80,7 @@ object ThemeHandler {
     themeList = readThemesFromDatabase()
   }
 
-  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.findAll.toSeq
+  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
 
 
   def readThemesFromDisk(): Seq[PortalTheme] = {
@@ -90,7 +88,7 @@ object ThemeHandler {
       loadThemesYaml()
     } catch {
       case ex: Throwable => {
-        log.error("Error updating themes from YAML descriptor")
+        Logger.error("Error updating themes from YAML descriptor")
         throw new RuntimeException("Error updating themes from YAML descriptor", ex)
       }
     }
@@ -133,10 +131,10 @@ object ThemeHandler {
 
     def getProperty(prop: String): String = Play.configuration.getProperty(prop).trim
 
-    val themeFileName = getProperty("portal.theme.file")
+    val themeFileName = getProperty("cultureHub.portalThemeFile")
 
     if (themeFileName == null) {
-      log.fatal("portal.theme.file path must be defined in application.conf");
+      Logger.fatal("cultureHub.portalThemeFile path must be defined in application.conf");
       System.exit(1);
     }
 

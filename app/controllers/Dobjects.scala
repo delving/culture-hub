@@ -1,7 +1,7 @@
 package controllers
 
-import models.DObject
 import play.mvc.results.Result
+import models.{Visibility, DObject}
 
 /**
  *
@@ -11,12 +11,11 @@ import play.mvc.results.Result
 
 object DObjects extends DelvingController {
 
-  def list(user: Option[String], query: String, page: Int = 1): AnyRef = {
+  def list(user: Option[String], page: Int = 1): AnyRef = {
 
-    // TODO access rights
     val objectsPage = user match {
-      case Some(u) => DObject.queryWithUser(query, browsedUserId).page(page)
-      case None => DObject.queryAll(query).page(page)
+      case Some(u) => DObject.browseByUser(browsedUserId, connectedUserId).page(page)
+      case None => DObject.browseAll(connectedUserId).page(page)
     }
 
     val items: List[ListItem] = objectsPage._1
@@ -27,13 +26,13 @@ object DObjects extends DelvingController {
   }
 
   def dobject(user: String, id: String): Result = {
-    DObject.findById(id) match {
-        case None => NotFound
-        case Some(anObject) => {
-          val labels: List[ShortLabel] = anObject.labels
-          Template('dobject -> anObject, 'labels -> labels)
+    DObject.findByIdUnsecured(id) match {
+        case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
+          val labels: List[ShortLabel] = thing.labels
+          Template('dobject -> thing, 'labels -> labels)
         }
-      }
+        case _ => NotFound
+    }
   }
 
 }
