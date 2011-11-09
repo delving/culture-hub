@@ -2,16 +2,20 @@
 
 #{set title: viewUtils.getKey('thing.organization') + ': ' + orgId /}
 
-<h1 class="sep">Organization Name Goes Here</h1>
+<h1 class="sep">${orgName}</h1>
 
 <div class="row">
     <div class="g-12of12">
         <div class="info-box">
-            <span class="label">&{'thing.name'}</span><span class="text">Name goes here</span>
+            <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
+            #{if memberSince.isDefined()}
+            <span class="label">&{'ui.label.memberSince'}</span><span class="text">${views.context.package.niceTime(memberSince.get())}</span>
+            #{/if}
+<!--
             <span class="label">&{'ui.label.email'}</span><span class="text">email@goes.here</span>
             <span class="label">&{'ui.label.website'}</span><span class="text">http://www.websitegoes.here</span>
             <span class="label">&{'ui.label.location'}</span><span class="text">Location goes here</span>
-            <span class="label">&{'ui.label.memberSince'}</span><span class="text">Member since goes here</span>
+-->
         </div>
     </div>
 </div>
@@ -21,14 +25,22 @@
         <h3>&{'thing.datasets'}</h3>
 
         <div class="mod">
-            [Dataset list goes here]
+          <ul>
+          #{list dataSets, as: 'ds'}
+            <li>${ds.spec}</li>
+          #{/list}
+          </ul>
         </div>
     </div>
     <div class="g-1of2">
         <h3>&{'organization.members'}</h3>
 
         <div class="mod">
-            [Memberlist goes here]
+          <ul>
+            #{list members, as: 'm'}
+            <li>${m.userName} (${m.fullUserName})</li>
+            #{/list}
+          </ul>
         </div>
     </div>
 </div>

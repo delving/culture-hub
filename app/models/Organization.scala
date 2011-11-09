@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
 import com.mongodb.casbah.Imports._
+import java.util.Date
 
 /**
  * 
@@ -14,7 +15,8 @@ case class Organization(_id: ObjectId = new ObjectId,
                         node: String, // node on which this organization runs
                         orgId: String, // identifier of this organization, unique in the world, used in the URL
                         name: Map[String, String] = Map.empty[String, String], // language - orgName
-                        users: List[String] = List.empty[String]) // member usernames
+                        users: List[String] = List.empty[String], // member usernames
+                        userMembership: Map[String, Date] = Map.empty[String, Date]) // membership information
 
 object Organization extends SalatDAO[Organization, ObjectId](organizationCollection) {
 
@@ -29,6 +31,8 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   def addUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
     Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, SAFE_WC)
+    val mu = "userMembership." + userName
+    Organization.update(MongoDBObject("orgId" -> orgId), $set (mu -> new Date()), false, false, SAFE_WC)
     User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, SAFE_WC)
     true
   }
@@ -36,6 +40,8 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   def removeUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
     Organization.update(MongoDBObject("orgId" -> orgId), $pull ("users" -> userName), false, false, SAFE_WC)
+    val mu = "userMembership." + userName
+    Organization.update(MongoDBObject("orgId" -> orgId), $unset (mu), false, false, SAFE_WC)
     User.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, SAFE_WC)
     true
   }

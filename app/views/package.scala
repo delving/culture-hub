@@ -51,9 +51,9 @@ package object context extends Internationalization {
   def searchUrl = request.path
 
   // ~~~ template helpers
-  val niceTimeFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
-  def niceTime(timestamp: Long) = new Date(timestamp)
-  def niceTime(timestamp: Date) = timestamp
+  val niceTimeFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm")
+  def niceTime(timestamp: Long) = niceTimeFormat.format(new Date(timestamp))
+  def niceTime(timestamp: Date) = niceTimeFormat.format(timestamp)
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
   def isCurrent(action: String) = Http.Request.current().action.startsWith(action)
