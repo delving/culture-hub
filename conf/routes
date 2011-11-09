@@ -44,6 +44,12 @@ GET         /services/api/open-search.xml                                    Ser
 GET         /services/oai-pmh                                                Services.oaipmh
 GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
 
+# Custom Controllers and Functionality for customers
+## todo maybe later change this to an action based mechanism
+GET         /services/api/itin                                               custom.ItinEndPoint.search
+POST        /services/api/itin                                               custom.ItinEndPoint.store
+
+
 # Backwards compatibility with the old portal module
 GET        /portal/                                                          Portal.index
 

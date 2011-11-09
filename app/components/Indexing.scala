@@ -92,6 +92,8 @@ object Indexing extends SolrServer {
     inputDoc.addField("delving_pmhId", "%s_%s".format(dataSet.spec, record._id.toString))
     inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
     inputDoc.addField("delving_currentFormat", format)
+    inputDoc.addField("delving_recordType", "dataset") // todo add the record type support to all search functionality
+
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
 
