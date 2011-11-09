@@ -105,6 +105,6 @@ case class CollectionViewModel(id: Option[ObjectId] = None,
                               objects: List[ObjectModel] = List.empty[ObjectModel],
                               allObjects: List[ObjectModel] = List.empty[ObjectModel],
                               availableObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              visibility: Int = Visibility.PUBLIC.value,
+                              visibility: Int = Visibility.PRIVATE.value,
                               thumbnail: String = "",
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
