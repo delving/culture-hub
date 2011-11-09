@@ -41,6 +41,7 @@
     spec: EmptyCollection
     orgId: delving
     state: incomplete
+    visibility: 0
     user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:
@@ -82,6 +83,7 @@
     spec: Verzetsmuseum
     orgId: delving
     state: enabled
+    visibility: 10
     user_id: 4e5679a80364ae80333ab939 # bob
     lastUploaded: !!timestamp "2011-08-14T10:19:20.835Z"
     details:

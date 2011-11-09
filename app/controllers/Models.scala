@@ -5,7 +5,7 @@ import models._
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
-case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", total_records: Int = 0, state: DataSetState = DataSetState.INCOMPLETE, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], orgId: String, userName: String, errors: Map[String, String] = Map.empty[String, String])
+case class ShortDataSet(id: Option[ObjectId] = None, spec: String = "", total_records: Int = 0, state: DataSetState = DataSetState.INCOMPLETE, facts: Map[String, String] = Map.empty[String, String], recordDefinitions: List[String] = List.empty[String], orgId: String, userName: String, errors: Map[String, String] = Map.empty[String, String], visibility: Int = 0)
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
