@@ -19,7 +19,7 @@ object Groups extends DelvingController with OrganizationSecured {
 
   def list(orgId: String): Result = {
     val groups = Group.list(connectedUser, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
-    Template('groups -> groups)
+    Template('groups -> groups, 'isOwner -> Organization.isOwner(connectedUser))
   }
 
   def load(orgId: String, groupId: ObjectId): Result = {
