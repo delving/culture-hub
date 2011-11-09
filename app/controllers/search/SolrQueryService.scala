@@ -188,7 +188,7 @@ object SolrQueryService extends SolrServer {
     CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
 
-  def getSolrResponseFromServer(solrQuery: SolrQuery, solrSelectUrl: String, decrementStart: Boolean = false): QueryResponse = {
+  def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
     import play.Logger
     import org.apache.solr.client.solrj.SolrServerException
@@ -203,7 +203,7 @@ object SolrQueryService extends SolrServer {
     }
     try {
       Logger.info(solrQuery.toString)
-      runQuery(solrQuery, solrSelectUrl)
+      runQuery(solrQuery)
     }
     catch {
       case e: SolrException => {
@@ -286,16 +286,18 @@ object SolrQueryService extends SolrServer {
   }
 
   def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]) : List[FacetCountLink] = {
-    val links = facetField.getValues.map{
-      facetCount =>
-        val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
-        FacetCountLink(
-          facetCount = facetCount,
-          url = makeFacetQueryUrls(facetField, filterQueries, facetCount, remove),
-          remove = remove
-        )
-    }.toList
-    links
+    if (facetField.getValues == null)
+      List.empty
+    else
+      facetField.getValues.map{
+        facetCount =>
+          val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
+          FacetCountLink(
+            facetCount = facetCount,
+            url = makeFacetQueryUrls(facetField, filterQueries, facetCount, remove),
+            remove = remove
+          )
+      }.toList
   }
 
   def makeFacetQueryUrls(facetField: FacetField, filterQueries: List[FilterQuery], facetCount: FacetField.Count, remove: Boolean): String = {
