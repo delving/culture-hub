@@ -10,7 +10,7 @@
 
 <div class="row">
     <div class="g-12of12">
-        <div class="media">
+        <div class="media record">
 
             <img src='${views.context.package.imageUrl(dobject._id)}' width="250" alt="${dobject.name}" class="img"/>
             #{if userName == browsedUserName}
@@ -31,52 +31,32 @@
             #{/}
             <div class="bd">
                 <div class="metadata">
-                    <h4>&{'thing.name'}</h4>
-                    <p>${dobject.name}</p>
-
-                    <h4>&{'thing.description'}:</h4>
+                    <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>
 
-                    <h4>&{'thing.owner'}:</h4>
-                    <p>${browsedFullName}</p>
+                    <div class="row">
+                        <div class="g-1of2 alpha">
+                            <h5>&{'thing.name'}:</h5>
+                            <p>${dobject.name}</p>
 
-                    <h4>&{'thing.datecreated'}:</h4>
-                    <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
+                            <h5>&{'thing.owner'}:</h5>
+                            <p>${browsedFullName}</p>
+                        </div>
 
-                    <h4>&{'thing.labels'}:</h4>
-                    <p class="labels">
-                        #{list labels, as: 'l'}
-                        <span class="label">${l.labelType} - ${l.value}</span><br/>
-                        #{/list}
-                    </p>
-                </div>
+                        <div class="g-1of2 omega">
+                            <h5>&{'thing.datecreated'}:</h5>
+                            <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
 
-                <hr/>
-
-                <div id="add-label-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
-                    <div class="field">
-                        <div class="inputs">
-                            <input type="text" class="textinput"/>
+                            <h5>&{'thing.labels'}:</h5>
+                            <p class="labels">
+                                #{list labels, as: 'l'}
+                                <span class="label">${l.labelType} - ${l.value}</span><br/>
+                                #{/list}
+                            </p>
                         </div>
                     </div>
-                    <div class="buttons">
-                        #{btnButton label: viewUtils.getKey('ui.label.labeladd'), iconClass:"icon3"/}
-                    </div>
                 </div>
-
-                <hr/>
-
-                <div id="add-comment-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
-                    <div class="field">
-                        <div class="inputs">
-                            <textarea name="comment" id="comment"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="buttons">
-                        #{btnButton label:viewUtils.getKey('ui.label.addcomment'), iconClass:"icon3" /}
-                    </div>
-                </div>
+                #{include 'inc.label.comment.toolbar.html' /}
             </div>
         </div>
     </div>
