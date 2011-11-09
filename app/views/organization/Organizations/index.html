@@ -22,7 +22,12 @@
 <hr/>
 <div class="row">
     <div class="g-1of2">
+      #{if memberSince.isDefined()}
+        <h3><a href="/organizations/${orgId}/dataset">&{'thing.datasets'}</a></h3>
+      #{/}
+      #{else}
         <h3>&{'thing.datasets'}</h3>
+      #{/}
 
         <div class="mod">
           <ul>
