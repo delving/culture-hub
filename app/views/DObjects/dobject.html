@@ -13,23 +13,10 @@
         <div class="media record">
 
             <img src='${views.context.package.imageUrl(dobject._id)}' width="250" alt="${dobject.name}" class="img"/>
-            #{if userName == browsedUserName}
-            <a class="button clear" href="/${dobject.userName}/object/${dobject._id}/update">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.object'))}</span>
-            </a>
-            <a class="button clear" id="remove">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.object'))}</span>
-            </a>
-            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dobject.confirmDeletion'}</p></div>
-            <script type="text/javascript">
-              $(document).ready(function() {
-                remove('#remove', '#removeConfirmation', '/${dobject.userName}/object/${dobject._id}/remove', '/${dobject.userName}/object');
-              });
-            </script>
-            #{/}
+
+
             <div class="bd">
+                #{include 'inc.label.comment.toolbar.html' /}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>
@@ -56,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                #{include 'inc.label.comment.toolbar.html' /}
+
             </div>
         </div>
     </div>

@@ -1,20 +1,34 @@
 <div class="toolbar">
     <div class="buttons">
-        #{if userName == browsedUserName}
-        #{btnHref label:viewUtils.getKey('ui.label.edit'), iconClass:"icon145", href:"/${dobject.userName}/object/${dobject._id}/update" /}
-        #{/}
         #{btnHref label: viewUtils.getKey('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
         #{btnHref label:viewUtils.getKey('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
-        <div class="addthis_toolbox addthis_default_style">
+        <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
             #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: viewUtils.getKey('ui.label.email')/}
             #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: viewUtils.getKey('ui.label.print')/}
             #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: viewUtils.getKey('ui.label.share')/}
             <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
         </div>
+
+
+        #{if userName == browsedUserName}
+            <a class="button clear red fright" id="remove">
+                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.object'))}</span>
+            </a>
+        <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dobject.confirmDeletion'}</p></div>
+        <script type="text/javascript">
+            $(document).ready(function() {
+            remove('#remove', '#removeConfirmation', '/${dobject.userName}/object/${dobject._id}/remove', '/${dobject.userName}/object');
+            });
+        </script>
+        #{btnHref label:viewUtils.getKey('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href:"/${dobject.userName}/object/${dobject._id}/update" /}
+        #{/}
+
+
     </div>
 </div>
 
 <div id="add-label-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
+    <form action="#" method="GET" class="box">
     <div class="field">
         <label class="label">&{'thing.label'}</label>
 
@@ -23,9 +37,11 @@
             #{btnButton label:viewUtils.getKey('ui.label.add'), id:"addLabelSubmit"/}
         </div>
     </div>
+    </form>
 </div>
 
 <div id="add-comment-dialog" title="${viewUtils.getKey('ui.label.addcomment')}">
+    <form action="#" method="GET" class="box">
     <div class="field">
         <label class="label">&{'thing.comment'}</label>
 
@@ -34,7 +50,7 @@
             #{btnButton label:viewUtils.getKey('ui.label.add'), id:"addCommentSubmit"/}
         </div>
     </div>
-
+    </form>
 </div>
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
 <script>
