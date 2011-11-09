@@ -2,7 +2,7 @@ package controllers.custom
 
 import play.mvc.results.RenderXml
 import play.mvc.Controller
-import controllers.DelvingController
+import controllers.ThemeAware
 
 /**
  *
@@ -10,7 +10,7 @@ import controllers.DelvingController
  * @since 11/5/11 10:35 AM  
  */
 
-object ItinEndPoint extends DelvingController {
+object ItinEndPoint extends Controller with ThemeAware{
 
   import play.mvc.results.Result
 
