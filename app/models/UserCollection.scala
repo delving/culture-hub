@@ -22,6 +22,6 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
 
-  def fetchName(id: String): String = findById(id).get.name
+  def fetchName(id: String): String = fetchName(id, userCollectionsCollection)
 
 }

@@ -23,7 +23,7 @@ object Stories extends DelvingController {
   }
 
   def story(user: String, id: String): Result = {
-    Story.findById(id) match {
+    Story.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
         Template('story -> thing)
       case _ => NotFound(&("user.stories.storyNotFound", id))
@@ -31,7 +31,7 @@ object Stories extends DelvingController {
   }
 
   def read(user: String, id: String): Result = {
-    Story.findById(id) match {
+    Story.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
         Template('story -> thing)
       case _ => NotFound(&("user.stories.storyNotFound", id))

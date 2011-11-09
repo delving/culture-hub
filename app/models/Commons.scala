@@ -24,6 +24,12 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
   def delete(id: ObjectId) {
     update(MongoDBObject("_id" -> id), $set ("deleted" -> true), false, false)
   }
+
+  def fetchName(id: String, collection: MongoCollection): String = collection.findOne(MongoDBObject("_id" -> new ObjectId(id)), MongoDBObject("name" -> 1)) match {
+    case None => ""
+    case Some(dbo) => dbo.get("name").toString
+  }
+
 }
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>

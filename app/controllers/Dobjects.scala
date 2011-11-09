@@ -26,7 +26,7 @@ object DObjects extends DelvingController {
   }
 
   def dobject(user: String, id: String): Result = {
-    DObject.findById(id) match {
+    DObject.findByIdUnsecured(id) match {
         case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
           val labels: List[ShortLabel] = thing.labels
           Template('dobject -> thing, 'labels -> labels)

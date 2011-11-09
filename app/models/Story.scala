@@ -24,7 +24,7 @@ case class Story(_id: ObjectId = new ObjectId,
 
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
 
-  def fetchName(id: String): String = findById(id).get.name
+  def fetchName(id: String): String = fetchName(id, userStoriesCollection)
 
 }
 

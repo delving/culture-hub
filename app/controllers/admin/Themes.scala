@@ -22,7 +22,7 @@ object Themes extends DelvingController {
   }
 
   def load(id: String): Result = {
-    PortalTheme.findById(id) match {
+    PortalTheme.findOneByID(new ObjectId(id)) match {
       case None => Json(ThemeViewModel())
       case Some(theme) => Json(ThemeViewModel(id = Some(theme._id), name = theme.name, templateDir = theme.templateDir, isDefault = theme.isDefault, localisedQueryKeys = theme.localiseQueryKeys, hiddenQueryFilter = theme.hiddenQueryFilter, subdomain = theme.subdomain, displayName = theme.displayName, googleAnalyticsTrackingCode = theme.googleAnalyticsTrackingCode, addThisTrackingCode = theme.addThisTrackingCode, defaultLanguage = theme.defaultLanguage, colorScheme = theme.colorScheme, solrSelectUrl = theme.solrSelectUrl, cacheUrl = theme.cacheUrl, emailTarget = theme.emailTarget, homePage = theme.homePage, metadataPrefix = theme.metadataPrefix, text = theme.text, possibleQueryKeys = theme.localiseQueryKeys))
     }

@@ -23,7 +23,7 @@ object Collections extends DelvingController {
   }
 
   def collection(user: String, id: String): Result = {
-    UserCollection.findById(id) match {
+    UserCollection.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
         val objects: List[ListItem] = DObject.findAllWithCollection(thing._id).toList
         Template('collection -> thing, 'objects -> objects)

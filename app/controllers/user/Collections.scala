@@ -21,10 +21,9 @@ import models.{Visibility, DObject, UserCollection}
 object Collections extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
-    // TODO access rights
     val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
-    UserCollection.findById(id) match {
+    UserCollection.findById(id, connectedUserId) match {
       case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}

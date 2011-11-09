@@ -21,7 +21,7 @@ object Stories extends DelvingController with UserSecured {
     val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
 
-    Story.findById(id) match {
+    Story.findById(id, connectedUserId) match {
       case None => Json(StoryViewModel(collections = collectionVMs))
       case Some(story) =>
         val storyVM = StoryViewModel(id = Some(story._id),

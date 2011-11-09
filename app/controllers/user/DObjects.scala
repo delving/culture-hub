@@ -26,7 +26,7 @@ object DObjects extends DelvingController with UserSecured {
 
   def load(id: String): Result = {
     val availableCollections = UserCollection.browseByUser(connectedUserId, connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
-    DObject.findById(id) match {
+    DObject.findByIdUnsecured(id) match {
         case None => Json(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
           Json(ObjectModel(
