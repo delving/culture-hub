@@ -89,7 +89,7 @@ object Groups extends DelvingController with OrganizationSecured {
     validate(groupModel).foreach { errors => return JsonBadRequest(groupModel.copy(errors = errors)) }
 
     if(groupModel.grantType == GrantType.OWN.value && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
-      Logger.fatal("User %s tried to create an owners team!", connectedUser)
+      reportSecurity("User %s tried to create an owners team!".format(connectedUser))
       return Forbidden("Your IP has been logged and reported to the police.")
     }
 

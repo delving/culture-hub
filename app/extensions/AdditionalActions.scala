@@ -17,11 +17,6 @@ trait AdditionalActions extends Extensions {
   }
 
   def RenderKml(entity: AnyRef) = new RenderKml(entity)
-
-  def TextError(why: String, status: Int = 500) = {
-    response.status = new java.lang.Integer(status)
-    Text(why)
-  }
 }
 
 class RenderKml(entity: AnyRef) extends Result {

@@ -12,6 +12,8 @@ import play.data.validation.Validation
 import extensions.AdditionalActions
 import play.i18n.{Lang, Messages}
 import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
+import java.io.EOFException
+import com.mongodb.MongoException
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -19,7 +21,7 @@ import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with Logging with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
 
   @Before def checkCSRF(): Result = {
     if(request.method == "POST") {
@@ -104,6 +106,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   }
 
   // ~~~ convenience methods to access user information
+
   @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> true)) match {
     case Some(user) => Right(user)
     case None => Left(NotFound(&("delvingcontroller.userNotFound", userName)))
@@ -155,6 +158,16 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
 
+
+
+
+  // ~~~ error handling
+
+  @Catch(value = Array(classOf[EOFException], classOf[MongoException]))
+  def handleEOF(t: Throwable) {
+    reportError(t, "Mongo is gone?!")
+  }
+
 }
 
 
@@ -173,7 +186,7 @@ trait FormatResolver {
     if (formatParam.isDefined && supportedFormats.contains(formatParam.get)) {
       request.format = params.get("format")
     } else if (formatParam.isDefined && !supportedFormats.contains(formatParam.get)) {
-      return Error("Unsupported format %s" format (formatParam.get))
+      return Error(406, "Unsupported format %s" format (formatParam.get))
     }
     Continue
   }
@@ -194,7 +207,7 @@ trait ParameterCheck {
     parametersToCheck map {
       paramName => Option(params.get(paramName)) map {
         paramValue => Allowed(paramValue) match {
-          case None => return Error("""Forbidden value "%s" for parameter "%s"""" format (paramValue, paramName))
+          case None => return Error(400, """Forbidden value "%s" for parameter "%s"""" format (paramValue, paramName))
           case _ => Continue
         }
       }
