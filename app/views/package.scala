@@ -78,7 +78,8 @@ package object context extends Internationalization {
       case "collections" :: Nil => List(("/collections", &("thing.collection")))
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
 
-      case "organizations" :: orgName :: Nil => List(("/organizations", &("thing.organizations")))
+      case "organizations" :: orgName :: Nil => List(("/organizations", &("thing.organizations")), ("/organizations/" + orgName, orgName))
+      case "organizations" :: orgName :: "dataset" :: Nil => List(("/organizations", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")))
 
       case user :: Nil => List(("/" + user, user))
       case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")))
