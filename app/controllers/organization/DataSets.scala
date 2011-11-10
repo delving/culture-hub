@@ -33,7 +33,7 @@ object DataSets extends DelvingController with OrganizationSecured {
       case "json" => if (dataSet == None) Json(ShortDataSet(userName = connectedUser, orgId = orgId))
       else {
         val dS = dataSet.get
-        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions))
+        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, visibility = dS.visibility.value))
       }
     }
 

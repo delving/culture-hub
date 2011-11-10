@@ -1,5 +1,7 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
+
 #{set title: viewUtils.getKey('thing.collection') + ' ' + collection.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
+
 #{breadcrumbs /}
 
 <h1 class="sep">${collection.name}</h1>
@@ -9,52 +11,41 @@
         <div class="media ${itemName}">
 
             <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" alt="${collection.name}" class="img"/>
-            #{if userName == browsedUserName}
-            <a class="button clear" href="/${collection.userName}/collection/${collection._id}/update">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.collection'))}</span>
-            </a>
-            <a class="button clear" id="remove">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.collection'))}</span>
-            </a>
-            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'collection.confirmDeletion'}</p></div>
-            <script type="text/javascript">
-              $(document).ready(function() {
-                remove('#remove', '#removeConfirmation', '/${collection.userName}/collection/${collection._id}/remove', '/${collection.userName}/collection');
-              });
-            </script>
-            #{/if}
 
             <div class="bd">
+
+                #{thingToolbar owner: collection.userName, id: collection._id, b: browsedUserName, type:"collection"/}
+
                 <div class="metadata">
-                    <h4>&{'thing.owner'}:</h4>
-                    <p>${browsedFullName}</p>
-
-                    <h4>&{'thing.datecreated'}:</h4>
-                    <p>${views.context.package.niceTime(collection._id.getTime())}</p>
-
-                    <h4>&{'thing.datemodified'}:</h4>
-                    <p>${views.context.package.niceTime(collection.TS_update)}</p>
-
-                    <h4>&{'thing.description'}:</h4>
+                    <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>
 
-                    <h4>&{'thing.objectcount'}:</h4>
-                    <p>${objects.length()}</p>
+                    <div class="row">
+                        <div class="g-1of2 alpha">
+                            <h5>&{'thing.name'}:</h5>
+                            <p>${collection.name}</p>
 
-                </div>
+                            <h5>&{'thing.owner'}:</h5>
+                            <p>${browsedFullName}</p>
 
-                <hr/>
-
-                <div id="add-comment-dialog" title="&{'ui.label.addcomment'}">
-                    <div class="field">
-                        <div class="inputs">
-                            <textarea name="comment" id="comment"></textarea>
+                            <h5>&{'thing.objectcount'}:</h5>
+                            <p>${objects.length()}</p>
                         </div>
-                    </div>
-                    <div class="buttons">
-                        #{btnButton label: viewUtils.getKey('ui.label.addcomment'), iconClass:"icon3" /}
+
+                        <div class="g-1of2 omega">
+                            <h5>&{'thing.datecreated'}:</h5>
+                            <p>${views.context.package.niceTime(collection._id.getTime())}</p>
+
+                            <h5>&{'thing.datemodified'}:</h5>
+                            <p>${views.context.package.niceTime(collection.TS_update)}</p>
+
+                            <h5>&{'thing.labels'}:</h5>
+                            <p class="labels">
+                                #{list labels, as: 'l'}
+                                <span class="label">${l.labelType} - ${l.value}</span><br/>
+                                #{/list}
+                            </p>
+                        </div>
                     </div>
                 </div>
 

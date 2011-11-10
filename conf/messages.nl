@@ -43,8 +43,10 @@ ui.label.labelwhere=Waar
 ui.label.labelwhen=Wanneer
 ui.label.last=Laatste
 ui.label.lastname=Achternaam
+ui.label.location=Plaats
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
+ui.label.memberSince=Lid sinds
 ui.label.next=Volgende
 ui.label.nritems=Aantal items
 ui.label.options=Opties
@@ -52,6 +54,7 @@ ui.label.password=Wachtwoord
 ui.label.passwordrepeat=Wachtwoord (herhalen)
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.previous=Vorige
+ui.label.print=Print
 ui.label.register=Registreren
 ui.label.remove=Verwijder
 ui.label.required=Verplicht
@@ -59,6 +62,7 @@ ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
 ui.label.search=Zoeken
+ui.label.share=Deel
 ui.label.sipcreator=Sip-Creator
 ui.label.startupload=Begin upload
 ui.label.status=Status
@@ -67,6 +71,7 @@ ui.label.username=Gerbruikersnaam
 ui.label.visibility=Zichtbaarheid
 ui.label.visibility.public=Zichtbaar
 ui.label.visibility.notpublic=Niet zichtbaar
+ui.label.website=Website
 ui.label.welcome=Welkom
 
 # General 'thing' like object, collection or story
@@ -357,6 +362,36 @@ user.story.saveStory=Bewaar verhaal
 user.story.savePage=Bewaar pagina
 user.story.title.deletePage=Pagina verwijderen?
 user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
+
+# Organizations
+
+### This gets concatenated to a sentence
+org.list.memberCount=%s member(s)
+org.list.grantType.view=with rights to view
+org.list.grantType.modify=with rights to modify
+org.list.grantType.own=with full access to everything
+org.list.dataSetCount=%s DataSet(s)
+
+org.group.grantType.view=View rights
+org.group.grantType.modify=Modification rights
+org.group.save=Save group
+
+org.admin.index.title=Organization administration
+
+organization.dataset.title.create=Create new dataset for user %s
+organization.dataset.title.update=Update dataset for user %s
+organization.dataset.create=Create a dataset
+organization.dataset.update=Update a dataset
+organization.dataset.info=Data Set Information
+organization.dataset.label.identifier=Identifier
+organization.dataset.help.identifier=The unique identifier of this DataSet
+organization.dataset.save=Save DataSet
+organization.members=Leden
+
+organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+
 
 # Controllers
 

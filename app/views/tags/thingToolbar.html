@@ -1,0 +1,85 @@
+<div class="toolbar">
+    <div class="buttons">
+        #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+        #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
+        <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
+            #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
+            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
+            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
+            <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
+        </div>
+        *{
+        TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not
+        the 'owner of the object? ...
+        }*
+        #{if _owner == _b}
+           #{if _owner && _id}
+            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
+            <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get('dobject.confirmDeletion')}</p></div>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    remove('#remove', '#removeConfirmation', '/${_owner}/${_type}/${_id}/remove', '/${_owner}/${_type}');
+                });
+            </script>
+
+
+            #{/if}
+            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
+        #{/if}
+
+
+    </div>
+</div>
+
+<div id="add-label-dialog" title="${messages.get('ui.label.addcomment')}">
+    <form action="#" method="GET" class="box">
+    <div class="field">
+        <label class="label">${messages.get('thing.label')}</label>
+
+        <div class="inputs">
+            <input type="text" class="textinput"/>
+            #{btnButton label:messages.get('ui.label.add'), id:"addLabelSubmit"/}
+        </div>
+    </div>
+    </form>
+</div>
+
+<div id="add-comment-dialog" title="${messages.get('ui.label.addcomment')}">
+    <form action="#" method="GET" class="box">
+    <div class="field">
+        <label class="label">${messages.get('thing.comment')}</label>
+
+        <div class="inputs">
+            <textarea name="comment" id="comment"></textarea>
+            #{btnButton label: messages.get('ui.label.add'), id:"addCommentSubmit"/}
+        </div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
+<script>
+    $(function() {
+        var addthis_config = {
+            ui_use_css: true,
+            ui_language: "nl"
+        }
+
+        $("#addLabel").click(function() {
+            if ($("#add-comment.dialog")) {
+                $("#addComment").removeClass("on");
+                $("#add-comment-dialog").hide("slow");
+            }
+            $("#add-label-dialog").show("slow");
+            $(this).addClass("on");
+        });
+        $("#addComment").click(function() {
+            if ($("#add-label.dialog")) {
+                $("#addLabel").removeClass("on");
+                $("#add-label-dialog").hide("slow");
+            }
+            $("#add-comment-dialog").show("slow");
+            $(this).addClass("on");
+        });
+    });
+
+</script>

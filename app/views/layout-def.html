@@ -121,11 +121,16 @@
                         <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
                         <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
                         <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
+                         #{if organizations.length() > 0}
+
+                        #{/if}
                     </div>
                     <!-- /.dropdown-slider -->
 
                 </div>
                 <!-- /.dropdown -->
+
+
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
 
@@ -184,14 +189,6 @@
     </div>
 </div>
 
-</div>
-
-<div id="extraDiv1"><span></span></div>
-<div id="extraDiv2"><span></span></div>
-<div id="extraDiv3"><span></span></div>
-<div id="extraDiv4"><span></span></div>
-<div id="extraDiv5"><span></span></div>
-<div id="extraDiv6"><span></span></div>
 
 </body>
 </html>
