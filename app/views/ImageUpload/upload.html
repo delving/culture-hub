@@ -5,6 +5,7 @@
 
 <div id="fileupload" class="grid_16">
   <form action="@{ImageUpload.uploadFile()}" method="POST" enctype="multipart/form-data">
+    #{authenticityToken /}
     <div class="fileupload-buttonbar">
       <label class="fileinput-button">
         <span>Add files...</span>
