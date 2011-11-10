@@ -22,6 +22,7 @@
 # Global  ##########################################
 ui.label.add=Toevoegen
 ui.label.addcomment=Commentaar toevoegen
+ui.label.administration=Administratie
 ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
 ui.label.collectionSelect=Selecteer een collectie

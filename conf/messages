@@ -28,6 +28,7 @@ validation.range=Value out of range
 # Global  ##########################################
 ui.label.add=Add
 ui.label.addcomment=Add comment
+ui.label.administration=Administration
 ui.label.cancel=Cancel
 ui.label.captcha=Enter the code you see here
 ui.label.collectionSelect=Select a collection
