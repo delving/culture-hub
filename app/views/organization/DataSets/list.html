@@ -56,8 +56,8 @@
                 #{list items, as: 'i'}
                 <tr>
                     <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
-                    <td>${i.total_records}</td>
-                    <td id="description${i.spec}">
+                    <td width="100">${i.total_records}</td>
+                    <td id="description${i.spec}" width="150">
                         #{if i.state.name() == models.DataSetState.ERROR().name()}
                         <span class="error">${i.state.description()}</span>
                         #{/if}
@@ -65,14 +65,14 @@
                         ${i.state.description()}
                         #{/else}
                     </td>
-                    <td width="300">
+                    <td width="450">
                         #{if isOwner}
                         <div class="buttons">
-                            <a class="button" href="/organizations/${orgId}/dataset/${i.spec}/update">
-                                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
+                            <a class="button blue" href="/organizations/${orgId}/dataset/${i.spec}/update">
+                                <span class="label">${viewUtils.getKey('ui.label.edit')}</span>
                             </a>
-                            <a class="button#{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if}" id="remove${i.spec}">
-                                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.dataset'))}</span>
+                            <a class="button red #{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if}" id="remove${i.spec}">
+                                <span class="label">${viewUtils.getKey('ui.label.remove')}</span>
                             </a>
 
                             <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p>
