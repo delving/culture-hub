@@ -70,7 +70,7 @@
                             <a class="button" href="/organizations/${orgId}/dataset/${i.spec}/update">
                                 <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.dataset'))}</span>
                             </a>
-                            <a class="button" id="remove${i.spec}">
+                            <a class="button#{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if}" id="remove${i.spec}">
                                 <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.dataset'))}</span>
                             </a>
 

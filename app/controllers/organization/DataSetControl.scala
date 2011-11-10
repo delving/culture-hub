@@ -79,7 +79,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
-          if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
+          if(theme.metadataPrefix != None && dataSet.mappings.containsKey(theme.metadataPrefix.get)) {
             DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
             DataSet.changeState(dataSet, DataSetState.QUEUED)
           } else {
