@@ -43,6 +43,12 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
     val mu = "userMembership." + userName
     Organization.update(MongoDBObject("orgId" -> orgId), $unset (mu), false, false, SAFE_WC)
     User.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, SAFE_WC)
+
+    // remove from all groups
+    Group.findDirectMemberships(userName, orgId).foreach {
+      group => Group.removeUser(userName, group._id)
+    }
+
     true
   }
 
@@ -66,6 +72,8 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
       Group.find(MongoDBObject("users" -> userName, "orgId" -> orgId))
     }
   }
+
+  def findDirectMemberships(userName: String, orgId: String) = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName))
 
   def addUser(userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe

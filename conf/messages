@@ -410,6 +410,7 @@ org.group.grantType.modify=Modification rights
 org.group.save=Save group
 
 org.admin.index.title=Organization administration
+org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
 
 organization.dataset.title.create=Create new dataset for user %s
 organization.dataset.title.update=Update dataset for user %s
