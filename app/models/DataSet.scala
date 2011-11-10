@@ -218,7 +218,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def addIndexingMapping(dataSet: DataSet, mapping: String) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("indexingMappings" -> mapping))
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping))
   }
 
   def updateIndexingCount(dataSet: DataSet, count: Int) {

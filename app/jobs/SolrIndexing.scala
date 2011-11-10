@@ -3,6 +3,7 @@ package jobs
 import play.jobs.{Every, Job}
 import components.Indexing
 import models.{DataSetState, DataSet}
+import play.Logger
 
 /**
  *
@@ -22,7 +23,10 @@ class SolrIndexing extends Job {
             try {
               Indexing.indexInSolr(dataSet.get, prefix)
             } catch {
-              case t => DataSet.updateState(dataSet.get, DataSetState.ERROR)
+              case t => {
+                Logger.error(t, "Error while processing indexing for DataSet %s with mapping prefix %s".format(dataSet.get.spec, prefix))
+                DataSet.updateState(dataSet.get, DataSetState.ERROR)
+              } 
             }
         }
       }
