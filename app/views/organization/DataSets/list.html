@@ -100,6 +100,7 @@
                             </form>
                             #{/if}
                             #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
+                            <div id="#indexCounter${i.spec}"></div>
                             <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
                                 #{authenticityToken /}
                                 <button class="button action cancel"><span class="label">&{'dataset.cancelindex'}</span>
@@ -141,8 +142,8 @@
                             </script>
                             #{/if}
                             #{if i.state.name() == models.DataSetState.DISABLED().name()}
-                            #{authenticityToken /}
                             <form action="/organizations/${orgId}/dataset/${i.spec}/enable" method="POST">
+                                #{authenticityToken /}
                                 <button class="button action enable">&{'dataset.enable'}</button>
                             </form>
                             #{/if}
