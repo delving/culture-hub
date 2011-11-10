@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Application error</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+<!-- UNEXPECTED -->
+#{if play.mode.name() == 'DEV'}
+#{500 exception /}
+#{/if}
+#{else}
+<h1>Holy cow, an error occured</h1>
+
+<p>We are dispatching a team of highly trained mathematicians to analyze the issue.</p>
+#{if exception instanceof play.exceptions.PlayException}
+<p>
+    This exception has been logged with id <strong>${exception.id}</strong>.
+</p>
+#{/if}
+#{/else}
+</body>
+</html>
