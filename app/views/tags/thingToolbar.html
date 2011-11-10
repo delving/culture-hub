@@ -62,23 +62,22 @@
         var addthis_config = {
             ui_use_css: true,
             ui_language: "nl"
-        }
-
-        $("#addLabel").click(function() {
+        };
+        $("#addLabel").click(function(){
             if ($("#add-comment.dialog")) {
-                $("#addComment").removeClass("on");
-                $("#add-comment-dialog").hide("slow");
+               $("#addComment").removeClass("on");
+               $("#add-comment-dialog").hide("slow");
             }
-            $("#add-label-dialog").show("slow");
-            $(this).addClass("on");
+            $("#add-label-dialog").toggle("slow");
+            $(this).toggleClass("on");
         });
-        $("#addComment").click(function() {
+        $("#addComment").click(function(){
             if ($("#add-label.dialog")) {
                 $("#addLabel").removeClass("on");
                 $("#add-label-dialog").hide("slow");
             }
-            $("#add-comment-dialog").show("slow");
-            $(this).addClass("on");
+            $("#add-comment-dialog").toggle("slow");
+            $(this).toggleClass("on");
         });
     });
 

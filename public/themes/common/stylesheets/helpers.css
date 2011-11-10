@@ -88,10 +88,6 @@ button[disabled],
     margin:  0;
 }
 
-.object .bd, .story .bd, .collection .bd, .record .bd {
-    padding: 0 0 0 30px;
-}
-
 .metadata p {
     margin-bottom: 10px;
 }
