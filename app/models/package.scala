@@ -33,7 +33,6 @@ package object salatContext {
   lazy val userCollection = commonsConnection("Users")
   userCollection.ensureIndex(MongoDBObject("userName" -> 1))
 
-  val RECORD_COLLECTION_PREFIX: String = "Records." // prefix for the dataset records saved
   val MONGO_ID: String = "_id" // mongo identifier we use
 
   // http://api.mongodb.org/java/2.6/com/mongodb/WriteConcern.html

@@ -135,9 +135,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // FIXME: this assumes that the spec is unique accross all users
   @Deprecated
-  def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec))
+  def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "deleted" -> false))
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findAll(publicCollectionsOnly: Boolean = true) = {
     val allDateSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
@@ -174,13 +174,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def delete(dataSet: DataSet) {
-    connection("Records." + dataSet.spec).drop()
+    // TODO rename these for the moment
+    connection(getRecordsCollectionName(dataSet)).rename(getRecordsCollectionName(dataSet) + "_" + dataSet._id.toString)
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
   }
 
+  def getRecordsCollectionName(dataSet: DataSet) = "Records.%s_%s".format(dataSet.orgId, dataSet.spec)
+
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR  = {
-    val recordCollection: MongoCollection = connection("Records." + dataSet.spec)
+    val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
     CollectionMDR
@@ -226,7 +229,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def getRecordCount(dataSet: DataSet): Int = {
-    val records: MongoCollection = connection("Records." + dataSet.spec)
+    val records: MongoCollection = connection(getRecordsCollectionName(dataSet))
     val count: Long = records.count
     count.toInt
   }
