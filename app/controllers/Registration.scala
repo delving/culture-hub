@@ -9,13 +9,14 @@ import play.Play
 import models.User
 import play.mvc.results.Result
 import models.salatContext._
+import play.mvc.Controller
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Registration extends DelvingController {
+object Registration extends Controller with ThemeAware with Internationalization {
 
   def index(): Result = {
     Template('randomId -> Codec.UUID())
@@ -27,9 +28,10 @@ object Registration extends DelvingController {
 
     Validation.clear()
 
-    val r: Registration = params.get("registration", classOf[Registration])
+    // FIXME play is broken !?
+//    val r: Registration = params.get("registration", classOf[Registration])
+    val r: Registration = Registration(params.get("registration.firstName"), params.get("registration.lastName"), params.get("registration.email"), params.get("registration.userName"), params.get("registration.password1"), params.get("registration.password2"))
 
-    // TODO this should not be done like this, but I haven't figured out yet the way to use the annotation-based way
     Validation.required("registration.firstName", r.firstName)
     Validation.required("registration.lastName", r.lastName)
     Validation.required("registration.email", r.email)
