@@ -18,6 +18,19 @@
 </div>
 
 <hr/>
+#{if memberSince.isDefined()}
+<div class="row">
+    <div class="g-12of12">
+        <div class="toolbar">
+            <div class="buttons">
+                  #{btnHref label: viewUtils.getKey('ui.label.administration'), iconClass:"icon96", href:"/organizations/" + orgId + "/admin" /}
+                  #{btnHref label: viewUtils.getKey('thing.groups'), iconClass:"icon203", href:"/organizations/" + orgId + "/groups" /}
+                  #{btnHref label: viewUtils.getKey('thing.datasets'), iconClass:"icon175", href:"/organizations/" + orgId + "/dataset" /}
+            </div>
+        </div>
+    </div>
+</div>
+#{/if}
 <div class="row">
     <div class="g-1of2">
       #{if memberSince.isDefined()}
