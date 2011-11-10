@@ -76,6 +76,8 @@ GET         /stories                                                         Sto
 
 GET         /{user}/?                                                        Profiles.view
 
+GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
+
 GET         /{user}/collection                                               Collections.list
 GET         /{user}/collection/{id}/objects                                  Collections.listObjects
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
@@ -141,7 +143,6 @@ POST        /organizations/{orgId}/dataset/{spec}/enable                     org
 DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.delete
 
 GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
-GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
 
 GET         /api/sip-creator/list                                            SipCreatorEndPoint.listAll
 GET         /api/sip-creator/unlock/{orgId}/{spec}                           SipCreatorEndPoint.unlock
