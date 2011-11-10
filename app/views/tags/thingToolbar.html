@@ -58,27 +58,27 @@
 </div>
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
 <script>
-    $(function() {
-        var addthis_config = {
-            ui_use_css: true,
-            ui_language: "nl"
-        };
-        $("#addLabel").click(function(){
-            if ($("#add-comment.dialog")) {
-               $("#addComment").removeClass("on");
-               $("#add-comment-dialog").hide("slow");
-            }
-            $("#add-label-dialog").toggle("slow");
-            $(this).toggleClass("on");
-        });
-        $("#addComment").click(function(){
-            if ($("#add-label.dialog")) {
-                $("#addLabel").removeClass("on");
-                $("#add-label-dialog").hide("slow");
-            }
-            $("#add-comment-dialog").toggle("slow");
-            $(this).toggleClass("on");
-        });
+$(function () {
+    var addthis_config = {
+        ui_use_css: true,
+        ui_language: "nl"
+    };
+    $("#addLabel").click(function () {
+        if ($("#add-comment.dialog")) {
+           $("#addComment").removeClass("on");
+           $("#add-comment-dialog").hide("slow");
+        }
+        $("#add-label-dialog").toggle("slow");
+        $(this).toggleClass("on");
     });
+    $("#addComment").click(function () {
+        if ($("#add-label.dialog")) {
+            $("#addLabel").removeClass("on");
+            $("#add-label-dialog").hide("slow");
+        }
+        $("#add-comment-dialog").toggle("slow");
+        $(this).toggleClass("on");
+    });
+});
 
 </script>
