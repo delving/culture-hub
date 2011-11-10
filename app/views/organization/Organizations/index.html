@@ -1,0 +1,51 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('thing.organization') + ': ' + orgId /}
+
+<h1 class="sep">${orgName}</h1>
+
+<div class="row">
+    <div class="g-12of12">
+        <div class="info-box">
+            <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
+            #{if memberSince.isDefined()}
+            <span class="label">&{'ui.label.memberSince'}</span><span class="text">${views.context.package.niceTime(memberSince.get())}</span>
+            #{/if}
+<!--
+            <span class="label">&{'ui.label.email'}</span><span class="text">email@goes.here</span>
+            <span class="label">&{'ui.label.website'}</span><span class="text">http://www.websitegoes.here</span>
+            <span class="label">&{'ui.label.location'}</span><span class="text">Location goes here</span>
+-->
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="g-1of2">
+      #{if memberSince.isDefined()}
+        <h3><a href="/organizations/${orgId}/dataset">&{'thing.datasets'}</a></h3>
+      #{/}
+      #{else}
+        <h3>&{'thing.datasets'}</h3>
+      #{/}
+
+        <div class="mod">
+          <ul>
+          #{list dataSets, as: 'ds'}
+            <li>${ds.spec}</li>
+          #{/list}
+          </ul>
+        </div>
+    </div>
+    <div class="g-1of2">
+        <h3>&{'organization.members'}</h3>
+
+        <div class="mod">
+          <ul>
+            #{list members, as: 'm'}
+            <li>${m.userName} (${m.fullUserName})</li>
+            #{/list}
+          </ul>
+        </div>
+    </div>
+</div>
