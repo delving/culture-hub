@@ -11,12 +11,12 @@
       for (i in 0..facts.size() - 1) {
         def fact = facts.get(i);
     }%
-        <div class="field">
-            <label class="label">${fact.prompt}</label>
+        <div class="info-box">
+            <span class="label">${fact.prompt}</span>
 
-            <div class="inputs">
-                <p>${fact.value}</p>
-            </div>
+            <span class="text">
+                ${fact.value}
+            </span>
         </div>
       #{if i == 4}
         </div>
@@ -25,4 +25,6 @@
     %{}}%
     </div>
 </div>
+
+
 
