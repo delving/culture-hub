@@ -38,6 +38,21 @@ object SolrQueryService extends SolrServer {
     ).toSeq
   }
 
+  def renderHighLightXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
+    field.getHighLightValuesAsArray.map(value =>
+      try {
+        import xml.XML
+        XML.loadString("<%s>%s</%s>\n".format(field.getKeyAsXml, encodeUrl(value, field, response), field.getKeyAsXml))
+      }
+      catch {
+        case ex : Exception =>
+          import play.Logger
+          Logger error (ex, "unable to parse " + value + "for field " + field.getKeyAsXml)
+          <error/>
+      }
+    ).toSeq
+  }
+
   def encode(text: String): String = URLEncoder.encode(text, "utf-8")
 
   def encodeUrl(field: FieldValue, request: Request, response: CHResponse): String = {
@@ -76,7 +91,9 @@ object SolrQueryService extends SolrServer {
     query setFacetLimit (100)
     facets foreach (facet => query setFacetPrefix (facet.facetPrefix, facet.facetName))
     query setFields ("*,score")
-    query
+    // highlighting parameters
+    query setHighlight true
+    query addHighlightField ("*")
   }
 
 //  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {

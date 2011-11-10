@@ -215,6 +215,12 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
           {result.getBriefDocs.map(item =>
           <item>
           {item.getFieldValuesFiltered(false, Array("delving_pmhId","europeana:collectionName", "europeana:collectionTitle")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
+          {if (item.getHighlights.isEmpty) <highLights/>
+           else
+            <highLights>
+              {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse) )}
+            </highLights>
+          }
           </item>
         )}
         </items>

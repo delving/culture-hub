@@ -22,15 +22,14 @@ package controllers.search
  */
 
 import scala.collection.JavaConversions._
-import org.apache.solr.common.SolrDocumentList
-import java.util. {Date, ArrayList, List => JList}
+import java.util. {Date, ArrayList}
 import java.lang.{Boolean => JBoolean, Float => JFloat}
 import org.apache.solr.client.solrj.response. {FacetField, QueryResponse}
 import java.net.URL
-import xml. {MetaData, NodeSeq, Elem, XML}
+import xml. {NodeSeq, Elem, XML}
 import collection.immutable. {HashMap, Map => ImMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
-import collection.mutable. {Buffer, ListBuffer, Map}
+import collection.mutable. {ListBuffer, Map}
 
 /**
  *
@@ -55,7 +54,7 @@ object SolrBindingService {
   def parseSolrDocumentFromGetRecordResponse(pmhResponse: Elem): FullDocItem = {
     val metadataElements = pmhResponse \\ "metadata"
     val recordElements: NodeSeq = metadataElements \\ "record"
-    val solrDoc = SolrDocument()
+    val solrDoc = SolrResultDocument()
     recordElements.foreach{
       recordNode =>
         val cleanNodes = recordNode.nonEmptyChildren.filterNot(node => node.label == "#PCDATA")
@@ -72,20 +71,24 @@ object SolrBindingService {
     FullDocItem(solrDoc)
   }
 
-  def getSolrDocumentList(solrDocumentList : SolrDocumentList) : List[SolrDocument] = {
+  def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrResultDocument] = {
     def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
       for (value <- values; if value != null ) yield (FieldValueNode(key, value.toString))
 
-    val docs = new ListBuffer[SolrDocument]
+    import java.util.{List => JList, Map => JMap}
+    val highLightMap: JMap[String, JMap[String, JList[String]]] = queryResponse.getHighlighting
+
+    val docs = new ListBuffer[SolrResultDocument]
     val ArrayListObject = classOf[ArrayList[Any]]
     val StringObject = classOf[String]
     val DateObject = classOf[Date]
     val FloatObject = classOf[JFloat]
     val BooleanObject = classOf[JBoolean]
     // check for required fields else check exception
-    solrDocumentList.foreach{
+    queryResponse.getResults.foreach{
         doc =>
-          val solrDoc = SolrDocument()
+
+          val solrDoc = SolrResultDocument()
           doc.entrySet.foreach{
             field =>
               val FieldValueClass: Class[_] = field.getValue.getClass
@@ -98,28 +101,29 @@ object SolrBindingService {
                 case _ => println("unknown class in SolrBindingService " + field.getKey + FieldValueClass.getCanonicalName)
               }
           }
+          val id = solrDoc getFirst ("id")
+          if (highLightMap.containsKey(id)) {
+            highLightMap.get(id).foreach(entry => solrDoc addHighLightField (entry._1, entry._2.toList))
+          }
       docs add solrDoc
     }
     docs.toList
   }
 
-  def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrDocument] = getSolrDocumentList(queryResponse.getResults)
-
-  def getDocIds(queryResponse: QueryResponse): JList[SolrDocId] = {
+  def getDocIds(queryResponse: QueryResponse): List[SolrDocId] = {
     val docIds = new ListBuffer[SolrDocId]
     getSolrDocumentList(queryResponse).foreach{
       doc =>
         docIds add (SolrDocId(doc))
     }
-    asJavaList(docIds)
+   docIds.toList
   }
 
-  def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = getBriefDocs(queryResponse.getResults)
 
-  def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse.getResults), start)
+  def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse), start)
 
-  def getBriefDocs(resultList: SolrDocumentList): List[BriefDocItem] = {
-    getSolrDocumentList(resultList).map(doc => BriefDocItem(doc))
+  def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = {
+    getSolrDocumentList(queryResponse).map(doc => BriefDocItem(doc))
   }
 
   // todo test this
@@ -129,20 +133,18 @@ object SolrBindingService {
   }
 
   def getFullDoc(queryResponse: QueryResponse): FullDocItem = {
-    val results = getFullDocs(queryResponse.getResults)
+    val results = getFullDocs(queryResponse)
     if (results.isEmpty) throw new RuntimeException("Full Doc not found") // todo change this to a better exception
     results.head
   }
 
-  def getFullDocs(queryResponse: QueryResponse): List[FullDocItem] = getFullDocs(queryResponse.getResults)
-
-  def getFullDocs(matchDoc: SolrDocumentList): List[FullDocItem] = {
-    getSolrDocumentList(matchDoc).map(doc => FullDocItem(doc))
+  def getFullDocs(queryResponse: QueryResponse): List[FullDocItem] = {
+    getSolrDocumentList(queryResponse).map(doc => FullDocItem(doc))
   }
 
-  def createFacetMap(links : JList[FacetQueryLinks]) = FacetMap(links.toList)
+  def createFacetMap(links : List[FacetQueryLinks]) = FacetMap(links.toList)
 
-  def createFacetStatistics(facets: JList[FacetField]) = FacetStatisticsMap(facets.toList)
+  def createFacetStatistics(facets: List[FacetField]) = FacetStatisticsMap(facets.toList)
 }
 
 case class FacetMap(private val links : List[FacetQueryLinks]) {
@@ -160,10 +162,10 @@ case class FacetMap(private val links : List[FacetQueryLinks]) {
 
 case class FacetStatisticsMap(private val facets: List[FacetField]) {
 
-  val facetsMap = Map[String, JList[FacetField.Count]]()
+  val facetsMap = Map[String, List[FacetField.Count]]()
   facets.foreach{
     facet =>
-      if (facet.getValueCount != 0) facetsMap put (facet.getName, facet.getValues)
+      if (facet.getValueCount != 0) facetsMap put (facet.getName, facet.getValues.toList)
   }
 
   def facetExists(key: String): Boolean = facetsMap.containsKey(key)
@@ -183,11 +185,11 @@ case class FacetStatisticsMap(private val facets: List[FacetField]) {
 
   def getFacetCount(key: String) = facets.filter(ff => ff.getName == key).headOption.getOrElse(getDummyFacetField).getValueCount
 
-  def getFacet(key: String) : JList[FacetField.Count] = facetsMap.getOrElse(key, getDummyFacetField.getValues)
+  def getFacet(key: String) : List[FacetField.Count] = facetsMap.getOrElse(key, getDummyFacetField.getValues.toList)
 
 }
 
-case class SolrDocument(fieldMap : Map[String, List[FieldValueNode]] = Map[String, List[FieldValueNode]]()) {
+case class SolrResultDocument(fieldMap : Map[String, List[FieldValueNode]] = Map[String, List[FieldValueNode]](), highLightMap: Map[String, List[String]] = Map[String, List[String]]()) {
 
   def get(field: String) : List[String] = for(node: FieldValueNode <- fieldMap.getOrElse(field, List[FieldValueNode]())) yield node.fieldValue
 
@@ -197,11 +199,15 @@ case class SolrDocument(fieldMap : Map[String, List[FieldValueNode]] = Map[Strin
 
   def getFirst(field: String) : String = fieldMap.getOrElse(field, List[FieldValueNode]()).headOption.getOrElse(FieldValueNode("", "")).fieldValue
 
-  private[search] def add(field: String, value : List[FieldValueNode]) = fieldMap.put(field, value)
+  private[search] def add(field: String, value : scala.List[FieldValueNode]) = fieldMap.put(field, value)
+
+  private[search] def addHighLightField(fieldName: String, values: List[String]) = highLightMap.put(fieldName, values)
 
   private[search] def getFieldNames = fieldMap.keys
 
   def getFieldValueList : List[FieldValue] = for (key <- fieldMap.keys.toList.filter(_.matches(".*_.*"))) yield FieldValue(key, this)
+
+  def getHighLightsAsFieldValueList : List[FieldValue] = for (key <- highLightMap.keys.toList) yield FieldValue(key, this)
 
   def getFieldValuesFiltered(include: Boolean, fields : List[String]) : List[FieldValue] = getFieldValueList.filter((fv => fields.contains(fv.getKey) == include))
 
@@ -220,17 +226,18 @@ case class FieldFormatted (key: String, values: Array[String]) {
 
 }
 
-case class FieldValue (key: String, solrDocument: SolrDocument) {
+case class FieldValue (key: String, solrDocument: SolrResultDocument) {
 
   private val fieldValues = solrDocument.get(key)
+  private val highLightValues: Option[List[String]] = solrDocument.highLightMap.get(key)
 
   /**
-   * This gives back the key that was used to retrieve the fields from the SolrDocument
+   * This gives back the key that was used to retrieve the fields from the SolrResultDocument
    */
   def getKey = key
 
   /**
-   * This gives back the key that was used to retrieve the fields from the SolrDocument, but now replacing the "_" convention
+   * This gives back the key that was used to retrieve the fields from the SolrResultDocument, but now replacing the "_" convention
    * used by solr to ":" so that it can be used in xml tags or to represented the fieldnames as they were before being indexed
    * by Apache Solr
    */
@@ -243,28 +250,32 @@ case class FieldValue (key: String, solrDocument: SolrDocument) {
   def getKeyAsMessageKey = "_metadata.%s" format (key.replaceFirst("_", "."))
 
   /**
-   * Only give back the first item from the fieldMap retrieved with 'key' in the SolrDocument as a String. When the key
+   * Only give back the first item from the fieldMap retrieved with 'key' in the SolrResultDocument as a String. When the key
    * is not found an empty String is returned.
    */
   def getFirst : String = solrDocument.getFirst(key)
 
   /**
-   * Give back all values found in the fieldMap retrieved with 'key' in the SolrDocument as a String Array. When the
+   * Give back all values found in the fieldMap retrieved with 'key' in the SolrResultDocument as a String Array. When the
    * key is not found an empty String Array is returned.
    */
   def getValueAsArray : Array[String] = fieldValues.asInstanceOf[List[String]].toArray
 
+  def getHighLightValuesAsArray : Array[String] = highLightValues.getOrElse(List.empty).asInstanceOf[List[String]].toArray
+
   /**
-   * Give back all values found in the fieldMap retrieved with 'key' in the SolrDocument as a Formatted String. When the
+   * Give back all values found in the fieldMap retrieved with 'key' in the SolrResultDocument as a Formatted String. When the
    * key is not found an empty String is returned.
    */
 
   def getArrayAsString(separator: String = ";&#160;") : String = fieldValues.mkString(separator)
 
   /**
-   * This function gives back a boolean to say if the results returned from the fieldMap in the SolrDocument will be empty or not
+   * This function gives back a boolean to say if the results returned from the fieldMap in the SolrResultDocument will be empty or not
    */
   def isNotEmpty = fieldValues.length != 0
+
+  def hasHighLights = if (highLightValues != None) true else false
 
 }
 
@@ -285,19 +296,19 @@ case class FieldValueNode (fieldName : String, fieldValue: String, attributes: I
   def getAttributeKeys = attributes.keys
 }
 
-case class SolrDocId(solrDocument : SolrDocument) {
+case class SolrDocId(solrDocument : SolrResultDocument) {
   def getEuropeanaUri : String = solrDocument.getFirst("europeana_uri")
 }
 
-case class BriefDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
+case class BriefDocItem(solrDocument : SolrResultDocument) {
 
     override protected def assign(key: String) = solrDocument.getFirst(key)
 
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
-    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
 
-    def getFieldValueList : JList[FieldValue] = solrDocument.getFieldValueList
+    def getFieldValueList : List[FieldValue] = solrDocument.getFieldValueList
 
     def getAsString(key: String) : String = assign(key)
 
@@ -309,7 +320,7 @@ case class BriefDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
     var debugQuery : String = _
 }
 
-case class FullDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
+case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors {
 
     override protected def assign(key: String) = solrDocument.getFirst(key)
 
@@ -319,9 +330,9 @@ case class FullDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
 
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
-    def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
+    def getFieldValueList: List[FieldValue] = solrDocument.getFieldValueList
 
-    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
 
     def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
