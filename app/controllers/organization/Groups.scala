@@ -9,6 +9,7 @@ import models.salatContext._
 import play.data.validation.Annotations._
 import com.mongodb.casbah.Imports._
 import controllers.{Token, ViewModel, DelvingController}
+import play.Logger
 
 /**
  * 
@@ -28,7 +29,7 @@ object Groups extends DelvingController with OrganizationSecured {
       case null => Json(GroupViewModel())
       case id: ObjectId => Group.findOneByID(id) match {
         case None => NotFound("Could not find group with ID %s".format(id))
-        case Some(group) => Json(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType.value))
+        case Some(group) => Json(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType.value, canChangeGrantType = group.grantType.value != 42))
       }
     }
   }
@@ -87,7 +88,10 @@ object Groups extends DelvingController with OrganizationSecured {
     val groupModel = JJson.parse[GroupViewModel](data)
     validate(groupModel).foreach { errors => return JsonBadRequest(groupModel.copy(errors = errors)) }
 
-    // TODO we use a validation check to make sure someone does not try to make the group have more rights than allowed. In fact if this happens we should send a big warning e-mail and ban the user.
+    if(groupModel.grantType == GrantType.OWN.value && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
+      Logger.fatal("User %s tried to create an owners team!", connectedUser)
+      return Forbidden("Your IP has been logged and reported to the police.")
+    }
 
     val persisted = groupModel.id match {
       case None =>
@@ -121,7 +125,8 @@ object Groups extends DelvingController with OrganizationSecured {
 
 case class GroupViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
-                          @Range(min=0, max=10) grantType: Int = GrantType.VIEW.value,
+                          grantType: Int = GrantType.VIEW.value,
+                          canChangeGrantType: Boolean = true,
                           users: List[Token] = List.empty[Token],
                           dataSets: List[Token] = List.empty[Token],
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

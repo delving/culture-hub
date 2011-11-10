@@ -5,7 +5,7 @@
 <ul>
   #{list groups, as: 'group'}
   #{if group.grantType == models.GrantType.OWN()}
-  <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'}</li>
+  <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'} #{if isOwner} <a href="/organizations/${orgId}/groups/update/${group._id}">Edit</a>#{/if}</li>
   #{/if}
   #{else}
   <li><strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.' + models.GrantType.name(group.grantType)} &{'org.list.dataSetCount', group.dataSets.size()}#{if isOwner} <a href="/organizations/${orgId}/groups/update/${group._id}">Edit</a>#{/if}</li>
