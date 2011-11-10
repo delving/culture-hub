@@ -2,6 +2,13 @@
 
 #{set title: viewUtils.getKey('org.admin.index.title') /}
 
-<h2>Members</h2>
+#{breadcrumbs /}
 
-  #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl: "/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
+<h1 class="sep">${orgId}</h1>
+
+<div class="row">
+    <div class="g-4of12">
+        <h3>Members</h3>
+        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl: "/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
+    </div>
+</div>

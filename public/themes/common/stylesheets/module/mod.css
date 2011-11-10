@@ -22,11 +22,11 @@ b{display:block;background-repeat:no-repeat;font-size:1%;position:relative;z-ind
 .top{background-position:center top;}
 .bottom{background-position:center bottom;_zoom:1;}/* this zoom required for IE5.5 only*/
 /* complex */
-.complex{overflow:hidden;*position:relative;*zoom:1;}/* position/zoom required for IE7, 6, 5.5 */
+.complex{overflow:hidden;*position:relative;*zoom:1;} position/zoom required for IE7, 6, 5.5
 .complex .tl, .complex .tr{height:32000px; margin-bottom:-32000px;width:10px;}
-.complex .bl, .complex .br{/*margin-top:0;*/}
+.complex .bl, .complex .br{margin-top:0;}
 .complex .top{height:5px;}
-.complex .bottom{height:5px;/*margin-top:-10px;*/}
+.complex .bottom{height:5px;margin-top:-10px;}
 /* pop */
 .pop{overflow:visible;margin: 10px 20px 20px 10px; background-position:left top;}
 .pop .inner{right:-10px; bottom:-10px; background-position:right bottom;padding:0 10px 10px 0;}
