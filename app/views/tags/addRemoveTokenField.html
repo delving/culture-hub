@@ -1,4 +1,11 @@
 <input type="text" id="${_id}" name="${_name}">
+#{if _removeConfirmation}
+<div id="removeConfirmation${_id}" title="&{'thing.confirmation'}" style="display: none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${_removeConfirmation}
+  </p>
+</div>
+#{/}
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -16,6 +23,20 @@
         });
       },
       onDelete: function(item) {
+        #{if _removeConfirmation}
+        confirmDeletion('#removeConfirmation${_id}', function() {
+          $.ajax({
+            type: 'DELETE',
+            url: '${_removeUrl}',
+            data: {id: item.id},
+            error: function(jqXHR, textStatus, errorThrown) {
+              // TODO prompt the user that something went wrong
+              $('#${_id}').tokenInput('add', {id: item.id})
+            }
+          });
+        });
+        #{/if}
+        #{else}
         $.ajax({
           type: 'DELETE',
           url: '${_removeUrl}',
@@ -25,6 +46,7 @@
             $('#${_id}').tokenInput('add', {id: item.id})
           }
         });
+        #{/else}
       }
     });
     $('#${_id}').blur();

@@ -2,9 +2,9 @@
 
 #{set title: viewUtils.getKey('thing.groups') /}
 
-<form action="" id="groupForm">
+<form action="" id="groupForm" style="visibility: hidden;">
   #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
-  <div class="field">
+  <div class="field" data-bind="visible: canChangeGrantType">
     <label class="label" for="grantType">&{'thing.grantType'}</label>
     <div class="inputs">
         <select id="grantType" name="grantType" data-bind="value: grantType">
@@ -43,7 +43,9 @@
 <script type="text/javascript">
   $(document).ready(function() {
     var groupModel = {};
-    load('/organizations/${orgId}/groups/load/${id.isEmpty() ? "" : id.get()}', groupModel);
+    load('/organizations/${orgId}/groups/load/${id.isEmpty() ? "" : id.get()}', groupModel, null, function() {
+      $('#groupForm').css('visibility', 'visible');
+    });
 
     $('#saveButton').click(function(event) {
       event.preventDefault();
