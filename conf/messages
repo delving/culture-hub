@@ -58,6 +58,7 @@ ui.label.nritems=Nr. of items
 ui.label.options=Options
 ui.label.password=Password
 ui.label.passwordrepeat=Password (repeat)
+ui.label.places=Places
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.previous=Previous
 ui.label.print=Print

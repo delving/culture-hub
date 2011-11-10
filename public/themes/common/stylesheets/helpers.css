@@ -95,3 +95,13 @@ button[disabled],
 .metadata p {
     margin-bottom: 10px;
 }
+
+div.dropdown-slider .ddm.heading .label {
+    color: #fff;
+}
+div.dropdown-slider .ddm.heading {
+    background: #555;
+    color: #fff;
+    text-shadow: 0 1px 0 #000;
+
+}

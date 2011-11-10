@@ -664,10 +664,10 @@ div.dropdown-slider {
 	
 	overflow: hidden;
 	
-	margin: 0 7px 5px 7px;
+	margin: 0 0px 5px 7px;
 	position: absolute;
 	top: 34px;
-	right: 0;
+	right: 0px;
 	
 	background: #F2F2F2;
 	
@@ -686,6 +686,7 @@ div.dropdown-slider {
 	-moz-transition: border .20s;
 	-o-transition: border-color .20s;
 	transition: border-color .20s;
+    /*width: auto;*/
 }
 .left div.dropdown-slider {
 	margin: 0 1px 5px 7px;
@@ -703,11 +704,11 @@ div.dropdown-slider .ddm {
 	
 	text-decoration: none;
 	text-shadow: 0 1px 0 #fff;
-	font: bold 100% Helvetica, Arial, sans-serif;
 	line-height: 18px;
 	height: 18px;
 	
 	margin: 0;
+    min-width: 120px;
 	padding: 5px 6px 4px 6px;
 	width: 100%;
 	float: left;
