@@ -79,14 +79,14 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
-          if(dataSet.mappings.containsKey(theme.metadataPrefix)) {
+          if(theme.metadataPrefix != None && dataSet.mappings.containsKey(theme.metadataPrefix.get)) {
             DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
             DataSet.changeState(dataSet, DataSetState.QUEUED)
           } else {
             // TODO give the user some decent feedback
             DataSet.changeState(dataSet, DataSetState.ERROR)
           }
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeIndexed"))
       }
     }
@@ -101,7 +101,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         case ENABLED =>
           DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
           DataSet.changeState(dataSet, DataSetState.QUEUED)
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeReIndexed"))
       }
     }
@@ -117,7 +117,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
           } catch {
             case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
           }
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeCancelled"))
       }
     }
@@ -145,7 +145,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         case QUEUED | INDEXING | ERROR | ENABLED =>
           val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
           Indexing.deleteFromSolr(updatedDataSet)
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeDisabled"))
       }
     }
@@ -160,7 +160,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       dataSet.state match {
         case DISABLED =>
           DataSet.changeState(dataSet, DataSetState.ENABLED)
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeEnabled"))
       }
     }
@@ -175,7 +175,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       dataSet.state match {
         case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
           DataSet.delete(dataSet)
-          Redirect("/%s/dataset".format(connectedUser))
+          Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeDeleted"))
       }
     }
