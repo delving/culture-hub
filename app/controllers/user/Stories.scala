@@ -60,7 +60,7 @@ object Stories extends DelvingController with UserSecured {
           description = storyVM.description,
           user_id = connectedUserId,
           userName = connectedUser,
-          visibility = Visibility.get(storyVM.visibility),
+          visibility = Visibility.get(storyVM.visibility.intValue()),
           thumbnail_id = thumbnail,
           pages = pages,
           isDraft = storyVM.isDraft)
@@ -68,7 +68,7 @@ object Stories extends DelvingController with UserSecured {
         storyVM.copy(id = inserted)
       case Some(id) =>
         val savedStory = Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id)))
-        val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = Visibility.get(storyVM.visibility), thumbnail_id = thumbnail, isDraft = storyVM.isDraft, pages = pages)
+        val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = Visibility.get(storyVM.visibility.intValue()), thumbnail_id = thumbnail, isDraft = storyVM.isDraft, pages = pages)
         Story.save(updatedStory)
         storyVM
     }
@@ -84,7 +84,7 @@ object Stories extends DelvingController with UserSecured {
 case class StoryViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
                           @Required description: String = "",
-                          visibility: Int = Visibility.PRIVATE.value,
+                          visibility: Integer = Visibility.PRIVATE.value,
                           pages: List[PageViewModel] = List.empty[PageViewModel],
                           isDraft: Boolean = true,
                           thumbnail: String = "",
