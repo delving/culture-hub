@@ -1,5 +1,12 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: 'Sip-Creator' /}
+#{breadcrumbs/}
+#{organizationNavBar
+orgId: orgId,
+active:"datasets",
+extraButtons: [
+    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green"]
+] /}
 
 <h1 class="sep">SIP-Creator</h1>
 

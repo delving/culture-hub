@@ -25,13 +25,13 @@ strong {
 .toolbar {
     position: relative;
     z-index: 11;
+    margin: 10px;
 }
 
 .toolbar .buttons {
     display: table;
     background: none repeat scroll 0 0 #F1F1F1;
     border: 1px solid #D2D2D2;
-    margin: 0px 0 10px;
     padding: 0px;
     width: 100%;
     font-size: 85%;

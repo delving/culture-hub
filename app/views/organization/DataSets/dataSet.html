@@ -4,16 +4,17 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets" /}
+#{organizationNavBar
+orgId: orgId,
+active:"datasets",
+extraButtons: [
+    [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green"],
+    [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145"]
+] /}
+
 
 <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
-<div class="row">
-    <div class="toolbar g-12of12">
-        <div class="buttons">
-            #{btnHref label: viewUtils.getKey('ui.label.edit'), iconClass:"icon145", href:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update" /}
-        </div>
-    </div>
-</div>
 
 <div class="row">
     <div class="g-6of12">

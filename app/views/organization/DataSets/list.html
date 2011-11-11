@@ -3,11 +3,11 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets" /}
+#{organizationNavBar
+orgId: orgId,
+active:"datasets",
+extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"], [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green"]] /}
 
-<h1 class="sep">
-    ${viewUtils.getKey('thing.browse', viewUtils.getKey('thing.datasets'))}
-</h1>
 #{if browsedUserName}
 
 <div class="g-12of12">
@@ -16,24 +16,13 @@
 </div>
 
 #{/if}
-<div class="g-12of12">
-    <div class="toolbar">
-        <div class="buttons">
-            <a class="button" href="/organizations/${orgId}/dataset/add">
-                <span class="label">${viewUtils.getKey('organization.dataset.create')}</span>
-            </a>
-            <a class="button" href="/organizations/${orgId}/sip-creator/">
-                <span class="label">&{'ui.label.sipcreator'}</span>
-            </a>
-        </div>
 
-    </div>
-</div>
 <div class="row">
     <div class="g-12of12">
         #{if items.length() > 0}
         <div class="data-grid">
             <table width="100%">
+                <caption>${viewUtils.getKey('thing.datasets')}</caption>
                 <thead>
                 <tr>
                     <th width="200">&{'thing.name'}</th>
