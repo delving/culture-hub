@@ -289,8 +289,9 @@ case class SolrDocId(solrDocument : SolrDocument) {
   def getEuropeanaUri : String = solrDocument.getFirst("europeana_uri")
 }
 
-case class BriefDocItem(solrDocument : SolrDocument) {
-    private def assign(key: String) = solrDocument.getFirst(key)
+case class BriefDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
+
+    override protected def assign(key: String) = solrDocument.getFirst(key)
 
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
@@ -298,16 +299,7 @@ case class BriefDocItem(solrDocument : SolrDocument) {
 
     def getFieldValueList : JList[FieldValue] = solrDocument.getFieldValueList
 
-    def getId : String = assign("europeana_uri")
-    def getDelvingId : String = assign("delving_pmhId")
-    def getTitle : String = assign("dc_title")
-    def getThumbnail : String = assign("europeana_object")
-    def getCreator : String = assign("dc_creator")
-    def getYear : String = assign("europeana_year")
-    def getProvider : String = assign("europeana_provider")
-    def getDataProvider : String = assign("europeana_dataProvider")
-    def getLanguage : String = assign("europeana_language")
-//    def getType : DocType = DocType.get(assign("europeana_type"))
+    def getAsString(key: String) : String = assign(key)
 
     var index : Int = _
     var fullDocUrl: String = _
@@ -317,14 +309,13 @@ case class BriefDocItem(solrDocument : SolrDocument) {
     var debugQuery : String = _
 }
 
-case class FullDocItem(solrDocument : SolrDocument) {
+case class FullDocItem(solrDocument : SolrDocument) extends MetadataAccessors {
 
-    private def assign(key: String) = solrDocument.get(key).asInstanceOf[List[String]].toArray
-    private def assignFirst(key: String) = solrDocument.getFirst(key)
+    override protected def assign(key: String) = solrDocument.getFirst(key)
 
-    def getAsArray(key: String) : Array[String] = assign(key)
+    def getAsArray(key: String) : Array[String] = solrDocument.get(key).asInstanceOf[List[String]].toArray
 
-    def getAsString(key: String) : String = assignFirst(key)
+    def getAsString(key: String) : String = assign(key)
 
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
@@ -334,7 +325,28 @@ case class FullDocItem(solrDocument : SolrDocument) {
 
     def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
-    def getDelvingId : String = assignFirst("delving_pmhId")
+}
 
-    def getCHId: String = assignFirst("delving_chID")
+abstract class MetadataAccessors {
+
+  protected def assign(key: String): String
+
+  // ~~~ identifiers
+  def getId : String = assign("delving_chID")
+  def getOrgId : String = getId.split("_")(0)
+  def getSpec : String = getId.split("_")(1)
+  def getRecordId : String = getId.split("_")(2)
+  def getDelvingId : String = assign("delving_pmhId")
+
+
+  // ~~~ well-known, always provided, meta-data fields
+  def getTitle : String = assign("dc_title")
+  def getDescription: String = assign("dc_description")
+  def getThumbnail : String = assign("europeana_object")
+  def getCreator : String = assign("dc_creator")
+  def getYear : String = assign("europeana_year")
+  def getProvider : String = assign("europeana_provider")
+  def getDataProvider : String = assign("europeana_dataProvider")
+  def getLanguage : String = assign("europeana_language")
+
 }
