@@ -4,6 +4,12 @@ hr {
     margin:  10px 0;
 }
 
+.user-name {
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+}
+
 .extHelp {
     background-image: url(buttons/button-icons-color.png)!important;
     background-position: -72px -90px;
@@ -35,6 +41,10 @@ strong {
     display: inline-block;
     float: left;
     margin-top: 5px;
+}
+
+.toolbar.organization {
+    margin-top: 10px;
 }
 
 /* dialogs */

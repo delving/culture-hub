@@ -3,6 +3,8 @@
 #{set bodyId: 'dataset-create'/}
 #{breadcrumbs /}
 
+#{organizationNavBar orgId: orgId, active:"datasets" /}
+
 <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
 
 <form method="post" action="" id="collectionForm">
