@@ -13,7 +13,7 @@
 
 
 #{breadcrumbs queryCrumbs: pagination /}
-    *{
+*{
     <div>
             getPageNumber: ${pagination.getPageNumber()}<br/>
             getStart: ${pagination.getStart()}<br/>
@@ -21,9 +21,16 @@
             getNexPage: ${pagination.getNextPage()}<br/>
             getPreviousPage: ${pagination.getPreviousPage()}</br/>
             getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
+            getNumFound(): ${pagination.getNumFound()}<br/>
 
-    </div>
-    }*
+            paginationLink: /search?${pagination.getPresentationQuery().getQueryForPresentation()}&start=${pagination.getStart()}
+
+     </div>
+}*
+    %{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
+
+
+
     <div class="g-12of12">
         <div class="mod item-count ptm">
             <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
@@ -35,7 +42,7 @@
 
             <div class="buttons toolbar pbm">
                 #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1 /}</div>
+                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1, link_to:paginationLink.raw() /}</div>
                 #{/if}
 
                 <div class="dropdown">

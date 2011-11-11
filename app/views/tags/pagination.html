@@ -32,10 +32,10 @@
             num_edge_entries:1,
             num_display_entries: 6,
             callback: function() {},
-            items_per_page:parseInt('${views.context.package.PAGE_SIZE()}'),
+            items_per_page:${views.context.package.PAGE_SIZE()},
             prev_text:"&{'ui.label.previous'}",
             next_text:"&{'ui.label.next'}",
-            link_to: "${_link}"
+            link_to: "${_link_to}" + "__id__"
         });
      }
 
