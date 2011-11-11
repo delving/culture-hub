@@ -58,7 +58,7 @@ object Registration extends DelvingController {
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, nodes = List(getNode), email = r.email, password = Crypto.passwordHash(r.password1), isActive = false, activationToken = Some(activationToken))
+      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, nodes = List(getNode), email = r.email, password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512), isActive = false, activationToken = Some(activationToken))
       val inserted = User.insert(newUser)
 
       inserted match {

@@ -4,6 +4,7 @@ import models.salatContext._
 import com.mongodb.casbah.Imports._
 import models._
 import controllers.AccessControl
+import play.libs.Crypto
 
 /**
  * 
@@ -24,7 +25,7 @@ trait TestData {
 trait TestDataGeneric extends TestData {
   YamlLoader.load[List[Any]]("testData.yml").foreach {
     _ match {
-      case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
+      case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password, Crypto.HashType.SHA512)))
       case d: DataSet => DataSet.insert(d)
       case md: MetadataRecord => {
         val ds = DataSet.findBySpecAndOrgId("Verzetsmuseum", "delving").get

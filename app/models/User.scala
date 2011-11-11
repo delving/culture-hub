@@ -34,7 +34,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
 
   def connect(userName: String, password: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> Crypto.passwordHash(password)))
+    val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> Crypto.passwordHash(password, Crypto.HashType.SHA512)))
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
@@ -76,7 +76,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def changePassword(resetPasswordToken: String, newPassword: String): Boolean = {
     val user = findByResetPasswordToken(resetPasswordToken).getOrElse(return false)
-    val resetUser = user.copy(password = Crypto.passwordHash(newPassword), resetPasswordToken = None)
+    val resetUser = user.copy(password = Crypto.passwordHash(newPassword, Crypto.HashType.SHA512), resetPasswordToken = None)
     User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
   }
