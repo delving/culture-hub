@@ -31,32 +31,32 @@
 @position: absolute;
 
 @primary-branding-height: 60px;
-@primary-branding-left: 0px;
-@primary-branding-top: 52px;
+@primary-branding-left: 5px;
+@primary-branding-top: 2px;
 
-@secondary-branding-top: 18px;
+@secondary-branding-top: 52px;
 @secondary-branding-height: 25px;
 
-@user-nav-top: 10px;
+@user-nav-top: 0px;
 @user-nav-height: 30px;
 
-@main-nav-top: 16px;
+@main-nav-top: 50px;
 @main-nav-height: 30px;
 
-@header-top: 50px;
+@header-top: 85px;
 @header-height: 50px;
 @header-home-height: 420px;
 
 @search-height: 40px;
 @search-right: 10px;
 @search-top: @header-top + 8px;
-@search-home-top: @header-home-height + 4px;
+@search-home-top: @user-nav-height + @header-home-height + 4px;
 
-@main-top: @header-top + @header-height + @crumbs-height;
-@main-home-top: @header-top + @header-home-height + 10px;
+@main-top: @header-height + @crumbs-height + @user-nav-height;
+@main-home-top: @header-home-height + @user-nav-height;
 
 @crumbs-top: @header-top + @header-height;
-@crumbs-height:32px;
+@crumbs-height:40px;
 
 @footer-height: 100px;
 
@@ -132,7 +132,7 @@ h6, .h6 {
 /* STYLES ********************************************************************************************/
 
 body {
-    background: #000 url(../images/body-bg.gif) center top repeat-y;
+    background: #fff url(../images/body-bgs.gif) center top repeat-y;
     color: @color-2;
     font-family: arial, helvetica, sans;
     font-size: @fsize-1;
@@ -177,8 +177,8 @@ h1.sep {
 
 #primary-branding .container,
 #secondary-branding .container,
-#main-nav .container,
 #user-nav .container,
+#main-nav .container,
 #search .container {
     width: auto;
 }
@@ -208,7 +208,13 @@ h1.sep {
     position: @position;
     top: @primary-branding-top;
     left: @primary-branding-left;
-    z-index: 10;
+    z-index: 12;
+}
+
+#primary-branding .container,
+#primary-branding .content {
+    margin: 0;
+    padding: 0;
 }
 
 #secondary-branding {
@@ -222,12 +228,20 @@ h1.sep {
 
 /* USER NAV ***********************************************************************************/
 
+
 #user-nav{
-    position: @position;
+    background: @color-2;
+    color: @color-1;
+    position: relative;
     top: @user-nav-top;
     right: 0px;
     z-index: 11;
+    height: 40px;
+    line-height: 40px;
+}
 
+#user-nav .buttons {
+    float: right;
 }
 
 /* MAIN NAV ***********************************************************************************/
@@ -294,7 +308,6 @@ h1.sep {
 
     position: static;
     margin-top: @main-top;
-    top: @main-top;
 }
 
 #main .content {

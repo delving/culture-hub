@@ -39,29 +39,6 @@
         </div>
     </div>
 
-    <div id="main">
-        <div class="container">
-            <div class="content">
-                #{doLayout /}
-            </div>
-            <div class="clear"></div>
-        </div>
-    </div>
-
-    <div id="main-nav">
-        <div class="container">
-            <div class="content">
-                <ul class="nav">
-                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>&{'thing.objects'}</span></a></li>
-                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>&{'thing.collections'}</span></a></li>
-                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>&{'thing.stories'}</span></a>
-                <li class='${"Users".isCurrent()}'><a href="/users"><span>&{'thing.users'}</span></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
     <div id="user-nav">
         <div class="container">
             <div class="content">
@@ -78,7 +55,9 @@
                 #{else}
 
                 <div class="buttons">
-                    <!--Hi ${fullName}-->
+                <div class="user-name">
+                      Hi ${fullName}
+                </div>                    <!--Hi ${fullName}-->
                     <div class="dropdown">
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
@@ -122,6 +101,31 @@
             </div>
         </div>
     </div>
+
+    <div id="main">
+        <div class="container">
+            <div class="content">
+                #{doLayout /}
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+
+    <div id="main-nav">
+        <div class="container">
+            <div class="content">
+                <ul class="nav">
+                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'><a href="/objects"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'><a href="/collections"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'><a href="/stories"><span>&{'thing.stories'}</span></a>
+                <li class='${"Users".isCurrent()}'><a href="/users"><span>&{'thing.users'}</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
 
     <div id="footer">
         <div class="container">
