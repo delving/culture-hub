@@ -79,10 +79,12 @@ package object context extends Internationalization {
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName))
+      case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", &("org.admin.index.title")))
       case "organizations" :: orgName :: "dataset" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")))
       case "organizations" :: orgName :: "dataset" :: name :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")), ("/organizations/" + orgName + "/dataset" + name, name))
-      case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", &("org.admin.index.title")))
       case "organizations" :: orgName :: "dataset" :: name :: "update" ::  Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")), ("/organizations/" + orgName + "/dataset/" + name, name), ("/organizations/" + orgName + "/dataset/" + name + "/update", &("ui.label.edit")))
+      case "organizations" :: orgName :: "groups" ::  Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")))
+      case "organizations" :: orgName :: "groups" ::  "update" :: id ::Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, &("ui.label.edit")))
 
       case user :: Nil => List(("/" + user, user))
       case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")))
