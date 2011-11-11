@@ -335,4 +335,6 @@ case class FullDocItem(solrDocument : SolrDocument) {
     def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
     def getDelvingId : String = assignFirst("delving_pmhId")
+
+    def getCHId: String = assignFirst("delving_chID")
 }

@@ -1,0 +1,17 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title:'Search results' /}
+
+${fullDoc.getCHId()}
+${fullDoc.getAsString("dc_title")}
+
+*{
+  Possible methods
+def getAsArray(key: String) : Array[String] = assign(key)
+def getAsString(key: String) : String = assignFirst(key)
+def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
+def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
+def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
+
+}*

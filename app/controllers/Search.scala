@@ -1,8 +1,7 @@
 package controllers
 
 import scala.collection.JavaConversions._
-import search.{PresentationQuery, BriefItemView, CHResponse, SolrQueryService}
-import views.context.PAGE_SIZE
+import search._
 import models.DataSet
 import play.mvc.results.Result
 
@@ -32,18 +31,24 @@ object Search extends DelvingController {
     params.put("start", page.toString)
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
-    chQuery.solrQuery.setQuery()
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 
   def record(orgId: String, spec: String, recordId: String): Result = {
-    val id = "%s:%s:%S".format(orgId, spec, recordId)
-    // TODO what shall be the default
-    DataSet.getRecord(id, theme.metadataPrefix.getOrElse("icn")) match {
-      case None => NotFound(id)
-      case Some(mdr) => Text(mdr)
-    }
+    val id = "%s_%s_%s".format(orgId, spec, recordId)
+
+    val idType = params.get("idType") // TODO switch later
+    val chQuery = SolrQueryService.createCHQuery(request, theme, false)
+    val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("delving_chID:%s".format(id)))
+    val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
+    val response = CHResponse(params, theme, queryResponse, changedQuery)
+
+    if(response.response.getResults.size() == 0)
+      return NotFound(id)
+
+    val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
+    Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
   }
 }
