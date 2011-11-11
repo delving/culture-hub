@@ -4,6 +4,7 @@ import play.jobs.{Every, Job}
 import components.Indexing
 import models.{DataSetState, DataSet}
 import play.Logger
+import controllers.ErrorReporter
 
 /**
  *
@@ -26,10 +27,15 @@ class SolrIndexing extends Job {
               case t => {
                 Logger.error(t, "Error while processing indexing for DataSet %s with mapping prefix %s".format(dataSet.get.spec, prefix))
                 DataSet.updateState(dataSet.get, DataSetState.ERROR)
-              } 
+              }
             }
         }
       }
     }
+  }
+
+  override def onException(e: Throwable) {
+    ErrorReporter.reportError(getClass.getName, e, "Error during indexing")
+
   }
 }

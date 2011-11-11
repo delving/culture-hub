@@ -241,7 +241,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
       }
     } catch {
       case t: Throwable => {
-        reportError(t, "Error occured while parsing records for spec %s", dataSet.spec)
+        logError(t, "Error while parsing records for spec %s of org %s", dataSet.spec, dataSet.orgId)
+        ErrorReporter.reportError(request, params, if(connectedUserObject.isDefined) connectedUserObject.get.userName else "Unknown", t, "Error occured while parsing records for spec %s of org %s", dataSet.spec, dataSet.orgId)
         return Left("Error parsing records: " + t.getMessage)
       }
     }
