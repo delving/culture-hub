@@ -6,6 +6,7 @@ import controllers.SolrServer
 import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
+import views.context.PAGE_SIZE
 
 /**
  *
@@ -363,7 +364,7 @@ case class BreadCrumb(href: String, display: String, field: String = "", localis
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
-case class Pager(numFound: Int, start: Int = 1, rows: Int = 12) {
+case class Pager(numFound: Int, start: Int = 1, rows: Int = PAGE_SIZE) {
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7
