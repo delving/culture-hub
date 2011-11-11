@@ -8,8 +8,22 @@
 
     <title>#{get 'title' /} </title>
 
-    <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/common.css")}'/>
-
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/reset.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/grid/grid-zemmy.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/buttons/css3-buttons.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/module/mod.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/media/media.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/spacing/space.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/forms/form-elements.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/breadcrumb/breadcrumb.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/tiptip.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/tables.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/links.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/plugins/jquery.fileupload-ui.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/pagination/pagination.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/plugins/token-input.css'}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/helpers.css'}" type="text/css" media="all"/>
     #{get 'moreCss' /}
     <link rel="stylesheet" type="text/less" href='${views.context.package.themePath("stylesheets/style.less")}'/>
 

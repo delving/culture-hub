@@ -39,11 +39,6 @@ span.pipe {
     color: #777
 }
 
-.breadcrumbs {
-    /*height: 20px;*/
-    /*margin-bottom: 20px;*/
-}
-
 .breadcrumbs span.arrow {
     background:  transparent url(../images/arrows-next-horizontal.png) -80px 4px no-repeat;
     display: inline-block;

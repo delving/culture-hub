@@ -81,12 +81,62 @@
   -webkit-border-radius: 0 0 @radius @radius;
 }
 
+h1, h2, h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+h1, .h1 {
+    color: @color-2;
+    font-size: 196%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h2, .h2 {
+    color: @color-2;
+    font-size: 167%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h3, .h3 {
+    color: @color-2;
+    font-size: 146.5%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h4, .h4 {
+    color: @color-2;
+    font-size: 123.1%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h5, .h5 {
+    color: @color-2;
+    font-size: 108%;
+    font-weight: bold;
+    font-style: normal;
+}
+
+h6, .h6 {
+    color: @color-2;
+    font-size: 108%;
+    font-weight: normal;
+    font-style: italic;
+}
+
 /* STYLES ********************************************************************************************/
 
 body {
     background: #000 url(../images/body-bg.gif) center top repeat-y;
     color: @color-2;
+    font-family: arial, helvetica, sans;
     font-size: @fsize-1;
+        line-height: 1.5;
 }
 
 a:link{
@@ -101,8 +151,8 @@ a:visited {
 
 h1.sep {
     border-bottom: 4px solid lighten(@color-1, 40%);
-    padding: 10px;
-    margin-bottom: 20px;
+    padding: 0;
+    margin-bottom: 10px;
 }
 
 #page {
