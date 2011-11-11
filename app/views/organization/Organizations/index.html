@@ -41,22 +41,22 @@
       #{/}
 
         <div class="mod">
-          <ul>
+          <ol>
           #{list dataSets, as: 'ds'}
             <li>${ds.spec}</li>
           #{/list}
-          </ul>
+          </ol>
         </div>
     </div>
     <div class="g-1of2">
         <h3>&{'organization.members'}</h3>
 
         <div class="mod">
-          <ul>
+          <ol>
             #{list members, as: 'm'}
             <li>${m.userName} (${m.fullUserName})</li>
             #{/list}
-          </ul>
+          </ol>
         </div>
     </div>
 </div>
