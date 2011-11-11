@@ -15,7 +15,7 @@ class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
 
   it should "parse an input stream" in {
 
-    val ds = DataSet.findBySpec("Verzetsmuseum").get
+    val ds = DataSet.findBySpecAndOrgId("Verzetsmuseum", "delving").get
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 

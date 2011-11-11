@@ -1,0 +1,9 @@
+Master,
+
+an error has happened:
+
+${report}
+
+
+----
+"The error of one moment becomes the sorrow of a whole life" - Chinese Proverb

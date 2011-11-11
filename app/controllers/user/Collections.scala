@@ -56,7 +56,7 @@ object Collections extends DelvingController with UserSecured {
         if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
       case Some(id) =>
         val existingCollection = UserCollection.findOneByID(id)
-        if (existingCollection == None) Error(&("user.collections.objectNotFound", id))
+        if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
         val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())

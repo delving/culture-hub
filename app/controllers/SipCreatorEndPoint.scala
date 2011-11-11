@@ -29,7 +29,7 @@ import java.util.Date
  * @since 7/7/11 12:04 AM
  */
 
-object SipCreatorEndPoint extends Controller with AdditionalActions {
+object SipCreatorEndPoint extends Controller with AdditionalActions with Logging {
 
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val metadataModel: MetadataModel = ComponentRegistry.metadataModel
@@ -40,38 +40,36 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
-  private var connectedUser: Option[User] = None
+  private var connectedUserObject: Option[User] = None
 
   private var connectedOrg: Option[Organization] = None
 
-  @Before() def setUser(): Result = {
+  @Before(priority = 0) def setUser(): Result = {
     val accessToken: String = params.get("accessKey")
     if (accessToken == null || accessToken.isEmpty) {
-      Logger.warn("Service Access Key missing")
-      return TextError("No access token provided", 401)
+      TextError("No access token provided", 401)
     } else if (!OAuth2TokenEndpoint.isValidToken(accessToken)) {
-      Logger.warn("Service Access Key %s invalid!".format(accessToken))
-      return TextError(("Access Key %s not accepted".format(accessToken)), 401)
+      TextError(("Access Key %s not accepted".format(accessToken)), 401)
+    } else {
+      connectedUserObject = OAuth2TokenEndpoint.getUserByToken(accessToken)
+      session += (Authentication.USERNAME, connectedUserObject.get.userName)
+      Continue
     }
-    connectedUser = OAuth2TokenEndpoint.getUserByToken(accessToken)
-    Continue
   }
 
   @Before(unless = Array("listAll")) def setOrg(): Result = {
     val orgId = params.get("orgId")
     if(orgId == null || orgId.isEmpty) {
-      logErrorWithUser("Attempting to connect without orgId")
       return TextError("No orgId provided", 400)
     }
     connectedOrg = Organization.findByOrgId(orgId)
     if(connectedOrg == None) {
-      logErrorWithUser("Unknown organization " + orgId)
       return TextError("Unknown organization " + orgId)
     }
     Continue
   }
 
-  def getConnectedUser: User = connectedUser.getOrElse({
+  def getConnectedUser: User = connectedUserObject.getOrElse({
     Logger.warn("Attemtping to connect with an invalid access token")
     throw new AccessKeyException("No access token provided")
   })
@@ -79,7 +77,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
   def getConnectedUserId = getConnectedUser._id
 
   def listAll(): Result = {
-    val dataSets = DataSet.findAllForUser(connectedUser.get.userName)
+    val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName)
 
     val dataSetsXml = <data-set-list>
       {dataSets.map {
@@ -110,11 +108,10 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Xml(dataSetsXml)
   }
 
-    def unlock(spec: String): Result = {
-      val dataSet = DataSet.findBySpec(spec).getOrElse({
+    def unlock(orgId: String, spec: String): Result = {
+      val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse({
         val msg = "Unknown spec %s".format(spec)
-        Logger.warn(msg)
-        return TextError(msg, 404)
+        return TextNotFound(msg)
       })
       val updated = dataSet.copy(lockedBy = None)
       DataSet.save(updated)
@@ -129,12 +126,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
    * 45109F902FCE191BBBFC176287B9B2A4__source.xml.gz
    * 19EE613335AFBFFAD3F8BA271FBC4E96__valid_icn.bit
    */
-  def acceptFileList(spec: String): Result = {
+  def acceptFileList(orgId: String, spec: String): Result = {
 
-    val dataSet: DataSet = DataSet.findBySpec(spec).getOrElse({
+    val dataSet: DataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse({
       val msg = "DataSet with spec %s not found".format(spec)
-      logErrorWithUser(msg)
-      return TextError(msg, 404)
+      return TextNotFound(msg)
     })
     val fileList: String = request.params.get("body")
 
@@ -158,18 +154,17 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
 
 
   def acceptFile: Result = {
+    val orgId = params.get("orgId")
     val spec = params.get("spec")
     val fileName = params.get("fileName")
-    Logger.info("Accepting file %s for DataSet %s".format(fileName, spec))
-    val dataSet = DataSet.findBySpec(spec).getOrElse({
+    info("Accepting file %s for DataSet %s".format(fileName, spec))
+    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse({
       val msg = "Unknown spec %s".format(spec)
-      logErrorWithUser(msg)
-      return TextError(msg, 404)})
+      return TextNotFound(msg)})
 
     val FileName(hash, kind, prefix, extension) = fileName
     if(hash.isEmpty) {
       val msg = "No hash available for file name " + fileName
-      logErrorWithUser(msg)
       return TextError(msg)
     }
 
@@ -182,7 +177,6 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       case "validation"   if extension == "int" => receiveInvalidRecords(dataSet, prefix, inputStream)
       case _ => {
         val msg = "Unknown file type %s".format(kind)
-        logErrorWithUser(msg)
         return TextError(msg)
       }
     }
@@ -190,12 +184,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     actionResult match {
       case Right(ok) => {
         DataSet.addHash(dataSet, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
-        Logger.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
+        info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
         Ok
       }
       case Left(houston) => {
-        logErrorWithUser("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
-        TextError(houston)
+        TextError("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
       }
     }
   }
@@ -248,7 +241,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
       }
     } catch {
       case t: Throwable => {
-        Logger.error(t, "Error occured while parsing records")
+        reportError(t, "Error occured while parsing records for spec %s", dataSet.spec)
         return Left("Error parsing records: " + t.getMessage)
       }
     }
@@ -265,12 +258,11 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     Right("Goodbye and thanks for all the fish")
   }
 
-  def fetchSIP(spec: String): Result = {
+  def fetchSIP(orgId: String, spec: String): Result = {
     val dataSet = {
-      val dS = DataSet.findBySpec(spec).getOrElse({
+      val dS = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse({
         val msg = "Unknown spec %s".format(spec)
-        logErrorWithUser(msg)
-        return TextError(msg, 404)
+        return TextNotFound(msg)
       })
       // lock it right away
       val updatedDataSet = dS.copy(lockedBy = Some(getConnectedUserId))
@@ -365,10 +357,5 @@ object SipCreatorEndPoint extends Controller with AdditionalActions {
     pw.flush()
     out.flush()
   }
-
-  def logErrorWithUser(msg: String) {
-    Logger.error(connectedUser.getOrElse("NotConnected").toString + ": " + msg)
-  }
-
 }
 

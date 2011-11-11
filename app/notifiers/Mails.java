@@ -32,4 +32,17 @@ public class Mails extends Mailer {
         send(user, resetPasswordToken);
     }
 
+    public static void reportError(String subject, String report) {
+        ThemeAwareBridge.before();
+        try {
+            setSubject(subject);
+            addRecipient(ThemeAwareBridge.theme().emailTarget().exceptionTo());
+            setFrom(ThemeAwareBridge.theme().emailTarget().systemFrom());
+        } finally {
+            ThemeAwareBridge.after();
+        }
+        send(report);
+
+    }
+
 }
