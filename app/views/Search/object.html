@@ -1,0 +1,29 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title:'Search results' /}
+
+${fullDoc.getId()}
+${fullDoc.getTitle()}
+
+*{
+  Possible methods
+def getAsArray(key: String) : Array[String] = assign(key)
+def getAsString(key: String) : String = assignFirst(key)
+def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
+def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
+def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
+
+def getId : String = assign("delving_chID")
+def getDelvingId : String = assign("delving_pmhId")
+def getTitle : String = assign("dc_title")
+def getDescription: String = assign("dc_description")
+def getThumbnail : String = assign("europeana_object")
+def getCreator : String = assign("dc_creator")
+def getYear : String = assign("europeana_year")
+def getProvider : String = assign("europeana_provider")
+def getDataProvider : String = assign("europeana_dataProvider")
+def getLanguage : String = assign("europeana_language")
+
+
+}*

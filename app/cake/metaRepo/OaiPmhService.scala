@@ -60,6 +60,7 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
       case rpe  : RecordParseException => createErrorResponse("cannotDisseminateFormat", rpe)
       case rtnf : ResumptionTokenNotFoundException => createErrorResponse("badResumptionToken", rtnf)
       case nrm  : RecordNotFoundException => createErrorResponse("noRecordsMatch")
+      case ii   : InvalidIdentifierException => createErrorResponse("idDoesNotExist")
       case e    : Exception => createErrorResponse("badArgument", e)
     }
     response.toString()
@@ -253,9 +254,10 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
+    // TODO accessKey check should be done here
     val record: MetadataRecord = {
-      val mdRecord = DataSet.getRecord(identifier, metadataFormat, pmhRequest.accessKey)
-      if (mdRecord == None) return createErrorResponse("idDoesNotExist")
+      val mdRecord = DataSet.getRecord(identifier, metadataFormat) // , pmhRequest.accessKey
+      if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
 

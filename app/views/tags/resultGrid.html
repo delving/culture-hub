@@ -14,10 +14,10 @@
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            <a href=""> ${doc.getFieldValue("dc_title").getFirst()}</a>
+                            <a href="/${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}"> ${doc.getTitle()}</a>
                         </div>
                         <div class="bd">
-                            ${doc.getFieldValue("dc_description").getFirst()}
+                            ${doc.getDescription()}
                         </div>
                     </div>
                 </div>

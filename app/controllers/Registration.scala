@@ -7,6 +7,7 @@ import play.libs.Crypto
 import notifiers.Mails
 import play.Play
 import models.User
+import models.Organization
 import play.mvc.results.Result
 import models.salatContext._
 
@@ -47,6 +48,7 @@ object Registration extends DelvingController {
 
     if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "registration.duplicateEmail", r.email)
     if (User.existsWithUsername(r.userName)) Validation.addError("registration.userName", "registration.duplicateDisplayName", r.userName)
+    if (Organization.findByOrgId(r.userName) != None) Validation.addError("registration.userName", "registration.duplicateDisplayName", r.userName)
 
     Cache.delete(randomId)
 

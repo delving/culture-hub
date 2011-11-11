@@ -13,7 +13,7 @@
 
 
 #{breadcrumbs queryCrumbs: pagination /}
-*{
+    *{
     <div>
             getPageNumber: ${pagination.getPageNumber()}<br/>
             getStart: ${pagination.getStart()}<br/>
@@ -61,10 +61,10 @@
 
             <div class="buttons toolbar">
 
-                <!-- TODO: get result count and feed to pager -->
-                #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
-                #{/if}
+              <!-- TODO: get result count and feed to pager -->
+              #{if briefDocs.size() > 0}
+              <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1, _link: '/search?query='+params.get("query") /}</div>
+              #{/if}
 
             </div>
         </div>
