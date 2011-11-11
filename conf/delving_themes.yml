@@ -9,10 +9,10 @@
     solrSelectUrl: "http://dimcon.nl/solr"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
     localiseQueryKeys:
@@ -37,10 +37,10 @@
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
     localiseQueryKeys:
@@ -66,10 +66,10 @@
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
     localiseQueryKeys:
@@ -94,10 +94,10 @@
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
     localiseQueryKeys:
@@ -122,10 +122,10 @@
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
-        adminTo: username@email.com
-        exceptionTo: username@email.com
-        feedbackTo: username@email.com
-        registerTo: username@email.com
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
         systemFrom: noreply@delving.eu
         feedbackFrom: noreply@delving.eu
     localiseQueryKeys:
