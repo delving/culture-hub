@@ -73,7 +73,7 @@ object Services extends DelvingController with HTTPClient {
     // Sjoerd: this works for e.g. http://localhost:9000/services/api/Verzetsmuseum:4e8898050364481a6dbe8dc8
     // I wrapped this into a record root element, maybe it needs to contain namespaces?
 
-    val record = DataSet.getRecord(spec + ":" + id, theme.metadataPrefix.getOrElse("icn"), "").getOrElse(return NotFound)
+    val record = DataSet.getRecord(spec + ":" + id, theme.metadataPrefix.getOrElse("icn")).getOrElse(return NotFound)
     Xml("<record>" + record.getXmlString() + "</record>")
   }
 }

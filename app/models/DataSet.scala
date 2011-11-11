@@ -189,15 +189,19 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     CollectionMDR
   }
 
-  def getRecord(identifier: String, metadataFormat: String, accessKey: String): Option[MetadataRecord] = {
-    val parsedId = identifier.split(":")
-    // throw exception for illegal id construction
-    val spec = parsedId.head
-    val recordId = parsedId.last
-    val ds: Option[DataSet] = findBySpec(spec)
-    val record: Option[MetadataRecord] = getRecords(ds.get).findOneByID(new ObjectId(recordId))
-    // throw RecordNotFoundException
-    if (record == None) throw new RecordNotFoundException("Unable to find record for " + identifier)
+  /**
+   * identifier = orgId:spec:localRecordKey
+   *
+   * this entails that orgIds, specs and localRecordKey-s never change
+   */
+  def getRecord(identifier: String, metadataFormat: String): Option[MetadataRecord] = {
+    if(identifier.split(":").length != 3)
+      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(identifier))
+    val Array(orgId, spec, localRecordKey) = identifier.split(":")
+    val ds: Option[DataSet] = findBySpecAndOrgId(spec, orgId)
+    if(ds == None) return None
+    val record: Option[MetadataRecord] = getRecords(ds.get).findOne(MongoDBObject("localRecordKey" -> localRecordKey))
+    if(record == None) return None
     if (record.get.rawMetadata.contains(metadataFormat))
       record
     else {
@@ -491,5 +495,9 @@ class ResumptionTokenNotFoundException(s: String, throwable: Throwable) extends 
 }
 
 class SolrConnectionException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+  def this(s: String) = this (s, null)
+}
+
+class InvalidIdentifierException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
 }

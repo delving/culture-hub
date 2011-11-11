@@ -53,9 +53,6 @@ POST        /services/api/itin                                               cus
 # Backwards compatibility with the old portal module
 GET        /portal/                                                          Portal.index
 
-# Search results
-GET        /search                                                           Search.index
-
 # User registration
 GET        /registration                                                     Registration.index
 POST       /registration/register                                            Registration.register
@@ -74,7 +71,19 @@ GET         /collections                                                     Col
 GET         /objects                                                         DObjects.list
 GET         /stories                                                         Stories.list
 
+GET         /search                                                           Search.index
+
 GET         /{user}/?                                                        Profiles.view
+
+GET         /{user}/object                                                   DObjects.list
+GET         /{user}/object/add                                               user.DObjects.dobject
+GET         /{user}/object/{id}/update                                       user.DObjects.dobject
+POST        /{user}/object/submit                                            user.DObjects.objectSubmit
+DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
+GET         /{user}/object/load/{id}?                                        user.DObjects.load
+
+GET         /{user}/object/{id}                                              DObjects.dobject
+GET         /{orgId}/object/{spec}/{recordId}                                Search.record
 
 GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
 
@@ -87,14 +96,6 @@ POST        /{user}/collection/submit                                        use
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.collection
-
-GET         /{user}/object                                                   DObjects.list
-GET         /{user}/object/add                                               user.DObjects.dobject
-GET         /{user}/object/{id}/update                                       user.DObjects.dobject
-POST        /{user}/object/submit                                            user.DObjects.objectSubmit
-DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
-GET         /{user}/object/load/{id}?                                        user.DObjects.load
-GET         /{user}/object/{id}                                              DObjects.dobject
 
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.story

@@ -27,7 +27,7 @@ trait TestDataGeneric extends TestData {
       case u: User => User.insert(u.copy(password = play.libs.Crypto.passwordHash(u.password)))
       case d: DataSet => DataSet.insert(d)
       case md: MetadataRecord => {
-        val ds = DataSet.findBySpec("Verzetsmuseum").get
+        val ds = DataSet.findBySpecAndOrgId("Verzetsmuseum", "delving").get
         DataSet.getRecords(ds).insert(md)
       }
       case _ =>
