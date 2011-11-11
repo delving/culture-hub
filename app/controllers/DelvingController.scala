@@ -12,8 +12,6 @@ import play.data.validation.Validation
 import extensions.AdditionalActions
 import play.i18n.{Lang, Messages}
 import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
-import java.io.EOFException
-import com.mongodb.MongoException
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -163,9 +161,11 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ error handling
 
-  @Catch(value = Array(classOf[EOFException], classOf[MongoException]))
+  @Finally()
   def handleEOF(t: Throwable) {
-    reportError(t, "Mongo is gone?!")
+    if(t != null) {
+      ErrorReporter.reportError(request, params, connectedUser, t, "Something went wrong")
+    }
   }
 
 }
