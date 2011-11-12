@@ -79,12 +79,16 @@ button[disabled],
 }
 
 .info-box .label {
-    color: #aaa;
+    color: #888;
     float: left;
     clear: left;
     display: block;
     width: 120px;
     text-align: left;
+}
+
+.info-box.long .label {
+    width: 150px;
 }
 
 .info-box .text {

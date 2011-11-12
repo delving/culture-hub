@@ -8,12 +8,12 @@
 </head>
 <body>
 <!-- UNEXPECTED -->
-*{
+
 #{if play.mode.name() == 'DEV'}
 #{404 result /}
 #{/if}
 #{else}
-}*
+
 <div class="container">
     <h1 class="error-code">404</h1>
     <h2 class="error-message">Page not found!</h2>
@@ -23,8 +23,7 @@
         <a href="/">${views.context.package.themeDisplayName()}</a>
     </div>
 </div>
-*{
+
 #{/else}
-}*
 </body>
 </html>
