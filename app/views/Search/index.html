@@ -3,85 +3,112 @@
 #{set title:'Search results' /}
 
 #{set 'moreCss'}
-    <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/facets/facets.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/facets/facets.css'}"/>
 #{/set}
 
 #{set 'moreScripts'}
-     <script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
+<script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
 #{/set}
 
-
-
 #{breadcrumbs queryCrumbs: pagination /}
-    *{
-    <div>
-            getPageNumber: ${pagination.getPageNumber()}<br/>
-            getStart: ${pagination.getStart()}<br/>
-            getRows: ${pagination.getRows()}<br/>
-            getNexPage: ${pagination.getNextPage()}<br/>
-            getPreviousPage: ${pagination.getPreviousPage()}</br/>
-            getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
-            getNumFound(): ${pagination.getNumFound()}<br/>
+*{
+<div>
+    getPageNumber: ${pagination.getPageNumber()}<br/>
+    getStart: ${pagination.getStart()}<br/>
+    getRows: ${pagination.getRows()}<br/>
+    getNexPage: ${pagination.getNextPage()}<br/>
+    getPreviousPage: ${pagination.getPreviousPage()}</br/>
+    getQueryForPresentation: ${pagination.getPresentationQuery().getQueryForPresentation()}<br/>
+    getNumFound(): ${pagination.getNumFound()}<br/>
 
-            paginationLink: /search?${pagination.getPresentationQuery().getQueryForPresentation()}&start=${pagination.getStart()}
+    paginationLink: /search?${pagination.getPresentationQuery().getQueryForPresentation()}&start=${pagination.getStart()}
 
-     </div>
+</div>
 }*
-    %{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
+%{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
 
-
-
-    <div class="g-12of12">
-        <div class="mod item-count ptm">
-            <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
-        </div>
+<div class="g-12of12">
+    <div class="mod item-count ptm">
+        <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
     </div>
+</div>
 
-    <div class="row">
-        <div class="g-8of12">
+<div class="row">
+    <div class="g-8of12">
 
-            <div class="buttons toolbar pbm">
-                #{if briefDocs.size() > 0}
-                <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1, link_to:paginationLink.raw() /}</div>
-                #{/if}
+        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
 
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>
-                        <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
+        <div class="results">
+            *{#{resultGrid results: briefDocs /}}*
+
+
+%{ def counter = 1 }%
+
+#{if briefDocs}
+#{list briefDocs, as: 'doc'}
+
+#{if counter == 1}
+<div class="row">
+    #{/if}
+    <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
+        <div class="media thing">
+            <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
+
+            <div class="bd">
+                <div class="mod">
+                    <div class="inner">
+                        <div class="hd title">
+                            *{<a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}"> ${doc.getTitle()}</a>}*
+                            test ${doc.getAsString('dc_title')}
+                        </div>
+                        <div class="bd">
+                            ${doc.getDescription()}
+                        </div>
                     </div>
                 </div>
 
             </div>
-
-            <div class="results">
-                #{resultGrid results: briefDocs /}
-            </div>
-
-            <div class="buttons toolbar">
-
-              <!-- TODO: get result count and feed to pager -->
-              #{if briefDocs.size() > 0}
-              <div class="pager">#{pagination selector: ".pager", count: pagination.getNumFound(), start: pagination.getPageNumber()-1, _link: '/search?query='+params.get("query") /}</div>
-              #{/if}
-
-            </div>
         </div>
-        <div class="g-3of12 prefix-1">
+    </div>
 
-            <div class="mod facets">
-                <div class="inner">
-                    <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
-                    <div class="bd">
-                        #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                        #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    </div>
+    %{ counter++ }%
+
+    #{if counter > 2 || i_isLast }
+</div>
+<!-- end line -->
+%{ counter = 1 }%
+#{/if}
+#{/list}
+#{/if}
+
+
+
+        </div>
+
+        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
+
+    </div>
+    <div class="g-3of12 prefix-1">
+
+        <div class="mod facets">
+            <div class="inner">
+                <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
+                <div class="bd">
+                    #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                 </div>
             </div>
         </div>
-
+        <div class="dropdown">
+            #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
+            <div class="dropdown-slider">
+                <a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>
+                <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
+            </div>
+        </div>
     </div>
+
+</div>
 
