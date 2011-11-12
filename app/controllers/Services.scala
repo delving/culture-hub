@@ -24,11 +24,11 @@ object Services extends DelvingController with HTTPClient {
     import org.apache.commons.httpclient.methods.GetMethod
     import org.apache.commons.httpclient.{HttpClient, HttpMethod}
     import play.mvc.results.{RenderJson, RenderXml, RenderBinary}
+    import play.Play
 
     val solrQueryString: String = request.querystring
 
-    // todo add proper dependency for the solr url here
-    val solrServerUrl: String = String.format("%s/select?%s", "http://localhost:8983/solr/core0", solrQueryString)
+    val solrServerUrl: String = String.format("%s/select?%s", Play.configuration.getProperty("solr.baseUrl", "http://localhost:8983/solr/core2"), solrQueryString)
     val method: HttpMethod = new GetMethod(solrServerUrl)
 
     val httpClient: HttpClient = getHttpClient
