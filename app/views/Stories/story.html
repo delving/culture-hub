@@ -7,28 +7,12 @@
     <div class="g-12of12">
         <div class="media ${itemName}">
             <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
-            #{if story.userName == userName}
-            <a class="button clear" href="/${story.userName}/story/${story._id}/update">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.story'))}</span>
-            </a>
-            <a class="button clear" id="remove">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.story'))}</span>
-            </a>
-            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'story.confirmDeletion'}</p></div>
-            <script type="text/javascript">
-              $(document).ready(function() {
-                remove('#remove', '#removeConfirmation', '/${story.userName}/story/${story._id}/remove', '/${story.userName}/story');
-              });
-            </script>
-            #{/if}
-
+            *{
             <a class="button clear" href="/${story.userName}/story/${story._id}/read">
                 <span class="icon icon140"></span>
                 <span class="label">&{'story.read'}</span>
             </a>
-
+            }*
             <div class="bd">
 
                 #{thingToolbar type: 'story', owner: story.userName, id: story._id, b: browsedUserName/}
