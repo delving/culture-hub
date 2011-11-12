@@ -26,10 +26,13 @@ object ItinEndPoint extends Controller with ThemeAware{
     import models.{StoreResponse, DrupalEntity}
     import play.Logger
     import java.lang.String
-    import xml.Elem
+    import xml.parsing.ConstructingParser
+    import io.Source
+    import xml.{Node, Elem}
 
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
     val body: String = params.get("body")
+    Logger.info(body)
     val uploadedXml: Option[Elem] =
       if (uploads != null) Some(xml.XML.load(asScalaIterable(uploads).head.asStream()))
       else if (body != null && !body.isEmpty) Some(xml.XML.loadString(body))

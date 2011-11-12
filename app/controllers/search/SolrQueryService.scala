@@ -42,7 +42,7 @@ object SolrQueryService extends SolrServer {
     field.getHighLightValuesAsArray.map(value =>
       try {
         import xml.XML
-        XML.loadString("<%s>%s</%s>\n".format(field.getKeyAsXml, encodeUrl(value, field, response), field.getKeyAsXml))
+        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(value, field, response), field.getKeyAsXml))
       }
       catch {
         case ex : Exception =>
@@ -93,7 +93,7 @@ object SolrQueryService extends SolrServer {
     query setFields ("*,score")
     // highlighting parameters
     query setHighlight true
-    query addHighlightField ("*")
+    query addHighlightField ("*_text")
   }
 
 //  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
