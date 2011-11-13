@@ -102,7 +102,7 @@ object Groups extends DelvingController with OrganizationSecured {
             Some(groupModel.copy(id = Some(id)))
         }
       case Some(id) =>
-        Group.updateGroupInfo(id, groupModel.name, groupModel.grantType)
+        Group.updateGroupInfo(id, groupModel.name, if(groupModel.grantType == GrantType.OWN) GrantType.OWN.value else groupModel.grantType)
         Some(groupModel)
     }
 
