@@ -26,7 +26,7 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   }
 
   def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
-  def isOwner(userName: String) = Group.count(MongoDBObject("users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
+  def isOwner(orgId: String, userName: String) = Group.count(MongoDBObject("orgId" -> orgId, "users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
 
   def addUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
@@ -66,7 +66,7 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
-    if(Organization.isOwner(userName)) {
+    if(Organization.isOwner(orgId, userName)) {
       Group.find(MongoDBObject("orgId" -> orgId))
     } else {
       Group.find(MongoDBObject("users" -> userName, "orgId" -> orgId))

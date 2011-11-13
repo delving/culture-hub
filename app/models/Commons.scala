@@ -36,6 +36,19 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
   import views.context.PAGE_SIZE
 
+  /**
+   * Returns a page and the total object count
+   * @param page the page number
+   * @param pageSize optional size of the page, defaults to PAGE_SIZE
+   */
+  implicit def listWithPage(list: List[A]) = new {
+    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
+      val p = if(page == 0) 1 else page
+      val c = list.slice((p - 1) * pageSize, (p - 1) * pageSize + PAGE_SIZE)
+      (c, list.size)
+    }
+  }
+
   implicit def cursorWithPage(cursor: SalatMongoCursor[A]) = new {
 
     /**
