@@ -14,6 +14,7 @@ import play.data.validation.Annotations._
 import java.util.Date
 import play.mvc.Before
 import dos.FileUploadResponse
+import extensions.JJson
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -24,12 +25,12 @@ import dos.FileUploadResponse
 
 object DObjects extends DelvingController with UserSecured {
 
-  def load(id: String): Result = {
+  private def load(id: String): String = {
     val availableCollections = UserCollection.browseByUser(connectedUserId, connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findByIdUnsecured(id) match {
-        case None => Json(ObjectModel(availableCollections = availableCollections))
+        case None => JJson.generate(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
-          Json(ObjectModel(
+          JJson.generate(ObjectModel(
             Some(anObject._id),
             anObject.name,
             anObject.description,
@@ -45,7 +46,7 @@ object DObjects extends DelvingController with UserSecured {
 
   def dobject(id: String): Result = {
     renderArgs += ("viewModel", classOf[ObjectModel])
-    Template('id -> Option(id), 'uid -> Codec.UUID())
+    Template('id -> Option(id), 'uid -> Codec.UUID(), 'data -> load(id))
   }
 
   def objectSubmit(data: String, uid: String): Result = {

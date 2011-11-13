@@ -19,7 +19,17 @@ import components.Indexing
 object DataSetControl extends DelvingController with OrganizationSecured {
 
   // TODO check rights for the accessed dataset
-  def dataSet(orgId: String, spec: String): Result = Template('spec -> Option(spec), 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  def dataSet(orgId: String, spec: String): Result = {
+    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+    val data = if (dataSet == None)
+      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId))
+    else {
+      val dS = dataSet.get
+      JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, visibility = dS.visibility.value))
+    }
+
+    Template('spec -> Option(spec), 'isOwner -> Organization.isOwner(connectedUser), 'data -> data, 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  }
 
   // TODO check rights for the accessed dataset
   def dataSetSubmit(orgId: String, data: String): Result = {

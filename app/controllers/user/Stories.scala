@@ -8,6 +8,7 @@ import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
 import play.mvc.Before
+import extensions.JJson
 
 /**
  *
@@ -16,13 +17,13 @@ import play.mvc.Before
 
 object Stories extends DelvingController with UserSecured {
 
-  def load(id: String): Result = {
+  private def load(id: String): String = {
 
     val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
 
     Story.findById(id, connectedUserId) match {
-      case None => Json(StoryViewModel(collections = collectionVMs))
+      case None => JJson.generate(StoryViewModel(collections = collectionVMs))
       case Some(story) =>
         val storyVM = StoryViewModel(id = Some(story._id),
           description = story.description,
@@ -36,13 +37,13 @@ object Stories extends DelvingController with UserSecured {
           }),
           collections = collectionVMs)
 
-        Json(storyVM)
+        JJson.generate(storyVM)
     }
   }
 
   def story(id: String): Result = {
     renderArgs += ("viewModel", classOf[StoryViewModel])
-    Template('id -> Option(id))
+    Template('id -> Option(id), 'data -> load(id))
   }
 
   def storySubmit(data: String): Result = {

@@ -13,6 +13,10 @@ function initializeElements() {
     );
 }
 
+/**
+ * A bit of security...
+ * @param csrfToken token known only by the client and the server
+ */
 function bindCSRFToken(csrfToken) {
     $("body").bind("ajaxSend", function(elm, xhr, s) {
       if (s.type == "POST" || s.type == "DELETE" || s.type == "PUT") {
@@ -92,15 +96,13 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
 
 /**
  * Loads an object via JSON into a view model
- * @param url where to load the object from
+ * @param data the data to load (as JSON object)
  * @param viewModel the view model to update
  * @param scope the scope for the view model binding
  */
-function load(url, viewModel, scope, callback) {
-    $.getJSON(url, {}, function(data) {
-        updateViewModel(data, viewModel, scope);
-        if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
-    });
+function load(data, viewModel, scope, callback) {
+    updateViewModel(data, viewModel, scope);
+    if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
 }
 
 /**

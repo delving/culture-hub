@@ -9,7 +9,7 @@ orgId: orgId,
 active:"datasets",
 extraButtons: [
     [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green"],
+    [label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner],
     [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145"]
 ] /}
 

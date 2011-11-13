@@ -23,20 +23,9 @@ object DataSets extends DelvingController with OrganizationSecured {
   def dataSet(orgId: String, spec: String): Result = {
     // TODO check if connected user has access
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
-
-    request.format match {
-      case "html" => {
-        val ds = dataSet.getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
-        val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
-        Template('dataSet -> ds, 'facts -> asJavaList(describedFacts))
-      }
-      case "json" => if (dataSet == None) Json(ShortDataSet(userName = connectedUser, orgId = orgId))
-      else {
-        val dS = dataSet.get
-        Json(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, visibility = dS.visibility.value))
-      }
-    }
-
+    val ds = dataSet.getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
+    val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
+    Template('dataSet -> ds, 'facts -> asJavaList(describedFacts), 'isOwner -> Organization.isOwner(connectedUser))
   }
 
   def listAsTokens(orgId: String, q: String): Result = {

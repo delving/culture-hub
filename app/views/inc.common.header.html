@@ -98,4 +98,4 @@
     </script>
 </head>
 
-<body id="#{get 'bodyId' /}">
+<body id="#{get 'bodyId' /}" style="visibility: ${play.templates.BaseTemplate.layoutData.get().get('visibility') ? play.templates.BaseTemplate.layoutData.get().get('visibility') : 'visible'}">

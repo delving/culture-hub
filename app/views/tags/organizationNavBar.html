@@ -6,7 +6,9 @@
 
         #{if _extraButtons}
            #{list _extraButtons, as:'button'}
-                #{btnHref label: button.get('label'), href: button.get('url'), extraClass:"fright " + (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}
+             #{if button.get('visible') == null || button.get('visible') != null && button.get('visible') }
+               #{btnHref label: button.get('label'), href: button.get('url'), extraClass:"fright " + (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}
+             #{/if}
             #{/list}
         #{/if}
     </div>
