@@ -115,3 +115,16 @@ div.dropdown-slider .ddm.heading {
     text-shadow: 0 1px 0 #000;
 
 }
+
+.private {
+    background-color: #fffff0;
+}
+
+.private span {
+    margin: 10px 4px 4px 0px;
+    padding:  4px;
+    border:  1px solid #000;
+    display: block;
+    /*padding:  4px;*/
+    font-size: 80%;
+}
