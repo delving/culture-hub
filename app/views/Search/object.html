@@ -2,9 +2,22 @@
 
 #{set title:'Search results' /}
 
-${fullDoc.getId()}
-${fullDoc.getTitle()}
+#{breadcrumbs /}
 
+<h1 class="sep">${fullDoc.getTitle().shorten(80)}</h1>
+
+<img src="${fullDoc.getThumbnail()}" border="" onload="alert('foo');" alt="${fullDoc.getTitle()}" />
+
+${fullDoc.getDescription()}<br/>
+${fullDoc.getCreator()}<br/>
+${fullDoc.getYear()}<br/>
+${fullDoc.getProvider()}<br/>
+${fullDoc.getDataProvider()}<br/>
+${fullDoc.getLanguage()}<br/>
+${fullDoc.getAsString('dc_description')}<br/>
+#{pagination}
+    we have pagination
+#{/if}
 *{
   Possible methods
 def getAsArray(key: String) : Array[String] = assign(key)
