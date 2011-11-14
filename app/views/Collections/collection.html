@@ -13,7 +13,7 @@
             <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" alt="${collection.name}" class="img"/>
 
             <div class="bd">
-                 #{thingToolbar owner: collection.userName, id: collection._id, b: browsedUserName, type:"collection"/}
+                #{thingToolbar owner: collection.userName, id: dobject._id, currentUser: userName, type:"collection"/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>
