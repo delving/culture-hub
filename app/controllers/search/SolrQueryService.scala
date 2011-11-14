@@ -210,6 +210,19 @@ object SolrQueryService extends SolrServer {
     CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
 
+  def getFullSolrResponseFromServer(id: String, idType: String = ""): QueryResponse = {
+    val idSearchField = idType match {
+      case "solr" => "id"
+      //case "mongo" => "delving"
+      case "pmh" => "delving_pmhId"
+      case "drupal" => "id" // maybe later drup_id
+      case "dataSetId" => "delving_chID"
+      case "legacy" => "europeana_uri"
+      case _ => "delving_pmhId"
+    }
+    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(idSearchField, id)))
+  }
+
   def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
     import play.Logger

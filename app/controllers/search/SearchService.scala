@@ -22,10 +22,12 @@ class SearchService(request: Request, theme: PortalTheme) {
 
   import play.mvc.results.Result
   import xml.PrettyPrinter
+  import java.util.Map
+  import java.lang.String
 
   val prettyPrinter = new PrettyPrinter(150, 5)
   val params = request.params
-  val paramMap = params.all()
+  val paramMap: Map[String, Array[String]] = params.all()
   val format = paramMap.getOrElse("format", Array[String]("default")).head
 
   /**
@@ -106,10 +108,8 @@ class SearchService(request: Request, theme: PortalTheme) {
   }
 
   private def getFullResultsFromSolr : FullItemView = {
-    import org.apache.solr.client.solrj.SolrQuery
-    require(params._contains("id") || params._contains("did"))
-    // todo must be coded differently in the future
-    val response = SolrQueryService.getSolrResponseFromServer(new SolrQuery("europeana_uri:\"%s\"".format(params.get("id"))))
+    require(params._contains("id"))
+    val response = SolrQueryService.getFullSolrResponseFromServer(params.get("id"), paramMap.getOrElse("idType", Array[String]("delving_pmhId")).head)
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
 
@@ -364,7 +364,7 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep")),
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
     ExplainItem("id", List("any valid europeana_uri identifier"), "Will output a full-view"),
-    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal"), "//todo complete this"),
+    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal","datasetId"), "//todo complete this"),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
     ExplainItem("start", List("any non negative integer")),
