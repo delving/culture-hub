@@ -34,7 +34,7 @@
 </div>
 
 <div class="row">
-    <div class="g-8of12">
+    <div class="g-9of12">
 
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
 
@@ -46,13 +46,13 @@
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
 
     </div>
-    <div class="g-3of12 prefix-1">
+    <div class="g-3of12">
 
         <div class="mod facets">
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "eric_facet", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
                     #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}

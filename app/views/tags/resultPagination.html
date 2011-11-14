@@ -2,7 +2,7 @@
 <div class="pagination">
 
     #{if _pageLinks.previous}
-        <a  class="prev" href="?${_pQuery}&amp;${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a>
+        <a  class="prev" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a>
     #{/if}
     #{else}
         <span class="prev disabled">${messages.get('ui.label.previous')}</span>
@@ -19,7 +19,7 @@
     #{/list}
 
     #{if _pageLinks.next}
-        <a class="next" href="?${_pQuery}&amp;${_pageLinks.nextPage}">${messages.get('ui.label.next')}</a>
+        <a class="next" href="?${_pQuery}&amp;start=${_pageLinks.nextPage}">${messages.get('ui.label.next')}</a>
     #{/if}
     #{else}
         <span class="next disabled">${messages.get('ui.label.next')}</span>
