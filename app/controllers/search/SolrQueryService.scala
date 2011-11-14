@@ -24,16 +24,20 @@ object SolrQueryService extends SolrServer {
   val QUERY_PROMPT: String = "query="
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
+    val keyAsXml = field.getKeyAsXml.replaceFirst("_[a-z]{1,4}$", "")
     field.getValueAsArray.map(value =>
-      try {
-        import xml.XML
-        XML.loadString("<%s>%s</%s>\n".format(field.getKeyAsXml, encodeUrl(value, field, response), field.getKeyAsXml))
-      }
-      catch {
-        case ex : Exception =>
-          import play.Logger
-          Logger error (ex, "unable to parse " + value + "for field " + field.getKeyAsXml)
-          <error/>
+      {
+        try {
+          import xml.XML
+          val normalisedValue = if (field.getKeyAsXml.endsWith("_text")) "<![CDATA[%s]]>".format(value) else value
+          XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(normalisedValue, field, response), keyAsXml))
+        }
+        catch {
+          case ex: Exception =>
+            import play.Logger
+            Logger error(ex, "unable to parse " + value + "for field " + keyAsXml)
+              <error/>
+        }
       }
     ).toSeq
   }
