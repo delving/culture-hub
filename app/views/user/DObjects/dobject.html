@@ -1,4 +1,4 @@
-
+#{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.object.title.create', fullName) : viewUtils.getKey('user.object.title.update', fullName) /}
 
@@ -57,39 +57,25 @@
 <script type="text/javascript">
     $(document).ready(function() {
 
-        // load templates
-        $.get("/asset?path=/public/themes/common/templates/_addLabel.tmpl.html", null, function(template) {
-            addTemplate('addLabelTemplate', template);
-        });
+      var objectModel = {
+          labelType: ko.observable(""),
+          labelValue: ko.observable(""),
+          addLabel: function() {
+              objectModel.labels.push({labelType: objectModel.labelType(), value: objectModel.labelValue()});
+              objectModel.labelType("");
+              objectModel.labelValue("");
+          },
+          removeLabel: function(label) {
+              objectModel.labels.remove(function(it) {
+                  return it.labelType === label.labelType && it.value === label.value
+              });
+          }
+      };
 
-        $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
-        initUploadWidget();
-        $('#fileupload').fileupload({
-            url: '@{user.FileUpload.uploadFile(uid)}',
-            autoUpload: true
-        });
-
-        var objectModel = {
-            labelType: ko.observable(""),
-            labelValue: ko.observable(""),
-            addLabel: function() {
-                objectModel.labels.push({labelType: objectModel.labelType(), value: objectModel.labelValue()});
-                objectModel.labelType("");
-                objectModel.labelValue("");
-            },
-            removeLabel: function(label) {
-                objectModel.labels.remove(function(it) {
-                    return it.labelType === label.labelType && it.value === label.value
-                });
-            }
-        };
-
-        $('#saveButton').click(function(event) {
-            event.preventDefault();
-            handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
-        });
-
-        load('/${userName}/object/load/${id.isEmpty() ? "" : id.get()}', objectModel, null, function() {
+      // load templates and data
+      $.get("/asset?path=/public/themes/common/templates/_addLabel.tmpl.html", null, function(template) {
+        addTemplate('addLabelTemplate', template);
+        load(${data.raw()}, objectModel, null, function() {
             var files = ko.toJS(objectModel.files);
             var fu = $('#fileupload').data('fileupload');
             fu._adjustMaxNumberOfFiles(-files.length);
@@ -99,6 +85,21 @@
                         // Fix for IE7 and lower:
                         $(this).show();
                     });
+            $("body").css('visibility', 'visible');
         });
+      });
+
+      $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
+      initUploadWidget();
+      $('#fileupload').fileupload({
+          url: '@{user.FileUpload.uploadFile(uid)}',
+          autoUpload: true
+      });
+
+      $('#saveButton').click(function(event) {
+          event.preventDefault();
+          handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
+      });
+
     });
 </script>

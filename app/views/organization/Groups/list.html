@@ -4,7 +4,10 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"groups" /}
+#{organizationNavBar orgId: orgId, active:"groups",
+extraButtons: [
+    [label: viewUtils.getKey('org.group.create'), url:"/organizations/"+orgId+"/groups/create", extraClass:"action green", visible: isOwner]
+] /}
 
 <h1 class="sep">&{'thing.groups'}</h1>
 

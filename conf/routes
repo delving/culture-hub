@@ -80,7 +80,6 @@ GET         /{user}/object/add                                               use
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
-GET         /{user}/object/load/{id}?                                        user.DObjects.load
 
 GET         /{user}/object/{id}                                              DObjects.dobject
 GET         /{orgId}/object/{spec}/{recordId}                                Search.record
@@ -94,7 +93,6 @@ GET         /{user}/collection/add                                           use
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
-GET         /{user}/collection/load/{id}?                                    user.Collections.load
 GET         /{user}/collection/{id}                                          Collections.collection
 
 GET         /{user}/story                                                    Stories.list
@@ -102,7 +100,6 @@ GET         /{user}/story/add                                                use
 GET         /{user}/story/{id}/update                                        user.Stories.story
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
-GET         /{user}/story/load/{id}?                                         user.Stories.load
 GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
 

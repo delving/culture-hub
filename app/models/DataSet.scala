@@ -147,12 +147,32 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       allDateSets
   }
 
-  def findAllForUser(userName: String): List[DataSet] =
+  def findAllForUser(userName: String, grantType: GrantType): List[DataSet] =
     Group.
             find(MongoDBObject("users" -> userName)).
-            filter(g => g.grantType == GrantType.MODIFY || g.grantType == GrantType.OWN).
+            filter(g => g.grantType == grantType || g.grantType == GrantType.OWN).
             map(g => if(g.grantType == GrantType.OWN) DataSet.findAllByOrgId(g.orgId).toList else DataSet.find("_id" $in g.dataSets).toList).
             toList.flatten.distinct
+
+  def canView(ds: DataSet, userName: String) = {
+    Organization.isOwner(ds.orgId, userName) ||
+    Group.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
+    ds.visibility == Visibility.PUBLIC
+  }
+
+  def canEdit(ds: DataSet, userName: String) = {
+    Organization.isOwner(ds.orgId, userName) || Group.count(MongoDBObject(
+      "dataSets" -> ds._id,
+      "users" -> userName,
+      "grantType.value" -> GrantType.MODIFY.value)
+    ) > 0
+  }
+
+  def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
+    if(Organization.isOwner(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
+    val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
+  }
 
   def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 

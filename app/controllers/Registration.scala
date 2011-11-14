@@ -43,6 +43,9 @@ object Registration extends Controller with ThemeAware with Internationalization
     if (r.password1 != r.password2) {
       Validation.addError("registration.password2", "registration.passwordsDiffer", r.password2)
     }
+    if("^[a-z0-9_-]{3,15}$".r.findFirstIn(r.userName) == None) {
+      Validation.addError("registration.userName", "registration.userNameInvalid", r.userName)
+    }
 
     if (Play.id != "test") {
       Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("registration.invalidCode")

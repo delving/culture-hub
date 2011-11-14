@@ -11,6 +11,7 @@ import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
 import models.{Visibility, DObject, UserCollection}
+import extensions.JJson
 
 /**
  * Manipulation of user collections
@@ -20,14 +21,14 @@ import models.{Visibility, DObject, UserCollection}
 
 object Collections extends DelvingController with UserSecured {
 
-  def load(id: String): Result = {
+  private def load(id: String): String = {
     val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
 
     UserCollection.findById(id, connectedUserId) match {
-      case None => Json(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
+      case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        Json(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
+        JJson.generate(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
       }
     }
   }
@@ -35,7 +36,7 @@ object Collections extends DelvingController with UserSecured {
 
   def collection(id: String): Result = {
     renderArgs += ("viewModel", classOf[CollectionViewModel])
-    Template('id -> Option(id))
+    Template('id -> Option(id), 'data -> load(id))
   }
 
   def collectionSubmit(data: String): Result = {

@@ -16,7 +16,7 @@ object Admin extends DelvingController with OrganizationSecured {
   @Before(priority = 2) def checkOwner(): Result = {
     val orgId = params.get("orgId")
     if (orgId == null || orgId.isEmpty) Error("How did you even get here?")
-    if (!Organization.isOwner(connectedUser)) return Forbidden(&("user.secured.noAccess"))
+    if (!Organization.isOwner(orgId, connectedUser)) return Forbidden(&("user.secured.noAccess"))
     Continue
   }
 
