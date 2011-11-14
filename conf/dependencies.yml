@@ -3,7 +3,7 @@
 require:
     - play
     - delving -> common 1.0
-    - delving -> dos 1.0
+    - delving -> dos 1.1
     - delving -> scala 0.9.1_20111028
     - play -> less 0.3
     - commons-httpclient -> commons-httpclient 3.1
