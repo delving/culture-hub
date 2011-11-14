@@ -220,7 +220,11 @@ object SolrQueryService extends SolrServer {
       case "legacy" => "europeana_uri"
       case _ => "delving_pmhId"
     }
-    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(idSearchField, id)))
+    val normalisedId = idSearchField match {
+      case "delving_pmhId" => id.replaceAll("/", "_")
+      case _ => id
+    }
+    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(idSearchField, normalisedId)))
   }
 
   def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
