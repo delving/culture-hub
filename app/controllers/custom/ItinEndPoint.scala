@@ -32,7 +32,6 @@ object ItinEndPoint extends Controller with ThemeAware{
 
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
     val body: String = params.get("body")
-    Logger.info(body)
     val uploadedXml: Option[Elem] =
       if (uploads != null) Some(xml.XML.load(asScalaIterable(uploads).head.asStream()))
       else if (body != null && !body.isEmpty) Some(xml.XML.loadString(body))
