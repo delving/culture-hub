@@ -96,6 +96,29 @@ button[disabled],
     float: left;
 }
 
+/* media */
+
+/* media overrides */
+
+.media .img {
+    margin-right: 10px;
+}
+
+.media.record .img {
+    margin-right: 50px;
+    max-width: 300px;
+}
+
+.media .extra {
+    display: block;
+    clear: left;
+    float: left;
+}
+
+.media .toolbar {
+    margin: 10px 0;
+}
+
 /* metadata */
 
 .metadata h5 {

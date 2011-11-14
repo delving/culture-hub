@@ -39,52 +39,9 @@
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
 
         <div class="results">
-            *{#{resultGrid results: briefDocs /}}*
-
-
-%{ def counter = 1 }%
-
-#{if briefDocs}
-#{list briefDocs, as: 'doc'}
-
-#{if counter == 1}
-<div class="row">
-    #{/if}
-    <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
-        <div class="media thing">
-            <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
-
-            <div class="bd">
-                <div class="mod">
-                    <div class="inner">
-                        <div class="hd title">
-
-                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}"> ${doc.getTitle()}</a>
-
-                        </div>
-                        <div class="bd">
-                            ${doc.getDescription()}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            #{resultGrid results: briefDocs /}
         </div>
-    </div>
 
-    %{ counter++ }%
-
-    #{if counter > 2 || i_isLast }
-</div>
-<!-- end line -->
-%{ counter = 1 }%
-#{/if}
-#{/list}
-#{/if}
-
-
-
-        </div>
 
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
 

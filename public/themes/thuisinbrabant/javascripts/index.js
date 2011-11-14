@@ -20,13 +20,13 @@ jQuery(document).ready(function() {
      }
 
      var currImg = 1;
-     var intID = setInterval(changeImg, 6000);
+     var intID = setInterval(changeImg, 10000);
      $('.header').append('<div class="header-bg"></div>');
      /* image rotator */
      function changeImg(){
-     $('.header-bg').animate({opacity: 0}, 1000, function(){
+     $('.header-bg').animate({opacity: 0}, 2500, function(){
      $(this).css('background','url(' + preloadArr[currImg++%preloadArr.length].src +') top center no-repeat');
-     }).animate({opacity: 1}, 2000);
+     }).animate({opacity: 1}, 2500);
      }
 
 

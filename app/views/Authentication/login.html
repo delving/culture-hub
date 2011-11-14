@@ -22,9 +22,15 @@
 
         #{textField name:"username", label: viewUtils.getKey("ui.label.username") /}
         #{passwordField name:"password", label: viewUtils.getKey("ui.label.password") /}
-
+        <div class="field">
         <label for="remember" class="label">${viewUtils.getKey("authentication.label.rememberme")}</label>
-        <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
+
+        <div class="inputs">
+              <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
+        </div>
+        </div>
+
+
 
         <div class="buttons">
             #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action green prominent", type:"submit", id:"signin" /}
