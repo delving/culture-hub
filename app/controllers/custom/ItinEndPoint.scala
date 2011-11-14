@@ -3,6 +3,7 @@ package controllers.custom
 import play.mvc.results.RenderXml
 import play.mvc.Controller
 import controllers.ThemeAware
+import scala.collection.JavaConversions.asScalaIterable
 
 /**
  *
@@ -23,34 +24,45 @@ object ItinEndPoint extends Controller with ThemeAware{
     import play.data.Upload
     import java.util.List
     import models.{StoreResponse, DrupalEntity}
+    import play.Logger
+    import java.lang.String
+    import xml.parsing.ConstructingParser
+    import io.Source
+    import xml.{Node, Elem}
+
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
-    val response = scala.collection.JavaConversions.asScalaIterable(uploads).foldLeft(StoreResponse()){
-      (storeResponse, upload) => {
-        upload.getContentType match {
-          case "application/xml" => {
-            val data = xml.XML.load(upload.asStream())
-            val response: StoreResponse = DrupalEntity.processStoreRequest(data)((item, list) => DrupalEntity.insertInMongoAndIndex(item, list))
-            storeResponse.copy(
-              itemsParsed = storeResponse.itemsParsed + response.itemsParsed,
-              coRefsParsed = storeResponse.coRefsParsed + response.coRefsParsed
-            )
-          }
-          case _ => storeResponse
-        }
+    val body: String = params.get("body")
+    val uploadedXml: Option[Elem] =
+      if (uploads != null) Some(xml.XML.load(asScalaIterable(uploads).head.asStream()))
+      else if (body != null && !body.isEmpty) Some(xml.XML.loadString(body))
+      else None
+
+    val xmlResponse = try {
+      uploadedXml match {
+        case x: Some[Elem] =>
+          val response: StoreResponse = DrupalEntity.processStoreRequest(uploadedXml.get)((item, list) => DrupalEntity.insertInMongoAndIndex(item, list))
+          StoreResponse(response.itemsParsed, response.coRefsParsed)
+        case _ =>
+          StoreResponse(success = false, errorMessage = "Unable to receive the file from the POST")
       }
+    }
+    catch {
+      case ex: Exception =>
+        Logger.error(ex, "Problem with the posted xml file")
+        StoreResponse(success = false, errorMessage = "Unable to receive the xml-file from the POST")
     }
 
     val responseString =
-    <response recordsProcessed={response.itemsParsed.toString} linksProcessed={response.coRefsParsed.toString}>
-      <status>{if (response.success) "succcess" else "failure"}</status>
-      {if (!response.errorMessage.isEmpty) <error> {response.errorMessage}</error>}
+    <response recordsProcessed={xmlResponse.itemsParsed.toString} linksProcessed={xmlResponse.coRefsParsed.toString}>
+      <status>{if (xmlResponse.success) "succcess" else "failure"}</status>
+      {if (!xmlResponse.errorMessage.isEmpty) <error> {xmlResponse.errorMessage}</error>}
     </response>
-    new RenderXml(responseString.toString())
+    if (!xmlResponse.success) response.status = new Integer(404)
+    Xml(responseString.toString())
   }
 
   // todo implement this
   def sync(data: String): Result = {
-
     new RenderXml("<bla>rocks</bla>")
   }
 

@@ -214,7 +214,15 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
         <items>
           {result.getBriefDocs.map(item =>
           <item>
-          {item.getFieldValuesFiltered(false, Array("delving_pmhId","europeana:collectionName", "europeana:collectionTitle")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
+            <fields>
+              {item.getFieldValuesFiltered(false, Array()).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
+            </fields>
+          {if (item.getHighlights.isEmpty) <highlights/>
+           else
+            <highlights>
+              {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse) )}
+            </highlights>
+          }
           </item>
         )}
         </items>
@@ -238,7 +246,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
     def createJsonRecord(doc : BriefDocItem) : ListMap[String, Any]= {
       val recordMap = collection.mutable.ListMap[String, Any]();
-      doc.getFieldValuesFiltered(false, Array("delving_pmhId", "europeana:collectionName", "europeana:collectionTitle"))
+      doc.getFieldValuesFiltered(false, Array())
                               .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, SolrQueryService.encodeUrl(fv.getValueAsArray, fv.getKey, chResponse)))
       ListMap(recordMap.toSeq: _*)
     }
@@ -292,8 +300,10 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
                  xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace">
         <item>
-          {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, Array("delving_pmhId")).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
-          SolrQueryService.renderXMLFields(field, chResponse)}
+          <fields>
+            {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, Array[String]()).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
+            SolrQueryService.renderXMLFields(field, chResponse)}
+          </fields>
         </item>
       </result>
     response
@@ -305,7 +315,7 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
       implicit val formats = net.liftweb.json.DefaultFormats
 
       val recordMap = collection.mutable.ListMap[String, Any]()
-      fullResult.getFullDoc.getFieldValuesFiltered(false, Array("delving_pmhId","europeana:collectionName", "europeana:collectionTitle"))
+      fullResult.getFullDoc.getFieldValuesFiltered(false, Array("europeana:collectionName", "europeana:collectionTitle"))
                               .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, fv.getValueAsArray))
 
       val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
