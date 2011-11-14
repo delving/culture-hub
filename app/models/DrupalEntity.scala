@@ -41,12 +41,15 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   def toSolrDocument: SolrInputDocument = {
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
-    doc.setField("id", id.nodeId)
-    doc.setField("europeana_uri", id.nodeId)
-    doc.setField("europeana_collectionName", id.bundle)
-    doc.setField("europeana_provider", "ITIN")
-    doc.setField("delving_recordType", "itin")
-    doc.setField("delvingID", "itin:%s".format(_id))
+    doc setField("id", id.nodeId)
+    doc setField("drup_id_s", id.id)
+    doc setField ("drup_entityType_s", id.nodeType)
+    doc setField ("drup_bundle_s", id.bundle)
+    doc setField ("europeana_uri", id.nodeId)
+    doc setField ("europeana_collectionName", id.bundle)
+    doc setField ("europeana_provider", "ITIN")
+    doc setField ("delving_recordType", "drupal")
+    doc setField ("delving_pmhId", "drupal_%s".format(_id))
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{
@@ -65,7 +68,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   }
 }
 
-case class DrupalEntityId(nodeId: String,  nodeType: String,  bundle: String)
+case class DrupalEntityId(id: String, nodeId: String,  nodeType: String,  bundle: String)
 
 object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) with SolrServer {
 
@@ -82,7 +85,8 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     val id = attributes.getOrElse("id", "0")
     val entityType = attributes.getOrElse("entitytype", "0")
     val bundle = attributes.getOrElse("bundle", "0")
-    DrupalEntityId("%s/%s".format(entityType, id),
+    DrupalEntityId(id,
+      "%s/%s".format(entityType, id),
       entityType,
       bundle)
   }
