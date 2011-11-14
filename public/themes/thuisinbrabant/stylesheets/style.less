@@ -277,6 +277,58 @@ hr {
     margin-bottom: 20px;
 }
 
+/* media block in recent wrapper */
+
+.recent.object{
+    background-color: lighten(@color3, 10%);
+}
+.recent.collection{
+    background-color: lighten(@color2, 40%);
+}
+.recent.story{
+    background-color: lighten(@color4, 40%);
+}
+
+.recent h3 {
+    color: @color1;
+    text-transform:uppercase;
+    font-weight: normal;
+    background: @color2;
+    padding: 4px 10px;
+    margin: 0;
+}
+
+.recent .media p {
+    margin: 0;
+    padding: 0;
+}
+
+.recent .media .clip {
+    display: block;
+    height: 210px;
+    overflow: hidden;
+}
+
+.recent .clip img {
+    position:absolute;
+    clip:rect(0px,280px,200px,0px);
+}
+
+.recent .media .img {
+    clear: both;
+    float: none;
+
+}
+
+.recent .title {
+    display: block;
+}
+
+.recent .bd {
+    margin: 0 10px;
+    width: auto;
+}
+
 /* breadcrumbs */
 
 .breadcrumb {

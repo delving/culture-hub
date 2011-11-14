@@ -20,14 +20,9 @@
 
                     <div class="row">
                         <div class="g-1of2 alpha">
-                            <h5>&{'thing.name'}:</h5>
-                            <p>${collection.name}</p>
-
-                            <h5>&{'thing.owner'}:</h5>
-                            <p>${browsedFullName}</p>
-
-                            <h5>&{'thing.objectcount'}:</h5>
-                            <p>${objects.length()}</p>
+                            #{metadataField label: viewUtils.getKey('thing.name'), data: collection.name /}
+                             #{metadataField label: viewUtils.getKey('thing.owner'), data: browsedFullName /}
+                            #{metadataField label: viewUtils.getKey('thing.objectcount'), data: objects.length() /}
                         </div>
 
                         <div class="g-1of2 omega">

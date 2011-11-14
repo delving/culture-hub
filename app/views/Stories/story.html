@@ -18,17 +18,14 @@
                 #{thingToolbar type: 'story', owner: story.userName, id: story._id, b: browsedUserName/}
 
                 <div class="metadata">
-                    <h4>&{'thing.description'}</h4>
-                    <p>${story.description}</p>
 
-                    <h4>&{'thing.datecreated'}</h4>
-                    <p>${views.context.package.niceTime(story._id.getTime())}</p>
+                    #{metadataField label: viewUtils.getKey('thing.description'), data: story.description /}
+                    #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(story._id.getTime()) /}
+                    #{metadataField label: viewUtils.getKey('thing.datemodified'), data: views.context.package.niceTime(story.TS_update) /}
 
-                    <h4>&{'thing.datemodified'}</h4>
-                    <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
 
                     <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
-                    <h4>&{'story.pages'}:</h4>
+                    <h5>&{'story.pages'}:</h5>
                     <ul>
                         #{list story.pages, as: 'page'}
 
