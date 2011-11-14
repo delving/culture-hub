@@ -409,6 +409,7 @@ org.list.dataSetCount=%s DataSet(s)
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
 org.group.save=Save group
+org.group.create=Create group
 
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
@@ -470,6 +471,7 @@ registration.accountNotActive=This account is not active yet. Please activate yo
 registration.resetTokenNotFound=Reset password token not found
 registration.errorPasswordChange=Error changing your password. Try resetting it again.
 registration.passwordsDiffer=Passwords are not the same
+registration.userNameInvalid=This username is not valid. A username can only contain letters, numbers, - and _, and has to be between 3 and 15 characters long.
 
 authentication.usernameRequired=Username is required
 authentication.passwordRequired=Password is required

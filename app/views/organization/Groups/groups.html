@@ -1,3 +1,4 @@
+#{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.groups') /}
@@ -9,7 +10,7 @@
 <h1 class="sep">&{'thing.groups'}</h1>
 
 <div class="row">
-    <form action="" id="groupForm" style="visibility: hidden;">
+    <form action="" id="groupForm">
         <div class="6-12of12">
             #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
             <div class="field" data-bind="visible: canChangeGrantType">
@@ -62,8 +63,8 @@
 <script type="text/javascript">
     $(document).ready(function() {
         var groupModel = {};
-        load('/organizations/${orgId}/groups/load/${id.isEmpty() ? "" : id.get()}', groupModel, null, function() {
-            $('#groupForm').css('visibility', 'visible');
+        load(${data.raw()}, groupModel, null, function() {
+          $("body").css('visibility', 'visible');
         });
 
         $('#saveButton').click(function(event) {

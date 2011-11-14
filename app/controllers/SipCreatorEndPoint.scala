@@ -77,7 +77,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
   def getConnectedUserId = getConnectedUser._id
 
   def listAll(): Result = {
-    val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName)
+    val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName, GrantType.MODIFY)
 
     val dataSetsXml = <data-set-list>
       {dataSets.map {

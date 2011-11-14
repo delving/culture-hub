@@ -1,3 +1,4 @@
+#{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.collection.title.create', fullName) : viewUtils.getKey('user.collection.title.update', fullName) /}
 
@@ -62,12 +63,17 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
 
-        // load templates
+        var viewModel = { };
+
+        // load templates and data
         $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
           addTemplate('availableObjectsList', template);
-        });
-        $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
-          addTemplate('objectsList', template);
+          $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+            addTemplate('objectsList', template);
+            load(${data.raw()}, collectionModel, null, function() {
+              $("body").css('visibility', 'visible');
+            });
+          });
         });
 
         var collectionModel = {
@@ -98,9 +104,6 @@
             handleSubmit('/${userName}/collection/submit', collectionModel, '#collectionForm', '/${userName}/collection/');
         });
 
-        load('/${userName}/collection/load/${id.isEmpty() ? "" : id.get()}', collectionModel);
-
-        var viewModel = { };
 
         var annotation = function (name, type) {
             this.name = name;

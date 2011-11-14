@@ -1,3 +1,4 @@
+#{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.story.title.create', fullName) : viewUtils.getKey('user.story.title.update', fullName) /}
 
@@ -38,12 +39,9 @@
                     </div>
                 </div>
 
-                #{if id.isEmpty()}
-                <div class="buttons">
+                <div class="buttons" data-bind="visible: pages.length == 0">
                     #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
-
                 </div>
-                #{/if}
             </form>
         </div>
     </div>
@@ -169,14 +167,6 @@
 
     $(document).ready(function() {
 
-        // load templates
-        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
-            addTemplate('availableObjectsList', template);
-        });
-        $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
-            addTemplate('objectsList', template);
-        });
-
         var storyModel = {
             currentPage: {
                 lock: ko.observable(false),
@@ -210,7 +200,7 @@
                 storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "No collection"});
                 storyModel.currentPage.isNew(false);
                 storyModel.currentPage.pageRef(page),
-                        storyModel.currentPage.title(page.title());
+                storyModel.currentPage.title(page.title());
                 storyModel.currentPage.text(page.text());
                 storyModel.currentPage.objects(page.objects());
                 storyModel.currentPage.selectedCollection([]);
@@ -275,7 +265,19 @@
                 window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
             }
         };
-        load('/${userName}/story/load/${id.isEmpty() ? "" : id.get()}', storyModel);
+
+        // load templates and data
+        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
+            addTemplate('availableObjectsList', template);
+            $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+                addTemplate('objectsList', template);
+                load(${data.raw()}, storyModel, null, function() {
+                  $("body").css('visibility', 'visible');
+                });
+
+            });
+
+        });
 
         $('#objects-dialogue').dialog({
             autoOpen: false,

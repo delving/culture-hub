@@ -18,12 +18,24 @@ import components.Indexing
 
 object DataSetControl extends DelvingController with OrganizationSecured {
 
-  // TODO check rights for the accessed dataset
-  def dataSet(orgId: String, spec: String): Result = Template('spec -> Option(spec), 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  def dataSet(orgId: String, spec: String): Result = {
+    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
 
-  // TODO check rights for the accessed dataset
+    val data = if (dataSet == None)
+      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId))
+    else {
+      val dS = dataSet.get
+      if(DataSet.canEdit(dS, connectedUser)) {
+        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, visibility = dS.visibility.value))
+      } else {
+        return Forbidden("You are not allowed to edit DataSet %s".format(spec))
+      }
+    }
+
+    Template('spec -> Option(spec), 'isOwner -> Organization.isOwner(orgId, connectedUser), 'data -> data, 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+  }
+
   def dataSetSubmit(orgId: String, data: String): Result = {
-
     val dataSet = JJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
     val factsObject = new BasicDBObject(dataSet.facts)
@@ -48,11 +60,17 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       // TODO for update, add the operator that appends key-value pairs rather than setting all
       case Some(id) => {
         val existing = DataSet.findOneByID(id).get
+        if(!DataSet.canEdit(existing, connectedUser)) return Forbidden("You have no rights to edit this DataSet")
+
         val updatedDetails = existing.details.copy(facts = factsObject)
         val updated = existing.copy(spec = spec, details = updatedDetails, mappings = updateMappings(dataSet.recordDefinitions, existing.mappings), visibility = Visibility.get(dataSet.visibility))
         DataSet.save(updated)
         }
-      case None => DataSet.insert(
+      case None =>
+        // TODO for now only owners can do
+        if(!Organization.isOwner(orgId, connectedUser)) return Forbidden("You are not allowed to create a DataSet.")
+
+        DataSet.insert(
         DataSet(
           spec = dataSet.spec,
           orgId = orgId,
@@ -74,9 +92,6 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def index(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
-      // TODO
-      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
           if(theme.metadataPrefix != None && dataSet.mappings.containsKey(theme.metadataPrefix.get)) {
@@ -94,9 +109,6 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def reIndex(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
-      // TODO
-      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
       dataSet.state match {
         case ENABLED =>
           DataSet.addIndexingMapping(dataSet, theme.metadataPrefix.get)
@@ -137,10 +149,6 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def disable(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
-
-      // TODO
-      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
       dataSet.state match {
         case QUEUED | INDEXING | ERROR | ENABLED =>
           val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
@@ -153,10 +161,6 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def enable(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
-
-      // TODO
-      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
       dataSet.state match {
         case DISABLED =>
           DataSet.changeState(dataSet, DataSetState.ENABLED)
@@ -168,10 +172,6 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def delete(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
-
-      // TODO
-      // if(!DataSet.canUpdate(dataSet.spec, user)) { throw new UnauthorizedException(UNAUTHORIZED_UPDATE) }
-
       dataSet.state match {
         case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
           DataSet.delete(dataSet)
@@ -183,6 +183,8 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
   def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
+    // TODO for now only owners can do
+    if(!Organization.isOwner(orgId, connectedUser)) return Forbidden
     operation(dataSet)
   }
 }

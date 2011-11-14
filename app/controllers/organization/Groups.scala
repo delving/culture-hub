@@ -20,22 +20,21 @@ object Groups extends DelvingController with OrganizationSecured {
 
   def list(orgId: String): Result = {
     val groups = Group.list(connectedUser, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
-    Template('groups -> groups, 'isOwner -> Organization.isOwner(connectedUser))
+    Template('groups -> groups, 'isOwner -> Organization.isOwner(orgId, connectedUser))
   }
 
-  def load(orgId: String, groupId: ObjectId): Result = {
-    if(groupId != null && !canUpdateGroup(groupId) || groupId == null && !canCreateGroup) return Forbidden(&("user.secured.noAccess"))
+  private def load(orgId: String, groupId: ObjectId): String = {
     groupId match {
-      case null => Json(GroupViewModel())
+      case null => JJson.generate(GroupViewModel())
       case id: ObjectId => Group.findOneByID(id) match {
-        case None => NotFound("Could not find group with ID %s".format(id))
-        case Some(group) => Json(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType.value, canChangeGrantType = group.grantType.value != 42))
+        case None => ""
+        case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType.value, canChangeGrantType = group.grantType.value != 42))
       }
     }
   }
 
-  def groups(groupId: ObjectId): Result = {
-    if(groupId != null && !canUpdateGroup(groupId) || groupId == null && !canCreateGroup) return Forbidden(&("user.secured.noAccess"))
+  def groups(orgId: String, groupId: ObjectId): Result = {
+    if(groupId != null && !canUpdateGroup(orgId, groupId) || groupId == null && !canCreateGroup(orgId)) return Forbidden(&("user.secured.noAccess"))
     val (usersAsTokens, dataSetsAsTokens) = Group.findOneByID(groupId) match {
       case None => (JJson.generate(List()), JJson.generate(List()))
       case Some(group) =>
@@ -43,7 +42,7 @@ object Groups extends DelvingController with OrganizationSecured {
         (JJson.generate(group.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
-    Template('id -> Option(groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
+    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
   }
 
   def addUser(orgId: String, id: String, groupId: ObjectId): Result = {
@@ -73,7 +72,7 @@ object Groups extends DelvingController with OrganizationSecured {
   }
 
   private def elementAction(orgId: String, id: String, groupId: ObjectId, messageKey: String)(op: (String, ObjectId) => Boolean): Result = {
-    if(!canUpdateGroup(groupId)) return Forbidden(&("user.secured.noAccess"))
+    if(!canUpdateGroup(orgId, groupId)) return Forbidden(&("user.secured.noAccess"))
     if(id == null || groupId == null) return BadRequest
     op(id, groupId) match {
       case true => Ok
@@ -83,7 +82,7 @@ object Groups extends DelvingController with OrganizationSecured {
   }
 
   def update(orgId: String, groupId: ObjectId, data: String): Result = {
-    if(groupId != null && !canUpdateGroup(groupId) || groupId == null && !canCreateGroup) return Forbidden(&("user.secured.noAccess"))
+    if(groupId != null && !canUpdateGroup(orgId, groupId) || groupId == null && !canCreateGroup(orgId)) return Forbidden(&("user.secured.noAccess"))
 
     val groupModel = JJson.parse[GroupViewModel](data)
     validate(groupModel).foreach { errors => return JsonBadRequest(groupModel.copy(errors = errors)) }
@@ -103,8 +102,12 @@ object Groups extends DelvingController with OrganizationSecured {
             Some(groupModel.copy(id = Some(id)))
         }
       case Some(id) =>
-        Group.updateGroupInfo(id, groupModel.name, groupModel.grantType)
-        Some(groupModel)
+        Group.findOneByID(groupModel.id.get) match {
+          case None => return NotFound("Group with ID %s was not found".format(id))
+          case Some(g) =>
+            Group.updateGroupInfo(id, groupModel.name, if(g.grantType == GrantType.OWN) GrantType.OWN.value else groupModel.grantType)
+            Some(groupModel)
+        }
     }
 
     persisted match {
@@ -115,11 +118,11 @@ object Groups extends DelvingController with OrganizationSecured {
   }
 
 
-  @Util private def canUpdateGroup(groupId: ObjectId): Boolean = {
-    groupId != null && Organization.isOwner(connectedUser)
+  @Util private def canUpdateGroup(orgId: String, groupId: ObjectId): Boolean = {
+    groupId != null && Organization.isOwner(orgId, connectedUser)
   }
 
-  @Util private def canCreateGroup: Boolean = Organization.isOwner(connectedUser)
+  @Util private def canCreateGroup(orgId: String): Boolean = Organization.isOwner(orgId, connectedUser)
 
 }
 

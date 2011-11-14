@@ -17,7 +17,7 @@ object Organizations extends DelvingController {
       case Some(org) => Organization.findByOrgId(org) match {
         case Some(o) =>
           val members: List[ListItem] = User.find("userName" $in o.users).toList
-          val dataSets: List[ShortDataSet] = DataSet.findAllByOrgId(org).filter(ds => ds.visibility == Visibility.PUBLIC || (ds.visibility == Visibility.PRIVATE && session.get(AccessControl.ORGANIZATIONS) != null && session.get(AccessControl.ORGANIZATIONS).split(",").contains(org))).toList
+          val dataSets: List[ShortDataSet] = DataSet.findAllCanSee(org, connectedUser).filter(ds => ds.visibility == Visibility.PUBLIC || (ds.visibility == Visibility.PRIVATE && session.get(AccessControl.ORGANIZATIONS) != null && session.get(AccessControl.ORGANIZATIONS).split(",").contains(org))).toList
           Template('orgId -> o.orgId, 'orgName -> o.name.get(Lang.get()).getOrElse(o.name("en")), 'memberSince -> o.userMembership.get(connectedUser), 'members -> members, 'dataSets -> dataSets)
         case None => NotFound(&("organizations.organization.orgNotFound", org))
       }

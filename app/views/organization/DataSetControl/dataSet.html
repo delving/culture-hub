@@ -1,3 +1,4 @@
+#{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('organization.dataset.create') /}
 #{set bodyId: 'dataset-create'/}
@@ -8,7 +9,7 @@ orgId: orgId,
 active:"datasets",
 extraButtons: [
     [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green"]
+    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
 ] /}
 
 <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
@@ -66,6 +67,8 @@ extraButtons: [
             });
         });
 
-        load('/organizations/${orgId}/dataset/load/${spec.isEmpty() ? "" : spec.get()}', dataSetModel);
+        load(${data.raw()}, dataSetModel, null, function() {
+          $("body").css('visibility', 'visible');
+        });
     });
 </script>
