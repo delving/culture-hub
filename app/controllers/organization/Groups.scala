@@ -102,8 +102,12 @@ object Groups extends DelvingController with OrganizationSecured {
             Some(groupModel.copy(id = Some(id)))
         }
       case Some(id) =>
-        Group.updateGroupInfo(id, groupModel.name, if(groupModel.grantType == GrantType.OWN) GrantType.OWN.value else groupModel.grantType)
-        Some(groupModel)
+        Group.findOneByID(groupModel.id.get) match {
+          case None => return NotFound("Group with ID %s was not found".format(id))
+          case Some(g) =>
+            Group.updateGroupInfo(id, groupModel.name, if(g.grantType == GrantType.OWN) GrantType.OWN.value else groupModel.grantType)
+            Some(groupModel)
+        }
     }
 
     persisted match {
