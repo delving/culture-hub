@@ -7,7 +7,7 @@
 <h1 class="sep">&{'user.list.browse'} (${count})</h1>
 
 <div class="g-12of12">
-    #{if items.length() > 0}
+    #{if items.length() > views.context.package.PAGE_SIZE()}
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
     #{else}
@@ -65,7 +65,7 @@
 
 #{/list}
 
-#{if items.length() > 6}
+#{if items.length() > views.context.package.PAGE_SIZE()}
 <div class="row">
 <div class="g-12of12 mtm">
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>

@@ -137,6 +137,7 @@ ui.message.activation.error=Error activating your account.
 ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
 ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
+ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
 
 # User navigation
 

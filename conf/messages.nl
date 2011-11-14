@@ -118,6 +118,7 @@ thing.collaborators=Collaborators
 thing.createnew=Maak een nieuw %s aan
 thing.browse=Browse %s
 thing.browse.ownedby=Browse %s van gebruiker
+thing.confirmation:Zeker weten?
 
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar %s om het account te activeren
@@ -127,6 +128,7 @@ ui.message.activation.error=Er is een fout opgetreded met het activeren van uw a
 ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met een link om uw wachtwoord opnieuw aan te maken
 ui.message.resetpassword.success=Uw wachtwoord is aangepast
 ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
+ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
 
 # User navigation
 
@@ -194,6 +196,14 @@ home.recentstories=Recente verhalen
 authentication.label.forgotpassword=Ik ben mijn wachtwoord vergeten
 authentication.label.rememberme=Herinner mij
 
+
+
+##DObjects
+dobject.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
+
+##Collections
+collection.confirmDeletion=Weet u zeker dat u deze collectie wilt verwijderen?
+
 ##DataSets
 dataset.index=Indexeren
 dataset.reindex=Opnieuw indexeren
@@ -235,6 +245,7 @@ story.pages=Pagina's
 story.nextpage=Volgende pagina
 story.read=Lees verhaal
 story.previouspage=Vorige pagina
+story.confirmDeletion=Weet u zeker dat u dit verhaal wilt verwijderen?
 
 #metadata
 metadata.dc.contributor=Met bijdrage(n) van
