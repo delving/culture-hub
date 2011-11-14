@@ -300,7 +300,7 @@ case class SolrDocId(solrDocument : SolrResultDocument) {
   def getEuropeanaUri : String = solrDocument.getFirst("europeana_uri")
 }
 
-case class BriefDocItem(solrDocument : SolrResultDocument) {
+case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors  {
 
     override protected def assign(key: String) = solrDocument.getFirst(key)
 
@@ -311,6 +311,8 @@ case class BriefDocItem(solrDocument : SolrResultDocument) {
     def getFieldValueList : List[FieldValue] = solrDocument.getFieldValueList
 
     def getAsString(key: String) : String = assign(key)
+
+    def getHighlights: List[FieldValue] = solrDocument.getHighLightsAsFieldValueList
 
     var index : Int = _
     var fullDocUrl: String = _
