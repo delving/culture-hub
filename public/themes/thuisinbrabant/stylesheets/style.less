@@ -2,6 +2,7 @@
 @color2: #D6470F;
 @color3:#7DC7E6;
 @color4: #034D8F;
+@color5: #737373;
 
 body {
     background-color: @color3;
@@ -25,7 +26,7 @@ a:link {
 }
 
 a:visited {
-    color: darken(@color2, 50%);
+    color: @color5;
 }
 
 h1, .h1 {
@@ -96,7 +97,7 @@ li
 }
 
 hr {
-   border-color: @color3;
+   border-color: lighten(@color3, 20%);
 }
 
 .container {
