@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <title>Not found</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/error-pages.css'}" type="text/css" media="all" />
+    <title>404</title>
 </head>
 <body>
 <!-- UNEXPECTED -->
+
 #{if play.mode.name() == 'DEV'}
 #{404 result /}
 #{/if}
 #{else}
-<h1>Not found</h1>
 
-<p>
-    ${result.message}
-</p>
+<div class="container">
+    <h1 class="error-code">404</h1>
+    <h2 class="error-message">Page not found!</h2>
+    <img src="/public/themes/common/images/error-404.jpg" width="300" />
+    <p>${result.message}</p>
+    <div class="options">
+        <a href="/">${views.context.package.themeDisplayName()}</a>
+    </div>
+</div>
+
 #{/else}
 </body>
 </html>

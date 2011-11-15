@@ -5,46 +5,25 @@
 <h1 class="sep">${story.name}</h1>
 <div class="row">
     <div class="g-12of12">
-        <div class="media ${itemName}">
+        <div class="media record">
             <img src='${views.context.package.thumbnailUrl(story.thumbnail_id)}' width="250" alt="${story.name}" class="img"/>
-            #{if story.userName == userName}
-            <a class="button clear" href="/${story.userName}/story/${story._id}/update">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.edit', viewUtils.getKey('thing.story'))}</span>
-            </a>
-            <a class="button clear" id="remove">
-                <span class="icon icon145"></span>
-                <span class="label">${viewUtils.getKey('ui.label.remove', viewUtils.getKey('thing.story'))}</span>
-            </a>
-            <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'story.confirmDeletion'}</p></div>
-            <script type="text/javascript">
-              $(document).ready(function() {
-                remove('#remove', '#removeConfirmation', '/${story.userName}/story/${story._id}/remove', '/${story.userName}/story');
-              });
-            </script>
-            #{/if}
-
+            *{
             <a class="button clear" href="/${story.userName}/story/${story._id}/read">
                 <span class="icon icon140"></span>
                 <span class="label">&{'story.read'}</span>
             </a>
-
+            }*
             <div class="bd">
-
-                #{thingToolbar type: 'story', owner: story.userName, id: story._id, b: browsedUserName/}
-
+                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story"/}
                 <div class="metadata">
-                    <h4>&{'thing.description'}</h4>
-                    <p>${story.description}</p>
 
-                    <h4>&{'thing.datecreated'}</h4>
-                    <p>${views.context.package.niceTime(story._id.getTime())}</p>
+                    #{metadataField label: viewUtils.getKey('thing.description'), data: story.description /}
+                    #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(story._id.getTime()) /}
+                    #{metadataField label: viewUtils.getKey('thing.datemodified'), data: views.context.package.niceTime(story.TS_update) /}
 
-                    <h4>&{'thing.datemodified'}</h4>
-                    <p>Last updated: ${views.context.package.niceTime(story.TS_update)}</p>
 
                     <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
-                    <h4>&{'story.pages'}:</h4>
+                    <h5>&{'story.pages'}:</h5>
                     <ul>
                         #{list story.pages, as: 'page'}
 

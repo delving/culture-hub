@@ -15,7 +15,9 @@
             #{else}
 
             <div class="buttons">
-                <!--Hi ${fullName}-->
+                 <div class="user-name">
+                     &{'ui.label.hi'} ${fullName}
+                </div>
                 <div class="dropdown">
 
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}

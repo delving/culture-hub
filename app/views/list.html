@@ -10,16 +10,18 @@
 #{else}
 <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
-#{if items.length() > 0}
+<div class="row">
 <div class="g-12of12 mbm">
+#{if items.length() > views.context.package.PAGE_SIZE()}
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
-</div>
 #{/if}
-#{else}
-<p>There are currently no ${itemName.pluralize()} available</p>
-#{/else}
-
-
+#{elseif items.length() == 0}
+<p>
+    &{'ui.message.nothingFound'}
+</p>
+#{/elseif}
+</div>
+</div>
 
 %{ def counter = 1 }%
 
@@ -29,7 +31,7 @@
 <div class="row">
     #{/if}
 
-    <div class="g-4of12">
+    <div class="g-4of12 #{if i.isPrivate}private#{/if}">
         <div class="mod">
             <div class="media ${itemName}">
 
@@ -50,7 +52,14 @@
                         </div>
                         #{/if}
 
-                        #{if i.isPrivate}This object is only visible to you. Eric could you style this somehow please? (different bg color or so)#{/if}
+                        #{if i.isPrivate}
+                        <div class="private">
+                            <span>
+                            This object is visible only to you. If you want others to find and see it you can change it's
+                            <a href="/${i.userName}/${itemName}/${i.id}/update">visibility status</a> to "visible".
+                            </span>
+                        </div>
+                        #{/if}
 
                     </div>
                 </div>
@@ -68,7 +77,7 @@
 
 #{/list}
 
-#{if items.length() > 0}
+#{if items.length() > views.context.package.PAGE_SIZE()}
 <div class="row">
 <div class="g-12of12 mtm">
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>

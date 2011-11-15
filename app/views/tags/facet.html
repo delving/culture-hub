@@ -1,4 +1,7 @@
 #{list _facetMap, as: 'facet'}
+
+#{if facet.getLinks().length() > 0 }
+
 #{if facet.getType() == _type}
 <h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">
     #{if _typeKey}
@@ -24,6 +27,10 @@
     #{/list}
 </div>
 #{/if}
+
+#{/if}
 #{/list}
+
+
 
 
