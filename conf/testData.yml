@@ -6,6 +6,7 @@
     email:          bob@gmail.com
     password:       secret
     isActive:       true
+    isHubAdmin:     true
 
 - !!models.User
     _id:            4e5679a80364ae80333ab93a
