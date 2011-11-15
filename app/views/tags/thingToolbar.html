@@ -1,7 +1,9 @@
 <div class="toolbar">
     <div class="buttons">
+        *{<!-- leave out until functional -->
         #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
         #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
+        }*
         <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
             #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
             #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
@@ -12,7 +14,8 @@
         TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not
         the 'owner of the object? ...
         }*
-        #{if _owner == _b}
+
+        #{if _owner == _currentUser}
            #{if _owner && _id}
             #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get('dobject.confirmDeletion')}</p></div>
@@ -21,8 +24,6 @@
                     remove('#remove', '#removeConfirmation', '/${_owner}/${_type}/${_id}/remove', '/${_owner}/${_type}');
                 });
             </script>
-
-
             #{/if}
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
         #{/if}
@@ -30,7 +31,7 @@
 
     </div>
 </div>
-
+*{  <!-- leave out until functional -->
 <div id="add-label-dialog" title="${messages.get('ui.label.addcomment')}">
     <form action="#" method="GET" class="box">
     <div class="field">
@@ -56,6 +57,7 @@
     </div>
     </form>
 </div>
+}*
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
 <script>
 $(function () {
@@ -63,6 +65,7 @@ $(function () {
         ui_use_css: true,
         ui_language: "nl"
     };
+    *{ //leave out until functional
     $("#addLabel").click(function () {
         if ($("#add-comment.dialog")) {
            $("#addComment").removeClass("on");
@@ -79,6 +82,7 @@ $(function () {
         $("#add-comment-dialog").toggle("slow");
         $(this).toggleClass("on");
     });
+    }*
 });
 
 </script>

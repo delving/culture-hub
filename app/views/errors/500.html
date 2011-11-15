@@ -2,23 +2,38 @@
 
 <html>
 <head>
-    <title>Application error</title>
+    <title>500</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="@{'/public/themes/common/stylesheets/error-pages.css'}" type="text/css" media="all" />
+    <title>404</title>
 </head>
 <body>
 <!-- UNEXPECTED -->
+
 #{if play.mode.name() == 'DEV'}
 #{500 exception /}
 #{/if}
 #{else}
-<h1>Holy cow, an error occured</h1>
 
-<p>We are dispatching a team of highly trained mathematicians to analyze the issue.</p>
+
+<div class="container fivehundred">
+    <h1 class="error-code">500</h1>
+    <h2 class="error-message">Holy cow, an error occured!</h2>
+    <img src="/public/themes/common/images/error-500-1.jpg" width="300" />
+    <img src="/public/themes/common/images/error-500-2.jpg" width="300" />
+    <p>We are dispatching a team of highly trained mathematicians to analyze the issue.</p>
+    <div class="options">
+        <a href="/">${views.context.package.themeDisplayName()}</a>
+    </div>
+</div>
+
 #{if exception instanceof play.exceptions.PlayException}
 <p>
     This exception has been logged with id <strong>${exception.id}</strong>.
 </p>
+
 #{/if}
 #{/else}
+
 </body>
 </html>

@@ -5,7 +5,7 @@
 #{breadcrumbs /}
 
 #{if memberSince.isDefined()}
-    #{organizationNavBar orgId: orgId /}
+    #{organizationNavBar orgId: orgId, isOwner: isOwner, test: "gumbie" /}
 #{/if}
 
 <h1 class="sep">${orgName}</h1>

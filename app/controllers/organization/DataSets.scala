@@ -17,7 +17,7 @@ object DataSets extends DelvingController with OrganizationSecured {
   def list(orgId: String, page: Int = 1): Result = {
     val dataSetsPage = DataSet.findAllCanSee(orgId, connectedUser).page(page)
     val items: List[ShortDataSet] = dataSetsPage._1
-    Template('title -> listPageTitle("dataset"), 'items -> items, 'page -> page, 'count -> dataSetsPage._2, 'isOwner -> Organization.isOwner(orgId, connectedUser))
+    Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'page -> page, 'count -> dataSetsPage._2, 'isOwner -> Organization.isOwner(orgId, connectedUser))
   }
 
   def dataSet(orgId: String, spec: String): Result = {

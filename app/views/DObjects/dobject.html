@@ -16,25 +16,19 @@
 
 
             <div class="bd">
-
-                #{thingToolbar owner: dobject.userName, id: dobject._id, b: browsedUserName, type:"object"/}
+                #{thingToolbar owner: dobject.userName, id: dobject._id, currentUser: userName, type:"object"/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>
-
+                    <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">
-                            <h5>&{'thing.name'}:</h5>
-                            <p>${dobject.name}</p>
-
-                            <h5>&{'thing.owner'}:</h5>
-                            <p>${dobject.userName}</p>
+                            #{metadataField label: viewUtils.getKey('thing.name'), data: dobject.name /}
+                            #{metadataField label: viewUtils.getKey('thing.owner'), data: dobject.userName /}
                         </div>
 
                         <div class="g-1of2 omega">
-                            <h5>&{'thing.datecreated'}:</h5>
-                            <p>${views.context.package.niceTime(dobject._id.getTime())}</p>
-
+                            #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(dobject._id.getTime()) /}
                             <h5>&{'thing.labels'}:</h5>
                             <p class="labels">
                                 #{list labels, as: 'l'}
