@@ -35,11 +35,8 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
                 <tfoot>
                 <tr>
                     <td colspan="4">
-                        #{if items.length() > 0}
-                        <div id="pager" class="mtm">#{pagination selector: "#pager", count: count, start: page /}</div>
-                        #{/}
-                        #{else}
-                        <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
+                        #{ifnot items.length() > 0}
+                        ${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}
                         #{/}
                     </td>
                 </tr>
