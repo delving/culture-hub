@@ -73,10 +73,10 @@ trait Logging extends UserAuthentication { self: Controller =>
   // ~~~ Logger wrappers, with more context
 
   def info(message: String, args: String*) {
-    Logger.warn(withContext(message), args)
+    Logger.info(withContext(message), args)
   }
   def info(e: Throwable, message: String, args: String*) {
-    Logger.warn(e, withContext(message), args)
+    Logger.info(e, withContext(message), args)
   }
   def warning(message: String, args: String*) {
     Logger.warn(withContext(message), args)
