@@ -139,7 +139,7 @@ h6, .h6 {
 h1.sep {
     border-bottom: 4px solid lighten(@color-2, 40%);
     margin: 10px;
-    padding: 0 10px;
+    /*padding: 0 10px;*/
 }
 
 /* LAYOUT **********************************************************************************************************/
@@ -474,7 +474,7 @@ body#home  {
 /* breadcrumb.css overrides */
 
 .breadcrumb {
-    background-color: lighten(@color-2, 30%);
+//    background-color: lighten(@color-2, 30%);
     /*border-bottom: 1px solid #ccc;*/
     height: 40px;
     line-height: 40px;
@@ -541,8 +541,12 @@ body#home  {
 
 /* FORMS ************************************************************************************/
 /* form-elements.css overrides */
+form {
+    background: lighten(@color-2, 45%);
+    padding: 10px 0;
+}
 form h3 {
-background-color: lighten(@color-3, 10%);
+background-color: lighten(@color-3, 20%);
 }
 
 /* BUTTONS ************************************************************************************/

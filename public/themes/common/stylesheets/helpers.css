@@ -56,17 +56,19 @@ strong {
 }
 
 /* button addition class */
-
-
-.button.prominent {
+.button.prominent,
+button.prominent {
+    line-height: 30px;
+    height: 31px;
     width: 98%;
     clear: both;
     text-align: center;
+    padding: 8px 6px 35px 6px;
 }
 
-.button.prominent .label {
+.button.prominent .label,
+button.prominent .label {
     float: none;
-    margin:  0 auto;
 }
 
 button[disabled],
