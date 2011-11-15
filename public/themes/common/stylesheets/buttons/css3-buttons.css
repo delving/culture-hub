@@ -366,7 +366,7 @@ button.red:active .label,
 .ddm span.icon, 
 button span.icon, 
 .button span.icon {
-	background-image: url(button-icons-gray.png);
+	background-image: url(/public/themes/common/stylesheets/buttons/button-icons-gray.png);
 	
 	display: inline-block;
 	margin: 0 7px;
@@ -392,7 +392,7 @@ button:hover span.icon,
 .button:hover span.icon,
 button.on span.icon,
 .button.on span.icon{
-	background-image: url(button-icons-color.png);
+	background-image: url(/public/themes/common/stylesheets/buttons/button-icons-color.png);
 }
 
 
