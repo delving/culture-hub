@@ -32,24 +32,24 @@
 
 @primary-branding-height: 60px;
 @primary-branding-left: 5px;
-@primary-branding-top: 2px;
+@primary-branding-top: 90px;
 
 @secondary-branding-top: 52px;
 @secondary-branding-height: 25px;
 
-@user-nav-top: 0px;
+@user-nav-top: 90px;
 @user-nav-height: 30px;
 
 @main-nav-top: 50px;
 @main-nav-height: 30px;
 
 @header-top: 85px;
-@header-height: 50px;
+@header-height: 100px;
 @header-home-height: 420px;
 
 @search-height: 40px;
 @search-right: 10px;
-@search-top: @header-top + 8px;
+@search-top: @header-top + 55px;
 @search-home-top: @user-nav-height + @header-home-height + 4px;
 
 @main-top: @header-height + @crumbs-height + @user-nav-height;
@@ -132,7 +132,7 @@ h6, .h6 {
 /* STYLES ********************************************************************************************/
 
 body {
-    background: #fff url(../images/body-bgs.gif) center top repeat-y;
+    background: #fff url(../images/body-bg.gif) center top repeat-y;
     color: @color-2;
     font-family: arial, helvetica, sans;
     font-size: @fsize-1;
@@ -230,11 +230,12 @@ h1.sep {
 
 
 #user-nav{
-    background: @color-2;
-    color: @color-1;
+    background: @color-1;
+    background: transparent;
+    color: #fff;
     position: relative;
     top: @user-nav-top;
-    right: 0px;
+    right: 6px;
     z-index: 11;
     height: 40px;
     line-height: 40px;
@@ -295,7 +296,7 @@ h1.sep {
 /* HEADER ***********************************************************************************/
 
 #header {
-    background: @color-2;
+    background: @color-2 url(../images/nassau-header-1.jpg);
     position: @position;
     top: @header-top;
     height: @header-height;
@@ -585,8 +586,12 @@ fieldset {
 
 /* media block in recent wrapper */
 
-.mod.recent .inner{
-    /*background-color: #fff;*/
+.mod.recent{
+    background-color: #c1c1c1;
+}
+
+.recent .media {
+    margin: 10px;
 }
 
 .recent h3 {
