@@ -1,0 +1,631 @@
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-light-webfont.eot');
+    src: url('fonts/chevinstd-light-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-light-webfont.woff') format('woff'),
+         url('fonts/chevinstd-light-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-light-webfont.svg#webfontAMscb632') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-bold-webfont.eot');
+    src: url('fonts/chevinstd-bold-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-bold-webfont.woff') format('woff'),
+         url('fonts/chevinstd-bold-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-bold-webfont.svg#webfontI4Pr0yzS') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Chevin';
+    src: url('fonts/chevinstd-lightitalic-webfont.eot');
+    src: url('fonts/chevinstd-lightitalic-webfont.eot?iefix') format('eot'),
+         url('fonts/chevinstd-lightitalic-webfont.woff') format('woff'),
+         url('fonts/chevinstd-lightitalic-webfont.ttf') format('truetype'),
+         url('fonts/chevinstd-lightitalic-webfont.svg#webfontQakXPFlZ') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* less declarations */
+
+/*colors */
+
+$color-1: #555;
+$color-2: #97B851;
+$color-3: #A94A82;
+$color-4: #4470CF;
+$color-5: #26a2fe;
+$color-7: #fff;
+
+/* font-family */
+
+$ffam-1: Arial, Helvetica, Verdana, sans;
+$ffam-2: Chevin, Calibri, Arial, Helvetica, sans;
+
+
+/* font-sizes */
+
+$fsize-1: 14px;
+$fsize-2: 18px;
+$fsize-3: 22px;
+$fsize-4: 44px;
+$fsize-5: 72px;
+
+$radius: 2px;
+
+@mixin border-all ($radius) {
+  border-radius: $radius;
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+}
+
+@mixin border-top ($radius) {
+  border-radius: $radius $radius 0 0;
+  -moz-border-radius: $radius $radius 0 0;
+  -webkit-border-radius: $radius $radius 0 0;
+}
+
+@mixin border-bot ($radius) {
+  border-radius: 0 0 $radius $radius;
+  -moz-border-radius: 0 0 $radius $radius;
+  -webkit-border-radius: 0 0 $radius $radius;
+}
+
+/* BASE ***********************************************************************************************************/
+body {
+    background: #fff url(../images/body-bg.png) repeat-x top left;
+    font-family: $ffam-1;
+    font-size: $fsize-1;
+        line-height: 1.5;
+}
+a { color: $color-3; }
+a:visited {color: darken($color-3, 10%);}
+a:hover {color: $color-3;}
+
+h1, h2, h3 {
+    font-family: $ffam-2;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+h1, .h1 {
+    color: $color-1;
+    font-size: 196%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h2, .h2 {
+    color: $color-1;
+    font-size: 167%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h3, .h3 {
+    color: $color-1;
+    font-size: 146.5%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h4, .h4 {
+    color: $color-1;
+    font-size: 123.1%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h5, .h5 {
+    color: $color-1;
+    font-size: 108%;
+    font-weight: bold;
+    font-style: normal;
+}
+
+h6, .h6 {
+    color: $color-1;
+    font-size: 108%;
+    font-weight: normal;
+    font-style: italic;
+}
+
+h1.sep {
+    border-bottom: 4px solid lighten($color-2, 40%);
+    margin: 10px;
+    /*padding: 0 10px;*/
+}
+
+p {
+    line-height: 20px;
+    margin-bottom: 10px;
+}
+
+ul, ol {
+    margin: 10px 0;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+li
+{
+	margin-left: 20px;
+}
+
+/* LAYOUT **********************************************************************************************************/
+
+body#home  {
+    background: #fff url(../images/body-bg-home.png) repeat-x top left;
+}
+
+
+
+.container {
+    margin: 0 auto;
+    width: 960px;
+    position: relative;
+}
+
+/* USER-NAV **********************************************************************************************************/
+
+.user-nav {
+    background: $color-2;
+    /*@include  border-top(4px);*/
+    /*float: right;*/
+    height: 40px;
+    line-height: 40px;
+    position: absolute;
+    top: 34px;
+    right: 0px;
+    z-index: 12;
+    padding: 2px 5px 2px 10px;
+}
+
+.user-nav .content {
+    /*padding:10px;*/
+}
+
+.user-name {
+    color: $color-1;
+    font-weight: bold;
+    padding: 5px 0px;
+    position: absolute;
+    top: 5px;
+    right: 0px;
+    z-index: 14
+}
+/* SITE NAME **********************************************************************************************************/
+
+#site-name {
+    color: $color-2;
+    font-family: $ffam-2;
+    font-size: $fsize-4;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    margin: 0;
+}
+
+/* PRIMARY BRANDING **********************************************************************************************************/
+
+#primary-branding {
+    display: none;
+}
+
+/* SECONDARY BRANDING **********************************************************************************************************/
+
+#secondary-branding {
+    position: absolute;
+    top: 33px;
+    left: 320px;
+}
+
+/* SITE NAV **********************************************************************************************************/
+
+#site-nav {
+    height: 68px;
+    position: absolute;
+    top: 82px;
+    left: 10px;
+    z-index: 11;
+}
+#site-nav ul {
+    margin: 0px;
+    padding: 0px;
+}
+#site-nav ul li {
+    display: inline-block;
+    margin: 0 30px 0 0;
+    /*padding: 0 20px;*/
+    height: 75px;
+    line-height: 50px;
+}
+
+#site-nav ul li.current,
+#site-nav ul li:hover {
+    background: transparent url(../images/site-nav-bg-active.png) no-repeat bottom center;
+    cursor: pointer;
+}
+
+#site-nav a {
+    display: block;
+    color: $color-7;
+    font-family: $ffam-2;
+    font-size: $fsize-2;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    height: 100%;
+    width: 100%;
+}
+
+/* SITE SLOGAN **********************************************************************************************************/
+
+#site-slogan {
+    display: none;
+}
+
+#home #site-slogan {
+    color: $color-7;
+    display: block;
+    font-family: $ffam-2;
+    font-weight: bold;
+    font-size: $fsize-5;
+    line-height: $fsize-5;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 280px;
+    width: 100%;
+    z-index: 10;
+}
+
+/* HEADER **********************************************************************************************************/
+
+.header {
+    height: 160px;
+}
+
+#home .header {
+    height: 570px;
+    position: relative;
+}
+
+
+.header-bg {
+    position: absolute;
+    top: 142px;
+    left: 0px;
+    z-index: 9;
+    background: transparent url(../images/header-bg-2.jpg) repeat-x top left;
+    opacity: .7;
+    width: 100%;
+    height: 414px;
+
+
+}
+
+/* MAIN **********************************************************************************************************/
+.main {
+    width: 960px;
+    margin-top: 0px;
+}
+
+#home .main {
+    /*top: 495px;*/
+    /*margin-top: 110px;*/
+}
+
+
+/* SEARCH **********************************************************************************************************/
+
+#search {
+    position: relative;
+    top: 80px;
+    right: 10px;
+    text-align: right;
+    z-index: 10;
+}
+
+#search form {
+    background: transparent;
+}
+
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    /*border: medium none;*/
+    border: 1px solid #d1d1d1;
+    @include  border-all($radius);
+    padding: 8px;
+    width: 280px;
+}
+
+#search input[type="submit"]  {
+    background: none repeat scroll 0 0 $color-3;
+    /*border: medium none;*/
+    border:  1px solid $color-2;
+    @include border-all($radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: $ffam-2;
+    font-size: $fsize-1;
+    font-weight: bold;
+    margin-left: 4px;
+    padding: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    text-transform: uppercase;
+    width: 80px;
+}
+
+#search input {
+    /*font-weight: bold;*/
+    vertical-align: top;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+}
+
+
+
+/* FOOTER **********************************************************************************************************/
+
+.footer {
+    border-top: 4px solid lighten($color-2, 40%);
+    display: relative;
+    margin-top: 40px;
+}
+
+.footer .content {
+    padding: 10px;
+}
+
+
+/* MEDIA ************************************************************************************************/
+.media .img {
+    margin-right: 10px;
+}
+
+.media.object .img {
+    width:inherit;
+    height: 150px;
+    line-height:150px;
+    text-align:center;
+    overflow:  hidden;
+    position: relative;
+    vertical-align: top;
+}
+
+.media.object .img img {
+    vertical-align: top;
+    max-width: 120px;
+    max-height: 150px;
+    display: -moz-inline-box;
+    display: inline-block;
+    text-align: center;
+}
+
+.media .title {
+    font-weight: bold;
+}
+.metadata h4 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.metadata p {
+    margin-top: 0px;
+}
+
+/* media block in recent wrapper */
+
+.mod.recent.object{
+    background-color: lighten($color-2, 30%);
+}
+.mod.recent.collection{
+    background-color: lighten($color-3, 40%);
+}
+.mod.recent.story{
+    background-color: lighten($color-4, 40%);
+}
+
+.mod.recent .bd {
+    padding: 0 10px;
+}
+
+.recent h3 {
+    color: $color-7;
+    text-transform:uppercase;
+    font-size: $fsize-2;
+    font-weight: normal;
+    background: $color-2;
+    padding: 4px 10px;
+    margin: 0;
+}
+
+/*.recent .media p {*/
+    /*margin: 0;*/
+    /*padding: 0;*/
+/*}*/
+
+.recent .media .clip {
+    display: inline-block;
+    float: left;
+    width: 100px;
+    overflow: hidden;
+}
+
+/*.recent .media .img {*/
+    /*clear: both;*/
+    /*float: none;*/
+
+/*}*/
+
+/*.recent .title {*/
+    /*display: block;*/
+/*}*/
+
+/*.recent .bd {*/
+    /*margin: 0 10px;*/
+    /*width: auto;*/
+/*}*/
+
+/* PAGINATION ************************************************************************/
+/* pagination.css overrides */
+
+.pagination .current {
+    background: $color-3;
+    /*border: solid 1px #AAE;*/
+}
+
+.pagination .prev,
+.pagination .next {
+    background: #eaeaea;
+}
+
+.pagination .current.prev, .pagination .current.next {
+    background: #eaeaea;
+    color: #999;
+}
+
+/* BREADCRUMBS ************************************************************************/
+/* breadcrumb.css overrides */
+
+.breadcrumb {
+//    background-color: lighten($color-2, 30%);
+    /*border-bottom: 1px solid #ccc;*/
+    height: 40px;
+    line-height: 40px;
+}
+
+.breadcrumb ul {
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+
+.breadcrumb li {
+    margin-left: 0px;
+}
+
+.breadcrumb a:link {
+    color: $color-3;
+}
+
+/* RESULTS ************************************************************************************/
+
+.results .clip  {
+    /*display: inline-block;*/
+    float:left;
+    height: 80px;
+    overflow: hidden;
+    width: 100px;
+    margin-right: 10px;
+}
+
+.results .clip .img {
+    position:absolute;
+    clip:rect(0px,100px,80px,0px);
+    max-width: 120px;
+}
+
+/* FACETS *************************************************************************************/
+
+.facets h3 {
+    font-size: $fsize-2;
+}
+
+.facet-container {
+    background-color: lighten($color-2, 40%);
+}
+
+/* COLLUMNS ************************************************************************************/
+
+.sidebar {
+    float: left;
+    width: 40%;
+}
+
+.input {
+    float: left;
+    width: 55%;
+    margin-left: 5%;
+}
+
+/* STORIES ************************************************************************************/
+
+.page.title-page h1 {
+    color: $color-2;
+    font-size: 300%;
+    margin-top: 0;
+    /*margin: 30px 0 10px 0;*/
+}
+
+/* FORMS ************************************************************************************/
+/* form-elements.css overrides */
+form {
+    background: lighten($color-2, 45%);
+    padding: 10px 0;
+}
+form h3 {
+background-color: lighten($color-3, 20%);
+}
+
+/* BUTTONS ************************************************************************************/
+/* css3-buttons.css overrides */
+
+button.green, .button.green {
+border: 1px solid $color-2 !important;
+background: darken($color-2, 10%);
+background: -webkit-linear-gradient(top, $color-2, darken($color-2, 10%));
+background: -moz-linear-gradient(top, $color-2, darken($color-2, 10%));
+background: -ms-linear-gradient(top, $color-2, darken($color-2, 10%));
+background: -o-linear-gradient(top, $color-2, darken($color-2, 10%));
+}
+
+button.green:hover, .button.green:hover {
+    background:  darken($color-2, 10%);
+}
+/* HELPERS ************************************************************************************/
+
+.clear {
+    clear:both;
+}
+
+/* TOKEN - iNPUTS ****************************************************************************/
+
+ul.token-input-list {
+    border: 1px solid $color-2;
+    width: 300px;
+}
+
+li.token-input-token {
+    background-color: lighten($color-2, 30%);
+    margin:1px;
+}
+
+div.token-input-dropdown {
+    width:300px;
+}
+
+div.token-input-dropdown ul li.token-input-selected-dropdown-item {
+background-color: lighten($color-2, 30%);
+}
+
+/* media overrides */
+
+.media.record .img {
+    margin-right:  30px;
+}
+
+.toolbar {
+    margin: 0px 0px 20px 0px;
+}
+

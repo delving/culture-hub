@@ -24,13 +24,13 @@
 
                     <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
                     <h5>&{'story.pages'}:</h5>
-                    <ul>
+                    <ol>
                         #{list story.pages, as: 'page'}
 
                         <li>${page.title}</li>
                         <!--<li>${page.text}</li>-->
                         #{/list}
-                    </ul>
+                    </ol>
                 </div>
 
             </div>

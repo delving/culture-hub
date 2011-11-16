@@ -102,10 +102,6 @@ button[disabled],
 
 /* media overrides */
 
-.media .img {
-    margin-right: 10px;
-}
-
 .media.record .img {
     margin-right: 50px;
     max-width: 300px;
@@ -124,11 +120,21 @@ button[disabled],
 /* metadata */
 
 .metadata h5 {
+    font-weight: bold;
+    font-size: 100%;
     margin:  0;
 }
 
 .metadata p {
     margin-bottom: 10px;
+}
+
+.metadata ol {
+    margin-top: 0px;
+}
+
+.toolbar {
+    margin: 0px 0px 20px 0px;
 }
 
 div.dropdown-slider .ddm.heading .label {

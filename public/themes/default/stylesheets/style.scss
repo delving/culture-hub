@@ -23,37 +23,36 @@ $fsize4: 44px;
 
 $pageWidth: 960px;
 
-/*$radius: 2px;*/
+$radius: 2px;
+@mixin border-all ($radius) {
+  border-radius: $radius;
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+}
 
-/*.border-all ($radius) {*/
-  /*border-radius: $radius;*/
-  /*-moz-border-radius: $radius;*/
-  /*-webkit-border-radius: $radius;*/
-/*}*/
+@mixin border-top ($radius) {
+  border-radius: $radius $radius 0 0;
+  -moz-border-radius: $radius $radius 0 0;
+  -webkit-border-radius: $radius $radius 0 0;
+}
 
-/*.border-top ($radius) {*/
-  /*border-radius: $radius $radius 0 0;*/
-  /*-moz-border-radius: $radius $radius 0 0;*/
-  /*-webkit-border-radius: $radius $radius 0 0;*/
-/*}*/
+@mixin border-bot ($radius) {
+  border-radius: 0 0 $radius $radius;
+  -moz-border-radius: 0 0 $radius $radius;
+  -webkit-border-radius: 0 0 $radius $radius;
+}
 
-/*.border-bot ($radius) {*/
-  /*border-radius: 0 0 $radius $radius;*/
-  /*-moz-border-radius: 0 0 $radius $radius;*/
-  /*-webkit-border-radius: 0 0 $radius $radius;*/
-/*}*/
+@mixin border-tl ($radius) {
+  border-radius: $radius 0 0 0;
+  -moz-border-radius: $radius 0 0 0;
+  -webkit-border-radius: $radius 0 0 0;
+}
 
-/*.border-tl ($radius) {*/
-  /*border-radius: $radius 0 0 0;*/
-  /*-moz-border-radius: $radius 0 0 0;*/
-  /*-webkit-border-radius: $radius 0 0 0;*/
-/*}*/
-
-/*.border-tr ($radius) {*/
-  /*border-radius: 0 $radius 0 0;*/
-  /*-moz-border-radius: 0 $radius 0 0;*/
-  /*-webkit-border-radius: 0 $radius 0 0;*/
-/*}*/
+@mixin border-tr ($radius) {
+  border-radius: 0 $radius 0 0;
+  -moz-border-radius: 0 $radius 0 0;
+  -webkit-border-radius: 0 $radius 0 0;
+}
 
 /* TYPOGRAPHY */
 h1, .h1,
@@ -161,18 +160,6 @@ a:visited {
 
 /* SECTIONS ************************/
 
-/* extra */
-
-/*#extraDiv1 {*/
-    /*background: transparent url(../images/page-corner.png) top left no-repeat;*/
-    /*height: 160px;*/
-    /*width: 260px;*/
-    /*position: absolute;*/
-    /*top: 0px;*/
-    /*left: 0px;*/
-    /*z-index: 11;*/
-/*}*/
-
 /* header */
 
 .header {
@@ -237,11 +224,11 @@ a:visited {
 
 .site-nav ul {
     background: $color6;
-    /*.border-top(4px);*/
+    @include border-top(4px);
     display: table;
     margin: 0;
     padding: 0;
-    width: inherit;
+    width: 100%;
 }
 
 .site-nav li {
@@ -250,7 +237,7 @@ a:visited {
     list-style: none;
     margin: 0;
     padding: 0;
-    width: 100% / 5;
+    width: 20%;
 }
 
 .site-nav a {
@@ -268,10 +255,10 @@ a:visited {
 }
 
 .site-nav li.first {
-    /*.border-tl(4px);*/
+    @include border-tl(4px);
 }
 .site-nav li.last {
-    /*.border-tr(4px);*/
+    @include border-tr(4px);
 }
 
 .site-nav li.current {
@@ -295,7 +282,7 @@ a:visited {
     background: none repeat scroll 0 0 #fff;
     /*border: medium none;*/
     border:  0px solid  $color1;
-    /*.border-all($radius);*/
+    @include border-all($radius);
     padding: 8px;
     width: 280px;
 }
@@ -304,7 +291,7 @@ a:visited {
     background: none repeat scroll 0 0 $color8;
     /*border: medium none;*/
     border:  0px solid $color9;
-    /*.border-all(2px);*/
+    @include border-all(2px);
     color: #fff;
     cursor: pointer;
 //    font-family: $ffam-2;
@@ -337,7 +324,7 @@ a:visited {
 
 .footer .container {
     background: $color1;
-    /*.border-bot(4px);*/
+    @include border-bot(4px);
     padding-top: 20px;
     margin-bottom: 20px;
 }
@@ -354,7 +341,7 @@ a:visited {
 /* media block in recent wrapper */
 
 .recent {
-    /*.border-all(4px);*/
+    @include border-all(4px);
 }
 
 .recent.object{
@@ -436,7 +423,7 @@ form {
 
 form h3 {
     background: transparent;
-    /*.border-top(4px);*/
+    @include border-top(4px);
     border-bottom: 1px solid $color3;
     color: $color14;
     padding: 10px;
@@ -472,10 +459,15 @@ form legend {
     background: $color2;
 }
 
+/* media overrides */
 
 
 .media .img {
     margin-right: 10px;
+}
+
+.media.record .img {
+    margin-right:  30px;
 }
 
 .media .extra {
@@ -483,6 +475,16 @@ form legend {
     clear: left;
     float: left;
 }
+
+.metadata h5 {
+    font-weight: bold;
+    font-size: 100%;
+}
+
+.metadata p {
+    margin-right: 10px;
+}
+
 
 #tiptip_content {
 	font-size: 85%;
@@ -502,6 +504,10 @@ div.dropdown-slider .ddm.heading.orgs {
 
 .breadcrumb li {
     margin-left: 0px;
+}
+
+.toolbar {
+    margin: 0px 0px 20px 0;
 }
 
 

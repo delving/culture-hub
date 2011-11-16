@@ -6,9 +6,7 @@
 #{/set}
 
 #{set 'moreScripts'}
-
 <script src='${views.context.package.themePath("javascripts/index.js")}' type='text/javascript'></script>
-
 #{/set}
 
 <div class="messages-container row">
@@ -58,17 +56,17 @@
         <div class="mod recent object">
             <div class="inner">
 					<div class="hd section">
-						<h3>&{'home.recentobject'}</h3>
+						<h3>${recentObjects.size() == 1 ? viewUtils.getKey('home.recentobject') : viewUtils.getKey('home.recentobjects')}</h3>
 					</div>
 					<div class="bd">
                         #{list recentObjects, as: 'o'}
                         <div class="media">
-                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" width="300" alt="${o.title}"/></a>
+                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" alt="${o.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
                                     <span class="title"><a href="/${o.userName}/object/${o.id}" title="${o.title}">${o.title.shorten(50)}</a></span>
-                                    <p>${o.description.shorten(100)}</p>
+                                    <p>${o.description.shorten(80)}</p>
                                 </div>
                             </div>
                         </div>
@@ -84,17 +82,17 @@
         <div class="mod recent collection">
             <div class="inner">
 					<div class="hd section">
-						<h3>&{'home.recentcollection'}</h3>
+						<h3>${recentCollections.size() == 1 ? viewUtils.getKey('home.recentcollection') : viewUtils.getKey('home.recentcollections')}</h3>
 					</div>
 					<div class="bd">
                         #{list recentCollections, as: 'c'}
                         <div class="media">
-                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" width="300" alt="${c.title}"/></a>
+                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" alt="${c.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
                                     <span class="title"><a href="/${c.userName}/collection/${c.id}" title="${c.title}">${c.title.shorten(50)}</a></span>
-                                    <p>${c.description.shorten(100)}</p>
+                                    <p>${c.description.shorten(80)}</p>
                                 </div>
                             </div>
                         </div>
@@ -105,12 +103,12 @@
     </div>
     #{/if}
 
-    #{if recentObjects.size() > 0}
+    #{if recentStories.size() > 0}
     <div class="g-4of12">
         <div class="mod recent story">
             <div class="inner">
 					<div class="hd section">
-						<h3>&{'home.recentstory'}</h3>
+						<h3>${recentStories.size() == 1 ? viewUtils.getKey('home.recentstory') : viewUtils.getKey('home.recentstories')}</h3>
 					</div>
 					<div class="bd">
                         #{list recentStories, as: 's'}

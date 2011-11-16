@@ -645,7 +645,7 @@ div.dropdown span.toggle {
 	
 	float: right;
 	
-	background: url(toggle.png) top right no-repeat;
+	background: url(/public/themes/common/stylesheets/buttons/toggle.png) top right no-repeat;
 	border-left: 1px solid #D9D9D9;
 	
 	-webkit-transition: border-color .20s;
@@ -654,7 +654,7 @@ div.dropdown span.toggle {
 	transition: border-color .20s;
 }
 div.dropdown span.toggle.active {
-	background: url(toggle.png) bottom right no-repeat;
+	background: url(/public/themes/common/stylesheets/buttons/toggle.png) bottom right no-repeat;
 }
 div.dropdown 
 button:hover span.toggle, 
