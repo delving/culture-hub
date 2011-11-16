@@ -73,22 +73,22 @@ trait Logging extends UserAuthentication { self: Controller =>
   // ~~~ Logger wrappers, with more context
 
   def info(message: String, args: String*) {
-    Logger.warn(withContext(message), args)
+    Logger.warn(withContext(message), args : _ *)
   }
   def info(e: Throwable, message: String, args: String*) {
-    Logger.warn(e, withContext(message), args)
+    Logger.warn(e, withContext(message), args : _ *)
   }
   def warning(message: String, args: String*) {
-    Logger.warn(withContext(message), args)
+    Logger.warn(withContext(message), args : _ *)
   }
   def warning(e: Throwable, message: String, args: String*) {
-    Logger.warn(e, withContext(message), args)
+    Logger.warn(e, withContext(message), args : _ *)
   }
   def logError(message: String, args: String*) {
-    Logger.error(withContext(message), args)
+    Logger.error(withContext(message), args : _ *)
   }
   def logError(e: Throwable, message: String, args: String*) {
-    Logger.error(e, withContext(message), args)
+    Logger.error(e, withContext(message), args : _ *)
   }
 
   def reportSecurity(message: String) {
@@ -107,10 +107,10 @@ trait Logging extends UserAuthentication { self: Controller =>
 object ErrorReporter {
 
   def reportError(request: Request, params: Params, user: String, message: String, args: String*) {
-    Mails.reportError(subject(request), toReport(user, message.format(args), request, params))
+    Mails.reportError(subject(request), toReport(user, message.format(args : _ *), request, params))
   }
   def reportError(request: Request, params: Params, user: String, e: Throwable, message: String, args: String*) {
-    Mails.reportError(subject(request), toReport(user, message.format(args), e, request, params))
+    Mails.reportError(subject(request), toReport(user, message.format(args : _ *), e, request, params))
   }
 
   def reportError(job: String, t: Throwable, message: String) {

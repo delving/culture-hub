@@ -3,10 +3,11 @@ package controllers.admin
 import play.mvc.results.Result
 import extensions.JJson
 import org.bson.types.ObjectId
-import models.{EmailTarget, PortalTheme}
-import controllers.{ViewModel, DelvingController}
 import util.ThemeHandler
 import com.mongodb.casbah.commons.MongoDBObject
+import play.mvc.Before
+import controllers.{Secure, ViewModel, DelvingController}
+import models.{User, EmailTarget, PortalTheme}
 
 /**
  * TODO add Access Control
@@ -14,7 +15,17 @@ import com.mongodb.casbah.commons.MongoDBObject
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Themes extends DelvingController {
+object Themes extends DelvingController with Secure {
+
+  @Before
+  def checkAdmin(): Result = {
+    val u = User.findByUsername(connectedUser) getOrElse(return Forbidden("Wrong user"))
+    if(!u.isHubAdmin.getOrElse(false)) {
+      reportSecurity("User %s tried to get access to themes admin".format(connectedUser))
+      return Forbidden(&("user.secured.noAccess"))
+    }
+    Continue
+  }
 
   def index(): Result = {
     val themeList = PortalTheme.find(MongoDBObject())
