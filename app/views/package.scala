@@ -39,10 +39,8 @@ package object context extends Internationalization {
     request.path + "?query=%s&page=".format(query)
   }
 
-  def thumbnailUrl(thumbnail: ObjectId) = "/thumbnail/%s/100".format(thumbnail)
-
-  def thumbnailUrl(thumbnail: Option[ObjectId]) = thumbnail match {
-    case Some(t) => "/thumbnail/%s/100".format(t)
+  def thumbnailUrl(thumbnail: Option[ObjectId], size: Int = 100) = thumbnail match {
+    case Some(t) => "/thumbnail/%s/%s".format(t, size)
     case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
   }
 

@@ -61,7 +61,7 @@
 					<div class="bd">
                         #{list recentObjects, as: 'o'}
                         <div class="media">
-                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail)}' class="img" alt="${o.title}"/></a>
+                            <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail, 100)}' class="img" alt="${o.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
@@ -87,7 +87,7 @@
 					<div class="bd">
                         #{list recentCollections, as: 'c'}
                         <div class="media">
-                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail)}' class="img" alt="${c.title}"/></a>
+                            <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail, 100)}' class="img" alt="${c.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">
@@ -113,7 +113,7 @@
 					<div class="bd">
                         #{list recentStories, as: 's'}
                         <div class="media">
-                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail)}' class="img" width="300" alt="${s.title}"/></a>
+                            <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail, 100)}' class="img" width="300" alt="${s.title}"/></a>
 
                             <div class="bd">
                                 <div class="metadata">

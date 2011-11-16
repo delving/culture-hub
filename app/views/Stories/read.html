@@ -30,7 +30,7 @@
 
                         <div style="widht: 100%; text-align:center;">
                             <h1>${story.name}</h1>
-                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id)}" alt=""/>
+                            <img src="${views.context.package.thumbnailUrl((story.thumbnail_id, 100))}" alt=""/>
 
                             <h3>By: ${browsedFullName}</h3>
                             <p>${story.description}</p>
