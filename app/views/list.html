@@ -12,8 +12,9 @@
 #{/else}
 <div class="row">
 <div class="g-12of12 mbm">
-#{if items.length() > views.context.package.PAGE_SIZE()}
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+
+#{if count > views.context.package.PAGE_SIZE()}
+    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page, linkTo:"?page=" /}</div>
 #{/if}
 #{elseif items.length() == 0}
 <p>
@@ -29,14 +30,14 @@
 
 #{if counter == 1}
 <div class="row">
-    #{/if}
+#{/if}
 
-    <div class="g-4of12 #{if i.isPrivate}private#{/if}">
-        <div class="mod">
+    <div class="g-3of12 #{if i.isPrivate}private#{/if}">
+        <div class="mod list">
             <div class="media ${itemName}">
 
-                <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
-                    <img src='${views.context.package.thumbnailUrl(i.thumbnail, 100)}' alt="${i.title}" width="100" class="img"/>
+                <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
+                    <img src='${views.context.package.thumbnailUrl(i.thumbnail, 220)}' widht="220" alt="${i.title}" class="img"/>
                 </a>
 
                 <div class="bd">
@@ -56,7 +57,7 @@
                         <div class="private">
                             <span>
                             This object is visible only to you. If you want others to find and see it you can change it's
-                            <a href="/${i.userName}/${itemName}/${i.id}/update">visibility status</a> to "visible".
+                            <a href="/${i.userName}/${itemName}/${i.id}/update"><strong>visibility status</strong></a> to "visible".
                             </span>
                         </div>
                         #{/if}
@@ -70,14 +71,14 @@
 
     %{ counter++ }%
 
-    #{if counter > 3 || i_isLast }
+    #{if counter > 4 || i_isLast }
 </div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
 
 #{/list}
 
-#{if items.length() > views.context.package.PAGE_SIZE()}
+#{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
 <div class="g-12of12 mtm">
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
@@ -85,3 +86,12 @@
 </div>
 
 #{/if}
+
+<script>
+//    $(document).ready(function(){
+//       $('.media').hover(function(){
+//             $(this).find('.more-info').toggle('fast');
+//       })
+//    });
+
+</script>

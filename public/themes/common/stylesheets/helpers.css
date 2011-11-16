@@ -75,9 +75,8 @@ button[disabled],
 .button[disabled]{
     cursor: default;
     -moz-opacity: 0.50;
+    filter: alpha(opacity=50);
     opacity: 0.50;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-
 }
 
 .info-box .label {
@@ -147,15 +146,15 @@ div.dropdown-slider .ddm.heading {
 
 }
 
-.private {
-    background-color: #fffff0;
-}
+/*.private {*/
+    /*background-color: #fffff0;*/
+/*}*/
 
-.private span {
-    margin: 10px 4px 4px 0px;
-    padding:  4px;
-    border:  1px solid #000;
-    display: block;
+/*.private span {*/
+    /*margin: 10px 4px 4px 0px;*/
     /*padding:  4px;*/
-    font-size: 80%;
-}
+    /*border:  1px solid #000;*/
+    /*display: block;*/
+    /*padding:  4px;*/
+    /*font-size: 80%;*/
+/*}*/

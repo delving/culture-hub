@@ -485,6 +485,38 @@ form legend {
     margin-right: 10px;
 }
 
+.list .media {
+    position: relative;
+}
+
+.list .media .clip {
+    background: #000;
+    display: block;
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.list .media .img {
+    float: none;
+}
+
+.list .media .bd {
+    display: block;
+    margin-top: 10px;
+}
+
+.list .media .more-info {
+    background: $color7;
+    display: none;
+    opacity: 0.8;
+    color: #fff;
+    padding: 5px;
+    position: absolute;
+    top: 0px;
+}
+
 
 #tiptip_content {
 	font-size: 85%;

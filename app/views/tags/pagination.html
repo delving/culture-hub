@@ -7,14 +7,14 @@
     function initPagination() {
         // Create content inside pagination element
         $("${_selector}").pagination(${_count}, {
-            current_page:  parseInt('${_start}'),
+            current_page:  parseInt('${_start}')-1,
             num_edge_entries:1,
             num_display_entries: 6,
             callback: function() {},
             items_per_page:${views.context.package.PAGE_SIZE()},
             prev_text:"&{'ui.label.previous'}",
             next_text:"&{'ui.label.next'}",
-            link_to: "${_link_to}" + "__id__"
+            link_to: "${_linkTo}" + "__id__"
         });
      }
 
