@@ -76,6 +76,12 @@ object Themes extends DelvingController with Secure {
 
   }
 
+  def reload: Result = {
+    info("Reloading entire configuration from disk.")
+    ThemeHandler.readThemesFromDisk()
+    Ok
+  }
+
 }
 
 case class ThemeViewModel(id: Option[ObjectId] = None,

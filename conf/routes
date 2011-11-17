@@ -155,6 +155,7 @@ GET        /admin/themes/list                                                adm
 GET        /admin/themes/new                                                 admin.Themes.themeUpdate
 GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
+GET       /admin/themes/reloadFromDisk                                      admin.Themes.reload
 
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
