@@ -647,7 +647,11 @@ background-color: lighten($color-2, 30%);
     margin: 0px 0px 20px 0px;
 }
 
-/*.collection-objects {*/
-    /*background-color: lighten($color-3, 40%);*/
-/*}*/
+/* STORY NAVIGATION - srollable-nav image override ************************************************/
+.scroll-nav {
+    border-bottom: 4px solid lighten($color-2, 40%);
+}
 
+.scroll-nav a {
+    background: transparent url(/public/themes/frieseverhalen/images/scrollable-nav.png) top left no-repeat;
+}

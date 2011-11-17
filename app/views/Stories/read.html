@@ -4,41 +4,28 @@
 
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable-nav.css'}"/>
 #{/set}
-<style>
-    #status {
-        position: absolute;
-        top: 0px;
-        left: 200px;
-    }
-    #status .active {
-        font-weight: bold;
-    }
-    #status li {
-        display: inline-block;
-        margin-right: 10px;
-    }
-</style>
+
 #{breadcrumbs /}
 
-<div class="story">
+<h1 class="sep">${story.name}</h1>
 
-    <h1 class="sep">${story.name}</h1>
+<div class="story row">
 
+    <div class="g-12of12">
 
     <div class="story-container">
 
-        <div class="story-navigation">
-            <a class="button prev browse">&{'story.previouspage'}</a>
-            <a class="button next browse">&{'story.nextpage'}</a>
-        </div>
-        <div class="navigation">
-            <ul id="status">
-                <li class="active">Titel page</li>
+        <div class="scroll-nav">
+            <a class="prev browse">&{'story.previouspage'}</a>
+            <ul id="pnav">
+                <li class="active"><a class="browse page">Titel page</a></li>
                 #{list story.pages, as: 'page'}
-                <li>${page.title}</li>
+                <li><a class="browse page" title="${page.title}">${page.title}</a></li>
                 #{/list}
             </ul>
+            <a class="next browse">&{'story.nextpage'}</a>
         </div>
         <div class="scrollable">
 
@@ -78,17 +65,19 @@
         </div>
 
     </div>
+    </div>
+
 </div>
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var root = $(".scrollable").scrollable();
-        var api = root.scrollable()
+        var root = $(".scrollable").scrollable().navigator("#pnav");
+        var api = root.scrollable();
         // initialize scrollable
         //$(".scrollable").scrollable();
 
         api.onBeforeSeek(function(event, i) {
-           $("#status li").removeClass("active").eq(i).addClass("active");
+           $("#pnav li").removeClass("active").eq(i).addClass("active");
         });
     });
 </script>
