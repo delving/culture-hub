@@ -25,14 +25,14 @@ object Indexing extends SolrServer {
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
-    var state = DataSet.getStateBySpec(dataSet.spec)
+    var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
 
     if (state == DataSetState.INDEXING) {
       records foreach {
         record =>
           if (records.numSeen % 100 == 0) {
             DataSet.updateIndexingCount(dataSet, records.numSeen)
-            state = DataSet.getStateBySpec(dataSet.spec)
+            state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
           val mapping = engine.executeMapping(record.getXmlString())
 
@@ -43,7 +43,7 @@ object Indexing extends SolrServer {
               try {
                 getStreamingUpdateServer.add(doc)
               } catch {
-                case t => throw new SolrConnectionException("Unable to add document to Solr", t)
+                case t: Throwable => throw new SolrConnectionException("Unable to add document to Solr", t)
               }
             }
             case _ => // catching null
