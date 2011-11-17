@@ -78,7 +78,10 @@ object Themes extends DelvingController with Secure {
 
   def reload: Result = {
     info("Reloading entire configuration from disk.")
-    ThemeHandler.readThemesFromDisk()
+    val themeList = ThemeHandler.readThemesFromDisk()
+    themeList foreach {
+      PortalTheme.insert(_)
+    }
     Ok
   }
 
