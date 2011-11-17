@@ -138,6 +138,8 @@ object ThemeHandler {
       System.exit(1);
     }
 
+    PortalTheme.removeAll()
+
     val themes = for (theme: PortalTheme <- YamlLoader.load[List[PortalTheme]](themeFileName)) yield {
       theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
     }
