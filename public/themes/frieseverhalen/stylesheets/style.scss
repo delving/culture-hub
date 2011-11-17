@@ -649,7 +649,10 @@ background-color: lighten($color-2, 30%);
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
 .scroll-nav {
+    border-top: 4px solid lighten($color-2, 40%);
     border-bottom: 4px solid lighten($color-2, 40%);
+    margin-top: 20px;
+    height: 70px;
 }
 
 .scroll-nav a {
