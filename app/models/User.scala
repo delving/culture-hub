@@ -20,7 +20,8 @@ case class User(_id: ObjectId = new ObjectId,
                 activationToken: Option[String] = None,
                 resetPasswordToken: Option[String] = None,
                 accessToken: Option[AccessToken] = None,
-                refreshToken: Option[String] = None) {
+                refreshToken: Option[String] = None,
+                isHubAdmin: Option[Boolean] = None) {
   val fullname = firstName + " " + lastName
 
   override def toString = email
