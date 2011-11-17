@@ -117,7 +117,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def getIndexingState(orgId: String, spec: String): (Int, Int) = {
-    val ds = DataSet.findBySpecAndOrgId(orgId, spec).getOrElse(return (100, 100))
+    val ds = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return (100, 100))
     if(ds.state == DataSetState.ENABLED) return (ds.details.total_records, ds.details.total_records)
     (ds.details.indexing_count, ds.details.total_records)
   }
@@ -390,7 +390,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
       val indexDocument = mappedMetadata.get(metadataPrefix).get
       indexDocument.getMap.entrySet().foldLeft("")(
         (output, indexDoc) => {
-          val unMungedKey = indexDoc.getKey // todo later unmunge the key with namespaces.replaceAll("_", ":")
+          val unMungedKey = indexDoc.getKey.replaceAll("_", ":")
           output + indexDoc.getValue.map(value => {
             "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
           }).mkString
