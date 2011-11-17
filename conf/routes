@@ -33,6 +33,7 @@ DELETE     /file/{id}                                                        use
 
 # Delving object Server module
 *          /                                                                 module:dos
+*          /                                                                 module:press
 
 # Backwards compatibility with the old services module
 GET         /services/                                                       Services.index
