@@ -2,6 +2,22 @@
 
 #{set title: '' /}
 
+#{if count > views.context.package.PAGE_SIZE()}
+#{set 'moreScripts'}
+    <script>
+        pageObject = new Object();
+        pageObject.count = ${count};
+        pageObject.page = ${page};
+        pageObject.link = '?page=__id__';
+        pageObject.previous = "${viewUtils.getKey('ui.label.previous')}";
+        pageObject.next = "${viewUtils.getKey('ui.label.next')}";
+        pageObject.itemsPerPage = ${views.context.package.PAGE_SIZE()}
+        pageObject.selector = ".pager"
+    </script>
+    <script type="text/javascript" language="javascript" src="/public/themes/common/javascripts/paginationInit.js"></script>
+#{/set}
+#{/if}
+
 #{breadcrumbs /}
 
 #{if browsedUserName}
@@ -11,17 +27,16 @@
 <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
 <div class="row">
-<div class="g-12of12 mbm">
-
-#{if count > views.context.package.PAGE_SIZE()}
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page, linkTo:"?page=" /}</div>
-#{/if}
-#{elseif items.length() == 0}
-<p>
-    &{'ui.message.nothingFound'}
-</p>
-#{/elseif}
-</div>
+    <div class="g-12of12 mbm">
+    #{if count > views.context.package.PAGE_SIZE()}
+        <div class="mod pager"></div>
+    #{/if}
+    #{elseif items.length() == 0}
+    <p>
+        &{'ui.message.nothingFound'}
+    </p>
+    #{/elseif}
+    </div>
 </div>
 
 %{ def counter = 1 }%
@@ -81,7 +96,7 @@
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
 <div class="g-12of12 mtm">
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    <div class="mod pager"></div>
 </div>
 </div>
 
