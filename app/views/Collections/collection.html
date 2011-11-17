@@ -9,11 +9,28 @@
 <div class="row">
     <div class="g-12of12">
         <div class="media record">
+            <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id, 350)}" width="350" alt="${collection.name}" class="img"/>
 
-            <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id)}" alt="${collection.name}" class="img"/>
+            <div class="extra">
+                #{if objects.length() > 0}
+                <div class="collection-objects">
+                    <div class="inner">
+                    <ul>
+                    #{list objects, as: 'object'}
+                        <li>
+                           <a href="/${object.userName}/collection/${collection._id}/object/${object.id}" title="${object.title}">
+                                <img src="${views.context.package.thumbnailUrl(object.thumbnail, 80)}" width="80" alt="${object.title}"/>
+                            </a>
+                       </li>
+                    #{/list}
+                    </ul>
+                    </div>
 
+                </div>
+                #{/if}
+            </div>
             <div class="bd">
-                #{thingToolbar owner: collection.userName, id: dobject._id, currentUser: userName, type:"collection"/}
+                #{thingToolbar owner: collection.userName, id: collection._id, currentUser: userName, type:"collection"/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>
@@ -41,7 +58,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
         </div>

@@ -4,22 +4,27 @@
 
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable-nav.css'}"/>
 #{/set}
 
 #{breadcrumbs /}
 
-<div class="story">
+<div class="story row">
 
-    <h1 class="sep">${story.name}</h1>
-
+    <div class="g-12of12">
 
     <div class="story-container">
 
-        <div class="story-navigation">
-            <a class="button prev browse">&{'story.previouspage'}</a>
-            <a class="button next browse">&{'story.nextpage'}</a>
+        <div class="scroll-nav">
+            <a class="prev browse">&{'story.previouspage'}</a>
+            <ul id="pnav">
+                <li class="active"><a class="browse page">Titel page</a></li>
+                #{list story.pages, as: 'page'}
+                <li><a class="browse page" title="${page.title}">${page.title}</a></li>
+                #{/list}
+            </ul>
+            <a class="next browse">&{'story.nextpage'}</a>
         </div>
-
         <div class="scrollable">
 
             <!-- root element for the items -->
@@ -30,7 +35,7 @@
 
                         <div style="widht: 100%; text-align:center;">
                             <h1>${story.name}</h1>
-                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id)}" alt=""/>
+                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 350)}" width="350" alt=""/>
 
                             <h3>By: ${browsedFullName}</h3>
                             <p>${story.description}</p>
@@ -47,19 +52,30 @@
                     </div>
                     <div class="page-right g-6of12 omega">
                         #{list page.objects.headOption(), as: 'o'}
-                        <img src="${views.context.package.imageUrl(o.dobject_id)}" alt="${page.title}">
+                        <img src="${views.context.package.imageUrl(o.dobject_id)}" width="470" alt="${page.title}">
                         #{/list}
                     </div>
                 </div>
                 #{/list}
             </div>
+
+
         </div>
+
     </div>
+    </div>
+
 </div>
 
 <script type="text/javascript">
     $(document).ready(function() {
+        var root = $(".scrollable").scrollable().navigator("#pnav");
+        var api = root.scrollable();
         // initialize scrollable
-        $(".scrollable").scrollable();
+        //$(".scrollable").scrollable();
+
+        api.onBeforeSeek(function(event, i) {
+           $("#pnav li").removeClass("active").eq(i).addClass("active");
+        });
     });
 </script>

@@ -2,48 +2,57 @@
 
 #{set title: '' /}
 
+#{if count > views.context.package.PAGE_SIZE()}
+#{set 'moreScripts'}
+    <script>
+        pageObject = new Object();
+        pageObject.count = ${count};
+        pageObject.page = ${page};
+        pageObject.link = '?page=__id__';
+        pageObject.previous = "${viewUtils.getKey('ui.label.previous')}";
+        pageObject.next = "${viewUtils.getKey('ui.label.next')}";
+        pageObject.itemsPerPage = ${views.context.package.PAGE_SIZE()}
+        pageObject.selector = ".pager"
+    </script>
+    <script type="text/javascript" language="javascript" src="/public/themes/common/javascripts/paginationInit.js"></script>
+#{/set}
+#{/if}
+
 #{breadcrumbs /}
 
 #{if browsedUserName}
-<h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
-<h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
-<div class="row">
-<div class="g-12of12 mbm">
-#{if items.length() > views.context.package.PAGE_SIZE()}
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
-#{/if}
-#{elseif items.length() == 0}
-<p>
-    &{'ui.message.nothingFound'}
-</p>
-#{/elseif}
-</div>
-</div>
+    <div class="row">
+        <div class="g-12of12 mbm">
+        #{if count > views.context.package.PAGE_SIZE()}
+            <div class="mod pager"></div>
+        #{/if}
+        #{elseif items.length() == 0}
+        <p>
+            &{'ui.message.nothingFound'}
+        </p>
+        #{/elseif}
+        </div>
+    </div>
 
 %{ def counter = 1 }%
-
 #{list items, as: 'i'}
-
-#{if counter == 1}
-<div class="row">
+    #{if counter == 1}
+    <div class="row">
     #{/if}
-
-    <div class="g-4of12 #{if i.isPrivate}private#{/if}">
-        <div class="mod">
+    <div class="g-3of12 #{if i.isPrivate}private#{/if}">
+        <div class="mod list">
             <div class="media ${itemName}">
-
-                <a href="/${i.userName}/${itemName}/${i.id}" class="img" rel="nofollow">
-                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100" class="img"/>
+                <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
+                    <img src='${views.context.package.thumbnailUrl(i.thumbnail, 220)}' widht="220" alt="${i.title}" class="img"/>
                 </a>
-
                 <div class="bd">
                     <div class="metadata">
-
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-
                         #{if i.description}
                         <div class="more-info">
                             <div class="inner">
@@ -51,37 +60,39 @@
                             </div>
                         </div>
                         #{/if}
-
                         #{if i.isPrivate}
                         <div class="private">
                             <span>
-                            This object is visible only to you. If you want others to find and see it you can change it's
-                            <a href="/${i.userName}/${itemName}/${i.id}/update">visibility status</a> to "visible".
+                                This object is visible only to you. If you want others to find and see it you can change it's
+                                <a href="/${i.userName}/${itemName}/${i.id}/update"><strong>visibility status</strong></a> to "visible".
                             </span>
                         </div>
                         #{/if}
-
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-
     %{ counter++ }%
-
-    #{if counter > 3 || i_isLast }
-</div><!-- end row -->
-%{ counter = 1 }%
-#{/if}
-
+    #{if counter > 4 || i_isLast }
+    </div><!-- end row -->
+    %{ counter = 1 }%
+    #{/if}
 #{/list}
 
-#{if items.length() > views.context.package.PAGE_SIZE()}
+#{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
-<div class="g-12of12 mtm">
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    <div class="g-12of12 mtm">
+        <div class="mod pager"></div>
+    </div>
 </div>
-</div>
-
 #{/if}
+
+<script>
+//    $(document).ready(function(){
+//       $('.media').hover(function(){
+//             $(this).find('.more-info').toggle('fast');
+//       })
+//    });
+
+</script>

@@ -3,7 +3,7 @@
 	when scrolling occurs this element stays still.
 */
 .story-container {
-    width: 960px;
+    width: 940px;
     margin: 0 auto;
 	/*height:500px;*/
     position: relative;
@@ -14,22 +14,23 @@
     font-size: 24px;
 }
 
-.story-navigation {
+.scroll-nav {
     height: 32px;
     position: relative;
     top: 0px;
     clear: both;
 }
 
-.story-navigation .prev {
-    float: left;
+.scroll-nav .prev {
+    /*float: left;*/
     /*margin-left: 75px;*/
-
+    display: inline-block;
 }
 
-.story-navigation .next {
-    float: right;
+.scroll-nav .next {
+    /*float: right;*/
     /*margin-right: 75px;*/
+    display: inline-block;
 
 }
 
@@ -38,12 +39,12 @@
 	position:relative;
 	overflow:hidden;
 	overflow-y: auto;
-    width: 960px;
+    width: 940px;
     margin:  0 auto;
     min-height: 500px;
 
 	/* custom decorations */
-    top: 20px;
+    top: 0px;
 }
 
 /*
@@ -61,16 +62,16 @@
 
 .scrollable .page {
 	float:left;
-	width:960px;
+	width:940px;
     position: relative;
     top: 20px;
     left: 0px;
 }
 
-.scrollable .page img {
-    max-height: 300px;
-    max-width: 350px;
-}
+/*.scrollable .page img {*/
+    /*max-height: 300px;*/
+    /*max-width: 350px;*/
+/*}*/
 
 .scrollable .page-left {
     float: left;

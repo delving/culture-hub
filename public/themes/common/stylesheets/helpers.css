@@ -75,9 +75,8 @@ button[disabled],
 .button[disabled]{
     cursor: default;
     -moz-opacity: 0.50;
+    filter: alpha(opacity=50);
     opacity: 0.50;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-
 }
 
 .info-box .label {
@@ -102,13 +101,9 @@ button[disabled],
 
 /* media overrides */
 
-.media .img {
-    margin-right: 10px;
-}
-
 .media.record .img {
     margin-right: 50px;
-    max-width: 300px;
+    max-width: 350px;
 }
 
 .media .extra {
@@ -124,11 +119,21 @@ button[disabled],
 /* metadata */
 
 .metadata h5 {
+    font-weight: bold;
+    font-size: 100%;
     margin:  0;
 }
 
 .metadata p {
     margin-bottom: 10px;
+}
+
+.metadata ol {
+    margin-top: 0px;
+}
+
+.toolbar {
+    margin: 0px 0px 20px 0px;
 }
 
 div.dropdown-slider .ddm.heading .label {
@@ -141,15 +146,34 @@ div.dropdown-slider .ddm.heading {
 
 }
 
-.private {
-    background-color: #fffff0;
+.collection-objects {
+    background: #f1f1f1;
+    width: 350px;
 }
 
-.private span {
-    margin: 10px 4px 4px 0px;
-    padding:  4px;
-    border:  1px solid #000;
-    display: block;
-    /*padding:  4px;*/
-    font-size: 80%;
+.collection-objects .inner {
+    padding: 5px;
 }
+
+.collection-objects ul {
+    margin: 0px;
+}
+
+.collection-objects ul li {
+    display: inline-block;
+    margin: 0 2px 0 0;
+    vertical-align: top;
+}
+
+/*.private {*/
+    /*background-color: #fffff0;*/
+/*}*/
+
+/*.private span {*/
+    /*margin: 10px 4px 4px 0px;*/
+    /*padding:  4px;*/
+    /*border:  1px solid #000;*/
+    /*display: block;*/
+    /*padding:  4px;*/
+    /*font-size: 80%;*/
+/*}*/

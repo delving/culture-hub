@@ -1,7 +1,11 @@
-#{include 'inc.common.header.html' /}
+#{include 'commonHeader.html' /}
 
 <div class="container">
-
+    #{if userName}
+    <div class="user-name">
+        &{'ui.label.hi'} ${fullName}
+    </div>
+    #{/if}
     <div class="user-nav">
         <div class="content">
             #{if !userName}
@@ -15,24 +19,24 @@
             #{else}
 
             <div class="buttons">
-                 <div class="user-name">
-                     &{'ui.label.hi'} ${fullName}
-                </div>
+
                 <div class="dropdown">
 
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
                         <a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>
                         <a href="/${userName}" class="ddm"><span class="label">&{'user.nav.yourprofile'}</span></a>
-                        <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
+                        <a href="/${userName}/object" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourobjects'}</span></a>
                         <a href="/${userName}/collection" class="ddm"></span>
                             <span class="label">&{'user.nav.yourcollections'}</span></a>
-                        <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
-                         #{if organizations.length() > 0}
+                        <a href="/${userName}/story" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourstories'}</span></a>
+                        #{if organizations.length() > 0}
                         <a class="ddm heading orgs"><span class="label">&{'thing.organizations'}</span></a>
-                            #{list organizations, as: 'org'}
-                                <a href="/organizations/${org}" class="ddm org">${org}</a>
-                            #{/list}
+                        #{list organizations, as: 'org'}
+                        <a href="/organizations/${org}" class="ddm org">${org}</a>
+                        #{/list}
                         #{/if}
                     </div>
                     <!-- /.dropdown-slider -->
@@ -57,57 +61,59 @@
         </div>
     </div>
 
-<div class="header">
-    <div class="content">
-        <div class="branding">
-            <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
+    <div class="header">
+        <div class="content">
+            <div class="branding">
+                <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
-            <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
+                <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
 
-            <div id="primary-branding">
-                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
+                <div id="primary-branding">
+                    <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
+                </div>
+
+                <div id="secondary-branding" role="banner">
+                    <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+                </div>
+            </div>
+            <div id="site-nav">
+                <!--site nav-->
+                <ul>
+                    <li class='${"Application".isCurrent()}'>
+                        <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                    <li class='${"DObjects".isCurrent()}'>
+                        <a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
+                    <li class='${"Collections".isCurrent()}'>
+                        <a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
+                    <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
+                    <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
+                </ul>
             </div>
 
-            <div id="secondary-branding" role="banner">
-                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+            <div id="search" role="search">
+                <form method="get" action="/search">
+                    <input type="text" id="query" name="query" value='${params.query}'/>
+                    <input type="submit" value="&{'ui.label.search'}">
+                </form>
             </div>
         </div>
-        <div id="site-nav">
-            <!--site nav-->
-            <ul>
-                <li class='${"Application".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${"DObjects".isCurrent()}'><a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
-                <li class='${"Collections".isCurrent()}'><a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
-                <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
-                <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
-            </ul>
+    </div>
+
+    <!--</div>-->
+
+    <div class="main">
+        <div class="content">
+            #{doLayout /}
         </div>
+        <div class="clear"></div>
+    </div>
 
-        <div id="search" role="search">
-            <form method="get" action="/search">
-                <input type="text" id="query" name="query" value='${params.query}'/>
-                <input type="submit" value="&{'ui.label.search'}">
-            </form>
+    <div class="footer">
+        <div class="content">
+            <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
+
         </div>
     </div>
-</div>
-
-<!--</div>-->
-
-<div class="main">
-    <div class="content">
-        #{doLayout /}
-    </div>
-    <div class="clear"></div>
-</div>
-
-<div class="footer">
-    <div class="content">
-        <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/themes/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
-
-
-    </div>
-</div>
 
 </div>
 
@@ -117,6 +123,4 @@
 <div id="extraDiv4"><span></span></div>
 <div id="extraDiv5"><span></span></div>
 <div id="extraDiv6"><span></span></div>
-
-</body>
-</html>
+#{include 'commonFooter.html' /}

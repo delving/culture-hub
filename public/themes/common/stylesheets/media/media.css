@@ -4,6 +4,6 @@
 .media .bd{display:table-cell; zoom:1;}
 .media .bd > :first-child{margin-top:0;}
 .media .bd > :last-child{margin-bottom:0;}
-.media .img{float:left;/*margin-right: 10px;*/}
+.media .img{float:left;margin-right: 10px;}
 .media .img img{display:block;}
-.media .imgExt{float:right; /*margin-left: 10px;*/}
+.media .imgExt{float:right; margin-left: 10px;}

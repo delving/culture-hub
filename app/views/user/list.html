@@ -10,9 +10,9 @@
     #{if items.length() > views.context.package.PAGE_SIZE()}
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
-    #{else}
+    #{elseif items.length() == 0}
     <p>&{'user.list.noUsers'}</p>
-    #{/else}
+    #{/elseif}
 </div>
 
 %{ def counter = 1 }%
@@ -28,7 +28,7 @@
             <div class="media ${itemName}">
 
                 <a href="/${i.userName}/" class="img" rel="nofollow">
-                    <img src='${views.context.package.thumbnailUrl(i.thumbnail)}' alt="${i.title}" width="100" class="img"/>
+                    <img src='${views.context.package.thumbnailUrl(i.thumbnail, 100)}' alt="${i.title}" width="100" class="img"/>
                 </a>
 
                 <div class="bd">

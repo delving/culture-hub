@@ -1,84 +1,84 @@
 /* COLORS ***************************************************************/
 
-@color-1: #ffcc00;
-@color-1-lite: lighten(@color-1, 30%);
-@color-2: #666;
-@color-3: #000;
-@color-4: #BF8530;
-@color-5: #926806;
+$color-1: #ffcc00;
+$color-1-lite: lighten($color-1, 30%);
+$color-2: #666;
+$color-3: #000;
+$color-4: #BF8530;
+$color-5: #926806;
 
 /* font-sizes */
 
-@fsize-1: 14px;
-@fsize-2: 18px;
-@fsize-3: 22px;
-@fsize-4: 44px;
-@fsize-5: 72px;
+$fsize-1: 14px;
+$fsize-2: 18px;
+$fsize-3: 22px;
+$fsize-4: 44px;
+$fsize-5: 72px;
 
 /* WIDTHS ***************************************************************/
 
-@page-width: 960px;
-@container-width: 960px;
-@content-width: 960px;
+$page-width: 960px;
+$container-width: 960px;
+$content-width: 960px;
 
 /* MARGINS **************************************************************/
 
-@container-margin: 0 auto;
-@content-margin: 0 0;
+$container-margin: 0 auto;
+$content-margin: 0 0;
 
 /* POSITIONS & HEIGHTS **************************************************/
 
-@position: absolute;
+$position: absolute;
 
-@primary-branding-height: 60px;
-@primary-branding-left: 5px;
-@primary-branding-top: 90px;
+$primary-branding-height: 60px;
+$primary-branding-left: 5px;
+$primary-branding-top: 20px;
 
-@secondary-branding-top: 52px;
-@secondary-branding-height: 25px;
+$secondary-branding-top: 20px;
+$secondary-branding-height: 25px;
 
-@user-nav-top: 90px;
-@user-nav-height: 30px;
+$user-nav-top: 30px;
+$user-nav-height: 30px;
 
-@main-nav-top: 50px;
-@main-nav-height: 30px;
+$main-nav-top: 50px;
+$main-nav-height: 30px;
 
-@header-top: 85px;
-@header-height: 100px;
-@header-home-height: 420px;
+$header-top: 40px;
+$header-height: 50px;
+$header-home-height: 420px;
 
-@search-height: 40px;
-@search-right: 10px;
-@search-top: @header-top + 55px;
-@search-home-top: @user-nav-height + @header-home-height + 4px;
+$search-height: 40px;
+$search-right: 10px;
+$search-top: $header-top + 8px;
+$search-home-top: $user-nav-height + $header-home-height + 4px;
 
-@main-top: @header-height + @crumbs-height + @user-nav-height;
-@main-home-top: @header-home-height + @user-nav-height;
+$crumbs-top: $header-top + $header-height;
+$crumbs-height:40px;
 
-@crumbs-top: @header-top + @header-height;
-@crumbs-height:40px;
+$main-top: $header-height + $crumbs-height + $user-nav-height;
+$main-home-top: $header-home-height + $user-nav-height;
 
-@footer-height: 100px;
+$footer-height: 100px;
 
 /* borders ********/
-@radius: 2px;
+$radius: 2px;
 
-.border-all (@radius) {
-  border-radius: @radius;
-  -moz-border-radius: @radius;
-  -webkit-border-radius: @radius;
+@mixin border-all ($radius) {
+  border-radius: $radius;
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
 }
 
-.border-top (@radius) {
-  border-radius: @radius @radius 0 0;
-  -moz-border-radius: @radius @radius 0 0;
-  -webkit-border-radius: @radius @radius 0 0;
+@mixin border-top ($radius) {
+  border-radius: $radius $radius 0 0;
+  -moz-border-radius: $radius $radius 0 0;
+  -webkit-border-radius: $radius $radius 0 0;
 }
 
-.border-bot (@radius) {
-  border-radius: 0 0 @radius @radius;
-  -moz-border-radius: 0 0 @radius @radius;
-  -webkit-border-radius: 0 0 @radius @radius;
+@mixin border-bot ($radius) {
+  border-radius: 0 0 $radius $radius;
+  -moz-border-radius: 0 0 $radius $radius;
+  -webkit-border-radius: 0 0 $radius $radius;
 }
 
 h1, h2, h3 {
@@ -88,42 +88,42 @@ h1, h2, h3 {
 }
 
 h1, .h1 {
-    color: @color-2;
+    color: $color-2;
     font-size: 196%;
     font-weight: normal;
     font-style: normal;
 }
 
 h2, .h2 {
-    color: @color-2;
+    color: $color-2;
     font-size: 167%;
     font-weight: normal;
     font-style: normal;
 }
 
 h3, .h3 {
-    color: @color-2;
+    color: $color-2;
     font-size: 146.5%;
     font-weight: normal;
     font-style: normal;
 }
 
 h4, .h4 {
-    color: @color-2;
+    color: $color-2;
     font-size: 123.1%;
     font-weight: normal;
     font-style: normal;
 }
 
 h5, .h5 {
-    color: @color-2;
+    color: $color-2;
     font-size: 108%;
     font-weight: bold;
     font-style: normal;
 }
 
 h6, .h6 {
-    color: @color-2;
+    color: $color-2;
     font-size: 108%;
     font-weight: normal;
     font-style: italic;
@@ -132,25 +132,25 @@ h6, .h6 {
 /* STYLES ********************************************************************************************/
 
 body {
-    background: #fff url(../images/body-bg.gif) center top repeat-y;
-    color: @color-2;
+    background: #fff url(../images/body-bgs.gif) center top repeat-y;
+    color: $color-2;
     font-family: arial, helvetica, sans;
-    font-size: @fsize-1;
+    font-size: $fsize-1;
         line-height: 1.5;
 }
 
 a:link{
-    color: @color-4;
+    color: $color-4;
 }
 a:visited {
-    color: @color-5;
+    color: $color-5;
 }
 .pagination a, .pagination a:visited {
     color: #666;
 }
 
 h1.sep {
-    border-bottom: 4px solid lighten(@color-1, 40%);
+    border-bottom: 4px solid lighten($color-1, 40%);
     padding: 0;
     margin-bottom: 10px;
 }
@@ -164,12 +164,12 @@ h1.sep {
 }
 
 .container {
-    margin: @container-margin;
+    margin: $container-margin;
     width: 960px;
 }
 
 //.content {
-//    margin: @content-margin;
+//    margin: $content-margin;
 //    width: 80%;
 //}
 
@@ -204,10 +204,10 @@ h1.sep {
 }
 
 #primary-branding {
-    height: @primary-branding-height;
-    position: @position;
-    top: @primary-branding-top;
-    left: @primary-branding-left;
+    height: $primary-branding-height;
+    position: $position;
+    top: $primary-branding-top;
+    left: $primary-branding-left;
     z-index: 12;
 }
 
@@ -219,9 +219,9 @@ h1.sep {
 
 #secondary-branding {
     background-color: #fff;
-    height: @secondary-branding-height;
-    position: @position;
-    top: @secondary-branding-top;
+    height: $secondary-branding-height;
+    position: $position;
+    top: $secondary-branding-top;
     left: 460px;
     z-index: 10;
 }
@@ -230,12 +230,11 @@ h1.sep {
 
 
 #user-nav{
-    background: @color-1;
-    background: transparent;
-    color: #fff;
+    background: $color-2;
+    color: $color-1;
     position: relative;
-    top: @user-nav-top;
-    right: 6px;
+    top: $user-nav-top;
+    right: 0px;
     z-index: 11;
     height: 40px;
     line-height: 40px;
@@ -248,32 +247,32 @@ h1.sep {
 /* MAIN NAV ***********************************************************************************/
 
 #main-nav {
-    border-bottom: 4px solid @color-1;
-    position: @position;
-    top: @main-nav-top;
+    border-bottom: 4px solid $color-1;
+    position: $position;
+    top: $main-nav-top;
     width: 100%;
 }
 
 #main-nav ul {
-    background: @color-2;
+    background: $color-2;
     heigth: 40px;
     margin-left: 0;
     /*float: right;*/
 }
 
 #main-nav ul li {
-    background: @color-2;
+    background: $color-2;
     border-color: #fff;
-	.border-top(@radius);
+	@include border-top($radius);
 }
 
 #main-nav ul li:hover {
-    background-color: @color-1-lite;
+    background-color: $color-1-lite;
 }
 
 #main-nav ul li.current {
-    background-color: @color-1;
-    color: @color-2;
+    background-color: $color-1;
+    color: $color-2;
     font-weight: bold;
 }
 
@@ -287,7 +286,7 @@ h1.sep {
 }
 
 #main-nav ul li a:hover {
-    color: @color-2;
+    color: $color-2;
     text-decoration: underline;
 }
 
@@ -296,10 +295,10 @@ h1.sep {
 /* HEADER ***********************************************************************************/
 
 #header {
-    background: @color-2 url(../images/nassau-header-1.jpg);
-    position: @position;
-    top: @header-top;
-    height: @header-height;
+    background: $color-2;
+    position: $position;
+    top: $header-top;
+    height: $header-height;
     /*z-index: 9;*/
 }
 
@@ -308,7 +307,7 @@ h1.sep {
 #main {
 
     position: static;
-    margin-top: @main-top;
+    margin-top: $main-top;
 }
 
 #main .content {
@@ -319,9 +318,9 @@ h1.sep {
 /* FOOTER ********************************************************************************/
 
 #footer {
-    border-top: 4px solid lighten(@color-1, 40%);
+    border-top: 4px solid lighten($color-1, 40%);
     position: static;
-    height: @footer-height;
+    height: $footer-height;
 }
 
 #footer .content {
@@ -331,30 +330,30 @@ h1.sep {
 /* HOME-PAGE SPECIFIC ********************************************************************/
 
 #home #header {
-    background-color: @color-2;
+    background-color: $color-2;
     background-image: url(../images/nassau-header-1.jpg);
     background-position: top left;
     background-repeat: no-repeat;
-    height: @header-home-height;
+    height: $header-home-height;
 }
 
 #home #main {
-     margin-top: @main-home-top;
+     margin-top: $main-home-top;
 }
 
 /* SEARCH ********************************************************************************/
 
 #search {
     background-color: transparent;
-    position: @position;
-    top: @search-top;
-    height: @search-height;
+    position: $position;
+    top: $search-top;
+    height: $search-height;
     z-index: 10;
-    right: @search-right;
+    right: $search-right;
 }
 
 #home #search {
-    top: @search-home-top;
+    top: $search-home-top;
 }
 
 #search form {
@@ -367,16 +366,16 @@ h1.sep {
     background: none repeat scroll 0 0 #fff;
     /*border: medium none;*/
     border:  1px solid #d1d1d1;
-    .border-all(@radius);
+    @include border-all($radius);
     padding: 8px;
     width: 380px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 @color-1;
+    background: none repeat scroll 0 0 $color-1;
     /*border: medium none;*/
     border:  1px solid #555;
-    .border-all(@radius);
+    @include border-all($radius);
     color: #fff;
     cursor: pointer;
     margin-left: 4px;
@@ -428,7 +427,7 @@ ul.items .metadata .title {
 }
 
 .metadata h4 {
-    color: darken(@color-2, 20%);
+    color: darken($color-2, 20%);
     font-size: 14px;
     font-weight: bold;
     margin: 0;
@@ -443,7 +442,7 @@ ul.items .metadata .title {
 /* pagination.css overrides */
 
 .pagination .current {
-    background: @color-2;
+    background: $color-2;
     /*border: solid 1px #AAE;*/
 }
 
@@ -461,7 +460,7 @@ ul.items .metadata .title {
 /* USER DROPDOWN MENU ***************************************************************/
 
 ul#user-menu li .sub {
-    border: 1px solid @color-2;
+    border: 1px solid $color-2;
     border-width: 0px 1px 1px 1px;
     	top: 30px;
 }
@@ -509,12 +508,12 @@ fieldset {
 /* BREADCRUMBS  **********************************************************************************/
 
 //.breadcrumbs {
-//    background-color: @color-1-lite;
-//    position: @position;
-//    top: @crumbs-top;
+//    background-color: $color-1-lite;
+//    position: $position;
+//    top: $crumbs-top;
 //    left: 0px;
-//    height: @crumbs-height;
-//    line-height: @crumbs-height;
+//    height: $crumbs-height;
+//    line-height: $crumbs-height;
 //    width: 100%;
 //}
 //
@@ -527,14 +526,14 @@ fieldset {
 /* breadcrumb.css overrides */
 
 .breadcrumb {
-    background-color: @color-1-lite;
-    position: @position;
-    top: @crumbs-top;
+    background-color: $color-1-lite;
+    position: $position;
+    top: $crumbs-top;
     left: 0px;
-//    height: @crumbs-height;
+//    height: $crumbs-height;
 
 
-    line-height: @crumbs-height;
+    line-height: $crumbs-height;
     width: 100%;
 }
 
@@ -586,16 +585,12 @@ fieldset {
 
 /* media block in recent wrapper */
 
-.mod.recent{
-    background-color: #c1c1c1;
-}
-
-.recent .media {
-    margin: 10px;
+.mod.recent .inner{
+    /*background-color: #fff;*/
 }
 
 .recent h3 {
-    color: @color-3;
+    color: $color-3;
     text-transform:uppercase;
     font-weight: normal;
 }
@@ -645,11 +640,11 @@ fieldset {
 /* FACETS *************************************************************************************/
 
 .facets h3 {
-    font-size: @fsize-1;
+    font-size: $fsize-1;
 }
 
 .facet-container {
-    background-color: lighten(@color-1, 47%);
+    background-color: lighten($color-1, 47%);
 }
 
 
@@ -662,12 +657,12 @@ fieldset {
 /* TOKEN - iNPUTS ****************************************************************************/
 
 ul.token-input-list {
-    border: 1px solid @color-2;
+    border: 1px solid $color-2;
     width: 300px;
 }
 
 li.token-input-token {
-    background-color: lighten(@color-2, 45%);
+    background-color: lighten($color-2, 45%);
     margin:1px;
 }
 
@@ -676,5 +671,5 @@ div.token-input-dropdown {
 }
 
 div.token-input-dropdown ul li.token-input-selected-dropdown-item {
-background-color: lighten(@color-2, 45%);
+background-color: lighten($color-2, 45%);
 }

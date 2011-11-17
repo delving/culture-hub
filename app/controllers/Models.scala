@@ -12,7 +12,14 @@ case class ShortLabel(labelType: String, value: String)
 
 case class Token(id: String, name: String)
 
-case class ListItem(id: String, title: String, description: String = "", thumbnail: Option[ObjectId] = None, userName: String, fullUserName: String, isPrivate: Boolean)
+case class ListItem(id: String,
+                    title: String,
+                    description: String = "",
+                    thumbnail: Option[ObjectId] = None,
+                    userName: String,
+                    fullUserName: String,
+                    isPrivate: Boolean,
+                    childItems: List[ObjectId] = List.empty[ObjectId])
 
 
 // ~~ reference objects
