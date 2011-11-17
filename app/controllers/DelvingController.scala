@@ -179,7 +179,8 @@ trait FormatResolver {
 
   @Before(priority = 1)
   def setFormat(): AnyRef = {
-    if (request.headers.get("accept").value().equals("application/vnd.google-earth.kml+xml")) {
+    val accept = request.headers.get("accept")
+    if (accept != null && accept.value().equals("application/vnd.google-earth.kml+xml")) {
       request.format = "kml";
     }
     val formatParam = Option(params.get("format"))
