@@ -171,7 +171,7 @@ GET         /favicon.ico                                                     404
 # Map static resources from the /app/public folder to the /public path
 GET         /public/                                                         staticDir:public
 
-%{ if (play.Play.mode.isDev()) { }%
+%{ if (play.Play.mode.isDev() && !play.Play.id.equals("test")) { }%
 # Catch all
 *           /{controller}/{action}                                           {controller}.{action}
 %{ } }%
