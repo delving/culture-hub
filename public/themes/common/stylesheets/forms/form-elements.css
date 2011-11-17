@@ -6,6 +6,10 @@ form {
     padding: 0;
 }
 
+.data-grid form {
+    padding: 0px
+}
+
 form.box {
     background: #eaeaea;
     padding:  10px;
