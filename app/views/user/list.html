@@ -10,9 +10,9 @@
     #{if items.length() > views.context.package.PAGE_SIZE()}
     <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
     #{/if}
-    #{else}
+    #{elseif items.length() == 0}
     <p>&{'user.list.noUsers'}</p>
-    #{/else}
+    #{/elseif}
 </div>
 
 %{ def counter = 1 }%
