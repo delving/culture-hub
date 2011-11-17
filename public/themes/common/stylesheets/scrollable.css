@@ -67,10 +67,10 @@
     left: 0px;
 }
 
-.scrollable .page img {
-    max-height: 300px;
-    max-width: 350px;
-}
+/*.scrollable .page img {*/
+    /*max-height: 300px;*/
+    /*max-width: 350px;*/
+/*}*/
 
 .scrollable .page-left {
     float: left;

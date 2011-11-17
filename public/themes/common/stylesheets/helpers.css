@@ -103,7 +103,7 @@ button[disabled],
 
 .media.record .img {
     margin-right: 50px;
-    max-width: 300px;
+    max-width: 350px;
 }
 
 .media .extra {
@@ -144,6 +144,25 @@ div.dropdown-slider .ddm.heading {
     color: #fff;
     text-shadow: 0 1px 0 #000;
 
+}
+
+.collection-objects {
+    background: #f1f1f1;
+    width: 350px;
+}
+
+.collection-objects .inner {
+    padding: 5px;
+}
+
+.collection-objects ul {
+    margin: 0px;
+}
+
+.collection-objects ul li {
+    display: inline-block;
+    margin: 0 2px 0 0;
+    vertical-align: top;
 }
 
 /*.private {*/

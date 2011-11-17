@@ -5,7 +5,20 @@
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
 #{/set}
-
+<style>
+    #status {
+        position: absolute;
+        top: 0px;
+        left: 200px;
+    }
+    #status .active {
+        font-weight: bold;
+    }
+    #status li {
+        display: inline-block;
+        margin-right: 10px;
+    }
+</style>
 #{breadcrumbs /}
 
 <div class="story">
@@ -19,7 +32,14 @@
             <a class="button prev browse">&{'story.previouspage'}</a>
             <a class="button next browse">&{'story.nextpage'}</a>
         </div>
-
+        <div class="navigation">
+            <ul id="status">
+                <li class="active">Titel page</li>
+                #{list story.pages, as: 'page'}
+                <li>${page.title}</li>
+                #{/list}
+            </ul>
+        </div>
         <div class="scrollable">
 
             <!-- root element for the items -->
@@ -47,19 +67,28 @@
                     </div>
                     <div class="page-right g-6of12 omega">
                         #{list page.objects.headOption(), as: 'o'}
-                        <img src="${views.context.package.imageUrl(o.dobject_id)}" alt="${page.title}">
+                        <img src="${views.context.package.imageUrl(o.dobject_id)}" width="470" alt="${page.title}">
                         #{/list}
                     </div>
                 </div>
                 #{/list}
             </div>
+
+
         </div>
+
     </div>
 </div>
 
 <script type="text/javascript">
     $(document).ready(function() {
+        var root = $(".scrollable").scrollable();
+        var api = root.scrollable()
         // initialize scrollable
-        $(".scrollable").scrollable();
+        //$(".scrollable").scrollable();
+
+        api.onBeforeSeek(function(event, i) {
+           $("#status li").removeClass("active").eq(i).addClass("active");
+        });
     });
 </script>

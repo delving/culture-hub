@@ -21,45 +21,38 @@
 #{breadcrumbs /}
 
 #{if browsedUserName}
-<h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
-<h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
-<div class="row">
-    <div class="g-12of12 mbm">
-    #{if count > views.context.package.PAGE_SIZE()}
-        <div class="mod pager"></div>
-    #{/if}
-    #{elseif items.length() == 0}
-    <p>
-        &{'ui.message.nothingFound'}
-    </p>
-    #{/elseif}
+    <div class="row">
+        <div class="g-12of12 mbm">
+        #{if count > views.context.package.PAGE_SIZE()}
+            <div class="mod pager"></div>
+        #{/if}
+        #{elseif items.length() == 0}
+        <p>
+            &{'ui.message.nothingFound'}
+        </p>
+        #{/elseif}
+        </div>
     </div>
-</div>
 
 %{ def counter = 1 }%
-
 #{list items, as: 'i'}
-
-#{if counter == 1}
-<div class="row">
-#{/if}
-
+    #{if counter == 1}
+    <div class="row">
+    #{/if}
     <div class="g-3of12 #{if i.isPrivate}private#{/if}">
         <div class="mod list">
             <div class="media ${itemName}">
-
                 <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
                     <img src='${views.context.package.thumbnailUrl(i.thumbnail, 220)}' widht="220" alt="${i.title}" class="img"/>
                 </a>
-
                 <div class="bd">
                     <div class="metadata">
-
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-
                         #{if i.description}
                         <div class="more-info">
                             <div class="inner">
@@ -67,39 +60,32 @@
                             </div>
                         </div>
                         #{/if}
-
                         #{if i.isPrivate}
                         <div class="private">
                             <span>
-                            This object is visible only to you. If you want others to find and see it you can change it's
-                            <a href="/${i.userName}/${itemName}/${i.id}/update"><strong>visibility status</strong></a> to "visible".
+                                This object is visible only to you. If you want others to find and see it you can change it's
+                                <a href="/${i.userName}/${itemName}/${i.id}/update"><strong>visibility status</strong></a> to "visible".
                             </span>
                         </div>
                         #{/if}
-
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-
     %{ counter++ }%
-
     #{if counter > 4 || i_isLast }
-</div><!-- end row -->
-%{ counter = 1 }%
-#{/if}
-
+    </div><!-- end row -->
+    %{ counter = 1 }%
+    #{/if}
 #{/list}
 
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
-<div class="g-12of12 mtm">
-    <div class="mod pager"></div>
+    <div class="g-12of12 mtm">
+        <div class="mod pager"></div>
+    </div>
 </div>
-</div>
-
 #{/if}
 
 <script>
