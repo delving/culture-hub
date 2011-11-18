@@ -53,7 +53,13 @@
     #{press.script '/public/themes/common/javascripts/culturehub.js'/}
     #{press.compressed-script /}
     #{get 'moreScripts' /}
-    <script type="text/javascript">$(document).ready(function(){initializeElements();bindCSRFToken('${authenticityToken}');$.metadata.setType('html5');});</script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        initializeElements();
+        bindCSRFToken('${authenticityToken}');
+        $.metadata.setType('html5');
+      });
+    </script>
     <script type="text/html" id="uploadFileTemplate">
         <form action="#" method="post" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
