@@ -93,7 +93,6 @@ object SolrQueryService extends SolrServer {
     query setFacet true
     query setFacetMinCount (1)
     query setFacetLimit (100)
-    facets foreach (facet => query setFacetPrefix (facet.facetPrefix, facet.facetName))
     query setFields ("*,score")
     // highlighting parameters
     query setHighlight true
@@ -153,7 +152,7 @@ object SolrQueryService extends SolrServer {
               query setStart (values.head.toInt)
             case "rows" =>
               query setRows (values.head.toInt)
-            case "fl" =>
+            case "fl" | "fl[]" =>
               query setFields (values.mkString(","))
             case "facet.limit" =>
               query setFacetLimit (values.head.toInt)
@@ -163,9 +162,11 @@ object SolrQueryService extends SolrServer {
                       values.head,
                       sortOrder
                       )
-            case "facet.field" =>
-              val facets = if (query.getFacetFields != null) query.getFacetFields ++ values else values
-              facets foreach (facet => query addFacetField (facet))
+            case "facet.field" | "facet.field[]" =>
+              val facets: List[String] = if (!theme.getFacets.isEmpty) theme.getFacets.map(_.facetName) ++ values else values.toList
+              facets foreach (facet => {
+                query addFacetField ("{!ex=%s}%s".format(facets.indexOf(facet).toString,facet))
+              })
             case "pt" =>
               val ptField = values.head
               if (ptField.split(",").size == 2) query setParam ("pt", ptField)
@@ -201,12 +202,34 @@ object SolrQueryService extends SolrServer {
       paramMap.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
     }
 
+    def addPrefixedFilterQueries(fqs: List[FilterQuery], query: SolrQuery) {
+      val FacetExtractor = """\{!ex=(.*)\}(.*)""".r
+
+      val solrFacetFields = query.getFacetFields
+      val facetFieldMap = solrFacetFields.map {
+        field => field match {
+          case FacetExtractor(prefix, facetName) => (facetName, prefix)
+          case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
+        }
+      }.toMap
+      fqs foreach {
+        item => {
+          val prefix = facetFieldMap.get(item.field)
+          prefix match {
+            case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, item.toFacetString))
+            case None => query addFilterQuery (item.toFacetString)
+          }
+        }
+      }
+    }
+
     val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(
       if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
     )
     val query = parseSolrQueryFromRequest(request, theme)
+    addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query) // todo later with prefix
     CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
 
