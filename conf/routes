@@ -28,7 +28,7 @@ GET         /authorize                                                       OAu
 GET         /token                                                           OAuth2TokenEndpoint.token
 
 # Image Upload - with authentication
-POST       /file/upload/{uid}                                                user.FileUpload.fileUpload
+POST       /file/upload/{uid}                                                user.FileUpload.uploadFile
 DELETE     /file/{id}                                                        user.FileUpload.deleteFile
 
 # Delving object Server module
