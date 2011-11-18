@@ -165,21 +165,18 @@ function confirmationDialog(elementId, onConfirm, message, title) {
 }
 
 function confirmDeletion(elementSelector, onDelete) {
+    var btnDelete, btnCancel;
+    btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
+    btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
+    var btnOptions = {};
+    btnOptions[btnDelete] = function(){if (typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();$(this).dialog("close");};
+    btnOptions[btnCancel] = function(){$(this).dialog("close");};
     $(elementSelector).dialog({
         resizable: false,
-        height: 150,
+        minHeight: 150,
         modal: true,
-        buttons: {
-            "Delete": function() {
-                if (typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();
-                $(this).dialog("close");
-            },
-            Cancel: function() {
-                $(this).dialog("close");
-            }
-        }
+        buttons: btnOptions
     });
-
 }
 
 
