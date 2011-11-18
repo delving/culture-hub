@@ -177,3 +177,8 @@ div.dropdown-slider .ddm.heading {
     /*padding:  4px;*/
     /*font-size: 80%;*/
 /*}*/
+
+.ui-helper-reset li{
+    margin: 0;
+    padding: 0;
+}

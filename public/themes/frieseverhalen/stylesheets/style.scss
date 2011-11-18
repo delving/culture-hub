@@ -178,7 +178,7 @@ body#home  {
 
 .user-nav {
     background: $color-2;
-    /*@include  border-top(4px);*/
+    @include  border-top(4px);
     /*float: right;*/
     height: 40px;
     line-height: 40px;
