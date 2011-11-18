@@ -1,6 +1,6 @@
 <div class="toolbar">
     <div class="buttons">
-        *{<!-- leave out until functional -->
+        *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
         #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
         #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
         }*
@@ -64,25 +64,6 @@ $(function () {
     var addthis_config = {
         ui_use_css: true,
         ui_language: "nl"
-    };
-    *{ //leave out until functional
-    $("#addLabel").click(function () {
-        if ($("#add-comment.dialog")) {
-           $("#addComment").removeClass("on");
-           $("#add-comment-dialog").hide("slow");
-        }
-        $("#add-label-dialog").toggle("slow");
-        $(this).toggleClass("on");
-    });
-    $("#addComment").click(function () {
-        if ($("#add-label.dialog")) {
-            $("#addLabel").removeClass("on");
-            $("#add-label-dialog").hide("slow");
-        }
-        $("#add-comment-dialog").toggle("slow");
-        $(this).toggleClass("on");
-    });
-    }*
+    }
 });
-
 </script>
