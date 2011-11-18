@@ -18,7 +18,7 @@
     #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
     #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true /}
 
-    <div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>
+    *{<div data-bind="template: {name: 'addLabelTemplate', templateOptions: {name: 'label', labels: labels, labelType: labelType, labelValue: labelValue, addLabel: addLabel}}"></div>}*
 
     <div class="field">
         <label class="label" for="collection">&{'user.object.label.addToCollection'}</label>
