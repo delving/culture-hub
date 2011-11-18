@@ -195,7 +195,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def delete(dataSet: DataSet) {
     // TODO rename these for the moment
-    if(MongoConnection().dbNames.contains(getRecordsCollectionName(dataSet))) {
+    if(connection.getCollectionNames().contains(getRecordsCollectionName(dataSet))) {
       connection(getRecordsCollectionName(dataSet)).rename(getRecordsCollectionName(dataSet) + "_" + dataSet._id.toString)
     }
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
