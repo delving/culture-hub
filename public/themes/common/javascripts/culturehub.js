@@ -164,6 +164,11 @@ function confirmationDialog(elementId, onConfirm, message, title) {
     $(id).dialog('open');
 }
 
+/**
+ * Confirmation dialog for item deletions
+ * i18n version. Labels are set in the commonHeader.html
+ * If no labels are found default englsih texts 'Delete' and 'Cancel' are used
+ */
 function confirmDeletion(elementSelector, onDelete) {
     var btnDelete, btnCancel;
     btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";

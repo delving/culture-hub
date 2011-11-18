@@ -10,14 +10,23 @@
 #{breadcrumbs /}
 
 <div class="story row">
+    <div class="g-3of12">
+        <h4>${story.name}</h4>
+        <ul id="inav">
+            <li class="active"><a class="browse page">Titel page</a></li>
+            #{list story.pages, as: 'page'}
+            <li><a class="browse page" title="${page.title}">${page.title}</a></li>
+            #{/list}
+        </ul>
+    </div>
 
-    <div class="g-12of12">
+    <div class="g-9of12">
 
     <div class="story-container">
 
         <div class="scroll-nav">
             <a class="prev browse">&{'story.previouspage'}</a>
-            <ul id="pnav">
+            <ul id="pnav" class="s-nav">
                 <li class="active"><a class="browse page">Titel page</a></li>
                 #{list story.pages, as: 'page'}
                 <li><a class="browse page" title="${page.title}">${page.title}</a></li>
@@ -31,11 +40,11 @@
             <div class="items">
 
                 <div class="page title-page">
-                    <div class="g-12of12">
+                    <div class="g-1of1">
 
                         <div style="widht: 100%; text-align:center;">
                             <h1>${story.name}</h1>
-                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 350)}" width="350" alt=""/>
+                            <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 220)}" width="220" alt=""/>
 
                             <h3>By: ${browsedFullName}</h3>
                             <p>${story.description}</p>
@@ -46,13 +55,13 @@
 
                 #{list story.pages, as: 'page'}
                 <div class="page">
-                    <div class="page-left g-6of12 alpha">
+                    <div class="page-left g-1of2 alpha">
                         <h2>${page.title}</h2>
                         ${page.text.raw()}
                     </div>
-                    <div class="page-right g-6of12 omega">
+                    <div class="page-right g-1of2 omega">
                         #{list page.objects.headOption(), as: 'o'}
-                        <img src="${views.context.package.imageUrl(o.dobject_id)}" width="470" alt="${page.title}">
+                        <img src="${views.context.package.imageUrl(o.dobject_id)}" width="350" alt="${page.title}">
                         #{/list}
                     </div>
                 </div>
@@ -69,13 +78,14 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var root = $(".scrollable").scrollable().navigator("#pnav");
+        var root = $(".scrollable").scrollable().navigator("#pnav").navigator("#inav");
         var api = root.scrollable();
         // initialize scrollable
         //$(".scrollable").scrollable();
 
         api.onBeforeSeek(function(event, i) {
            $("#pnav li").removeClass("active").eq(i).addClass("active");
+           $("#inav li").removeClass("active").eq(i).addClass("active");
         });
     });
 </script>

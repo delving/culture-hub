@@ -3,7 +3,7 @@
 	when scrolling occurs this element stays still.
 */
 .story-container {
-    width: 940px;
+    width: 710px;
     margin: 0 auto;
 	/*height:500px;*/
     position: relative;
@@ -39,7 +39,7 @@
 	position:relative;
 	overflow:hidden;
 	overflow-y: auto;
-    width: 940px;
+    width: 710px;
     margin:  0 auto;
     min-height: 500px;
 
@@ -62,7 +62,7 @@
 
 .scrollable .page {
 	float:left;
-	width:940px;
+	width:710px;
     position: relative;
     top: 20px;
     left: 0px;
