@@ -115,7 +115,7 @@ object OAuth2TokenEndpoint extends Controller {
   @Util def getUserByToken(token: String) = User.findByAccessToken(token)
 
   /** ensure that some content is set, so that there will always be a Content-Length in the response **/
-  @Util def WrappedJson(payload: AnyRef) = if(payload == null) Json("") else Json(payload)
+  @Util def WrappedJson(payload: String) = if(payload == null) Json("") else Json(payload)
   
   /**
    * Play wrapper for the OAuth token request

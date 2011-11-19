@@ -36,7 +36,7 @@ class OAuth2TokenEndPointSpec extends UnitFlatSpec with ShouldMatchers with Test
     val resp: WS.HttpResponse = req.get()
     resp.getStatus should be(200)
 
-    val oNTokenResponse = OAuthClientResponseFactory.createJSONTokenResponse(resp.getJson.getAsString, resp.getContentType, resp.getStatus.intValue()).asInstanceOf[OAuthJSONAccessTokenResponse]
+    val oNTokenResponse = OAuthClientResponseFactory.createJSONTokenResponse(resp.getString, resp.getContentType, resp.getStatus.intValue()).asInstanceOf[OAuthJSONAccessTokenResponse]
 
     oNTokenResponse.getAccessToken should not be (null)
     oNTokenResponse.getExpiresIn should be ("3600")
