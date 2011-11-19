@@ -3,8 +3,8 @@
 #{selenium '1000 - New user registration'}
   clearSession()
 
-  open('/')
-  clickAndWait('link=Register')
+  open('/users')
+  clickAndWait('register')
   type('registration.firstName','Foo')
   type('registration.lastName','Bar')
   type('registration.email','foo@bar.com')
@@ -15,7 +15,7 @@
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
   # Verify if an error is displayed if the account is not active
-  clickAndWait('link=Login')
+  clickAndWait('login')
   type('username','foo')
   type('password','foo')
   clickAndWait('signin')
