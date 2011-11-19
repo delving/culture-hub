@@ -25,7 +25,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     val attrMap = node.attributes.asAttrMap
     val fieldType = attrMap.get("type").getOrElse("text")
     fieldType match {
-      case "location" => addField("l")
+      case "location" => addField("p")
       case "date" => addField("tdt")
       case "link" => addField("s")
       case "int" => addField("i")
