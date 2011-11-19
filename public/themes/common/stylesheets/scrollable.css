@@ -38,13 +38,14 @@
  	/* required settings */
 	position:relative;
 	overflow:hidden;
-	overflow-y: auto;
+	/*overflow-y: auto;*/
     width: 710px;
     margin:  0 auto;
-    min-height: 500px;
+    /*min-height: 500px;*/
 
 	/* custom decorations */
     top: 0px;
+    display: block;
 }
 
 /*

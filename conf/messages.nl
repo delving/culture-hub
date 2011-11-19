@@ -246,6 +246,7 @@ story.nextpage=Volgende pagina
 story.read=Lees verhaal
 story.previouspage=Vorige pagina
 story.confirmDeletion=Weet u zeker dat u dit verhaal wilt verwijderen?
+story.titlePage=Titelpagina
 
 #metadata
 metadata.dc.contributor=Met bijdrage(n) van

@@ -649,14 +649,108 @@ background-color: lighten($color-2, 30%);
     margin: 0px 0px 20px 0px;
 }
 
+/* STORY LAYOUT */
+
+.story {
+    background: $color-2;
+    margin-top: 10px;
+}
+
+.story h4 {
+    color: #fff;
+    padding: 4px 0;
+}
+
+.story-container {
+   background: #fff;
+   margin-left: -10px;
+   padding-left: 10px;
+   display: block;
+}
+
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
+.scrollable {
+    min-height: 100%;
+}
+
 .scroll-nav {
-    border-top: 4px solid lighten($color-2, 40%);
-    border-bottom: 4px solid lighten($color-2, 40%);
-    margin-top: 20px;
-    height: 70px;
+    text-align: left;
+    border-bottom: 1px solid #fff;
+    height: 32px;
 }
 
 .scroll-nav a {
     background: transparent url(/public/themes/frieseverhalen/images/scrollable-nav.png) top left no-repeat;
+    display: inline-block;
+    width: 15px;
+    height: 25px;
+    overflow: hidden;
+    text-indent: -2000px;
+    margin: 0px;
+}
+
+.scroll-nav .prev {
+    background-position: -15px 0px;
+}
+
+.scroll-nav .next {
+    background-position: -71px 0px;
+}
+
+.scroll-nav .page {
+    background-position: -51px 0px;
+    width: 18px;
+}
+
+.scroll-nav .active .page {
+    background-position: -31px 0px;
+    width: 18px;
+}
+
+.scroll-nav .prev.disabled {
+    background-position: -0px 0px;
+}
+
+.scroll-nav .next.disabled {
+    background-position: -86px 0px;
+}
+
+#pnav {
+    display: inline-block;
+    /*margin: 0;*/
+}
+
+#pnav .active {
+    font-weight: bold;
+}
+
+#pnav li {
+    display: inline-block;
+    margin: 0px;
+}
+
+#inav {
+    background: #eaeaea;
+    padding: 0;
+}
+
+#inav li {
+    padding: 2px 4px;
+    margin: 0;
+}
+
+#inav .active,
+#inav li:hover {
+    background: $color-4;
+    color: #fff;
+    font-weight: bold;
+}
+#inav a {
+    color: $color-4;
+    display: block;
+    width: 100%;
+}
+#inav .active a,
+#inav li:hover a {
+    color: #fff;
 }
