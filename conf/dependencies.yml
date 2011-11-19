@@ -7,6 +7,7 @@ require:
     - delving -> scala 0.9.1_20111028
     - delving -> press 1.0.24.P
     - play -> sass 1.1
+    - org.joda -> joda-convert 1.1
     - commons-httpclient -> commons-httpclient 3.1
     - net.liftweb -> lift-json-ext_2.8.1 2.4-M4:
         exclude:
