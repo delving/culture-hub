@@ -156,7 +156,7 @@ GET        /admin/themes/list                                                adm
 GET        /admin/themes/new                                                 admin.Themes.themeUpdate
 GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
-GET       /admin/themes/reloadFromDisk                                      admin.Themes.reload
+GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
 
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
@@ -171,7 +171,7 @@ GET         /favicon.ico                                                     404
 # Map static resources from the /app/public folder to the /public path
 GET         /public/                                                         staticDir:public
 
-%{ if (play.Play.mode.isDev() && !play.Play.id.equals("test")) { }%
+%{ if (play.Play.mode.isDev()) { }%
 # Catch all
 *           /{controller}/{action}                                           {controller}.{action}
 %{ } }%
