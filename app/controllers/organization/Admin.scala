@@ -21,9 +21,10 @@ object Admin extends DelvingController with OrganizationSecured {
   }
 
   def index(orgId: String): Result = {
-    val org = Organization.findByOrgId(orgId).getOrElse(return NotFound("Could not find organization " + orgId))
+    val org = Organization.findByOrgId(orgId).getOrElse(return NotFound(&("organizations.organization.orgNotFound", orgId)))
     val membersAsTokens = JJson.generate(org.users.map(m => Map("id" -> m, "name" -> m)))
-    Template('members -> membersAsTokens)
+    val idAndOwners = Organization.listOwnersAndId(orgId)
+    Template('members -> membersAsTokens, 'owners -> idAndOwners._2, 'ownerGroupId -> idAndOwners._1.getOrElse(""))
   }
 
   /**
