@@ -175,11 +175,11 @@ object ErrorReporter {
        URL: %s
        METHOD: %s
        HTTP PARAMS:
-       %s
+%s
        HTTP HEADERS:
-       %s""".format(request.url,
+%s""".format(request.url,
                     request.method,
-                    params.all().map(pair => "   " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
-                    request.headers.map(pair => "   " + pair._1 + ": " + pair._2.values.mkString(", ")).mkString("\n"))
+                    params.all().map(pair => "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
+                    request.headers.map(pair => "          " + pair._1 + ": " + pair._2.values.mkString(", ")).mkString("\n"))
   }
 }
