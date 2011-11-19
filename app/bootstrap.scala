@@ -8,7 +8,7 @@ import play.jobs._
 import play.libs.IO
 import play.Play
 import play.test._
-import util.ThemeHandler
+import util.{MongoCacheImpl, ScalaCacheAccessor, ThemeHandler}
 
 @OnApplicationStart class BootStrap extends Job {
 
@@ -61,6 +61,10 @@ import util.ThemeHandler
     }
 
     println("""Starting up with node name "%s"""".format(getNode))
+
+    // mongo-based cache, to get press to work without having to deploy memcached
+    ScalaCacheAccessor.set(new MongoCacheImpl)
+
 
     // TODO bootstrap all lazy Mongo connections here
 
