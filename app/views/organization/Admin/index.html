@@ -9,8 +9,28 @@
 <h1 class="sep">${orgId}</h1>
 
 <div class="row">
-    <div class="g-4of12">
-        <h3>Members</h3>
-        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl: "/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
+  <div class="g-4of12">
+    <h3>Members</h3>
+
+    <div>
+      #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
     </div>
+    <div><p></p></div>
+
+    <h3>Owners</h3>
+
+    <div>
+      <ul class="token-input-list">
+        #{list items:owners, as:'o'}
+        <li class="token-input-token">
+          <p>${o}</p>
+        </li>
+        #{/}
+      </ul>
+    </div>
+    <div><p>
+      &{'org.admin.index.editOwners'} <a href="/organizations/${orgId}/groups/update/${ownerGroupId}">&{'org.admin.index.editOwnersLink'}</a>
+    </p></div>
+
+  </div>
 </div>
