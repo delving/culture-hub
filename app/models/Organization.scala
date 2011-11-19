@@ -28,6 +28,11 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
   def isOwner(orgId: String, userName: String) = Group.count(MongoDBObject("orgId" -> orgId, "users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
 
+  def listOwnersAndId(orgId: String) = Group.findOne(MongoDBObject("orgId" -> orgId, "grantType.value" -> GrantType.OWN.value)) match {
+    case Some(g) => (Some(g._id), g.users)
+    case None => (None, List())
+  }
+
   def addUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
     Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, SAFE_WC)

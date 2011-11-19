@@ -414,6 +414,8 @@ org.group.create=Create group
 
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
+org.admin.index.editOwners=You can edit the owners of the organization at the
+org.admin.index.editOwnersLink=owners group page
 
 organization.dataset.title.create=Create new dataset for user %s
 organization.dataset.title.update=Update dataset for user %s
