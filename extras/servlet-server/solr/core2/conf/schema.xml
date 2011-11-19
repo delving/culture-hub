@@ -588,8 +588,6 @@
 
    <dynamicField name="random_*" type="random" />
 
-     <dynamicField name="md_*" type="text_general" indexed="true" stored="false" multiValued="true"/>
-
      <!-- Any field prefixed with summ will be stored for the summary on the brief result page -->
      <dynamicField name="summ_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
@@ -609,8 +607,8 @@
      <dynamicField name="icn_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
      <dynamicField name="abm_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
      <dynamicField name="delving_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
-     <dynamicField name="drup_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
-     <dynamicField name="itin_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+     <!--<dynamicField name="drup_*" type="text_general" indexed="true" stored="true" multiValued="true"/>-->
+     <!--<dynamicField name="itin_*" type="text_general" indexed="true" stored="true" multiValued="true"/>-->
 
 
    <!-- uncomment the following to ignore any fields that don't already match an existing 

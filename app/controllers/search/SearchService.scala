@@ -383,6 +383,11 @@ case class ExplainResponse(theme : PortalTheme) {
   )
 
   def renderAsXml : Elem = {
+    import controllers.SolrServer
+
+    val solrFields = SolrServer.getSolrFields.sortBy(_.name)
+    val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
+    val sortableFields = solrFields.filter(_.fieldIsSortable)
 
     <results>
       <api>
@@ -391,11 +396,33 @@ case class ExplainResponse(theme : PortalTheme) {
         </parameters>
         <solr-dynamic>
             <fields>
-                <field xml="drup:title" search="drup_title_text" fieldType="text">drup_title_text</field>
+              {solrFields.map{field =>
+                <field xml={field.xmlFieldName} search={field.name} fieldType={field.fieldType} docs={field.docs.toString} distinct={field.distinct.toString}>
+                   <topTerms>
+                     {field.topTerms.map{term =>
+                        <item count={term.freq.toString} >{term.name}</item>
+                      }
+                     }
+                   </topTerms>
+                   <histoGram>
+                     {field.histogram.map{term =>
+                        <item count={term.freq.toString} >{term.name}</item>
+                      }
+                     }
+                   </histoGram>
+                </field>
+              }}
             </fields>
             <facets>
-                <facet xml="drup:title" search="drup_title_facet">drup_title_facet</facet>
+                {solrFieldsWithFacets.map{field =>
+                  <facet xml={field.xmlFieldName} search={field.name} fieldType={field.fieldType} docs={field.docs.toString} distinct={field.distinct.toString}></facet>
+                 }}
             </facets>
+            <sort-fields>
+                {sortableFields.map{field =>
+                  <sort-field xml={field.xmlFieldName} search={field.name} fieldType={field.fieldType} docs={field.docs.toString} distinct={field.distinct.toString}></sort-field>
+                 }}
+            </sort-fields>
         </solr-dynamic>
         <theme-based>
           <search-fields>
