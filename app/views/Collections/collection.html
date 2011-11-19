@@ -48,13 +48,14 @@
 
                             <h5>&{'thing.datemodified'}:</h5>
                             <p>${views.context.package.niceTime(collection.TS_update)}</p>
-
+                            *{<!-- Labels commented out for now -->
                             <h5>&{'thing.labels'}:</h5>
                             <p class="labels">
                                 #{list labels, as: 'l'}
                                 <span class="label">${l.labelType} - ${l.value}</span><br/>
                                 #{/list}
                             </p>
+                            }*
                         </div>
                     </div>
                 </div>
