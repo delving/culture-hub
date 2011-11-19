@@ -230,7 +230,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
           {result.getFacetQueryLinks.map(fql =>
             <facet name={fql.getType} isSelected={fql.facetSelected.toString}>
               {fql.links.map(link =>
-                    <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{link.value} ({link.value})</link>
+                    <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{link.value} ({link.count.toString})</link>
             )}
             </facet>
           )}
