@@ -43,7 +43,7 @@ def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
 def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
 def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
-def getId : String = assign("delving_chID")
+def getId : String = assign("delving_hubId")
 def getDelvingId : String = assign("delving_pmhId")
 def getTitle : String = assign("dc_title")
 def getDescription: String = assign("dc_description")

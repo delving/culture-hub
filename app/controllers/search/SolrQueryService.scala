@@ -370,7 +370,7 @@ case class DelvingIdType(id: String, idType: String) {
     //case "mongo" => "delving"
     case "pmh" => "delving_pmhId"
     case "drupal" => "id" // maybe later drup_id
-    case "dataSetId" => "delving_chID"
+    case "dataSetId" => "delving_hubId"
     case "legacy" => "europeana_uri"
     case _ => "delving_pmhId"
   }
