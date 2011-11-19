@@ -20,6 +20,11 @@ trait TestData {
     collection =>
       connection.getCollection(collection).remove(MongoDBObject())
   }
+  commonsConnection.getCollectionNames() foreach {
+    collection =>
+      commonsConnection.getCollection(collection).remove(MongoDBObject())
+  }
+
 }
 
 trait TestDataGeneric extends TestData {

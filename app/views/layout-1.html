@@ -10,10 +10,8 @@
         <div class="content">
             #{if !userName}
             <div class="buttons">
-                <!--#{a @Authentication.login()}Login #{/a}-->
-                <!--#{a @Registration.index()}Register #{/a}-->
-                #{btnHref label: viewUtils.getKey('ui.label.login'), extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
-                #{btnHref label: viewUtils.getKey('ui.label.register'), extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
             </div>
             #{/if}
             #{else}
@@ -24,6 +22,7 @@
 
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
+                    <div class="dropdown-slider">rregi
                         <a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>
                         <a href="/${userName}" class="ddm"><span class="label">&{'user.nav.yourprofile'}</span></a>
                         <a href="/${userName}/object" class="ddm"></span>

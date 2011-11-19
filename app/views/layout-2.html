@@ -44,10 +44,10 @@
             <div class="content">
                 #{if !userName}
                 <div class="buttons">
-                    <a class='button ${"Authentication.login".isCurrent()}' href="/login" rel="nofollow">
+                    <a class='button ${"Authentication.login".isCurrent()}' href="/login" id="login" rel="nofollow">
                         <span class="label">&{'ui.label.login'}</span>
                     </a>
-                    <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" rel="nofollow">
+                    <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" id="register" rel="nofollow">
                         <span class="label">&{'ui.label.register'}</span>
                     </a>
                 </div>

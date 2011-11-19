@@ -475,7 +475,7 @@ registration.accountNotActive=This account is not active yet. Please activate yo
 registration.resetTokenNotFound=Reset password token not found
 registration.errorPasswordChange=Error changing your password. Try resetting it again.
 registration.passwordsDiffer=Passwords are not the same
-registration.userNameInvalid=This username is not valid. A username can only contain letters, numbers, - and _, and has to be between 3 and 15 characters long.
+registration.userNameInvalid=This username is not valid. A username can only contain lower-case letters, numbers, - and _, and has to be between 3 and 15 characters long.
 
 authentication.usernameRequired=Username is required
 authentication.passwordRequired=Password is required
