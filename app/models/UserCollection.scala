@@ -25,7 +25,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 
   def toSolrDocument: SolrInputDocument = {
       val doc = getAsSolrDocument
-      doc setField ("delving_recordType", "userCollection")
+      doc addField ("delving_recordType", "userCollection")
       doc
   }
 }

@@ -33,7 +33,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
    def toSolrDocument: SolrInputDocument = {
       val doc = getAsSolrDocument
-      doc setField ("delving_recordType", "object")
+      doc addField ("delving_recordType", "object")
       doc
     }
 }

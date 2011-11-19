@@ -26,17 +26,16 @@ trait Thing extends AnyRef with Product {
 
   def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
-    doc setField ("id", _id)
-    doc setField ("delving_user_id_single", user_id)
-    doc setField ("delving_userName_single", userName)
-    doc setField ("delving_description_text", description)
-    doc setField ("delving_name_text", name)
+    doc addField ("id", _id)
+    doc addField ("delving_user_id_single", user_id)
+    doc addField ("delving_userName_single", userName)
+    doc addField ("delving_description_text", description)
+    doc addField ("delving_name_text", name)
     if (thumbnail_id.get != None) {
-      doc setField("delving_thumbnail_id_string", thumbnail_id.get)
+      doc addField("delving_thumbnail_id_string", thumbnail_id.get)
     }
     doc
   }
-
 
 }
 

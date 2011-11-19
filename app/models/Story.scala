@@ -26,12 +26,12 @@ case class Story(_id: ObjectId = new ObjectId,
 
     def toSolrDocument: SolrInputDocument = {
       val doc = getAsSolrDocument
-      doc setField ("delving_recordType", "story")
+      doc addField ("delving_recordType", "story")
       pages foreach {
         page => {
           val pageNumber = pages.indexOf(page)
-          doc setField ("delving_page_title_%i_text".format(pageNumber), page.title)
-          doc setField ("delving_page_text_%i_text".format(pageNumber), page.text)
+          doc addField ("delving_page_title_%i_text".format(pageNumber), page.title)
+          doc addField ("delving_page_text_%i_text".format(pageNumber), page.text)
         }
       }
       doc

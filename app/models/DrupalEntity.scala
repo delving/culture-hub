@@ -41,15 +41,15 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   def toSolrDocument: SolrInputDocument = {
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
-    doc setField("id", id.nodeId)
-    doc setField("drup_id_string", id.id)
-    doc setField ("drup_entityType_string", id.nodeType)
-    doc setField ("drup_bundle_string", id.bundle)
-    doc setField ("europeana_uri", id.nodeId)
-    doc setField ("europeana_collectionName_s", id.bundle)
-    doc setField ("europeana_provider_s", "ITIN")
-    doc setField ("delving_recordType", "drupal")
-    doc setField ("delving_pmhId", "drupal_%s".format(_id))
+    doc addField("id", id.nodeId)
+    doc addField("drup_id_string", id.id)
+    doc addField ("drup_entityType_string", id.nodeType)
+    doc addField ("drup_bundle_string", id.bundle)
+    doc addField ("europeana_uri", id.nodeId)
+    doc addField ("europeana_collectionName_s", id.bundle)
+    doc addField ("europeana_provider_s", "ITIN")
+    doc addField ("delving_recordType", "drupal")
+    doc addField ("delving_pmhId", "drupal_%s".format(_id))
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{
