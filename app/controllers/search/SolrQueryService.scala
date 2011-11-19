@@ -229,25 +229,13 @@ object SolrQueryService extends SolrServer {
       if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
     )
     val query = parseSolrQueryFromRequest(request, theme)
-    addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query) // todo later with prefix
+    addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
     CHQuery(query, format, filterQueries, hiddenQueryFilters)
   }
 
   def getFullSolrResponseFromServer(id: String, idType: String = ""): QueryResponse = {
-    val idSearchField = idType match {
-      case "solr" => "id"
-      //case "mongo" => "delving"
-      case "pmh" => "delving_pmhId"
-      case "drupal" => "id" // maybe later drup_id
-      case "dataSetId" => "delving_chID"
-      case "legacy" => "europeana_uri"
-      case _ => "delving_pmhId"
-    }
-    val normalisedId = idSearchField match {
-      case "delving_pmhId" => id.replaceAll("/", "_")
-      case _ => id
-    }
-    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(idSearchField, normalisedId)))
+    val r = DelvingIdType(id, idType)
+    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId)))
   }
 
   def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
@@ -374,6 +362,22 @@ object SolrQueryService extends SolrServer {
     if (!href.isEmpty) href.mkString(FACET_PROMPT,FACET_PROMPT,"") else ""
   }
 
+}
+
+case class DelvingIdType(id: String, idType: String) {
+  lazy val idSearchField = idType match {
+    case "solr" => "id"
+    //case "mongo" => "delving"
+    case "pmh" => "delving_pmhId"
+    case "drupal" => "id" // maybe later drup_id
+    case "dataSetId" => "delving_chID"
+    case "legacy" => "europeana_uri"
+    case _ => "delving_pmhId"
+  }
+  lazy val normalisedId = idSearchField match {
+    case "delving_pmhId" => id.replaceAll("/", "_")
+    case _ => id
+  }
 }
 
 case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
