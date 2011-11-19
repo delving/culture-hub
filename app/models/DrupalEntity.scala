@@ -25,12 +25,12 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     val attrMap = node.attributes.asAttrMap
     val fieldType = attrMap.get("type").getOrElse("text")
     fieldType match {
-      case "location" => addField("p")
-      case "date" => addField("tdt")
-      case "link" => addField("s")
-      case "int" => addField("i")
+      case "location" => addField("location")
+      case "date" => addField("date")
+      case "link" => addField("link")
+      case "int" => addField("int")
       case "text" => addField("text")
-      case "string" => addField("s")
+      case "string" => addField("string")
       case _ => addField("text")
     }
     if (attrMap.contains("facet") && attrMap.get("facet").getOrElse("false") == "true")
@@ -42,19 +42,18 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
     doc setField("id", id.nodeId)
-    doc setField("drup_id_s", id.id)
-    doc setField ("drup_entityType_s", id.nodeType)
-    doc setField ("drup_bundle_s", id.bundle)
+    doc setField("drup_id_string", id.id)
+    doc setField ("drup_entityType_string", id.nodeType)
+    doc setField ("drup_bundle_string", id.bundle)
     doc setField ("europeana_uri", id.nodeId)
-    doc setField ("europeana_collectionName", id.bundle)
-    doc setField ("europeana_provider", "ITIN")
+    doc setField ("europeana_collectionName_s", id.bundle)
+    doc setField ("europeana_provider_s", "ITIN")
     doc setField ("delving_recordType", "drupal")
     doc setField ("delving_pmhId", "drupal_%s".format(_id))
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{
       node =>
-//            println(createSolrFieldLabel(node))
             nodeToField(node, doc)
     }
     // store links

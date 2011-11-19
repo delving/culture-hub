@@ -19,7 +19,16 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                            description: String,
                            visibility: Visibility,
                            deleted: Boolean = false,
-                           thumbnail_id: Option[ObjectId]) extends Thing
+                           thumbnail_id: Option[ObjectId]) extends Thing {
+
+  import org.apache.solr.common.SolrInputDocument
+
+  def toSolrDocument: SolrInputDocument = {
+      val doc = getAsSolrDocument
+      doc setField ("delving_recordType", "userCollection")
+      doc
+  }
+}
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
 

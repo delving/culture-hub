@@ -76,6 +76,7 @@ object SolrBindingService {
       for (value <- values; if value != null ) yield (FieldValueNode(key, value.toString))
 
     import java.util.{List => JList, Map => JMap}
+    import java.lang.{Integer => JInteger}
     val highLightMap: JMap[String, JMap[String, JList[String]]] = queryResponse.getHighlighting
 
     val docs = new ListBuffer[SolrResultDocument]
@@ -84,6 +85,7 @@ object SolrBindingService {
     val DateObject = classOf[Date]
     val FloatObject = classOf[JFloat]
     val BooleanObject = classOf[JBoolean]
+    val IntegerObject = classOf[JInteger]
     // check for required fields else check exception
     queryResponse.getResults.foreach{
         doc =>
@@ -98,6 +100,7 @@ object SolrBindingService {
                 case DateObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
                 case BooleanObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
                 case FloatObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
+                case IntegerObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
                 case _ => println("unknown class in SolrBindingService " + field.getKey + FieldValueClass.getCanonicalName)
               }
           }

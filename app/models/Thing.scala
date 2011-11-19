@@ -11,6 +11,9 @@ import java.util.Date
 
 @Salat
 trait Thing extends AnyRef with Product {
+
+  import org.apache.solr.common.SolrInputDocument
+
   val _id: ObjectId
   val TS_update: Date
   val user_id: ObjectId
@@ -20,6 +23,21 @@ trait Thing extends AnyRef with Product {
   val visibility: Visibility
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
+
+  def getAsSolrDocument: SolrInputDocument = {
+    val doc = new SolrInputDocument
+    doc setField ("id", _id)
+    doc setField ("delving_user_id_single", user_id)
+    doc setField ("delving_userName_single", userName)
+    doc setField ("delving_description_text", description)
+    doc setField ("delving_name_text", name)
+    if (thumbnail_id.get != None) {
+      doc setField("delving_thumbnail_id_string", thumbnail_id.get)
+    }
+    doc
+  }
+
+
 }
 
 

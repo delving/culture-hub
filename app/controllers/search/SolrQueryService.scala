@@ -24,7 +24,7 @@ object SolrQueryService extends SolrServer {
   val QUERY_PROMPT: String = "query="
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
-    val keyAsXml = field.getKeyAsXml.replaceFirst("_[a-z]{1,4}$", "")
+    val keyAsXml = field.getKeyAsXml.replaceFirst("_[a-z]{1,8}$", "")
     field.getValueAsArray.map(value =>
       {
         try {
@@ -206,12 +206,15 @@ object SolrQueryService extends SolrServer {
       val FacetExtractor = """\{!ex=(.*)\}(.*)""".r
 
       val solrFacetFields = query.getFacetFields
-      val facetFieldMap = solrFacetFields.map {
+      val facetFieldMap = if (solrFacetFields == null ) Map[String, String]()
+      else {
+        solrFacetFields.map {
         field => field match {
           case FacetExtractor(prefix, facetName) => (facetName, prefix)
           case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
         }
       }.toMap
+      }
       fqs foreach {
         item => {
           val prefix = facetFieldMap.get(item.field)

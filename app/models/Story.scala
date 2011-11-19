@@ -20,7 +20,23 @@ case class Story(_id: ObjectId = new ObjectId,
                  deleted: Boolean = false,
                  thumbnail_id: Option[ObjectId],
                  isDraft: Boolean,
-                 pages: List[Page]) extends Thing
+                 pages: List[Page]) extends Thing {
+
+  import org.apache.solr.common.SolrInputDocument
+
+    def toSolrDocument: SolrInputDocument = {
+      val doc = getAsSolrDocument
+      doc setField ("delving_recordType", "story")
+      pages foreach {
+        page => {
+          val pageNumber = pages.indexOf(page)
+          doc setField ("delving_page_title_%i_text".format(pageNumber), page.title)
+          doc setField ("delving_page_text_%i_text".format(pageNumber), page.text)
+        }
+      }
+      doc
+    }
+}
 
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
 
