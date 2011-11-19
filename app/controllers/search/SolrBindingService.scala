@@ -345,7 +345,7 @@ abstract class MetadataAccessors {
   protected def assign(key: String): String
 
   // ~~~ identifiers
-  def getId : String = assign("delving_chID")
+  def getId : String = assign("delving_hubId")
   def getOrgId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(0) else ""
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
   def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
