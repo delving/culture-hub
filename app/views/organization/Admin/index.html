@@ -10,13 +10,6 @@
 
 <div class="row">
   <div class="g-4of12">
-    <h3>Members</h3>
-
-    <div>
-      #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
-    </div>
-    <div><p></p></div>
-
     <h3>Owners</h3>
 
     <div>
@@ -31,6 +24,15 @@
     <div><p>
       &{'org.admin.index.editOwners'} <a href="/organizations/${orgId}/groups/update/${ownerGroupId}">&{'org.admin.index.editOwnersLink'}</a>
     </p></div>
+
+  </div>
+  <div class="g-4of12">
+    <h3>Members</h3>
+
+    <div>
+      #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove" /}
+    </div>
+    <div><p></p></div>
 
   </div>
 </div>
