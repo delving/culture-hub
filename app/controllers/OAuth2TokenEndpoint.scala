@@ -84,14 +84,14 @@ object OAuth2TokenEndpoint extends Controller {
       }
 
       val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
-      Json(resp.getBody)
+      WrappedJson(resp.getBody)
     }
     catch {
       case e: OAuthProblemException => {
         val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
         val resp: OAuthResponse = builder.error(e).buildJSONMessage()
         response.status = 400
-        Json(resp.getBody)
+        WrappedJson(resp.getBody)
       }
     }
   }
@@ -100,7 +100,7 @@ object OAuth2TokenEndpoint extends Controller {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
     val resp: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
     response.status = 400
-    Json(resp.getBody)
+    WrappedJson(resp.getBody)
   }
 
   @Util def isValidToken(token: String): Boolean = {
@@ -114,6 +114,9 @@ object OAuth2TokenEndpoint extends Controller {
 
   @Util def getUserByToken(token: String) = User.findByAccessToken(token)
 
+  /** ensure that some content is set, so that there will always be a Content-Length in the response **/
+  @Util def WrappedJson(payload: AnyRef) = if(payload == null) Json("") else Json(payload)
+  
   /**
    * Play wrapper for the OAuth token request
    */
