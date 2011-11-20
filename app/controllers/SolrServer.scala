@@ -1,5 +1,8 @@
 package controllers
 
+import org.bson.types.ObjectId
+import org.apache.solr.client.solrj.response.UpdateResponse
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -24,6 +27,7 @@ object SolrServer {
   import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
   import play.Play
   import xml.Node
+  import org.apache.solr.common.SolrInputDocument
 
   private val url = Play.configuration.getProperty("solr.baseUrl", "http://localhost:8983/solr/core2")
   private val solrServer = new CommonsHttpSolrServer(url)
@@ -38,16 +42,26 @@ object SolrServer {
   solrServer.setMaxRetries(0)
   // defaults to 0.  > 1 not recommended.
 
-  private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 5000, 30)
+  private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
   streamingUpdateServer.setSoTimeout(10000) // socket read timeout
   streamingUpdateServer.setConnectionTimeout(100)
   streamingUpdateServer.setDefaultMaxConnectionsPerHost(100)
   streamingUpdateServer.setMaxTotalConnections(100)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(0)
+  streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
-  // defaults to 0.  > 1 not recommended.
+  def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
+  def deleteFromSolrById(id: ObjectId): UpdateResponse = deleteFromSolrById(id.toString)
+  def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
+
+  def commit() {
+    streamingUpdateServer.commit()
+  }
+
+  def rollback() {
+    streamingUpdateServer.rollback()
+  }
 
   def getSolrFrequencyItemList(node: Node): List[SolrFrequencyItem] = {
     node.nonEmptyChildren.filter(node => node.attribute("name") != None).map {
@@ -86,11 +100,14 @@ object SolrServer {
 }
 
 case class SolrDynamicField(name: String, fieldType: String = "text", schema: String = "", index: String = "", dynamicBase: String = "", docs: Int = 0, distinct: Int = 0, topTerms: List[SolrFrequencyItem] = List.empty, histogram: List[SolrFrequencyItem] = List.empty) {
+
+  import search.SolrBindingService
+
   lazy val fieldCanBeUsedAsFacet: Boolean = name.endsWith("_facet") || fieldType.equalsIgnoreCase("string") || name.startsWith("facet_")
   lazy val fieldIsSortable: Boolean = name.startsWith("sort_")
 
   lazy val xmlFieldName = normalisedField.replaceFirst("_", ":")
-  lazy val normalisedField = name.replaceFirst("_[a-z]{1,4}$", "").replaceFirst("facet_", "")
+  lazy val normalisedField = SolrBindingService.stripDynamicFieldLabels(name)
 }
 
 case class SolrFrequencyItem(name: String, freq: Int)
