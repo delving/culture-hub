@@ -13,11 +13,15 @@ import play.mvc.results.Result
 
 object Search extends DelvingController {
 
+  val ReturnToResults = "returnToResults"
+
   def index(query: String = "*:*", page: Int = 1) = {
+    import play.mvc.Scope.Session
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
+    Session.current().put(ReturnToResults, request.querystring)
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 
@@ -38,7 +42,9 @@ object Search extends DelvingController {
       Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
     }
     else {
-      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
+      import play.mvc.Scope.Session
+      val returnToUrl = if (Session.current().contains(ReturnToResults)) Session.current().get(ReturnToResults) else ""
+      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
     }
 
   }
