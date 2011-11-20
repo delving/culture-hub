@@ -382,12 +382,12 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("pt", List("Standard latitude longitude separeded by a comma"), "The point around which the geo-search is executed with the type of query specified by geoType")
   )
 
-  def renderAsXml : Elem = {
-    import controllers.SolrServer
+  import controllers.SolrServer
+  val solrFields = SolrServer.getSolrFields.sortBy(_.name)
+  val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
+  val sortableFields = solrFields.filter(_.fieldIsSortable)
 
-    val solrFields = SolrServer.getSolrFields.sortBy(_.name)
-    val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
-    val sortableFields = solrFields.filter(_.fieldIsSortable)
+  def renderAsXml : Elem = {
 
     <results>
       <api>
@@ -424,15 +424,6 @@ case class ExplainResponse(theme : PortalTheme) {
                  }}
             </sort-fields>
         </solr-dynamic>
-        <theme-based>
-          <search-fields>
-          {theme.getRecordDefinition.getFieldNameList.
-                filterNot(field => excludeList.contains(field)).map(facet => ExplainItem(facet).toXML)}
-        </search-fields>
-        <facets>
-          {theme.getRecordDefinition.getFacetMap.map(facet => ExplainItem(facet._1).toXML)}
-        </facets>
-        </theme-based>
       </api>
     </results>
   }
@@ -448,9 +439,8 @@ case class ExplainResponse(theme : PortalTheme) {
               ListMap("api" ->
                      ListMap(
                     "parameters" -> paramOptions.map(param => param.toJson).toIterable,
-                        "search-fields" -> theme.getRecordDefinition.getFieldNameList.
-                filterNot(field => excludeList.contains(field)).map(facet => ExplainItem(facet).toJson),
-                        "facets" -> theme.getRecordDefinition.getFacetMap.map(facet => ExplainItem(facet._1).toJson)))
+                        "search-fields" ->  solrFields.map(facet => ExplainItem(facet.name).toJson),
+                        "facets" -> solrFieldsWithFacets.map(facet => ExplainItem(facet.name).toJson)))
       ))
     ))
     outputJson
