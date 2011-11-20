@@ -93,13 +93,18 @@ object Indexing extends SolrServer {
     inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
     inputDoc.addField("delving_currentFormat", format)
     inputDoc.addField("delving_recordType", "dataset") // todo add the record type support to all search functionality
-    val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
-    inputDoc.addField("delving_hubId", hubId)
-    inputDoc.addField("id", hubId)
+    inputDoc.addField("delving_hubId", "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey))
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
 
+    val europeanaUri = "europeana_uri"
+    if (inputDoc.containsKey(europeanaUri))
+      inputDoc.addField("id", inputDoc.getField(europeanaUri).getValues.headOption.getOrElse("empty"))
+    else if (!record.localRecordKey.isEmpty)
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record.localRecordKey))
+    else
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record._id.toString))
     // todo add more elements: hasDigitalObject. etc
   }
 
