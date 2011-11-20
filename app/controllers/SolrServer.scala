@@ -42,7 +42,7 @@ object SolrServer {
   solrServer.setMaxRetries(0)
   // defaults to 0.  > 1 not recommended.
 
-  private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 5000, 30)
+  private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
   streamingUpdateServer.setSoTimeout(10000) // socket read timeout
   streamingUpdateServer.setConnectionTimeout(100)
   streamingUpdateServer.setDefaultMaxConnectionsPerHost(100)

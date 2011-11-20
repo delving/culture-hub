@@ -501,7 +501,7 @@
    <field name="europeana_uri" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
