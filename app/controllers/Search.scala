@@ -14,8 +14,6 @@ import play.mvc.results.Result
 object Search extends DelvingController {
 
   def index(query: String = "*:*", page: Int = 1) = {
-    // always give back the recordType facet
-    request.params.put("facet.field", "delving_recordType")
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)

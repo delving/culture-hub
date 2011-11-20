@@ -113,7 +113,10 @@ object SolrQueryService extends SolrServer {
 
     val query = getSolrQueryWithDefaults
     val params = request.params
-    theme.getFacets.foreach(facet => params.put("facet.field", facet.facetName))
+    val facetFields = if (params._contains("facet.field")) theme.getFacets.map(_.facetName) ::: params.getAll("facet.field").toList
+    else theme.getFacets.map(_.facetName)
+
+    params.put("facet.field", facetFields.toArray[String])
 
     def addGeoParams(hasGeoType: Boolean)  {
       if (!hasGeoType) query setFilterQueries ("{!%s}".format("geofilt"))
@@ -164,9 +167,8 @@ object SolrQueryService extends SolrServer {
                       sortOrder
                       )
             case "facet.field" | "facet.field[]" =>
-              val facets: List[String] = if (!theme.getFacets.isEmpty) theme.getFacets.map(_.facetName) ++ values else values.toList
-              facets foreach (facet => {
-                query addFacetField ("{!ex=%s}%s".format(facets.indexOf(facet).toString,facet))
+              values foreach (facet => {
+                query addFacetField ("{!ex=%s}%s".format(values.indexOf(facet).toString,facet))
               })
             case "pt" =>
               val ptField = values.head
@@ -406,6 +408,7 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 case class FilterQuery(field: String, value: String) {
   def toFacetString = "%s:%s".format(field, value)
   def toPrefixedFacetString = "%s%s:%s".format(SolrQueryService.FACET_PROMPT, field, value)
+  override def toString = toFacetString
 }
 
 case class SolrFacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
@@ -514,7 +517,7 @@ case class PresentationQuery(chResponse: CHResponse) {
   }
 
   private def createQueryForPresentation(solrQuery: SolrQuery): String = {
-    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=", "&qf=", ""))
+    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=","&qf=", ""))
   }
 
 }
