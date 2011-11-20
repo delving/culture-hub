@@ -66,35 +66,6 @@
         $.metadata.setType('html5');
       });
     </script>
-    <script type="text/html" id="uploadFileTemplate">
-        <form action="#" method="post" enctype="multipart/form-data">
-            <div class="fileupload-buttonbar">
-                <label class="fileinput-button">
-                    <span>&{'ui.label.filesadd'}</span>
-                    <input type="file" name="files[]" multiple="true"/>
-                </label>
-                <button type="submit" class="start">&{'ui.label.uploadstart'}</button>
-                <button type="reset" class="cancel">&{'ui.label.uploadcancel'}</button>
-                <button type="button" class="delete">&{'ui.label.filesdelete'}</button>
-            </div>
-        </form>
-        <div class="fileupload-content">
-            <table class="files"></table>
-        </div>
-    </script>
-    <script type="text/html" id="simpleUploadFileTemplate">
-        <form action="#" method="post" enctype="multipart/form-data">
-            <div class="fileupload-buttonbar">
-                <label class="fileinput-button">
-                    <span>&{'ui.label.filesadd'}</span>
-                    <input type="file" name="files[]" multiple="true"/>
-                </label>
-            </div>
-        </form>
-        <div class="fileupload-content">
-            <table class="files"></table>
-        </div>
-    </script>
 </head>
 
 <body id="#{get 'bodyId' /}" style="visibility: ${play.templates.BaseTemplate.layoutData.get().get('visibility') ? play.templates.BaseTemplate.layoutData.get().get('visibility') : 'visible'}">
