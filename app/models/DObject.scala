@@ -41,9 +41,9 @@ case class DObject(_id: ObjectId = new ObjectId,
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
   // TODO index the collections field
-  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id))
+  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id, "deleted" -> false))
 
-  def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
+  def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
     update(MongoDBObject("_id" -> id), MongoDBObject("$set" -> MongoDBObject("thumbnail_file_id" -> thumbnail_id), "$set" -> MongoDBObject("thumbnail_id" -> id)) , false, false)
@@ -56,7 +56,7 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
   }
 
   def findForCollection(collectionId: ObjectId) = {
-    objectsCollection.find(MongoDBObject("collections" -> collectionId), MongoDBObject("_id" -> 1)).map(dbo => dbo.get("_id").asInstanceOf[ObjectId]).toList
+    objectsCollection.find(MongoDBObject("collections" -> collectionId, "deleted" -> false), MongoDBObject("_id" -> 1)).map(dbo => dbo.get("_id").asInstanceOf[ObjectId]).toList
   }
 
   def unlinkCollection(collectionId: ObjectId) {
