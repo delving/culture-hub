@@ -612,6 +612,14 @@ background: -o-linear-gradient(top, $color-2, darken($color-2, 10%));
 button.green:hover, .button.green:hover {
     background:  darken($color-2, 10%);
 }
+
+div.dropdown-slider .ddm.heading.places {
+    background-color: $color-4;
+}
+
+div.dropdown-slider .ddm.heading.orgs {
+    background-color: $color-3;
+}
 /* HELPERS ************************************************************************************/
 
 .clear {
