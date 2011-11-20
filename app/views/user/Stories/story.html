@@ -180,7 +180,7 @@
                 selectedObjectIds: ko.observableArray()
             },
             addPages: function() {
-                saveStory();
+                saveStory(null, null, true);
                 storyModel.addPage();
                 $("#story-pages").show("slow");
             },

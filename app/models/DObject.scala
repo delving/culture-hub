@@ -26,9 +26,16 @@ case class DObject(_id: ObjectId = new ObjectId,
                    collections: List[ObjectId],
                    labels: List[ObjectId]) extends Thing {
 
+  import org.apache.solr.common.SolrInputDocument
+
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
   def userFullName = User.findOneByID(user_id).get.fullname
 
+   def toSolrDocument: SolrInputDocument = {
+      val doc = getAsSolrDocument
+      doc addField ("delving_recordType", "object")
+      doc
+    }
 }
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {

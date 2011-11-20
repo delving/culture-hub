@@ -66,18 +66,31 @@ object Stories extends DelvingController with UserSecured {
           pages = pages,
           isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)
-        storyVM.copy(id = inserted)
+        inserted match {
+          case Some(iid) =>
+            if(!story.isDraft) {
+              SolrServer.indexSolrDocument(story.copy(_id = iid).toSolrDocument)
+              SolrServer.commit()
+            }
+            storyVM.copy(id = inserted)
+          case None => None
+        }
       case Some(id) =>
         val savedStory = Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id)))
         val updatedStory = savedStory.copy(TS_update = new Date(), name = storyVM.name, description = storyVM.description, visibility = Visibility.get(storyVM.visibility.intValue()), thumbnail_id = thumbnail, isDraft = storyVM.isDraft, pages = pages)
         Story.save(updatedStory)
+        SolrServer.indexSolrDocument(updatedStory.toSolrDocument)
+        SolrServer.commit()
         storyVM
     }
     Json(persistedStory)
   }
 
   def remove(id: ObjectId) = {
-    if(Story.owns(connectedUserId, id)) Story.delete(id) else Forbidden("Big brother is watching you")
+    if(Story.owns(connectedUserId, id)) {
+      Story.delete(id)
+      SolrServer.deleteFromSolrById(id)
+    } else Forbidden("Big brother is watching you")
   }
 
 }
