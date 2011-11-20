@@ -38,7 +38,7 @@
                     <div class="row">
                         <div class="g-1of2 alpha">
                             #{metadataField label: viewUtils.getKey('thing.name'), data: collection.name /}
-                             #{metadataField label: viewUtils.getKey('thing.owner'), data: browsedFullName /}
+                            #{metadataField label: viewUtils.getKey('thing.owner'), data: browsedUserName, link: '/'+browsedUserName /}
                             #{metadataField label: viewUtils.getKey('thing.objectcount'), data: objects.length() /}
                         </div>
 

@@ -80,7 +80,7 @@
 
 
 
-<div class="objects-container" id="objects-dialogue" title="Select Object(s)">
+<div class="objects-container" id="objects-dialogue" title="&{'user.story.title.selectObjects'}">
     <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: currentPage.selectedObjectIds, availableObjects: currentPage.availableObjects}}"></div>
 </div>
 
@@ -116,11 +116,11 @@
         <h4>&{'user.story.label.addObjects'}</h4>
 
         <div class="field">
-            <label class="label">&{'ui.label.collectionSelect'}</label>
+            <label class="label">&{'user.story.label.selectCollection'}</label>
 
             <div class="inputs">
 
-                <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: '&{'ui.label.choose'}', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
+                <select id="collection-name" name="collection-name" data-bind="options: collections(), optionsCaption: '&{'user.story.label.selectCollection'}', optionsText: 'name', optionsValue: 'id', event: { change: collectionChanged }"></select>
                 #{btnHref label: viewUtils.getKey('user.story.label.addImageFromCollection'), id:"addObject", iconClass:"icon3", dataBind:"enable: currentPage.availableObjects().length > 0, click: function() { jQuery('#objects-dialogue').dialog('open'); }".raw() /}
 
             </div>
@@ -185,7 +185,6 @@
                 $("#story-pages").show("slow");
             },
             addPage: function() {
-                storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "&{'user.story.noCollection'}"});
                 storyModel.currentPage.lock(true);
                 storyModel.currentPage.isNew(true);
                 storyModel.currentPage.title("");
@@ -197,7 +196,6 @@
                 $("#form-add-page").show("slow");
             },
             editPage: function(page) {
-                storyModel.collections.push({id: "${controllers.Collections.NO_COLLECTION()}", name: "No collection"});
                 storyModel.currentPage.isNew(false);
                 storyModel.currentPage.pageRef(page),
                 storyModel.currentPage.title(page.title());
@@ -284,7 +282,7 @@
             modal: true,
             buttons: {
                 "&{'user.collection.label.addObjects'}": function() {
-                    addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
+                    addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects, storyModel.thumbnail);
                     $(this).dialog('close');
                 }
             }

@@ -28,7 +28,7 @@ object Collections extends DelvingController with UserSecured {
       case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        JJson.generate(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id))
+        JJson.generate(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id, visibility = col.visibility.value))
       }
     }
   }
