@@ -31,11 +31,14 @@ case class DObject(_id: ObjectId = new ObjectId,
   // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
   def userFullName = User.findOneByID(user_id).get.fullname
 
-   def toSolrDocument: SolrInputDocument = {
-      val doc = getAsSolrDocument
-      doc addField ("delving_recordType", "object")
-      doc
-    }
+  def toSolrDocument: SolrInputDocument = {
+    val doc = getAsSolrDocument
+    doc addField ("delving_recordType", "object")
+    doc
+  }
+
+  def fileIds = files.map(_.id)
+
 }
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
