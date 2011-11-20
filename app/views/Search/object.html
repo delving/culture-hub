@@ -10,14 +10,10 @@
 <div class="row">
     <div class="g-12of12">
         <div class="media record">
-            <img src="${fullDoc.getThumbnail()}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
-
-            <div class="extra" style="width:350px">
-                #{thingToolbar/}
-            </div>
+            <img src="${fullDoc.getThumbnail()}" class="img" width="350" rel="#overlay" alt="${fullDoc.getTitle()}"/>
             <div class="bd">
+                #{thingToolbar/}
                 <div class="metadata">
-
                     <h5>&{'metadata.dc.description'}:</h5>
                     <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
                     <hr/>
@@ -25,7 +21,7 @@
                         <div class="g-1of2 alpha">
                             #{metadataField label: viewUtils.getKey('metadata.dc.title'), data: fullDoc.getTitle() /}
                             #{metadataField label: viewUtils.getKey('metadata.dc.creator'), data: fullDoc.getCreator() /}
-                            #{metadataField label: viewUtils.getKey('metadata.dc.year'), data: fullDoc.getYear() /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.date'), data: fullDoc.getYear() /}
                         </div>
 
                         <div class="g-1of2 omega">
@@ -38,6 +34,18 @@
         </div>
     </div>
 </div>
+
+<!-- overlayed element -->
+<div id="overlay" class="result-overlay">
+    <img src="${fullDoc.getThumbnail()}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
+    ${fullDoc.getTitle()}
+</div>
+
+<script>
+    $(function () {
+        $("img[rel]").overlay();
+});
+</script>
 
 *{
 Possible methods

@@ -28,37 +28,38 @@
 %{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
 
 <div class="g-12of12">
-    <div class="mod item-count ptm">
+    <div class="mod item-count">
         <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
     </div>
 </div>
 
 <div class="row">
     <div class="g-9of12">
-
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-
+        #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
+        <div class="pager mbl">
+            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
+        </div>
+        #{/if}
         <div class="results">
             #{resultGrid results: briefDocs /}
         </div>
-
-
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-
+        #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
+        <div class="pager">
+            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
+        </div>
+        #{/if}
     </div>
     <div class="g-3of12">
-
         <div class="mod facets">
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
                     #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-
                     #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-
                 </div>
             </div>
         </div>
+        *{ <!-- commented out for now until functionality is there -->
         <div class="dropdown">
             #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
             <div class="dropdown-slider">
@@ -66,16 +67,15 @@
                 <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
             </div>
         </div>
+        }*
     </div>
 
 </div>
 
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay">
-
-	<!-- the external content is loaded inside this tag -->
-	<div class="contentWrap"></div>
-
+    <!-- the external content is loaded inside this tag -->
+    <div class="contentWrap"></div>
 </div>
 
 
