@@ -78,7 +78,7 @@ isOwner: isOwner/}
                             #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
                             <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
                                 #{authenticityToken /}
-                                <button class="action green index"><span class="label">&{'dataset.index'}</span>
+                                <button class="button action green index"><span class="label">&{'dataset.index'}</span>
                                 </button>
                             </form>
                             #{/if}
