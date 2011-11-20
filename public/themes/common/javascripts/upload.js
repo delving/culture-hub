@@ -20,6 +20,7 @@ function initUploadWidget() {
                 file = that._uploadTemplateHelper(file);
                 var row = $('<tr class="template-upload">' +
                         '<td class="preview"></td>' +
+                        '<td class="selected"></td>' +
                         '<td class="name"></td>' +
                         '<td class="size"></td>' +
                         (file.error ?
@@ -31,6 +32,7 @@ function initUploadWidget() {
                         '<td class="cancel"><button>Cancel</button></td>' +
                         '</tr>');
                 row.find('.name').text(file.name);
+                row.find('selected').append('<input type="radio">');
                 row.find('.size').text(file.sizef);
                 if (file.error) {
                     row.addClass('ui-state-error');
@@ -55,10 +57,12 @@ function initUploadWidget() {
                                         '<td class="size"></td>' +
                                         '<td class="error" colspan="2"></td>'
                                 :
+                                '<td class="id" style="display: none;"></td>' +
+                                '<td class="selected"></td>' +
                                 '<td class="preview"></td>' +
-                                        '<td class="name"><a></a></td>' +
-                                        '<td class="size"></td>' +
-                                        '<td colspan="2"></td>'
+                                '<td class="name"><a></a></td>' +
+                                '<td class="size"></td>' +
+                                '<td colspan="2"></td>'
                                 ) +
                         '<td class="delete"><button>Delete</button></td>' +
                         '</tr>');
@@ -76,6 +80,8 @@ function initUploadWidget() {
                                 .find('img').prop('src', file.thumbnail_url);
                         row.find('a').prop('target', '_blank');
                     }
+                    row.find('.id').html(file.id);
+                    row.find('.selected').append('<input type="radio" />').find('input').prop('checked', file.selected).attr('name', 'files');
                     row.find('a').prop('href', file.url);
                     row.find('.delete button')
                             .attr('data-type', file.delete_type)

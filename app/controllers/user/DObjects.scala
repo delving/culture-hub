@@ -28,16 +28,19 @@ object DObjects extends DelvingController with UserSecured {
     DObject.findByIdUnsecured(id) match {
         case None => JJson.generate(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {
-          JJson.generate(ObjectModel(
-            Some(anObject._id),
-            anObject.name,
-            anObject.description,
-            anObject.user_id,
-            anObject.visibility.value,
-            anObject.collections,
-            availableCollections,
-            (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList,
-            anObject.files map {f => FileUploadResponse(f.name, f.length, "/file/" + f.id, f.thumbnailUrl, "/file/" + f.id)}))
+          val model = ObjectModel(
+          Some(anObject._id),
+          anObject.name,
+          anObject.description,
+          anObject.user_id,
+          anObject.visibility.value,
+          anObject.collections,
+          availableCollections,
+          (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList,
+          anObject.files map {f => FileUploadResponse(name = f.name, size = f.length, url = "/file/" + f.id, thumbnail_url = f.thumbnailUrl, delete_url = "/file/" + f.id, selected = Some(f.id) == anObject.thumbnail_file_id, id = f.id.toString)},
+          anObject.thumbnail_file_id.toString)
+          val generated: String = JJson.generate[ObjectModel](model)
+          generated
         }
       }
   }
@@ -54,9 +57,10 @@ object DObjects extends DelvingController with UserSecured {
     val files = controllers.dos.FileUpload.getFilesForUID(uid)
 
     /** finds thumbnail candidate for an object, "activate" thumbnails (for easy lookup) and returns the OID of the thumbnail candidate image file **/
-    def activateThumbnail(objectId: ObjectId) = findThumbnailCandidate(files) match {
-        case Some(f) => controllers.dos.FileUpload.activateThumbnails(f.id, objectId); Some(f.id)
-        case None => None
+    def activateThumbnail(itemId: ObjectId, fileId: String) = if(!fileId.isEmpty) {
+        controllers.dos.FileUpload.activateThumbnails(new ObjectId(fileId), itemId); Some(new ObjectId(fileId))
+    } else {
+      None
     }
 
     val labels = {
@@ -87,7 +91,10 @@ object DObjects extends DelvingController with UserSecured {
           case Some(iid) => {
             SolrServer.indexSolrDocument(newObject.copy(_id = iid).toSolrDocument)
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
-            activateThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
+            activateThumbnail(iid, objectModel.selectedFile) match {
+              case Some(thumb) => DObject.updateThumbnail(iid, thumb)
+              case None =>
+            }
             SolrServer.commit()
             Some(objectModel.copy(id = inserted))
           }
@@ -96,11 +103,15 @@ object DObjects extends DelvingController with UserSecured {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
-        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels)
         try {
           SolrServer.indexSolrDocument(updatedObject.toSolrDocument)
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
           controllers.dos.FileUpload.markFilesAttached(uid, id)
+          activateThumbnail(id, objectModel.selectedFile) match {
+            case Some(thumb) => DObject.updateThumbnail(id, thumb)
+            case None =>
+          }
           SolrServer.commit()
           Some(objectModel)
         } catch {
@@ -143,4 +154,5 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        availableCollections: List[CollectionReference] = List.empty[CollectionReference],
                        labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
+                       selectedFile: String = "",
                        errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

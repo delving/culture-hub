@@ -54,6 +54,19 @@
 
 </div>
 
+<script type="text/html" id="simpleUploadFileTemplate">
+    <form action="#" method="post" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+            <label class="fileinput-button">
+                <span>&{'ui.label.filesadd'}</span>
+                <input type="file" name="files[]" multiple="true"/>
+            </label>
+        </div>
+    </form>
+    <div class="fileupload-content">
+        <table class="files"></table>
+    </div>
+</script>
 <script type="text/javascript">
     $(document).ready(function() {
 
@@ -97,8 +110,10 @@
       });
 
       $('#saveButton').click(function(event) {
-          event.preventDefault();
-          handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
+        event.preventDefault();
+        var selected = $($.grep($('#fileupload .files tr'), function(el, idx) { return $(el).find('td.selected input').is(':checked')})[0]).find('td.id').text();
+        objectModel.selectedFile(selected);
+        handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
       });
 
     });
