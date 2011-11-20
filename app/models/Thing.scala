@@ -24,7 +24,7 @@ trait Thing extends AnyRef with Product {
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
 
-  def getAsSolrDocument: SolrInputDocument = {
+  protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField ("id", _id)
     doc addField ("delving_user_id_single", user_id)

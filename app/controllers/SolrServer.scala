@@ -24,6 +24,7 @@ object SolrServer {
   import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
   import play.Play
   import xml.Node
+  import org.apache.solr.common.SolrInputDocument
 
   private val url = Play.configuration.getProperty("solr.baseUrl", "http://localhost:8983/solr/core2")
   private val solrServer = new CommonsHttpSolrServer(url)
@@ -45,9 +46,11 @@ object SolrServer {
   streamingUpdateServer.setMaxTotalConnections(100)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(0)
+  streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
-  // defaults to 0.  > 1 not recommended.
+  def deleteFromSolrByMongoId(id: String) = streamingUpdateServer.deleteById(id)
+
+  def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
 
   def getSolrFrequencyItemList(node: Node): List[SolrFrequencyItem] = {
     node.nonEmptyChildren.filter(node => node.attribute("name") != None).map {
