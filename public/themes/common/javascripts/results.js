@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    // Facets stuff
     if ($(".facet-container").length > 0) {
         //Hide (Collapse) the toggle containers on load
         $(".facet-container").hide();
@@ -34,4 +35,23 @@ $(document).ready(function() {
             }, 1);
         }
     });
+
+    // Overlay stuff
+	// if the function argument is given to overlay,
+	// it is assumed to be the onBeforeLoad event listener
+	$("a[rel]").overlay({
+
+		effect: 'apple',
+        modal: true,
+
+		onBeforeLoad: function() {
+
+			// grab wrapper element inside content
+			var wrap = this.getOverlay().find(".contentWrap");
+
+			// load the page specified in the trigger
+			wrap.load(this.getTrigger().attr("href"));
+		}
+
+	});
 });
