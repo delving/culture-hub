@@ -306,10 +306,12 @@ body#home  {
     top: 142px;
     left: 0px;
     z-index: 9;
-    background: transparent url(../images/header-bg-2.jpg) repeat-x top left;
+    background: transparent url(../images/header-bg-2.jpg) no-repeat center left;
     opacity: .7;
     width: 100%;
     height: 414px;
+    margin: 0 auto;
+
 
 
 }

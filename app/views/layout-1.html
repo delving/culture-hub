@@ -17,12 +17,9 @@
             #{else}
 
             <div class="buttons">
-
                 <div class="dropdown">
-
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
-                    <div class="dropdown-slider">rregi
                         <a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>
                         <a href="/${userName}" class="ddm"><span class="label">&{'user.nav.yourprofile'}</span></a>
                         <a href="/${userName}/object" class="ddm"></span>
@@ -41,7 +38,6 @@
                     <!-- /.dropdown-slider -->
                 </div>
                 <!-- /.dropdown -->
-
                 <div class="dropdown">
                     #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
                     <div class="dropdown-slider">
@@ -50,12 +46,10 @@
                         <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
                     </div>
                     <!-- /.dropdown-slider -->
-
                 </div>
                 <!-- /.dropdown -->
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
-
             #{/else}
         </div>
     </div>
@@ -66,17 +60,14 @@
                 <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
                 <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
-
                 <div id="primary-branding">
                     <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
                 </div>
-
                 <div id="secondary-branding" role="banner">
                     <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
                 </div>
             </div>
             <div id="site-nav">
-                <!--site nav-->
                 <ul>
                     <li class='${"Application".isCurrent()}'>
                         <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
@@ -88,7 +79,6 @@
                     <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
                 </ul>
             </div>
-
             <div id="search" role="search">
                 <form method="get" action="/search">
                     <input type="text" id="query" name="query" value='${params.query}'/>
@@ -97,8 +87,6 @@
             </div>
         </div>
     </div>
-
-    <!--</div>-->
 
     <div class="main">
         <div class="content">
@@ -116,10 +104,4 @@
 
 </div>
 
-<div id="extraDiv1"><span></span></div>
-<div id="extraDiv2"><span></span></div>
-<div id="extraDiv3"><span></span></div>
-<div id="extraDiv4"><span></span></div>
-<div id="extraDiv5"><span></span></div>
-<div id="extraDiv6"><span></span></div>
 #{include 'commonFooter.html' /}
