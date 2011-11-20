@@ -192,13 +192,17 @@ function confirmDeletion(elementSelector, onDelete) {
  * @param objects the observable array in which objects are stored
  * @param selectedObjectIds the observable array containing the checked object IDs
  * @param availableObjects the objects the user still has available for selection
+ * @param selectedObject the selected object / thumbnail
  */
-function addSelectedObjects(objects, selectedObjectIds, availableObjects) {
+function addSelectedObjects(objects, selectedObjectIds, availableObjects, selectedObject) {
     $.each(selectedObjectIds(), function(index, selectedId) {
         var objs = $.grep(availableObjects(), function(searchedElement, searchedIndex) {
             return elementIdMatch(selectedId, searchedElement);
         });
         var obj = ko.toJS(objs[0]);
+        if(objects().length == 0) {
+            selectedObject(obj.id);
+        }
         objects.push(obj);
         availableObjects.remove(function(item) {
             return elementIdMatch(obj.id, item);

@@ -284,7 +284,7 @@
             modal: true,
             buttons: {
                 "&{'user.collection.label.addObjects'}": function() {
-                    addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects);
+                    addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects, storyModel.thumbnail);
                     $(this).dialog('close');
                 }
             }
