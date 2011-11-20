@@ -86,11 +86,14 @@ object SolrServer {
 }
 
 case class SolrDynamicField(name: String, fieldType: String = "text", schema: String = "", index: String = "", dynamicBase: String = "", docs: Int = 0, distinct: Int = 0, topTerms: List[SolrFrequencyItem] = List.empty, histogram: List[SolrFrequencyItem] = List.empty) {
+
+  import search.SolrBindingService
+
   lazy val fieldCanBeUsedAsFacet: Boolean = name.endsWith("_facet") || fieldType.equalsIgnoreCase("string") || name.startsWith("facet_")
   lazy val fieldIsSortable: Boolean = name.startsWith("sort_")
 
   lazy val xmlFieldName = normalisedField.replaceFirst("_", ":")
-  lazy val normalisedField = name.replaceFirst("_[a-z]{1,4}$", "").replaceFirst("facet_", "")
+  lazy val normalisedField = SolrBindingService.stripDynamicFieldLabels(name)
 }
 
 case class SolrFrequencyItem(name: String, freq: Int)

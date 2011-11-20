@@ -39,6 +39,10 @@ import collection.mutable. {ListBuffer, Map}
 
 object SolrBindingService {
 
+  def stripDynamicFieldLabels(fieldName: String): String = {
+    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s)$","").replaceFirst("^(facet|sort|sort_all)_","")
+  }
+
   def getFullDocFromOaiPmh(response : QueryResponse) : FullDocItem = {
     val fullDoc = getFullDoc(response)
     val pmhId = fullDoc.getFieldValue("delving_pmhId")
@@ -89,19 +93,16 @@ object SolrBindingService {
     // check for required fields else check exception
     queryResponse.getResults.foreach{
         doc =>
-
           val solrDoc = SolrResultDocument()
           doc.entrySet.foreach{
             field =>
+              val normalisedField = stripDynamicFieldLabels(field.getKey)
               val FieldValueClass: Class[_] = field.getValue.getClass
                FieldValueClass match {
-                case ArrayListObject => solrDoc.add(field.getKey, addFieldNodes(field.getKey, field.getValue.asInstanceOf[ArrayList[Any]].toList))
-                case StringObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
-                case DateObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
-                case BooleanObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
-                case FloatObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
-                case IntegerObject => solrDoc.add(field.getKey, List(FieldValueNode(field.getKey, field.getValue.toString)))
-                case _ => println("unknown class in SolrBindingService " + field.getKey + FieldValueClass.getCanonicalName)
+                case ArrayListObject => solrDoc.add(normalisedField, addFieldNodes(normalisedField, field.getValue.asInstanceOf[ArrayList[Any]].toList))
+                case StringObject | DateObject | BooleanObject | FloatObject | IntegerObject =>
+                  solrDoc.add(normalisedField, List(FieldValueNode(normalisedField, field.getValue.toString)))
+                case _ => println("unknown class in SolrBindingService " + normalisedField + FieldValueClass.getCanonicalName)
               }
           }
           val id = solrDoc getFirst ("id")

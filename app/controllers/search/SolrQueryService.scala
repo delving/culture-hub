@@ -24,7 +24,7 @@ object SolrQueryService extends SolrServer {
   val QUERY_PROMPT: String = "query="
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
-    val keyAsXml = field.getKeyAsXml.replaceFirst("_[a-z]{1,8}$", "")
+    val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
       {
         try {
