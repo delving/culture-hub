@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+ab<?xml version="1.0"?>
 <!--
   ~ Copyright 2011 DELVING BV
   ~
@@ -44,27 +44,27 @@
         <field prefix="delving" localName="deepZoomUrl"/>
         <field prefix="tib" localName="thumbLarge"/>
         <field prefix="tib" localName="thumbSmall"/>
-        <field prefix="tib" localName="collection" facetPrefix="src" facetName="bron"/>
-        <field prefix="tib" localName="objectSoort" facetPrefix="obs" facetName="objectSoort">
+        <field prefix="tib" localName="collection"/>
+        <field prefix="tib" localName="objectSoort">
             <options>
                 <string>dummy item1</string>
                 <string>dummy item2</string>
             </options>
         </field>
-        <field prefix="tib" localName="material" facetPrefix="mtr" facetName="materiaal">
+        <field prefix="tib" localName="material">
         <options>
                 <string>dummy item1</string>
                 <string>dummy item2</string>
             </options>
         </field>
-        <field prefix="tib" localName="place" facetPrefix="plc" facetName="plaats">
+        <field prefix="tib" localName="place">
          <options>
                 <string>dummy item1</string>
                 <string>dummy item2</string>
             </options>
         </field>
-        <field prefix="tib" localName="date" facetPrefix="dat" facetName="datering"/>
-        <field prefix="tib" localName="collectionPart" facetPrefix="colp" facetName="deelcollectie"/>
+        <field prefix="tib" localName="date"/>
+        <field prefix="tib" localName="collectionPart"/>
         
         <field prefix="icn" localName="creatorYearOfBirth">
             <converter multipleOutput="true" call=".extractYear()"/>
@@ -153,14 +153,14 @@
         <field prefix="dcterms" localName="rightsHolder"/>
         
         <field prefix="europeana" localName="collectionName" systemField="true"/>
-        <field prefix="europeana" localName="collectionTitle" facetName="collection" facetPrefix="col" factName="name"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name"/>
         <field prefix="europeana" localName="country" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" factName="dataProvider"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
         <field prefix="europeana" localName="isShownBy" fieldType="string"/>
         <field prefix="europeana" localName="language" fieldType="string"/>
         <field prefix="europeana" localName="object"/>
-        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider" factName="provider"/>
+        <field prefix="europeana" localName="provider" factName="provider"/>
         <field prefix="europeana" localName="rights" factName="rights"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
         <field prefix="europeana" localName="type" fieldType="string" />
@@ -169,8 +169,8 @@
             <converter call=".toId(spec)"/>
         </field>
         <field prefix="europeana" localName="userTag" />
-        <field prefix="europeana" localName="hasDigitalObject" systemField="true" facetPrefix="hdo"/>
-        <field prefix="europeana" localName="year" fieldType="string" facetPrefix="year">
+        <field prefix="europeana" localName="hasDigitalObject" systemField="true"/>
+        <field prefix="europeana" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>

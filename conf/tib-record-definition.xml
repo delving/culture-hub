@@ -108,24 +108,24 @@
         <field prefix="tib" localName="vervaardigingGeboortedatum"/>
         <field prefix="tib" localName="vervaardigingSterfdatum"/>
         <field prefix="delving" localName="collectionName" systemField="true"/>
-        <field prefix="delving" localName="collectionTitle" facetName="collection" facetPrefix="col" factName="name"/>
+        <field prefix="delving" localName="collectionTitle" factName="name"/>
         <field prefix="delving" localName="country" factName="country"/>
-        <field prefix="delving" localName="dataProvider" facetPrefix="dapr" factName="dataProvider"/>
+        <field prefix="delving" localName="dataProvider" factName="dataProvider"/>
         <field prefix="delving" localName="isShownAt" fieldType="string"/>
         <field prefix="delving" localName="isShownBy" fieldType="string"/>
-        <field prefix="delving" localName="language" fieldType="string" facetName="language" searchField="language" factName="language"/>
+        <field prefix="delving" localName="language" fieldType="string" factName="language"/>
         <field prefix="delving" localName="object"/>
-        <field prefix="delving" localName="provider" facetPrefix="prov" facetName="provider" factName="provider"/>
+        <field prefix="delving" localName="provider" factName="provider"/>
         <field prefix="delving" localName="rights" factName="rights"/>
         <field prefix="delving" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="delving" localName="type" fieldType="string" facetPrefix="tp" facetName="type" factName="type"/>
+        <field prefix="delving" localName="type" fieldType="string" factName="type"/>
         <field prefix="delving" localName="unstored" fieldType="text"/>
         <field prefix="delving" localName="uri" identifierField="true">
             <converter call=".toId(spec)"/>
         </field>
-        <field prefix="delving" localName="userTag" searchField="usertags"/>
-        <field prefix="delving" localName="hasDigitalObject" systemField="true" facetPrefix="hdo"/>
-        <field prefix="delving" localName="year" fieldType="string" facetPrefix="year">
+        <field prefix="delving" localName="userTag"/>
+        <field prefix="delving" localName="hasDigitalObject" systemField="true"/>
+        <field prefix="delving" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
