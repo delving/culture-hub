@@ -15,7 +15,7 @@ object SipCreator extends DelvingController {
 
     response.contentType = "application/x-java-jnlp-file"
 
-    val sipCreatorVersion = "0.4.2"
+    val sipCreatorVersion = "0.4.3"
     val home = "http://" + request.host + "/" + user + "/"
     val codebase = "http://" + request.host + "/public/sip-creator/"
 
