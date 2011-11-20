@@ -52,10 +52,10 @@
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "PROVIDER", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+
+                    #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+
                 </div>
             </div>
         </div>
