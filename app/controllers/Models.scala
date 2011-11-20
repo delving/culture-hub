@@ -24,7 +24,7 @@ case class ListItem(id: String,
 
 // ~~ reference objects
 
-case class CollectionReference(id: ObjectId, name: String)
+case class CollectionReference(id: String, name: String)
 
 
 trait ModelImplicits {

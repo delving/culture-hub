@@ -7,7 +7,6 @@ import models._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
-import play.mvc.Before
 import extensions.JJson
 
 /**
@@ -20,7 +19,7 @@ object Stories extends DelvingController with UserSecured {
   private def load(id: String): String = {
 
     val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
-    val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList
+    val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList ++ List(CollectionReference(controllers.Collections.NO_COLLECTION, &("user.story.noCollection")))
 
     Story.findById(id, connectedUserId) match {
       case None => JJson.generate(StoryViewModel(collections = collectionVMs))
