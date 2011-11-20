@@ -2,7 +2,6 @@ package controllers.user
 
 import play.mvc.results.Result
 import extensions.JJson._
-import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.SalatDAOUpdateError
 import play.libs.Codec
 import controllers._
@@ -12,7 +11,6 @@ import com.mongodb.casbah.Imports._
 import models.{Visibility, UserCollection, Label, DObject}
 import play.data.validation.Annotations._
 import java.util.Date
-import play.mvc.Before
 import dos.FileUploadResponse
 import extensions.JJson
 
@@ -73,8 +71,7 @@ object DObjects extends DelvingController with UserSecured {
 
     val persistedObject = objectModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = DObject.insert(
-          DObject(
+          val newObject: DObject = DObject(
             TS_update = new Date(),
             name = objectModel.name,
             description = objectModel.description,
@@ -84,11 +81,13 @@ object DObjects extends DelvingController with UserSecured {
             thumbnail_id = None,
             collections = objectModel.collections,
             files = files,
-            labels = labels))
+            labels = labels)
+          val inserted: Option[ObjectId] = DObject.insert(newObject)
         inserted match {
           case Some(iid) => {
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
             activateThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
+            SolrServer.indexSolrDocument(newObject.copy(_id = iid).toSolrDocument)
             Some(objectModel.copy(id = inserted))
           }
           case None => None
@@ -98,7 +97,8 @@ object DObjects extends DelvingController with UserSecured {
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
         val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
-          DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, new WriteConcern())
+          DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
+          SolrServer.indexSolrDocument(updatedObject.toSolrDocument)
           controllers.dos.FileUpload.markFilesAttached(uid, id)
           Some(objectModel)
         } catch {
@@ -116,7 +116,12 @@ object DObjects extends DelvingController with UserSecured {
   }
 
   def remove(id: ObjectId) = {
-    if(DObject.owns(connectedUserId, id)) DObject.delete(id) else Forbidden("Big brother is watching you")
+    if(DObject.owns(connectedUserId, id)) {
+      DObject.delete(id)
+      SolrServer.deleteFromSolrById(id)
+    } else {
+      Forbidden("Big brother is watching you")
+    }
   }
 }
 

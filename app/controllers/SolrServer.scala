@@ -1,5 +1,8 @@
 package controllers
 
+import org.bson.types.ObjectId
+import org.apache.solr.client.solrj.response.UpdateResponse
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -48,7 +51,8 @@ object SolrServer {
   streamingUpdateServer.setAllowCompression(false)
   streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
-  def deleteFromSolrByMongoId(id: String) = streamingUpdateServer.deleteById(id)
+  def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
+  def deleteFromSolrById(id: ObjectId): UpdateResponse = deleteFromSolrById(id.toString)
 
   def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
 
