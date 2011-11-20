@@ -767,6 +767,7 @@ background-color: lighten($color-2, 30%);
    @include  border-all(10px);
     border: 1px solid #666666;
     box-shadow: 0 0 50px 5px #000000;
+    z-index: 1000;
 }
 
 .result-overlay .close {
