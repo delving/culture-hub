@@ -199,7 +199,7 @@ authentication.label.rememberme=Herinner mij
 
 
 ##DObjects
-dobject.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
+object.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
 
 ##Collections
 collection.confirmDeletion=Weet u zeker dat u deze collectie wilt verwijderen?

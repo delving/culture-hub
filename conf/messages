@@ -212,7 +212,7 @@ authentication.label.forgotpassword=I forgot my password
 authentication.label.rememberme=Remember me
 
 ##DObjects
-dobject.confirmDeletion=Are you sure you want to remove this object?
+object.confirmDeletion=Are you sure you want to remove this object?
 
 ##Collections
 collection.confirmDeletion=Are you sure you want to remove this collection?
