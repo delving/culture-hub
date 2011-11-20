@@ -53,8 +53,15 @@ object SolrServer {
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
   def deleteFromSolrById(id: ObjectId): UpdateResponse = deleteFromSolrById(id.toString)
-
   def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
+
+  def commit() {
+    streamingUpdateServer.commit()
+  }
+
+  def rollback() {
+    streamingUpdateServer.rollback()
+  }
 
   def getSolrFrequencyItemList(node: Node): List[SolrFrequencyItem] = {
     node.nonEmptyChildren.filter(node => node.attribute("name") != None).map {

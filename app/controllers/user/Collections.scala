@@ -46,25 +46,34 @@ object Collections extends DelvingController with UserSecured {
 
     val persistedUserCollection: Option[CollectionViewModel] = collectionModel.id match {
       case None =>
-        val inserted: Option[ObjectId] = UserCollection.insert(
-          UserCollection(TS_update = new Date(),
+        val newCollection = UserCollection(TS_update = new Date(),
             name = collectionModel.name,
             user_id = connectedUserId,
             userName = connectedUser,
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
-            thumbnail_id = collectionModel.thumbnail))
-        if (inserted != None) Some(collectionModel.copy(id = inserted)) else None
+            thumbnail_id = collectionModel.thumbnail)
+        val inserted: Option[ObjectId] = UserCollection.insert(newCollection)
+        inserted match {
+          case None => None
+          case Some(iid) =>
+            SolrServer.indexSolrDocument(newCollection.toSolrDocument)
+            SolrServer.commit()
+            Some(collectionModel.copy(id = inserted))
+        }
       case Some(id) =>
         val existingCollection = UserCollection.findOneByID(id)
         if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
         val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
-          UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, new WriteConcern())
+          SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
+          UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
+          SolrServer.commit()
           Some(collectionModel)
         } catch {
-          case e: SalatDAOUpdateError => None
-          case _ => None
+          case _ =>
+            SolrServer.rollback()
+            None
         }
     }
 
@@ -85,6 +94,8 @@ object Collections extends DelvingController with UserSecured {
       UserCollection.setObjects(id, objects)
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
+      SolrServer.deleteFromSolrById(id)
+      SolrServer.commit()
     } else {
       Forbidden("Big brother is watching you")
     }

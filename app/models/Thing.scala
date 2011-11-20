@@ -31,7 +31,7 @@ trait Thing extends AnyRef with Product {
     doc addField ("delving_userName_single", userName)
     doc addField ("delving_description_text", description)
     doc addField ("delving_name_text", name)
-    if (thumbnail_id.get != None) {
+    if (thumbnail_id != None) {
       doc addField("delving_thumbnail_id_string", thumbnail_id.get)
     }
     doc

@@ -30,8 +30,8 @@ case class Story(_id: ObjectId = new ObjectId,
       pages foreach {
         page => {
           val pageNumber = pages.indexOf(page)
-          doc addField ("delving_page_title_%i_text".format(pageNumber), page.title)
-          doc addField ("delving_page_text_%i_text".format(pageNumber), page.text)
+          doc addField ("delving_page_title_%d_text".format(pageNumber), page.title)
+          doc addField ("delving_page_text_%d_text".format(pageNumber), page.text)
         }
       }
       doc

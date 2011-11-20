@@ -85,9 +85,10 @@ object DObjects extends DelvingController with UserSecured {
           val inserted: Option[ObjectId] = DObject.insert(newObject)
         inserted match {
           case Some(iid) => {
+            SolrServer.indexSolrDocument(newObject.copy(_id = iid).toSolrDocument)
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
             activateThumbnail(iid) foreach { thumb => DObject.updateThumbnail(iid, thumb) }
-            SolrServer.indexSolrDocument(newObject.copy(_id = iid).toSolrDocument)
+            SolrServer.commit()
             Some(objectModel.copy(id = inserted))
           }
           case None => None
@@ -97,13 +98,18 @@ object DObjects extends DelvingController with UserSecured {
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
         val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels, thumbnail_file_id = activateThumbnail(id))
         try {
-          DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
           SolrServer.indexSolrDocument(updatedObject.toSolrDocument)
+          DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
           controllers.dos.FileUpload.markFilesAttached(uid, id)
+          SolrServer.commit()
           Some(objectModel)
         } catch {
-          case e: SalatDAOUpdateError => None
-          case _ => None
+          case e: SalatDAOUpdateError =>
+            SolrServer.rollback()
+            None
+          case _ =>
+            SolrServer.rollback()
+            None
         }
     }
 
@@ -119,6 +125,7 @@ object DObjects extends DelvingController with UserSecured {
     if(DObject.owns(connectedUserId, id)) {
       DObject.delete(id)
       SolrServer.deleteFromSolrById(id)
+      SolrServer.commit()
     } else {
       Forbidden("Big brother is watching you")
     }
