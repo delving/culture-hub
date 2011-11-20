@@ -123,7 +123,7 @@
         <field prefix="dcterms" localName="tableOfContents"/>
         <field prefix="dcterms" localName="temporal"/>
         <field prefix="dcterms" localName="rightsHolder"/>
-        <field prefix="europeana" localName="collectionName" systemField="true"/>
+        <field prefix="europeana" localName="collectionName"/>
         <field prefix="europeana" localName="collectionTitle" factName="name"/>
         <field prefix="europeana" localName="country" factName="country"/>
         <field prefix="europeana" localName="dataProvider" factName="dataProvider"/>
@@ -140,7 +140,6 @@
             <converter call=".toId(spec)"/>
         </field>
         <field prefix="europeana" localName="userTag"/>
-        <field prefix="europeana" localName="hasDigitalObject" systemField="true"/>
         <field prefix="europeana" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>

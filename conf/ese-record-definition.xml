@@ -45,9 +45,9 @@
         <field prefix="dcterms" localName="spatial"/>
         <field prefix="dcterms" localName="tableOfContents"/>
         <field prefix="dcterms" localName="temporal"/>
-        <field prefix="europeana" localName="collectionName" systemField="true" factName="name"/>
-        <field prefix="europeana" localName="collectionTitle" systemField="true" factName="name"/>
-        <field prefix="europeana" localName="country" systemField="true" factName="country"/>
+        <field prefix="europeana" localName="collectionName" factName="name"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name"/>
+        <field prefix="europeana" localName="country" factName="country"/>
         <field prefix="europeana" localName="dataProvider" systemField= "true" factName="dataProvider"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
         <field prefix="europeana" localName="isShownBy" fieldType="string"/>
