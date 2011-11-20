@@ -26,7 +26,7 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String): Result = {
     val id = "%s_%s_%s".format(orgId, spec, recordId)
 
-    val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("delving_hubId")).head)
+    val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
     val chQuery = SolrQueryService.createCHQuery(request, theme, false)
     val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:%s".format(idType.idSearchField, idType.normalisedId)))
     val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
