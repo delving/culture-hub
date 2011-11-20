@@ -756,3 +756,25 @@ background-color: lighten($color-2, 30%);
 #inav li:hover a {
     color: #fff;
 }
+
+/* OBJECT OVERLAY */
+
+.result-overlay {
+    background: #fff;
+    display: none;
+    margin: 0 auto;
+    width: 940px;
+   @include  border-all(10px);
+    border: 1px solid #666666;
+    box-shadow: 0 0 50px 5px #000000;
+}
+
+.result-overlay .close {
+    background-image: url("/public/themes/common/images/close.png");
+    cursor: pointer;
+    height: 35px;
+    position: absolute;
+    right: -15px;
+    top: -15px;
+    width: 35px;
+}

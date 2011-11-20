@@ -23,7 +23,7 @@ object Search extends DelvingController {
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 
-  def record(orgId: String, spec: String, recordId: String): Result = {
+  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
     val id = "%s_%s_%s".format(orgId, spec, recordId)
 
     val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
@@ -36,6 +36,12 @@ object Search extends DelvingController {
       return NotFound(id)
 
     val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
-    Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
+    if(overlay) {
+      Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
+    }
+    else {
+      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
+    }
+
   }
 }
