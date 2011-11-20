@@ -43,6 +43,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
                    idxMappings: List[String] = List.empty[String],
+                   idxFacets: List[String] = List.empty[String],
+                   idxSortFields: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
                    invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
 
@@ -247,6 +249,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def addIndexingMapping(dataSet: DataSet, mapping: String) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping))
+  }
+
+  def addSortAndFacetField(dataSet: DataSet, theme: PortalTheme) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), $set("idxFacets" -> theme.getFacets.map(_.facetName), "idxSortFields" -> theme.getSortFields.map(_.sortKey)))
   }
 
   def updateIndexingCount(dataSet: DataSet, count: Int) {

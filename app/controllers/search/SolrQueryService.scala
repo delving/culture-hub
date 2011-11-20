@@ -84,7 +84,7 @@ object SolrQueryService extends SolrServer {
   import play.mvc.Http.Request
   import models.PortalTheme
 
-  def getSolrQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
+  def getSolrQueryWithDefaults: SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
@@ -111,8 +111,9 @@ object SolrQueryService extends SolrServer {
   def parseSolrQueryFromRequest(request: Request, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
 
-    val query = getSolrQueryWithDefaults(theme.getFacets)
+    val query = getSolrQueryWithDefaults
     val params = request.params
+    theme.getFacets.foreach(facet => params.put("facet.field", facet.facetName))
 
     def addGeoParams(hasGeoType: Boolean)  {
       if (!hasGeoType) query setFilterQueries ("{!%s}".format("geofilt"))
