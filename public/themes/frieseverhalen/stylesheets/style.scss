@@ -332,7 +332,7 @@ body#home  {
 
 #search {
     position: relative;
-    top: 90px;
+    top: 80px;
     right: 6px;
     text-align: right;
     z-index: 10;
@@ -590,9 +590,12 @@ body#home  {
 
 /* FORMS ************************************************************************************/
 /* form-elements.css overrides */
-
+form {
+    background: lighten($color-2, 45%);
+    padding: 10px 0;
+}
 form h3 {
-    background-color: $color-4;
+background-color: lighten($color-3, 20%);
 }
 
 
@@ -611,14 +614,6 @@ background: -o-linear-gradient(top, $color-2, darken($color-2, 10%));
 
 button.green:hover, .button.green:hover {
     background:  darken($color-2, 10%);
-}
-
-div.dropdown-slider .ddm.heading.places {
-    background-color: $color-4;
-}
-
-div.dropdown-slider .ddm.heading.orgs {
-    background-color: $color-3;
 }
 /* HELPERS ************************************************************************************/
 
@@ -772,7 +767,6 @@ background-color: lighten($color-2, 30%);
    @include  border-all(10px);
     border: 1px solid #666666;
     box-shadow: 0 0 50px 5px #000000;
-    z-index: 1000;
 }
 
 .result-overlay .close {
