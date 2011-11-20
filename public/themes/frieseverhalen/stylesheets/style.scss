@@ -83,8 +83,8 @@ body {
     font-size: $fsize-1;
         line-height: 1.5;
 }
-a { color: $color-3; }
-a:visited {color: darken($color-3, 10%);}
+a { color: $color-4; }
+a:visited {color: darken($color-4, 10%);}
 a:hover {color: $color-3;}
 
 h1, h2, h3 {
@@ -352,9 +352,9 @@ body#home  {
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 $color-3;
+    background: none repeat scroll 0 0 $color-4;
     /*border: medium none;*/
-    border:  1px solid $color-2;
+    border:  1px solid $color-4;
     @include border-all($radius);
     color: #fff;
     cursor: pointer;
@@ -502,7 +502,7 @@ body#home  {
 /* pagination.css overrides */
 
 .pagination .current {
-    background: $color-3;
+    background: $color-4;
 }
 
 .pagination .prev,
@@ -521,6 +521,7 @@ body#home  {
 .breadcrumb {
 //    background-color: lighten($color-2, 30%);
     /*border-bottom: 1px solid #ccc;*/
+    color: $color-4;
     height: 40px;
     line-height: 40px;
 }
@@ -536,7 +537,7 @@ body#home  {
 }
 
 .breadcrumb a:link {
-    color: $color-3;
+    color: $color-4;
 }
 
 /* RESULTS ************************************************************************************/
