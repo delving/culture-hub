@@ -8,62 +8,61 @@
         <namespace prefix="abm" uri="http://abmu.org/abm" schema="http://abmu.org/abm.xsd"/>
     </namespaces>
     <root localName="record">
-        <field prefix="dc" localName="contributor" searchField="who,creator"/>
-        <field prefix="dc" localName="coverage" searchField="what,subject"/>
-        <field prefix="dc" localName="creator" searchField="who,creator"/>
-        <field prefix="dc" localName="date" searchField="when,date"/> <!--removed extract year it doesn't belong here -->
-        <field prefix="dc" localName="description" searchField="description"/>
+        <field prefix="dc" localName="contributor"/>
+        <field prefix="dc" localName="coverage"/>
+        <field prefix="dc" localName="creator"/>
+        <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
+        <field prefix="dc" localName="description"/>
         <field prefix="dc" localName="format"/>
-        <field prefix="dc" localName="identifier" searchField="identifier"/>
+        <field prefix="dc" localName="identifier"/>
         <field prefix="dc" localName="language"/>
         <field prefix="dc" localName="publisher"/>
-        <field prefix="dc" localName="relation" searchField="relation"/>
+        <field prefix="dc" localName="relation"/>
         <field prefix="dc" localName="rights"/>
         <field prefix="dc" localName="source"/>
-        <field prefix="dc" localName="subject" facetName="subject" searchField="what,subject"/>
+        <field prefix="dc" localName="subject"/>
         <field prefix="dc" localName="title"/>
-        <field prefix="dc" localName="type" facetPrefix="type"/>
+        <field prefix="dc" localName="type"/>
         <field prefix="dcterms" localName="alternative"/>
         <field prefix="dcterms" localName="conformsTo"/>
-        <field prefix="dcterms" localName="created" searchField="when,date"/>
-        <field prefix="dcterms" localName="extent" searchField="format"/>
-        <field prefix="dcterms" localName="hasFormat" searchField="relation"/>
-        <field prefix="dcterms" localName="hasPart" searchField="relation"/>
-        <field prefix="dcterms" localName="hasVersion" searchField="relation"/>
+        <field prefix="dcterms" localName="created"/>
+        <field prefix="dcterms" localName="extent"/>
+        <field prefix="dcterms" localName="hasFormat"/>
+        <field prefix="dcterms" localName="hasPart"/>
+        <field prefix="dcterms" localName="hasVersion"/>
         <field prefix="dcterms" localName="isFormatOf"/>
         <field prefix="dcterms" localName="isPartOf"/>
-        <field prefix="dcterms" localName="isReferencedBy" searchField="relation"/>
-        <field prefix="dcterms" localName="isReplacedBy" searchField="relation"/>
-        <field prefix="dcterms" localName="isRequiredBy" searchField="relation"/>
+        <field prefix="dcterms" localName="isReferencedBy"/>
+        <field prefix="dcterms" localName="isReplacedBy"/>
+        <field prefix="dcterms" localName="isRequiredBy"/>
         <field prefix="dcterms" localName="isVersionOf"/>
-        <field prefix="dcterms" localName="issued" searchField="date"/>
-        <field prefix="dcterms" localName="medium" searchField="format"/>
+        <field prefix="dcterms" localName="issued"/>
+        <field prefix="dcterms" localName="medium"/>
         <field prefix="dcterms" localName="provenance"/>
         <field prefix="dcterms" localName="references"/>
-        <field prefix="dcterms" localName="replaces" searchField="relation"/>
-        <field prefix="dcterms" localName="requires" searchField="relation"/>
-        <field prefix="dcterms" localName="spatial" searchField="where,location,subject"/>
-        <field prefix="dcterms" localName="tableOfContents" searchField="description"/>
-        <field prefix="dcterms" localName="temporal" searchField="what,subject"/>
-        <field prefix="europeana" localName="collectionName" systemField="true" fulldoc="false" factName="name"/>
-        <field prefix="europeana" localName="collectionTitle" systemField="true" fulldoc="false" factName="name"/>
-        <field prefix="europeana" localName="country" systemField="true" fulldoc="false" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" facetPrefix="dapr" systemField= "true" fulldoc="true"
-               briefdoc="true" factName="dataProvider"/>
-        <field prefix="europeana" localName="isShownAt" fulldoc="true" fieldType="string"/>
-        <field prefix="europeana" localName="isShownBy" fulldoc="true" fieldType="string"/>
-        <field prefix="europeana" localName="language" fieldType="string" facetName="language" searchField="language" factName="language"/>
-        <field prefix="europeana" localName="object" briefdoc="true"/>
-        <field prefix="europeana" localName="provider" facetPrefix="prov" facetName="provider" factName="provider"/>
+        <field prefix="dcterms" localName="replaces"/>
+        <field prefix="dcterms" localName="requires"/>
+        <field prefix="dcterms" localName="spatial"/>
+        <field prefix="dcterms" localName="tableOfContents"/>
+        <field prefix="dcterms" localName="temporal"/>
+        <field prefix="europeana" localName="collectionName" factName="name"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name"/>
+        <field prefix="europeana" localName="country" factName="country"/>
+        <field prefix="europeana" localName="dataProvider" systemField= "true" factName="dataProvider"/>
+        <field prefix="europeana" localName="isShownAt" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
+        <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
+        <field prefix="europeana" localName="object"/>
+        <field prefix="europeana" localName="provider" factName="provider"/>
         <field prefix="europeana" localName="rights" factName="rights"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="europeana" localName="type" fieldType="string" facetPrefix="tp" facetName="type" factName="type"/>
-        <field prefix="europeana" localName="unstored" fieldType="text" fulldoc="false"/>
-        <field prefix="europeana" localName="uri" briefdoc="true" identifierField="true">
+        <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
+        <field prefix="europeana" localName="unstored" fieldType="text"/>
+        <field prefix="europeana" localName="uri" identifierField="true">
                 <converter call=".toId(spec)"/>
         </field>
-        <field prefix="europeana" localName="userTag" searchField="usertags"/>
-        <field prefix="europeana" localName="year" fulldoc="false" fieldType="string" facetPrefix="year">
+        <field prefix="europeana" localName="userTag"/>
+        <field prefix="europeana" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
