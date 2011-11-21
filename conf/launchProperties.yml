@@ -1,9 +1,16 @@
 # This file contains the required properties for CultureHub to start
 # These are checked at application startup and the application will refuse to start if they are not configured / empty
 
+- application.secret
+- application.langs
+- play.pool
 - culturehub.nodeName
 - db.cultureHub.name
 - db.fileStore.name
+- dos.graphicsmagic.cmd
+- dos.tilesWorkingBaseDir
+- dos.tilesOutputBaseDir
+- solr.baseUrl
 - iipsrv.url
 - debug
 - cultureHub.portalThemeFile
@@ -11,7 +18,6 @@
 - services.password
 - services.api.useAccessKey
 - services.pmh.repositoryName
-- services.api.useAccessKey
 - services.pmh.repositoryName
 - services.pmh.adminEmail
 - services.pmh.earliestDateStamp
@@ -20,4 +26,4 @@
 - services.pmh.responseListSize
 - services.pmh.harvestStepCleanupDelay
 - services.mongo.dbName
-- dos.graphicsmagic.cmd
+
