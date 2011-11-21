@@ -342,6 +342,8 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
 
     def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
+    def getConcatenatedList(key: String, fields: java.util.List[String]) : java.util.List[String] = scala.collection.JavaConversions.asJavaList(solrDocument.getConcatenatedArray(key, fields.toList).getValues)
+
 }
 
 abstract class MetadataAccessors {
