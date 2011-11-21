@@ -4,24 +4,23 @@
 #{set title:'Search results' /}
 
 #{breadcrumbs /}
-*{
-%{def qString = params.getAll("qf")}%
-#{list qString, as: 'p' }
-    ${p}<br/>
-#{/list}
-}*
+
 <h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
 
 <div class="row">
     <div class="g-12of12">
         <div class="media record">
-            <img src="${fullDoc.getThumbnail()}" class="img" width="350" rel="#overlay" alt="${fullDoc.getTitle()}"/>
-
-            <div class="extra" style="width:350px;">
-                #{thingToolbar/}
+            <img src="${fullDoc.getThumbnail()}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
+            <div class="extra">
+                <a href="#" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
             </div>
-          <div class="bd">
-
+            <div class="bd">
+                #{if returnToResults}
+                 #{thingToolbar extraButtons:[[label:viewUtils.getKey('ui.label.returnToResults'), url:"/search?"+returnToResults, iconClass:"icon205"]] /}
+                #{/if}
+                #{else}
+                 #{thingToolbar /}
+                #{/else}
                 <div class="metadata">
                     <h5>&{'metadata.dc.description'}:</h5>
                     <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
@@ -50,31 +49,24 @@
 
                         </div>
                     </div>
-                    <div class="row">
-
-
-
-
-
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <!-- overlayed element -->
-<div id="overlay" class="result-overlay">
-<div class="contentWrap">   <img src="${fullDoc.getThumbnail()}" class="" style="margin: 20px; alt="${fullDoc.getTitle()}"/></div>
-    ${fullDoc.getTitle()}
+<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
+<div class="contentWrap">
+    <img src="${fullDoc.getThumbnail()}" alt="${fullDoc.getTitle()}"/>
+    <div class="title"> ${fullDoc.getTitle()}</div>
+</div>
 </div>
 
 <script>
     $(function () {
-        $("img[rel]").overlay();
+        $("a[rel]").overlay();
 });
 </script>
-
 *{
 Possible methods
 def getAsArray(key: String) : Array[String] = assign(key)
