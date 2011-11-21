@@ -9,7 +9,7 @@ test-result
 /logs
 /out
 /system.out
-/production.conf
+/conf/production.conf
 target/
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
