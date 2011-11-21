@@ -1,6 +1,13 @@
 #{if _data}
 <h5>${_label}:</h5>
 <p>
-    #{if _link}<a href="${_link}">${_data}</a>#{/if}#{else}${_data}#{/else}
+    #{ifnot _separator}
+           #{if _link}<a href="${_link}">${_data}</a>#{/if}#{else}${_data}#{/else}
+    #{/ifnot}
+    #{else}
+        #{list _data, as:'data'}
+            ${data}#{ifnot data_isLast}${_separator}#{/ifnot}
+        #{/list}
+    #{/else}
 </p>
 #{/if}
