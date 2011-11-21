@@ -11,9 +11,7 @@
 <div class="row">
     <div class="g-12of12">
         <div class="media record">
-            *{${views.context.package.imageUrl(dobject._id)}}*
-            <img src='${views.context.package.thumbnailUrl(dobject.thumbnail_id, 350)}' width="350" alt="${dobject.name}" class="img"/>
-
+            <img src='/thumbnail/${dobject._id}/350' width="350" alt="${dobject.name}" class="img"/>
 
             <div class="bd">
                 #{thingToolbar owner: dobject.userName, id: dobject._id, currentUser: userName, type:"object"/}
