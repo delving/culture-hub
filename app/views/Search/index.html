@@ -11,6 +11,7 @@
 #{/set}
 
 #{breadcrumbs queryCrumbs: pagination /}
+
 *{
 <div>
     getPageNumber: ${pagination.getPageNumber()}<br/>
@@ -25,8 +26,6 @@
 
 </div>
 }*
-%{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
-
 <div class="g-12of12">
     <div class="mod item-count">
         <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
