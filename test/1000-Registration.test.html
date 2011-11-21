@@ -4,21 +4,21 @@
   clearSession()
 
   open('/users')
-  clickAndWait('register')
+  clickAndWait('css=#register > span.label')
   type('registration.firstName','Foo')
   type('registration.lastName','Bar')
   type('registration.email','foo@bar.com')
   type('registration.userName','foo')
   type('registration.password1','foo')
   type('registration.password2','foo')
-  clickAndWait('submit')
+  clickAndWait('id=submit')
   verifyTextPresent('Your account was successfully created! An email has been sent to foo@bar.com for activation ')
 
   # Verify if an error is displayed if the account is not active
-  clickAndWait('login')
+  clickAndWait('css=#login > span.label')
   type('username','foo')
   type('password','foo')
-  clickAndWait('signin')
+  clickAndWait('css=#signin > span.label')
   verifyTextPresent('Your account is not yet active. Active it following the link in the mail. ')
 
   # Verify correct login after account activation
