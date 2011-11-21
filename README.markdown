@@ -1,8 +1,4 @@
-# Delving culture-hub
-
-Proof of concept of a services application written with play-scala.
-
-This will eventually demonstrate things such as authentication & authorization, content-type based rendering, etc.
+# Delving Culture-Hub
 
 ## Getting started
 
@@ -12,27 +8,25 @@ This will eventually demonstrate things such as authentication & authorization, 
 
     brew install mongodb
     brew install graphicsmagick
-    # todo add other dependencies.
-
 
 ### One-time set-up
 
 - run `sh setup-play.sh` in order to install play and culture-hub. Make sure you add the play directory to your shell path after installation so it can be found in further steps, e.g. by adding the line `export PATH=$PATH:/Users/foo/workspace/play` to your `~/.bash_profile`
-- later, you may need to run `play dependencies` later on by hand in order to download and install additional dependencies.
-- configure the settings at the end of `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
+- later, you may need to run `play deps --sync` by hand in order to download and install additional dependencies.
+- copy `conf/production.conf.template` to `conf/production.conf`. You can ignore this file as long as you do not want to deploy the hub.
+- configure the settings in `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
-- configure the subdomains for testing in your `/etc/hosts` file by adding:
+- configure the subdomains for testing in your `/etc/hosts` file by adding e.g.:
 
-    127.0.0.1       norvegiana.localhost
     127.0.0.1       friesmuseum.localhost
 
 ### Running the application - development mode
 
 Run the application via
 
-    play run -Xss4m --%youruser
+    play run --%youruser
 
-where `youruser` is the key you used for your custom properties in `conf/application.conf``
+where `youruser` is the key you used for your custom properties in `conf/application.conf`
 
 An example user is `bob@gmail.com` with password `secret`
 
@@ -40,13 +34,13 @@ An example user is `bob@gmail.com` with password `secret`
 
 Run the test mode via
 
-    play test -Xss4m -Duser=youruser
-
-Run in prod mode (for use with Sip-Creator) via
-
-    play start -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:SoftRefLRUPolicyMSPerMB=1 -XX:MaxPermSize=128m -Xms512m -Xmx512m -Xss4m --%prod
+    play test -Duser=youruser
 
 Then you can access the test dashboard on `http://localhost:9000/@tests`
+
+Run in prod mode via
+
+    play start --%prod
 
 ### Running Apache Solr
 
@@ -71,11 +65,3 @@ In order to convert high-resoltution images in batch mode, we can use the magick
 - run it with `java -jar magicktiler.jar -s ptif -i /path/to/the/images`
 
 This will render PTIF (tiled TIF) images in the same directory than the input directory (until this is fixed in magicktiler)
-
-## Notes
-
-### Play installation - Play versions
-
-As Play has some issues (just as any other frameworks) it makes sense, during development, to use the latest development version.
-This way we can also use patches that did not yet make it into a release. The `setup-play-patched.sh` takes care of checking out the development branch and to apply patches for issues we may find.
-For production we then use the newly released version that contains our patches.

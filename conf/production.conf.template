@@ -1,0 +1,32 @@
+###################################
+# CultureHub production settings  #
+###################################
+
+### Play settings
+
+# Generate the secret via `play secret`
+%prod.application.secret=
+%prod.application.langs=en
+%prod.mail.smtp.host=smtp.hostice.nl
+%prod.play.pool=3
+
+### Global CultureHub settings
+%prod.culturehub.nodeName=
+
+### Mongo configuration
+%prod.db.cultureHub.name=
+%prod.mongo.test.context = false
+%prod.mongo.server1.host = mongo1
+%prod.mongo.server1.port = 27017
+%prod.mongo.server2.host = mongo2
+%prod.mongo.server2.port = 27017
+%prod.mongo.server3.host = mongo1
+%prod.mongo.server3.port = 27019
+
+### Solr configuration
+%prod.solr.baseUrl =
+
+### DoS configuration
+%prod.dos.graphicsmagic.cmd=/usr/bin/gm
+%prod.dos.tilesOutputBaseDir=
+%prod.dos.tilesWorkingBaseDir=
