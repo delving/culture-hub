@@ -13,17 +13,19 @@ import play.mvc.results.Result
 
 object Search extends DelvingController {
 
+  val ReturnToResults = "returnToResults"
+
   def index(query: String = "*:*", page: Int = 1) = {
-    // always give back the recordType facet
-    request.params.put("facet.field", "delving_recordType")
+    import play.mvc.Scope.Session
 
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
+    Session.current().put(ReturnToResults, request.querystring)
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 
-  def record(orgId: String, spec: String, recordId: String): Result = {
+  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
     val id = "%s_%s_%s".format(orgId, spec, recordId)
 
     val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
@@ -36,6 +38,14 @@ object Search extends DelvingController {
       return NotFound(id)
 
     val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
-    Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
+    if(overlay) {
+      Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
+    }
+    else {
+      import play.mvc.Scope.Session
+      val returnToUrl = if (Session.current().contains(ReturnToResults)) Session.current().get(ReturnToResults) else ""
+      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
+    }
+
   }
 }

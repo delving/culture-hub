@@ -88,18 +88,39 @@ object Indexing extends SolrServer {
 
   def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataRecord, format: String) {
     import scala.collection.JavaConversions._
+    import controllers.search.SolrBindingService
 
     inputDoc.addField("delving_pmhId", "%s_%s".format(dataSet.spec, record._id.toString))
     inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
     inputDoc.addField("delving_currentFormat", format)
-    inputDoc.addField("delving_recordType", "dataset") // todo add the record type support to all search functionality
-    val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
-    inputDoc.addField("delving_hubId", hubId)
-    inputDoc.addField("id", hubId)
+    inputDoc.addField("delving_recordType", "dataset")
+    inputDoc.addField("delving_hubId", "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey))
+    val indexedKeys = inputDoc.keys.filter(!_.matches(".*_(s|string|link|single)$")).map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap
+    // add facets at indexing time
+    dataSet.idxFacets.foreach {
+      facet =>
+        if (indexedKeys.contains(facet)) {
+          inputDoc addField ("%s_facet".format(facet), inputDoc.get(indexedKeys.get(facet).get))
+        }
+    }
+    // adding sort fields at index time
+    dataSet.idxSortFields.foreach{
+      sort =>
+      if (indexedKeys.contains(sort)) {
+          inputDoc addField ("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
+        }
+    }
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
 
+    val europeanaUri = "europeana_uri"
+    if (inputDoc.containsKey(europeanaUri))
+      inputDoc.addField("id", inputDoc.getField(europeanaUri).getValues.headOption.getOrElse("empty"))
+    else if (!record.localRecordKey.isEmpty)
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record.localRecordKey))
+    else
+      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record._id.toString))
     // todo add more elements: hasDigitalObject. etc
   }
 

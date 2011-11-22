@@ -84,7 +84,7 @@ object SolrQueryService extends SolrServer {
   import play.mvc.Http.Request
   import models.PortalTheme
 
-  def getSolrQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
+  def getSolrQueryWithDefaults: SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
@@ -111,8 +111,12 @@ object SolrQueryService extends SolrServer {
   def parseSolrQueryFromRequest(request: Request, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
 
-    val query = getSolrQueryWithDefaults(theme.getFacets)
+    val query = getSolrQueryWithDefaults
     val params = request.params
+    val facetFields = if (params._contains("facet.field")) theme.getFacets.map(_.facetName) ::: params.getAll("facet.field").toList
+    else theme.getFacets.map(_.facetName)
+
+    params.put("facet.field", facetFields.toArray[String])
 
     def addGeoParams(hasGeoType: Boolean)  {
       if (!hasGeoType) query setFilterQueries ("{!%s}".format("geofilt"))
@@ -163,9 +167,8 @@ object SolrQueryService extends SolrServer {
                       sortOrder
                       )
             case "facet.field" | "facet.field[]" =>
-              val facets: List[String] = if (!theme.getFacets.isEmpty) theme.getFacets.map(_.facetName) ++ values else values.toList
-              facets foreach (facet => {
-                query addFacetField ("{!ex=%s}%s".format(facets.indexOf(facet).toString,facet))
+              values foreach (facet => {
+                query addFacetField ("{!ex=%s}%s".format(values.indexOf(facet).toString,facet))
               })
             case "pt" =>
               val ptField = values.head
@@ -365,6 +368,69 @@ object SolrQueryService extends SolrServer {
     if (!href.isEmpty) href.mkString(FACET_PROMPT,FACET_PROMPT,"") else ""
   }
 
+//  def createDocIdPager(request: Request,  theme: PortalTheme) : DocIdWindowPager = {
+//    val chQuery = createCHQuery(request, theme)
+//
+//    DocIdWindowPager("bla")
+//  }
+
+}
+
+case class DocIdWindowPager (test: String) {
+
+//  def getDocIdWindow: DocIdWindow
+//
+//  def isNext: Boolean
+//
+//  def isPrevious: Boolean
+//
+//  def getQueryStringForPaging: String
+//
+//  def getFullDocUri: String
+//
+//  def getNextFullDocUrl: String
+//
+//  def getPreviousFullDocUrl: String
+//
+//  def getNextUri: String
+//
+//  def getNextInt: Int
+//
+//  def getPreviousUri: String
+//
+//  def getPreviousInt: Int
+//
+//  def getQuery: String
+//
+//  def getReturnToResults: String = {}
+  //
+//  def getPageId: String
+//
+//  def getTab: String
+//
+//  override def toString: String
+//
+//  def getStartPage: String
+//
+//  def getBreadcrumbs: List[BreadCrumb]
+//
+//  def getNumFound: Int
+//
+//  def getFullDocUriInt: Int
+//
+////  def initialize(httpParameters: Map[String, Array[String]], breadcrumbFactory: BreadcrumbFactory, locale: Locale, originalBriefSolrQuery: SolrQuery, queryModelFactory: QueryModelFactory, metadataModel: RecordDefinition): Unit
+//
+//  def getSortBy: String
+}
+
+trait DocIdWindow  {
+  def getIds: List[_ <: DocId]
+  def getOffset: Int
+  def getHitCount: Int
+}
+
+case class DocId(solrIdentifier: String)  {
+  def getEuropeanaUri: String = solrIdentifier
 }
 
 case class DelvingIdType(id: String, idType: String) {
@@ -405,6 +471,7 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 case class FilterQuery(field: String, value: String) {
   def toFacetString = "%s:%s".format(field, value)
   def toPrefixedFacetString = "%s%s:%s".format(SolrQueryService.FACET_PROMPT, field, value)
+  override def toString = toFacetString
 }
 
 case class SolrFacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
@@ -513,7 +580,7 @@ case class PresentationQuery(chResponse: CHResponse) {
   }
 
   private def createQueryForPresentation(solrQuery: SolrQuery): String = {
-    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=", "&qf=", ""))
+    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=","&qf=", ""))
   }
 
 }
@@ -551,80 +618,7 @@ case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
 
 // todo implement the traits as case classes
 
-trait DocIdWindowPager {
 
-  def getDocIdWindow: DocIdWindow
-
-  def isNext: Boolean
-
-  def isPrevious: Boolean
-
-  def getQueryStringForPaging: String
-
-  def getFullDocUri: String
-
-  def getNextFullDocUrl: String
-
-  def getPreviousFullDocUrl: String
-
-  def getNextUri: String
-
-  def getNextInt: Int
-
-  def getPreviousUri: String
-
-  def getPreviousInt: Int
-
-  def getQuery: String
-
-  def getReturnToResults: String
-
-  def getPageId: String
-
-  def getTab: String
-
-  override def toString: String
-
-  def getStartPage: String
-
-  def getBreadcrumbs: List[BreadCrumb]
-
-  def getNumFound: Int
-
-  def getFullDocUriInt: Int
-
-  def setPortalName(portalName: String): Unit
-
-//  def initialize(httpParameters: Map[String, Array[String]], breadcrumbFactory: BreadcrumbFactory, locale: Locale, originalBriefSolrQuery: SolrQuery, queryModelFactory: QueryModelFactory, metadataModel: RecordDefinition): Unit
-
-  def getSortBy: String
-}
-
-/**
- * @author Gerald de Jong <geralddejong@gmail.com>
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- */
-trait DocIdWindow extends PagingWindow {
-  def getIds: List[_ <: DocId]
-}
-
-/**
- * @author Gerald de Jong <geralddejong@gmail.com>
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- */
-trait PagingWindow {
-  def getOffset: Integer
-
-  def getHitCount: Integer
-}
-
-/**
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @since Feb 20, 2010 8:40:07 PM
- */
-case class DocId(solrIdentifier: String)  {
-  def getEuropeanaUri: String = solrIdentifier
-}
 
 class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)

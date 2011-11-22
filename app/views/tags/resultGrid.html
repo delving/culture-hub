@@ -1,6 +1,4 @@
 %{ def counter = 1 }%
-
-#{if _results}
 #{list _results, as: 'doc'}
 
 #{if counter == 1}
@@ -14,7 +12,7 @@
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}"> ${doc.getTitle()}</a>
+                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}" > ${doc.getTitle()}</a>
                         </div>
                         <div class="bd">
                             ${doc.getDescription()}
@@ -28,10 +26,9 @@
 
     %{ counter++ }%
 
-    #{if counter > 2 || i_isLast }
+    #{if counter > 2 || doc_isLast }
 </div>
 <!-- end line -->
 %{ counter = 1 }%
 #{/if}
 #{/list}
-#{/if}

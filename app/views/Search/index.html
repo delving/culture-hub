@@ -10,7 +10,8 @@
 <script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
 #{/set}
 
-#{breadcrumbs queryCrumbs: pagination /}
+#{breadcrumbs /}
+
 *{
 <div>
     getPageNumber: ${pagination.getPageNumber()}<br/>
@@ -25,40 +26,54 @@
 
 </div>
 }*
-%{ def paginationLink = "/search?" + pagination.getPresentationQuery().getQueryForPresentation() + "&start=" + pagination.getStart() }%
-
 <div class="g-12of12">
-    <div class="mod item-count ptm">
-        <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
+    <div class="item-count">
+        &{'search.trail', pagination.getStart(), pagination.getRows() + pagination.getStart(), pagination.getNumFound() }
+        <ul class="breadcrumb">
+        #{list pagination.getBreadcrumbs(), as: 'crumb'}
+            #{ifnot crumb_isLast}
+                <li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>
+           #{/ifnot}
+            #{else}
+                <li><span>${crumb.value()}</span></li>
+            #{/else}
+        #{/list}
+        </ul>
     </div>
 </div>
 
 <div class="row">
     <div class="g-9of12">
-
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-
-        <div class="results">
-            #{resultGrid results: briefDocs /}
+        #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
+        <div class="pager mbl">
+            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
         </div>
-
-
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-
+        #{/if}
+        <div class="results">
+            #{if briefDocs }
+            #{resultGrid results: briefDocs /}
+            #{/if}
+            #{else}
+            &{'ui.message.nothingFound'}
+            #{/else}
+        </div>
+        #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
+        <div class="pager">
+            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
+        </div>
+        #{/if}
     </div>
     <div class="g-3of12">
-
         <div class="mod facets">
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "eric_facet", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "COLLECTION", typeKey: viewUtils.getKey('search.facet.byCollection'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "YEAR", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "TYPE", typeKey: viewUtils.getKey('search.facet.byObjectType'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
+                    #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
                 </div>
             </div>
         </div>
+        *{ <!-- commented out for now until functionality is there -->
         <div class="dropdown">
             #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
             <div class="dropdown-slider">
@@ -66,7 +81,15 @@
                 <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
             </div>
         </div>
+        }*
     </div>
 
 </div>
+
+<!-- overlayed element -->
+<div id="overlay" class="result-overlay">
+    <!-- the external content is loaded inside this tag -->
+    <div class="contentWrap"></div>
+</div>
+
 

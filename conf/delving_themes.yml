@@ -22,8 +22,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets:
-    sortFields:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
 
@@ -50,8 +50,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets:
-    sortFields:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
 
@@ -79,8 +79,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets:
-    sortFields:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
 
@@ -107,8 +107,8 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets:
-    sortFields:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
 
@@ -135,7 +135,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets:
-    sortFields:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
