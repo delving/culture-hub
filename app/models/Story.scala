@@ -22,7 +22,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  thumbnail_id: Option[ObjectId],
                  isDraft: Boolean,
                  pages: List[Page],
-                 labels: List[EmbeddedLabel] = List.empty[EmbeddedLabel]) extends Thing {
+                 labels: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument

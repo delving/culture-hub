@@ -29,7 +29,7 @@ trait Thing extends Base {
   val visibility: Visibility
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
-  val labels: List[EmbeddedLabel]
+  val labels: List[EmbeddedLink]
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument

@@ -3,46 +3,48 @@ package controllers.user
 import controllers.DelvingController
 import play.mvc.results.Result
 import models.salatContext._
-import models.ctx
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
-import models.{LabelReference, EmbeddedLabel, Label}
 import com.novus.salat.grater
+import models._
 
 /**
- * 
+ * Controller to add simple, free-text labels to Things.
+ * This actually creates links that hold as a value the label
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object Labels extends DelvingController with UserSecured {
 
-  def create(labelType: String, value: String): Result = {
-
-    val insert = Label.create(labelType, connectedUser, value, Option(params.get("geonameId")))
-    val id = insert match {
-      case Some(i) => i
-      case None => return Error("Could not create label")
-    }
-
-    Json(Map("id" -> id))
-  }
-
-  def add(id: ObjectId, label: ObjectId, targetType: String): Result = {
+  def add(id: ObjectId, targetType: String): Result = {
 
     val targetCollection: MongoCollection = tc(targetType) match {
       case Some(col) => col
       case None => return Error(400, "Bad request")
     }
 
-    val embedded = EmbeddedLabel(userName = connectedUser, label = label)
-    val serEmb = grater[EmbeddedLabel].asDBObject(embedded)
-    targetCollection.update(MongoDBObject("_id" -> id), $addToSet ("labels" -> serEmb))
+    val link: Option[ObjectId] = Link.create(
+      linkType = "freeText",
+      userName = connectedUser,
+      value = LinkValue(label = params.get("label")),
+      from = LinkReference(
+        id = Some(connectedUserId),
+        hubType = Some("User")),
+      to = LinkReference(
+        id = Some(id),
+        hubType = Some(targetType)))
 
-    val reference = LabelReference(userName = connectedUser, id = id, targetType = targetType)
-    val serRef = grater[LabelReference].asDBObject(reference)
-    labelsCollection.update(MongoDBObject("_id" -> label), $addToSet("references" -> serRef))
+    val lid = link match {
+      case Some(i) => i
+      case None => return Error("Could not create label")
+    }
 
-    Ok
+    val embedded = EmbeddedLink(userName = connectedUser, link = lid, value = LinkValue(label = params.get("label")))
+    val serEmb = grater[EmbeddedLink].asDBObject(embedded)
+    targetCollection.update(MongoDBObject("_id" -> id), $push ("labels" -> serEmb))
+
+    Json(Map("id" -> lid))
   }
 
   def remove(id: ObjectId, label: ObjectId, targetType: String): Result = {
@@ -53,7 +55,7 @@ object Labels extends DelvingController with UserSecured {
     }
 
     targetCollection.update(MongoDBObject("_id" -> id), $pull ("labels" -> MongoDBObject("label" -> label)))
-    labelsCollection.update(MongoDBObject("_id" -> id), $pull ("references" -> MongoDBObject("id" -> id)))
+    labelsCollection.remove(MongoDBObject("_id" -> label))
 
     Ok
   }
@@ -62,6 +64,7 @@ object Labels extends DelvingController with UserSecured {
       case "DObject" => Some(objectsCollection)
       case "Collection" => Some(userCollectionsCollection)
       case "Story" => Some(userStoriesCollection)
+      case "User" => Some(userCollection)
       case _ => None
   }
 
