@@ -37,20 +37,47 @@ $(document).ready(function() {
     });
 
     // Overlay stuff
-	$("a[rel]").overlay({
-		onBeforeLoad: function() {
-			// grab wrapper element inside content
-			var wrap = this.getOverlay().find(".contentWrap");
+    //	$("a[rel]").overlay({
+    //		onBeforeLoad: function() {
+    //			// grab wrapper element inside content
+    //			var wrap = this.getOverlay().find(".contentWrap");
+    //
+    //			// load the page specified in the trigger
+    //			wrap.load(this.getTrigger().attr("href"));
+    //		},
+    //        onLoad: function(){
+    //            addthis.init();
+    //        },
+    //        fixed: false
+    //	});
 
-			// load the page specified in the trigger
-			wrap.load(this.getTrigger().attr("href"));
-		},
-        onLoad: function(){
-            addthis.init();
-        },
-        fixed: false
-	});
+    // Drag and Drop stuff
 
+    $('.draggable').draggable( {
+        opacity: .5,
+        revert: true,
+        revertDuration: 500,
+        helpers: 'clone',
+        containment: 'body',
+        cursor: 'move'
+     } );
+    $("#dropbox").droppable({
+        tolerance: 'pointer',
+        accept: '.draggable',
+        drop: addToDropbox
+    });
+    $("#dropbox").droppable({ hoverClass: 'hover' });
+
+    function addToDropbox(e, ui) {
+        var item = ui.draggable;
+        var title = $(item).find('input[name="title"]').val();
+        var thumb = $(item).find('input[name="thumb"]').val();
+        var list = $(this).find("ul");
+        if( $(list).find('li').size() >= 1){
+              $("#dropbox-info").remove();
+        };
+        $('<li>'+ '<div class="media"><img class="img" src="'+thumb+'" width="50" />' + title + '</div></li>').appendTo(list).hide().delay("250").fadeIn("500");
+    }
 
 
 });

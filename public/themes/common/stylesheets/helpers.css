@@ -198,3 +198,14 @@ div.dropdown-slider .ddm.heading {
 .item-count li {
     font-weight: bold;
 }
+
+.draggable {
+    z-index: 1000;
+}
+
+#dropbox {
+    background: #eaeaea;
+    min-height: 200px;
+    z-index: 999;
+}
+#dropbox.hover { background: gold; }

@@ -356,6 +356,7 @@ abstract class MetadataAccessors {
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
   def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
   def getDelvingId : String = assign("delving_pmhId")
+  def getIdUri : String = assign("delving_hubId").replaceAll("_", "/")
 
 
   // ~~~ well-known, always provided, meta-data fields
