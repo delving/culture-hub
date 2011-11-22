@@ -2,7 +2,6 @@ package controllers
 
 import scala.collection.JavaConversions._
 import search._
-import models.DataSet
 import play.mvc.results.Result
 
 /**
@@ -13,15 +12,13 @@ import play.mvc.results.Result
 
 object Search extends DelvingController {
 
-  val ReturnToResults = "returnToResults"
+  val RETURN_TO_RESULTS = "returnToResults"
 
   def index(query: String = "*:*", page: Int = 1) = {
-    import play.mvc.Scope.Session
-
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
-    Session.current().put(ReturnToResults, request.querystring)
+    session.put(RETURN_TO_RESULTS, request.querystring)
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
   }
 
@@ -34,16 +31,16 @@ object Search extends DelvingController {
     val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
     val response = CHResponse(params, theme, queryResponse, changedQuery)
 
-    if(response.response.getResults.size() == 0)
+    if (response.response.getResults.size() == 0)
       return NotFound(id)
 
     val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
-    if(overlay) {
+    if (overlay) {
       Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
-    }
-    else {
-      import play.mvc.Scope.Session
-      val returnToUrl = if (Session.current().contains(ReturnToResults)) Session.current().get(ReturnToResults) else ""
+    } else {
+      // TODO check the request referrer header and only do perform the session lookup when coming from the result list page
+      // otherwise, clear the session cache
+      val returnToUrl = if (session.contains(RETURN_TO_RESULTS)) session.get(RETURN_TO_RESULTS) else ""
       Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
     }
 
