@@ -20,7 +20,7 @@
   ~ permissions and limitations under the Licence.
   -->
 
-<record-definition prefix="tib">
+<record-definition prefix="tibs">
     <namespaces>
         <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
         <namespace prefix="dcterms" uri="http://purl.org/dc/terms/" schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
