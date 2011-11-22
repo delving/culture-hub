@@ -15,7 +15,7 @@
 
 <div class="facet-container">
     #{list facet.getLinks(), as: 'link'}
-    %{def qs = '/search?'+ _qString + link.url}%
+    %{def qs = '/search?query='+ _qString + link.url}%
     <div class="${_gClass}">
         #{if !link.remove()}
         <input type="checkbox" value="${qs}"/><a href="${qs}">${link.value()}</a> (${link.count()})

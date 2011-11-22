@@ -521,7 +521,7 @@ body#home  {
 .breadcrumb {
 //    background-color: lighten($color-2, 30%);
     /*border-bottom: 1px solid #ccc;*/
-    color: $color-4;
+    /*color: $color-4;*/
     height: 40px;
     line-height: 40px;
 }
@@ -534,9 +534,10 @@ body#home  {
 
 .breadcrumb li {
     margin-left: 0px;
+    margin-right: 10px;
 }
 
-.breadcrumb a:link {
+.breadcrumb a {
     color: $color-4;
 }
 
