@@ -1,4 +1,3 @@
-
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title:'Search results' /}
@@ -12,7 +11,7 @@
         <div class="media record">
             <img src="${fullDoc.getThumbnail()}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
             <div class="extra">
-                <a href="#" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+                <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
             </div>
             <div class="bd">
                 #{if returnToResults}
@@ -64,7 +63,7 @@
 
 <script>
     $(function () {
-        $("a[rel]").overlay();
+        $("a.overlay-trigger").overlay();
 });
 </script>
 *{
