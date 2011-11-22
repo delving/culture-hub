@@ -241,6 +241,7 @@ search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
+search.trail=U bekijkt resultaten <strong>%s - %s</strong> van <strong>%s</strong> voor:
 
 ##Story
 story.pages=Pagina's

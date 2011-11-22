@@ -255,6 +255,7 @@ search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
+search.trail=You are looking at <strong>%s - %s</strong> of <strong>%s</strong> results for:
 
 ##Story
 story.pages=Pages

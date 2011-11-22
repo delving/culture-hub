@@ -182,3 +182,19 @@ div.dropdown-slider .ddm.heading {
     margin: 0;
     padding: 0;
 }
+
+/*results */
+.item-count {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.item-count ul {
+    display: inline-block;
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+.item-count li {
+    font-weight: bold;
+}

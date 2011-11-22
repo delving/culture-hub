@@ -10,7 +10,7 @@
 <script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
 #{/set}
 
-#{breadcrumbs queryCrumbs: pagination /}
+#{breadcrumbs /}
 
 *{
 <div>
@@ -27,8 +27,18 @@
 </div>
 }*
 <div class="g-12of12">
-    <div class="mod item-count">
-        <h2>${viewUtils.getKey('search.nrfound', "${pagination.getNumFound()}")}</h2>
+    <div class="item-count">
+        &{'search.trail', pagination.getStart(), pagination.getRows() + pagination.getStart(), pagination.getNumFound() }
+        <ul class="breadcrumb">
+        #{list pagination.getBreadcrumbs(), as: 'crumb'}
+            #{ifnot crumb_isLast}
+                <li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>
+           #{/ifnot}
+            #{else}
+                <li><span>${crumb.value()}</span></li>
+            #{/else}
+        #{/list}
+        </ul>
     </div>
 </div>
 
@@ -40,7 +50,12 @@
         </div>
         #{/if}
         <div class="results">
+            #{if briefDocs }
             #{resultGrid results: briefDocs /}
+            #{/if}
+            #{else}
+            &{'ui.message.nothingFound'}
+            #{/else}
         </div>
         #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
         <div class="pager">
@@ -53,8 +68,8 @@
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getQueryForPresentation() /}
-                    #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getQueryForPresentation() /}
+                    #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
+                    #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
                 </div>
             </div>
         </div>
