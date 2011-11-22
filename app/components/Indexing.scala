@@ -100,14 +100,14 @@ object Indexing extends SolrServer {
     dataSet.idxFacets.foreach {
       facet =>
         if (indexedKeys.contains(facet)) {
-          inputDoc addField ("%s_facet".format(facet), inputDoc.get(indexedKeys.get(facet).get))
+          inputDoc addField("%s_facet".format(facet), inputDoc.get(indexedKeys.get(facet).get))
         }
     }
     // adding sort fields at index time
-    dataSet.idxSortFields.foreach{
+    dataSet.idxSortFields.foreach {
       sort =>
-      if (indexedKeys.contains(sort)) {
-          inputDoc addField ("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
+        if (indexedKeys.contains(sort)) {
+          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
         }
     }
 
