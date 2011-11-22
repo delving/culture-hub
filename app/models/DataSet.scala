@@ -247,12 +247,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     updatedDataSet
   }
 
-  def addIndexingMapping(dataSet: DataSet, mapping: String) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping))
-  }
-
-  def addSortAndFacetField(dataSet: DataSet, theme: PortalTheme) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), $set("idxFacets" -> theme.getFacets.map(_.facetName), "idxSortFields" -> theme.getSortFields.map(_.sortKey)))
+  def addIndexingState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
   }
 
   def updateIndexingCount(dataSet: DataSet, count: Int) {
