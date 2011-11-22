@@ -2,6 +2,7 @@ package controllers.organization
 
 import controllers.DelvingController
 import play.mvc.results.Result
+
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -14,6 +15,7 @@ object SipCreator extends DelvingController {
   def jnlp(user: String): Result = {
 
     response.contentType = "application/x-java-jnlp-file"
+    response.setHeader("Cache-Control", "no-cache")
 
     val sipCreatorVersion = "0.4.4"
     val home = "http://" + request.host + "/" + user + "/"
@@ -29,12 +31,13 @@ object SipCreator extends DelvingController {
         <shortcut online="false">
             <desktop/>
         </shortcut>
+        <update check="always"/>
     </information>
     <security>
         <all-permissions/>
     </security>
     <resources>
-        <j2se version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
+        <java version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
         <property name="jnlp.versionEnabled" value="false"/>
         <jar href={ "sip-creator-" + sipCreatorVersion + "-SNAPSHOT.jar" } main="true"/>
         <jar href={ "sip-core-" + sipCreatorVersion + "-SNAPSHOT.jar" }/>
