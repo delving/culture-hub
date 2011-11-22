@@ -20,18 +20,19 @@
   ~ permissions and limitations under the Licence.
   -->
 
-<record-definition prefix="tib">
+<record-definition prefix="tibs">
     <namespaces>
         <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
         <namespace prefix="dcterms" uri="http://purl.org/dc/terms/" schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+        <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="icn" uri="http://www.icn.nl/" schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"/>
         <namespace prefix="delving" uri="http://www.delving.eu/schemas/delving/" schema="http://www.delving.eu/schemas/delving/DELVING-1.0.xsd"/>
         <namespace prefix="tib" uri="http://www.thuisinbrabant.nl/" schema="http://www.thuisinbrabant.nl/schemas/TIB-V1.0.xsd"/>
     </namespaces>
     <!--
     sortable            => default false; action index also with sort_ prefix in fieldname
     searchField         => add content of field to each field specified in the list
-    fulldoc             => default true; when set to false the field will no be displayed in the full view
-    briefdoc            => default false; if true store with prefix summ_; if false store with prefix md_* (this means that the fieldContents are not stored)
     housekeeping        => default false; this field can never be mapped and its value is only used in back-end processes
     facetPrefix         => this is the prefix used during Solr Query construction for multivalued search
                            If facetPrefix is non-empty store this field with prefix facet_ to enable its use as facet.
@@ -40,93 +41,212 @@
     multivalued         => default = true; check if field name appears multiple times.
     -->
     <root localName="record">
-        <field prefix="tib" localName="afbeelding"/>
-        <field prefix="tib" localName="datering"/>
-        <field prefix="tib" localName="instelling"/>
-        <field prefix="tib" localName="inventarisnummer"/>
-        <field prefix="tib" localName="locatie"/>
-        <field prefix="tib" localName="vervaardiger"/>
-        <field prefix="tib" localName="objecttype">
+        <field prefix="delving" localName="deepZoomUrl" fieldType="string"/>
+        <field prefix="tib" localName="cit-name" fieldType="string"/>
+        <field prefix="tib" localName="thumbLarge" fieldType="string"/>
+        <field prefix="tib" localName="thumbSmall" fieldType="string"/>
+        <field prefix="tib" localName="collection" fieldType="string"/>
+        <field prefix="tib" localName="objectSoort">
             <options>
-                <string>Schilderij</string>
-                <string>Prent</string>
-                <string>Foto</string>
-                <string>Tekening</string>
+                <string>dummy item1</string>
+                <string>dummy item2</string>
+            </options>
+        </field>
+        <field prefix="tib" localName="material">
+        <options>
+                <string>dummy item1</string>
+                <string>dummy item2</string>
+            </options>
+        </field>
+        <field prefix="tib" localName="place">
+         <options>
+                <string>dummy item1</string>
+                <string>dummy item2</string>
+            </options>
+        </field>
+        <field prefix="tib" localName="date"/>
+        <field prefix="tib" localName="collectionPart"/>
+        
+        <field prefix="icn" localName="creatorYearOfBirth">
+            <converter multipleOutput="true" call=".extractYear()"/>
+        </field>
+        <field prefix="icn" localName="technique">
+            <options>
+                <string>Schilderkunst</string>
+                <string>Prentkunst</string>
+                <string>Fotografie</string>
+                <string>Tekeningen</string>
+                <string>Beeldhouwkunst</string>
+                <string>Textiel</string>
+                <string>Film/Video/DVD</string>
                 <string>Anders:</string>
             </options>
         </field>
-        <field prefix="tib" localName="omschrijving"/>
-        <field prefix="tib" localName="titel"/>
-        <field prefix="tib" localName="trefwoorden"/>
-        <field prefix="tib" localName="uitgever"/>
-        <field prefix="tib" localName="uniekeId"/>
-        <field prefix="tib" localName="afmeting"/>
-        <field prefix="tib" localName="afmetingBreedte"/>
-        <field prefix="tib" localName="afmetingLengte"/>
-        <field prefix="tib" localName="afmetingDiepte"/>
-        <field prefix="tib" localName="afmetingDiameter"/>
-        <field prefix="tib" localName="deelcollectie"/>
-        <field prefix="tib" localName="deeplink"/>
-        <field prefix="tib" localName="deepZoom"/>
-        <field prefix="tib" localName="thumbLarge"/>
-        <field prefix="tib" localName="thumbSmall"/>
-        <field prefix="tib" localName="gerelateerd"/>
-        <field prefix="tib" localName="materiaal"/>
-        <field prefix="tib" localName="objectcategorie"/>
-        <field prefix="tib" localName="objecttrefwoord"/>
-        <field prefix="tib" localName="opmerkingen"/>
-        <field prefix="tib" localName="rechten"/>
-        <field prefix="tib" localName="rolVervaardiger"/>
-        <field prefix="tib" localName="serie"/>
-        <field prefix="tib" localName="techniek"/>
-        <field prefix="tib" localName="topstuk"/>
-        <field prefix="tib" localName="begeleider"/>
-        <field prefix="tib" localName="beginpagina"/>
-        <field prefix="tib" localName="bewerker"/>
-        <field prefix="tib" localName="bron"/>
-        <field prefix="tib" localName="corporatie"/>
-        <field prefix="tib" localName="corporatieBron"/>
-        <field prefix="tib" localName="corporatieCollectie"/>
-        <field prefix="tib" localName="corporatieTNummer"/>
-        <field prefix="tib" localName="editie"/>
-        <field prefix="tib" localName="eindpagina"/>
-        <field prefix="tib" localName="illustrator"/>
-        <field prefix="tib" localName="medewerker"/>
-        <field prefix="tib" localName="pagineringRubriek"/>
-        <field prefix="tib" localName="pagineringAnnotatie"/>
-        <field prefix="tib" localName="pagineringVrij"/>
-        <field prefix="tib" localName="samensteller"/>
-        <field prefix="tib" localName="vertaler"/>
-        <field prefix="tib" localName="volumeDag"/>
-        <field prefix="tib" localName="volumeJaar"/>
-        <field prefix="tib" localName="volumeMaand"/>
-        <field prefix="tib" localName="volumeNummer"/>
-        <field prefix="tib" localName="vindplaats"/>
-        <field prefix="tib" localName="vervaardigingsplaats"/>
-        <field prefix="tib" localName="vervaardigingStart"/>
-        <field prefix="tib" localName="vervaardigingEind"/>
-        <field prefix="tib" localName="vervaardigingGeboortedatum"/>
-        <field prefix="tib" localName="vervaardigingSterfdatum"/>
-        <field prefix="delving" localName="collectionName"/>
-        <field prefix="delving" localName="collectionTitle" factName="name"/>
-        <field prefix="delving" localName="country" factName="country"/>
-        <field prefix="delving" localName="dataProvider" factName="dataProvider"/>
-        <field prefix="delving" localName="isShownAt" fieldType="string"/>
-        <field prefix="delving" localName="isShownBy" fieldType="string"/>
-        <field prefix="delving" localName="language" fieldType="string" factName="language"/>
-        <field prefix="delving" localName="object"/>
-        <field prefix="delving" localName="provider" factName="provider"/>
-        <field prefix="delving" localName="rights" factName="rights"/>
-        <field prefix="delving" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="delving" localName="type" fieldType="string" factName="type"/>
-        <field prefix="delving" localName="unstored" fieldType="text"/>
-        <field prefix="delving" localName="uri" identifierField="true">
+        <field prefix="icn" localName="material"/>
+        <field prefix="icn" localName="location"/>
+        <field prefix="icn" localName="province"/>
+        <field prefix="icn" localName="collectionPart"/>
+        <field prefix="icn" localName="acquisitionMeans">
+            <options>
+                <string>aankoop</string>
+                <string>schenking</string>
+                <string>bruikleen</string>
+                <string>ruil</string>
+                <string>opdracht</string>
+                <string>opdracht derden</string>
+                <string>opdracht museum</string>
+                <string>legaat</string>
+                <string>overdracht</string>
+                <string>successieregeling</string>
+                <string>vondst</string>
+                <string>onbekend:</string>
+            </options>
+        </field>
+        <!--<field prefix="icn" localName="collectionType">-->
+            <!--<options>-->
+                <!--<string>all</string>-->
+                <!--<string>portal</string>-->
+                <!--<string>mm</string>-->
+            <!--</options>-->
+        <!--</field>-->
+        <field prefix="icn" localName="acquisitionYear"/>
+        <field prefix="icn" localName="purchasePrice"/>
+        <field prefix="icn" localName="acquiredWithHelpFrom"/>
+        <field prefix="icn" localName="physicalState"/>
+        
+        <field prefix="dc" localName="contributor" />
+        <field prefix="dc" localName="coverage" />
+        <field prefix="dc" localName="creator"  sortable="true"/>
+        <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
+        <field prefix="dc" localName="description" />
+        <field prefix="dc" localName="format"/>
+        <field prefix="dc" localName="identifier" />
+        <field prefix="dc" localName="language"/>
+        <field prefix="dc" localName="publisher"/>
+        <field prefix="dc" localName="relation" />
+        <field prefix="dc" localName="rights"/>
+        <field prefix="dc" localName="source"/>
+        <field prefix="dc" localName="subject"  />
+        <field prefix="dc" localName="title" sortable="true"/>
+        <field prefix="dc" localName="type"/>
+        <field prefix="dcterms" localName="alternative"/>
+        <field prefix="dcterms" localName="conformsTo"/>
+        <field prefix="dcterms" localName="created" />
+        <field prefix="dcterms" localName="extent" />
+        <field prefix="dcterms" localName="hasFormat" />
+        <field prefix="dcterms" localName="hasPart" />
+        <field prefix="dcterms" localName="hasVersion" />
+        <field prefix="dcterms" localName="isFormatOf"/>
+        <field prefix="dcterms" localName="isPartOf"/>
+        <field prefix="dcterms" localName="isReferencedBy" />
+        <field prefix="dcterms" localName="isReplacedBy" />
+        <field prefix="dcterms" localName="isRequiredBy" />
+        <field prefix="dcterms" localName="isVersionOf"/>
+        <field prefix="dcterms" localName="issued" />
+        <field prefix="dcterms" localName="medium" />
+        <field prefix="dcterms" localName="provenance"/>
+        <field prefix="dcterms" localName="references"/>
+        <field prefix="dcterms" localName="replaces" />
+        <field prefix="dcterms" localName="requires" />
+        <field prefix="dcterms" localName="spatial" />
+        <field prefix="dcterms" localName="tableOfContents" />
+        <field prefix="dcterms" localName="temporal" />
+        <field prefix="dcterms" localName="rightsHolder"/>
+        
+        <field prefix="europeana" localName="collectionName"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name"/>
+        <field prefix="europeana" localName="country" factName="country"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider"/>
+        <field prefix="europeana" localName="isShownAt" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
+        <field prefix="europeana" localName="language" fieldType="string"/>
+        <field prefix="europeana" localName="object"/>
+        <field prefix="europeana" localName="provider" factName="provider"/>
+        <field prefix="europeana" localName="rights" factName="rights"/>
+        <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
+        <field prefix="europeana" localName="type" fieldType="string" />
+        <field prefix="europeana" localName="unstored" fieldType="text"/>
+        <field prefix="europeana" localName="uri" identifierField="true">
             <converter call=".toId(spec)"/>
         </field>
-        <field prefix="delving" localName="userTag"/>
-        <field prefix="delving" localName="hasDigitalObject"/>
-        <field prefix="delving" localName="year" fieldType="string">
+        <field prefix="europeana" localName="userTag" />
+        <field prefix="europeana" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
+    <views>
+        <view name="full">
+            <view-field name="dc_title" prefix="dc" localName="title"/>
+            <view-field name="dc_creator" prefix="dc" localName="creator"/>
+            <view-field name="icn_creatorYearOfBirth" prefix="icn" localName="creatorYearOfBirth"/>
+            <view-field name="dc_date">
+                <field-ref prefix="dc" localName="date"/>
+                <field-ref prefix="dcterms" localName="created"/>
+                <field-ref prefix="dcterms" localName="issued"/>
+            </view-field>
+            <view-field name="dc_type" prefix="dc" localName="type"/>
+            <view-field name="dc_format">
+                <field-ref prefix="dc" localName="format"/>
+                <field-ref prefix="dcterms" localName="extent"/>
+                <field-ref prefix="dcterms" localName="medium"/>
+            </view-field>
+            <view-field name="dc_language" prefix="dc" localName="language"/>
+            <view-field name="dc_description" prefix="dc" localName="description"/>
+            <view-field name="dc_subject">
+                <field-ref prefix="dc" localName="subject"/>
+                <field-ref prefix="dcterms" localName="temporal"/>
+                <field-ref prefix="dcterms" localName="spatial"/>
+                <field-ref prefix="dcterms" localName="coverage"/>
+            </view-field>
+            <view-field name="dc_identifier" prefix="dc" localName="identifier"/>
+            <view-field name="dc_source" prefix="dc" localName="source"/>
+            <view-field name="dc_rights" prefix="dc" localName="rights"/>
+            <view-field name="dc_publisher" prefix="dc" localName="publisher"/>
+            <view-field name="dc_provider" prefix="europeana" localName="dataProvider"/>
+            <view-field name="dc_relation">
+                <field-ref prefix="dc" localName="relation"/>
+                <field-ref prefix="dcterms" localName="references"/>
+                <field-ref prefix="dcterms" localName="isReferencedBy"/>
+                <field-ref prefix="dcterms" localName="isReplacedBy"/>
+                <field-ref prefix="dcterms" localName="isRequiredBy"/>
+                <field-ref prefix="dcterms" localName="isPartOf"/>
+                <field-ref prefix="dcterms" localName="hasPart"/>
+                <field-ref prefix="dcterms" localName="replaces"/>
+                <field-ref prefix="dcterms" localName="requires"/>
+                <field-ref prefix="dcterms" localName="isVersionOf"/>
+                <field-ref prefix="dcterms" localName="hasVersion"/>
+                <field-ref prefix="dcterms" localName="conformsTo"/>
+                <field-ref prefix="dcterms" localName="hasFormat"/>
+            </view-field>
+            <view-field name="dcterms_provenance" prefix="dcterms" localName="provenance"/>
+            <view-field name="icn_technique" prefix="icn" localName="technique"/>
+            <view-field name="icn_material" prefix="icn" localName="material"/>
+            <view-field name="icn_location" prefix="icn" localName="location"/>
+            <view-field name="icn_province" prefix="icn" localName="province"/>
+            <view-field name="icn_collectionPart" prefix="icn" localName="collectionPart"/>
+            <!--<#if (user??) && (user.role=="ROLE_RESEARCH_USER" || user.role=="ROLE_ADMINISTRATOR" || user.role=="ROLE_GOD" )>-->
+            <view-field name="icn_acquisitionMeans" prefix="icn" localName="acquisitionMeans"/>
+            <view-field name="icn_acquisitionYear" prefix="icn" localName="acquisitionYear"/>
+            <view-field name="icn_acquiredWithHelpFrom" prefix="icn" localName="acquiredWithHelpFrom"/>
+            <view-field name="icn_purchasePrice" prefix="icn" localName="purchasePrice"/>
+            <view-field name="icn_physicalState" prefix="icn" localName="physicalState"/>
+            <!--</#if>-->
+        </view>
+        <view name="brief">
+        </view>
+    </views>
+    <validation>
+        assert record.'europeana:collectionTitle'
+        assert record.'europeana:country'
+        assert record.'europeana:dataProvider'
+        assert record.'europeana:provider'
+        assert record.'europeana:language'
+        assert record.'europeana:rights'
+        assert record.'europeana:type'
+        assert record.'europeana:uri'
+        assert record.'europeana:isShownAt' || record.'europeana:isShownBy'
+        assert isUrl(record.'europeana:isShownAt')
+        assert isOption(record.'icn:acquisitionMeans')
+        assert isUnique(record.'europeana:uri')
+    </validation>
 </record-definition>
