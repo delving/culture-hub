@@ -54,8 +54,8 @@ object Labels extends DelvingController with UserSecured {
       case None => return Error(400, "Bad request")
     }
 
-    targetCollection.update(MongoDBObject("_id" -> id), $pull ("labels" -> MongoDBObject("label" -> label)))
-    labelsCollection.remove(MongoDBObject("_id" -> label))
+    targetCollection.update(MongoDBObject("_id" -> id), $pull ("labels" -> MongoDBObject("link" -> label)))
+    linksCollection.remove(MongoDBObject("_id" -> label))
 
     Ok
   }

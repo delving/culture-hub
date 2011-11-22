@@ -33,6 +33,23 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     embedded.value.label should be ("toto")
   }
 
+  it should "remove a label from an object" in {
+    val dobject = DObject.findOne(MongoDBObject()).get
+    val link = Link.findOne(MongoDBObject("value.label" -> "toto")).get
+
+    val req = getAuthenticated()
+    req.method = "DELETE"
+    req.args.put("targetType", "DObject")
+    FunctionalTest.DELETE(req, "/bob/object/%s/label/%s".format(dobject._id.toString, link._id.toString))
+
+    Link.count(MongoDBObject("value.label" -> "toto")) should equal (0)
+
+    val updatedObject = DObject.findOneByID(dobject._id).get
+    updatedObject.labels.size should equal (0)
+
+
+  }
+
   def getAuthenticated() = {
     val login = FunctionalTest.POST("/login", Map("username" -> "bob", "password" -> "secret"))
     val req = FunctionalTest.newRequest()

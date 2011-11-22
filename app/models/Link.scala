@@ -12,7 +12,7 @@ case class Link(_id: ObjectId = new ObjectId,
                  to: LinkReference,
                  value: LinkValue)
 
-object Link extends SalatDAO[Link, ObjectId](labelsCollection) {
+object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
   def create(linkType: String, userName: String, value: LinkValue, from: LinkReference, to: LinkReference): Option[ObjectId] = {
     val link = linkType match {
