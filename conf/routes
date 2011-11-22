@@ -72,13 +72,18 @@ GET         /collections                                                     Col
 GET         /objects                                                         DObjects.list
 GET         /stories                                                         Stories.list
 
-GET         /search                                                           Search.index
+GET         /search                                                          Search.index
 
 GET         /{user}/?                                                        Profiles.view
+
+POST        /{user}/label                                                    user.Labels.create
+DELETE      /{user}/label/{id}                                               user.Labels.delete
 
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.dobject
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
+PUT         /{user}/object/{id}/label/{label}                                user.Labels.add(targetType:'DObject')
+DELETE      /{user}/object/{id}/label/{label}                                user.Labels.remove(targetType:'DObject')
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
 
@@ -93,6 +98,8 @@ GET         /{user}/collection/{id}/objects                                  Col
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
+PUT         /{user}/collection/{id}/label/{label}                            user.Labels.add(targetType:'UserCollection')
+DELETE      /{user}/collection/{id}/label/{label}                            user.Labels.remove(targetType:'UserCollection')
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/{id}                                          Collections.collection
@@ -100,6 +107,8 @@ GET         /{user}/collection/{id}                                          Col
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.story
 GET         /{user}/story/{id}/update                                        user.Stories.story
+PUT         /{user}/story/{id}/label/{label}                                 user.Labels.add(targetType:'Story')
+DELETE      /{user}/story/{id}/label/{label}                                 user.Labels.remove(targetType:'Story')
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
 GET         /{user}/story/{id}                                               Stories.story
