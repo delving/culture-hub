@@ -94,7 +94,7 @@ object SolrBindingService {
     queryResponse.getResults.foreach{
         doc =>
           val solrDoc = SolrResultDocument()
-          doc.entrySet.foreach{
+          doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach{
             field =>
               val normalisedField = stripDynamicFieldLabels(field.getKey)
               val FieldValueClass: Class[_] = field.getValue.getClass

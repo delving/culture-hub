@@ -95,12 +95,13 @@ object Indexing extends SolrServer {
     inputDoc.addField("delving_currentFormat", format)
     inputDoc.addField("delving_recordType", "dataset")
     inputDoc.addField("delving_hubId", "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey))
-    val indexedKeys = inputDoc.keys.filter(!_.matches(".*_(s|string|link|single)$")).map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap
+    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
     // add facets at indexing time
     dataSet.idxFacets.foreach {
       facet =>
         if (indexedKeys.contains(facet)) {
-          inputDoc addField("%s_facet".format(facet), inputDoc.get(indexedKeys.get(facet).get))
+          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
+          inputDoc addField("%s_facet".format(facet), facetContent)
         }
     }
     // adding sort fields at index time
@@ -114,6 +115,7 @@ object Indexing extends SolrServer {
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
 
+    if (inputDoc.contains("id")) inputDoc.remove("id")
     val europeanaUri = "europeana_uri"
     if (inputDoc.containsKey(europeanaUri))
       inputDoc.addField("id", inputDoc.getField(europeanaUri).getValues.headOption.getOrElse("empty"))
