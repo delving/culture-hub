@@ -1,7 +1,6 @@
 #{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.story.title.create', fullName) : viewUtils.getKey('user.story.title.update', fullName) /}
-
 #{breadcrumbs /}
 
 <div id="edit-story" class="row">
@@ -27,7 +26,7 @@
         <div class="mod">
             <form id="storyForm" class="box">
 
-                #{textField name:"name", label: viewUtils.getKey('thing.name'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
+                #{textField name:"name", label: viewUtils.getKey('thing.title'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
                 #{textArea name:"description", label: viewUtils.getKey('thing.description'), dataBind:"value: description, valueUpdate: 'afterkeydown'", required: true /}
 
                 <div class="field" for="objectVisibility">
