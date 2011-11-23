@@ -115,16 +115,7 @@ object Indexing extends SolrServer {
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
 
-    if (inputDoc.contains("id")) inputDoc.remove("id")
-    val europeanaUri = "europeana_uri"
-    if (inputDoc.containsKey(europeanaUri))
-      inputDoc.addField("id", inputDoc.getField(europeanaUri).getValues.headOption.getOrElse("empty"))
-    else if (!record.localRecordKey.isEmpty)
-      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record.localRecordKey))
-    else
-      inputDoc.addField("id", "%s_%s".format(dataSet.spec, record._id.toString))
     // todo add more elements: hasDigitalObject. etc
   }
-
 
 }
