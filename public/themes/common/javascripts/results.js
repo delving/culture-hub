@@ -36,21 +36,6 @@ $(document).ready(function() {
         }
     });
 
-    // Overlay stuff
-    //	$("a[rel]").overlay({
-    //		onBeforeLoad: function() {
-    //			// grab wrapper element inside content
-    //			var wrap = this.getOverlay().find(".contentWrap");
-    //
-    //			// load the page specified in the trigger
-    //			wrap.load(this.getTrigger().attr("href"));
-    //		},
-    //        onLoad: function(){
-    //            addthis.init();
-    //        },
-    //        fixed: false
-    //	});
-
     // Drag and Drop stuff
 
     var actionArea = $("#dropbox-actions");
@@ -63,11 +48,13 @@ $(document).ready(function() {
         containment: 'body',
         cursor: 'move'
      } );
+
     $("#dropbox").droppable({
         tolerance: 'pointer',
         accept: '.draggable',
         drop: addToDropbox
     });
+
     $("#dropbox").droppable({ hoverClass: 'hover' });
 
     function addToDropbox(e, ui) {
@@ -82,7 +69,7 @@ $(document).ready(function() {
               actionArea.delay(500).fadeIn(500);
         }
         var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
-        html += title + '<input type="hidden" name="itemId" value="' + itemId +'" </div></li>';
+        html += title + '<input type="hidden" name="itemId" value="' + itemId +'"/></div></li>';
         $(html).appendTo(list).hide().delay("250").fadeIn("500");
 
         $("a.remove").click(function(){
