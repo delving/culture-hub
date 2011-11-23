@@ -592,6 +592,9 @@ body#home  {
 
 /* FORMS ************************************************************************************/
 /* form-elements.css overrides */
+form {
+    background: transparent;
+}
 
 form h3 {
     background-color: $color-4;
@@ -785,4 +788,14 @@ background-color: lighten($color-2, 30%);
     right: -15px;
     top: -15px;
     width: 35px;
+}
+
+/* widget override */
+.widget.color-green {
+    background: $color-2;
+}
+
+.widget .widget-content {
+    background: lighten($color-2, 30%);
+    color: #555;
 }

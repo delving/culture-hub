@@ -53,6 +53,8 @@ $(document).ready(function() {
 
     // Drag and Drop stuff
 
+    var actionArea = $("#dropbox-actions");
+
     $('.draggable').draggable( {
         opacity: .5,
         revert: true,
@@ -72,12 +74,23 @@ $(document).ready(function() {
         var item = ui.draggable;
         var title = $(item).find('input[name="title"]').val();
         var thumb = $(item).find('input[name="thumb"]').val();
+        var itemId = $(item).find('input[name="idUri"]').val();
+
         var list = $(this).find("ul");
-        if( $(list).find('li').size() >= 1){
-              $("#dropbox-info").remove();
-        };
-        $('<li>'+ '<div class="media"><img class="img" src="'+thumb+'" width="50" />' + title + '</div></li>').appendTo(list).hide().delay("250").fadeIn("500");
+        if( $(list).find('li').size() == 0){
+              $("#dropbox-info").hide();
+              actionArea.delay(500).fadeIn(500);
+        }
+        var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
+        html += title + '<input type="hidden" name="itemId" value="' + itemId +'" </div></li>';
+        $(html).appendTo(list).hide().delay("250").fadeIn("500");
+
+        $("a.remove").click(function(){
+            $(this).closest("li").remove();
+            if( $(list).find('li').size() == 0){
+                $("#dropbox-info").show();
+                actionArea.delay(500).fadeOut(500);
+                }
+        });
     }
-
-
 });
