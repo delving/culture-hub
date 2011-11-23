@@ -96,7 +96,7 @@ object SolrQueryService extends SolrServer {
     query setFields ("*,score")
     // highlighting parameters
     query setHighlight true
-    query addHighlightField ("*_text")
+    query addHighlightField ("text")
   }
 
 //  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
@@ -218,12 +218,13 @@ object SolrQueryService extends SolrServer {
         }
       }.toMap
       }
-      fqs foreach {
+      fqs.groupBy(_.field) foreach {
         item => {
-          val prefix = facetFieldMap.get(item.field)
+          val prefix = facetFieldMap.get(item._1)
+          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString(" OR "))
           prefix match {
-            case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, item.toFacetString))
-            case None => query addFilterQuery (item.toFacetString)
+            case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, orString))
+            case None => query addFilterQuery (orString)
           }
         }
       }
