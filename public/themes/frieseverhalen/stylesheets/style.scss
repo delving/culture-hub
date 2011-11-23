@@ -83,8 +83,8 @@ body {
     font-size: $fsize-1;
         line-height: 1.5;
 }
-a { color: $color-3; }
-a:visited {color: darken($color-3, 10%);}
+a { color: $color-4; }
+a:visited {color: darken($color-4, 10%);}
 a:hover {color: $color-3;}
 
 h1, h2, h3 {
@@ -332,7 +332,7 @@ body#home  {
 
 #search {
     position: relative;
-    top: 80px;
+    top: 90px;
     right: 6px;
     text-align: right;
     z-index: 10;
@@ -352,9 +352,9 @@ body#home  {
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 $color-3;
+    background: none repeat scroll 0 0 $color-4;
     /*border: medium none;*/
-    border:  1px solid $color-2;
+    border:  1px solid $color-4;
     @include border-all($radius);
     color: #fff;
     cursor: pointer;
@@ -402,39 +402,6 @@ body#home  {
 }
 .metadata p {
     margin-top: 0px;
-}
-
-/* media block in recent wrapper */
-
-.mod.recent.object{
-    background-color: lighten($color-2, 30%);
-}
-.mod.recent.collection{
-    background-color: lighten($color-3, 40%);
-}
-.mod.recent.story{
-    background-color: lighten($color-4, 40%);
-}
-
-.mod.recent .bd {
-    padding: 0 10px;
-}
-
-.mod.recent h3 {
-    color: $color-7;
-    text-transform:uppercase;
-    font-size: $fsize-2;
-    font-weight: normal;
-    background: $color-2;
-    padding: 4px 10px;
-    margin: 0;
-}
-
-.mod.recent .media .clip {
-    display: inline-block;
-    float: left;
-    width: 100px;
-    overflow: hidden;
 }
 
 /* media block on list page */
@@ -502,7 +469,7 @@ body#home  {
 /* pagination.css overrides */
 
 .pagination .current {
-    background: $color-3;
+    background: $color-4;
 }
 
 .pagination .prev,
@@ -521,6 +488,7 @@ body#home  {
 .breadcrumb {
 //    background-color: lighten($color-2, 30%);
     /*border-bottom: 1px solid #ccc;*/
+    /*color: $color-4;*/
     height: 40px;
     line-height: 40px;
 }
@@ -533,10 +501,11 @@ body#home  {
 
 .breadcrumb li {
     margin-left: 0px;
+    margin-right: 10px;
 }
 
-.breadcrumb a:link {
-    color: $color-3;
+.breadcrumb a {
+    color: $color-4;
 }
 
 /* RESULTS ************************************************************************************/
@@ -591,11 +560,11 @@ body#home  {
 /* FORMS ************************************************************************************/
 /* form-elements.css overrides */
 form {
-    background: lighten($color-2, 45%);
-    padding: 10px 0;
+    background: transparent;
 }
+
 form h3 {
-background-color: lighten($color-3, 20%);
+    background-color: $color-4;
 }
 
 
@@ -614,6 +583,14 @@ background: -o-linear-gradient(top, $color-2, darken($color-2, 10%));
 
 button.green:hover, .button.green:hover {
     background:  darken($color-2, 10%);
+}
+
+div.dropdown-slider .ddm.heading.places {
+    background-color: $color-4;
+}
+
+div.dropdown-slider .ddm.heading.orgs {
+    background-color: $color-3;
 }
 /* HELPERS ************************************************************************************/
 
@@ -653,7 +630,7 @@ background-color: lighten($color-2, 30%);
 
 /* STORY LAYOUT */
 
-.story {
+.story-wrapper {
     background: $color-2;
     margin-top: 10px;
 }
@@ -672,7 +649,7 @@ background-color: lighten($color-2, 30%);
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
 .scrollable {
-    min-height: 100%;
+    /*min-height: 100%;*/
 }
 
 .scroll-nav {
@@ -755,4 +732,91 @@ background-color: lighten($color-2, 30%);
 #inav .active a,
 #inav li:hover a {
     color: #fff;
+}
+
+/* OBJECT OVERLAY */
+
+.result-overlay {
+    background: #fff;
+    display: none;
+    margin: 0 auto;
+    width: 940px;
+   @include  border-all(10px);
+    border: 1px solid #666666;
+    box-shadow: 0 0 50px 5px #000000;
+    z-index: 1000;
+}
+
+.result-overlay .close {
+    background-image: url("/public/themes/common/images/close.png");
+    cursor: pointer;
+    height: 35px;
+    position: absolute;
+    right: -15px;
+    top: -15px;
+    width: 35px;
+}
+
+/* widget override */
+/* media block in recent wrapper */
+
+
+
+.widget.object{
+    background-color: $color-2;
+}
+
+.widget.object .bd {
+ background-color: lighten($color-2, 30%);
+}
+
+.widget.collection {
+    background-color: $color-3;
+}
+
+.widget.collection .bd{
+    background-color: lighten($color-3, 40%);
+}
+.widget.story {
+    background-color: $color-4;
+}
+.widget.story .bd {
+    background-color: lighten($color-4, 40%);
+}
+
+.widget.object h3,
+.widget.collection h3,
+.widget.story h3 {
+    color: #fff;
+}
+
+/*.mod.recent .bd {*/
+    /*padding: 0 10px;*/
+/*}*/
+
+/*.mod.recent h3 {*/
+    /*color: $color-7;*/
+    /*text-transform:uppercase;*/
+    /*font-size: $fsize-2;*/
+    /*font-weight: normal;*/
+    /*background: $color-2;*/
+    /*padding: 4px 10px;*/
+    /*margin: 0;*/
+/*}*/
+
+.widget.recent .media .clip {
+    display: inline-block;
+    float: left;
+    width: 100px;
+    overflow: hidden;
+}
+
+.widget.green {
+    background: $color-2;
+}
+
+.widget .bd {
+    background: lighten($color-2, 30%);
+    color: #555;
+    width: auto;
 }

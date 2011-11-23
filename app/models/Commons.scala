@@ -18,6 +18,7 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
   def findRecent(howMany: Int) = find(MongoDBObject("deleted" -> false, "visibility.value" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
+  def findByUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName))
 
   def owns(user: ObjectId, id: ObjectId) = count(MongoDBObject("_id" -> id, "user_id" -> user)) > 0
 

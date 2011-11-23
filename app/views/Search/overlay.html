@@ -1,0 +1,61 @@
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
+
+<div class="row">
+    <div class="g-12of12">
+        <div class="media record">
+            <img src="${fullDoc.getThumbnail()}" class="img" alt="${fullDoc.getTitle()}"/>
+
+            <div class="bd">
+                <div class="metadata">
+                    #{thingToolbar/}
+                    <h5>&{'metadata.dc.description'}:</h5>
+                    <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
+                    <hr/>
+                    <div class="row">
+                        <div class="g-1of2 alpha">
+                            #{metadataField label: viewUtils.getKey('metadata.dc.title'), data: fullDoc.getTitle() /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.creator'), data: fullDoc.getCreator() /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.year'), data: fullDoc.getYear() /}
+                        </div>
+
+                        <div class="g-1of2 omega">
+                            #{metadataField label: viewUtils.getKey('metadata.dc.language'), data: fullDoc.getLanguage() /}
+                            #{metadataField label: viewUtils.getKey('metadata.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+
+*{
+Possible methods
+def getAsArray(key: String) : Array[String] = assign(key)
+def getAsString(key: String) : String = assignFirst(key)
+def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
+def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
+def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
+
+def getId : String = assign("delving_hubId")
+def getDelvingId : String = assign("delving_pmhId")
+def getTitle : String = assign("dc_title")
+def getDescription: String = assign("dc_description")
+def getThumbnail : String = assign("europeana_object")
+def getCreator : String = assign("dc_creator")
+def getYear : String = assign("europeana_year")
+def getProvider : String = assign("europeana_provider")
+def getDataProvider : String = assign("europeana_dataProvider")
+def getLanguage : String = assign("europeana_language")
+
+}*

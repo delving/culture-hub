@@ -82,7 +82,8 @@ object Themes extends DelvingController with Secure {
     themeList foreach {
       PortalTheme.insert(_)
     }
-    Ok
+    ThemeHandler.update()
+    Text("Themes reloaded")
   }
 
 }

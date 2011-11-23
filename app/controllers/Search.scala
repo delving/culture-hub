@@ -2,8 +2,8 @@ package controllers
 
 import scala.collection.JavaConversions._
 import search._
-import models.DataSet
 import play.mvc.results.Result
+import models.UserCollection
 
 /**
  *
@@ -13,29 +13,41 @@ import play.mvc.results.Result
 
 object Search extends DelvingController {
 
-  def index(query: String = "*:*", page: Int = 1) = {
-    // always give back the recordType facet
-    request.params.put("facet.field", "delving_recordType")
+  val RETURN_TO_RESULTS = "returnToResults"
+  val SEARCH_TERM = "searchTerm"
 
+  def index(query: String = "*:*", page: Int = 1) = {
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
-    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
+    session.put(RETURN_TO_RESULTS, request.querystring)
+    session.put(SEARCH_TERM, request.params.get("query"))
+
+    val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
+
+    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections)
   }
 
-  def record(orgId: String, spec: String, recordId: String): Result = {
+  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
     val id = "%s_%s_%s".format(orgId, spec, recordId)
-
     val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
     val chQuery = SolrQueryService.createCHQuery(request, theme, false)
     val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:%s".format(idType.idSearchField, idType.normalisedId)))
     val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
     val response = CHResponse(params, theme, queryResponse, changedQuery)
 
-    if(response.response.getResults.size() == 0)
+    if (response.response.getResults.size() == 0)
       return NotFound(id)
 
     val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
-    Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc)
+    if (overlay) {
+      Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
+    } else {
+      // TODO check the request referrer header and only do perform the session lookup when coming from the result list page
+      // otherwise, clear the session cache
+      val returnToUrl = if (session.contains(RETURN_TO_RESULTS)) session.get(RETURN_TO_RESULTS) else ""
+      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
+    }
+
   }
 }
