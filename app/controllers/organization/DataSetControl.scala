@@ -98,8 +98,9 @@ object DataSetControl extends DelvingController with OrganizationSecured {
             DataSet.addIndexingState(dataSet, theme.metadataPrefix.get, theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.changeState(dataSet, DataSetState.QUEUED)
           } else {
-            // TODO give the user some decent feedback
-            DataSet.changeState(dataSet, DataSetState.ERROR)
+            // TODO give the user some decent feedback in the interface
+           LoggedError("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping".format(theme.metadataPrefix, dataSet.name, theme.name))
+           DataSet.changeState(dataSet, DataSetState.ERROR)
           }
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeIndexed"))
