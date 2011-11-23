@@ -149,6 +149,12 @@ user.nav.newdataset=Nieuw DataSet
 # Site navigation
 site.nav.home=Home
 
+# jQuery templates
+tmpl.selectedObjects.useAsDefault=Thumbnail
+tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+tmpl.selectedObjects.defaultImage=Gebruik deze afbeelding als miniatuur weergave voor uw collectie of verhaal
+
+
 # Views
 
 ## Admin.Themes view
@@ -365,7 +371,7 @@ user.story.create=Verhaal aanmaken
 user.story.update=Verhaal aanpassen
 user.story.updateStory=Aanpassen: %s
 user.story.storyInformation=Stap 1: Verhaal informatie
-user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een naam, korte beschrijving
+user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een titel en een korte beschrijving. Deze informatie komt tevens op de titelpagina van uw verhaal.
 user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Privé" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Publiek" zodat andere het kunnen vinden en bekijken.
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.bulletPoint3=Als de bovenstaande stappen zijn voltooid kunt u pagina's toevoegen
