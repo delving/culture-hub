@@ -160,8 +160,8 @@ site.nav.home=Home
 
 
 # jQuery templates
-tmpl.selectedObjects.useAsDefault=Use as default
-tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+tmpl.selectedObjects.useAsDefault=Thumbnail
+tmpl.selectedObjects.defaultImage=This will set the image as the thumbnail image to represent your collection or story
 
 
 # Views
@@ -383,7 +383,7 @@ user.story.create=Create a story
 user.story.update=Update a story
 user.story.updateStory=Update story %s
 user.story.storyInformation=Step 1: Story Information
-user.story.bulletPoint1=Enter the basic story information: a name and short description
+user.story.bulletPoint1=Enter the basic story information: a titel and short description. This information will form part of the title-page for your story.
 user.story.bulletPoint2=You should initially keep the story visibility status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.label.addPages=Add pages
