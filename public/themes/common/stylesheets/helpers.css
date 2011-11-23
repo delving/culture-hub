@@ -229,20 +229,20 @@ div.dropdown-slider .ddm.heading {
 /*}*/
 /* WIDGET */
 
-.widget.color-yellow {background:#f2bc00;}
-.widget.color-red    {background:#dd0000;}
-.widget.color-blue   {background:#148ea4;}
-.widget.color-white  {background:#dfdfdf;}
-.widget.color-orange {background:#f66e00;}
-.widget.color-green  {background:#8dc100;}
+.widget.yellow {background:#f2bc00;}
+.widget.red    {background:#dd0000;}
+.widget.blue   {background:#148ea4;}
+.widget.white  {background:#dfdfdf;}
+.widget.orange {background:#f66e00;}
+.widget.green  {background:#8dc100;}
 
-.widget.color-yellow h3,
-.widget.color-white h3,
-.widget.color-green h3
+.widget.yellow h3,
+.widget.white h3,
+.widget.green h3
 	{color:#000;}
-.widget.color-red h3,
-.widget.color-blue h3,
-.widget.color-orange h3
+.widget.red h3,
+.widget.blue h3,
+.widget.orange h3
 	{color:#FFF;}
 
 .widget {
@@ -252,7 +252,7 @@ div.dropdown-slider .ddm.heading {
     -webkit-border-radius: 4px;
 }
 
-.widget .widget-head {
+.widget .hd {
     color: #000;
     overflow: hidden;
     width: 100%;
@@ -260,14 +260,15 @@ div.dropdown-slider .ddm.heading {
     line-height: 30px;
 }
 
-.widget .widget-head h3 {
+.widget .hd h3 {
     padding: 0 5px;
     float: left;
     margin: 0;
 }
 
-.widget .widget-content {
+.widget .bd {
     background: #333;
+    display: block;
     padding: 0 5px;
     color: #DDD;
     -moz-border-radius-bottomleft: 2px;
@@ -278,46 +279,39 @@ div.dropdown-slider .ddm.heading {
     overflow: hidden;
 }
 
-.widget .widget-content p {
-    padding: 0.5em 0;
-    border-bottom: 1px solid #666;
+.widget .bd p {
+    padding: 0.5em;
 }
 
-/*.widget .widget-content img {*/
-    /*float: right;*/
-    /*margin: 0 10px;*/
-    /*border: 1px solid #FFF;*/
-/*}*/
-
-.widget .widget-content pre {
+.widget .bd pre {
     padding: 0.5em 5px;
     color: #EEE;
     font-size: 12px;
 }
 
-.widget .widget-content ul {
+.widget .bd ul {
     padding: 0;
     list-style: disc;
 }
 
-.widget .widget-content ul li {padding: 3px 0;}
+.widget .bd ul li {padding: 3px 0;}
 
-.widget .widget-content ul.images {
+.widget .bd ul.images {
     padding: 7px 0 0 0;
     list-style: none;
     height: 1%;
 }
 
-.widget .widget-content ul.images li {
+.widget .bd ul.images li {
     display: inline;
     float: left;
 }
 
-.widget .widget-content ul.images img {
+.widget .bd ul.images img {
     display: inline;
     float: left;
     margin: 0 0 7px 7px;
 }
-/* End Columns section */
+
 
 

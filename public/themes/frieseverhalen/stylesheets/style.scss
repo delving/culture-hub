@@ -404,39 +404,6 @@ body#home  {
     margin-top: 0px;
 }
 
-/* media block in recent wrapper */
-
-.mod.recent.object{
-    background-color: lighten($color-2, 30%);
-}
-.mod.recent.collection{
-    background-color: lighten($color-3, 40%);
-}
-.mod.recent.story{
-    background-color: lighten($color-4, 40%);
-}
-
-.mod.recent .bd {
-    padding: 0 10px;
-}
-
-.mod.recent h3 {
-    color: $color-7;
-    text-transform:uppercase;
-    font-size: $fsize-2;
-    font-weight: normal;
-    background: $color-2;
-    padding: 4px 10px;
-    margin: 0;
-}
-
-.mod.recent .media .clip {
-    display: inline-block;
-    float: left;
-    width: 100px;
-    overflow: hidden;
-}
-
 /* media block on list page */
 
 .list .media {
@@ -663,7 +630,7 @@ background-color: lighten($color-2, 30%);
 
 /* STORY LAYOUT */
 
-.story {
+.story-wrapper {
     background: $color-2;
     margin-top: 10px;
 }
@@ -682,7 +649,7 @@ background-color: lighten($color-2, 30%);
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
 .scrollable {
-    min-height: 100%;
+    /*min-height: 100%;*/
 }
 
 .scroll-nav {
@@ -791,11 +758,65 @@ background-color: lighten($color-2, 30%);
 }
 
 /* widget override */
-.widget.color-green {
+/* media block in recent wrapper */
+
+
+
+.widget.recent.object{
+    background-color: $color-2;
+}
+
+.widget.recent.object .bd {
+ background-color: lighten($color-2, 30%);
+}
+
+.widget.recent.collection {
+    background-color: $color-3;
+}
+
+.widget.recent.collection .bd{
+    background-color: lighten($color-3, 40%);
+}
+.widget.recent.story {
+    background-color: $color-4;
+}
+.widget.recent.story .bd {
+    background-color: lighten($color-4, 40%);
+}
+
+.widget.recent.object h3,
+.widget.recent.collection h3,
+.widget.recent.story h3 {
+    color: #fff;
+}
+
+/*.mod.recent .bd {*/
+    /*padding: 0 10px;*/
+/*}*/
+
+/*.mod.recent h3 {*/
+    /*color: $color-7;*/
+    /*text-transform:uppercase;*/
+    /*font-size: $fsize-2;*/
+    /*font-weight: normal;*/
+    /*background: $color-2;*/
+    /*padding: 4px 10px;*/
+    /*margin: 0;*/
+/*}*/
+
+.widget.recent .media .clip {
+    display: inline-block;
+    float: left;
+    width: 100px;
+    overflow: hidden;
+}
+
+.widget.green {
     background: $color-2;
 }
 
-.widget .widget-content {
+.widget .bd {
     background: lighten($color-2, 30%);
     color: #555;
+    width: auto;
 }
