@@ -87,9 +87,9 @@
                     </ul>
                     <div id="dropbox-actions">
                         <select id="collections">
-                            <option value="col1">Collection1</option>
-                            <option value="col2">Collection2</option>
-                            <option value="col3">Collection3</option>
+                            #{list items:collections, as:'c'}
+                            <option value="${c._id}">${c.name}</option>
+                            #{/}
                         </select>
                         <input type="submit" value="Add items to collection"/>
                     </div>

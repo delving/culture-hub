@@ -3,6 +3,7 @@ package controllers
 import scala.collection.JavaConversions._
 import search._
 import play.mvc.results.Result
+import models.UserCollection
 
 /**
  *
@@ -13,18 +14,22 @@ import play.mvc.results.Result
 object Search extends DelvingController {
 
   val RETURN_TO_RESULTS = "returnToResults"
+  val SEARCH_TERM = "searchTerm"
 
   def index(query: String = "*:*", page: Int = 1) = {
     val chQuery = SolrQueryService.createCHQuery(request, theme, true)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     session.put(RETURN_TO_RESULTS, request.querystring)
-    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks)
+    session.put(SEARCH_TERM, request.params.get("query"))
+
+    val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
+
+    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections)
   }
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
     val id = "%s_%s_%s".format(orgId, spec, recordId)
-
     val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
     val chQuery = SolrQueryService.createCHQuery(request, theme, false)
     val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:%s".format(idType.idSearchField, idType.normalisedId)))

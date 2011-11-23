@@ -2,7 +2,7 @@
 
 #{set title:'Search results' /}
 
-#{breadcrumbs /}
+#{breadcrumbs params:["title":["url":"", "label": fullDoc.getTitle()]] /}
 
 <h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
 
