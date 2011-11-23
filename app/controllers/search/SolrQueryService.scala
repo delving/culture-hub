@@ -113,8 +113,8 @@ object SolrQueryService extends SolrServer {
 
     val query = getSolrQueryWithDefaults
     val params = request.params
-    val facetFields = if (params._contains("facet.field")) theme.getFacets.map(_.facetName) ::: params.getAll("facet.field").toList
-    else theme.getFacets.map(_.facetName)
+    val facetFields = if (params._contains("facet.field")) theme.getFacets.map(facet => "%s_facet".format(facet.facetName)) ::: params.getAll("facet.field").toList
+    else theme.getFacets.map(facet => "%s_facet".format(facet.facetName))
 
     params.put("facet.field", facetFields.toArray[String])
 
@@ -221,7 +221,7 @@ object SolrQueryService extends SolrServer {
       fqs.groupBy(_.field) foreach {
         item => {
           val prefix = facetFieldMap.get(item._1)
-          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString(" OR "))
+          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString("\"", " OR " ,"\""))
           prefix match {
             case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, orString))
             case None => query addFilterQuery (orString)

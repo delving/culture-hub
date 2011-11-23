@@ -68,7 +68,7 @@
             <div class="inner">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "europeana_provider", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
+                    #{facet facetMap: facets, type: "europeana_provider_facet", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
                     #{facet facetMap: facets, type: "europeana_year", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
                 </div>
             </div>
