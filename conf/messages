@@ -244,8 +244,9 @@ registration.newpassword=Enter a new password below
 registration.registerFor=Register for %s
 
 ##Search
-search.additemstocollection=Add to collection
-search.dragitems=Drag items you want to add to a collection to here
+search.addItemsToCollection=Add items to a collection
+search.addToCollection=Add to collection
+search.dragItems=Drag items from the result list to here to add them to a collection
 search.facets=Facets
 search.nrfound= Found %s results
 search.resultsfor=Search results for
