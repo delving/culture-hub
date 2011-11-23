@@ -83,13 +83,21 @@
                 <form action="" method="post">
                     <ul></ul>
                     <div id="dropbox-actions">
-                        *{<!-- TODO: load list of user's collections -->}*
-                        <select id="collections">
-                            <option value="col1">Collection1</option>
-                            <option value="col2">Collection2</option>
-                            <option value="col3">Collection3</option>
-                        </select>
-                        <input type="submit" value="Add items to collection"/>
+                        #{if collections}
+                            <select name="collection">
+                             <option selected='selected'>Choose a collection</option>
+                             #{list collections, as: 'col'}
+                                <option>${col.name}</option>
+                             #{/list}
+                            </select>
+                            <hr/>
+                            <button type="submit" class="button action blue">Add to collection</button>
+                        #{/if}
+                        #{else}
+                            <hr>
+                            You have no collections. <a href="/${userName}/collection/add">Create a collection</a> so that you can save items into them.
+                        #{/else}
+
                     </div>
                 </form>
 

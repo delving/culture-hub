@@ -313,5 +313,12 @@ div.dropdown-slider .ddm.heading {
     margin: 0 0 7px 7px;
 }
 
+.widget .button {
+    display: block;
+    float: none;
+    color: #fff;
+    text-shadow: none;
+}
+
 
 
