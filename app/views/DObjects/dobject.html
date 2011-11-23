@@ -14,7 +14,7 @@
             <img src='/thumbnail/${dobject._id}/350' width="350" alt="${dobject.name}" class="img"/>
 
             <div class="bd">
-                #{thingToolbar owner: dobject.userName, id: dobject._id, currentUser: userName, type:"object"/}
+                #{thingToolbar owner: dobject.userName, id: dobject._id, currentUser: userName, type:"object", labels:labels/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(dobject.description.isEmpty() ? "No description available" : dobject.description)}</p>

@@ -4,6 +4,7 @@ import play.mvc.results.Result
 import org.bson.types.ObjectId
 import user.ObjectModel
 import models.{Visibility, DObject, UserCollection}
+import extensions.JJson
 
 /**
  *
@@ -26,7 +27,8 @@ object Collections extends DelvingController {
     UserCollection.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
         val objects: List[ListItem] = DObject.findAllWithCollection(thing._id).toList
-        Template('collection -> thing, 'objects -> objects)
+        val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
+        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels))
       }
       case _ => NotFound
     }

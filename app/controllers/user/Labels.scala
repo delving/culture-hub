@@ -7,6 +7,7 @@ import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.grater
 import models._
+import com.mongodb.WriteResult
 
 /**
  * Controller to add simple, free-text labels to Things.
@@ -54,17 +55,21 @@ object Labels extends DelvingController with UserSecured {
       case None => return Error(400, "Bad request")
     }
 
-    targetCollection.update(MongoDBObject("_id" -> id), $pull ("labels" -> MongoDBObject("link" -> label)))
+    val wr = targetCollection.update(MongoDBObject("_id" -> id), $pull("labels" -> MongoDBObject("link" -> label)), false, false, WriteConcern.Safe)
+    // TODO fixme...
+    if(wr.getN == 0 || !wr.getLastError.ok()) {
+      logError("Could not delete label ")
+      return Error("Could not delete label")
+    }
     linksCollection.remove(MongoDBObject("_id" -> label))
-
     Ok
   }
 
   private def tc(targetType: String): Option[MongoCollection] = targetType match {
-      case "DObject" => Some(objectsCollection)
-      case "Collection" => Some(userCollectionsCollection)
-      case "Story" => Some(userStoriesCollection)
-      case "User" => Some(userCollection)
+      case "object" => Some(objectsCollection)
+      case "collection" => Some(userCollectionsCollection)
+      case "story" => Some(userStoriesCollection)
+      case "user" => Some(userCollection)
       case _ => None
   }
 

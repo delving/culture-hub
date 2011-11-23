@@ -14,7 +14,7 @@
             </a>
 
             <div class="bd">
-                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story"/}
+                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story", labels:labels/}
                 <div class="metadata">
 
                     #{metadataField label: viewUtils.getKey('thing.description'), data: story.description /}
