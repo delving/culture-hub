@@ -46,6 +46,7 @@ trait UserAuthentication {
 
   import Authentication.USERNAME
   @Util def connectedUser = session.get(USERNAME)
+  @Util def isConnected = session.contains(USERNAME)
 }
 
 /**

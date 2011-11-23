@@ -1,12 +1,12 @@
-#{if views.context.package.crumble().size() > 1}
+#{if views.context.package.crumble(_params).size() > 1}
 <div class="breadcrumb">
     <ul>
-    #{list views.context.package.crumble(), as: 'c'}
+    #{list views.context.package.crumble(_params), as: 'c'}
         <li>
-        #{if c._2 == views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+        #{if c._2 == views.context.package.crumble(_params).length() -1 && views.context.package.crumble(_params).length() > 1}
             ${c._1._2.shorten(50)}
         #{/if}
-        #{if c._2 < views.context.package.crumble().length() -1 && views.context.package.crumble().length() > 1}
+        #{if c._2 < views.context.package.crumble(_params).length() -1 && views.context.package.crumble(_params).length() > 1}
             #{if c._1._1 == "NOLINK"}
             ${c._1._2.shorten(50)}
             #{/}
@@ -14,7 +14,7 @@
             <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
             #{/else}
         #{/if}
-        #{if c._2 < views.context.package.crumble().length() - 1 && views.context.package.crumble().length() == 1}
+        #{if c._2 < views.context.package.crumble(_params).length() - 1 && views.context.package.crumble(_params).length() == 1}
           #{if c._1._1 == "NOLINK"}
             ${c._1._2.shorten(50)}
             #{/}
