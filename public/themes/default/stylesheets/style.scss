@@ -340,30 +340,6 @@ a:visited {
 
 /* media block in recent wrapper */
 
-.recent {
-    @include border-all(4px);
-}
-
-.recent.object{
-    background-color: lighten($color5, 30%);
-}
-.recent.collection{
-    background-color: lighten($color8, 40%);
-}
-.recent.story{
-    background-color: lighten($color10, 40%);
-}
-
-.recent h3 {
-    color: $color7;
-    text-transform:uppercase;
-    font-size: $fsize2;
-    font-weight: normal;
-    background: $color2;
-    padding: 4px 10px;
-    margin: 0;
-}
-
 .recent .media p {
     margin: 0;
     padding: 0;
@@ -371,7 +347,7 @@ a:visited {
 
 .recent .media .clip {
     display: block;
-    height: 210px;
+    height: 80px;
     overflow: hidden;
 }
 
@@ -390,10 +366,49 @@ a:visited {
     display: block;
 }
 
-.recent .bd {
-    margin: 0 10px;
+
+
+.widget.object{
+    background-color: $color6;
+}
+
+.widget.object .bd {
+ background-color: lighten($color6, 30%);
+}
+
+.widget.collection {
+    background-color: $color8;
+}
+
+.widget.collection .bd{
+    background-color: lighten($color8, 40%);
+}
+.widget.story {
+    background-color: $color10;
+}
+.widget.story .bd {
+    background-color: lighten($color10, 40%);
+}
+
+.widget.object h3,
+.widget.collection h3,
+.widget.story h3 {
+    color: #fff;
+}
+
+.widget.recent .media .clip {
+    display: inline-block;
+    float: left;
+    width: 100px;
+    overflow: hidden;
+}
+
+.widget .bd {
+    background: lighten($color2, 30%);
+    color: #555;
     width: auto;
 }
+
 
 
 /* overrides */

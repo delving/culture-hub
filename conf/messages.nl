@@ -236,9 +236,9 @@ registration.newpassword=Voer een nieuw wachtwoord in
 registration.registerFor=Registreer voor %s
 
 ##Search
-search.additemstocollection=Voeg toe aan collectie
-search.dragitems=Drag items you want to add to a collection to here
-search.dragitems=Sleep items hier in om aan een collectie toe te voegen
+search.addItemsToCollection=Voeg toe aan een collectie
+search.addToCollection=Toevoegen
+search.dragItems=Sleep een resultaat object hier in om aan een collectie toe te voegen
 search.facets=Facetten
 search.nrfound= %s resultaten gevonden
 search.resultsfor=Zoekresultate voor
@@ -384,6 +384,7 @@ user.story.label.viewStory=Bekijk het verhaal
 user.story.label.addPage=Nieuwe pagina toevoegen
 user.story.label.addObjects=Object(en) toevoegen
 user.story.label.freeText=Vrije tekst
+user.story.label.selectCollection=Kies een collectie
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas

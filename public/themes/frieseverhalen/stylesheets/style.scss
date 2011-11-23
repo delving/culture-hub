@@ -391,80 +391,6 @@ body#home  {
 }
 
 
-/* MEDIA / MOD *****************************************************************************************************/
-
-.media .title {
-    font-weight: bold;
-}
-.metadata h4 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-.metadata p {
-    margin-top: 0px;
-}
-
-/* media block on list page */
-
-.list .media {
-    position: relative;
-}
-
-.list .media.object{
-    background-color: lighten($color-2, 30%);
-}
-.list .media.collection{
-    background-color: lighten($color-3, 40%);
-}
-.list .media.story{
-    background-color: lighten($color-4, 40%);
-}
-
-.list .media .clip {
-    background: #000;
-    display: block;
-    width: 100%;
-    height: 160px;
-    overflow: hidden;
-    text-align: center;
-}
-
-.list .media .img {
-    float: none;
-}
-
-.list .media .bd {
-    display: block;
-}
-
-.list .media .title {
-    display: block;
-    padding: 4px;
-    text-decoration: none;
-}
-
-.list .media .more-info {
-    background: #fff;
-    opacity: 0.8;
-    color: #000;
-    padding: 5px;
-}
-
-.list .media .private {
-    background: #fff;
-    color: #000;
-    opacity: 0.8;
-    position: absolute;
-    top: 0px;
-}
-
-.list .media .private span {
-    padding:  4px;
-    display: block;
-    font-size: 80%;
-    z-index: 14;
-}
-
 /* PAGINATION ************************************************************************/
 /* pagination.css overrides */
 
@@ -734,34 +660,7 @@ background-color: lighten($color-2, 30%);
     color: #fff;
 }
 
-/* OBJECT OVERLAY */
-
-.result-overlay {
-    background: #fff;
-    display: none;
-    margin: 0 auto;
-    width: 940px;
-   @include  border-all(10px);
-    border: 1px solid #666666;
-    box-shadow: 0 0 50px 5px #000000;
-    z-index: 1000;
-}
-
-.result-overlay .close {
-    background-image: url("/public/themes/common/images/close.png");
-    cursor: pointer;
-    height: 35px;
-    position: absolute;
-    right: -15px;
-    top: -15px;
-    width: 35px;
-}
-
 /* widget override */
-/* media block in recent wrapper */
-
-
-
 .widget.object{
     background-color: $color-2;
 }
