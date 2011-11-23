@@ -34,7 +34,7 @@
 
         <div class="buttons">
             #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action green prominent", type:"submit", id:"signin" /}
-            #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:@Registration.lostPassword(), rel:"nofollow" /}
+            #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
             #{btnHref label: viewUtils.getKey('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
         </div>
     #{/form}

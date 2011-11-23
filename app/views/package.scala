@@ -67,14 +67,33 @@ package object context extends Internationalization {
     case None => ""
   }
 
-  def crumble: List[((String, String), Int)] = {
-    val crumbList = request.path.split("/").drop(1).toList
+  /**
+  * Breadcrumb computation based on URL. Context data is passed in through a map of maps, the inner map containing (url, label)
+  */
+  def crumble(p: java.util.Map[String, java.util.Map[String, String]]): List[((String, String), Int)] = {
+    val session = play.mvc.Scope.Session.current()
+
+    // we can't make the difference between orgId/object and user/object
+    val crumbList = if(session.get(controllers.Search.SEARCH_TERM) != null) {
+      "org" :: request.path.split("/").drop(1).toList
+    } else {
+      request.path.split("/").drop(1).toList
+    }
     val crumbs = crumbList match {
 
       case "users" :: Nil => List(("/users", &("thing.users")))
       case "objects" :: Nil => List(("/objects", &("thing.objects")))
       case "collections" :: Nil => List(("/collections", &("thing.collection")))
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
+
+      case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
+        Option(session.get(controllers.Search.RETURN_TO_RESULTS)) match {
+          case Some(r) =>
+            val searchTerm = "[%s]".format(session.get(controllers.Search.SEARCH_TERM))
+            List(("NOLINK", &("ui.label.search")), ("/search?" + r, searchTerm), ("NOLINK", p.get("title").get("label")))
+          case None =>
+            List(("/organizations/" + orgId, orgId), ("NOLINK", &("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
+        }
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName))
       case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", &("org.admin.index.title")))

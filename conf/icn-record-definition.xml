@@ -87,18 +87,18 @@
         <field prefix="icn" localName="physicalState"/>
         <field prefix="dc" localName="contributor"/>
         <field prefix="dc" localName="coverage"/>
-        <field prefix="dc" localName="creator" sortable="true"/>
+        <field prefix="dc" localName="creator"/>
         <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
         <field prefix="dc" localName="description"/>
         <field prefix="dc" localName="format"/>
-        <field prefix="dc" localName="identifier"/>
+        <field prefix="dc" localName="identifier" fieldType="string"/>
         <field prefix="dc" localName="language"/>
         <field prefix="dc" localName="publisher"/>
         <field prefix="dc" localName="relation"/>
         <field prefix="dc" localName="rights"/>
         <field prefix="dc" localName="source"/>
         <field prefix="dc" localName="subject"/>
-        <field prefix="dc" localName="title" sortable="true"/>
+        <field prefix="dc" localName="title"/>
         <field prefix="dc" localName="type"/>
         <field prefix="dcterms" localName="alternative"/>
         <field prefix="dcterms" localName="conformsTo"/>
@@ -126,20 +126,19 @@
         <field prefix="europeana" localName="collectionName"/>
         <field prefix="europeana" localName="collectionTitle" factName="name"/>
         <field prefix="europeana" localName="country" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" factName="dataProvider"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
         <field prefix="europeana" localName="isShownBy" fieldType="string"/>
         <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
-        <field prefix="europeana" localName="object"/>
-        <field prefix="europeana" localName="provider" factName="provider"/>
-        <field prefix="europeana" localName="rights" factName="rights"/>
+        <field prefix="europeana" localName="object" fieldType="string"/>
+        <field prefix="europeana" localName="provider" factName="provider" fieldType="string"/>
+        <field prefix="europeana" localName="rights" factName="rights" fieldType="string"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
         <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
         <field prefix="europeana" localName="unstored" fieldType="text"/>
-        <field prefix="europeana" localName="uri" identifierField="true">
+        <field prefix="europeana" localName="uri" identifierField="true" fieldType="string">
             <converter call=".toId(spec)"/>
         </field>
-        <field prefix="europeana" localName="userTag"/>
         <field prefix="europeana" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>

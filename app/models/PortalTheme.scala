@@ -43,7 +43,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
   }
 
   def getFacets: List[SolrFacetElement] = {
-    facets.getOrElse("").split(",").filter(k => k.length() > 0 && k.length() < 4).map {
+    facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
       entry => {
         val k = entry.split(":")
         k.length match {
@@ -56,7 +56,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
 
   def getSortFields: List[SolrSortElement] = {
     import org.apache.solr.client.solrj.SolrQuery
-    sortFields.getOrElse("").split(",").filter(sf => sf.length() > 0 && sf.length() < 3).map {
+    sortFields.getOrElse("").split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
       entry => {
         val k = entry.split(":")
         k.length match {

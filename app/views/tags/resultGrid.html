@@ -1,37 +1,36 @@
 %{ def counter = 1 }%
-
-#{if _results}
 #{list _results, as: 'doc'}
 
 #{if counter == 1}
 <div class="row">
     #{/if}
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
-        <div class="media thing">
+        <div class="media thing draggable">
             <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
 
             <div class="bd">
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}"> ${doc.getTitle()}</a>
+                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}" > ${doc.getTitle()}</a>
                         </div>
                         <div class="bd">
                             ${doc.getDescription()}
                         </div>
                     </div>
                 </div>
-
             </div>
+            <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnail()}"/>
+            <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
     </div>
 
     %{ counter++ }%
 
-    #{if counter > 2 || i_isLast }
+    #{if counter > 2 || doc_isLast }
 </div>
 <!-- end line -->
 %{ counter = 1 }%
 #{/if}
 #{/list}
-#{/if}

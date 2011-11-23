@@ -94,7 +94,7 @@ object SolrBindingService {
     queryResponse.getResults.foreach{
         doc =>
           val solrDoc = SolrResultDocument()
-          doc.entrySet.foreach{
+          doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach{
             field =>
               val normalisedField = stripDynamicFieldLabels(field.getKey)
               val FieldValueClass: Class[_] = field.getValue.getClass
@@ -342,6 +342,8 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
 
     def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
+    def getConcatenatedList(key: String, fields: java.util.List[String]) : java.util.List[String] = scala.collection.JavaConversions.asJavaList(solrDocument.getConcatenatedArray(key, fields.toList).getValues)
+
 }
 
 abstract class MetadataAccessors {
@@ -354,6 +356,7 @@ abstract class MetadataAccessors {
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
   def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
   def getDelvingId : String = assign("delving_pmhId")
+  def getIdUri : String = assign("delving_hubId").replaceAll("_", "/")
 
 
   // ~~~ well-known, always provided, meta-data fields

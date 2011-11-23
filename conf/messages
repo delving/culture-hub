@@ -37,6 +37,7 @@ ui.label.delete=Delete
 ui.label.delete=Delete
 ui.label.edit=Edit
 ui.label.email=Email
+ui.label.enlargeImage=Enlarge image
 ui.label.filesadd=Add files...
 ui.label.filesdelete=Delete files
 ui.label.first=First
@@ -66,6 +67,7 @@ ui.label.print=Print
 ui.label.register=Register
 ui.label.remove=Remove
 ui.label.required=Required
+ui.label.returnToResults=Return to results
 ui.label.scope=Scope
 ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
@@ -253,6 +255,7 @@ search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
+search.trail=You are looking at <strong>%s - %s</strong> of <strong>%s</strong> results for:
 
 ##Story
 story.pages=Pages
