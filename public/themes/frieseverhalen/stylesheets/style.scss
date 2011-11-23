@@ -762,31 +762,31 @@ background-color: lighten($color-2, 30%);
 
 
 
-.widget.recent.object{
+.widget.object{
     background-color: $color-2;
 }
 
-.widget.recent.object .bd {
+.widget.object .bd {
  background-color: lighten($color-2, 30%);
 }
 
-.widget.recent.collection {
+.widget.collection {
     background-color: $color-3;
 }
 
-.widget.recent.collection .bd{
+.widget.collection .bd{
     background-color: lighten($color-3, 40%);
 }
-.widget.recent.story {
+.widget.story {
     background-color: $color-4;
 }
-.widget.recent.story .bd {
+.widget.story .bd {
     background-color: lighten($color-4, 40%);
 }
 
-.widget.recent.object h3,
-.widget.recent.collection h3,
-.widget.recent.story h3 {
+.widget.object h3,
+.widget.collection h3,
+.widget.story h3 {
     color: #fff;
 }
 
