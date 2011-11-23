@@ -131,6 +131,7 @@ ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met ee
 ui.message.resetpassword.success=Uw wachtwoord is aangepast
 ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
+ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="%s"><strong>zichtbaarheid status</strong></a> naar "Publiek".
 
 # User navigation
 
