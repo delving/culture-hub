@@ -140,7 +140,7 @@ ui.message.resetpassword.email.success=An e-mail has been sent to you with a lin
 ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
 ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
-
+ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="%s"><strong>visibility status</strong></a> to "Public".
 # User navigation
 
 user.nav.goto=Go to
