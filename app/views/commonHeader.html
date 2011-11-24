@@ -1,3 +1,4 @@
+#{get 'useGrid' /}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +8,12 @@
     <meta charset="utf-8">
     <title>#{get 'title' /} </title>
     #{press.stylesheet '/public/themes/common/stylesheets/reset.css', pos:1 /}
+    #{if useGrid && useGrid == "960"}
+    #{press.stylesheet '/public/themes/common/stylesheets/grid/960-fluid.css', pos:2 /}
+    #{/if}
+    #{else}
     #{press.stylesheet '/public/themes/common/stylesheets/grid/grid-zemmy.css', pos:2 /}
+    #{/else}
     #{press.stylesheet '/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:3 /}
     #{press.stylesheet '/public/themes/common/stylesheets/module/mod.css', pos:4 /}
     #{press.stylesheet '/public/themes/common/stylesheets/media/media.css', pos:5 /}

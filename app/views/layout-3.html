@@ -1,0 +1,44 @@
+#{set useGrid = "960" /}
+#{include 'commonHeader.html'/}
+
+<div id="page-top">
+    <div class="container_12">
+
+    </div>
+</div>
+
+<div id="header">
+    <div class="container_12">
+        <div class="grid_12">
+            <h1>${views.context.package.themeDisplayName()}</h1>
+            <h2>${viewUtils.themeProperty('siteSlogan').raw()}</h2>
+        </div>
+    </div>
+</div>
+
+<div id="search" role="search">
+    <div class="container_12">
+        <div class="grid_12">
+                <form method="get" action="/search">
+                    <input type="text" id="query" name="query" value='${params.query}'/>
+                    <input type="submit" value="&{'ui.label.search'}">
+                </form>
+        </div>
+    </div>
+</div>
+
+<div id="content" role="main">
+    <div class="container_12">
+
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container_12">
+        <div class="grid_12">
+
+        </div>
+    </div>
+</div>
+
+
