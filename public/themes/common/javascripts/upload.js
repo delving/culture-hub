@@ -80,8 +80,9 @@ function initUploadWidget() {
                                 .find('img').prop('src', file.thumbnail_url);
                         row.find('a').prop('target', '_blank');
                     }
+                    var selected = file.selected || files.length == 1;
                     row.find('.id').html(file.id);
-                    row.find('.selected').append('<input type="radio" />').find('input').prop('checked', file.selected).attr('name', 'files');
+                    row.find('.selected').append('<input type="radio" />').find('input').prop('checked', selected).attr('name', 'files');
                     row.find('a').prop('href', file.url);
                     row.find('.delete button')
                             .attr('data-type', file.delete_type)

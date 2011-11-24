@@ -74,7 +74,7 @@ package object context extends Internationalization {
     val session = play.mvc.Scope.Session.current()
 
     // we can't make the difference between orgId/object and user/object
-    val crumbList = if(session.get(controllers.Search.SEARCH_TERM) != null) {
+    val crumbList = if(session.get(controllers.Search.SEARCH_TERM) != null && request.headers.get("referer").value().contains("search") ) {
       "org" :: request.path.split("/").drop(1).toList
     } else {
       request.path.split("/").drop(1).toList

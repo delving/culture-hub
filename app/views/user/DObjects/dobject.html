@@ -111,8 +111,15 @@
 
       $('#saveButton').click(function(event) {
         event.preventDefault();
-        var selected = $($.grep($('#fileupload .files tr'), function(el, idx) { return $(el).find('td.selected input').is(':checked')})[0]).find('td.id').text();
-        objectModel.selectedFile(selected);
+        var files = $('#fileupload .files tr');
+        var selected = $($.grep(files, function(el, idx) { return $(el).find('td.selected input').is(':checked')})[0]);
+        var selectedId = selected.find('td.id').text();
+        var selectedName = selected.find('td.name').text();
+        if(selectedId == "" && files.length > 0) {
+          objectModel.selectedFile(selectedName);
+        } else {
+          objectModel.selectedFile(selectedId);
+        }
         handleSubmit('/${userName}/object/submit', objectModel, '#objectForm', '/${userName}/object/', null, null, {uid: '${uid}'});
       });
 
