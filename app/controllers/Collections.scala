@@ -28,7 +28,7 @@ object Collections extends DelvingController {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
         val objects: List[ListItem] = DObject.findAllWithCollection(thing._id).toList
         val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
-        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels))
+        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels), 'labelsList -> labels)
       }
       case _ => NotFound
     }
