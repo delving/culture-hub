@@ -83,7 +83,9 @@ ui.label.visibility.public=Visible
 ui.label.visibility.notpublic=Not visible
 ui.label.website=Website
 ui.label.welcome=Welcome
-
+ui.label.searchLabelHint=Type in a label name
+ui.label.tokenSearching=Searching...
+ui.label.createLabel=Create new label
 
 # General 'thing' like object, collection or story
 thing.label=Label

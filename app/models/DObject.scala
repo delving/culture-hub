@@ -2,6 +2,7 @@ package models
 
 import org.bson.types.ObjectId
 import salatContext._
+import org.apache.solr.common.SolrInputDocument
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
@@ -21,15 +22,10 @@ case class DObject(_id: ObjectId = new ObjectId,
                    visibility: Visibility,
                    deleted: Boolean = false,
                    thumbnail_id: Option[ObjectId],
+                   labels: List[EmbeddedLink] = List.empty[EmbeddedLink],
                    thumbnail_file_id: Option[ObjectId] = None, // pointer to the file selected as the thumbnail. This is _not_ helping to fetch the thumbnail, which is retrieved using the ID of the object
                    files: Seq[StoredFile] = Seq.empty[StoredFile],
-                   collections: List[ObjectId],
-                   labels: List[ObjectId]) extends Thing {
-
-  import org.apache.solr.common.SolrInputDocument
-
-  // TODO this is computed at the moment but we probably should have a cache of userId -> fullname somewhere
-  def userFullName = User.findOneByID(user_id).get.fullname
+                   collections: List[ObjectId] = List.empty[ObjectId]) extends Thing {
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
@@ -43,7 +39,6 @@ case class DObject(_id: ObjectId = new ObjectId,
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
-  // TODO index the collections field
   def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id, "deleted" -> false))
 
   def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))

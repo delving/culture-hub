@@ -20,8 +20,10 @@ package object salatContext {
   lazy val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
   lazy val dataSetsCollection = connection("Datasets")
   lazy val objectsCollection = connection("UserObjects") // the user contributed objects
+  objectsCollection.ensureIndex(MongoDBObject("collections" -> 1))
   lazy val userCollectionsCollection = connection("UserCollections") // the collections made by users
-  lazy val labelsCollection = connection("UserLabels") // the labels made by users
+  lazy val linksCollection = connection("Labels") // the labels
+  linksCollection.ensureIndex(MongoDBObject("labelType" -> 1, "value" -> 1))
   lazy val userStoriesCollection = connection("UserStories")
   lazy val harvestStepsCollection = connection("HarvestSteps")
   lazy val drupalEntitiesCollecion = connection("drupalEntities")

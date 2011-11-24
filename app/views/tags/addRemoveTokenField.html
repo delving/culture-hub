@@ -9,46 +9,51 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#${_id}').tokenInput('${_searchUrl}', {
-      prePopulate: ${_prePopulate ? _prePopulate.raw() : "[]"},
+
+    addRemoveTokenInput('#${_id}', '${_searchUrl}', ${_prePopulate ? _prePopulate.raw() : "[]"}, '${_addUrl}', '${_removeUrl}', '#removeConfirmation${_id}');
+
+    function addRemoveTokenInput(id, searchUrl, prePopulate, addUrl, removeUrl, removeConfirmationDialog) {
+
+    $(id).tokenInput(searchUrl, {
+      prePopulate: typeof prePopulate !== 'undefined' ? prePopulate : [],
       onAdd: function(item) {
         $.ajax({
           type: 'POST',
-          url: '${_addUrl}',
+          url: addUrl,
           data: {id: item.id},
           error: function(jqXHR, textStatus, errorThrown) {
             // TODO prompt the user that something went wrong
-            $('#${_id}').tokenInput('remove', {id: item.id})
+            $(id).tokenInput('remove', {id: item.id})
           }
         });
       },
       onDelete: function(item) {
-        #{if _removeConfirmation}
-        confirmDeletion('#removeConfirmation${_id}', function() {
+        if(removeConfirmationDialog) {
+          confirmDeletion(removeConfirmationDialog, function() {
+            $.ajax({
+              type: 'DELETE',
+              url: '${_removeUrl}',
+              data: {id: item.id},
+              error: function(jqXHR, textStatus, errorThrown) {
+                // TODO prompt the user that something went wrong
+                $(id).tokenInput('add', {id: item.id})
+              }
+            });
+          });
+        } else {
           $.ajax({
             type: 'DELETE',
-            url: '${_removeUrl}',
+            url: removeUrl,
             data: {id: item.id},
             error: function(jqXHR, textStatus, errorThrown) {
               // TODO prompt the user that something went wrong
-              $('#${_id}').tokenInput('add', {id: item.id})
+              $(id).tokenInput('add', {id: item.id})
             }
           });
-        });
-        #{/if}
-        #{else}
-        $.ajax({
-          type: 'DELETE',
-          url: '${_removeUrl}',
-          data: {id: item.id},
-          error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $('#${_id}').tokenInput('add', {id: item.id})
-          }
-        });
-        #{/else}
+        }
       }
     });
-    $('#${_id}').blur();
+    $(id).blur();
+    }
   });
 </script>
