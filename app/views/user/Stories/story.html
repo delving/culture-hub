@@ -48,30 +48,30 @@
 
 <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
-    <div class="g-5of12 grid_5">
-        <!--<div class="mod">-->
-            <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
-            <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
+    <div class="g-5of12">
+        <div class="mod">
+         <h3>&{'user.story.storyPages'}</h3>
+        <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
 
-            <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-            <div class="buttons">
-                #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
-                #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
-            </div>
-        <!--</div>-->
+        <div class="buttons">
+            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+            #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
+        </div>
+        </div>
 
-        <div id="save-story" class="row">
+         <div id="save-story" class="line">
             <div class="buttons">
                 #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
     </div>
-    <div class="g-7of12 grid_7">
-        <!--<div class="mod">-->
+    <div class="g-7of12">
+        <div class="mod">
             <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
-        <!--</div>-->
+        </div>
     </div>
 
 </div>
@@ -93,7 +93,7 @@
 
 <script type="text/html" id="pageTemplate">
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
-        <h3>&{'user.story.storyPages'}</h3>
+
         <div class="field">
             <label for="title" class="label">&{'thing.title'}</label>
 

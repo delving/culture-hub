@@ -77,6 +77,9 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
+ui.label.searchLabelHint=Type een label naam
+ui.label.tokenSearching=Zoeken...
+ui.label.createLabel=Maak een label
 
 # General 'thing' like object, collection or story
 thing.label=Label
