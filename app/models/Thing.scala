@@ -1,8 +1,20 @@
 package models
 
+import org.apache.solr.common.SolrInputDocument
 import com.novus.salat.annotations.raw.Salat
 import org.bson.types.ObjectId
 import java.util.Date
+
+@Salat
+trait Base extends AnyRef with Product {
+
+  val _id: ObjectId
+  val TS_update: Date
+  val user_id: ObjectId
+  val userName: String
+
+}
+
 
 /**
  * A Thing
@@ -10,19 +22,14 @@ import java.util.Date
  */
 
 @Salat
-trait Thing extends AnyRef with Product {
+trait Thing extends Base {
 
-  import org.apache.solr.common.SolrInputDocument
-
-  val _id: ObjectId
-  val TS_update: Date
-  val user_id: ObjectId
-  val userName: String
   val name: String
   val description: String
   val visibility: Visibility
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
+  val labels: List[EmbeddedLink]
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument

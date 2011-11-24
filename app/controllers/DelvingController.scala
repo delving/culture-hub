@@ -22,7 +22,7 @@ import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
 trait DelvingController extends Controller with ModelImplicits with AdditionalActions with Logging with FormatResolver with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
 
   @Before def checkCSRF(): Result = {
-    if(request.method == "POST") {
+    if(request.method == "POST" && Play.id != "test") {
       return checkAuthenticity() match {
         case Some(r) => r
         case None => Continue

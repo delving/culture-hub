@@ -14,14 +14,19 @@
             </a>
 
             <div class="bd">
-                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story"/}
+                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story", labels:labels/}
                 <div class="metadata">
 
                     #{metadataField label: viewUtils.getKey('thing.description'), data: story.description /}
                     #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(story._id.getTime()) /}
                     #{metadataField label: viewUtils.getKey('thing.datemodified'), data: views.context.package.niceTime(story.TS_update) /}
                     #{metadataField label: viewUtils.getKey('thing.owner'), data: browsedUserName, link: '/'+browsedUserName /}
-
+                    <h5>&{'thing.labels'}:</h5>
+                    <p class="labels">
+                        #{list labelsList, as: 'l'}
+                        <span class="label">${l.name}</span><br/>
+                        #{/list}
+                    </p>
                     <!--Is this a draft: ${story.isDraft ? "Yes" : "No"}-->
                     <h5>&{'story.pages'}:</h5>
                     <ol>
