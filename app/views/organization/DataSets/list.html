@@ -1,4 +1,5 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
+
 #{set title: viewUtils.getKey('thing.browse.of', viewUtils.getKey('thing.datasets')) + ': ' + orgId /}
 
 #{breadcrumbs /}
@@ -13,7 +14,7 @@ isOwner: isOwner/}
 
 #{if browsedUserName}
 
-<div class="g-12of12">
+<div class="g-12of12 grid_12">
     &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
     &{'thing.count'}: ${count}
 </div>
@@ -21,7 +22,7 @@ isOwner: isOwner/}
 #{/if}
 
 <div class="row">
-    <div class="g-12of12">
+    <div class="g-12of12 grid_12">
         #{if items.length() > 0}
         <div class="data-grid">
             <table width="100%">
@@ -57,7 +58,7 @@ isOwner: isOwner/}
                         ${i.state.description()}
                         #{/else}
                     </td>
-                    <td width="450">
+                    <td width="480">
                         #{if isOwner}
                         <div class="buttons">
                             <a class="button blue" href="/organizations/${orgId}/dataset/${i.spec}/update">

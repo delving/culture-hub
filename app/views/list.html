@@ -27,7 +27,7 @@
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
-        <div class="g-12of12 mbm">
+        <div class="g-12of12 grid_12 mbm">
         #{if count > views.context.package.PAGE_SIZE()}
             <div class="mod pager"></div>
         #{/if}
@@ -44,7 +44,7 @@
     #{if counter == 1}
     <div class="row">
     #{/if}
-    <div class="g-3of12 #{if i.isPrivate}private#{/if}">
+    <div class="g-3of12 grid_3 #{if i.isPrivate}private#{/if}">
         <div class="mod list">
             <div class="media ${itemName}">
                 <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
@@ -53,6 +53,7 @@
                 <div class="bd">
                     <div class="metadata">
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
+                        <span class="label">&{'thing.owner'}:</span>${i.userName}
                         #{if i.description}
                         <div class="more-info">
                             <div class="inner">
@@ -62,10 +63,8 @@
                         #{/if}
                         #{if i.isPrivate}
                         <div class="private">
-                            <span>
-                                This object is visible only to you. If you want others to find and see it you can change it's
-                                <a href="/${i.userName}/${itemName}/${i.id}/update"><strong>visibility status</strong></a> to "visible".
-                            </span>
+                            %{ def updateLink = '/'+ i.userName + '/' + itemName + '/' + i.id + '/update' }%
+                            <span> ${viewUtils.getKey('ui.message.statusPrivate', updateLink).raw()}</span>
                         </div>
                         #{/if}
                     </div>
@@ -82,7 +81,7 @@
 
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
-    <div class="g-12of12 mtm">
+    <div class="g-12of12 grid_12 mtm">
         <div class="mod pager"></div>
     </div>
 </div>
