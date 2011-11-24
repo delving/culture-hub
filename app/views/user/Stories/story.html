@@ -1,7 +1,6 @@
 #{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: id.isEmpty() ? viewUtils.getKey('user.story.title.create', fullName) : viewUtils.getKey('user.story.title.update', fullName) /}
-
 #{breadcrumbs /}
 
 <div id="edit-story" class="row">
@@ -10,9 +9,9 @@
 
     <div data-bind="text: errors().global" class="g-12of12"></div>
 
-    <div class="g-5of12">
-        <div class="mod">
-            <h3>&{'user.story.storyInformation'}</h3>
+    <div class="g-5of12 grid_5">
+        <!--<div class="mod">-->
+            <h3>&{'user.story.storyInformationStep1'}: &{'user.story.storyInformation'}</h3>
             <p>${viewUtils.getKey('user.story.storyDescription').raw()}</p>
 
             <ol class="small">
@@ -20,14 +19,14 @@
                 <li>&{'user.story.bulletPoint2'}</li>
                 <li>&{'user.story.bulletPoint3'}</li>
             </ol>
-        </div>
+        <!--</div>-->
     </div>
 
-    <div class="g-7of12">
-        <div class="mod">
+    <div class="g-7of12 grid_7">
+        <!--<div class="mod">-->
             <form id="storyForm" class="box">
-
-                #{textField name:"name", label: viewUtils.getKey('thing.name'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
+                <h3>&{'user.story.storyInformation'}</h3>
+                #{textField name:"name", label: viewUtils.getKey('thing.title'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
                 #{textArea name:"description", label: viewUtils.getKey('thing.description'), dataBind:"value: description, valueUpdate: 'afterkeydown'", required: true /}
 
                 <div class="field" for="objectVisibility">
@@ -43,7 +42,7 @@
                     #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
                 </div>
             </form>
-        </div>
+        <!--</div>-->
     </div>
 </div>
 

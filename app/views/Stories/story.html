@@ -4,17 +4,17 @@
 
 <h1 class="sep">${story.name}</h1>
 <div class="row">
-    <div class="g-12of12">
+    <div class="g-12of12 grid_12">
         <div class="media record">
             <img src='${views.context.package.thumbnailUrl(story.thumbnail_id, 350)}' width="350" alt="${story.name}" class="img"/>
-
-            <a class="button clear" href="/${story.userName}/story/${story._id}/read">
+            <div class="extra">
+            <a href="/${story.userName}/story/${story._id}/read">
                 <span class="icon icon140"></span>
                 <span class="label">&{'story.read'}</span>
             </a>
-
+            </div>
             <div class="bd">
-                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story", labels:labels/}
+                #{thingToolbar owner: story.userName, id: story._id, currentUser: userName, type:"story", labels:labels, authUser: userName/}
                 <div class="metadata">
 
                     #{metadataField label: viewUtils.getKey('thing.description'), data: story.description /}

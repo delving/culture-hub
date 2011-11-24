@@ -139,3 +139,31 @@
     sortFields: europeana_year
     metadataPrefix: tib
     text: Hello
+
+- !!models.PortalTheme
+    name: dimcon
+    templateDir: dimcon
+    subdomain: dimcon
+    displayName: Rijksdienst voor het Cultureel Erfgoed
+    defaultLanguage: nl
+    colorScheme: default
+    solrSelectUrl: "http://localhost:8983/solr/core2"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+        - dc.title
+        - dc.creator
+    hiddenQueryFilter: Fries Museum
+    googleAnalyticsTrackingCode:
+    addThisTrackingCode:
+    homePage:
+    facets: delving_recordType,europeana_year,europeana_provider
+    sortFields: europeana_year
+    metadataPrefix: icn
+    text: Hello

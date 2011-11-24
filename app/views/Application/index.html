@@ -51,7 +51,7 @@
 
 <div class="row">
     #{if recentObjects.size() > 0}
-    <div class="g-4of12">
+    <div class="g-4of12 grid_4">
         <div class="widget recent object">
             <div class="hd">
                 <h3>${recentObjects.size() == 1 ? viewUtils.getKey('home.recentobject') : viewUtils.getKey('home.recentobjects')}</h3>
@@ -75,7 +75,7 @@
     #{/if}
 
     #{if recentCollections.size() > 0}
-    <div class="g-4of12">
+    <div class="g-4of12 grid_4">
         <div class="widget recent collection">
             <div class="hd">
                 <h3>${recentCollections.size() == 1 ? viewUtils.getKey('home.recentcollection') : viewUtils.getKey('home.recentcollections')}</h3>
@@ -99,7 +99,7 @@
     #{/if}
 
     #{if recentStories.size() > 0}
-    <div class="g-4of12">
+    <div class="g-4of12 grid_4">
         <div class="widget recent story">
             <div class="hd">
                 <h3>${recentStories.size() == 1 ? viewUtils.getKey('home.recentstory') : viewUtils.getKey('home.recentstories')}</h3>
@@ -110,7 +110,7 @@
                     <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail, 100)}' class="img" width="100" alt="${s.title}"/></a>
 
                     <div class="bd">
-                        <div class="metadatas">
+                        <div class="metadata">
                             <span class="title"><a href="/${s.userName}/story/${s.id}" title="${s.title}">${s.title.shorten(50)}</a></span>
                             <p>${s.description.shorten(100)}</p>
                         </div>
