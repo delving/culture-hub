@@ -22,7 +22,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
@@ -50,7 +50,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
@@ -79,7 +79,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
@@ -107,7 +107,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
@@ -135,7 +135,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: tib_objectSoort,tib_material,tib_collection,europeana_dataProvider,tib_place,tib_productionStart
+    facets: tib_objectSoort,tib_material,tib_collection,europeana_dataProvider:metadata.searchfield.dataprovider,tib_place,tib_productionStart
     sortFields: tib_objectSoort
     metadataPrefix: tib
     text: Hello
@@ -163,7 +163,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
     text: Hello
