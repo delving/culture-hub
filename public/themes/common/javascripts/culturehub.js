@@ -85,8 +85,6 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
  */
 $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
     var data = typeof additionalData === 'undefined' ? { data: ko.mapping.toJSON(viewModel) } : $.extend({ data: ko.mapping.toJSON(viewModel) }, additionalData);
-    console.log("Sending");
-    console.log(data);
     return jQuery.ajax({
         type: 'POST',
         url: url,

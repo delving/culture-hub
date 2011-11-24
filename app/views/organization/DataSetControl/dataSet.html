@@ -71,6 +71,8 @@ isOwner: isOwner /}
             event.preventDefault();
             handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
                 window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
+            }, function() {
+              alert("Could not save dataset! Maybe an invalid spec was passed in? (this message will get better very soon)")
             });
         });
 

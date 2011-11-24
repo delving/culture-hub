@@ -5,7 +5,7 @@ import play.mvc.results.Result
 import com.mongodb.casbah.commons.MongoDBObject
 import collection.JavaConversions._
 import controllers.{Fact, ShortDataSet, Token, DelvingController}
-import models.{GrantType, Organization, DataSet}
+import models.{Organization, DataSet}
 
 /**
  *
@@ -14,10 +14,10 @@ import models.{GrantType, Organization, DataSet}
 
 object DataSets extends DelvingController with OrganizationSecured {
 
-  def list(orgId: String, page: Int = 1): Result = {
-    val dataSetsPage = DataSet.findAllCanSee(orgId, connectedUser).page(page)
-    val items: List[ShortDataSet] = dataSetsPage._1
-    Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'page -> page, 'count -> dataSetsPage._2, 'isOwner -> Organization.isOwner(orgId, connectedUser))
+  def list(orgId: String): Result = {
+    val dataSetsPage = DataSet.findAllCanSee(orgId, connectedUser)
+    val items: List[ShortDataSet] = dataSetsPage
+    Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'count -> dataSetsPage.size, 'isOwner -> Organization.isOwner(orgId, connectedUser))
   }
 
   def dataSet(orgId: String, spec: String): Result = {
