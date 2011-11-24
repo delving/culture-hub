@@ -441,5 +441,20 @@ form h3 {
 
 .field {
     margin: 0;
+
+}.widgtet,
+.widget.object,
+.widget.collection,
+.widget.story {
+    background-color: $color2;
 }
+
+.widget .bd,
+.widget.object .bd,
+.widget.collection .bd,
+.widget.story .bd
+{
+    background-color: lighten($color2, 10%);
+}
+
 
