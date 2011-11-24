@@ -689,20 +689,6 @@ background-color: lighten($color-2, 30%);
     color: #fff;
 }
 
-/*.mod.recent .bd {*/
-    /*padding: 0 10px;*/
-/*}*/
-
-/*.mod.recent h3 {*/
-    /*color: $color-7;*/
-    /*text-transform:uppercase;*/
-    /*font-size: $fsize-2;*/
-    /*font-weight: normal;*/
-    /*background: $color-2;*/
-    /*padding: 4px 10px;*/
-    /*margin: 0;*/
-/*}*/
-
 .widget.recent .media .clip {
     display: inline-block;
     float: left;
@@ -719,3 +705,14 @@ background-color: lighten($color-2, 30%);
     color: #555;
     width: auto;
 }
+
+.list .media.object{
+    background-color: lighten($color-2, 30%);
+}
+.list .media.collection{
+    background-color: lighten($color-3, 40%);
+}
+.list .media.story{
+    background-color: lighten($color-4, 40%);
+}
+

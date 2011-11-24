@@ -532,6 +532,16 @@ form legend {
     top: 0px;
 }
 
+.list .media.object{
+    background-color: lighten($color6, 30%);
+}
+.list .media.collection{
+    background-color: lighten($color8, 40%);
+}
+.list .media.story{
+    background-color: lighten($color10, 40%);
+}
+
 
 #tiptip_content {
 	font-size: 85%;

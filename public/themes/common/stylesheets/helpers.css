@@ -246,6 +246,7 @@ div.dropdown-slider .ddm.heading {
     padding: 0 5px;
     float: left;
     margin: 0;
+    line-height: inherit;
 }
 
 .widget .bd {

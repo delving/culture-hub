@@ -27,7 +27,7 @@
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
-        <div class="g-12of12 mbm">
+        <div class="g-12of12 grid_12 mbm">
         #{if count > views.context.package.PAGE_SIZE()}
             <div class="mod pager"></div>
         #{/if}
@@ -44,7 +44,7 @@
     #{if counter == 1}
     <div class="row">
     #{/if}
-    <div class="g-3of12 #{if i.isPrivate}private#{/if}">
+    <div class="g-3of12 grid_3 #{if i.isPrivate}private#{/if}">
         <div class="mod list">
             <div class="media ${itemName}">
                 <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
@@ -81,7 +81,7 @@
 
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
-    <div class="g-12of12 mtm">
+    <div class="g-12of12 grid_12 mtm">
         <div class="mod pager"></div>
     </div>
 </div>

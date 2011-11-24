@@ -9,9 +9,9 @@
 
     <div data-bind="text: errors().global" class="g-12of12"></div>
 
-    <div class="g-5of12">
-        <div class="mod">
-            <h3>&{'user.story.storyInformation'}</h3>
+    <div class="g-5of12 grid_5">
+        <!--<div class="mod">-->
+            <h3>&{'user.story.storyInformationStep1'}: &{'user.story.storyInformation'}</h3>
             <p>${viewUtils.getKey('user.story.storyDescription').raw()}</p>
 
             <ol class="small">
@@ -19,13 +19,13 @@
                 <li>&{'user.story.bulletPoint2'}</li>
                 <li>&{'user.story.bulletPoint3'}</li>
             </ol>
-        </div>
+        <!--</div>-->
     </div>
 
-    <div class="g-7of12">
-        <div class="mod">
+    <div class="g-7of12 grid_7">
+        <!--<div class="mod">-->
             <form id="storyForm" class="box">
-
+                <h3>&{'user.story.storyInformation'}</h3>
                 #{textField name:"name", label: viewUtils.getKey('thing.title'), dataBind:"value: name, valueUpdate: 'afterkeydown'", required: true /}
                 #{textArea name:"description", label: viewUtils.getKey('thing.description'), dataBind:"value: description, valueUpdate: 'afterkeydown'", required: true /}
 
@@ -42,36 +42,36 @@
                     #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
                 </div>
             </form>
-        </div>
+        <!--</div>-->
     </div>
 </div>
 
 <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
-    <div class="g-5of12">
-        <div class="mod">
-         <h3>&{'user.story.storyPages'}</h3>
-        <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
+    <div class="g-5of12 grid_5">
+        <!--<div class="mod">-->
+            <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
+            <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
 
-        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+            <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-        <div class="buttons">
-            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
-            #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
-        </div>
-        </div>
+            <div class="buttons">
+                #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+                #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
+            </div>
+        <!--</div>-->
 
-         <div id="save-story" class="line">
+        <div id="save-story" class="row">
             <div class="buttons">
                 #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
     </div>
-    <div class="g-7of12">
-        <div class="mod">
+    <div class="g-7of12 grid_7">
+        <!--<div class="mod">-->
             <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
-        </div>
+        <!--</div>-->
     </div>
 
 </div>
@@ -93,7 +93,7 @@
 
 <script type="text/html" id="pageTemplate">
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
-
+        <h3>&{'user.story.storyPages'}</h3>
         <div class="field">
             <label for="title" class="label">&{'thing.title'}</label>
 

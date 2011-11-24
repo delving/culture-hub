@@ -3,8 +3,8 @@
 
 <div id="register" class="row">
 
-    <div class="g-6of12 prefix-3">
-    <form id="registrationForm" action="@{Registration.register()}" method="POST">
+    <div class="g-6of12 prefix-3 grid_8 prefix_2">
+    <form id="registrationForm" action="@{Registration.register()}" method="POST" class="register">
         #{authenticityToken /}
         <h3>${viewUtils.getKey('registration.registerFor', views.context.package.themeDisplayName())}</h3>
         #{if !errors.isEmpty()}
