@@ -75,7 +75,7 @@
       $(this).toggleClass("on");
     });
     $('#labelInput').tokenInput('/${_currentUser}/label/search', {
-      prePopulate: ${_labels.raw()},
+      prePopulate: ${_labels ? _labels.raw() : []},
       allowCreation: true,
       theme: 'facebook',
       hintText: "&{'ui.label.searchLabelHint'}",
