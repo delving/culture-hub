@@ -2,6 +2,7 @@ package controllers
 
 import play.mvc.results.Result
 import models.{Visibility, Story}
+import extensions.JJson
 
 /**
  *
@@ -25,7 +26,8 @@ object Stories extends DelvingController {
   def story(user: String, id: String): Result = {
     Story.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
-        Template('story -> thing)
+        val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
+        Template('story -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels)
       case _ => NotFound(&("user.stories.storyNotFound", id))
     }
   }

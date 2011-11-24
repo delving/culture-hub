@@ -8,11 +8,11 @@ import controllers._
 import com.mongodb.WriteConcern
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import models.{Visibility, UserCollection, Label, DObject}
 import play.data.validation.Annotations._
 import java.util.Date
-import dos.FileUploadResponse
+import controllers.dos.FileUploadResponse
 import extensions.JJson
+import models._
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -36,7 +36,6 @@ object DObjects extends DelvingController with UserSecured {
           anObject.visibility.value,
           anObject.collections,
           availableCollections,
-          (Label.findAllWithIds(anObject.labels) map {l => ShortLabel(l.labelType, l.value) }).toList,
           anObject.files map {f => FileUploadResponse(name = f.name, size = f.length, url = "/file/" + f.id, thumbnail_url = f.thumbnailUrl, delete_url = "/file/" + f.id, selected = Some(f.id) == anObject.thumbnail_file_id, id = f.id.toString)},
           anObject.thumbnail_file_id.toString)
           val generated: String = JJson.generate[ObjectModel](model)
@@ -70,16 +69,6 @@ object DObjects extends DelvingController with UserSecured {
       None
     }
 
-    val labels = {
-      for(l <- objectModel.labels) yield {
-        Label.findOne(MongoDBObject("labelType" -> l.labelType, "value" -> l.value)) match {
-          case Some(label) => label._id
-          // TODO better error handling
-          case None => Label.insert(models.Label(user_id = connectedUserId, userName = connectedUser, TS_update = new Date(), labelType = l.labelType, value = l.value)).get
-        }
-      }
-    }
-
     val persistedObject = objectModel.id match {
       case None =>
           val newObject: DObject = DObject(
@@ -91,8 +80,7 @@ object DObjects extends DelvingController with UserSecured {
             visibility = Visibility.get(objectModel.visibility),
             thumbnail_id = None,
             collections = objectModel.collections,
-            files = files,
-            labels = labels)
+            files = files)
           val inserted: Option[ObjectId] = DObject.insert(newObject)
         inserted match {
           case Some(iid) => {
@@ -110,7 +98,7 @@ object DObjects extends DelvingController with UserSecured {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
-        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files, labels = labels)
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files)
         try {
           SolrServer.indexSolrDocument(updatedObject.toSolrDocument)
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
@@ -159,7 +147,6 @@ case class ObjectModel(id: Option[ObjectId] = None,
                        visibility: Int = Visibility.PRIVATE.value,
                        collections: List[ObjectId] = List.empty[ObjectId],
                        availableCollections: List[CollectionReference] = List.empty[CollectionReference],
-                       labels: List[ShortLabel] = List.empty[ShortLabel],
                        files: Seq[FileUploadResponse] = Seq.empty[FileUploadResponse],
                        selectedFile: String = "",
                        errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

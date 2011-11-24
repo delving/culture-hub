@@ -2,6 +2,7 @@ package controllers
 
 import play.mvc.results.Result
 import models.{Visibility, DObject}
+import extensions.JJson
 
 /**
  *
@@ -28,8 +29,8 @@ object DObjects extends DelvingController {
   def dobject(user: String, id: String): Result = {
     DObject.findByIdUnsecured(id) match {
         case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
-          val labels: List[ShortLabel] = thing.labels
-          Template('dobject -> thing, 'labels -> labels)
+          val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
+          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels)
         }
         case _ => NotFound
     }

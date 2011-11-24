@@ -1,10 +1,10 @@
 <div class="toolbar">
     <div class="buttons">
-        *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
         #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+        *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
         #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
         }*
-        <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto; z-index: 2000;">
+        <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
             #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
             #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
             #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
@@ -15,7 +15,7 @@
         the 'owner of the object? ...
         }*
 
-        #{if _owner && _owner == _currentUser}
+        #{if _owner == _currentUser}
            #{if _owner && _id}
             #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
@@ -35,20 +35,17 @@
         #{/if}
     </div>
 </div>
-*{  <!-- leave out until functional -->
-<div id="add-label-dialog" title="${messages.get('ui.label.addcomment')}">
-    <form action="#" method="GET" class="box">
+<div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}">
     <div class="field">
         <label class="label">${messages.get('thing.label')}</label>
 
         <div class="inputs">
-            <input type="text" class="textinput"/>
-            #{btnButton label:messages.get('ui.label.add'), id:"addLabelSubmit"/}
+          <input type="text" class="textinput" id="labelInput"/>
         </div>
     </div>
-    </form>
 </div>
 
+*{  <!-- leave out until functional -->
 <div id="add-comment-dialog" title="${messages.get('ui.label.addcomment')}">
     <form action="#" method="GET" class="box">
     <div class="field">
@@ -63,12 +60,57 @@
 </div>
 }*
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
-<script>
-    $(function () {
+<script type="text/javascript">
+  $(document).ready(function() {
     var addthis_config = {
         ui_use_css: true,
-        ui_language: "nl"
-    }
-});
+        ui_language: "${play.i18n.Lang.get()}"
+    };
+    $("#addLabel").click(function () {
+      if ($("#add-comment.dialog")) {
+        $("#addComment").removeClass("on");
+        $("#add-comment-dialog").hide("slow");
+      }
+      $("#add-label-dialog").toggle("slow");
+      $(this).toggleClass("on");
+    });
+    $('#labelInput').tokenInput('/${_currentUser}/label/search', {
+      prePopulate: ${_labels ? _labels.raw() : []},
+      allowCreation: true,
+      theme: 'facebook',
+      hintText: "&{'ui.label.searchLabelHint'}",
+      searchingText: "&{'ui.label.tokenSearching'}",
+      createTokenText: "(&{'ui.label.createLabel'})",
+      preventDuplicates: true,
+      onAdd: function(item) {
+        $.ajax({
+          type: 'POST',
+          data: {label: item.name},
+          url: '/${_currentUser}/${_type}/${_id}/label',
+          success: function(data) {
+            if(item.wasCreated) {
+              item.id = data.id;
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $('#${_id}').tokenInput('remove', {id: item.id})
+          }
+        });
+      },
+      onDelete: function(item) {
+        $.ajax({
+          type: 'DELETE',
+          url: '/${_currentUser}/${_type}/${_id}/label/' + item.id,
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $(id).tokenInput('add', {id: item.id})
+          }
+        });
+      }
+    });
 
+
+
+  });
 </script>
