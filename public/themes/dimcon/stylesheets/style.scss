@@ -2,6 +2,7 @@
 
 $color1: #01689b;
 $color2: #c9dee8;
+$color3: #0061A1;
 $color3: #555;
 
 /* FONT FAMILIES *****************************************************************************/
@@ -21,7 +22,7 @@ body
     background-color:$color1;
     color: #color3;
     font-family: $font1;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 18px;
 }
 
@@ -134,6 +135,51 @@ hr {
     margin-top: 20px;
 }
 
+#primary-branding a {
+    cursor: default;
+}
+
+#secondary-branding {
+    display: none;
+}
+
+/* Site Navi *************************************************************************************/
+
+#site-nav {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+        z-index: 100;
+}
+
+#site-nav ul {
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+#site-nav ul li {
+    background:  #c9dee8;
+    display: inline;
+    float: left;
+    margin: 0;
+}
+
+#site-nav ul li.current {
+    background:  #01689b;
+}
+
+#site-nav ul li.current a {
+        color: #fff;
+}
+
+#site-nav ul a {
+    display: block;
+    padding: 6px 12px;
+    text-decoration: none;
+
+}
+
 /* Header ****************************************************************************************/
 
 #header .container_12 {
@@ -173,14 +219,47 @@ hr {
 
 #search {
     background: $color2;
+    text-align: center;
     height: 64px;
     line-height: 64px;
-    text-align: center;
-
 }
 
 #search form {
     background: transparent;
+}
+
+#search input[type=text] {
+    background: none repeat scroll 0 0 #fff;
+    border: medium none;
+    /*border:  0px solid  $color1;*/
+    /*@include border-all($radius);*/
+    padding: 8px;
+    width: 280px;
+}
+
+#search input[type="submit"]  {
+    background: none repeat scroll 0 0 $color1;
+    /*border: medium none;*/
+    border:  0px solid $color1;
+    /*@include border-all(2px);*/
+    color: #fff;
+    cursor: pointer;
+//    font-family: $ffam-2;
+    font-size: 100%;
+    font-weight: bold;
+    margin-left: 4px;
+    padding: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    text-transform: uppercase;
+    width: 80px;
+}
+
+#search input {
+    /*font-weight: bold;*/
+    /*vertical-align: top;*/
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
 }
 
 
@@ -196,4 +275,12 @@ hr {
 
 #home #content {
     padding:  30px 0;
+}
+
+/* Footer ******************************************************************************************/
+
+#footer {
+    background-color:#01689b;
+    margin-top: 20px;
+    min-height: 100px;
 }

@@ -4,6 +4,35 @@
 <div id="page-top">
     <div class="container_12">
 
+        <div class="grid_4" id="primary-branding">
+            <a href="@{Application.index()}">
+                <img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/>
+            </a>
+        </div>
+
+        <div id="secondary-branding" role="banner">
+            <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}">
+                <img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/>
+            </a>
+        </div>
+
+        <div class="grid_12" id="site-nav">
+            <ul>
+                <li class='${"Application".isCurrent()}'>
+                    <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'>
+                    <a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'>
+                    <a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'>
+                    <a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
+                </li>
+                <li class='${"Users".isCurrent()}'>
+                    <a href="@{Users.list()}"><span>&{'thing.users'}</span></a>
+                </li>
+            </ul>
+        </div>
+
     </div>
 </div>
 
@@ -19,17 +48,17 @@
 <div id="search" role="search">
     <div class="container_12">
         <div class="grid_12">
-                <form method="get" action="/search">
-                    <input type="text" id="query" name="query" value='${params.query}'/>
-                    <input type="submit" value="&{'ui.label.search'}">
-                </form>
+            <form method="get" action="/search">
+                <input type="text" id="query" name="query" value='${params.query}'/>
+                <input type="submit" value="&{'ui.label.search'}">
+            </form>
         </div>
     </div>
 </div>
 
 <div id="content" role="main">
     <div class="container_12">
-
+        #{doLayout /}
     </div>
 </div>
 
