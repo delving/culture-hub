@@ -433,6 +433,10 @@ form.box {
     padding: 0;
 }
 
+form.dropbox {
+    background: transparent;
+}
+
 form h3 {
     background: #fff;
     border-bottom: 8px solid $color2;
@@ -456,5 +460,8 @@ form h3 {
 {
     background-color: lighten($color2, 10%);
 }
+
+#dropbox.hover { background-color: $color1; }
+#dropbox.error { background-color: #993300; }
 
 
