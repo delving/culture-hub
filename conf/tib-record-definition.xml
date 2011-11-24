@@ -47,7 +47,13 @@
         <field prefix="tib" localName="thumbSmall" fieldType="string"/>
         <field prefix="tib" localName="collection" fieldType="string"/>
         <field prefix="tib" localName="creatorRole" fieldType="string"/>
-	<!-- add dimensions in a prefab form with unit value and type -->
+        <field prefix="tib" localName="creatorRole" fieldType="string"/>
+        <field prefix="tib" localName="productionStart" fieldType="string"/>
+        <field prefix="tib" localName="productionEnd" fieldType="string"/>
+        <field prefix="tib" localName="creatorBirthYear" fieldType="string"/>
+        <field prefix="tib" localName="creatorDeathYear" fieldType="string"/>
+
+        <!-- add dimensions in a prefab form with unit value and type -->
 	<field prefix="tib" localName="dimension"/>
         <field prefix="tib" localName="objectSoort">
             <options>

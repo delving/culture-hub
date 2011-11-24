@@ -137,5 +137,5 @@
     homePage:
     facets: delving_recordType,europeana_year,europeana_provider
     sortFields: europeana_year
-    metadataPrefix: icn
+    metadataPrefix: tib
     text: Hello

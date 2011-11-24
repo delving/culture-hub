@@ -111,6 +111,9 @@ object Indexing extends SolrServer {
           inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
         }
     }
+    
+    if (inputDoc.containsKey("id")) inputDoc.remove("id")
+    inputDoc.addField("id", hubId)
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
