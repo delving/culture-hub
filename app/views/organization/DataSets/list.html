@@ -3,7 +3,7 @@
 #{set title: viewUtils.getKey('thing.browse.of', viewUtils.getKey('thing.datasets')) + ': ' + orgId /}
 
 #{breadcrumbs /}
-<div class="grid_12">
+
 #{organizationNavBar
 orgId: orgId,
 active:"datasets",
@@ -11,7 +11,7 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
               [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
 ],
 isOwner: isOwner/}
-</div>
+
 #{if browsedUserName}
 
 <div class="g-12of12 grid_12">

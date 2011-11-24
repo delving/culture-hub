@@ -1,23 +1,31 @@
 <div class="toolbar">
     <div class="buttons">
-        #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+
+        *{<!-- LABEL BUTTON:  only an authenticated user can label -->}*
+        #{ifnot _isSearch}
+            #{if _authUser}
+                #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+            #{/if}
+        #{/ifnot}
+
         *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
         #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
         }*
+
+        *{<!-- ADDTHIS BUTTONS: any user can share --> }*
         <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
             #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
             #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
             #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
             <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
         </div>
-        *{
-        TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not
-        the 'owner of the object? ...
-        }*
 
+        *{<!--TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not the 'owner of the object? ...-->}*
+        *{<!-- OWNER ACTIONS: only the owner of this thing can see these --> }*
         #{if _owner == _currentUser}
            #{if _owner && _id}
             #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
+            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
             <script type="text/javascript">
                 $(document).ready(function() {
@@ -25,9 +33,9 @@
                 });
             </script>
             #{/if}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
         #{/if}
 
+        *{<!-- EXTRA BUTTONS: added via the tag call -->}*
         #{if _extraButtons}
            #{list _extraButtons, as:'button'}
                #{btnHref label: button.get('label'), href: button.get('url'), extraClass:"fright " + (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}
@@ -35,10 +43,10 @@
         #{/if}
     </div>
 </div>
-<div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}">
+
+<div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}" style="width: inherit;">
     <div class="field">
         <label class="label">${messages.get('thing.label')}</label>
-
         <div class="inputs">
           <input type="text" class="textinput" id="labelInput"/>
         </div>

@@ -4,7 +4,6 @@
 
 #{breadcrumbs /}
 
-<div class="grid_12">
 #{organizationNavBar
 orgId: orgId,
 active:"datasets",
@@ -14,12 +13,11 @@ extraButtons: [
     [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit]
 ],
 isOwner: isOwner /}
-</div>
 
 <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
 
 <div class="row">
-    <div class="g-6of12 grid_12">
+    <div class="g-6of12 grid_6">
     %{
       for (i in 0..facts.size() - 1) {
         def fact = facts.get(i);
@@ -33,7 +31,7 @@ isOwner: isOwner /}
         </div>
       #{if i == 4}
         </div>
-        <div class="g-6of12">
+        <div class="g-6of12 grid_6">
       #{/if}
     %{}}%
     </div>

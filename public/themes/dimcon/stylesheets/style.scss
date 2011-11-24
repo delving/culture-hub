@@ -423,6 +423,9 @@ hr {
 }
 
 /* common css overrides **********************************************************************************/
+.breadcrumb li {
+    margin-left: 0;
+}
 
 form,
 form.box {
@@ -435,3 +438,8 @@ form h3 {
     border-bottom: 8px solid $color2;
     color: $color3;
 }
+
+.field {
+    margin: 0;
+}
+

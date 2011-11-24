@@ -53,6 +53,7 @@ strong {
 #add-label-dialog,
 #add-comment-dialog {
     display: none;
+    /*width: auto;*/
 }
 
 /* button addition class */
