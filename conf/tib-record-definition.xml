@@ -47,7 +47,6 @@
         <field prefix="tib" localName="thumbSmall" fieldType="string"/>
         <field prefix="tib" localName="collection" fieldType="string"/>
         <field prefix="tib" localName="creatorRole" fieldType="string"/>
-        <field prefix="tib" localName="creatorRole" fieldType="string"/>
         <field prefix="tib" localName="productionStart" fieldType="string"/>
         <field prefix="tib" localName="productionEnd" fieldType="string"/>
         <field prefix="tib" localName="creatorBirthYear" fieldType="string"/>
