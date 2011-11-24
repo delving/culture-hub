@@ -48,7 +48,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
         val k = entry.split(":")
         k.length match {
           case 1 => SolrFacetElement(k.head, k.head)
-          case 2 => SolrFacetElement(k(1), k(2))
+          case 2 => SolrFacetElement(k(0), k(1))
         }
       }
     }.toList

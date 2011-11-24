@@ -25,7 +25,7 @@ object Search extends DelvingController {
 
     val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
-    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections)
+    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
   }
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
