@@ -113,8 +113,9 @@ object SolrQueryService extends SolrServer {
 
     val query = getSolrQueryWithDefaults
     val params = request.params
-    val facetFields = if (params._contains("facet.field")) theme.getFacets.map(facet => "%s_facet".format(facet.facetName)) ::: params.getAll("facet.field").toList
-    else theme.getFacets.map(facet => "%s_facet".format(facet.facetName))
+    val facetsFromTheme = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
+    val facetFields = if (params._contains("facet.field")) facetsFromTheme ::: params.getAll("facet.field").toList
+    else facetsFromTheme
 
     params.put("facet.field", facetFields.toArray[String])
 
