@@ -107,7 +107,7 @@ object SolrBindingService {
           }
           val id = solrDoc getFirst ("id")
           if (highLightMap != null && highLightMap.containsKey(id)) {
-            highLightMap.get(id).foreach(entry => solrDoc addHighLightField (entry._1, entry._2.toList))
+            highLightMap.get(id).filterNot(_._1.endsWith("_facet")).foreach(entry => solrDoc addHighLightField (entry._1, entry._2.toList))
           }
       docs add solrDoc
     }
