@@ -1,0 +1,120 @@
+#{set useGrid = "960" /}
+#{include 'commonHeader.html'/}
+
+<div id="page-top">
+    <div class="container_12">
+
+        <div class="grid_4" id="primary-branding">
+            <a href="@{Application.index()}">
+                <img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/>
+            </a>
+        </div>
+
+        <div id="secondary-branding" role="banner">
+            <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}">
+                <img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/>
+            </a>
+        </div>
+
+        <div class="grid_8" id="user-nav">
+            #{if !userName}
+            <div class="buttons">
+                #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
+                #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+            </div>
+            #{/if}
+            #{else}
+            <div class="buttons">
+                <div class="user-name">
+                      Hi ${fullName}
+                </div>
+                <div class="dropdown">
+                    #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
+                    <div class="dropdown-slider">
+                        <a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>
+                        <a href="/${userName}" class="ddm user"><span class="label">&{'user.nav.yourprofile'}</span></a>
+                        <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
+                        <a href="/${userName}/collection" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourcollections'} </span></a>
+                        <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
+                        #{if organizations.length() > 0}
+                        <a class="ddm heading orgs"><span class="label">&{'thing.organizations'}</span></a>
+                            #{list organizations, as: 'org'}
+                                <a href="/organizations/${org}" class="ddm org">${org}</a>
+                            #{/list}
+                        #{/if}
+                    </div>
+                    <!-- /.dropdown-slider -->
+                </div>
+                <!-- /.dropdown -->
+                <div class="dropdown">
+                    #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
+                    <div class="dropdown-slider">
+                        <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
+                        <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
+                        <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
+                    </div>
+                    <!-- /.dropdown-slider -->
+                </div>
+                <!-- /.dropdown -->
+                #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
+            </div>
+
+            #{/else}
+        </div>
+
+        <div class="grid_12" id="site-nav">
+            <ul>
+                <li class='${"Application".isCurrent()}'>
+                    <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class='${"DObjects".isCurrent()}'>
+                    <a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
+                <li class='${"Collections".isCurrent()}'>
+                    <a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
+                <li class='${"Stories".isCurrent()}'>
+                    <a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
+                </li>
+                <li class='${"Users".isCurrent()}'>
+                    <a href="@{Users.list()}"><span>&{'thing.users'}</span></a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<div id="header">
+    <div class="container_12">
+        <div class="grid_12">
+            <h1>${views.context.package.themeDisplayName()}</h1>
+            <h2>${viewUtils.themeProperty('siteSlogan').raw()}</h2>
+        </div>
+    </div>
+</div>
+
+<div id="search" role="search">
+    <div class="container_12">
+        <div class="grid_12">
+            <form method="get" action="/search">
+                <input type="text" id="query" name="query" value='${params.query}'/>
+                <input type="submit" value="&{'ui.label.search'}">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="content" role="main">
+    <div class="container_12">
+        #{doLayout /}
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container_12">
+        <div class="grid_12">
+
+        </div>
+    </div>
+</div>
+
+

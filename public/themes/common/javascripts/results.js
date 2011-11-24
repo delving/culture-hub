@@ -68,10 +68,19 @@ $(document).ready(function() {
               $("#dropbox-info").hide();
               actionArea.delay(500).fadeIn(500);
         }
-        var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
-        html += title + '<input type="hidden" name="itemId" value="' + itemId +'"/></div></li>';
-        $(html).appendTo(list).hide().delay("250").fadeIn("500");
 
+        var exists = false;
+        $('#dropbox input[name="itemId"]').each(function(){
+            if ($(this).val() == itemId) {
+                exists = true;
+            }
+        });
+
+        if(exists == false){
+            var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
+            html += title + '<input type="hidden" name="itemId" value="' + itemId +'"/></div></li>';
+            $(html).appendTo(list).hide().delay("250").fadeIn("500");
+        }
         $("a.remove").click(function(){
             $(this).closest("li").remove();
             if( $(list).find('li').size() == 0){

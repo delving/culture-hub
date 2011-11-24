@@ -1,4 +1,5 @@
 #{if views.context.package.crumble(_params).size() > 1}
+<div class="grid_12">
 <div class="breadcrumb">
     <ul>
     #{list views.context.package.crumble(_params), as: 'c'}
@@ -35,5 +36,6 @@
         #{/list}
     #{/if}
     </ul>
+</div>
 </div>
 #{/if}

@@ -73,10 +73,13 @@ ui.label.status=Status
 ui.label.uploadcancel=Annuleer upload
 ui.label.username=Gerbruikersnaam
 ui.label.visibility=Zichtbaarheid
-ui.label.visibility.public=Zichtbaar
-ui.label.visibility.notpublic=Niet zichtbaar
+ui.label.visibility.public=Publiek
+ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
+ui.label.searchLabelHint=Type een label naam
+ui.label.tokenSearching=Zoeken...
+ui.label.createLabel=Maak een label
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -131,6 +134,7 @@ ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met ee
 ui.message.resetpassword.success=Uw wachtwoord is aangepast
 ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
+ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="%s"><strong>zichtbaarheid status</strong></a> naar "Publiek".
 
 # User navigation
 
@@ -148,6 +152,12 @@ user.nav.newdataset=Nieuw DataSet
 
 # Site navigation
 site.nav.home=Home
+
+# jQuery templates
+tmpl.selectedObjects.useAsDefault=Thumbnail
+tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+tmpl.selectedObjects.defaultImage=Gebruik deze afbeelding als miniatuur weergave voor uw collectie of verhaal
+
 
 # Views
 
@@ -229,9 +239,9 @@ registration.newpassword=Voer een nieuw wachtwoord in
 registration.registerFor=Registreer voor %s
 
 ##Search
-search.additemstocollection=Voeg toe aan collectie
-search.dragitems=Drag items you want to add to a collection to here
-search.dragitems=Sleep items hier in om aan een collectie toe te voegen
+search.addItemsToCollection=Voeg toe aan een collectie
+search.addToCollection=Toevoegen
+search.dragItems=Sleep een resultaat object hier in om aan een collectie toe te voegen
 search.facets=Facetten
 search.nrfound= %s resultaten gevonden
 search.resultsfor=Zoekresultate voor
@@ -364,19 +374,22 @@ user.story.title.update=Verhaal aanpassen voor gebruiker %s
 user.story.create=Verhaal aanmaken
 user.story.update=Verhaal aanpassen
 user.story.updateStory=Aanpassen: %s
-user.story.storyInformation=Stap 1: Verhaal informatie
-user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een naam, korte beschrijving
-user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Niet zichtbaar" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Zichtbaar" zodat andere het kunnen vinden en bekijken.
+user.story.storyInformationStep1=Stap 1
+user.story.storyInformation=Verhaal informatie
+user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een titel en een korte beschrijving. Deze informatie komt tevens op de titelpagina van uw verhaal.
+user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Privé" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Publiek" zodat andere het kunnen vinden en bekijken.
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.bulletPoint3=Als de bovenstaande stappen zijn voltooid kunt u pagina's toevoegen
 user.story.label.addPages=Pagina's toevoegen
-user.story.storyPages=Stap 2: Verhaal pagina's
+user.story.storyPagesStep2=Stap 2
+user.story.storyPages=Verhaal pagina's
 user.story.noPagesFound=Geen pagina's gevonden
 user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus voor dat u een verhaal kan aanmaken moet u een collectie met objecten aanmaken.
 user.story.label.viewStory=Bekijk het verhaal
 user.story.label.addPage=Nieuwe pagina toevoegen
 user.story.label.addObjects=Object(en) toevoegen
 user.story.label.freeText=Vrije tekst
+user.story.label.selectCollection=Kies een collectie
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas

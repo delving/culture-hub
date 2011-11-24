@@ -7,7 +7,7 @@
 <h1 class="sep">${collection.name}</h1>
 
 <div class="row">
-    <div class="g-12of12">
+    <div class="g-12of12 grid_12">
         <div class="media record">
             <img src="${views.context.package.thumbnailUrl(collection.thumbnail_id, 350)}" width="350" alt="${collection.name}" class="img"/>
 
@@ -30,7 +30,7 @@
                 #{/if}
             </div>
             <div class="bd">
-                #{thingToolbar owner: collection.userName, id: collection._id, currentUser: userName, type:"collection", labels:labels/}
+                #{thingToolbar owner: collection.userName, id: collection._id, currentUser: userName, type:"collection", labels:labels, authUser: userName/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>

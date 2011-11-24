@@ -14,7 +14,7 @@ DROPDOWN MENU
 /*------------------------------------*\
 	$WRAPPER
 \*------------------------------------*/
-.buttons {/* Style as you wish (toolbar) */}
+.buttons {/* Style as you wish (toolbar) */z-index:1000;}
 
 /* The Magnificent CLEARFIX */
 .buttons:before, .buttons:after {

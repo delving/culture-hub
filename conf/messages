@@ -79,13 +79,14 @@ ui.label.status=Status
 ui.label.uploadcancel=Cancel upload
 ui.label.username=Username
 ui.label.visibility=Visibility
-ui.label.visibility.public=Visible
-ui.label.visibility.notpublic=Not visible
+ui.label.visibility.public=Public
+ui.label.visibility.notpublic=Private
 ui.label.website=Website
 ui.label.welcome=Welcome
 ui.label.searchLabelHint=Type in a label name
 ui.label.tokenSearching=Searching...
 ui.label.createLabel=Create new label
+
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -142,7 +143,7 @@ ui.message.resetpassword.email.success=An e-mail has been sent to you with a lin
 ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
 ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
-
+ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="%s"><strong>visibility status</strong></a> to "Public".
 # User navigation
 
 user.nav.goto=Go to
@@ -162,8 +163,8 @@ site.nav.home=Home
 
 
 # jQuery templates
-tmpl.selectedObjects.useAsDefault=Use as default
-tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
+tmpl.selectedObjects.useAsDefault=Thumbnail
+tmpl.selectedObjects.defaultImage=This will set the image as the thumbnail image to represent your collection or story
 
 
 # Views
@@ -246,8 +247,9 @@ registration.newpassword=Enter a new password below
 registration.registerFor=Register for %s
 
 ##Search
-search.additemstocollection=Add to collection
-search.dragitems=Drag items you want to add to a collection to here
+search.addItemsToCollection=Add items to a collection
+search.addToCollection=Add to collection
+search.dragItems=Drag items from the result list to here to add them to a collection
 search.facets=Facets
 search.nrfound= Found %s results
 search.resultsfor=Search results for
@@ -384,12 +386,14 @@ user.story.title.update=Update story for user %s
 user.story.create=Create a story
 user.story.update=Update a story
 user.story.updateStory=Update story %s
-user.story.storyInformation=Step 1: Story Information
-user.story.bulletPoint1=Enter the basic story information: a name and short description
-user.story.bulletPoint2=You should initially keep the story visibility status as "Not visible". Once you have your story as you like it you can come back and set the status to "Visible" so that others may find and view it
+user.story.storyInformationStep1=Step 1
+user.story.storyInformation=Story Information
+user.story.bulletPoint1=Enter the basic story information: a titel and short description. This information will form part of the title-page for your story.
+user.story.bulletPoint2=You should initially keep the story visibility status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
 user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
 user.story.label.addPages=Add pages
-user.story.storyPages=Step 2: Story Pages
+user.story.storyPagesStep2=Step 2
+user.story.storyPages=Story Pages
 user.story.storyDescription=A <strong>story</strong> can be created from objects in a <strong>collection</strong>. So before you can compose a story, you must have a collection with objects in it.
 user.story.noPagesFound=No pages found
 user.story.label.viewStory=View story

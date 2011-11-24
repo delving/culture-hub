@@ -5,13 +5,13 @@
 #{breadcrumbs /}
 
 #{if memberSince.isDefined()}
-    #{organizationNavBar orgId: orgId, isOwner: isOwner /}
+#{organizationNavBar orgId: orgId, isOwner: isOwner /}
 #{/if}
 
 <h1 class="sep">${orgName}</h1>
 
 <div class="row">
-    <div class="g-12of12">
+    <div class="g-12of12 grid_12">
         <div class="info-box">
             <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
             #{if memberSince.isDefined()}
@@ -24,7 +24,7 @@
 <hr/>
 
 <div class="row">
-    <div class="g-1of2">
+    <div class="g-1of2 grid_6">
       #{if memberSince.isDefined()}
         <h3><a href="/organizations/${orgId}/dataset">&{'thing.datasets'}</a></h3>
       #{/}
@@ -32,23 +32,23 @@
         <h3>&{'thing.datasets'}</h3>
       #{/}
 
-        <div class="mod">
+        <!--<div class="mod">-->
           <ol>
           #{list dataSets, as: 'ds'}
             <li>${ds.spec}</li>
           #{/list}
           </ol>
-        </div>
+        <!--</div>-->
     </div>
-    <div class="g-2of2">
+    <div class="g-2of2 grid_6">
         <h3>&{'organization.members'}</h3>
 
-        <div class="mod">
+        <!--<div class="mod">-->
           <ol>
             #{list members, as: 'm'}
             <li>${m.userName} (${m.fullUserName})</li>
             #{/list}
           </ol>
-        </div>
+        <!--</div>-->
     </div>
 </div>
