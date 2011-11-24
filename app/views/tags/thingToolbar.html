@@ -82,41 +82,15 @@
       $("#add-label-dialog").toggle("slow");
       $(this).toggleClass("on");
     });
-    $('#labelInput').tokenInput('/${_currentUser}/label/search', {
-      prePopulate: ${_labels ? _labels.raw() : []},
-      allowCreation: true,
+
+    tokenInput('#labelInput', '/${_currentUser}/label/search', ${_labels ? _labels.raw() : []}, {
       theme: 'facebook',
       hintText: "&{'ui.label.searchLabelHint'}",
       searchingText: "&{'ui.label.tokenSearching'}",
-      createTokenText: "(&{'ui.label.createLabel'})",
-      preventDuplicates: true,
-      onAdd: function(item) {
-        $.ajax({
-          type: 'POST',
-          data: {label: item.name},
-          url: '/${_currentUser}/${_type}/${_id}/label',
-          success: function(data) {
-            if(item.wasCreated) {
-              item.id = data.id;
-            }
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $('#${_id}').tokenInput('remove', {id: item.id})
-          }
-        });
-      },
-      onDelete: function(item) {
-        $.ajax({
-          type: 'DELETE',
-          url: '/${_currentUser}/${_type}/${_id}/label/' + item.id,
-          error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $(id).tokenInput('add', {id: item.id})
-          }
-        });
-      }
-    });
+      allowCreation: true,
+      createTokenText: "(&{'ui.label.createLabel'})"
+    }, '/${_currentUser}/${_type}/${_id}/label', function(item) { return {label: item.name} }, '/${_currentUser}/${_type}/${_id}/label/');
+
 
 
 
