@@ -57,8 +57,15 @@ object DObjects extends DelvingController with UserSecured {
     val files = controllers.dos.FileUpload.getFilesForUID(uid)
 
     /** finds thumbnail candidate for an object, "activate" thumbnails (for easy lookup) and returns the OID of the thumbnail candidate image file **/
-    def activateThumbnail(itemId: ObjectId, fileId: String) = if(!fileId.isEmpty) {
-        controllers.dos.FileUpload.activateThumbnails(new ObjectId(fileId), itemId); Some(new ObjectId(fileId))
+    def activateThumbnail(itemId: ObjectId, fileId: String): Option[ObjectId] = if(!fileId.isEmpty) {
+      // TODO check if file can be thumbnailized
+      val selectedFile = fileId match {
+        case id if ObjectId.isValid(id) => Some(new ObjectId(id))
+        case name if(files.exists(_.name == name)) => Some(files.filter(_.name == name).head.id)
+        case first if files.length > 0 => Some(files.head.id)
+        case _ => return None
+      }
+      controllers.dos.FileUpload.activateThumbnails(selectedFile.get, itemId); selectedFile
     } else {
       None
     }
@@ -110,7 +117,7 @@ object DObjects extends DelvingController with UserSecured {
           controllers.dos.FileUpload.markFilesAttached(uid, id)
           activateThumbnail(id, objectModel.selectedFile) match {
             case Some(thumb) => DObject.updateThumbnail(id, thumb)
-            case None =>
+            case None => // do nothing
           }
           SolrServer.commit()
           Some(objectModel)
