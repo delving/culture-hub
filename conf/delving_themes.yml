@@ -135,7 +135,7 @@
     googleAnalyticsTrackingCode:
     addThisTrackingCode:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider
-    sortFields: europeana_year
+    facets: tib_objectSoort,tib_material,tib_collection,europeana_dataProvider,tib_place,tib_productionStart
+    sortFields: tib_objectSoort
     metadataPrefix: tib
     text: Hello
