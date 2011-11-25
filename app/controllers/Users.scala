@@ -38,7 +38,7 @@ object Users extends DelvingController {
   def listAsTokens(q: String, orgId: String): Result = {
     val query = MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
     val users = if(orgId != null) User.find(query ++ MongoDBObject("organizations" -> orgId)) else User.find(query)
-    val asTokens = users.map(u => Token(u.userName, u.userName))
+    val asTokens = users.map(u => Token(u.userName, u.userName, "user"))
     Json(asTokens)
   }
 

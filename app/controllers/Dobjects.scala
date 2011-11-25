@@ -29,8 +29,9 @@ object DObjects extends DelvingController {
   def dobject(user: String, id: String): Result = {
     DObject.findByIdUnsecured(id) match {
         case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
-          val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
-          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels)
+          val labels: List[Token] = thing.freeTextLinks
+          val places: List[Token] = thing.placeLinks
+          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
         }
         case _ => NotFound
     }

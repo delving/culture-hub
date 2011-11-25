@@ -12,9 +12,9 @@ import models.Link
 
 object Labels extends DelvingController {
 
-  def listAsTokens(q: String): Result = {
-    val query = MongoDBObject("value.label" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE), "userName" -> connectedUser)
-    val tokens = Link.find(query).map(l => Token(l._id, l.value.label)).toList
+  def listFreeTextAsTokens(q: String): Result = {
+    val query = MongoDBObject("value.label" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE), "userName" -> connectedUser, "linkType" -> Link.LinkType.FREETEXT)
+    val tokens = Link.find(query).map(l => Token(l._id, l.value("label"), l.linkType)).toList
     Json(tokens)
   }
 

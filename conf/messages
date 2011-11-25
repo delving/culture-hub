@@ -83,9 +83,6 @@ ui.label.visibility.public=Public
 ui.label.visibility.notpublic=Private
 ui.label.website=Website
 ui.label.welcome=Welcome
-ui.label.searchLabelHint=Type in a label name
-ui.label.tokenSearching=Searching...
-ui.label.createLabel=Create new label
 
 
 # General 'thing' like object, collection or story
@@ -165,6 +162,12 @@ site.nav.home=Home
 # jQuery templates
 tmpl.selectedObjects.useAsDefault=Thumbnail
 tmpl.selectedObjects.defaultImage=This will set the image as the thumbnail image to represent your collection or story
+
+# labels
+labels.searchLabelHint=Type in a label name
+labels.searchPlaceHint=Type in a place name
+labels.tokenSearching=Searching...
+labels.createLabel=Create new label
 
 
 # Views

@@ -10,28 +10,25 @@ case class Link(_id: ObjectId = new ObjectId,
                  linkType: String, // internal type of the link: freeText, place
                  from: LinkReference,
                  to: LinkReference,
-                 value: LinkValue)
-
-object Link extends SalatDAO[Link, ObjectId](linksCollection) {
-
-  def create(linkType: String, userName: String, value: LinkValue, from: LinkReference, to: LinkReference): Option[ObjectId] = {
-    val link = linkType match {
-      case "freeText" => Link(userName = userName, linkType = linkType, value = value, from = from, to = to)
-      case "place" => Link(userName = userName, linkType = linkType, value = value, from = from, to = to)
-      case _ => return None
-    }
-
-    Link.insert(link)
-  }
+                 value: Map[String, String]) {
 
 }
 
-/**
- * The "value" of a Link, i.e. its label. Can contain more than just one text (e.g. additional payload data),
- * for performance reasons.
- */
-case class LinkValue(label: String)
+object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
+  val LABEL = "label" // the label / name of a link
+
+  object LinkType {
+    val FREETEXT = "freeText"
+    val PLACE = "place"
+  }
+
+  def create(linkType: String, userName: String, value: Map[String, String], from: LinkReference, to: LinkReference): (Option[ObjectId], Link) = {
+    val link = Link(userName = userName, linkType = linkType, value = value, from = from, to = to)
+    (Link.insert(link), link)
+  }
+
+}
 
 /**
  * An arrow in a link. This is flexible: if we have a hubType we can lookup by mongo id, or else we have a uri.
@@ -45,4 +42,4 @@ case class LinkReference(id: Option[ObjectId] = None, // mongo id for hub-based 
 /**
  * A denormalized bit of a link that lives in a linked object. Makes it easy to do lookups.
  */
-case class EmbeddedLink(TS: Date = new Date(), userName: String, link: ObjectId, value: LinkValue)
+case class EmbeddedLink(TS: Date = new Date(), userName: String, linkType: String, link: ObjectId, value: Map[String,  String])
