@@ -90,6 +90,8 @@ $color5: #926806;
 $color6: #f1f1f1;
 $color7: #5e8a95;
 $color8: #afc5ca;
+$color9: #66453e;
+
 /* FONT FAMILIES *****************************************************************************/
 
 $font1: arial, helvetica, sans-serif;
@@ -351,7 +353,7 @@ a,
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 #66453e;
+    background: none repeat scroll 0 0 $color9;
     /*border: medium none;*/
     border:  0px solid $color1;
     /*@include border-all(2px);*/
@@ -397,16 +399,16 @@ a,
 /* overrides */
 
 .button {
-    background: #66453e;
-    border-color: $color3;
+    background: $color9;
+    border-color: darken($color9, 10%);
 }
 button.middle,
 .button.middle {
-	border-left-color: $color5;
+	border-left-color: darken($color9, 10%);
 }
 button.right,
 .button.right {
-	border-left-color: $color5;
+	border-left-color: darken($color9, 10%);
 }
 
 button:hover,
@@ -417,7 +419,7 @@ button:hover,
 }
 
 .toolbar .buttons {
-    background: $color4;
+    background: $color3;
     border-color: #000;
 }
 .ddm span.label,
@@ -444,6 +446,14 @@ button span.icon,
 
 .results {
     padding: 4px;
+}
+
+.media {
+    padding: 4px;
+}
+
+.media.record .img {
+    margin-right: 10px;
 }
 
 .widget {
