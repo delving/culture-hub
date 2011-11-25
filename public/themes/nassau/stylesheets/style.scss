@@ -307,7 +307,7 @@ a,
 /* Header ****************************************************************************************/
 #header {
     background: $color2  url(/public/themes/nassau/images/noise-555.png);
-    border-top: 1px solid #000;
+    border-top: 1px solid $color3;
 }
 #header .container_12 {
     background: url(/public/themes/nassau/images/header-bg-images-small.png) bottom center no-repeat;
@@ -386,10 +386,6 @@ a,
     overflow: hidden;
 }
 
-#home #content {
-    padding:  30px 0;
-}
-
 /* Footer ******************************************************************************************/
 
 #footer {
@@ -439,9 +435,15 @@ button span.icon,
 }
 
 .media,
-.widget .bd {
-    background: #f1f1f1;
+.widget .bd,
+.results {
+    background: $color2  url(/public/themes/nassau/images/noise-222.png);
     /*padding: 4px;*/
+    color: #f1f1f1;
+}
+
+.results {
+    padding: 4px;
 }
 
 .widget {
@@ -452,11 +454,22 @@ button span.icon,
 .pagination {
     margin: 15px 0;
 }
+
+.pagination a, .pagination span {
+     margin: 0;
+    padding: 4px 8px;
+}
+
 .pagination .current {
-    background-color: $color2;
+    background-color: $color3;
 }
 
 .breadcrumb li {
+    background: transparent url(/public/themes/common/images/crumb.png) no-repeat top right;
+    display: inline-block;
+    height: 16px;
+    line-height: 16px;
+    padding-right: 32px;
     margin-left: 0;
 }
 
@@ -487,4 +500,5 @@ h4.trigger.active:hover {
 {
 	background: #222  url(/public/themes/nassau/images/noise-222.png);
    border-bottom: 1px solid #222;
+   font-size: smaller;
 }
