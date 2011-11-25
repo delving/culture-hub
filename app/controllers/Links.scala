@@ -10,7 +10,7 @@ import models.Link
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Labels extends DelvingController {
+object Links extends DelvingController {
 
   def listFreeTextAsTokens(q: String): Result = {
     val query = MongoDBObject("value.label" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE), "userName" -> connectedUser, "linkType" -> Link.LinkType.FREETEXT)

@@ -16,7 +16,7 @@ import scala.collection.JavaConversions.asScalaMap
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Labels extends DelvingController with UserSecured {
+object Links extends DelvingController with UserSecured {
 
   def add(id: ObjectId, hubType: String, linkType: String): Result = {
 

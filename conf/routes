@@ -81,13 +81,13 @@ GET         /search                                                          Sea
 
 GET         /{user}/?                                                        Profiles.view
 
-GET         /{user}/label/search                                             Labels.listFreeTextAsTokens
+GET         /{user}/label/search                                             Links.listFreeTextAsTokens
 
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.dobject
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
-POST        /{user}/object/{id}/link                                         user.Labels.add(hubType:'object')
-DELETE      /{user}/object/{id}/link/{link}                                  user.Labels.remove(hubType:'object')
+POST        /{user}/object/{id}/link                                         user.Links.add(hubType:'object')
+DELETE      /{user}/object/{id}/link/{link}                                  user.Links.remove(hubType:'object')
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
 
@@ -102,8 +102,8 @@ GET         /{user}/collection/{id}/objects                                  Col
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
-POST        /{user}/collection/{id}/link                                     user.Labels.add(hubType:'collection')
-DELETE      /{user}/collection/{id}/link/{link}                              user.Labels.remove(hubType:'collection')
+POST        /{user}/collection/{id}/link                                     user.Links.add(hubType:'collection')
+DELETE      /{user}/collection/{id}/link/{link}                              user.Links.remove(hubType:'collection')
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/{id}                                          Collections.collection
@@ -111,8 +111,8 @@ GET         /{user}/collection/{id}                                          Col
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.story
 GET         /{user}/story/{id}/update                                        user.Stories.story
-POST        /{user}/story/{id}/link                                          user.Labels.add(hubType:'story')
-DELETE      /{user}/story/{id}/link/{link}                                   user.Labels.remove(hubType:'story')
+POST        /{user}/story/{id}/link                                          user.Links.add(hubType:'story')
+DELETE      /{user}/story/{id}/link/{link}                                   user.Links.remove(hubType:'story')
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
 GET         /{user}/story/{id}                                               Stories.story
