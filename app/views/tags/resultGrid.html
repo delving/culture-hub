@@ -5,6 +5,7 @@
 <div class="row">
     #{/if}
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
+        <div class="widget-container">
         <div class="media thing draggable">
             <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
 
@@ -23,6 +24,7 @@
             <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnail()}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
+        </div>
         </div>
     </div>
 

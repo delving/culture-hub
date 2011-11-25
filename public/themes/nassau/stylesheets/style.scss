@@ -1,675 +1,490 @@
+/* temp extra grid stuff */
+/* Row >> can contain grids - instead of the .clear */
+
+.row:after, .lastUnit:after {
+    clear: both;
+    display: block;
+    visibility: hidden;
+    overflow: hidden;
+    height: 0 !important;
+    line-height: 0;
+    font-size: xx-large;
+    content: " x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ";
+}
+
+.row {
+    *zoom: 1;
+}
+.g-1of2,
+.g-1of3,
+.g-2of3,
+.g-1of4,
+.g-3of4,
+.g-1of5,
+.g-2of5,
+.g-3of5,
+.g-4of5{
+    display: inline;
+    float: left;
+    position: relative;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+.g-1of1 {
+    float: none;
+}
+
+.g-1of2 {
+    width: 48%;
+}
+
+.g-1of3 {
+    width: 31.33333%;
+}
+
+.g-2of3 {
+    width: 64.66666%;
+}
+
+.g-1of4 {
+    width: 23%;
+}
+
+.g-3of4 {
+    width: 73%;
+}
+
+.g-1of5 {
+    width: 18%;
+}
+
+.g-2of5 {
+    width: 38%;
+}
+
+.g-3of5 {
+    width: 58%;
+}
+
+.g-4of5 {
+    width: 78%;
+}
+
+
+.alpha {
+    margin-left: 0;
+}
+
+.omega {
+    margin-right: 0;
+}
+
 /* COLORS ***************************************************************/
 
-$color-1: #ffcc00;
-$color-1-lite: lighten($color-1, 30%);
-$color-2: #666;
-$color-3: #000;
-$color-4: #BF8530;
-$color-5: #926806;
+$color1: #ca9d5c;
+$color2: #666;
+$color3: #000;
+$color4: #BF8530;
+$color5: #926806;
+$color6: #f1f1f1;
+$color7: #5e8a95;
+$color8: #afc5ca;
+/* FONT FAMILIES *****************************************************************************/
 
-/* font-sizes */
+$font1: arial, helvetica, sans-serif;
+$font2: times, "Times New Roman", serif;
 
-$fsize-1: 14px;
-$fsize-2: 18px;
-$fsize-3: 22px;
-$fsize-4: 44px;
-$fsize-5: 72px;
+/* BASE STUFF ********************************************************************************/
 
-/* WIDTHS ***************************************************************/
-
-$page-width: 960px;
-$container-width: 960px;
-$content-width: 960px;
-
-/* MARGINS **************************************************************/
-
-$container-margin: 0 auto;
-$content-margin: 0 0;
-
-/* POSITIONS & HEIGHTS **************************************************/
-
-$position: absolute;
-
-$primary-branding-height: 60px;
-$primary-branding-left: 5px;
-$primary-branding-top: 20px;
-
-$secondary-branding-top: 20px;
-$secondary-branding-height: 25px;
-
-$user-nav-top: 30px;
-$user-nav-height: 30px;
-
-$main-nav-top: 50px;
-$main-nav-height: 30px;
-
-$header-top: 40px;
-$header-height: 50px;
-$header-home-height: 420px;
-
-$search-height: 40px;
-$search-right: 10px;
-$search-top: $header-top + 8px;
-$search-home-top: $user-nav-height + $header-home-height + 4px;
-
-$crumbs-top: $header-top + $header-height;
-$crumbs-height:40px;
-
-$main-top: $header-height + $crumbs-height + $user-nav-height;
-$main-home-top: $header-home-height + $user-nav-height;
-
-$footer-height: 100px;
-
-/* borders ********/
-$radius: 2px;
-
-@mixin border-all ($radius) {
-  border-radius: $radius;
-  -moz-border-radius: $radius;
-  -webkit-border-radius: $radius;
+html
+{
+	height:100%;
 }
 
-@mixin border-top ($radius) {
-  border-radius: $radius $radius 0 0;
-  -moz-border-radius: $radius $radius 0 0;
-  -webkit-border-radius: $radius $radius 0 0;
+body
+{
+    background-color:$color3;
+    background: url(/public/themes/nassau/images/middle-bg.jpg);
+    color: $color1;
+    font-family: $font1;
+    font-size: 14px;
+    line-height: 18px;
 }
 
-@mixin border-bot ($radius) {
-  border-radius: 0 0 $radius $radius;
-  -moz-border-radius: 0 0 $radius $radius;
-  -webkit-border-radius: 0 0 $radius $radius;
+.centered
+{
+	text-align:center;
 }
 
-h1, h2, h3 {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding: 5px 0;
+.container_12 {
+	width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+    position: relative;
+}
+
+/* TYPOGRAPHY **********************************************************************************/
+
+h1, .h1,
+h2, .h2,
+h3, .h3 {
+    font-family: $font2;
 }
 
 h1, .h1 {
-    color: $color-2;
-    font-size: 196%;
-    font-weight: normal;
-    font-style: normal;
+    color: $color1;
+    font-size: 41px;
+    line-height: 42px;
+    margin-top: 21px;
+    margin-bottom: 42px;
 }
 
 h2, .h2 {
-    color: $color-2;
-    font-size: 167%;
-    font-weight: normal;
-    font-style: normal;
+    color: $color1;
+    font-size: 24px;
+    line-height: 42px;
+    margin-top: 42px;
+    margin-bottom: 21px;
 }
 
 h3, .h3 {
-    color: $color-2;
-    font-size: 146.5%;
-    font-weight: normal;
-    font-style: normal;
+    color: $color1;
+    font-size: 18px;
+    line-height: 21px;
+    margin-top: 21px;
+    margin-bottom: 0px;
 }
 
 h4, .h4 {
-    color: $color-2;
+    color: $color1;
     font-size: 123.1%;
     font-weight: normal;
     font-style: normal;
 }
 
 h5, .h5 {
-    color: $color-2;
+    color: $color1;
     font-size: 108%;
     font-weight: bold;
     font-style: normal;
 }
 
 h6, .h6 {
-    color: $color-2;
+    color: $color1;
     font-size: 108%;
     font-weight: normal;
     font-style: italic;
 }
 
-/* STYLES ********************************************************************************************/
-
-body {
-    background: #fff url(../images/body-bgs.gif) center top repeat-y;
-    color: $color-2;
-    font-family: arial, helvetica, sans;
-    font-size: $fsize-1;
-        line-height: 1.5;
-}
-
-a:link{
-    color: $color-4;
-}
-a:visited {
-    color: $color-5;
-}
-.pagination a, .pagination a:visited {
-    color: #666;
-}
-
 h1.sep {
-    border-bottom: 4px solid lighten($color-1, 40%);
-    padding: 0;
-    margin-bottom: 10px;
+    margin: 10px;
+    /*padding-bottom: 5px;*/
+    //border-bottom: 1px solid lighten($color5, 30%);
 }
 
-#page {
-    height: auto;
-    background: #fff;
+p, ul, ol {
+    margin-top: 0px;
+    margin-bottom: 21px;
+}
+
+small, aside {
+    font-size: 11px;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+li
+{
+	margin-left: 20px;
+}
+
+hr {
+   border-color: $color3;
+}
+
+a,
+.breadcrumb a {
+    color: $color7;
+}
+
+/* MAJOR PAGE SECTIONS ***************************************************************************/
+
+/* Rijksbranding and User-bar ********************************************************************/
+
+#page-top {
+    background: transparent;
+    /*height: 100px;*/
+    z-index: 100;
+}
+
+#page-top .container_12 {
     position: relative;
-    margin: 0 auto;
-    width: 960px;
+    height: 90px;
 }
 
-.container {
-    margin: $container-margin;
-    width: 960px;
-}
-
-//.content {
-//    margin: $content-margin;
-//    width: 80%;
-//}
-
-/* CONTAINER AND CONTENT SHRINKING FOR ABSOLUTE POSITION ELEMENTS *************************************/
-
-#primary-branding .container,
-#secondary-branding .container,
-#user-nav .container,
-#main-nav .container,
-#search .container {
-    width: auto;
-}
-
-/*#primary-branding .content,*/
-/*#secondary-branding .content,*/
-/*#main-nav .content,*/
-/*#user-nav .content,*/
-/*#search .content {*/
-    /*width: auto;*/
-    /*paddin: 0;*/
-/*}*/
-
-/* MAJOR PAGE AREAS ***********************************************************************************/
-
-/* NAME & BRANDING  ***********************************************************************************/
-
-#site-name {
-    text-indent: -1000px;
-    height: 0px;
-    margin: 0;
-    padding: 0;
+#page-top img {
+    margin-top: 20px;
 }
 
 #primary-branding {
-    height: $primary-branding-height;
-    position: $position;
-    top: $primary-branding-top;
-    left: $primary-branding-left;
-    z-index: 12;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
 }
 
-#primary-branding .container,
-#primary-branding .content {
-    margin: 0;
-    padding: 0;
+#primary-branding a {
+    cursor: default;
 }
 
 #secondary-branding {
-    background-color: #fff;
-    height: $secondary-branding-height;
-    position: $position;
-    top: $secondary-branding-top;
-    left: 460px;
-    z-index: 10;
+    display: none;
 }
 
-/* USER NAV ***********************************************************************************/
+/* User Navi *************************************************************************************/
 
-
-#user-nav{
-    background: $color-2;
-    color: $color-1;
-    position: relative;
-    top: $user-nav-top;
+#user-nav
+{
+    position: absolute;
     right: 0px;
-    z-index: 11;
-    height: 40px;
-    line-height: 40px;
+    top: 10px;
+    z-index: 1000;
 }
 
 #user-nav .buttons {
     float: right;
 }
 
-/* MAIN NAV ***********************************************************************************/
-
-#main-nav {
-    border-bottom: 4px solid $color-1;
-    position: $position;
-    top: $main-nav-top;
-    width: 100%;
+#user-nav .button {
+    margin-right: 0px;
 }
 
-#main-nav ul {
-    background: $color-2;
-    heigth: 40px;
-    margin-left: 0;
-    /*float: right;*/
-}
-
-#main-nav ul li {
-    background: $color-2;
-    border-color: #fff;
-	@include border-top($radius);
-}
-
-#main-nav ul li:hover {
-    background-color: $color-1-lite;
-}
-
-#main-nav ul li.current {
-    background-color: $color-1;
-    color: $color-2;
+.user-name {
+    color: $color1;
     font-weight: bold;
+    padding-top: 10px;
 }
 
-#main-nav ul li a {
-    color: #fff;
+/* Site Navi *************************************************************************************/
+
+
+#site-nav {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    /*width: 100%;*/
+}
+
+
+#site-nav ul {
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+#site-nav ul li {
+    background:  transparent;
+    display: inline;
+    float: left;
+    margin: 0;
+}
+
+#site-nav ul li.current a {
+        font-weight: bold;
+        text-decoration: underline;
+}
+
+#site-nav ul a {
+    color: $color6;
     display: block;
-    height: 24px;
-    line-height: 24px;
-    padding: 4px 16px;
+    padding: 6px 0 6px 40px;
     text-decoration: none;
+
 }
 
-#main-nav ul li a:hover {
-    color: $color-2;
-    text-decoration: underline;
-}
-
-
-
-/* HEADER ***********************************************************************************/
-
+/* Header ****************************************************************************************/
 #header {
-    background: $color-2;
-    position: $position;
-    top: $header-top;
-    height: $header-height;
-    /*z-index: 9;*/
+    background: $color2  url(/public/themes/nassau/images/noise-555.png);
+    border-top: 1px solid #000;
+}
+#header .container_12 {
+    background: url(/public/themes/nassau/images/header-bg-images-small.png) bottom center no-repeat;
+    height: 145px;
 }
 
-/* MAIN ***********************************************************************************/
-
-#main {
-
-    position: static;
-    margin-top: $main-top;
+#header h1,
+#header h2  {
+    display: none;
 }
-
-#main .content {
-    /*background: #ccc;*/
-    padding: 10px 0;
-}
-
-/* FOOTER ********************************************************************************/
-
-#footer {
-    border-top: 4px solid lighten($color-1, 40%);
-    position: static;
-    height: $footer-height;
-}
-
-#footer .content {
-    padding: 20px 0;
-}
-
-/* HOME-PAGE SPECIFIC ********************************************************************/
 
 #home #header {
-    background-color: $color-2;
-    background-image: url(../images/nassau-header-1.jpg);
-    background-position: top left;
-    background-repeat: no-repeat;
-    height: $header-home-height;
+    height: 355px;
 }
 
-#home #main {
-     margin-top: $main-home-top;
+#home #header .container_12 {
+    background: url(/public/themes/nassau/images/header-bg-images.png) bottom center no-repeat;
+    height: 355px
 }
 
-/* SEARCH ********************************************************************************/
+/* Search  *****************************************************************************************/
 
 #search {
-    background-color: transparent;
-    position: $position;
-    top: $search-top;
-    height: $search-height;
-    z-index: 10;
-    right: $search-right;
-}
-
-#home #search {
-    top: $search-home-top;
+    background: #222  url(/public/themes/nassau/images/noise-222.png);
+    text-align: center;
+    height: 64px;
+    line-height: 64px;
 }
 
 #search form {
     background: transparent;
-    margin: 0;
-    padding: 0;
 }
 
 #search input[type=text] {
-    background: none repeat scroll 0 0 #fff;
-    /*border: medium none;*/
-    border:  1px solid #d1d1d1;
-    @include border-all($radius);
+    background: none repeat scroll 0 0 #eaeaea;
+    border: medium none;
+    /*border:  0px solid  $color1;*/
+    /*@include border-all($radius);*/
     padding: 8px;
     width: 380px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 $color-1;
+    background: none repeat scroll 0 0 #66453e;
     /*border: medium none;*/
-    border:  1px solid #555;
-    @include border-all($radius);
+    border:  0px solid $color1;
+    /*@include border-all(2px);*/
     color: #fff;
     cursor: pointer;
+//    font-family: $ffam-2;
+    font-size: 100%;
+    font-weight: bold;
     margin-left: 4px;
-    padding: 8px;
+    padding: 6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     text-transform: uppercase;
     width: 80px;
 }
 
 #search input {
-    font-weight: bold;
-    vertical-align: top;
+    /*font-weight: bold;*/
+    /*vertical-align: top;*/
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 }
 
-/* ITEMS ************************************************************************/
-/* items.css overrides */
 
-ul.items li {
-    /*background: green;*/
-    border:  none;
-    margin: 0;
-    width: 156px;
-    padding-top: 10px;
+/* Main Content ************************************************************************************/
+
+#content {
+    background: transparent;
+    min-height: 250px;
+    padding: 20px 0 40px 0;
+    zoom: 1;
+    overflow: hidden;
 }
 
-.media.medium.container {
-        /*background: #ccc;*/
-    width:inherit;
-    height: 120px;
-    line-height:120px;
-    text-align:left;
-    overflow:  hidden;
-    text-align:left;
-    padding: 0;
-    /*padding-top: 10px;*/
+#home #content {
+    padding:  30px 0;
 }
 
-/* ITEM METADATA *********************************************************************/
+/* Footer ******************************************************************************************/
 
-.metadata .inner {
-   padding:  4px;
+#footer {
+    background-color:transparent;
+    margin-top: 20px;
+    min-height: 100px;
 }
 
-ul.items .metadata .title {
-    font-weight: normal;
+/* overrides */
+
+.button {
+    background: #66453e;
+    border-color: $color3;
+}
+button.middle,
+.button.middle {
+	border-left-color: $color5;
+}
+button.right,
+.button.right {
+	border-left-color: $color5;
 }
 
-.metadata h4 {
-    color: darken($color-2, 20%);
-    font-size: 14px;
-    font-weight: bold;
-    margin: 0;
+button:hover,
+.button:hover {
+    background: lighten($color4, 15%);
+		border-color: $color5;
+		color: #333;
 }
 
-.metadata p {
-    font-size: 100%;
-    margin: 0 0 10px 0;
+.toolbar .buttons {
+    background: $color4;
+    border-color: #000;
+}
+.ddm span.label,
+button span.label,
+.button span.label {
+	color: $color6;
+    text-shadow: none;
 }
 
-/* PAGINATION ************************************************************************/
-/* pagination.css overrides */
+.field span.icon,
+.ddm span.icon,
+button span.icon,
+.button span.icon {
+	background-image: url(/public/themes/common/stylesheets/buttons/button-icons-white.png);
+}
 
+.media,
+.widget .bd {
+    background: #f1f1f1;
+    /*padding: 4px;*/
+}
+
+.widget {
+    background: $color3;
+}
+
+/* pagination overrides */
+.pagination {
+    margin: 15px 0;
+}
 .pagination .current {
-    background: $color-2;
-    /*border: solid 1px #AAE;*/
+    background-color: $color2;
 }
-
-.pagination .prev,
-.pagination .next {
-    background: #eaeaea;
-}
-
-.pagination .current.prev, .pagination .current.next {
-    background: #eaeaea;
-    color: #999;
-    /*border-color:#999;*/
-}
-
-/* USER DROPDOWN MENU ***************************************************************/
-
-ul#user-menu li .sub {
-    border: 1px solid $color-2;
-    border-width: 0px 1px 1px 1px;
-    	top: 30px;
-}
-
-/* COLLUMNS ************************************************************************************/
-
-.sidebar {
-    float: left;
-    width: 40%;
-}
-
-.input {
-    float: left;
-    width: 55%;
-    margin-left: 5%;
-}
-
-
-/* COLLECTION EDIT ************************************************************************************/
-
-#edit-collection .input {
-    float: left;
-    width: 50%;
-}
-
-/* LOGIN **********************************************************************************************/
-
-/*#login form {*/
-    /*margin: 0 auto;*/
-    /*width: 380px;*/
-/*}*/
-
-/*#register form {*/
-    /*margin: 0 auto;*/
-    /*width: 520px;*/
-/*}*/
-
-/* FORMS *******************************************************************************************/
-/* overrides for form-elements.css */
-
-fieldset {
-    background-color: transparent;
-}
-
-/* BREADCRUMBS  **********************************************************************************/
-
-//.breadcrumbs {
-//    background-color: $color-1-lite;
-//    position: $position;
-//    top: $crumbs-top;
-//    left: 0px;
-//    height: $crumbs-height;
-//    line-height: $crumbs-height;
-//    width: 100%;
-//}
-//
-//.breadcrumbs .inner {
-//    margin-left: 10px;
-//    width: auto;
-//}
-
-/* BREADCRUMBS ************************************************************************/
-/* breadcrumb.css overrides */
-
-.breadcrumb {
-    background-color: $color-1-lite;
-    position: $position;
-    top: $crumbs-top;
-    left: 0px;
-//    height: $crumbs-height;
-
-
-    line-height: $crumbs-height;
-    width: 100%;
-}
-
-.breadcrumb ul {
-    margin: 0 0 0 10px;
-    padding: 0;
-}
-
 
 .breadcrumb li {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
-/* MEDIA ************************************************************************************************/
-
-.media .img {
-    margin-right: 10px;
+h4.trigger
+{
+	background: #fff url(/public/themes/common/images/togglerch.gif) no-repeat 97% 50%;
+	border-bottom:1px solid #ccc;
+	padding:8px;
+    cursor: pointer;
+    color: $color7;
 }
 
-.media.object .img {
-    width:inherit;
-    height: 150px;
-    line-height:150px;
-    text-align:center;
-    overflow:  hidden;
-    position: relative;
-    vertical-align: top;
+h4.trigger:hover {
+   background: #fff url(/public/themes/common/images/togglerc.gif) no-repeat 97% 50%;
+    color: #555;
+    text-decoration: underline;
 }
 
-.media.object .img img {
-    vertical-align: top;
-    max-width: 120px;
-    max-height: 150px;
-    display: -moz-inline-box;
-    display: inline-block;
-    text-align: center;
+h4.trigger.active {
+   background: #fff url(/public/themes/common/images/toggleroh.gif) no-repeat 97% 50%;
 }
 
-.media .title {
-    font-weight: bold;
-}
-.metadata h4 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-.metadata p {
-    margin-top: 0px;
+h4.trigger.active:hover {
+   background: #fff url(/public/themes/common/images/togglero.gif) no-repeat 97% 50%;
 }
 
-/* media block in recent wrapper */
-
-.mod.recent .inner{
-    /*background-color: #fff;*/
-}
-
-.recent h3 {
-    color: $color-3;
-    text-transform:uppercase;
-    font-weight: normal;
-}
-
-.recent .media p {
-    margin: 0;
-}
-
-.recent .media .clip {
-    display: block;
-    height: 210px;
-    overflow: hidden;
-}
-
-.recent .clip img {
-    position:absolute;
-    clip:rect(0px,280px,200px,0px);
-}
-
-.recent .media .img {
-    clear: both;
-    margin: 0;
-    float: none;
-}
-
-.recent .title {
-    display: block;
-}
-
-/* RESULTS ************************************************************************************/
-
-.results .clip  {
-    /*display: inline-block;*/
-    float:left;
-    height: 80px;
-    overflow: hidden;
-    width: 100px;
-    margin-right: 10px;
-}
-
-.results .clip .img {
-    position:absolute;
-    clip:rect(0px,100px,80px,0px);
-    max-width: 120px;
-}
-
-/* FACETS *************************************************************************************/
-
-.facets h3 {
-    font-size: $fsize-1;
-}
-
-.facet-container {
-    background-color: lighten($color-1, 47%);
-}
-
-
-/* HELPERS ************************************************************************************/
-
-.clear {
-    clear:both;
-}
-
-/* TOKEN - iNPUTS ****************************************************************************/
-
-ul.token-input-list {
-    border: 1px solid $color-2;
-    width: 300px;
-}
-
-li.token-input-token {
-    background-color: lighten($color-2, 45%);
-    margin:1px;
-}
-
-div.token-input-dropdown {
-    width:300px;
-}
-
-div.token-input-dropdown ul li.token-input-selected-dropdown-item {
-background-color: lighten($color-2, 45%);
+.facet-container
+{
+	background: #222  url(/public/themes/nassau/images/noise-222.png);
+   border-bottom: 1px solid #222;
 }

@@ -6,7 +6,7 @@
 
 h4.trigger
 {
-	background:url(/public/themes/common/images/togglerch.gif) no-repeat right center;
+	background: #fff url(/public/themes/common/images/togglerch.gif) no-repeat right center;
 	border-bottom:1px solid #ccc;
     font-family: Arial;
     font-weight: normal;
@@ -15,21 +15,21 @@ h4.trigger
 	/*padding:5px 0 5px 25px;*/
 	padding:8px 0;
     cursor: pointer;
-    color: #336699;
+    /*color: #336699;*/
 }
 
 h4.trigger:hover {
-   background:url(/public/themes/common/images/togglerc.gif) no-repeat right center;
+   background: #fff url(/public/themes/common/images/togglerc.gif) no-repeat right center;
     color: #555;
     text-decoration: underline;
 }
 
 h4.trigger.active {
-   background:url(/public/themes/common/images/toggleroh.gif) no-repeat right center;
+   background: #fff url(/public/themes/common/images/toggleroh.gif) no-repeat right center;
 }
 
 h4.trigger.active:hover {
-   background:url(/public/themes/common/images/togglero.gif) no-repeat right center;
+   background: #fff url(/public/themes/common/images/togglero.gif) no-repeat right center;
 }
 
 .facet-container
