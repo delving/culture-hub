@@ -26,11 +26,8 @@
 
 </div>
 }*
-
-#{if briefDocs }
-
 <div class="g-12of12 grid_12">
-    <div class="item-count mtm mbm">
+    <div class="item-count">
         &{'search.trail', pagination.getStart(), pagination.getRows() + pagination.getStart(), pagination.getNumFound() }
         <ul class="breadcrumb">
             #{list pagination.getBreadcrumbs(), as: 'crumb'}
@@ -53,7 +50,12 @@
         </div>
         #{/if}
         <div class="results">
+            #{if briefDocs }
             #{resultGrid results: briefDocs /}
+            #{/if}
+            #{else}
+            &{'ui.message.nothingFound'}
+            #{/else}
         </div>
         #{if pagination.getNumFound() > views.context.package.PAGE_SIZE()}
         <div class="pager">
@@ -62,6 +64,7 @@
         #{/if}
     </div>
     <div class="g-4of12 grid_4">
+
         <div class="facets">
             <div class="widget">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
@@ -88,12 +91,13 @@
                              #{/list}
                             </select>
                             <hr/>
-                            <button type="submit" class="button action submit">&{'search.addToCollection'}</button>
+                            <button type="submit" class="button action blue">&{'search.addToCollection'}</button>
                         #{/if}
                         #{else}
                             <hr>
                             You have no collections. <a href="/${userName}/collection/add">Create a collection</a> so that you can save items into them.
                         #{/else}
+
                     </div>
                 </form>
 
@@ -119,9 +123,4 @@
         <div class="contentWrap"></div>
     </div>
 
-#{/if}
-#{else}
-<div class="g-12of12 grid_12 centered pam">
-    &{'ui.message.nothingFound'}
-</div>
-#{/else}
+
