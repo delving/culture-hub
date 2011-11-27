@@ -535,7 +535,7 @@ div.dropdown span.toggle.active {
 
 h4.trigger
 {
-	background: $darker url(/public/themes/common/images/togglerch.gif) no-repeat 97% 50%;
+	background: $darker url(/public/themes/common/stylesheets/facets/togglerch.png) no-repeat 97% 50%;
 	border-bottom:1px solid $darkest;
 	padding:8px;
     cursor: pointer;
@@ -547,18 +547,18 @@ h4.trigger:last-of-type {
 }
 
 h4.trigger:hover {
-   background: $light url(/public/themes/common/images/togglerc.gif) no-repeat 97% 50%;
+   background: $light url(/public/themes/common/stylesheets/facets/togglerch.png) no-repeat 97% 50%;
     color: $darker;
     text-decoration: underline;
 }
 
 h4.trigger.active {
-   background: $light url(/public/themes/common/images/toggleroh.gif) no-repeat 97% 50%;
+   background: $light url(/public/themes/common/stylesheets/facets/togglero.png) no-repeat 97% 50%;
    color: $darkest;
 }
 
 h4.trigger.active:hover {
-   background: $dark url(/public/themes/common/images/togglero.gif) no-repeat 97% 50%;
+   background: $dark url(/public/themes/common/stylesheets/facets/togglero.png) no-repeat 97% 50%;
 }
 
 .facet-container
