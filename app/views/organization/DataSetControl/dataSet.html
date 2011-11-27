@@ -1,83 +1,82 @@
 #{set 'visibility'}hidden#{/}
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('organization.dataset.create') /}
-#{set bodyId: 'dataset-create'/}
+#{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
 #{organizationNavBar
 orgId: orgId,
 active:"datasets",
 extraButtons: [
-    [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-    [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
+[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+[label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
 ],
 isOwner: isOwner /}
 
-<h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
-
+<div class="g-12of12 grid_12 dashboard">
+    <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
 
     <div class="row">
         <div class="g-12of12">
-        <form method="post" action="" id="collectionForm">
-         <div class="row">
-        <div class="g-6of12">
-            <h3>&{'organization.dataset.info'}</h3>
-            #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
-            <div class="field">
-                <label class="label">&{'ui.label.visibility'}</label>
+            <form method="post" action="" id="collectionForm">
+                <div class="row">
+                    <div class="g-6of12 grid_6">
+                        <h3>&{'organization.dataset.info'}</h3>
+                        #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
+                        <div class="field">
+                            <label class="label">&{'ui.label.visibility'}</label>
 
-                <div class="inputs">
-                    <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
-                    <br/>
-                    <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                            <div class="inputs">
+                                <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
+                                <br/>
+                                <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                            </div>
+                        </div>
+
+                        %{for(i in 0..factDefinitions.size() - 1) {
+                        def factDef = factDefinitions.get(i);
+                        }%
+                        #{if factDef.hasOptions()}
+                        #{populatedSelectField name: factDef.name + "_field", label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                        #{/if}
+                        #{else}
+                        #{textField name:factDef.name + "_field", label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                        #{/else}
+
+                        %{ }}%
+                    </div>
+                    <div class="g-6of12 grid_6">
+                        <h3>Record Definitions</h3>
+                        #{list recordDefinitions, as: 'recordDef'}
+                        #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
+                        #{/list}
+                    </div>
                 </div>
-            </div>
-
-            %{for(i in 0..factDefinitions.size() - 1) {
-            def factDef = factDefinitions.get(i);
-            }%
-            #{if factDef.hasOptions()}
-            #{populatedSelectField name: factDef.name + "_field", label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
-            #{/if}
-            #{else}
-            #{textField name:factDef.name + "_field", label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
-            #{/else}
-
-            %{ }}%
+                <div class="row">
+                    <div class="buttons">
+                        #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"blue"/}
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="g-6of12">
-            <h3>Record Definitions</h3>
-            #{list recordDefinitions, as: 'recordDef'}
-            #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
-            #{/list}
-        </div>
+
     </div>
-    <div class="row">
-        <div class="buttons">
-            #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"blue"/}
-        </div>
-    </div>
-        </form>
-        </div>
 
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var dataSetModel = {};
 
+            $('#saveButton').click(function(event) {
+                event.preventDefault();
+                handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
+                    window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
+                }, function() {
+                    alert("Could not save dataset! Maybe an invalid spec was passed in? (this message will get better very soon)")
+                });
+            });
 
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        var dataSetModel = {};
-
-        $('#saveButton').click(function(event) {
-            event.preventDefault();
-            handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
-                window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
-            }, function() {
-              alert("Could not save dataset! Maybe an invalid spec was passed in? (this message will get better very soon)")
+            load(${data.raw()}, dataSetModel, null, function() {
+                $("body").css('visibility', 'visible');
             });
         });
-
-        load(${data.raw()}, dataSetModel, null, function() {
-          $("body").css('visibility', 'visible');
-        });
-    });
-</script>
+    </script>

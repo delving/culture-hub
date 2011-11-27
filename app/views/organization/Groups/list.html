@@ -2,6 +2,8 @@
 
 #{set title: viewUtils.getKey('thing.groups') /}
 
+#{set bodyId: 'organization' /}
+
 #{breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"groups",
@@ -9,6 +11,8 @@ extraButtons: [
     [label: viewUtils.getKey('org.group.create'), url:"/organizations/"+orgId+"/groups/create", extraClass:"action green", visible: isOwner]
 ],
 isOwner: isOwner/}
+
+<div class="g-12of12 grid_12 dashboard">
 
 <h1 class="sep">&{'thing.groups'}</h1>
 
@@ -31,4 +35,6 @@ isOwner: isOwner/}
             #{/list}
         </ol>
     </div>
+</div>
+
 </div>

@@ -1,54 +1,38 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.organization') + ': ' + orgId /}
-
+#{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
 #{if memberSince.isDefined()}
 #{organizationNavBar orgId: orgId, isOwner: isOwner /}
 #{/if}
+<div class="g-12of12 grid_12 dashboard">
 
-<h1 class="sep">${orgName}</h1>
+    <div class="g-1of3 grid_4">
 
-<div class="row">
-    <div class="g-12of12 grid_12">
         <div class="info-box">
+            <h3>&{'org.info'}</h3>
             <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
             #{if memberSince.isDefined()}
             <span class="label">&{'ui.label.memberSince'}</span><span class="text">${views.context.package.niceTime(memberSince.get())}</span>
             #{/if}
         </div>
     </div>
-</div>
-
-<hr/>
-
-<div class="row">
-    <div class="g-1of2 grid_6">
-      #{if memberSince.isDefined()}
-        <h3><a href="/organizations/${orgId}/dataset">&{'thing.datasets'}</a></h3>
-      #{/}
-      #{else}
+    <div class="g-1of3 grid_4">
         <h3>&{'thing.datasets'}</h3>
-      #{/}
-
-        <!--<div class="mod">-->
-          <ol>
-          #{list dataSets, as: 'ds'}
+        <ol>
+            #{list dataSets, as: 'ds'}
             <li>${ds.spec}</li>
-          #{/list}
-          </ol>
-        <!--</div>-->
+            #{/list}
+        </ol>
     </div>
-    <div class="g-2of2 grid_6">
+    <div class="g-1of3 grid_4">
         <h3>&{'organization.members'}</h3>
-
-        <!--<div class="mod">-->
-          <ol>
+        <ol>
             #{list members, as: 'm'}
             <li>${m.userName} (${m.fullUserName})</li>
             #{/list}
-          </ol>
-        <!--</div>-->
+        </ol>
     </div>
 </div>

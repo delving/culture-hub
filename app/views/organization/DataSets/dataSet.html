@@ -1,7 +1,7 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.dataset') + ' ' + dataSet.name + ' - ' + viewUtils.getKey('thing.organization') + ': ' + orgId /}
-
+#{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
 #{organizationNavBar
@@ -13,6 +13,9 @@ extraButtons: [
     [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit]
 ],
 isOwner: isOwner /}
+
+<div class="g-12of12 grid_12 dashboard">
+
 
 <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
 
@@ -35,6 +38,8 @@ isOwner: isOwner /}
       #{/if}
     %{}}%
     </div>
+</div>
+
 </div>
 
 

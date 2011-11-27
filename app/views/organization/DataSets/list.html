@@ -2,6 +2,8 @@
 
 #{set title: viewUtils.getKey('thing.browse.of', viewUtils.getKey('thing.datasets')) + ': ' + orgId /}
 
+#{set bodyId: 'organization' /}
+
 #{breadcrumbs /}
 
 #{organizationNavBar
@@ -11,6 +13,8 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
               [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
 ],
 isOwner: isOwner/}
+
+<div class="g-12of12 grid_12 dashboard">
 
 #{if browsedUserName}
 
@@ -156,3 +160,4 @@ isOwner: isOwner/}
     </div>
 </div>
 
+</div>

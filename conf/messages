@@ -414,7 +414,7 @@ user.story.title.deletePage=Delete the page?
 user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
 # Organizations
-
+org.info=Organization information
 ### This gets concatenated to a sentence
 org.list.memberCount=%s member(s)
 org.list.grantType.view=with rights to view
