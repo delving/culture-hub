@@ -523,7 +523,7 @@ div.dropdown span.toggle.active {
 }
 
 .breadcrumb li {
-    background: transparent url(/public/themes/common/images/crumb.png) no-repeat top right;
+    background: transparent url(/public/themes/nassau/images/bullet-arrow-right.png) no-repeat top right;
     display: inline-block;
     height: 16px;
     line-height: 16px;
@@ -582,6 +582,18 @@ h4.trigger.active:hover {
     height: auto;
 }
 
+#dropbox.hover {
+    background: $light;
+}
+
+#dropbox.hover h3  {
+   color: $dark;
+}
+
+#dropbox form {
+    background: transparent;
+}
+
 #organization .toolbar {
     margin-bottom: 0px;
 
@@ -592,20 +604,20 @@ h4.trigger.active:hover {
 }
 
 .dashboard {
-    background: $light  url(/public/themes/nassau/images/noise-light.png);
+    background: $light  url(/public/themes/nassau/images/noise-222.png);
     border-right: 1px solid $darkest;
     border-bottom: 1px solid $darkest;
     border-left: 1px solid $darkest;
-    color: $darkest;
+    color: $lighter;
 }
 .dashboard h1,
 .dashboard h3,
 .dashboard .info-box .label {
-    color: $dark;
+    color: $light;
 }
 
 .dashboard a {
-    color: darken($link, 20%);
+    color: $link;
 }
 
 .dashboard .data-grid {
@@ -620,5 +632,6 @@ h4.trigger.active:hover {
 .dashboard form h3 {
     color: $light;
 }
+
 
 

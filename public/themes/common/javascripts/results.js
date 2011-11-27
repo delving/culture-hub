@@ -50,7 +50,6 @@ $(document).ready(function() {
      } );
 
     $("#dropbox").droppable({
-        tolerance: 'intercept',
         accept: '.draggable',
         drop: addToDropbox
     });
