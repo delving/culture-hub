@@ -9,14 +9,13 @@ orgId: orgId,
 active:"datasets",
 extraButtons: [
 [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-[label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
+[label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
 ],
 isOwner: isOwner /}
+<div class="row">
+    <div class="g-12of12 grid_12 dashboard">
+        <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
 
-<div class="g-12of12 grid_12 dashboard">
-    <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
-
-    <div class="row">
         <div class="g-12of12">
             <form method="post" action="" id="collectionForm">
                 <div class="row">
@@ -54,14 +53,12 @@ isOwner: isOwner /}
                 </div>
                 <div class="row">
                     <div class="buttons">
-                        #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"blue"/}
+                        #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"submit"/}
                     </div>
                 </div>
             </form>
         </div>
-
     </div>
-
     <script type="text/javascript">
         $(document).ready(function() {
             var dataSetModel = {};
