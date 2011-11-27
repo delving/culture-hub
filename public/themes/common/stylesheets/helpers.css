@@ -273,29 +273,32 @@ div.dropdown-slider .ddm.heading {
     font-size: 12px;
 }
 
-.widget .bd ul {
+/*.widget .bd ul {*/
+    /*padding: 0;*/
+    /*list-style: disc;*/
+/*}*/
+
+.widget .bd ul li {
     padding: 0;
-    list-style: disc;
+    margin: 0;
 }
 
-.widget .bd ul li {padding: 3px 0;}
+/*.widget .bd ul.images {*/
+    /*padding: 7px 0 0 0;*/
+    /*list-style: none;*/
+    /*height: 1%;*/
+/*}*/
 
-.widget .bd ul.images {
-    padding: 7px 0 0 0;
-    list-style: none;
-    height: 1%;
-}
+/*.widget .bd ul.images li {*/
+    /*display: inline;*/
+    /*float: left;*/
+/*}*/
 
-.widget .bd ul.images li {
-    display: inline;
-    float: left;
-}
-
-.widget .bd ul.images img {
-    display: inline;
-    float: left;
-    margin: 0 0 7px 7px;
-}
+/*.widget .bd ul.images img {*/
+    /*display: inline;*/
+    /*float: left;*/
+    /*margin: 0 0 7px 7px;*/
+/*}*/
 
 .widget .button {
     display: block;
