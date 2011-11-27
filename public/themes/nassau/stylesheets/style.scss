@@ -443,7 +443,8 @@ button.right,
 }
 
 button:hover,
-.button:hover {
+.button:hover,
+.button.submit:hover {
     background: $lighter;
 	border-color: $darker;
 }
@@ -454,6 +455,15 @@ button.on,
 	-moz-box-shadow:inset 0 0 10px $light;
 	-webkit-box-shadow:inset 0 0 10px $light;
 	box-shadow:inset 0 0 10px $light;
+}
+
+.button.submit {
+	border: 1px solid $darkest !important;
+	background: $darker;
+	background: -webkit-linear-gradient(top, $darker, $dark);
+	background: -moz-linear-gradient(top, $darker, $dark);
+	background: -ms-linear-gradient(top,  $darker, $dark);
+	background: -o-linear-gradient(top,  $darker, $dark);
 }
 
 .toolbar .buttons {
