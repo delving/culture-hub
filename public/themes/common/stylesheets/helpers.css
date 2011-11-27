@@ -47,6 +47,16 @@ strong {
     margin-top: 10px;
 }
 
+#organization .toolbar {
+    margin-bottom: 0px;
+
+}
+
+.dashboard {
+    clear: both;
+}
+
+
 /* dialogs */
 
 /* labels and comments dialogue*/
@@ -213,18 +223,18 @@ div.dropdown-slider .ddm.heading {
 /* WIDGET */
 
 .widget.yellow {background:#f2bc00;}
-.widget.red    {background:#dd0000;}
-.widget.blue   {background:#148ea4;}
+.widget.beware {background:#dd0000;}
+.widget.submit {background:#148ea4;}
 .widget.white  {background:#dfdfdf;}
 .widget.orange {background:#f66e00;}
-.widget.green  {background:#8dc100;}
+.widget.complete {background:#8dc100;}
 
 .widget.yellow h3,
 .widget.white h3,
-.widget.green h3
+.widget.complete h3
 	{color:#000;}
-.widget.red h3,
-.widget.blue h3,
+.widget.beware h3,
+.widget.submit h3,
 .widget.orange h3
 	{color:#FFF;}
 

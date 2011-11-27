@@ -10,7 +10,7 @@
 orgId: orgId,
 active:"datasets",
 extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-              [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action green", visible: isOwner]
+              [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
 ],
 isOwner: isOwner/}
 
@@ -65,10 +65,10 @@ isOwner: isOwner/}
                     <td width="480">
                         #{if isOwner}
                         <div class="buttons">
-                            <a class="button blue" href="/organizations/${orgId}/dataset/${i.spec}/update">
+                            <a class="button submit" href="/organizations/${orgId}/dataset/${i.spec}/update">
                                 <span class="label">${viewUtils.getKey('ui.label.edit')}</span>
                             </a>
-                            <a class="button red #{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if}" id="remove${i.spec}">
+                            <a class="button beware #{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if}" id="remove${i.spec}">
                                 <span class="label">${viewUtils.getKey('ui.label.remove')}</span>
                             </a>
 
@@ -83,7 +83,7 @@ isOwner: isOwner/}
                             #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
                             <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
                                 #{authenticityToken /}
-                                <button class="button action green index"><span class="label">&{'dataset.index'}</span>
+                                <button class="button action complete index"><span class="label">&{'dataset.index'}</span>
                                 </button>
                             </form>
                             #{/if}

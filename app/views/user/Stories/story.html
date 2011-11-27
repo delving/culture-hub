@@ -39,7 +39,7 @@
                 </div>
 
                 <div class="buttons" data-bind="visible: pages.length == 0">
-                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
+                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"submit", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
                 </div>
             </form>
         <!--</div>-->
@@ -50,7 +50,7 @@
 
     <div class="g-5of12">
         <div class="mod">
-         <h3>&{'user.story.storyPages'}</h3>
+         <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
         <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
 
         <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
@@ -63,7 +63,7 @@
 
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -93,7 +93,7 @@
 
 <script type="text/html" id="pageTemplate">
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
-
+        <h3>&{'user.story.storyPages'}</h3>
         <div class="field">
             <label for="title" class="label">&{'thing.title'}</label>
 
@@ -126,7 +126,7 @@
         </div>
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action complete', type:'submit'/}
             #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
         </div>
     </form>

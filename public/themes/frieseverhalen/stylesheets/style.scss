@@ -498,7 +498,7 @@ form h3 {
 /* BUTTONS ************************************************************************************/
 /* css3-buttons.css overrides */
 
-button.green, .button.green {
+button.complete, .button.complete {
 border: 1px solid $color-2 !important;
 background: darken($color-2, 10%);
 background: -webkit-linear-gradient(top, $color-2, darken($color-2, 10%));
@@ -507,7 +507,7 @@ background: -ms-linear-gradient(top, $color-2, darken($color-2, 10%));
 background: -o-linear-gradient(top, $color-2, darken($color-2, 10%));
 }
 
-button.green:hover, .button.green:hover {
+button.complete:hover, .button.complete:hover {
     background:  darken($color-2, 10%);
 }
 
@@ -696,7 +696,7 @@ background-color: lighten($color-2, 30%);
     overflow: hidden;
 }
 
-.widget.green {
+.widget.complete {
     background: $color-2;
 }
 
