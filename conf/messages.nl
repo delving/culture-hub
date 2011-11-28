@@ -434,13 +434,13 @@ organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the
 
 user.secured.noAccess=Het spijt ons, echt waar! Maar u heeft geen toegang hier.
 
-dataSetState.incomplete=DataSet is incomplete
-dataSetState.uploaded=DataSet is uploaded and ready for indexing
-dataSetState.queued=DataSet is queued for indexing
-dataSetState.indexing=DataSet is being indexed
-dataSetState.enabled=DataSet is enabled
-dataSetState.disabled=DataSet is disabled
-dataSetState.error=Error occured while indexing DataSet
+dataSetState.incomplete=Incomplete
+dataSetState.uploaded=uploaded and ready for indexing
+dataSetState.queued=Queued for indexing
+dataSetState.indexing=Indexing
+dataSetState.enabled=Enabled
+dataSetState.disabled=Disabled
+dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
