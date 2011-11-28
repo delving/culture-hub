@@ -350,7 +350,10 @@ abstract class MetadataAccessors {
 
   protected def assign(key: String): String
 
+  // TODO cleanup, unify, decide, conquer
+
   // ~~~ identifiers
+  def getThingId: String = assign("id")
   def getId : String = assign("delving_hubId")
   def getOrgId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(0) else ""
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
@@ -358,11 +361,20 @@ abstract class MetadataAccessors {
   def getDelvingId : String = assign("delving_pmhId")
   def getIdUri : String = assign("delving_hubId").replaceAll("_", "/")
 
-
   // ~~~ well-known, always provided, meta-data fields
   def getTitle : String = assign("dc_title")
   def getDescription: String = assign("dc_description")
   def getThumbnail : String = assign("europeana_object")
+
+  // ~~~ thing getters, from UGC
+  def getThingTitle: String = assign("delving_name")
+  def getThingDescription: String = assign("delving_description")
+  def getThingThumbnailId: String = assign("delving_thumbnail_id")
+  def getThingUserName: String = assign("delving_userName")
+  def getThingVisibility: String = assign("delving_visibility")
+
+
+  // ~~~ old and others
   def getCreator : String = assign("dc_creator")
   def getYear : String = assign("europeana_year")
   def getProvider : String = assign("europeana_provider")

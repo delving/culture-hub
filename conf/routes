@@ -171,6 +171,7 @@ GET        /admin/themes/new                                                 adm
 GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
+GET        /admin/indexUGC                                                   admin.Admin.indexUGC
 
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload

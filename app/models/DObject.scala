@@ -7,6 +7,7 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
+import util.Constants._
 
 /**
  * 
@@ -29,7 +30,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
-    doc addField ("delving_recordType", "object")
+    doc addField ("delving_recordType", OBJECT)
     doc
   }
 

@@ -1,5 +1,6 @@
 package controllers.search
 
+
 import play.mvc.Scope.Params
 import models.PortalTheme
 import controllers.SolrServer
@@ -88,7 +89,7 @@ object SolrQueryService extends SolrServer {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
-    query setRows 12
+    query setRows PAGE_SIZE
     query setStart 0
     query setFacet true
     query setFacetMinCount (1)
@@ -198,7 +199,7 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true): CHQuery = {
+  def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
 
     val paramMap = request.params.all()
 
@@ -233,12 +234,16 @@ object SolrQueryService extends SolrServer {
 
     val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
-    val hiddenQueryFilters = createFilterQueryList(
-      if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hfq")
-    )
+    val hiddenQueryFilters = createFilterQueryList(if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hqf"))
+
     val query = parseSolrQueryFromRequest(request, theme)
+
+
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
-    CHQuery(query, format, filterQueries, hiddenQueryFilters)
+    val defaultSystemHQFs = if (connectedUser.isEmpty) List("delving_visibility_single:10") else List("delving_visibility_single: 10 OR delving_userName_single:\"%s\"".format(connectedUser.get))
+    val systemHQFs  =  defaultSystemHQFs  ++ additionalSystemHQFs
+    systemHQFs.foreach(fq => query addFilterQuery (fq))
+    CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
   }
 
   def getFullSolrResponseFromServer(id: String, idType: String = ""): QueryResponse = {
@@ -480,7 +485,7 @@ case class SolrFacetElement(facetName: String, facetPrefix: String, facetPresent
 
 case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
 
-case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty)
+case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
 case class CHResponse(params: Params, theme: PortalTheme, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
 
@@ -588,8 +593,6 @@ case class PresentationQuery(chResponse: CHResponse) {
 }
 
 case class BriefItemView(chResponse: CHResponse) {
-
-  import java.util.List
 
   def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocsWithIndex(chResponse.response, pagination.getStart)
 

@@ -3,6 +3,7 @@ package controllers
 import play.mvc.results.Result
 import models.{Visibility, Story}
 import extensions.JJson
+import util.Constants._
 
 /**
  *
@@ -13,14 +14,8 @@ import extensions.JJson
 object Stories extends DelvingController {
 
   def list(user: Option[String], page: Int = 1): AnyRef = {
-
-    val storiesPage = user match {
-      case Some(u) => Story.browseByUser(browsedUserId, connectedUserId).page(page)
-      case None => Story.browseAll(connectedUserId).page(page)
-    }
-    val items: List[ListItem] = storiesPage._1
-    Template("/list.html", 'title -> listPageTitle("story"), 'itemName -> "story", 'items -> items, 'page -> page, 'count -> storiesPage._2)
-
+    val browser: (List[ListItem], Int) = Search.browse(STORY, user, request, theme)
+    Template("/list.html", 'title -> listPageTitle("story"), 'itemName -> STORY, 'items -> browser._1, 'page -> page, 'count -> browser._2)
   }
 
   def story(user: String, id: String): Result = {

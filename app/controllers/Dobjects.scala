@@ -3,6 +3,7 @@ package controllers
 import play.mvc.results.Result
 import models.{Visibility, DObject}
 import extensions.JJson
+import util.Constants._
 
 /**
  *
@@ -13,16 +14,10 @@ import extensions.JJson
 object DObjects extends DelvingController {
 
   def list(user: Option[String], page: Int = 1): AnyRef = {
-
-    val objectsPage = user match {
-      case Some(u) => DObject.browseByUser(browsedUserId, connectedUserId).page(page)
-      case None => DObject.browseAll(connectedUserId).page(page)
-    }
-
-    val items: List[ListItem] = objectsPage._1
+    val browser: (List[ListItem], Int) = Search.browse(OBJECT, user, request, theme)
     request.format match {
-      case "html" => Template("/list.html", 'title -> listPageTitle("object"), 'itemName -> "object", 'items -> items, 'page -> page, 'count -> objectsPage._2)
-      case "json" => Json(items)
+      case "html" => Template("/list.html", 'title -> listPageTitle("object"), 'itemName -> OBJECT, 'items -> browser._1, 'page -> page, 'count -> browser._2)
+      case "json" => Json(browser._1)
     }
   }
 

@@ -100,13 +100,13 @@ object DObjects extends DelvingController with UserSecured {
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
         val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files)
         try {
-          SolrServer.indexSolrDocument(updatedObject.toSolrDocument)
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
           controllers.dos.FileUpload.markFilesAttached(uid, id)
-          activateThumbnail(id, objectModel.selectedFile) match {
-            case Some(thumb) => DObject.updateThumbnail(id, thumb)
-            case None => // do nothing
+          val thumbnailId = activateThumbnail(id, objectModel.selectedFile) match {
+            case Some(thumb) => DObject.updateThumbnail(id, thumb); Some(id)
+            case None => None
           }
+          SolrServer.indexSolrDocument(updatedObject.copy(thumbnail_id = thumbnailId).toSolrDocument)
           SolrServer.commit()
           Some(objectModel)
         } catch {

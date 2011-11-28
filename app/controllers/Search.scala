@@ -3,7 +3,12 @@ package controllers
 import scala.collection.JavaConversions._
 import search._
 import play.mvc.results.Result
-import models.UserCollection
+import play.mvc.Http.Request
+import org.bson.types.ObjectId
+import play.mvc.Util
+import models.{PortalTheme, Visibility, UserCollection}
+import views.context.PAGE_SIZE
+import util.Constants._
 
 /**
  *
@@ -17,7 +22,7 @@ object Search extends DelvingController {
   val SEARCH_TERM = "searchTerm"
 
   def index(query: String = "*:*", page: Int = 1) = {
-    val chQuery = SolrQueryService.createCHQuery(request, theme, true)
+    val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser))
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     session.put(RETURN_TO_RESULTS, request.querystring)
@@ -25,7 +30,7 @@ object Search extends DelvingController {
 
     val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
-    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections)
+    Template('briefDocs -> asJavaList(briefItemView.getBriefDocs), 'pagination -> briefItemView.getPagination, 'facets -> asJavaList(briefItemView.getFacetQueryLinks), 'collections -> userCollections)
   }
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
@@ -48,6 +53,22 @@ object Search extends DelvingController {
       val returnToUrl = if (session.contains(RETURN_TO_RESULTS)) session.get(RETURN_TO_RESULTS) else ""
       Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
     }
-
   }
+
+  @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
+    val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
+    request.params.put("start", start.toString)
+    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), List("delving_recordType:%s".format(OBJECT)))
+    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
+    val chResponse = CHResponse(params, theme, queryResponse, chQuery)
+    val briefItemView = BriefItemView(chResponse)
+
+    val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getThingTitle, description = bd.getThingDescription, thumbnail = bd.getThingThumbnailId match {
+      case id if ObjectId.isValid(id) => Some(new ObjectId(id))
+      case _ => None
+    }, userName = bd.getThingUserName, fullUserName = "", isPrivate = bd.getThingVisibility.toInt == Visibility.PRIVATE))
+
+    (items, briefItemView.pagination.getNumFound)
+  }
+
 }

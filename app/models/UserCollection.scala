@@ -6,7 +6,7 @@ import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
 import org.apache.solr.common.SolrInputDocument
-
+import util.Constants._
 
 /**
  *
@@ -26,7 +26,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
-    doc addField("delving_recordType", "userCollection") // FIXME use same type as in rest of hub, e.g. as in links
+    doc addField("delving_recordType", USERCOLLECTION)
     doc
   }
 }
