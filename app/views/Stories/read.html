@@ -17,13 +17,19 @@
 
     <div class="g-12of12 grid_12 story-wrapper">
         <div class="g-3of12 grid_3 alpha">
-            <h4>${story.name}</h4>
-            <ul id="inav">
+            <div class="widget">
+                <div class="hd"><h3>${story.name}</h3></div>
+                <div class="bd pan">
+                <ul id="inav">
                 <li class="active"><a class="browse page">&{'story.titlePage'}</a></li>
                 #{list story.pages, as: 'page'}
                 <li><a class="browse page" title="${page.title}">${page.title}</a></li>
                 #{/list}
             </ul>
+                </div>
+
+            </div>
+
         </div>
 
         <div class="g-9of12 grid_9 omega">
@@ -60,7 +66,7 @@
                         </div>
 
                         #{list story.pages, as: 'page'}
-                        <div class="page">
+                        <div class="page" id="page_${page_index}">
                             <h2>${page.title}</h2>
 
                             <div class="row">

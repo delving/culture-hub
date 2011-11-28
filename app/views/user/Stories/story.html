@@ -48,7 +48,7 @@
 
 <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
-    <div class="g-5of12">
+    <div class="g-5of12 grid_5">
         <div class="mod">
          <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
         <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
@@ -68,7 +68,7 @@
             </div>
         </div>
     </div>
-    <div class="g-7of12">
+    <div class="g-7of12 grid_7">
         <div class="mod">
             <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
         </div>
