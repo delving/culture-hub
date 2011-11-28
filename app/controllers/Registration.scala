@@ -6,11 +6,10 @@ import play.libs.Codec
 import play.libs.Crypto
 import notifiers.Mails
 import play.Play
-import models.User
-import models.Organization
 import play.mvc.results.Result
 import models.salatContext._
 import play.mvc.Controller
+import models.{User, Organization}
 
 /**
  *
@@ -63,7 +62,7 @@ object Registration extends Controller with ThemeAware with Internationalization
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, nodes = List(getNode), email = r.email, password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512), isActive = false, activationToken = Some(activationToken))
+      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, nodes = List(getNode), email = r.email, password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512), userProfile = models.UserProfile(), isActive = false, activationToken = Some(activationToken))
       val inserted = User.insert(newUser)
 
       inserted match {
