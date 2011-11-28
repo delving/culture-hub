@@ -29,7 +29,10 @@ trait Thing extends Base {
   val visibility: Visibility
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
-  val labels: List[EmbeddedLink]
+  val links: List[EmbeddedLink]
+
+  def freeTextLinks = links.filter(_.linkType == Link.LinkType.FREETEXT)
+  def placeLinks = links.filter(_.linkType == Link.LinkType.PLACE)
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument

@@ -25,6 +25,45 @@ function bindCSRFToken(csrfToken) {
     });
 }
 
+function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteUrl) {
+    var defaultParams = {
+      prePopulate: prePopulate ? prePopulate : [],
+      allowCreation: false,
+      preventDuplicates: true,
+      onAdd: function(item) {
+        $.ajax({
+          type: 'POST',
+          data: typeof addData === 'function' ? addData.call(this, item) : addData,
+          url: addUrl,
+          success: function(data) {
+            if(item.wasCreated) {
+              item.id = data.id;
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $(id).tokenInput('remove', {id: item.id})
+          }
+        });
+      },
+      onDelete: function(item) {
+        $.ajax({
+          type: 'DELETE',
+          url: deleteUrl + item.id,
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $(id).tokenInput('add', {id: item.id})
+          }
+        });
+      }
+    };
+
+    $(id).tokenInput(searchUrl, $.extend(defaultParams, params));
+
+
+}
+
+
 /**
  * Helper to fetch a thumbnail URL
  * @param id the ID of the thumbnail

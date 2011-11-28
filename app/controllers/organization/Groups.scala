@@ -39,7 +39,7 @@ object Groups extends DelvingController with OrganizationSecured {
       case None => (JJson.generate(List()), JJson.generate(List()))
       case Some(group) =>
         val dataSets = dataSetsCollection.find("_id" $in group.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
-        (JJson.generate(group.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
+        (JJson.generate(group.users.map(m => Token(m, m, "user"))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString, "dataset"))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
     Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)

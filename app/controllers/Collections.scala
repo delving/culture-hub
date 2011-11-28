@@ -27,17 +27,12 @@ object Collections extends DelvingController {
     UserCollection.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
         val objects: List[ListItem] = DObject.findAllWithCollection(thing._id).toList
-        val labels = thing.labels.map(l => (Token(l.link, l.value.label))).toList
-        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels), 'labelsList -> labels)
+        val labels: List[Token] = thing.freeTextLinks
+        val places: List[Token] = thing.placeLinks
+        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
       }
       case _ => NotFound
     }
-  }
-
-  /**list all user collections the connected user can write to as tokens **/
-  def listWriteableAsTokens(q: String): Result = {
-    val userCollections = for (userCollection <- UserCollection.browseByUser(connectedUserId, connectedUserId).filter(c => c.name.toLowerCase contains (q))) yield Token(userCollection._id.toString, userCollection.name)
-    Json(userCollections)
   }
 
   val NO_COLLECTION = "NO_COLLECTION"

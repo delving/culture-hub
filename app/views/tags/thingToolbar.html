@@ -19,10 +19,9 @@
             #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
             <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
         </div>
-
         *{<!--TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not the 'owner of the object? ...-->}*
         *{<!-- OWNER ACTIONS: only the owner of this thing can see these --> }*
-        #{if _owner == _currentUser}
+        #{if _owner == _authUser}
            #{if _owner && _id}
             #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
@@ -43,12 +42,13 @@
         #{/if}
     </div>
 </div>
-
 <div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}" style="width: inherit;">
     <div class="field">
         <label class="label">${messages.get('thing.label')}</label>
         <div class="inputs">
           <input type="text" class="textinput" id="labelInput"/>
+          <p></p>
+          <input type="text" class="textinput" id="placesInput"/>
         </div>
     </div>
 </div>
@@ -61,7 +61,7 @@
 
         <div class="inputs">
             <textarea name="comment" id="comment"></textarea>
-            #{btnButton label: messages.get('ui.label.add'), id:"addCommentSubmit"/}
+            #{btnButton label: messages.get('labels.add'), id:"addCommentSubmit"/}
         </div>
     </div>
     </form>
@@ -82,43 +82,24 @@
       $("#add-label-dialog").toggle("slow");
       $(this).toggleClass("on");
     });
-    $('#labelInput').tokenInput('/${_currentUser}/label/search', {
-      prePopulate: ${_labels ? _labels.raw() : []},
-      allowCreation: true,
+
+    tokenInput('#labelInput', '/${_authUser}/label/search', ${_labels ? _labels.raw() : []}, {
       theme: 'facebook',
-      hintText: "&{'ui.label.searchLabelHint'}",
-      searchingText: "&{'ui.label.tokenSearching'}",
-      createTokenText: "(&{'ui.label.createLabel'})",
-      preventDuplicates: true,
-      onAdd: function(item) {
-        $.ajax({
-          type: 'POST',
-          data: {label: item.name},
-          url: '/${_currentUser}/${_type}/${_id}/label',
-          success: function(data) {
-            if(item.wasCreated) {
-              item.id = data.id;
-            }
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $('#${_id}').tokenInput('remove', {id: item.id})
-          }
-        });
-      },
-      onDelete: function(item) {
-        $.ajax({
-          type: 'DELETE',
-          url: '/${_currentUser}/${_type}/${_id}/label/' + item.id,
-          error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $(id).tokenInput('add', {id: item.id})
-          }
-        });
-      }
-    });
+      hintText: "&{'labels.searchLabelHint'}",
+      searchingText: "&{'labels.tokenSearching'}",
+      allowCreation: true,
+      createTokenText: "(&{'labels.createLabel'})"
+    }, '/${_authUser}/${_type}/${_id}/link', function(item) { return {label: item.name, linkType: 'freeText'} }, '/${_authUser}/${_type}/${_id}/link/');
 
-
-
+    tokenInput('#placesInput', '/enrichment/place/search', ${_places ? _places.raw() : []}, {
+      theme: 'facebook',
+      hintText: "&{'labels.searchPlaceHint'}",
+      searchingText: "&{'labels.tokenSearching'}",
+      allowCreation: false,
+    }, '/${_authUser}/${_type}/${_id}/link', function(item) {
+      item.label = item.name;
+      item.linkType = 'place';
+      return item
+    }, '/${_authUser}/${_type}/${_id}/link/');
   });
 </script>

@@ -22,7 +22,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           visibility: Visibility,
                           deleted: Boolean = false,
                           thumbnail_id: Option[ObjectId],
-                          labels: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
+                          links: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
