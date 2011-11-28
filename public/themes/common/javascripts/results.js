@@ -72,6 +72,7 @@ $(document).ready(function() {
         $('#dropbox input[name="itemId"]').each(function(){
             if ($(this).val() == itemId) {
                 exists = true;
+                $(this).closest('.media').effect("bounce", { times:3 }, 300);
             }
         });
 
