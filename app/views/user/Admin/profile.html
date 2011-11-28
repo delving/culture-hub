@@ -1,0 +1,41 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title:viewUtils.getKey('user.admin.profile.title') /}
+
+<h1>Your profile</h1>
+
+<form id="profileForm" action="">
+  #{textField name:"firstName", label:viewUtils.getKey('ui.label.firstname'), dataBind:"value: firstName", labelClass:"required", required: true /}
+  #{textField name:"lastName", label:viewUtils.getKey('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}
+  #{textField name:"email", label:viewUtils.getKey('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true /}
+  #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", help:viewUtils.getKey('user.admin.profile.help.description') /}
+  #{textField name:"funFact", label:viewUtils.getKey('ui.label.funFact'), dataBind:"value: funFact" /}
+  #{textField name:"twitter", label:"Twitter", dataBind:"value: twitter" /}
+  #{textField name:"linkedIn", label:"LinkedIn", dataBind:"value: linkedIn" /}
+  #{checkBoxField name:"isPublic", label:viewUtils.getKey('ui.label.visibility.public'), dataBind:"checked: isPublic" /}
+
+
+  <div class="buttons">
+    #{btnButton label:viewUtils.getKey('user.admin.profile.save'), id:"saveButton", extraClass:"blue", type:"submit"  /}
+    <div class="wait"></div>
+  </div>
+
+</form>
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    var profileModel = {};
+
+    load(${data.raw()}, profileModel, null, function() {
+      $("body").css('visibility', 'visible');
+    });
+
+    $('#saveButton').click(function(event) {
+        event.preventDefault();
+        handleSubmit('/${userName}/admin/profile', profileModel, '#profileForm', null, function() {
+          document.location = '/${userName}';
+        });
+    });
+
+  });
+</script>

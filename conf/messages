@@ -43,6 +43,7 @@ ui.label.filesdelete=Delete files
 ui.label.first=First
 ui.label.firstname=First name
 ui.label.fullname=Full name
+ui.label.funFact=Fun fact
 ui.label.hi=Hi
 ui.label.labeladd=Add label
 ui.label.labelwho=Who
@@ -359,6 +360,10 @@ user.list.editProfile=Edit your profile
 
 ##Admin
 user.admin.index.title=Account space
+user.admin.profile.title=Your profile
+user.admin.profile.help.description=A few words about yourself
+user.admin.profile.save=Save profile
+
 
 ##Collections
 user.collection.title.create=Create new collection for user %s
@@ -465,6 +470,8 @@ dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
+user.admin.userNotFound=Could not find user %s
+user.admin.profile.saveError=Error saving your profile, please try again
 user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
 user.dobjects.objectNotFound=Object with id %s was not found
@@ -504,6 +511,8 @@ authentication.notactive.error=Your account is not yet active. Active it followi
 servicessecurity.userNotFound=User %s was not found
 
 stories.storyNotFound=Story with id %s was not found
+
+profile.profileNotFound=No profile was found for user %s
 
 organizations.organization.orgNotFound=Could not find organization %s
 

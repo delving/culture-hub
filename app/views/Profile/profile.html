@@ -12,6 +12,7 @@
             <span class="label">&{'ui.label.username'}:</span><span class="text">${user.userName}</span>
             <span class="label">&{'ui.label.fullname'}:</span><span class="text">${user.fullname()}</span>
             <span class="label">&{'profile.activesince'}:</span><span class="text">${views.context.package.niceTime(user._id.getTime())}</span>
+            <span class="label">&{'thing.description'}:</span><span class="text">${user.userProfile.description().isEmpty() ? " - " : user.userProfile.description().get()}</span>
         </div>
     </div>
     <div class="g-6of12 grid_7">
@@ -21,5 +22,9 @@
             <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${stories.length()}</a></span>
         </div>
     </div>
-  </div>
+
+  #{if user.userName == userName}
+  #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
+  #{/if}
+
 </div>

@@ -63,8 +63,6 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
 
-        var viewModel = { };
-
         // load templates and data
         $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
           addTemplate('availableObjectsList', template);
@@ -103,14 +101,5 @@
             event.preventDefault();
             handleSubmit('/${userName}/collection/submit', collectionModel, '#collectionForm', '/${userName}/collection/');
         });
-
-
-        var annotation = function (name, type) {
-            this.name = name;
-            this.type = type;
-            this.remove = function() {
-              viewModel.annotations.remove(this)
-            }
-        }
     });
 </script>
