@@ -671,10 +671,10 @@ h4.trigger.active:hover {
 }
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
-/*.scrollable {*/
-    /*min-height: 400px;*/
-    /*background: $dark;*/
-/*}*/
+.scrollable {
+    min-height: 400px;
+    background: $dark;
+}
 
 .scroll-nav {
     background: $darkest;
@@ -691,7 +691,7 @@ h4.trigger.active:hover {
     color: $light;
     cursor: pointer;
     display: inline-block;
-    width: 21px;
+    /*width: 21px;*/
     height: 32px;
     line-height: 32px;
     overflow: hidden;
@@ -708,6 +708,11 @@ h4.trigger.active:hover {
     color: $lightest;
 }
 
+.scroll-nav .page,
+.scroll-nav .active .page {
+    width: auto;
+    padding: 0 5px;
+}
 /*.scroll-nav .prev {*/
     /*background-position: -15px 0px;*/
 /*}*/
