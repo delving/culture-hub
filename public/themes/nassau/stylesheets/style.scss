@@ -92,15 +92,15 @@
 /*$color8: #afc5ca;*/
 /*$color9: #66453e;*/
 
-$color1: #fff;
-$color2: #f1f1f1;
-$color3: #555;
-$color4: #222;
-$color5: #502c1e;
-$color6: #563e32;
-$color7: #95836f;
-$color8: #afc5ca;
-$color9: #66453e;
+/*$color1: #fff;*/
+/*$color2: #f1f1f1;*/
+/*$color3: #555;*/
+/*$color4: #222;*/
+/*$color5: #502c1e;*/
+/*$color6: #563e32;*/
+/*$color7: #95836f;*/
+/*$color8: #afc5ca;*/
+/*$color9: #66453e;*/
 
 $dark: #423f3a;
 $darker: #424242;
@@ -112,9 +112,9 @@ $lightest: #f1f1f1;
 
 $link: #698097;
 
-$dark1: #423F37;
-$light1: #927E64;
-$light2: #FDDDAA;
+/*$dark1: #423F37;*/
+/*$light1: #927E64;*/
+/*$light2: #FDDDAA;*/
 
 /* FONT FAMILIES *****************************************************************************/
 
@@ -130,8 +130,7 @@ html
 
 body
 {
-    background-color:$color3;
-    background: url(/public/themes/nassau/images/middle-bg.jpg);
+    background: $dark url(/public/themes/nassau/images/middle-bg.jpg);
     color: $lightest;
     font-family: $font1;
     font-size: 14px;
@@ -335,7 +334,7 @@ a,
 
 /* Header ****************************************************************************************/
 #header {
-    background: $color2  url(/public/themes/nassau/images/noise-555.png);
+    background: $darker  url(/public/themes/nassau/images/noise-555.png);
     border-top: 1px solid #000;
 }
 #header .container_12 {
@@ -375,7 +374,7 @@ a,
 #search input[type=text] {
     background: none repeat scroll 0 0 $lighter;
     /*border: medium none;*/
-    border:  0px solid  $color1;
+    border:  0px solid  $darkest;
     /*@include border-all($radius);*/
     padding: 8px;
     width: 380px;
@@ -384,7 +383,7 @@ a,
 #search input[type="submit"]  {
     background: none repeat scroll 0 0 $darker;
     /*border: medium none;*/
-    border:  0px solid $color1;
+    border:  0px solid $darkest;
     /*@include border-all(2px);*/
     color: $lighter;
     cursor: pointer;
@@ -670,6 +669,99 @@ h4.trigger.active:hover {
 .dashboard form h3 {
     color: $light;
 }
+
+/* STORY NAVIGATION - srollable-nav image override ************************************************/
+.scrollable {
+    min-height: 400px;
+    background: $dark;
+}
+
+.scroll-nav {
+    background: $darkest;
+    text-align: left;
+    border-bottom: 1px solid $light;
+    height: 32px;
+    line-height: 32px;
+    margin: 20px 0 0 0;
+}
+
+.scroll-nav a {
+    background: transparent url(/public/themes/nassau/images/scrollable-nav.png) top left no-repeat;
+    display: inline-block;
+    width: 15px;
+    height: 25px;
+    overflow: hidden;
+    text-indent: -2000px;
+    margin: 0px;
+}
+
+.scroll-nav .prev {
+    background-position: -15px 0px;
+}
+
+.scroll-nav .next {
+    background-position: -71px 0px;
+}
+
+.scroll-nav .page {
+    background-position: -51px 0px;
+    width: 18px;
+}
+
+.scroll-nav .active .page {
+    background-position: -31px 0px;
+    width: 18px;
+}
+
+.scroll-nav .prev.disabled {
+    background-position: -0px 0px;
+}
+
+.scroll-nav .next.disabled {
+    background-position: -86px 0px;
+}
+
+#pnav {
+    display: inline-block;
+}
+
+#pnav .active {
+    font-weight: bold;
+}
+
+#pnav li {
+    display: inline-block;
+    margin: 0px;
+}
+
+#inav {
+    background: $dark;
+    padding: 0;
+}
+
+#inav li {
+    padding: 4px 6px;
+    margin: 0;
+}
+
+#inav .active,
+#inav li:hover {
+    background: $dark;
+    color: $lightest;
+}
+
+#inav a {
+    color: $light;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+}
+#inav .active a,
+#inav li:hover a {
+    color: $lighter;
+}
+
+
 
 
 
