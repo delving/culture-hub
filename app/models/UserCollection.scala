@@ -26,7 +26,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 
   def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
-    doc addField("delving_recordType", "userCollection")
+    doc addField("delving_recordType", "userCollection") // FIXME use same type as in rest of hub, e.g. as in links
     doc
   }
 }

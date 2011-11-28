@@ -84,12 +84,12 @@ object DObjects extends DelvingController with UserSecured {
           val inserted: Option[ObjectId] = DObject.insert(newObject)
         inserted match {
           case Some(iid) => {
-            SolrServer.indexSolrDocument(newObject.copy(_id = iid).toSolrDocument)
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
-            activateThumbnail(iid, objectModel.selectedFile) match {
-              case Some(thumb) => DObject.updateThumbnail(iid, thumb)
-              case None =>
+            val thumbnailId = activateThumbnail(iid, objectModel.selectedFile) match {
+              case Some(thumb) => DObject.updateThumbnail(iid, thumb); Some(iid)
+              case None => None
             }
+            SolrServer.indexSolrDocument(newObject.copy(_id = iid, thumbnail_id = thumbnailId).toSolrDocument)
             SolrServer.commit()
             Some(objectModel.copy(id = inserted))
           }
