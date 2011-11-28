@@ -148,7 +148,6 @@ button.on:active,
 button.action, 
 .button.action {
 	border: 1px solid #D8D8D8 !important;
-	
 	background: #F2F2F2;
 	background: -webkit-linear-gradient(top, #F5F5F5, #F1F1F1);
 	background: -moz-linear-gradient(top, #F5F5F5, #F1F1F1);

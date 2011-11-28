@@ -457,6 +457,7 @@ button.on,
 	box-shadow:inset 0 0 10px $light;
 }
 
+button.submit,
 .button.submit {
 	border: 1px solid $darkest !important;
 	background: $darker;
@@ -464,6 +465,32 @@ button.on,
 	background: -moz-linear-gradient(top, $darker, $dark);
 	background: -ms-linear-gradient(top,  $darker, $dark);
 	background: -o-linear-gradient(top,  $darker, $dark);
+}
+
+button.complete,
+.button.complete {
+	border: 1px solid $darkest !important;
+	background: $light;
+}
+
+button.complete:hover,
+.button.complete:hover {
+	border: 1px solid $darkest !important;
+	background: $darkest;
+}
+
+button.action,
+.button.action {
+	border: 1px solid $lighter;
+}
+button.action:hover,
+.button.action:hover {
+	border: 1px solid $light;
+}
+
+button.action .label,
+.button.action .label {
+	color: $darker;
 }
 
 .toolbar .buttons {
@@ -516,6 +543,7 @@ div.dropdown span.toggle.active {
     background: $darkest;
     padding: 1px;
 }
+
 
 /* pagination overrides */
 .pagination {
