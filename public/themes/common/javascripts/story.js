@@ -14,7 +14,7 @@ $(document).ready(function() {
     function setHeight() {
         currentIndex = api.getIndex();
         $('div#page_' + currentIndex).each(function(i) {
-            viewAreaHeight += $(this).outerHeight() + 20;
+            viewAreaHeight += $(this).outerHeight() + 40;
         });
         $('.scrollable').css("height", viewAreaHeight);
         viewAreaHeight = 0;
