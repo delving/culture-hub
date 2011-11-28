@@ -39,9 +39,9 @@
                 <div class="scroll-nav">
                     <a class="prev browse">&{'story.previouspage'}</a>
                     <ul id="pnav" class="s-nav">
-                        <li class="active"><a class="browse page">Titel page</a></li>
+                        <li class="active"><a class="browse page">1</a></li>
                         #{list story.pages, as: 'page'}
-                        <li><a class="browse page" title="${page.title}">${page.title}</a></li>
+                        <li><a class="browse page" title="${page.title}">${page_index + 1}</a></li>
                         #{/list}
                     </ul>
                     <a class="next browse">&{'story.nextpage'}</a>
@@ -51,7 +51,8 @@
                     <!-- root element for the items -->
                     <div class="items">
 
-                        <div class="row page title-page">
+                        <div class="row page title-page" id="page_0">
+
                             <div class="g-1of1">
 
                                 <div style="widht: 100%; text-align:center;">
@@ -63,13 +64,15 @@
                                 </div>
 
                             </div>
+
                         </div>
 
+
                         #{list story.pages, as: 'page'}
-                        <div class="page" id="page_${page_index}">
+                        <div class="page row" id="page_${page_index}">
                             <h2>${page.title}</h2>
 
-                            <div class="row">
+
                              <div class="page-left g-1of2 alpha">
                                 ${page.text.raw()}
                             </div>
@@ -78,7 +81,7 @@
                                 <img src="${views.context.package.imageUrl(o.dobject_id)}" width="350" alt="${page.title}">
                                 #{/list}
                             </div>
-                            </div>
+
 
                         </div>
                         #{/list}

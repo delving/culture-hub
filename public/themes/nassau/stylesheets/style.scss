@@ -671,55 +671,69 @@ h4.trigger.active:hover {
 }
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
-.scrollable {
-    min-height: 400px;
-    background: $dark;
-}
+/*.scrollable {*/
+    /*min-height: 400px;*/
+    /*background: $dark;*/
+/*}*/
 
 .scroll-nav {
     background: $darkest;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid $light;
+    margin: 20px 0 0 0;
     height: 32px;
     line-height: 32px;
-    margin: 20px 0 0 0;
 }
 
 .scroll-nav a {
-    background: transparent url(/public/themes/nassau/images/scrollable-nav.png) top left no-repeat;
+    /*background: transparent url(/public/themes/nassau/images/scrollable-nav.png) top left no-repeat;*/
+    background: none;
+    color: $light;
+    cursor: pointer;
     display: inline-block;
-    width: 15px;
-    height: 25px;
+    width: 21px;
+    height: 32px;
+    line-height: 32px;
     overflow: hidden;
-    text-indent: -2000px;
+    text-indent: 0px !important;
     margin: 0px;
 }
 
-.scroll-nav .prev {
-    background-position: -15px 0px;
-}
-
+.scroll-nav .prev,
 .scroll-nav .next {
-    background-position: -71px 0px;
+    width: auto;
 }
 
-.scroll-nav .page {
-    background-position: -51px 0px;
-    width: 18px;
+.scroll-nav .active a {
+    color: $lightest;
 }
 
-.scroll-nav .active .page {
-    background-position: -31px 0px;
-    width: 18px;
-}
+/*.scroll-nav .prev {*/
+    /*background-position: -15px 0px;*/
+/*}*/
 
-.scroll-nav .prev.disabled {
-    background-position: -0px 0px;
-}
+/*.scroll-nav .next {*/
+    /*background-position: -71px 0px;*/
+/*}*/
 
+/*.scroll-nav .page {*/
+    /*background-position: -51px 0px;*/
+    /*width: 18px;*/
+/*}*/
+
+/*.scroll-nav .active .page {*/
+    /*background-position: -31px 0px;*/
+    /*width: 18px;*/
+/*}*/
+
+.scroll-nav .prev.disabled,
 .scroll-nav .next.disabled {
-    background-position: -86px 0px;
+    color: $dark;
 }
+
+
+
+
 
 #pnav {
     display: inline-block;
