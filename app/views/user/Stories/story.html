@@ -49,21 +49,23 @@
 <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
     <div class="g-5of12 grid_5">
-        <div class="mod">
+
          <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
         <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
 
-        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
-
         <div class="buttons">
-            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), rel:"nofollow", dataBind:"click: makeStoryUrl" /}
             #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
         </div>
-        </div>
+
+        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+
+
+
 
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -95,7 +97,7 @@
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
         <h3>&{'user.story.storyPages'}</h3>
         <div class="field">
-            <label for="title" class="label">&{'thing.title'}</label>
+            <label for="title" class="label">&{'user.story.pageTitle'}</label>
 
             <div class="inputs">
                 <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: '&{'ui.label.required'}'}}"/>
@@ -104,14 +106,14 @@
         </div>
 
         <div class="field">
-            <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
+            <label for="page-text" class="label">&{'user.story.tellStory'}</label>
 
             <div class="inputs">
-                <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+                <textarea style="height:300px" class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
                 <span class="error"></span>
             </div>
         </div>
-        <hr/>
+
         <h4>&{'user.story.label.addObjects'}</h4>
 
         <div class="field">
@@ -152,7 +154,7 @@
                     <span class="icon icon145"></span>
                     <span class="label">&{'ui.label.edit'} </span>
                 </a>
-                <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
+                <a class="button beware" href="#" data-bind="click: function() { this.deletePage(page); }">
                     <span class="icon icon186"></span>
                     <span class="label">&{'ui.label.delete'}</span>
                 </a>

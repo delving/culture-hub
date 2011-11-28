@@ -414,5 +414,13 @@ div.dropdown-slider .ddm.heading {
     z-index: 14;
 }
 
+textarea.mceEditor {
+    height: 300px;
+}
+
+table.mceLayout {
+    height: 300px;
+}
+
 
 

@@ -183,7 +183,7 @@ h3, .h3 {
     font-size: 18px;
     line-height: 21px;
     margin-top: 21px;
-    margin-bottom: 0px;
+    margin-bottom: 11px;
 }
 
 h4, .h4 {
@@ -428,6 +428,14 @@ a,
 
 /* overrides */
 
+.data-grid {
+    border: 1px solid $darker;
+}
+
+form {
+    color: $darker;
+}
+
 .button {
     background: $darker;
     border-color: $darkest;
@@ -521,7 +529,7 @@ div.dropdown span.toggle.active {
 .media,
 .widget .bd,
 .results {
-    background: $dark  url(/public/themes/nassau/images/noise-222.png);
+    background: $darker  url(/public/themes/nassau/images/noise-222.png);
     /*padding: 4px;*/
     color: $lighter;
 }
@@ -778,6 +786,11 @@ h4.trigger.active:hover {
 #inav .active a,
 #inav li:hover a {
     color: $lighter;
+}
+
+.ui-widget-content p,
+.ui-dialog-content p {
+    height: 100px;
 }
 
 
