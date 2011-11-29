@@ -102,7 +102,10 @@
       theme: 'facebook',
       hintText: "&{'labels.searchPlaceHint'}",
       searchingText: "&{'labels.tokenSearching'}",
-      allowCreation: false,
+      resultsFormatter: function(item) {
+        return "<li><div style='display: inline-block;'><div class='place_name'>" + item.name + "</div><div class='country_name' style='font-style: italic;'>" + item.countryName + "</div></div></li>"
+      },
+      allowCreation: false
     }, '/${_authUser}/${_type}/${_id}/link', function(item) {
       item.label = item.name;
       item.linkType = 'place';

@@ -14,6 +14,7 @@ package object salatContext {
 
   val connection = createConnection(connectionName)
   val commonsConnection = createConnection(cloudConnectionName)
+  val geonamesConnection = createConnection("geonames")
 
   lazy val groupCollection = connection("Groups")
   lazy val portalThemeCollection = connection("PortalThemes")
@@ -34,6 +35,9 @@ package object salatContext {
 
   lazy val userCollection = commonsConnection("Users")
   userCollection.ensureIndex(MongoDBObject("userName" -> 1))
+
+  lazy val geonamesCollection = geonamesConnection("geonames")
+  geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
 
   val MONGO_ID: String = "_id" // mongo identifier we use
 
