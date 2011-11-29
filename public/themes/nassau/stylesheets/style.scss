@@ -526,6 +526,36 @@ div.dropdown span.toggle.active {
 	background: url(/public/themes/nassau/images/toggle.png) bottom right no-repeat;
 }
 
+div.dropdown-slider  {
+    background: $darkest;
+	border-right: solid 1px $darkest;
+	border-bottom: solid 1px $darkest;
+	border-left: solid 1px $darkest;
+}
+
+div.dropdown-slider .ddm {
+    background: $lighter;
+	border-top: 1px solid $lighter;
+	border-bottom: 1px solid $light;
+    text-shadow: none;
+}
+
+div.dropdown-slider .ddm .label {
+    color: $dark;
+}
+
+div.dropdown-slider .ddm.heading {
+    color: $lightest;
+}
+
+div.dropdown-slider .ddm.heading.org {
+    background: $light;
+}
+
+div.dropdown-slider .ddm.heading.org .label {
+    color: $darker;
+}
+
 .media,
 .widget .bd,
 .results {
