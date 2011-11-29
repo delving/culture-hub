@@ -257,10 +257,10 @@ a,
 }
 
 #primary-branding {
-    display: none;
+    display: block;
     position: absolute;
     bottom: 0px;
-    left: 0px;
+    left: -5px;
 }
 
 #primary-branding a {
@@ -794,6 +794,11 @@ h4.trigger.active:hover {
 }
 
 
-
+#add-label-dialog,
+#add-comment-dialog {
+    background: $lighter;
+    color: $darker;
+    margin: -10px 0 10px 0;
+}
 
 

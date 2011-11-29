@@ -84,6 +84,9 @@ ui.label.createLabel=Maak een label
 # General 'thing' like object, collection or story
 thing.label=Label
 thing.labels=Labels
+thing.label.explain=Een "label" is een korte tekst die je aan iets kan toevoegen. Een "vrije-tekst" label mag van alles zijn. Een "plaats-naam" label refereerd aan een geographische locatie.
+thing.label.freeText=Vrije-tekst label
+thing.label.placeName=Plaats-naam label
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=DataSet

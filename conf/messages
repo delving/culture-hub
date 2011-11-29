@@ -88,6 +88,9 @@ ui.label.welcome=Welcome
 # General 'thing' like object, collection or story
 thing.label=Label
 thing.labels=Labels
+thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
+thing.label.freeText=Free-text label
+thing.label.placeName=Place-name label
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=DataSet
