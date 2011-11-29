@@ -48,7 +48,7 @@ object Links extends DelvingController with UserSecured {
           from = LinkReference(
             id = Some(id),
             hubType = Some("object")),
-          to = LinkReference(refType = Some("place"), uri = Some("http://sws.geonames.org/%s/".format(filteredParams("geonameId"))))
+          to = LinkReference(refType = Some("place"), uri = Some("http://sws.geonames.org/%s/".format(filteredParams("geonameID"))))
         ))
       case _ => BadRequest
     }

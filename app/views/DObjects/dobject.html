@@ -27,14 +27,7 @@
 
                         <div class="g-1of2 omega">
                             #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(dobject._id.getTime()) /}
-
-                            <h5>&{'thing.labels'}:</h5>
-                            <p class="labels">
-                                #{list labelsList, as: 'l'}
-                                <span class="label">${l.name}</span><br/>
-                                #{/list}
-                            </p>
-
+                            #{displayLabels labels: labelsList, places: placesList /}
                         </div>
                     </div>
                 </div>
