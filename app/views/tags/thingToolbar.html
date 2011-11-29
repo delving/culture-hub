@@ -114,8 +114,8 @@
       item.label = item.name;
       item.linkType = 'place';
       return item;
-    }, '/${_authUser}/${_type}/${_id}/link/', function(item) {
-      $('#places ul').append('<li id="'+ item.id + '"><a href="http://sws.geonames.org/' + item.geonameID + '/">' + item.name + ' (<em>' + item.countryName + '</em>)</a></li>"');
+    }, '/${_authUser}/${_type}/${_id}/link/', function(it) {
+      $('#places ul').append('<li id="'+ it.id + '"><a href="http://sws.geonames.org/' + it.geonameID + '/">' + it.name + ' (<em>' + it.countryName + '</em>)</a></li>');
     }, function(item) {
       $('li[id=' + item.id + ']').remove();
     });

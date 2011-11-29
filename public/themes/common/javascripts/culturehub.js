@@ -38,8 +38,8 @@ function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteU
           success: function(data) {
             if(item.wasCreated) {
               item.id = data.id;
-              if(typeof addCallback === 'function') addCallback.call(this, item);
             }
+            if(typeof addCallback === 'function') addCallback.call(this, item);
           },
           error: function(jqXHR, textStatus, errorThrown) {
             // TODO prompt the user that something went wrong
