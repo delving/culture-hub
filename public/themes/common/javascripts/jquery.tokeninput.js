@@ -655,7 +655,7 @@ $.TokenList = function (input, url_or_data, settings) {
 
     // Highlight the query part of the search term
     function highlight_term(value, term) {
-        return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<b>$1</b>");
+        return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>");
     }
 
     function find_value_and_highlight_term(template, value, term) {
@@ -803,7 +803,7 @@ $.TokenList = function (input, url_or_data, settings) {
                   cache.add(cache_key, settings.jsonContainer ? results[settings.jsonContainer] : results);
 
                   // only populate the dropdown if the results are associated with the active search query
-                  if(input_box.val().toLowerCase() === query) {
+                  if(input_box.val().toLowerCase() === query.toLowerCase()) {
                       populate_dropdown(query, settings.jsonContainer ? results[settings.jsonContainer] : results);
                   }
                 };
