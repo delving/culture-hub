@@ -34,6 +34,12 @@
                                 <span class="label">${l.name}</span><br/>
                                 #{/list}
                             </p>
+                            <h5>&{'ui.label.places'}:</h5>
+                            <p class="places">
+                                #{list placesList, as: 'p'}
+                                <span class="place"><a href="http://sws.geonames.org/${p.data.apply("geonameID")}/">${p.name} (<em>${p.data.apply("countryName")}</em>)</a></span><br/>
+                                #{/list}
+                            </p>
 
                         </div>
                     </div>
