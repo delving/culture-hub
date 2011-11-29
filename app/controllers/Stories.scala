@@ -26,7 +26,7 @@ object Stories extends DelvingController {
   def story(user: String, id: String): Result = {
     Story.findByIdUnsecured(id) match {
       case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
-        val labels = thing.freeTextLinks
+        val labels: List[Token] = thing.freeTextLinks
         val places: List[Token] = thing.placeLinks
         Template('story -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
       case _ => NotFound(&("user.stories.storyNotFound", id))
