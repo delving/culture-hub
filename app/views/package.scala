@@ -86,6 +86,11 @@ package object context extends Internationalization {
       case "collections" :: Nil => List(("/collections", &("thing.collection")))
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
 
+      case "org" :: "search" :: Nil =>
+        val queryString = session.get(controllers.Search.RETURN_TO_RESULTS)
+        val searchTerm = "[%s]".format(session.get(controllers.Search.SEARCH_TERM))
+        List(("NOLINK", &("ui.label.search")), ("/search?" + queryString , searchTerm))
+
       case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
         Option(session.get(controllers.Search.RETURN_TO_RESULTS)) match {
           case Some(r) =>
@@ -101,7 +106,8 @@ package object context extends Internationalization {
       case "organizations" :: orgName :: "dataset" :: name :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")), ("/organizations/" + orgName + "/dataset" + name, name))
       case "organizations" :: orgName :: "dataset" :: name :: "update" ::  Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", &("thing.datasets")), ("/organizations/" + orgName + "/dataset/" + name, name), ("/organizations/" + orgName + "/dataset/" + name + "/update", &("ui.label.edit")))
       case "organizations" :: orgName :: "groups" ::  Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")))
-      case "organizations" :: orgName :: "groups" ::  "update" :: id ::Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, &("ui.label.edit")))
+      case "organizations" :: orgName :: "groups" ::  "create" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("NOLINK", &("ui.label.create")))
+      case "organizations" :: orgName :: "groups" ::  "update" :: id :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, &("ui.label.edit")))
       case "organizations" :: orgName :: "sip-creator" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/sip-creator", &("ui.label.sipcreator")))
 
       case user :: Nil => List(("/" + user, user))

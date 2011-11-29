@@ -127,6 +127,7 @@
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
             #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
         </div>
     </form>
 
@@ -167,113 +168,107 @@
     $(document).ready(function() {
 
         var storyModel = {
-            currentPage: {
-                lock: ko.observable(false),
-                isNew: ko.observable(false),
-                pageRef: ko.observable(),
-                title: ko.observable(),
-                text: ko.observable(),
-                objects: ko.observableArray(),
-                selectedCollection: ko.observable(),
-                availableObjects: ko.observableArray(),
-                selectedObjectIds: ko.observableArray()
+          currentPage: {
+              lock: ko.observable(false),
+              isNew: ko.observable(false),
+              pageRef: ko.observable(),
+              title: ko.observable(),
+              text: ko.observable(),
+              objects: ko.observableArray(),
+              selectedCollection: ko.observable(),
+              availableObjects: ko.observableArray(),
+              selectedObjectIds: ko.observableArray()
             },
             addPages: function() {
-                saveStory(null, null, true);
-                storyModel.addPage();
-                $("#story-pages").show("slow");
+              saveStory(null, null, true);
+              storyModel.addPage();
+              $("#story-pages").show("slow");
             },
             addPage: function() {
-                storyModel.currentPage.lock(true);
-                storyModel.currentPage.isNew(true);
-                storyModel.currentPage.title("");
-                storyModel.currentPage.text("");
-                storyModel.currentPage.objects([]);
-                storyModel.currentPage.selectedCollection("");
-                storyModel.currentPage.availableObjects([]);
-                storyModel.currentPage.selectedObjectIds([]);
-                $("#form-add-page").show("slow");
+              storyModel.currentPage.lock(true);
+              storyModel.currentPage.isNew(true);
+              storyModel.currentPage.title("");
+              storyModel.currentPage.text("");
+              storyModel.currentPage.objects([]);
+              storyModel.currentPage.selectedCollection("");
+              storyModel.currentPage.availableObjects([]);
+              storyModel.currentPage.selectedObjectIds([]);
+              $("#form-add-page").show("slow");
             },
             editPage: function(page) {
-                storyModel.currentPage.isNew(false);
-                storyModel.currentPage.pageRef(page),
-                storyModel.currentPage.title(page.title());
-                storyModel.currentPage.text(page.text());
-                storyModel.currentPage.objects(page.objects());
-                storyModel.currentPage.selectedCollection([]);
-                storyModel.currentPage.selectedObjectIds([]);
-                storyModel.currentPage.availableObjects([]);
-                $("#form-add-page").show("slow");
+              storyModel.currentPage.isNew(false);
+              storyModel.currentPage.pageRef(page),
+              storyModel.currentPage.title(page.title());
+              storyModel.currentPage.text(page.text());
+              storyModel.currentPage.objects(page.objects());
+              storyModel.currentPage.selectedCollection([]);
+              storyModel.currentPage.selectedObjectIds([]);
+              storyModel.currentPage.availableObjects([]);
+              $("#form-add-page").show("slow");
             },
             deletePage: function(page) {
-                confirmDeletion('#dialog-confirm-page-delete', function() {
-                    var idx;
-                    storyModel.pages.remove(function(item) {
-                        return item.title === page.title && item.text === page.text;
-                    });
-                    saveStory(null, function() {
-                        // TODO cry, in despair, and yell.
-                    });
+              confirmDeletion('#dialog-confirm-page-delete', function() {
+                var idx;
+                storyModel.pages.remove(function(item) {
+                    return item.title === page.title && item.text === page.text;
                 });
+                saveStory(null, function() {
+                    // TODO cry, in despair, and yell.
+                });
+            });
             },
             removeObject: function(object) {
-                storyModel.currentPage.objects.remove(object);
-                storyModel.currentPage.availableObjects.push(object);
+              storyModel.currentPage.objects.remove(object);
+              storyModel.currentPage.availableObjects.push(object);
             },
             saveCurrentPage: function() {
-                if (storyModel.currentPage.isNew()) {
-                    this.pages.push(ko.toJS(storyModel.currentPage));
-                }
-                else {
-                    // find the page and update it
-                    var p = ko.toJS(storyModel.currentPage);
-                    storyModel.currentPage.pageRef().title(p.title);
-                    storyModel.currentPage.pageRef().text(p.text);
-                    storyModel.currentPage.pageRef().objects(p.objects);
-                }
-                storyModel.currentPage.lock(false);
-                saveStory(function() {
-                    $('#pageForm').resetForm();
-                    $("#form-add-page").hide("slow");
-                }, function() {
-                    // TODO yell, cry. be desperate
-                });
+              updatePageState();
+              saveStory(function() {
+                  $('#pageForm').resetForm();
+                  $("#form-add-page").hide("slow");
+              }, function() {
+                  // TODO yell, cry. be desperate
+              });
+            },
+            cancelPage: function() {
+              storyModel.currentPage.lock(false);
+              $('#pageForm').resetForm();
+              $("#form-add-page").hide("slow");
             },
             collectionChanged: function() {
-                storyModel.currentPage.availableObjects.removeAll();
-                if ($('#collection-name').val().length > 0) {
-                    $.getJSON('/${userName}/collection/' + $('#collection-name').val() + '/objects', {}, function(data) {
-                        $.each(data, function(index, obj) {
-                            if (storyModel.currentPage.objects.indexOf(obj) < 0) {
-                                storyModel.currentPage.availableObjects.push(obj);
-                            }
-                        });
-                    });
-                }
+              storyModel.currentPage.availableObjects.removeAll();
+              if ($('#collection-name').val().length > 0) {
+                $.getJSON('/${userName}/collection/' + $('#collection-name').val() + '/objects', {}, function(data) {
+                  $.each(data, function(index, obj) {
+                    if (storyModel.currentPage.objects.indexOf(obj) < 0) {
+                      storyModel.currentPage.availableObjects.push(obj);
+                    }
+                  });
+                });
+              }
             },
             saveTheStory: function() {
-                saveStory(function() {
-                    window.location.href = '/${userName}/story/' + storyModel.id()
-                }, function() {
-                    // TODO yell, shout, be desperate
-                }, false);
-            },
+              updatePageState();
+              saveStory(function() {
+                window.location.href = '/${userName}/story/' + storyModel.id()
+              }, function() {
+                // TODO yell, shout, be desperate
+              }, false);
+          },
             makeStoryUrl: function() {
-                window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
+              window.open('/${userName}/story/' + storyModel.id() + '/read', '_blank');
             }
         };
 
         // load templates and data
         $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
-            addTemplate('availableObjectsList', template);
-            $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
-                addTemplate('objectsList', template);
-                load(${data.raw()}, storyModel, null, function() {
-                  $("body").css('visibility', 'visible');
-                });
-
-            });
-
+          addTemplate('availableObjectsList', template);
+          $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+              addTemplate('objectsList', template);
+              load(${data.raw()}, storyModel, null, function() {
+                $("body").css('visibility', 'visible');
+              });
+          });
         });
 
         $('#objects-dialogue').dialog({
@@ -287,14 +282,31 @@
             }
         });
 
+        function updatePageState() {
+          // handle pages
+          if(storyModel.currentPage.lock()) {
+            if (storyModel.currentPage.isNew()) {
+                storyModel.pages.push(ko.toJS(storyModel.currentPage));
+            } else {
+                // update current page
+                var p = ko.toJS(storyModel.currentPage);
+                storyModel.currentPage.pageRef().title(p.title);
+                storyModel.currentPage.pageRef().text(p.text);
+                storyModel.currentPage.pageRef().objects(p.objects);
+            }
+            storyModel.currentPage.lock(false);
+          }
+        }
+
         function saveStory(onSuccess, onError, isDraft) {
             if ($('#storyForm').validate({meta: 'validate'}).form()) {
-                var draft = typeof isDraft === 'undefined' ? false : isDraft;
-                storyModel.isDraft(draft);
-                storyModel.collections.remove(function(it) {
-                    return it.id === "${controllers.Collections.NO_COLLECTION()}"
-                });
-                handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
+
+              var draft = typeof isDraft === 'undefined' ? false : isDraft;
+              storyModel.isDraft(draft);
+              storyModel.collections.remove(function(it) {
+                  return it.id === "${controllers.Collections.NO_COLLECTION()}"
+              });
+              handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
             }
         }
     });
