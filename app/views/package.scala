@@ -86,6 +86,11 @@ package object context extends Internationalization {
       case "collections" :: Nil => List(("/collections", &("thing.collection")))
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
 
+      case "search" :: Nil =>
+        val queryString = session.get(controllers.Search.RETURN_TO_RESULTS)
+        val searchTerm = "[%s]".format(session.get(controllers.Search.SEARCH_TERM))
+        List(("NOLINK", &("ui.label.search")), ("/search?" + queryString , searchTerm))
+
       case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
         Option(session.get(controllers.Search.RETURN_TO_RESULTS)) match {
           case Some(r) =>
