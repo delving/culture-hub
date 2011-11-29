@@ -106,7 +106,7 @@
         </div>
 
         <div class="field">
-            <label for="page-text" class="label">&{'user.story.tellStory'}</label>
+            <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
 
             <div class="inputs">
                 <textarea style="height:300px" class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
@@ -129,6 +129,7 @@
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
             #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action complete', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
         </div>
     </form>
 
@@ -223,23 +224,18 @@
                 storyModel.currentPage.availableObjects.push(object);
             },
             saveCurrentPage: function() {
-                if (storyModel.currentPage.isNew()) {
-                    this.pages.push(ko.toJS(storyModel.currentPage));
-                }
-                else {
-                    // find the page and update it
-                    var p = ko.toJS(storyModel.currentPage);
-                    storyModel.currentPage.pageRef().title(p.title);
-                    storyModel.currentPage.pageRef().text(p.text);
-                    storyModel.currentPage.pageRef().objects(p.objects);
-                }
-                storyModel.currentPage.lock(false);
+              updatePageState();
                 saveStory(function() {
                     $('#pageForm').resetForm();
                     $("#form-add-page").hide("slow");
                 }, function() {
                     // TODO yell, cry. be desperate
                 });
+            },
+            cancelPage: function() {
+              storyModel.currentPage.lock(false);
+              $('#pageForm').resetForm();
+              $("#form-add-page").hide("slow");
             },
             collectionChanged: function() {
                 storyModel.currentPage.availableObjects.removeAll();
@@ -254,6 +250,7 @@
                 }
             },
             saveTheStory: function() {
+              updatePageState();
                 saveStory(function() {
                     window.location.href = '/${userName}/story/' + storyModel.id()
                 }, function() {
@@ -289,8 +286,25 @@
             }
         });
 
+        function updatePageState() {
+          // handle pages
+          if(storyModel.currentPage.lock()) {
+            if (storyModel.currentPage.isNew()) {
+                storyModel.pages.push(ko.toJS(storyModel.currentPage));
+            } else {
+                // update current page
+                var p = ko.toJS(storyModel.currentPage);
+                storyModel.currentPage.pageRef().title(p.title);
+                storyModel.currentPage.pageRef().text(p.text);
+                storyModel.currentPage.pageRef().objects(p.objects);
+            }
+            storyModel.currentPage.lock(false);
+          }
+        }
+
         function saveStory(onSuccess, onError, isDraft) {
             if ($('#storyForm').validate({meta: 'validate'}).form()) {
+
                 var draft = typeof isDraft === 'undefined' ? false : isDraft;
                 storyModel.isDraft(draft);
                 storyModel.collections.remove(function(it) {
