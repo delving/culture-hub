@@ -4,7 +4,7 @@
         *{<!-- LABEL BUTTON:  only an authenticated user can label -->}*
         #{ifnot _isSearch}
             #{if _authUser}
-                #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+                #{btnHref label: messages.get('thing.label'), iconClass:"icon202", id:"addLabel" /}
             #{/if}
         #{/ifnot}
 
