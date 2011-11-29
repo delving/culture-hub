@@ -29,12 +29,13 @@ strong {
 }
 
 .toolbar .buttons {
-    display: table;
+    display: block;
     background: none repeat scroll 0 0 #F1F1F1;
     border: 1px solid #D2D2D2;
     padding: 0px;
     width: 100%;
     font-size: 85%;
+
 }
 
 .toolbar .pager {
@@ -54,6 +55,13 @@ strong {
 
 .dashboard {
     clear: both;
+}
+
+/* addThis widgets */
+
+.addthis_toolbox {
+    display: inline-block;
+    float: left;
 }
 
 
