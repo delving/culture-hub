@@ -553,7 +553,7 @@ background-color: lighten($color-2, 30%);
 /* STORY LAYOUT */
 
 .story-wrapper {
-    background: $color-2;
+    /*background: $color-2;*/
     margin-top: 10px;
 }
 
@@ -571,7 +571,7 @@ background-color: lighten($color-2, 30%);
 
 /* STORY NAVIGATION - srollable-nav image override ************************************************/
 .scrollable {
-    /*min-height: 100%;*/
+    min-height: 500px;
 }
 
 .scroll-nav {
@@ -582,6 +582,7 @@ background-color: lighten($color-2, 30%);
 
 .scroll-nav a {
     background: transparent url(/public/themes/frieseverhalen/images/scrollable-nav.png) top left no-repeat;
+    cursor: pointer;
     display: inline-block;
     width: 15px;
     height: 25px;
@@ -648,6 +649,7 @@ background-color: lighten($color-2, 30%);
 }
 #inav a {
     color: $color-4;
+    cursor: pointer;
     display: block;
     width: 100%;
 }
