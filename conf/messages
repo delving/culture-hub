@@ -88,6 +88,9 @@ ui.label.welcome=Welcome
 # General 'thing' like object, collection or story
 thing.label=Label
 thing.labels=Labels
+thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
+thing.label.freeText=Free-text label
+thing.label.placeName=Place-name label
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=DataSet
@@ -408,13 +411,15 @@ user.story.label.addImageFromCollection=Add an image from this collection
 user.story.title.selectObjects=Select Object(s)
 user.story.noCollection=No collection
 user.story.existingPage=Existing pages
+user.story.pageTitle=Page title
 user.story.saveStory=Save story
 user.story.savePage=Save page
+user.story.tellStory=Tell your story
 user.story.title.deletePage=Delete the page?
 user.story.title.deletePageConfirm=Are you sure you want to delete this page?
 
 # Organizations
-
+org.info=Organization information
 ### This gets concatenated to a sentence
 org.list.memberCount=%s member(s)
 org.list.grantType.view=with rights to view
@@ -450,13 +455,13 @@ organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the
 
 user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
 
-dataSetState.incomplete=DataSet is incomplete
-dataSetState.uploaded=DataSet is uploaded and ready for indexing
-dataSetState.queued=DataSet is queued for indexing
-dataSetState.indexing=DataSet is being indexed
-dataSetState.enabled=DataSet is enabled
-dataSetState.disabled=DataSet is disabled
-dataSetState.error=Error occured while indexing DataSet
+dataSetState.incomplete=Incomplete
+dataSetState.uploaded=Uploaded and ready for indexing
+dataSetState.queued=queued for indexing
+dataSetState.indexing=Indexing
+dataSetState.enabled=Enabled
+dataSetState.disabled=Disabled
+dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s

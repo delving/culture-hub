@@ -4,7 +4,7 @@
         *{<!-- LABEL BUTTON:  only an authenticated user can label -->}*
         #{ifnot _isSearch}
             #{if _authUser}
-                #{btnHref label: messages.get('thing.label'), extraClass:"left", iconClass:"icon202", id:"addLabel" /}
+                #{btnHref label: messages.get('thing.label'), iconClass:"icon202", id:"addLabel" /}
             #{/if}
         #{/ifnot}
 
@@ -23,7 +23,7 @@
         *{<!-- OWNER ACTIONS: only the owner of this thing can see these --> }*
         #{if _owner == _authUser}
            #{if _owner && _id}
-            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"red fright" /}
+            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
             <script type="text/javascript">
@@ -42,13 +42,20 @@
         #{/if}
     </div>
 </div>
-<div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}" style="width: inherit;">
+<div id="add-label-dialog" title="${messages.get('ui.label.addlabel')}">
+    <p>&{'thing.label.explain'}</p>
     <div class="field">
-        <label class="label">${messages.get('thing.label')}</label>
+        <label class="label">${messages.get('thing.label.freeText')}</label>
         <div class="inputs">
           <input type="text" class="textinput" id="labelInput"/>
-          <p></p>
-          <input type="text" class="textinput" id="placesInput"/>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">
+            ${messages.get('thing.label.placeName')}
+        </label>
+        <div class="inputs">
+             <input type="text" class="textinput" id="placesInput"/>
         </div>
     </div>
 </div>

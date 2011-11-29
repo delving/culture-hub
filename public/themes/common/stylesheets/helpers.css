@@ -29,12 +29,13 @@ strong {
 }
 
 .toolbar .buttons {
-    display: table;
+    display: block;
     background: none repeat scroll 0 0 #F1F1F1;
     border: 1px solid #D2D2D2;
     padding: 0px;
     width: 100%;
     font-size: 85%;
+
 }
 
 .toolbar .pager {
@@ -47,13 +48,31 @@ strong {
     margin-top: 10px;
 }
 
+#organization .toolbar {
+    margin-bottom: 0px;
+
+}
+
+.dashboard {
+    clear: both;
+}
+
+/* addThis widgets */
+
+.addthis_toolbox {
+    display: inline-block;
+    float: left;
+}
+
+
 /* dialogs */
 
 /* labels and comments dialogue*/
 #add-label-dialog,
 #add-comment-dialog {
     display: none;
-    /*width: auto;*/
+    width: inherit;
+    padding: 4px;
 }
 
 /* button addition class */
@@ -103,7 +122,7 @@ button[disabled],
 /* media overrides */
 
 .media.record .img {
-    margin-right: 50px;
+    margin-right: 10px;
     max-width: 350px;
 }
 
@@ -186,7 +205,7 @@ div.dropdown-slider .ddm.heading {
 
 /*results */
 .item-count {
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
     font-size: 18px;
 }
 
@@ -213,18 +232,18 @@ div.dropdown-slider .ddm.heading {
 /* WIDGET */
 
 .widget.yellow {background:#f2bc00;}
-.widget.red    {background:#dd0000;}
-.widget.blue   {background:#148ea4;}
+.widget.beware {background:#dd0000;}
+.widget.submit {background:#148ea4;}
 .widget.white  {background:#dfdfdf;}
 .widget.orange {background:#f66e00;}
-.widget.green  {background:#8dc100;}
+.widget.complete {background:#8dc100;}
 
 .widget.yellow h3,
 .widget.white h3,
-.widget.green h3
+.widget.complete h3
 	{color:#000;}
-.widget.red h3,
-.widget.blue h3,
+.widget.beware h3,
+.widget.submit h3,
 .widget.orange h3
 	{color:#FFF;}
 
@@ -273,29 +292,32 @@ div.dropdown-slider .ddm.heading {
     font-size: 12px;
 }
 
-.widget .bd ul {
+/*.widget .bd ul {*/
+    /*padding: 0;*/
+    /*list-style: disc;*/
+/*}*/
+
+.widget .bd ul li {
     padding: 0;
-    list-style: disc;
+    margin: 0;
 }
 
-.widget .bd ul li {padding: 3px 0;}
+/*.widget .bd ul.images {*/
+    /*padding: 7px 0 0 0;*/
+    /*list-style: none;*/
+    /*height: 1%;*/
+/*}*/
 
-.widget .bd ul.images {
-    padding: 7px 0 0 0;
-    list-style: none;
-    height: 1%;
-}
+/*.widget .bd ul.images li {*/
+    /*display: inline;*/
+    /*float: left;*/
+/*}*/
 
-.widget .bd ul.images li {
-    display: inline;
-    float: left;
-}
-
-.widget .bd ul.images img {
-    display: inline;
-    float: left;
-    margin: 0 0 7px 7px;
-}
+/*.widget .bd ul.images img {*/
+    /*display: inline;*/
+    /*float: left;*/
+    /*margin: 0 0 7px 7px;*/
+/*}*/
 
 .widget .button {
     display: block;
@@ -399,6 +421,14 @@ div.dropdown-slider .ddm.heading {
     display: block;
     font-size: 80%;
     z-index: 14;
+}
+
+textarea.mceEditor {
+    height: 300px;
+}
+
+table.mceLayout {
+    height: 300px;
 }
 
 

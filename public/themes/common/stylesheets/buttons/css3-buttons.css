@@ -148,7 +148,6 @@ button.on:active,
 button.action, 
 .button.action {
 	border: 1px solid #D8D8D8 !important;
-	
 	background: #F2F2F2;
 	background: -webkit-linear-gradient(top, #F5F5F5, #F1F1F1);
 	background: -moz-linear-gradient(top, #F5F5F5, #F1F1F1);
@@ -170,8 +169,8 @@ button.action:hover,
 	background: -ms-linear-gradient(top, #F8F8F8, #F1F1F1);
 	background: -o-linear-gradient(top, #F8F8F8, #F1F1F1);
 }
-button.blue, 
-.button.blue {
+button.submit,
+.button.submit {
 	border: 1px solid #3079ED !important;
 	
 	background: #4B8DF8;
@@ -185,8 +184,8 @@ button.blue,
 	-o-transition: border .20s;
 	transition: border .20s;
 }
-button.blue:hover, 
-.button.blue:hover {
+button.submit:hover,
+.button.submit:hover{
 	border: 1px solid #2F5BB7 !important;
 	
 	background: #3F83F1;
@@ -195,8 +194,9 @@ button.blue:hover,
 	background: -ms-linear-gradient(top, #4D90FE, #357AE8);
 	background: -o-linear-gradient(top, #4D90FE, #357AE8);
 }
-button.green, 
-.button.green {
+
+button.complete,
+.button.complete {
 	border: 1px solid #29691D !important;
 	
 	background: #3A8E00;
@@ -210,8 +210,8 @@ button.green,
 	-o-transition: border .20s;
 	transition: border .20s;
 }
-button.green:hover, 
-.button.green:hover {
+button.complete:hover,
+.button.complete:hover {
 	border: 1px solid #2D6200 !important;
 	
 	background: #3F83F1;
@@ -220,8 +220,8 @@ button.green:hover,
 	background: -ms-linear-gradient(top, #3C9300, #368200);
 	background: -o-linear-gradient(top, #3C9300, #368200);
 }
-button.red, 
-.button.red {
+button.beware,
+.button.beware {
 	border: 1px solid #D14836 !important;
 	
 	background: #D64937;
@@ -235,8 +235,8 @@ button.red,
 	-o-transition: border .20s;
 	transition: border .20s;
 }
-button.red:hover, 
-.button.red:hover {
+button.beware:hover,
+.button.beware:hover{
 	border: 1px solid #B0281A !important;
 	
 	background: #D14130;
@@ -259,16 +259,16 @@ button.action:active,
 	box-shadow: none !important;
 	border-color: #C6C6C6 !important;
 }
-button.blue:active, 
-.button.blue:active {
+button.submit:active,
+.button.submit:active{
 	border-color: #2F5BB7 !important;
 }
-button.green:active, 
-.button.green:active {
+button.complete:active,
+.button.complete:active {
 	border-color: #2D6200 !important;
 }
-button.red:active, 
-.button.red:active {
+button.beware:active,
+.button.beware:active {
 	border-color: #B0281A !important;
 }
 
@@ -306,16 +306,16 @@ button:hover .label,
 .button:hover .label {
     color: #333;
 }
-button:hover .label.red, 
-.button:hover .label.red {
+button:hover .label.beware,
+.button:hover .label.beware {
     color: #DB4A37;
 }
-button:hover .label.blue, 
-.button:hover .label.blue {
+button:hover .label.submit,
+.button:hover .label.submit {
     color: #7090C8;
 }
-button:hover .label.green, 
-.button:hover .label.green {
+button:hover .label.complete,
+.button:hover .label.complete {
     color: #42B449;
 }
 button:hover .label.yellow, 
@@ -323,18 +323,18 @@ button:hover .label.yellow,
     color: #F7CB38;
 }
 
-button.blue .label, 
-.button.blue .label {
+button.submit .label,
+.button.submit .label {
 	color: #FFF !important;
 	text-shadow: 0 1px 0 #2F5BB7 !important;
 }
-button.green .label, 
-.button.green .label {
+button.complete .label,
+.button.complete .label {
 	color: #FFF !important;
 	text-shadow: 0 1px 0 #2D6200 !important;
 }
-button.red .label, 
-.button.red .label {
+button.beware .label,
+.button.beware .label {
 	color: #FFF !important;
 	text-shadow: 0 1px 0 #B0281A !important;
 }
@@ -348,12 +348,12 @@ button.action:active .label,
 	color: #333 !important;
 }
 
-button.blue:active .label, 
-button.green:active .label, 
-button.red:active .label, 
-.button.blue:active .label, 
-.button.green:active .label, 
-.button.red:active .label {
+button.submit:active .label,
+button.complete:active .label,
+button.beware:active .label,
+.button.submit:active .label,
+.button.complete:active .label,
+.button.beware:active .label {
 	color: #FFF !important;
 }
 

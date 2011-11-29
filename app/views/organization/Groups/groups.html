@@ -3,9 +3,13 @@
 
 #{set title: viewUtils.getKey('thing.groups') /}
 
+#{set bodyId: 'organization' /}
+
 #{breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner /}
+
+<div class="g-12of12 grid_12 dashboard">
 
 <h1 class="sep">&{'thing.groups'}</h1>
 
@@ -53,11 +57,13 @@
                 </div>
             </div>
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('org.group.save'), extraClass:"blue", id:"saveButton", type:"submit" /}
+            #{btnButton label: viewUtils.getKey('org.group.save'), extraClass:"submit", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
         </div>
     </form>
         </div>
+
+</div>
 
 </div>
 

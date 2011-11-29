@@ -84,6 +84,9 @@ ui.label.createLabel=Maak een label
 # General 'thing' like object, collection or story
 thing.label=Label
 thing.labels=Labels
+thing.label.explain=Een "label" is een korte tekst die je aan iets kan toevoegen. Een "vrije-tekst" label mag van alles zijn. Een "plaats-naam" label refereerd aan een geographische locatie.
+thing.label.freeText=Vrije-tekst label
+thing.label.placeName=Plaats-naam label
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=DataSet
@@ -386,15 +389,17 @@ user.story.storyPages=Verhaal pagina's
 user.story.noPagesFound=Geen pagina's gevonden
 user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus voor dat u een verhaal kan aanmaken moet u een collectie met objecten aanmaken.
 user.story.label.viewStory=Bekijk het verhaal
-user.story.label.addPage=Nieuwe pagina toevoegen
+user.story.label.addPage=Pagina toevoegen
 user.story.label.addObjects=Object(en) toevoegen
 user.story.label.freeText=Vrije tekst
 user.story.label.selectCollection=Kies een collectie
 user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
 user.story.noCollection=Geen collectie
 user.story.existingPage=Bestaande paginas
+user.story.pageTitle=Pagina titel
 user.story.saveStory=Bewaar verhaal
 user.story.savePage=Bewaar pagina
+user.story.tellStory=Vertel je verhaal
 user.story.title.deletePage=Pagina verwijderen?
 user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
 
@@ -432,13 +437,13 @@ organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the
 
 user.secured.noAccess=Het spijt ons, echt waar! Maar u heeft geen toegang hier.
 
-dataSetState.incomplete=DataSet is incomplete
-dataSetState.uploaded=DataSet is uploaded and ready for indexing
-dataSetState.queued=DataSet is queued for indexing
-dataSetState.indexing=DataSet is being indexed
-dataSetState.enabled=DataSet is enabled
-dataSetState.disabled=DataSet is disabled
-dataSetState.error=Error occured while indexing DataSet
+dataSetState.incomplete=Incomplete
+dataSetState.uploaded=uploaded and ready for indexing
+dataSetState.queued=Queued for indexing
+dataSetState.indexing=Indexing
+dataSetState.enabled=Enabled
+dataSetState.disabled=Disabled
+dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
