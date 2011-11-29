@@ -96,7 +96,11 @@
       searchingText: "&{'labels.tokenSearching'}",
       allowCreation: true,
       createTokenText: "(&{'labels.createLabel'})"
-    }, '/${_authUser}/${_type}/${_id}/link', function(item) { return {label: item.name, linkType: 'freeText'} }, '/${_authUser}/${_type}/${_id}/link/');
+    }, '/${_authUser}/${_type}/${_id}/link', function(item) { return {label: item.name, linkType: 'freeText'} }, '/${_authUser}/${_type}/${_id}/link/', function(item) {
+      $('#labels ul').append('<li id="' + item.id + '">' + item.name + '</li>');
+    }, function(item) {
+      $('li[id=' + item.id + ']').remove();
+    });
 
     tokenInput('#placesInput', '/enrichment/place/search', ${_places ? _places.raw() : []}, {
       theme: 'facebook',
@@ -109,7 +113,11 @@
     }, '/${_authUser}/${_type}/${_id}/link', function(item) {
       item.label = item.name;
       item.linkType = 'place';
-      return item
-    }, '/${_authUser}/${_type}/${_id}/link/');
+      return item;
+    }, '/${_authUser}/${_type}/${_id}/link/', function(item) {
+      $('#places ul').append('<li id="'+ item.id + '"><a href="http://sws.geonames.org/' + item.geonameID + '/">' + item.name + ' (<em>' + item.countryName + '</em>)</a></li>"');
+    }, function(item) {
+      $('li[id=' + item.id + ']').remove();
+    });
   });
 </script>

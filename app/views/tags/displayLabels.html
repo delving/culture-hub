@@ -1,0 +1,16 @@
+<h5>&{'thing.labels'}:</h5>
+<div class="labels" id="labels">
+  <ul>
+  #{list _labels, as: 'l'}
+    <li id="${l.id}"><span class="label">${l.name}</span></li>
+  #{/list}
+  </ul>
+</div>
+<h5>&{'ui.label.places'}:</h5>
+<div class="places" id="places">
+  <ul>
+  #{list _places, as: 'p'}
+    <li id="${p.id}"><span class="place"><a href="http://sws.geonames.org/${p.data.apply("geonameID")}/">${p.name} (<em>${p.data.apply("countryName")}</em>)</a></span></li>
+  #{/list}
+  </ul>
+</div>

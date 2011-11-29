@@ -27,20 +27,7 @@
 
                         <div class="g-1of2 omega">
                             #{metadataField label: viewUtils.getKey('thing.datecreated'), data: views.context.package.niceTime(dobject._id.getTime()) /}
-
-                            <h5>&{'thing.labels'}:</h5>
-                            <p class="labels">
-                                #{list labelsList, as: 'l'}
-                                <span class="label">${l.name}</span><br/>
-                                #{/list}
-                            </p>
-                            <h5>&{'ui.label.places'}:</h5>
-                            <p class="places">
-                                #{list placesList, as: 'p'}
-                                <span class="place"><a href="http://sws.geonames.org/${p.data.apply("geonameID")}/">${p.name} (<em>${p.data.apply("countryName")}</em>)</a></span><br/>
-                                #{/list}
-                            </p>
-
+                            #{displayLabels labels: labelsList, places: placesList /}
                         </div>
                     </div>
                 </div>

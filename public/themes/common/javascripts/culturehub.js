@@ -25,7 +25,7 @@ function bindCSRFToken(csrfToken) {
     });
 }
 
-function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteUrl) {
+function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteUrl, addCallback, deleteCallback) {
     var defaultParams = {
       prePopulate: prePopulate ? prePopulate : [],
       allowCreation: false,
@@ -38,6 +38,7 @@ function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteU
           success: function(data) {
             if(item.wasCreated) {
               item.id = data.id;
+              if(typeof addCallback === 'function') addCallback.call(this, item);
             }
           },
           error: function(jqXHR, textStatus, errorThrown) {
@@ -50,6 +51,9 @@ function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteU
         $.ajax({
           type: 'DELETE',
           url: deleteUrl + item.id,
+          success: function() {
+            if(typeof deleteCallback === 'function') deleteCallback.call(this, item);
+          },
           error: function(jqXHR, textStatus, errorThrown) {
             // TODO prompt the user that something went wrong
             $(id).tokenInput('add', {id: item.id})
