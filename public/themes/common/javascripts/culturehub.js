@@ -342,7 +342,10 @@ ko.bindingHandlers.tinymce = {
         options.setup = function (ed) {
             ed.onChange.add(function (ed, l) {
                 if (ko.isWriteableObservable(modelValue)) {
+                    $(element).data("writeLock")
+                    $(element).data("writeLock", true);
                     modelValue(l.content);
+                    $(element).data("writeLock", false);
                 }
             });
         };
@@ -367,7 +370,9 @@ ko.bindingHandlers.tinymce = {
         //handle programmatic updates to the observable
         var value = ko.utils.unwrapObservable(valueAccessor());
         var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
-        if (typeof ed !== 'undefined') ed.setContent(value);
+        if(!$(element).data("writeLock")) {
+            if (typeof ed !== 'undefined') ed.setContent(value);
+        }
     }
 };
 
