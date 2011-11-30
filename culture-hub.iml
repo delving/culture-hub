@@ -14,9 +14,9 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/common-1.0/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/dos-1.2/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/common-1.1/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/dos-1.3/app" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
@@ -26,16 +26,16 @@
           <root url="file://$MODULE_DIR$/lib" />
           <root url="file://$MODULE_DIR$/modules/scala-0.9.1_20111028/lib" />
           <root url="file://$MODULE_DIR$/modules/scala-0.9.1_20111028/dlib" />
-          <root url="file://$MODULE_DIR$/modules/dos-1.0/lib" />
-          <root url="file://$MODULE_DIR$/modules/common-1.0/lib" />
+          <root url="file://$MODULE_DIR$/modules/dos-1.3/lib" />
+          <root url="file://$MODULE_DIR$/modules/common-1.1/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
           <root url="file://$MODULE_DIR$/modules/scala-0.9.1_20111028/src" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/modules/common-1.0/lib" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/modules/dos-1.0/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/modules/common-1.1/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/modules/dos-1.3/lib" recursive="false" />
         <jarDirectory url="file://$MODULE_DIR$/modules/scala-0.9.1_20111028/dlib" recursive="false" />
         <jarDirectory url="file://$MODULE_DIR$/modules/scala-0.9.1_20111028/lib" recursive="false" />
       </library>
@@ -59,51 +59,6 @@
         <SOURCES>
           <root url="file://$PLAY_HOME$/framework/src" />
         </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/modules/dos-1.2/lib/magicktiler-lib-0.9.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/modules/dos-1.2/lib/imgscalr-lib-3.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/modules/dos-1.2/lib/play-DoS.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/modules/dos-1.2/lib/commons-httpclient-3.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/modules/dos-1.2/lib/im4java-1.1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
