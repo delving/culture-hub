@@ -69,6 +69,7 @@ ui.label.print=Print
 ui.label.register=Register
 ui.label.remove=Remove
 ui.label.required=Required
+ui.label.reset=Reset
 ui.label.returnToResults=Return to results
 ui.label.scope=Scope
 ui.label.scope.public=Public

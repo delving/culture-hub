@@ -12,7 +12,7 @@
 
 <div class="row">
 
-<form id="objectForm" method="post" action="" class="g-8of12 grid_8">
+<form id="objectForm" method="post" action="" class="g-10of12 grid_10">
     <div data-bind="text: errors().global"></div>
 
     #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
@@ -46,9 +46,10 @@
 
 
     <div class="buttons">
-        #{btnButton label: viewUtils.getKey('user.object.save'), extraClass:"submit", id:"saveButton", type:"submit" /}
+        #{btnButton label: viewUtils.getKey('user.object.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
         <div class="wait"></div>
-        #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"fright", id:"saveButton", type:"reset" /}
+        #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton fright beware", id:"cancelButton", type:"submit" /}
+        #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"fright submit", id:"saveButton", type:"reset" /}
 
     </div>
 
