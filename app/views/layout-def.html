@@ -86,7 +86,7 @@
         </div>
 
         <div class="search" role="search">
-            <form method="get" action="/search">
+            <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                 <input type="text" id="query" name="query" value='${params.query}'/>
                 <input type="submit" value="&{'ui.label.search'}">
             </form>

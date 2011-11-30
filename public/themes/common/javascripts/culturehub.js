@@ -496,6 +496,25 @@ $.preloadImages = function() {
 	}
 }
 
+function isEmpty( inputStr ) {
+    if ( null === inputStr || "" == inputStr ) {
+        return true;
+    }
+    return false;
+}
+
+function checkSimpleSearchSubmit(oId){
+    var o = document.getElementById(oId);
+
+    if (isEmpty(o.value)){
+        document.getElementById(oId).style.border="2px dotted firebrick";
+
+        return false;
+    }
+
+    return true;
+}
+
 $(document).ready(function() {
 
     // Toggle the dropdown menu's
