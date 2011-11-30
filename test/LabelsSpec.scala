@@ -59,17 +59,16 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link".format(dobject._id.toString), Map("label" -> "Earth", "linkType" -> "place", "geonameId" -> "42"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link".format(dobject._id.toString), Map("label" -> "Earth", "linkType" -> "place", "geonameID" -> "42"), Map.empty[String, File])
 
     response.status should be (200)
-    Link.count(MongoDBObject("value.label" -> "Earth", "value.geonameId" -> "42", "linkType" -> Link.LinkType.PLACE)) should equal (1)
+    Link.count(MongoDBObject("value.label" -> "Earth", "value.geonameID" -> "42", "linkType" -> Link.LinkType.PLACE)) should equal (1)
 
     val embedded = DObject.findOneByID(dobject._id).get.links.head
     embedded.userName should equal ("bob")
     embedded.linkType should equal (Link.LinkType.PLACE)
     embedded.value("label") should be ("Earth")
-    embedded.value("geonameId") should be ("42")
-
+    embedded.value("geonameID") should be ("42")
   }
 
   /*
