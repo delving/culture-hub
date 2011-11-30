@@ -65,7 +65,7 @@
 
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory", type: "submit" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -110,7 +110,7 @@
             <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
 
             <div class="inputs">
-                <textarea style="height:300px" class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+                <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
                 <span class="error"></span>
             </div>
         </div>
@@ -130,7 +130,7 @@
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
             #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action complete', type:'submit'/}
-            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'reset'/}
         </div>
     </form>
 
@@ -306,7 +306,6 @@
 
         function saveStory(onSuccess, onError, isDraft) {
             if ($('#storyForm').validate({meta: 'validate'}).form()) {
-
                 var draft = typeof isDraft === 'undefined' ? false : isDraft;
                 storyModel.isDraft(draft);
                 storyModel.collections.remove(function(it) {
@@ -314,6 +313,7 @@
                 });
                 handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
             }
+
         }
     });
 </script>
