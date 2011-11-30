@@ -364,7 +364,7 @@ user.admin.index.title=Account space
 user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
-
+user.admin.profile.help.linkedIn=URL to your linkedIn profile page
 
 ##Collections
 user.collection.title.create=Create new collection for user %s
