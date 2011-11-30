@@ -431,5 +431,9 @@ table.mceLayout {
     height: 300px;
 }
 
+div.wait {
+    display: inline-block;
+}
+
 
 

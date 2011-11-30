@@ -8,7 +8,7 @@
 
 <div class="row">
 
-    <div id="edit-collection" class="g-12of12 grid_12">
+    <div id="edit-collection" class="g-8of12 grid_8">
 
     <div data-bind="text: errors().global"></div>
 
@@ -49,6 +49,7 @@
     <div class="buttons">
       #{btnButton label:viewUtils.getKey('user.collection.save'), id:"saveButton", extraClass:"submit", type:"submit"  /}
       <div class="wait"></div>
+      #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"fright", id:"saveButton", type:"reset" /}
     </div>
 
 </form>
