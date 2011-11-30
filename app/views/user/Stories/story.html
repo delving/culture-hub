@@ -39,7 +39,7 @@
                 </div>
 
                 <div class="buttons" data-bind="visible: pages.length == 0">
-                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"green", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
+                    #{btnButton label: viewUtils.getKey('user.story.label.addPages'), extraClass:"submit", id:"btn-add-pages", dataBind:"enable: name().length > 0 && description().length > 0, click: addPages".raw() /}
                 </div>
             </form>
         <!--</div>-->
@@ -48,27 +48,29 @@
 
 <div id="story-pages" style="${id.isEmpty() ? 'display:none' : 'display: block' }" class="row">
 
-    <div class="g-5of12">
-        <div class="mod">
-         <h3>&{'user.story.storyPages'}</h3>
+    <div class="g-5of12 grid_5">
+
+         <h3>&{'user.story.storyPagesStep2'}: &{'user.story.storyPages'}</h3>
         <p id="no-pages-found" data-bind="visible: pages().length == 0">&{'user.story.noPagesFound'}</p>
+
+        <div class="buttons">
+            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), rel:"nofollow", dataBind:"click: makeStoryUrl" /}
+            #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
+        </div>
 
         <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-        <div class="buttons">
-            #{btnHref label: viewUtils.getKey('user.story.label.viewStory'), iconClass:"icon140", rel:"nofollow", dataBind:"click: makeStoryUrl" /}
-            #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
-        </div>
-        </div>
+
+
 
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action blue", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
                 <div class="wait"></div>
             </div>
         </div>
     </div>
-    <div class="g-7of12">
+    <div class="g-7of12 grid_7">
         <div class="mod">
             <div id="form-add-page" class="page-form" style="${id.isEmpty() ? 'display:block' : 'display: none'}" data-bind="template: {name: 'pageTemplate', templateOptions: {action: 'New'}}"></div>
         </div>
@@ -93,9 +95,9 @@
 
 <script type="text/html" id="pageTemplate">
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
-
+        <h3>&{'user.story.storyPages'}</h3>
         <div class="field">
-            <label for="title" class="label">&{'thing.title'}</label>
+            <label for="title" class="label">&{'user.story.pageTitle'}</label>
 
             <div class="inputs">
                 <input type="text" class="textinput" id="title" name="title" size="40" data-bind="value: currentPage.title, valueUpdate: 'afterkeydown'" data-validate="{required: true, messages: {required: '&{'ui.label.required'}'}}"/>
@@ -107,11 +109,11 @@
             <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
 
             <div class="inputs">
-                <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+                <textarea style="height:300px" class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
                 <span class="error"></span>
             </div>
         </div>
-        <hr/>
+
         <h4>&{'user.story.label.addObjects'}</h4>
 
         <div class="field">
@@ -126,7 +128,8 @@
         </div>
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action blue', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action complete', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
         </div>
     </form>
 
@@ -151,7 +154,7 @@
                     <span class="icon icon145"></span>
                     <span class="label">&{'ui.label.edit'} </span>
                 </a>
-                <a class="button" href="#" data-bind="click: function() { this.deletePage(page); }">
+                <a class="button beware" href="#" data-bind="click: function() { this.deletePage(page); }">
                     <span class="icon icon186"></span>
                     <span class="label">&{'ui.label.delete'}</span>
                 </a>
@@ -221,23 +224,18 @@
                 storyModel.currentPage.availableObjects.push(object);
             },
             saveCurrentPage: function() {
-                if (storyModel.currentPage.isNew()) {
-                    this.pages.push(ko.toJS(storyModel.currentPage));
-                }
-                else {
-                    // find the page and update it
-                    var p = ko.toJS(storyModel.currentPage);
-                    storyModel.currentPage.pageRef().title(p.title);
-                    storyModel.currentPage.pageRef().text(p.text);
-                    storyModel.currentPage.pageRef().objects(p.objects);
-                }
-                storyModel.currentPage.lock(false);
+              updatePageState();
                 saveStory(function() {
                     $('#pageForm').resetForm();
                     $("#form-add-page").hide("slow");
                 }, function() {
                     // TODO yell, cry. be desperate
                 });
+            },
+            cancelPage: function() {
+              storyModel.currentPage.lock(false);
+              $('#pageForm').resetForm();
+              $("#form-add-page").hide("slow");
             },
             collectionChanged: function() {
                 storyModel.currentPage.availableObjects.removeAll();
@@ -252,6 +250,7 @@
                 }
             },
             saveTheStory: function() {
+              updatePageState();
                 saveStory(function() {
                     window.location.href = '/${userName}/story/' + storyModel.id()
                 }, function() {
@@ -287,8 +286,25 @@
             }
         });
 
+        function updatePageState() {
+          // handle pages
+          if(storyModel.currentPage.lock()) {
+            if (storyModel.currentPage.isNew()) {
+                storyModel.pages.push(ko.toJS(storyModel.currentPage));
+            } else {
+                // update current page
+                var p = ko.toJS(storyModel.currentPage);
+                storyModel.currentPage.pageRef().title(p.title);
+                storyModel.currentPage.pageRef().text(p.text);
+                storyModel.currentPage.pageRef().objects(p.objects);
+            }
+            storyModel.currentPage.lock(false);
+          }
+        }
+
         function saveStory(onSuccess, onError, isDraft) {
             if ($('#storyForm').validate({meta: 'validate'}).form()) {
+
                 var draft = typeof isDraft === 'undefined' ? false : isDraft;
                 storyModel.isDraft(draft);
                 storyModel.collections.remove(function(it) {

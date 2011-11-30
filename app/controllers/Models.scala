@@ -10,7 +10,7 @@ case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
 
-case class Token(id: String, name: String, tokenType: String)
+case class Token(id: String, name: String, tokenType: String, data: Map[String, String] = Map.empty[String, String])
 
 case class ListItem(id: String,
                     title: String,
@@ -34,7 +34,7 @@ trait ModelImplicits {
 
   implicit def oidToString(oid: ObjectId) = oid.toString
 
-  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link, embeddedLink.value("label"), embeddedLink.linkType)
+  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link, embeddedLink.value("label"), embeddedLink.linkType, embeddedLink.value)
   implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
 
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getCreator.userName)

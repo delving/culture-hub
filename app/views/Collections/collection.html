@@ -46,14 +46,7 @@
                             <h5>&{'thing.datecreated'}:</h5>
                             <p>${views.context.package.niceTime(collection._id.getTime())}</p>
 
-                            <h5>&{'thing.datemodified'}:</h5>
-                            <p>${views.context.package.niceTime(collection.TS_update)}</p>
-                            <h5>&{'thing.labels'}:</h5>
-                            <p class="labels">
-                                #{list labelsList, as: 'l'}
-                                <span class="label">${l.name}</span><br/>
-                                #{/list}
-                            </p>
+                            #{displayLabels labels: labelsList, places: placesList /}
                         </div>
                     </div>
                 </div>

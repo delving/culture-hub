@@ -53,7 +53,8 @@
                 <div class="bd">
                     <div class="metadata">
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-                        <span class="label">&{'thing.owner'}:</span>${i.userName}
+                        <span class="label">&{'thing.owner'}:</span> ${i.userName}
+                        *{
                         #{if i.description}
                         <div class="more-info">
                             <div class="inner">
@@ -61,6 +62,7 @@
                             </div>
                         </div>
                         #{/if}
+                        }*
                         #{if i.isPrivate}
                         <div class="private">
                             %{ def updateLink = '/'+ i.userName + '/' + itemName + '/' + i.id + '/update' }%

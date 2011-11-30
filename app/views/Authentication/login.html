@@ -1,9 +1,8 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('ui.label.login') /}
 #{set bodyId: 'authenticate' /}
+<div class="row">
 <div id="login" class="g-6of12 prefix-3 grid_6 prefix_3">
-    <div class="mod">
-
         #{form @authenticate(), class:'login'}
 
         <h3>Login</h3>
@@ -34,15 +33,13 @@
 
 
         <div class="buttons">
-            #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action prominent", type:"submit", id:"signin" /}
+            #{btnButton label:viewUtils.getKey("ui.label.login"), extraClass:"action prominent complete", type:"submit", id:"signin" /}
             #{btnHref label: viewUtils.getKey('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
             #{btnHref label: viewUtils.getKey('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
         </div>
     #{/form}
-
-
-    </div>
 </div>
+    </div>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#username').focus();

@@ -4,7 +4,9 @@
 #{breadcrumbs /}
 
 <h1 class="sep">&{'profile.title'}: <span>${user.fullname()}</span></h1>
-<div class="row">
+
+<div class="dashboard pam">
+    <div class="row">
     <div class="g-4of12 grid_5">
         <div class="info-box">
             <span class="label">&{'ui.label.username'}:</span><span class="text">${user.userName}</span>
@@ -19,5 +21,5 @@
             <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${stories.length()}</a></span>
         </div>
     </div>
-
+  </div>
 </div>

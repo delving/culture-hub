@@ -9,7 +9,6 @@ import models.salatContext._
 import play.data.validation.Annotations._
 import com.mongodb.casbah.Imports._
 import controllers.{Token, ViewModel, DelvingController}
-import play.Logger
 
 /**
  * 
@@ -42,7 +41,7 @@ object Groups extends DelvingController with OrganizationSecured {
         (JJson.generate(group.users.map(m => Token(m, m, "user"))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString, "dataset"))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
-    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
+    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens, 'isOwner -> Organization.isOwner(orgId, connectedUser))
   }
 
   def addUser(orgId: String, id: String, groupId: ObjectId): Result = {
