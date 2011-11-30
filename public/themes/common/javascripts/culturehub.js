@@ -201,7 +201,7 @@ function remove(buttonId, dialogId, removeUrl, redirectUrl) {
 function confirmationDialog(elementId, onConfirm, message, title) {
     var id = '#' + elementId + 'ConfirmationDialog';
     if($(id).length == 0) {
-        $('<div id="' + id + '" title="' + title + '"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">' + message + '</span></p></div>').insertAfter(id);
+        $('<div id="' + id + '" title="' + title + '"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>' + message + '</p></div>').insertAfter(id);
         confirmDeletion(id, onConfirm);
     }
     $(id).dialog('open');
