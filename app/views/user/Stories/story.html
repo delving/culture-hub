@@ -198,6 +198,7 @@
                 $("#form-add-page").show("slow");
             },
             editPage: function(page) {
+                storyModel.currentPage.lock(true);
                 storyModel.currentPage.isNew(false);
                 storyModel.currentPage.pageRef(page),
                 storyModel.currentPage.title(page.title());
