@@ -19,7 +19,7 @@
           #{textArea name:"description", label:viewUtils.getKey('user.profile.aboutYou'), dataBind:"value: description", help:viewUtils.getKey('user.admin.profile.help.aboutYou'), dataMaxChars:"400" /}
           #{textField name:"funFact", label:viewUtils.getKey('user.profile.funFact'), dataBind:"value: funFact" /}
           #{textField name:"twitter", label:"Twitter", dataBind:"value: twitter" /}
-          #{textField name:"linkedIn", label:"LinkedIn", dataBind:"value: linkedIn" /}
+          #{textField name:"linkedIn", label:"LinkedIn", dataBind:"value: linkedIn", help: viewUtils.getKey('user.admin.profile.help.linkedIn') /}
           #{checkBoxField name:"isPublic", label:viewUtils.getKey('ui.label.visibility.public'), dataBind:"checked: isPublic" /}
 
 

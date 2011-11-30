@@ -329,6 +329,7 @@ user.admin.index.title=Account space
 user.admin.profile.title=Jouw profiel
 user.admin.profile.help.aboutYou=Vertel wat over jezelf
 user.admin.profile.save=Bewaar profiel
+user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
 
 ##Collections
 user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
