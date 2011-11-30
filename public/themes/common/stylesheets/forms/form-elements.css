@@ -123,6 +123,33 @@ label.label {
     /*padding:  4px;*/
 }
 
+/* this is for the LIMIT plugin */
+
+.small-text
+{
+    font-size: 12px;
+}
+.char-count span
+{
+    display: inline-block;
+    width: 30px;
+    padding: 0 5px;
+    text-align: center;
+    background-color: #008000;
+    color: #FFF;
+}
+.char-count span.char-count-over-limit
+{
+    background-color: #800000;
+    color: #FFF;
+}
+
+.char-count span.char-count-under-limit
+{
+    background-color: #FC0;
+    color: #000;
+}
+
 
 
 

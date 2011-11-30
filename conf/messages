@@ -145,6 +145,7 @@ ui.message.resetpassword.success=Your password has been successfully changed
 ui.message.resetpassword.error=Error resetting your password: %s
 ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
 ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="%s"><strong>visibility status</strong></a> to "Public".
+ui.message.charsLeft=characters left
 # User navigation
 
 user.nav.goto=Go to
@@ -361,7 +362,7 @@ user.list.editProfile=Edit your profile
 ##Admin
 user.admin.index.title=Account space
 user.admin.profile.title=Your profile
-user.admin.profile.help.description=A few words about yourself
+user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
 
 
@@ -422,6 +423,9 @@ user.story.savePage=Save page
 user.story.tellStory=Tell your story
 user.story.title.deletePage=Delete the page?
 user.story.title.deletePageConfirm=Are you sure you want to delete this page?
+
+user.profile.aboutYou=About you
+user.profile.funFact=Fun fact
 
 # Organizations
 org.info=Organization information

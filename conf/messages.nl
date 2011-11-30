@@ -138,7 +138,7 @@ ui.message.resetpassword.success=Uw wachtwoord is aangepast
 ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
 ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="%s"><strong>zichtbaarheid status</strong></a> naar "Publiek".
-
+ui.message.charsLeft=characters mogelijk
 # User navigation
 
 user.nav.goto=Ga naar
@@ -326,6 +326,9 @@ metadata.type.videos=Videos
 
 ##Admin
 user.admin.index.title=Account space
+user.admin.profile.title=Jouw profiel
+user.admin.profile.help.aboutYou=Vertel wat over jezelf
+user.admin.profile.save=Bewaar profiel
 
 ##Collections
 user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
@@ -402,6 +405,9 @@ user.story.savePage=Bewaar pagina
 user.story.tellStory=Vertel je verhaal
 user.story.title.deletePage=Pagina verwijderen?
 user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
+
+user.profile.aboutYou=Over jezelf
+user.profile.funFact=Grappig weetje
 
 # Organizations
 
