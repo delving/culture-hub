@@ -6,14 +6,14 @@
 
 <h1 class="sep">&{'user.list.browse'} (${count})</h1>
 
-<div class="g-12of12">
+<div class="g-12of12 grid_12">
   #{if items.length() > views.context.package.PAGE_SIZE()}
-  <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+  <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
   #{/if}
   #{elseif items.length() == 0}
   <p>&{'user.list.noUsers'}</p>
   #{/elseif}
-</div>
+
 
 %{ def counter = 1 }%
 
@@ -67,9 +67,11 @@
 #{if items.length() > views.context.package.PAGE_SIZE()}
 <div class="row">
   <div class="g-12of12 mtm">
-    <div class="mod pager">#{pagination selector: ".pager", count: count, start: page /}</div>
+    <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
   </div>
 </div>
 #{/if}
+
+</div>
 
 
