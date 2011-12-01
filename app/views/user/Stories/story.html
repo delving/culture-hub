@@ -60,9 +60,6 @@
 
         <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-
-
-
          <div id="save-story" class="line">
             <div class="buttons">
                 #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory", type: "submit" /}
@@ -136,6 +133,7 @@
 
 </script>
 <script type="text/html" id="pageList">
+
     <table class="list">
         <caption>&{'user.story.existingPage'}:</caption>
         <thead>
@@ -164,6 +162,7 @@
         {{/each}}
         </tbody>
     </table>
+
 </script>
 
 <script type="text/javascript" language="javascript">

@@ -1,6 +1,6 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('profile.title') + ': ' + userName /}
-
+#{set bodyId: "profile" /}
 #{breadcrumbs /}
 
 <h1 class="sep">&{'profile.title'}: <span>${user.fullname()}</span></h1>
@@ -65,7 +65,9 @@
             <div class="widget">
                 <div class="hd"><h3>&{'thing.stories'}</h3></div>
                 <div class="bd">
-                    #{list stories: as: 's'}
+                    %{ def counter = 0}%
+                    #{list stories, as: 's'}
+                    #{if counter < 3}
                     <div class="media">
                         <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail, 80)}' width="80" class="img" alt="${s.title}"/></a>
 
@@ -75,6 +77,14 @@
                             </div>
                         </div>
                     </div>
+                    #{/if}
+                    #{if counter == 3 }
+                    #{btnHref label:viewUtils.getKey('ui.label.more'), href:"test" /}
+                    <a href="sdffa" class="button">
+                        <span class="label">test</span>
+                    </a>
+                    #{/if}
+                    %{ counter++ }%
                     #{/list}
                 </div>
             </div>

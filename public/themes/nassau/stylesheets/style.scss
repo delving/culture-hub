@@ -556,16 +556,21 @@ div.dropdown-slider .ddm.heading.org .label {
     color: $darker;
 }
 
-.media,
-.widget .bd,
-.results {
+.widget .bd {
+    background: transparent;
+}
+
+#home .widget .bd {
     background: $darker  url(/public/themes/nassau/images/noise-222.png);
-    /*padding: 4px;*/
     color: $lighter;
 }
 
+#profile .widget .bd {
+   background: $darker  url(/public/themes/nassau/images/noise-555.png);
+}
 
 .results {
+    background: $darker  url(/public/themes/nassau/images/noise-222.png);
     padding: 4px;
 }
 
