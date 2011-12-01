@@ -3,5 +3,6 @@
     <div class="inputs">
         <input id="${_name}" type="checkbox" value="${_value}" name="${_name}" data-bind="${_dataBind}">
         <span class="error">${views.context.package.showError(_name)}</span>
+        <span class="help">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help}</span>
     </div>
 </div>
