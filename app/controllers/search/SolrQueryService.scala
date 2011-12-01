@@ -222,7 +222,7 @@ object SolrQueryService extends SolrServer {
       fqs.groupBy(_.field) foreach {
         item => {
           val prefix = facetFieldMap.get(item._1)
-          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString("\"", " OR " ,"\""))
+          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString("\"", "\" OR \"" ,"\""))
           prefix match {
             case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, orString))
             case None => query addFilterQuery (orString)
