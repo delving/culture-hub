@@ -1,3 +1,6 @@
+- !!models.UserProfile &defaultProfile
+   isPublic: false
+
 - !!models.User
     _id:            4e5679a80364ae80333ab939
     userName:       bob
@@ -7,8 +10,7 @@
     password:       secret
     isActive:       true
     isHubAdmin:     true
-    userProfile:
-        public:     true
+    userProfile:    *defaultProfile
 
 - !!models.User
     _id:            4e5679a80364ae80333ab93a
@@ -18,8 +20,7 @@
     email:          jimmy@gmail.com
     password:       secret
     isActive:       true
-    userProfile:
-        public:     true
+    userProfile:    *defaultProfile
 
 - !!models.User
     _id:            4e5679a80364ae80333ab93b
@@ -29,8 +30,7 @@
     email:          dan@gmail.com
     password:       secret
     isActive:       true
-    userProfile:
-        public:     true
+    userProfile:    *defaultProfile
 
 - !!models.DObject
     TS_update:      !!timestamp "2011-08-14T10:19:20.835Z"
@@ -40,8 +40,6 @@
     description:    This is a nice test object
     visibility:     10
     deleted:        false
-    userProfile:
-        public:     true
 
 
 - !!models.Mapping &icnMapping
