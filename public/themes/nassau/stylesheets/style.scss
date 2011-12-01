@@ -558,6 +558,7 @@ div.dropdown-slider .ddm.heading.org .label {
 
 .widget .bd {
     background: transparent;
+    background: $darker  url(/public/themes/nassau/images/noise-222.png);
 }
 
 #home .widget .bd {
@@ -566,7 +567,7 @@ div.dropdown-slider .ddm.heading.org .label {
 }
 
 #profile .widget .bd {
-   background: $darker  url(/public/themes/nassau/images/noise-555.png);
+   background: $darker;
 }
 
 .results {
