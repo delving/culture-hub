@@ -79,7 +79,7 @@ GET         /stories                                                         Sto
 
 GET         /search                                                          Search.index
 
-GET         /{user}/?                                                        Profiles.view
+GET         /{user}/?                                                        Profile.profile
 
 GET         /{user}/label/search                                             Links.listFreeTextAsTokens
 
@@ -119,6 +119,8 @@ GET         /{user}/story/{id}                                               Sto
 GET         /{user}/story/{id}/read                                          Stories.read
 
 GET         /{user}/admin/?                                                  user.Admin.index
+GET         /{user}/admin/profile/update                                     user.Admin.profile
+POST        /{user}/admin/profile                                            user.Admin.profileSubmit
 
 # Organizations
 GET        /organizations/{orgId}/?                                          organization.Organizations.index
@@ -126,7 +128,6 @@ GET        /organizations/{orgId}/groups/?                                   org
 GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
 POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
 DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
-
 
 GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
 GET        /organizations/{orgId}/users/search                               Users.listAsTokens

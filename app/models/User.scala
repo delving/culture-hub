@@ -2,7 +2,7 @@ package models
 
 import com.novus.salat._
 import com.mongodb.casbah.Imports._
-import dao.SalatDAO
+import dao.{SalatDAOError, SalatDAO}
 import models.salatContext._
 import controllers.InactiveUserException
 import play.libs.Crypto
@@ -13,6 +13,7 @@ case class User(_id: ObjectId = new ObjectId,
                 lastName: String,
                 email: String,
                 password: String,
+                userProfile: UserProfile,
                 groups: List[ObjectId] = List.empty[ObjectId], // groups this user belongs to
                 organizations: List[String] = List.empty[String], // organizations this user belongs to
                 nodes: List[String] = List.empty[String], // nodes this user has access to
@@ -22,6 +23,7 @@ case class User(_id: ObjectId = new ObjectId,
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None,
                 isHubAdmin: Option[Boolean] = None) {
+
   val fullname = firstName + " " + lastName
 
   override def toString = email
@@ -32,7 +34,7 @@ case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis
 
 object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
-  val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false)
+  val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false, userProfile = UserProfile())
 
   def connect(userName: String, password: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> Crypto.passwordHash(password, Crypto.HashType.SHA512)))
@@ -50,6 +52,18 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def findByUsername(userName: String, active: Boolean = true) = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> active))
 
+  // ~~~ profile
+
+  def updateProfile(userName: String, firstName: String, lastName: String, email: String, profile: UserProfile): Boolean = {
+    val p = grater[UserProfile].asDBObject(profile)
+    try {
+      User.update(MongoDBObject("userName" -> userName), $set("userProfile" -> p, "firstName" -> firstName, "lastName" -> lastName, "email" -> email), false, false, WriteConcern.Safe)
+      true
+    } catch {
+      case s: SalatDAOError => false
+      case _ => false
+    }
+  }
 
   // ~~~ user registration, password reset
 
