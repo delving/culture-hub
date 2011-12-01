@@ -6,6 +6,7 @@
             <div class="buttons">
                 #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
                 #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+                #{languageSelect /}
             </div>
             #{/if}
             #{else}
@@ -53,6 +54,7 @@
 
 
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
+                #{languageSelect /}
             </div>
 
             #{/else}
