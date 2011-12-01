@@ -14,4 +14,7 @@ object Constants {
   val STORY = "story"
   val USER = "user"
 
+  // ~~~ mongo ID of a collection
+  val USERCOLLECTION_ID = "userCollectionId"
+
 }

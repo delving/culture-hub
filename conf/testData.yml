@@ -40,6 +40,16 @@
     description:    This is a nice test object
     visibility:     10
     deleted:        false
+    
+- !!models.UserCollection
+    TS_update:      !!timestamp "2011-08-14T10:19:20.835Z"
+    user_id:        4e5679a80364ae80333ab939 # bob
+    userName:       bob
+    name:           Test collection
+    description:    This is a test collection
+    visibility:     10
+    deleted:        false
+
 
 
 - !!models.Mapping &icnMapping

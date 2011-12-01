@@ -101,8 +101,6 @@ object Collections extends DelvingController with UserSecured {
     }
   }
 
-
-
   // TODO move someplace generic
   implicit def stringToObjectIdOption(id: String): Option[ObjectId] = if(!ObjectId.isValid(id)) None else Some(new ObjectId(id))
   implicit def objectIdOptionToString(id: Option[ObjectId]): String = id match {

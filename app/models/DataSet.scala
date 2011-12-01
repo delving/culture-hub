@@ -202,7 +202,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
   }
 
-  def getRecordsCollectionName(dataSet: DataSet) = "Records.%s_%s".format(dataSet.orgId, dataSet.spec)
+  def getRecordsCollectionName(dataSet: DataSet): String = getRecordsCollectionName(dataSet.orgId, dataSet.spec)
+
+  def getRecordsCollectionName(orgId: String, spec: String): String = "Records.%s_%s".format(orgId, spec)
 
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR  = {
@@ -379,7 +381,8 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           deleted: Boolean = false, // if the record has been deleted
                           localRecordKey: String, // the unique element value
                           globalHash: String, // the hash of the raw content
-                          hash: Map[String, String] // the hash for each field, for duplicate detection
+                          hash: Map[String, String], // the hash for each field, for duplicate detection
+                          links: List[EmbeddedLink] = List.empty[EmbeddedLink]
                          ) {
 
   def getXmlString(metadataPrefix: String = "raw"): String = {

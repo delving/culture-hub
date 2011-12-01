@@ -21,6 +21,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   object LinkType {
     val FREETEXT = "freeText"
     val PLACE = "place"
+    val PARTOF = "partOf"
   }
 
   def create(linkType: String, userName: String, value: Map[String, String], from: LinkReference, to: LinkReference): (Option[ObjectId], Link) = {

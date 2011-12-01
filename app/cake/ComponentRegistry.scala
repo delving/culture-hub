@@ -45,7 +45,9 @@ object ComponentRegistry extends MetadataModelComponent with MetaRepoComponent {
       metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
       metadataModelImpl.setRecordDefinitionFiles(RecordDefinition.getRecordDefinitionFiles : _*)
     } catch {
-      case t: Throwable => t.printStackTrace()
+      case t: Throwable =>
+        t.printStackTrace()
+        throw t
     }
 
   }
