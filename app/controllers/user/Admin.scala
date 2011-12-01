@@ -5,6 +5,7 @@ import extensions.JJson
 import models.{UserProfile, User}
 import play.data.validation.Annotations._
 import controllers.{ViewModel, DelvingController}
+import play.data.validation.Validation
 
 /**
  *
@@ -23,7 +24,15 @@ object Admin extends DelvingController with UserSecured {
 
   def profileSubmit(data: String): Result = {
     val profileModel = JJson.parse[ProfileViewModel](data)
-    validate(profileModel).foreach { errors => return JsonBadRequest(profileModel.copy(errors = errors)) }
+
+    if(!Validation.url("linkedIn", profileModel.linkedIn).ok) {
+      Validation.addError("object.linkedIn", "validation.url")
+    }
+
+    validate(profileModel) match {
+      case Some(errors) => return JsonBadRequest(profileModel.copy(errors = errors))
+      case None => // happy
+    }
 
     val updated = User.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email,
       UserProfile(

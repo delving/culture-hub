@@ -134,7 +134,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   @Util def validate(viewModel: AnyRef): Option[Map[String, String]] = {
     import scala.collection.JavaConversions.asScalaIterable
 
-    if(!Validation.valid("object", viewModel).ok) {
+    if(!Validation.valid("object", viewModel).ok || Validation.hasErrors) {
       val fieldErrors = asScalaIterable(Validation.errors).filter(_.getKey.contains(".")).map { error => (error.getKey.split("\\.")(1), error.message()) }
       val globalErrors = asScalaIterable(Validation.errors).filterNot(_.getKey.contains(".")).map { error => ("global", error.message()) }
       val errors = fieldErrors ++ globalErrors
