@@ -10,22 +10,11 @@ import controllers.{Secure, ViewModel, DelvingController}
 import models.{User, EmailTarget, PortalTheme}
 
 /**
- * TODO add Access Control
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Themes extends DelvingController with Secure {
-
-  @Before
-  def checkAdmin(): Result = {
-    val u = User.findByUsername(connectedUser) getOrElse(return Forbidden("Wrong user"))
-    if(!u.isHubAdmin.getOrElse(false)) {
-      reportSecurity("User %s tried to get access to themes admin".format(connectedUser))
-      return Forbidden(&("user.secured.noAccess"))
-    }
-    Continue
-  }
+object Themes extends DelvingController with AdminSecure {
 
   def index(): Result = {
     val themeList = PortalTheme.find(MongoDBObject())

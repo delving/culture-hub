@@ -5,6 +5,7 @@ import org.bson.types.ObjectId
 import user.ObjectModel
 import models.{Visibility, DObject, UserCollection}
 import extensions.JJson
+import util.Constants._
 
 /**
  *
@@ -14,13 +15,8 @@ import extensions.JJson
 object Collections extends DelvingController {
 
   def list(user: Option[String], page: Int = 1): Result = {
-
-    val collectionsPage = user match {
-      case Some(u) => UserCollection.browseByUser(browsedUserId, connectedUserId).page(page)
-      case None => UserCollection.browseAll(connectedUserId).page(page)
-    }
-    val items: List[ListItem] = collectionsPage._1
-    Template("/list.html", 'title -> listPageTitle("collection"), 'itemName -> "collection", 'items -> items, 'page -> page, 'count -> collectionsPage._2)
+    val browser: (List[ListItem], Int) = Search.browse(USERCOLLECTION, user, request, theme)
+    Template("/list.html", 'title -> listPageTitle("collection"), 'itemName -> "collection", 'items -> browser._1, 'page -> page, 'count -> browser._2)
   }
 
   def collection(user: String, id: String): Result = {
