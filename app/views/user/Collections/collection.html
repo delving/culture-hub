@@ -47,10 +47,10 @@
 
 
     <div class="buttons">
-      #{btnButton label:viewUtils.getKey('user.collection.save'), id:"saveButton", extraClass:"action complete", type:"submit"  /}
-      <div class="wait"></div>
-        #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton fright beware", id:"cancelButton", type:"submit" /}
-        #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"fright submit", id:"saveButton", type:"reset" /}
+        #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
+        #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"submit", type:"reset" /}
+        #{btnButton label:viewUtils.getKey('user.collection.save'), id:"saveButton", extraClass:"action complete", type:"submit"  /}
+        <div class="wait"></div>
     </div>
 
 </form>
