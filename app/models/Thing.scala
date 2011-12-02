@@ -34,11 +34,13 @@ trait Thing extends Base {
   def freeTextLinks = links.filter(_.linkType == Link.LinkType.FREETEXT)
   def placeLinks = links.filter(_.linkType == Link.LinkType.PLACE)
 
-  def toSolrDocument: SolrInputDocument
+  def getType: String
+  def toSolrDocument: SolrInputDocument = getAsSolrDocument
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField ("id", _id)
+    doc addField ("delving_recordType", getType)
     doc addField ("delving_visibility_single", visibility.value.toString) // TODO give accurate type, this is an integer
     doc addField ("delving_user_id_single", user_id)
     doc addField ("delving_userName_single", userName)

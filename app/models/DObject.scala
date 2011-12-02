@@ -28,11 +28,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                    files: Seq[StoredFile] = Seq.empty[StoredFile],
                    collections: List[ObjectId] = List.empty[ObjectId]) extends Thing {
 
-  def toSolrDocument: SolrInputDocument = {
-    val doc = getAsSolrDocument
-    doc addField ("delving_recordType", OBJECT)
-    doc
-  }
+  def getType = OBJECT
 
   def fileIds = files.map(_.id)
 
