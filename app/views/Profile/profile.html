@@ -19,6 +19,9 @@
         </div>
         <div class="g-6of12 grid_6">
             <div class="info-box long">
+                <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objects.length()}</a></span>
+                <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collections.length()}</a></span>
+                <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${stories.length()}</a></span>
                 <span class="label">&{'user.profile.funFact'}:</span><span class="text">${user.userProfile.funFact().isEmpty() ? " - " : user.userProfile.funFact().get()}</span>
                 <span class="label">Twitter:</span><span class="text">${user.userProfile.twitter().isEmpty() ? " - " : user.userProfile.twitter().get()}</span>
                 <span class="label">LinkedIn:</span><span class="text">${user.userProfile.linkedIn().isEmpty() ? " - " : user.userProfile.linkedIn().get()}</span>
@@ -38,7 +41,7 @@
     <div class="row">
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.objects'} (${objectsCount})</h3></div>
+                <div class="hd"><h3>&{'thing.objects'} (${objects.length()})</h3></div>
                 <div class="bd">
                     #{list objects, as: 'o'}
                     <div class="media">
@@ -57,7 +60,7 @@
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount})</h3></div>
+                <div class="hd"><h3>&{'thing.collections'} (${collections.length()})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
                     <div class="media">
@@ -76,7 +79,7 @@
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.stories'} (${storiesCount})</h3></div>
+                <div class="hd"><h3>&{'thing.stories'} (${stories.length()})</h3></div>
                 <div class="bd">
                     %{ def counter = 0}%
                     #{list stories, as: 's'}
