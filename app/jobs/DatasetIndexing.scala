@@ -13,7 +13,7 @@ import controllers.ErrorReporter
  */
 
 @Every("10s")
-class SolrIndexing extends Job {
+class DataSetIndexing extends Job {
 
   override def doJob() {
     if (play.Play.started) {
@@ -35,7 +35,6 @@ class SolrIndexing extends Job {
   }
 
   override def onException(e: Throwable) {
-    ErrorReporter.reportError(getClass.getName, e, "Error during indexing")
-
+    ErrorReporter.reportError(getClass.getName, e, "Error during indexing of DataSet")
   }
 }

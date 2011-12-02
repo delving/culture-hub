@@ -125,8 +125,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
-    val allDateSets: List[DataSet] = findByState(DataSetState.INDEXING).sort(MongoDBObject("name" -> 1)).toList
-    if (allDateSets.length < 3) {
+    val allDataSets: List[DataSet] = findByState(DataSetState.INDEXING).sort(MongoDBObject("name" -> 1)).toList
+    if (allDataSets.length < 3) {
         val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("name" -> 1)).toList
         queuedIndexing.headOption
       } else {

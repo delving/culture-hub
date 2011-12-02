@@ -7,6 +7,7 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
+import util.Constants._
 
 /**
  * 
@@ -27,11 +28,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                    files: Seq[StoredFile] = Seq.empty[StoredFile],
                    collections: List[ObjectId] = List.empty[ObjectId]) extends Thing {
 
-  def toSolrDocument: SolrInputDocument = {
-    val doc = getAsSolrDocument
-    doc addField ("delving_recordType", "object")
-    doc
-  }
+  def getType = OBJECT
 
   def fileIds = files.map(_.id)
 
@@ -44,7 +41,7 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
   def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
-    update(MongoDBObject("_id" -> id), $set ("thumbnail_file_id" -> thumbnail_id) , false, false)
+    update(MongoDBObject("_id" -> id), $set ("thumbnail_file_id" -> thumbnail_id, "thumbnail_id" -> id) , false, false)
   }
 
   def fetchName(id: String): String = fetchName(id, objectsCollection)
