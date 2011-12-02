@@ -20,6 +20,8 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
   def findRecent(howMany: Int) = find(MongoDBObject("deleted" -> false, "visibility.value" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
   def findByUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName))
 
+  def findPublicByUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName, "visibility.value" -> Visibility.PUBLIC.value))
+
   def owns(user: ObjectId, id: ObjectId) = count(MongoDBObject("_id" -> id, "user_id" -> user)) > 0
 
   def delete(id: ObjectId) {

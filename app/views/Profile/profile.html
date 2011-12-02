@@ -38,7 +38,7 @@
     <div class="row">
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.objects'} (${objects.length()})</h3></div>
+                <div class="hd"><h3>&{'thing.objects'} (${objectsCount})</h3></div>
                 <div class="bd">
                     #{list objects, as: 'o'}
                     <div class="media">
@@ -57,7 +57,7 @@
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.collections'} (${collections.length()})</h3></div>
+                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
                     <div class="media">
@@ -76,7 +76,7 @@
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.stories'} (${stories.length()})</h3></div>
+                <div class="hd"><h3>&{'thing.stories'} (${storiesCount})</h3></div>
                 <div class="bd">
                     %{ def counter = 0}%
                     #{list stories, as: 's'}
