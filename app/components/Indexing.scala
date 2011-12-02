@@ -70,7 +70,7 @@ object Indexing extends SolrServer {
 
 
   def deleteFromSolr(dataSet: DataSet) {
-    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery("delving_spec:" + dataSet.spec)
+    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery(SPEC + ":" + dataSet.spec)
     deleteResponse.getStatus
     getStreamingUpdateServer.commit
   }
@@ -94,13 +94,13 @@ object Indexing extends SolrServer {
     import scala.collection.JavaConversions._
     import controllers.search.SolrBindingService
 
-    inputDoc.addField("delving_pmhId", "%s_%s".format(dataSet.spec, record._id.toString))
-    inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
-    inputDoc.addField("delving_currentFormat", format)
-    inputDoc.addField("delving_recordType", DATASET)
-    inputDoc.addField("delving_visibility_single", dataSet.visibility.value)
+    inputDoc.addField(PMH_ID, "%s_%s".format(dataSet.spec, record._id.toString))
+    inputDoc.addField(SPEC, "%s".format(dataSet.spec))
+    inputDoc.addField(FORMAT, format)
+    inputDoc.addField(RECORD_TYPE, DATASET)
+    inputDoc.addField(IDX_VISIBILITY, dataSet.visibility.value)
     val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
-    inputDoc.addField("delving_hubId", hubId)
+    inputDoc.addField(HUB_ID, hubId)
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
     // add facets at indexing time
     dataSet.idxFacets.foreach {
@@ -146,8 +146,8 @@ object Indexing extends SolrServer {
       }
     }
     
-    if (inputDoc.containsKey("id")) inputDoc.remove("id")
-    inputDoc.addField("id", hubId)
+    if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
+    inputDoc.addField(ID, hubId)
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))

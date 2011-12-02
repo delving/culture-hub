@@ -5,6 +5,7 @@ import scala.collection.JavaConversions._
 import play.mvc.Http.Request
 import play.Logger
 import play.mvc.results.Result
+import util.Constants._
 
 /**
  *
@@ -109,7 +110,7 @@ class SearchService(request: Request, theme: PortalTheme) {
 
   private def getFullResultsFromSolr : FullItemView = {
     require(params._contains("id"))
-    val response = SolrQueryService.getFullSolrResponseFromServer(params.get("id"), paramMap.getOrElse("idType", Array[String]("delving_pmhId")).head)
+    val response = SolrQueryService.getFullSolrResponseFromServer(params.get("id"), paramMap.getOrElse("idType", Array[String](PMH_ID)).head)
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
 

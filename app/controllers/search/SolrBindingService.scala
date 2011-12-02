@@ -30,6 +30,7 @@ import xml. {NodeSeq, Elem, XML}
 import collection.immutable. {HashMap, Map => ImMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable. {ListBuffer, Map}
+import util.Constants._
 
 /**
  *
@@ -45,7 +46,7 @@ object SolrBindingService {
 
   def getFullDocFromOaiPmh(response : QueryResponse) : FullDocItem = {
     val fullDoc = getFullDoc(response)
-    val pmhId = fullDoc.getFieldValue("delving_pmhId")
+    val pmhId = fullDoc.getFieldValue(PMH_ID)
     getRecordFromOaiPmh(pmhId.getFirst)
   }
 
@@ -357,36 +358,36 @@ abstract class MetadataAccessors {
   // TODO cleanup, unify, decide, conquer
 
   // ~~~ identifiers
-  def getThingId: String = assign("id")
-  def getId : String = assign("delving_hubId")
+  def getThingId: String = assign(ID)
+  def getId : String = assign(HUB_ID)
   def getOrgId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(0) else ""
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
   def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
-  def getDelvingId : String = assign("delving_pmhId")
-  def getIdUri : String = assign("delving_hubId").replaceAll("_", "/")
+  def getDelvingId : String = assign(PMH_ID)
+  def getIdUri : String = assign(HUB_ID).replaceAll("_", "/")
 
   // ~~~ well-known, always provided, meta-data fields
-  def getRecordType: String = assign("delving_recordType")
-  def getTitle : String = assign("title")
-  def getDescription: String = assign("description")
-  def getOwner: String = assign("owner")
-  def getCreator: String = assign("creator")
-  def getVisibility: String = assign("delving_visibility")
+  def getRecordType: String = assign(RECORD_TYPE)
+  def getTitle : String = assign(TITLE)
+  def getDescription: String = assign(DESCRIPTION)
+  def getOwner: String = assign(OWNER)
+  def getCreator: String = assign(CREATOR)
+  def getVisibility: String = assign(VISIBILITY)
   def getThumbnail(size: Int) : String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => assign("thumbnail") match {
+    case OBJECT | USERCOLLECTION | STORY => assign(THUMBNAIL) match {
         case id if ObjectId.isValid(id) =>
           val mongoId = Some(new ObjectId(id))
           thumbnailUrl(mongoId, size)
         case _ => thumbnailUrl(None, size)
     }
     // TODO plug-in the image cache here for datasets
-    case DATASET => assign("thumbnail")
+    case DATASET => assign(THUMBNAIL)
     case _ => ""
   }
   def getMimeType: String = "unknown/unknown"
 
-  // ~~~ refactorMe, requires change in thumbnail accessing everywhere in the view
-  def getThumbnailDirect: String = assign("delving_thumbnail_id")
+  // ~~~ REFACTORME, requires change in thumbnail accessing everywhere in the view
+  def getThumbnailDirect: String = assign(THUMBNAIL)
 
   // ~~~ old and others
   //  def getCreator : String = assign("dc_creator")

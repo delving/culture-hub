@@ -4,6 +4,7 @@ import org.apache.solr.common.SolrInputDocument
 import com.novus.salat.annotations.raw.Salat
 import org.bson.types.ObjectId
 import java.util.Date
+import util.Constants._
 
 @Salat
 trait Base extends AnyRef with Product {
@@ -39,18 +40,17 @@ trait Thing extends Base {
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
-    doc addField ("id", _id)
-    doc addField ("delving_hubId", "%s_%s_%s".format(userName, getType, _id))
-    doc addField ("delving_recordType", getType)
-    doc addField ("delving_visibility_single", visibility.value.toString) // TODO give accurate type, this is an integer
-    doc addField ("delving_userName_single", userName)
-    doc addField ("owner_text", userName)
-    doc addField ("creator_text", userName)
-    doc addField ("europeana_provider_single", userName) // TODO remove
-    doc addField ("description_text", description)
-    doc addField ("title_text", name)
+    doc addField (ID, _id)
+    doc addField (HUB_ID, "%s_%s_%s".format(userName, getType, _id))
+    doc addField (RECORD_TYPE, getType)
+    doc addField (IDX_VISIBILITY, visibility.value.toString)
+    doc addField (IDX_OWNER, userName)
+    doc addField (IDX_CREATOR, userName)
+    doc addField ("europeana_provider_single", userName) // TODO remove?
+    doc addField (IDX_DESCRIPTION, description)
+    doc addField (IDX_TITLE, name)
     if (thumbnail_id != None) {
-      doc addField("thumbnail_single", thumbnail_id.get)
+      doc addField(IDX_THUMBNAIL, thumbnail_id.get)
     }
     doc
   }

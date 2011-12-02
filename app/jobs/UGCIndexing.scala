@@ -22,7 +22,7 @@ class UGCIndexing extends Job with SolrServer {
   }
 
   private def index(thingType: String, things: Iterator[Thing]) {
-    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery("delving_recordType:" + thingType)
+    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery("%s:%s".format(RECORD_TYPE, thingType))
     deleteResponse.getStatus
     getStreamingUpdateServer.commit
 
