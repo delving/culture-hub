@@ -39,8 +39,9 @@
         <deltree dir="${target}"/>
     </target>
 
-    <target name="prepare" description="Prepares the output folders">
+    <target name="prepare" description="Prepares the output folders and such">
         <mkdir dir="${target}"/>
+        <copy file="${root}/conf/production.conf.template" tofile="${root}/conf/production.conf" />
     </target>
 
     <target name="test" description="Runs all tests" depends="prepare, check">
