@@ -600,12 +600,17 @@ div.dropdown-slider .ddm.heading.org .label {
 
 .pagination a, .pagination span {
     background: $lighter;
-     margin: 0;
+     /*margin: 0;*/
     padding: 4px 8px;
 }
 
 .pagination .current {
     background-color: $link;
+}
+
+.pagination .prev,
+.pagination .next {
+    background: $lighter;
 }
 
 .breadcrumb li {
