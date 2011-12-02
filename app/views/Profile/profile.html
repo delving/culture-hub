@@ -55,7 +55,7 @@
                     </div>
                     #{/list}
                     #{if objectsCount > objects.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/object", extraClass: "fright" /}
+                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
                     #{/if}
                 </div>
             </div>
@@ -77,7 +77,7 @@
                     </div>
                     #{/list}
                     #{if collectionsCount > collections.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/collection" /}
+                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/collection" /}
                     #{/if}
                 </div>
             </div>
@@ -99,7 +99,7 @@
                     </div>
                     #{/list}
                     #{if storiesCount > stories.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/story" /}
+                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/story" /}
                     #{/if}
 
                 </div>

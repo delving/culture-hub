@@ -58,6 +58,7 @@ ui.label.location=Location
 ui.label.login=Login
 ui.label.logout=Logout
 ui.label.memberSince=Member since
+ui.label.more=More
 ui.label.next=Next
 ui.label.nritems=Nr. of items
 ui.label.options=Options

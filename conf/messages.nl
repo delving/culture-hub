@@ -50,6 +50,7 @@ ui.label.location=Plaats
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
 ui.label.memberSince=Lid sinds
+ui.label.more=Meer
 ui.label.next=Volgende
 ui.label.nritems=Aantal items
 ui.label.options=Opties
