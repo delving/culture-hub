@@ -9,6 +9,9 @@ import org.apache.solr.client.solrj.response.UpdateResponse
 import eu.delving.sip.MappingEngine
 import scala.collection.JavaConversions.asJavaMap
 import models._
+import java.lang.String
+import java.io.{FilenameFilter, File}
+import play.Logger
 
 /**
  *
@@ -112,6 +115,34 @@ object Indexing extends SolrServer {
         if (indexedKeys.contains(sort)) {
           inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
         }
+    }
+
+    // deepZoom hack
+    val DEEPZOOMURL: String = "delving_deepZoomUrl"
+    val DEEPZOOM_PATH: String = "/iip/deepzoom"
+    if(inputDoc.containsKey(DEEPZOOMURL)) {
+      // http://some.delving.org/iip/deepzoom/mnt/tib/tiles/" + spec + "/" + image
+      val url = inputDoc.get(DEEPZOOMURL).getValue.toString
+      val i = url.indexOf(DEEPZOOM_PATH)
+      if(i > -1) {
+        val tileSetPath = url.substring(i + DEEPZOOM_PATH.length(), url.length())
+        val tileSetParentPath = tileSetPath.substring(0, tileSetPath.lastIndexOf(File.separator))
+        val parent = new File(tileSetParentPath)
+        val extensionIdx = if(tileSetPath.indexOf(".") > -1) tileSetPath.indexOf(".") else tileSetPath.length()
+        val image = tileSetPath.substring(tileSetPath.lastIndexOf(File.separator) + 1, extensionIdx)
+        if(!(parent.exists() && parent.isDirectory)) {
+          Logger.debug("No tile path %s for deepZoomUrl %s", tileSetParentPath, url)
+          inputDoc.remove(DEEPZOOMURL)
+        } else {
+          val files = parent.listFiles(new FilenameFilter() {
+            def accept(dir: File, name: String) = name.startsWith(image)
+          })
+          if(files.length == 0) {
+            Logger.debug("No image in directory %s starting with %s for deepZoomUrl %s", tileSetParentPath, image, url)
+            inputDoc.remove(DEEPZOOMURL)
+          }
+        }
+      }
     }
     
     if (inputDoc.containsKey("id")) inputDoc.remove("id")
