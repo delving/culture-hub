@@ -58,6 +58,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
     // TODO handle all "automatic facts"
     factsObject.append("spec", spec)
+    factsObject.append("orgId", orgId)
 
     dataSet.id match {
       // TODO for update, add the operator that appends key-value pairs rather than setting all
