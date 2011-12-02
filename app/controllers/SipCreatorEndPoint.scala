@@ -231,9 +231,15 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
 
       var continue = true
       while (continue) {
-        val record = parser.nextRecord
-        if (record != None) {
-          val toInsert = record.get.copy(modified = new Date(), deleted = false)
+        val maybeNext = parser.nextRecord
+        if (maybeNext != None) {
+          val record = maybeNext.get
+
+          // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
+          val incomingLinks = Link.findTo(record.getUri(dataSet.orgId, dataSet.spec), Link.LinkType.PARTOF)
+          val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value)).toList
+
+          val toInsert = record.copy(modified = new Date(), deleted = false, links = embeddedLinks)
           records.insert(toInsert)
         } else {
           continue = false

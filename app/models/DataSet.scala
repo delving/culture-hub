@@ -207,10 +207,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def getRecordsCollectionName(orgId: String, spec: String): String = "Records.%s_%s".format(orgId, spec)
 
   // TODO should we cache the constructions of these objects?
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDR  = {
+  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
     val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
-    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDR
+    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
     CollectionMDR
   }
 
@@ -385,6 +385,8 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink]
                          ) {
 
+  def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
+
   def getXmlString(metadataPrefix: String = "raw"): String = {
     if (rawMetadata.contains(metadataPrefix)) {
       rawMetadata.get(metadataPrefix).get
@@ -411,7 +413,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
 }
 
-trait MDR {
+trait MDRCollection {
   self: SalatDAO[MetadataRecord, ObjectId] =>
 
   def existsByLocalRecordKey(key: String) = {
