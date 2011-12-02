@@ -53,7 +53,7 @@
                 <div class="bd">
                     <div class="metadata">
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-                        <span class="label">&{'thing.owner'}:</span> ${i.userName}
+                        <span class="label">&{'thing.owner'}:</span> <a href="/${i.userName}">${i.userName}</a>
                         *{
                         #{if i.description}
                         <div class="more-info">
