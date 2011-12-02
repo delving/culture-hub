@@ -20,16 +20,17 @@
             <div class="widget">
                 <div class="hd"><h3>${story.name}</h3></div>
                 <div class="bd pan">
-                <ul id="inav">
-                <li class="active"><a class="browse page">&{'story.titlePage'}</a></li>
-                #{list story.pages, as: 'page'}
-                <li><a class="browse page" title="${page.title}">${page.title}</a></li>
-                #{/list}
-            </ul>
+                    <ul id="inav">
+                        <li class="active"><a class="browse page">&{'story.titlePage'}</a></li>
+                        #{list story.pages, as: 'page'}
+                        <li><a class="browse page" title="${page.title}">${page.title}</a></li>
+                        #{/list}
+                    </ul>
                 </div>
-
             </div>
-
+            #{if userName == story.userName}
+                 #{btnHref label: viewUtils.getKey('ui.label.edit'), href: "/"+story.userName+"/story/"+story._id+"/update", iconClass:"icon145", extraClass: "submit fright" /}
+            #{/if}
         </div>
 
         <div class="g-9of12 grid_9 omega">
@@ -59,7 +60,7 @@
                                     <h1>${story.name}</h1>
                                     <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 220)}" width="220" alt=""/>
 
-                                    <h3>By: ${browsedFullName}</h3>
+                                    <h3>By: ${story.userName}</h3>
                                     <p>${story.description}</p>
                                 </div>
 
@@ -67,13 +68,11 @@
 
                         </div>
 
-
                         #{list story.pages, as: 'page'}
                         <div class="page row pam" id="page_${page_index}">
                             <h2>${page.title}</h2>
 
-
-                             <div class="page-left g-1of2 alpha">
+                            <div class="page-left g-1of2 alpha">
                                 ${page.text.raw()}
                             </div>
                             <div class="page-right g-1of2 omega">
@@ -81,7 +80,6 @@
                                 <img src="${views.context.package.imageUrl(o.dobject_id)}" width="340" alt="${page.title}">
                                 #{/list}
                             </div>
-
 
                         </div>
                         #{/list}

@@ -53,6 +53,7 @@ DROPDOWN MENU
 	-moz-transition: border-color .20s;
 	-o-transition: border-color .20s;
 	transition: border-color .20s;
+    width: auto;
 }
 button {
 	height: 29px !important;

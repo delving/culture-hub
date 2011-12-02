@@ -79,7 +79,9 @@
   $(document).ready(function() {
     var addthis_config = {
         ui_use_css: true,
-        ui_language: "${play.i18n.Lang.get()}"
+        ui_language: "${play.i18n.Lang.get()}",
+        ui_header_background: "#000",
+        ui_header_color: "#f1f1f1"
     };
     $("#addLabel").click(function () {
       if ($("#add-comment.dialog")) {

@@ -21,7 +21,7 @@
 #{breadcrumbs /}
 
 #{if browsedUserName}
-    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${userName}</span> (${count})</h1>
 #{/if}
 #{else}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
@@ -29,7 +29,7 @@
     <div class="row">
         <div class="g-12of12 grid_12 mbm">
         #{if count > views.context.package.PAGE_SIZE()}
-            <div class="mod pager"></div>
+            <div class="pager"></div>
         #{/if}
         #{elseif items.length() == 0}
         <p>
@@ -53,7 +53,7 @@
                 <div class="bd">
                     <div class="metadata">
                         <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-                        <span class="label">&{'thing.owner'}:</span> ${i.userName}
+                        <span class="label">&{'thing.owner'}:</span> <a href="/${i.userName}">${i.userName}</a>
                         *{
                         #{if i.description}
                         <div class="more-info">
@@ -84,7 +84,7 @@
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">
     <div class="g-12of12 grid_12 mtm">
-        <div class="mod pager"></div>
+        <div class="pager"></div>
     </div>
 </div>
 #{/if}

@@ -4,7 +4,7 @@
 <div id="page-top">
     <div class="container_12">
 
-        <div class="grid_4" id="primary-branding">
+        <div class="grid_3" id="primary-branding">
             <a href="@{Application.index()}">
                 <img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/>
             </a>
@@ -16,11 +16,12 @@
             </a>
         </div>
 
-        <div class="grid_8" id="user-nav">
+        <div class="grid_9" id="user-nav">
             #{if !userName}
             <div class="buttons">
                 #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
                 #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+                #{languageSelect /}
             </div>
             #{/if}
             #{else}
@@ -44,9 +45,7 @@
                             #{/list}
                         #{/if}
                     </div>
-                    <!-- /.dropdown-slider -->
                 </div>
-                <!-- /.dropdown -->
                 <div class="dropdown">
                     #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
                     <div class="dropdown-slider">
@@ -54,9 +53,8 @@
                         <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
                         <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
                     </div>
-                    <!-- /.dropdown-slider -->
                 </div>
-                <!-- /.dropdown -->
+                #{languageSelect /}
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
 
@@ -95,7 +93,7 @@
 <div id="search" role="search">
     <div class="container_12">
         <div class="grid_12">
-            <form method="get" action="/search">
+            <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                 <input type="text" id="query" name="query" value='${params.query}'/>
                 <input type="submit" value="&{'ui.label.search'}">
             </form>

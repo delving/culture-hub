@@ -12,6 +12,7 @@
             <div class="buttons">
                 #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
                 #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:@Registration.index(), rel:"nofollow" /}
+                #{languageSelect /}
             </div>
             #{/if}
             #{else}
@@ -48,6 +49,7 @@
                     <!-- /.dropdown-slider -->
                 </div>
                 <!-- /.dropdown -->
+                #{languageSelect /}
                 #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
             </div>
             #{/else}
@@ -80,7 +82,7 @@
                 </ul>
             </div>
             <div id="search" role="search">
-                <form method="get" action="/search">
+                 <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                     <input type="text" id="query" name="query" value='${params.query}'/>
                     <input type="submit" value="&{'ui.label.search'}">
                 </form>

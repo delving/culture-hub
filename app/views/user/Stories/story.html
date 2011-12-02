@@ -60,12 +60,9 @@
 
         <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
 
-
-
-
          <div id="save-story" class="line">
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory" /}
+                #{btnButton label: viewUtils.getKey('user.story.saveStory'), extraClass:"action complete prominent", dataBind:"enable: name().length > 0 && description().length > 0, click: saveTheStory", type: "submit" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -87,7 +84,8 @@
 
 <div id="dialog-confirm-page-delete" title="&{'user.story.title.deletePage'}" style="display: none;">
     <p>
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">&{'user.story.title.deletePageConfirm'}</span>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        &{'user.story.title.deletePageConfirm'}
     </p>
 </div>
 
@@ -109,7 +107,7 @@
             <label for="page-text" class="label">&{'user.story.label.freeText'}</label>
 
             <div class="inputs">
-                <textarea style="height:300px" class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
+                <textarea class="textinput mceEditor" name="page-text" id="page-text" data-bind="tinymce: currentPage.text"></textarea>
                 <span class="error"></span>
             </div>
         </div>
@@ -129,12 +127,13 @@
         <div id="objectList" class="data-grid" data-bind="template: {name: 'objectsList', templateOptions: {title: 'Objects in your page', objects: currentPage.objects, thumbnail: thumbnail} }"></div>
         <div class="buttons">
             #{btnButton label: viewUtils.getKey('user.story.savePage'), dataBind:'click: saveCurrentPage', extraClass:'action complete', type:'submit'/}
-            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'submit'/}
+            #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'reset'/}
         </div>
     </form>
 
 </script>
 <script type="text/html" id="pageList">
+
     <table class="list">
         <caption>&{'user.story.existingPage'}:</caption>
         <thead>
@@ -163,6 +162,7 @@
         {{/each}}
         </tbody>
     </table>
+
 </script>
 
 <script type="text/javascript" language="javascript">
@@ -305,7 +305,6 @@
 
         function saveStory(onSuccess, onError, isDraft) {
             if ($('#storyForm').validate({meta: 'validate'}).form()) {
-
                 var draft = typeof isDraft === 'undefined' ? false : isDraft;
                 storyModel.isDraft(draft);
                 storyModel.collections.remove(function(it) {
@@ -313,6 +312,7 @@
                 });
                 handleSubmit('/${userName}/story/submit', storyModel, '#storyForm', null, onSuccess, onError);
             }
+
         }
     });
 </script>

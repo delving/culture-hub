@@ -13,10 +13,12 @@
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}" > ${doc.getTitle()}</a>
+                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}" >
+                                <span property="dc:title" content="${doc.getTitle()}">${doc.getTitle()}</span>
+                            </a>
                         </div>
                         <div class="bd">
-                            ${doc.getDescription()}
+                            <span property="dc:description" content="${doc.getDescription()}">${doc.getDescription()}</span>
                         </div>
                     </div>
                 </div>

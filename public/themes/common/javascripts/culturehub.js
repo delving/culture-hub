@@ -201,7 +201,7 @@ function remove(buttonId, dialogId, removeUrl, redirectUrl) {
 function confirmationDialog(elementId, onConfirm, message, title) {
     var id = '#' + elementId + 'ConfirmationDialog';
     if($(id).length == 0) {
-        $('<div id="' + id + '" title="' + title + '"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">' + message + '</span></p></div>').insertAfter(id);
+        $('<div id="' + id + '" title="' + title + '"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>' + message + '</p></div>').insertAfter(id);
         confirmDeletion(id, onConfirm);
     }
     $(id).dialog('open');
@@ -471,7 +471,8 @@ Delving.wysiwyg = function (params) {
         theme_advanced_buttons1: "bold,italic,underline,justifyleft,justifycenter,justifyright,bullist,numlist,link,formatselect,code",
         theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
-        theme_advanced_toolbar_align: "left"
+        theme_advanced_toolbar_align: "left",
+        height : "320"
     };
 
     // Overwrite default params with user-passed ones.
@@ -494,6 +495,25 @@ $.preloadImages = function() {
 		img = new Image();
 		img.src = arguments[i];
 	}
+}
+
+function isEmpty( inputStr ) {
+    if ( null === inputStr || "" == inputStr ) {
+        return true;
+    }
+    return false;
+}
+
+function checkSimpleSearchSubmit(oId){
+    var o = document.getElementById(oId);
+
+    if (isEmpty(o.value)){
+        document.getElementById(oId).style.border="2px dotted firebrick";
+
+        return false;
+    }
+
+    return true;
 }
 
 $(document).ready(function() {
