@@ -502,6 +502,7 @@
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
    <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="description" type="text_general" indexed="true" stored="true" multiValued="true"/>
@@ -586,8 +587,7 @@
         unknown fields indexed and/or stored by default --> 
      <dynamicField name="*" type="text_general" multiValued="true" />
 
-     <dynamicField name="delving_snippet" type="text_general" multiValued="true"/>
-     <dynamicField name="snippet" type="text_general" multiValued="true"/>
+     <dynamicField name="*_snippet" type="text_general" multiValued="true"/>
 
  </fields>
 
