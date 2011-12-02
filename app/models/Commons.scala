@@ -47,7 +47,7 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
   implicit def listWithPage(list: List[A]) = new {
     def page(page: Int, pageSize: Int = PAGE_SIZE) = {
       val p = if(page == 0) 1 else page
-      val c = list.slice((p - 1) * pageSize, (p - 1) * pageSize + PAGE_SIZE)
+      val c = list.slice((p - 1) * pageSize, (p - 1) * pageSize + pageSize)
       (c, list.size)
     }
   }
@@ -61,7 +61,7 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
      */
     def page(page: Int, pageSize: Int = PAGE_SIZE) = {
       val p = if(page == 0) 1 else page
-      val c = cursor.skip((p - 1) * pageSize).limit(PAGE_SIZE)
+      val c = cursor.skip((p - 1) * pageSize).limit(pageSize)
       (c.toList, c.count)
     }
   }

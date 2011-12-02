@@ -3,11 +3,19 @@
 
 #{breadcrumbs /}
 
-<h1 class="sep">&{'profile.title'}: <span>${user.fullname()}</span></h1>
+<h1 class="sep">&{'profile.title'}: <span>${user.userName()}</span></h1>
 
 <div class="grid_12">
-<div class="dashboard ptm ">
+<div class="dashboard ptm pbm">
 
+    <div class="row">
+        <div class="g-12of12 grid_12">
+            #{if user.userName == userName}
+            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
+            #{/if}
+        </div>
+
+    </div>
     <div class="row">
         <div class="g-6of12 grid_6">
             <div class="info-box">
@@ -29,23 +37,15 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="g-12of12 grid_12">
-            #{if user.userName == userName}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
-            #{/if}
-        </div>
-
-    </div>
 
     <div class="row">
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.objects'} (${objectsCount})</h3></div>
+                <div class="hd"><h3>&{'thing.objects'} (${objectsCount ? objectsCount : 0})</h3></div>
                 <div class="bd">
                     #{list objects, as: 'o'}
                     <div class="media">
-                        <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail, 80)}' width="80" class="img" alt="${o.title}"/></a>
+                        <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${views.context.package.thumbnailUrl(o.thumbnail, 80)}' width="40" class="img" alt="${o.title}"/></a>
 
                         <div class="bd">
                             <div class="metadata">
@@ -54,17 +54,20 @@
                         </div>
                     </div>
                     #{/list}
+                    #{if objectsCount > objects.size()}
+                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/object", extraClass: "fright" /}
+                    #{/if}
                 </div>
             </div>
         </div>
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount})</h3></div>
+                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
                     <div class="media">
-                        <a href="/${c.userName}/collections/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail, 80)}' width="80" class="img" alt="${c.title}"/></a>
+                        <a href="/${c.userName}/collections/${c.id}" class="clip"><img src='${views.context.package.thumbnailUrl(c.thumbnail, 80)}' width="40" class="img" alt="${c.title}"/></a>
 
                         <div class="bd">
                             <div class="metadata">
@@ -73,19 +76,20 @@
                         </div>
                     </div>
                     #{/list}
+                    #{if collectionsCount > collections.size()}
+                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/collection" /}
+                    #{/if}
                 </div>
             </div>
         </div>
 
         <div class="g-1of3 grid_4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.stories'} (${storiesCount})</h3></div>
+                <div class="hd"><h3>&{'thing.stories'} (${storiesCount? storiesCount : 0})</h3></div>
                 <div class="bd">
-                    %{ def counter = 0}%
                     #{list stories, as: 's'}
-                    #{if counter < 3}
                     <div class="media">
-                        <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail, 80)}' width="80" class="img" alt="${s.title}"/></a>
+                        <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${views.context.package.thumbnailUrl(s.thumbnail, 80)}' width="40" class="img" alt="${s.title}"/></a>
 
                         <div class="bd">
                             <div class="metadata">
@@ -93,15 +97,11 @@
                             </div>
                         </div>
                     </div>
-                    #{/if}
-                    #{if counter == 3 }
-                    #{btnHref label:viewUtils.getKey('ui.label.more'), href:"test" /}
-                    <a href="sdffa" class="button">
-                        <span class="label">test</span>
-                    </a>
-                    #{/if}
-                    %{ counter++ }%
                     #{/list}
+                    #{if storiesCount > stories.size()}
+                    #{btnHref label: viewUtils.getKey('ui.label.more'), href: user.userName + "/story" /}
+                    #{/if}
+
                 </div>
             </div>
         </div>
