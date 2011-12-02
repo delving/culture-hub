@@ -63,10 +63,10 @@ object Search extends DelvingController {
     val chResponse = CHResponse(params, theme, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
-    val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getThingTitle, description = bd.getThingDescription, thumbnail = bd.getThingThumbnailId match {
+    val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getTitle, description = bd.getDescription, thumbnail = bd.getThumbnailDirect match {
       case id if ObjectId.isValid(id) => Some(new ObjectId(id))
       case _ => None
-    }, userName = bd.getThingUserName, fullUserName = "", isPrivate = bd.getThingVisibility.toInt == Visibility.PRIVATE))
+    }, userName = bd.getOwner, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE))
 
     (items, briefItemView.pagination.getNumFound)
   }

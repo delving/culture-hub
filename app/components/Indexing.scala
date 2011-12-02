@@ -12,6 +12,7 @@ import models._
 import java.lang.String
 import java.io.{FilenameFilter, File}
 import play.Logger
+import util.Constants._
 
 /**
  *
@@ -96,7 +97,7 @@ object Indexing extends SolrServer {
     inputDoc.addField("delving_pmhId", "%s_%s".format(dataSet.spec, record._id.toString))
     inputDoc.addField("delving_spec", "%s".format(dataSet.spec))
     inputDoc.addField("delving_currentFormat", format)
-    inputDoc.addField("delving_recordType", "dataset")
+    inputDoc.addField("delving_recordType", DATASET)
     inputDoc.addField("delving_visibility_single", dataSet.visibility.value)
     val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
     inputDoc.addField("delving_hubId", hubId)

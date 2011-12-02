@@ -348,6 +348,10 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
 
 abstract class MetadataAccessors {
 
+  import util.Constants._
+  import views.context._
+  import org.bson.types.ObjectId
+
   protected def assign(key: String): String
 
   // TODO cleanup, unify, decide, conquer
@@ -362,20 +366,30 @@ abstract class MetadataAccessors {
   def getIdUri : String = assign("delving_hubId").replaceAll("_", "/")
 
   // ~~~ well-known, always provided, meta-data fields
-  def getTitle : String = assign("dc_title")
-  def getDescription: String = assign("dc_description")
-  def getThumbnail : String = assign("europeana_object")
+  def getRecordType: String = assign("delving_recordType")
+  def getTitle : String = assign("title")
+  def getDescription: String = assign("description")
+  def getOwner: String = assign("owner")
+  def getCreator: String = assign("creator")
+  def getVisibility: String = assign("delving_visibility")
+  def getThumbnail(size: Int) : String = getRecordType match {
+    case OBJECT | USERCOLLECTION | STORY => assign("thumbnail") match {
+        case id if ObjectId.isValid(id) =>
+          val mongoId = Some(new ObjectId(id))
+          thumbnailUrl(mongoId, size)
+        case _ => thumbnailUrl(None, size)
+    }
+    // TODO plug-in the image cache here for datasets
+    case DATASET => assign("thumbnail")
+    case _ => ""
+  }
+  def getMimeType: String = "unknown/unknown"
 
-  // ~~~ thing getters, from UGC
-  def getThingTitle: String = assign("delving_name")
-  def getThingDescription: String = assign("delving_description")
-  def getThingThumbnailId: String = assign("delving_thumbnail_id")
-  def getThingUserName: String = assign("delving_userName")
-  def getThingVisibility: String = assign("delving_visibility")
-
+  // ~~~ refactorMe, requires change in thumbnail accessing everywhere in the view
+  def getThumbnailDirect: String = assign("delving_thumbnail_id")
 
   // ~~~ old and others
-  def getCreator : String = assign("dc_creator")
+  //  def getCreator : String = assign("dc_creator")
   def getYear : String = assign("europeana_year")
   def getProvider : String = assign("europeana_provider")
   def getDataProvider : String = assign("europeana_dataProvider")

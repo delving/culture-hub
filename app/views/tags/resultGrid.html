@@ -7,13 +7,13 @@
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
         <div class="widget-container">
         <div class="media thing draggable">
-            <a href="#" class="clip"><img src="${doc.getThumbnail()}" width="84" class="img"/></a>
+            <a href="#" class="clip"><img src="${doc.getThumbnail(100)}" width="84" class="img"/></a>
 
             <div class="bd">
                 <div class="mod">
                     <div class="inner">
                         <div class="hd title">
-                            <a href="${doc.getOrgId()}/object/${doc.getSpec()}/${doc.getRecordId()}" >
+                            <a href="${doc.getIdUri()}" >
                                 <span property="dc:title" content="${doc.getTitle()}">${doc.getTitle()}</span>
                             </a>
                         </div>
@@ -24,7 +24,7 @@
                 </div>
             </div>
             <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnail()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnail(100)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
         </div>
