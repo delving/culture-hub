@@ -24,14 +24,6 @@ object Constants {
   val FORMAT = "delving_currentFormat"
   val RECORD_TYPE = "delving_recordType"
 
-  // ~~~ "the guys" for indexing
-  val IDX_TITLE = "title_text"
-  val IDX_DESCRIPTION = "description_text"
-  val IDX_OWNER = "owner_text"
-  val IDX_CREATOR = "creator_text"
-  val IDX_VISIBILITY = "delving_visibility_single"
-  val IDX_THUMBNAIL = "thumbnail_single"
-
   // ~~~ "the guys" for access
   val TITLE = "title"
   val DESCRIPTION = "description"

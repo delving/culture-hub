@@ -43,14 +43,14 @@ trait Thing extends Base {
     doc addField (ID, _id)
     doc addField (HUB_ID, "%s_%s_%s".format(userName, getType, _id))
     doc addField (RECORD_TYPE, getType)
-    doc addField (IDX_VISIBILITY, visibility.value.toString)
-    doc addField (IDX_OWNER, userName)
-    doc addField (IDX_CREATOR, userName)
+    doc addField (VISIBILITY, visibility.value.toString)
+    doc addField (OWNER, userName)
+    doc addField (CREATOR, userName)
     doc addField ("europeana_provider_single", userName) // TODO remove?
-    doc addField (IDX_DESCRIPTION, description)
-    doc addField (IDX_TITLE, name)
+    doc addField (DESCRIPTION, description)
+    doc addField (TITLE, name)
     if (thumbnail_id != None) {
-      doc addField(IDX_THUMBNAIL, thumbnail_id.get)
+      doc addField(THUMBNAIL, thumbnail_id.get)
     }
     doc
   }

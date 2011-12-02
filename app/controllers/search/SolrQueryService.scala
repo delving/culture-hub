@@ -241,7 +241,7 @@ object SolrQueryService extends SolrServer {
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
-    val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(IDX_VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(IDX_VISIBILITY, IDX_OWNER, connectedUser.get))
+    val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
     val systemHQFs  =  defaultSystemHQFs  ++ additionalSystemHQFs
     systemHQFs.foreach(fq => query addFilterQuery (fq))
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)

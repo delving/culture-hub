@@ -98,7 +98,7 @@ object Indexing extends SolrServer {
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(FORMAT, format)
     inputDoc.addField(RECORD_TYPE, DATASET)
-    inputDoc.addField(IDX_VISIBILITY, dataSet.visibility.value)
+    inputDoc.addField(VISIBILITY, dataSet.visibility.value)
     val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
     inputDoc.addField(HUB_ID, hubId)
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
