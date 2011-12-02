@@ -34,16 +34,21 @@ trait Thing extends Base {
   def freeTextLinks = links.filter(_.linkType == Link.LinkType.FREETEXT)
   def placeLinks = links.filter(_.linkType == Link.LinkType.PLACE)
 
+  def getType: String
+  def toSolrDocument: SolrInputDocument = getAsSolrDocument
+
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField ("id", _id)
+    doc addField ("delving_recordType", getType)
+    doc addField ("delving_visibility_single", visibility.value.toString) // TODO give accurate type, this is an integer
     doc addField ("delving_user_id_single", user_id)
     doc addField ("delving_userName_single", userName)
-    doc addField ("europeana_provider_single", userName)
+    doc addField ("europeana_provider_single", userName) // TODO remove
     doc addField ("delving_description_text", description)
     doc addField ("delving_name_text", name)
     if (thumbnail_id != None) {
-      doc addField("delving_thumbnail_id_string", thumbnail_id.get)
+      doc addField("delving_thumbnail_id_single", thumbnail_id.get)
     }
     doc
   }

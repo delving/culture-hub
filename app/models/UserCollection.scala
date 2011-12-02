@@ -6,7 +6,7 @@ import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
 import org.apache.solr.common.SolrInputDocument
-
+import util.Constants._
 
 /**
  *
@@ -24,11 +24,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           thumbnail_id: Option[ObjectId],
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
 
-  def toSolrDocument: SolrInputDocument = {
-    val doc = getAsSolrDocument
-    doc addField("delving_recordType", "userCollection")
-    doc
-  }
+  def getType = USERCOLLECTION
 }
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {

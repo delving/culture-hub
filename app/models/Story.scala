@@ -5,6 +5,7 @@ import com.novus.salat.dao.SalatDAO
 import models.salatContext._
 import org.bson.types.ObjectId
 import java.util.Date
+import util.Constants._
 
 /**
  *
@@ -24,9 +25,10 @@ case class Story(_id: ObjectId = new ObjectId,
                  pages: List[Page],
                  links: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
 
-  def toSolrDocument: SolrInputDocument = {
+  def getType = STORY
+
+  override def toSolrDocument: SolrInputDocument = {
     val doc = getAsSolrDocument
-    doc addField("delving_recordType", "story")
     pages foreach {
       page => {
         val pageNumber = pages.indexOf(page)
