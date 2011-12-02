@@ -205,8 +205,8 @@ h6, .h6 {
 }
 
 h1.sep {
-    margin: 10px;
-    padding-bottom: 5px;
+    margin: 20px 10px;
+    /*padding-bottom: 5px;*/
     //border-bottom: 1px solid lighten($color5, 30%);
 }
 
@@ -556,16 +556,22 @@ div.dropdown-slider .ddm.heading.org .label {
     color: $darker;
 }
 
-.media,
-.widget .bd,
-.results {
+.widget .bd {
+    background: transparent;
     background: $darker  url(/public/themes/nassau/images/noise-222.png);
-    /*padding: 4px;*/
+}
+
+#home .widget .bd {
+    background: $darker  url(/public/themes/nassau/images/noise-222.png);
     color: $lighter;
 }
 
+#profile .widget .bd {
+   background: $darker;
+}
 
 .results {
+    background: $darker  url(/public/themes/nassau/images/noise-222.png);
     padding: 4px;
 }
 
@@ -594,12 +600,17 @@ div.dropdown-slider .ddm.heading.org .label {
 
 .pagination a, .pagination span {
     background: $lighter;
-     margin: 0;
+     /*margin: 0;*/
     padding: 4px 8px;
 }
 
 .pagination .current {
     background-color: $link;
+}
+
+.pagination .prev,
+.pagination .next {
+    background: $lighter;
 }
 
 .breadcrumb li {

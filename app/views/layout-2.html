@@ -31,7 +31,7 @@
     <div id="search" role="search">
         <div class="container">
             <div class="content">
-                <form method="get" action="/search">
+                <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                     <input type="text" id="query" name="query" value='${params.query}'/>
                     <input type="submit" value="&{'ui.label.search'}">
                 </form>
@@ -50,6 +50,7 @@
                     <a class='button ${"Registration.index".isCurrent()}' href="@{Registration.index()}" id="register" rel="nofollow">
                         <span class="label">&{'ui.label.register'}</span>
                     </a>
+                    #{languageSelect /}
                 </div>
                 #{/if}
                 #{else}
@@ -95,6 +96,7 @@
                         <span class="label">Logout</span>
 
                     </a>
+                    #{languageSelect /}
                 </div>
 
                 #{/else}

@@ -13,7 +13,7 @@
   #{elseif items.length() == 0}
   <p>&{'user.list.noUsers'}</p>
   #{/elseif}
-
+</div>
 
 %{ def counter = 1 }%
 
@@ -21,9 +21,9 @@
 
 #{if counter == 1}
 <div class="row">
-  #{/if}
+#{/if}
 
-  <div class="g-4of12 grid_4">
+<div class="g-4of12 grid_4">
     <div class="media ${itemName}">
 
       <a href="/${i.userName}/" class="img" rel="nofollow">
@@ -53,8 +53,6 @@
     </div>
   </div>
 
-</div>
-
 %{ counter++ }%
 
 #{if counter > 3 || i_isLast }
@@ -66,12 +64,12 @@
 
 #{if items.length() > views.context.package.PAGE_SIZE()}
 <div class="row">
-  <div class="g-12of12 mtm">
+  <div class="g-12of12 grid_12 mtm">
     <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
   </div>
 </div>
 #{/if}
 
-</div>
+
 
 

@@ -385,6 +385,11 @@ form h3 {
     background-color: $color4;
 }
 
+.pagination .prev,
+.pagination .next {
+    background: $color1;
+}
+
 /* media overrides */
 
 .metadata h5 {
@@ -405,5 +410,8 @@ form h3 {
 .toolbar {
     margin: 0px 0px 20px 0px;
 }
+
+
+
 
 

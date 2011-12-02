@@ -320,7 +320,7 @@ div.dropdown-slider .ddm.heading {
 /*}*/
 
 .widget .button {
-    display: block;
+    /*display: block;*/
     float: none;
     color: #fff;
     text-shadow: none;
@@ -429,6 +429,10 @@ textarea.mceEditor {
 
 table.mceLayout {
     height: 300px;
+}
+
+div.wait {
+    display: inline-block;
 }
 
 

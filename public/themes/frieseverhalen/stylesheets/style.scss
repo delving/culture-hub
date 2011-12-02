@@ -82,6 +82,7 @@ body {
     font-family: $ffam-1;
     font-size: $fsize-1;
         line-height: 1.5;
+        color: #555;
 }
 a { color: $color-4; }
 a:visited {color: darken($color-4, 10%);}
