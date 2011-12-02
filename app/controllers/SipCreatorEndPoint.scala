@@ -75,6 +75,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
   })
 
   def getConnectedUserId = getConnectedUser._id
+  override def connectedUser = getConnectedUser.userName
 
   def listAll(): Result = {
     val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName, GrantType.MODIFY)
@@ -113,9 +114,16 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
         val msg = "Unknown spec %s".format(spec)
         return TextNotFound(msg)
       })
-      val updated = dataSet.copy(lockedBy = None)
-      DataSet.save(updated)
-      Ok
+
+      if(dataSet.lockedBy == None) return Ok
+
+      if(dataSet.lockedBy.get == getConnectedUserId) {
+        val updated = dataSet.copy(lockedBy = None)
+        DataSet.save(updated)
+        Ok
+      } else {
+        TextError("You cannot unlock a DataSet locked by someone else")
+      }
     }
 
   /**
@@ -203,7 +211,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecordMapping, spec: String, hash: String): Either[String, String] = {
-    //if(!DataSet.canUpdate(spec, getConnectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
+    if(!DataSet.canEdit(dataSet, connectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
 
     HarvestStep.removeFirstHarvestSteps(spec) // todo check if this works
     val updatedDataSet = dataSet.setMapping(mapping = recordMapping)
@@ -218,7 +226,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
   }
 
   private def receiveSource(dataSet: DataSet, inputStream: InputStream): Either[String, String] = {
-//    if(!DataSet.canUpdate(dataSet.spec, getConnectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
+    if(!DataSet.canEdit(dataSet, connectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
 
     HarvestStep.removeFirstHarvestSteps(dataSet.spec)
 

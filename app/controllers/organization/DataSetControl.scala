@@ -186,6 +186,13 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     }
   }
 
+  def forceUnlock(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
+      DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
+      Ok
+    }
+  }
+
   def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
     // TODO for now only owners can do

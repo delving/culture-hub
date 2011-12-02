@@ -191,6 +191,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
   }
 
+  def unlock(dataSet: DataSet) {
+    update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
+  }
+
   def addHash(dataSet: DataSet, key: String, hash: String) {
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject(("hashes." + key) -> hash)))
   }
