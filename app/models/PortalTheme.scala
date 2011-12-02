@@ -43,12 +43,12 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
   }
 
   def getFacets: List[SolrFacetElement] = {
-    facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
+    facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 3).map {
       entry => {
         val k = entry.split(":")
         k.length match {
-          case 1 | 2 => SolrFacetElement(k.head, k.head.take(4), k.head)
-          case 3 => SolrFacetElement(k(1), k(2), k(3))
+          case 1 => SolrFacetElement(k.head, k.head)
+          case 2 => SolrFacetElement(k(0), k(1))
         }
       }
     }.toList

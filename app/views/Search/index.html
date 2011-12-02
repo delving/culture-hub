@@ -66,9 +66,9 @@
             <div class="widget">
                 <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
                 <div class="bd">
-                    #{facet facetMap: facets, type: "europeana_provider_facet", typeKey: viewUtils.getKey('search.facet.byProvider'), qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
-                    #{facet facetMap: facets, type: "europeana_year_facet", typeKey: viewUtils.getKey('search.facet.byYear'), gClass:"g-1of2", qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
-                </div>
+                #{list items: themeFacets, as: 'tf'}
+                  #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: viewUtils.getKey(tf.facetInternationalisationCode())+'_facet', qString: pagination.getPresentationQuery().getUserSubmittedQuery() /}
+                #{/list}
             </div>
         </div>
         *{<!--TODO: find a way to keep dropped items in here while paging! -->}*
