@@ -32,6 +32,7 @@ class UGCIndexing extends Job with SolrServer {
         getStreamingUpdateServer.commit()
       }
     })
+    getStreamingUpdateServer.commit()
   }
 
   override def onException(e: Throwable) {
