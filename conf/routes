@@ -179,7 +179,7 @@ GET        /admin/indexUGC                                                   adm
 # Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
 POST       /image/upload                                                     ImageUpload.uploadFile
-GET        /image/viewer/{image}                                             Images.view
+GET        /image/viewer                                                     Images.view
 GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
 GET        /deepzoom/?                                                       Images.iipsrv
 
