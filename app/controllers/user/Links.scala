@@ -35,9 +35,9 @@ object Links extends DelvingController {
             if(UserCollection.count(MongoDBObject("_id" -> id, "userName" -> connectedUser)) == 0) {
               return Forbidden(&("user.secured.noAccess"))
             }
-          case _ => BadRequest
+          case _ => BadRequest("unmached hubType " + hubType)
         }
-      case _ => return BadRequest
+      case _ => return BadRequest("unmatched linkType " + linkType)
     }
     Continue
   }
@@ -56,7 +56,7 @@ object Links extends DelvingController {
     // collection of the hub type we link against, passed in via the router
     val targetCollection: MongoCollection = ht(hubType) match {
       case Some(col) => col
-      case None => return BadRequest("unmatched hubType")
+      case None => return BadRequest("unmatched hubType " + hubType)
     }
 
     linkType match {
@@ -118,11 +118,11 @@ object Links extends DelvingController {
                 hubType = Some(USERCOLLECTION)
               )
             ))
-          case _ => BadRequest("unmatched hubType")
+          case _ => BadRequest("unmatched hubType " + hubType)
         }
 
 
-      case _ => BadRequest("unmatched LinkType")
+      case _ => BadRequest("unmatched LinkType " + linkType)
     }
   }
 
@@ -182,9 +182,9 @@ object Links extends DelvingController {
             val mwr = linksCollection.remove(MongoDBObject("from.uri" -> buildMdrUri(orgId, spec, recordId), "linkType" -> linkType, "to.id" -> id), WriteConcern.Safe)
             if(mwr.getN != 1) return Error("Error deleting master link! " + linkDesc)
             Ok
-          case _ => BadRequest("unmatched hubType")
+          case _ => BadRequest("unmatched hubType " + hubType)
         }
-      case _ => BadRequest("unmatched LinkType")
+      case _ => BadRequest("unmatched LinkType " + linkType)
     }
 
   }

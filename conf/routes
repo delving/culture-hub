@@ -93,8 +93,8 @@ DELETE      /{user}/object/{id}/remove                                       use
 
 GET         /{user}/object/{id}                                              DObjects.dobject
 GET         /{orgId}/object/{spec}/{recordId}/overlay                        Search.record(overlay:'true')
-POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.add(hubType:'userCollection')
-DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.remove(hubType:'userCollection')
+POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.add(hubType:'collection')
+DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.remove(hubType:'collection')
 GET         /{orgId}/object/{spec}/{recordId}                                Search.record
 
 GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
@@ -104,8 +104,8 @@ GET         /{user}/collection/{id}/objects                                  Col
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
-POST        /{user}/collection/{id}/link/{linkType}                          user.Links.add(hubType:'userCollection')
-DELETE      /{user}/collection/{id}/link/{linkType}/{link}                   user.Links.removeById(hubType:'userCollection')
+POST        /{user}/collection/{id}/link/{linkType}                          user.Links.add(hubType:'collection')
+DELETE      /{user}/collection/{id}/link/{linkType}/{link}                   user.Links.removeById(hubType:'collection')
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/{id}                                          Collections.collection
