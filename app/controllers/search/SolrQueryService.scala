@@ -481,7 +481,7 @@ case class FilterQuery(field: String, value: String) {
   override def toString = toFacetString
 }
 
-case class SolrFacetElement(facetName: String, facetPrefix: String, facetPresentationName: String)
+case class SolrFacetElement(facetName: String, facetInternationalisationCode: String)
 
 case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
 
