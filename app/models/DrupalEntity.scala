@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
 import controllers.SolrServer
-import com.sun.org.apache.xpath.internal.operations.Bool
+import util.Constants._
 
 /**
  *
@@ -41,15 +41,15 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   def toSolrDocument: SolrInputDocument = {
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
-    doc addField("id", id.nodeId)
+    doc addField(ID, id.nodeId)
     doc addField("drup_id_string", id.id)
     doc addField ("drup_entityType_string", id.nodeType)
     doc addField ("drup_bundle_string", id.bundle)
     doc addField ("europeana_uri", id.nodeId)
     doc addField ("europeana_collectionName_s", id.bundle)
     doc addField ("europeana_provider_s", "ITIN")
-    doc addField ("delving_recordType", "drupal")
-    doc addField ("delving_pmhId", "drupal_%s".format(_id))
+    doc addField (RECORD_TYPE, "drupal")
+    doc addField (PMH_ID, "drupal_%s".format(_id))
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{

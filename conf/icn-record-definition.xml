@@ -87,9 +87,9 @@
         <field prefix="icn" localName="physicalState"/>
         <field prefix="dc" localName="contributor"/>
         <field prefix="dc" localName="coverage"/>
-        <field prefix="dc" localName="creator"/>
+        <field prefix="dc" localName="creator" summaryField="CREATOR"/>
         <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
-        <field prefix="dc" localName="description"/>
+        <field prefix="dc" localName="description" summaryField="DESCRIPTION"/>
         <field prefix="dc" localName="format"/>
         <field prefix="dc" localName="identifier" fieldType="string"/>
         <field prefix="dc" localName="language"/>
@@ -97,10 +97,10 @@
         <field prefix="dc" localName="relation"/>
         <field prefix="dc" localName="rights"/>
         <field prefix="dc" localName="source"/>
-        <field prefix="dc" localName="subject"/>
-        <field prefix="dc" localName="title"/>
+        <field prefix="dc" localName="subject" summaryField="SNIPPET"/>
+        <field prefix="dc" localName="title" summaryField="TITLE"/>
         <field prefix="dc" localName="type"/>
-        <field prefix="dcterms" localName="alternative"/>
+        <field prefix="dcterms" localName="alternative" summaryField="SNIPPET"/>
         <field prefix="dcterms" localName="conformsTo"/>
         <field prefix="dcterms" localName="created"/>
         <field prefix="dcterms" localName="extent"/>
@@ -123,12 +123,12 @@
         <field prefix="dcterms" localName="tableOfContents"/>
         <field prefix="dcterms" localName="temporal"/>
         <field prefix="dcterms" localName="rightsHolder"/>
-        <field prefix="europeana" localName="collectionName"/>
-        <field prefix="europeana" localName="collectionTitle" factName="name"/>
+        <field prefix="europeana" localName="collectionName" factName="spec"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name" summaryField="SNIPPET"/>
         <field prefix="europeana" localName="country" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string" summaryField="OWNER"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
-        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string" summaryField="THUMBNAIL"/>
         <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
         <field prefix="europeana" localName="object" fieldType="string"/>
         <field prefix="europeana" localName="provider" factName="provider" fieldType="string"/>

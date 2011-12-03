@@ -9,17 +9,17 @@
             <div class="mod">
                 <div class="inner">
                     <div class="hd title">
-                        <a href="#">${doc.getFieldValue("dc_title").getFirst().shorten(100)}</a>
+                        <a href="#">${doc.getTitle().shorten(100)}</a>
                     </div>
                     <div class="bd">
-                        #{if doc.getFieldValue("dc_description").getFirst()}
-                             <p>${doc.getFieldValue("dc_description").getFirst().shorten(180)}</p>
+                        #{if doc.getDescription()}
+                             <p>${doc.getDescription().shorten(180)}</p>
                         #{/}
                         #{if doc.getYear()}
                            ${doc.getYear()} |
                         #{/}
-                        #{if doc.getFieldValue("dc_creator").getFirst()}
-                            ${doc.getFieldValue("dc_creator").getFirst()} |
+                        #{if doc.getCreator()}
+                            ${doc.getCreator()} |
                         #{/}
                         #{if doc.getProvider()}
                             ${doc.getProvider()}

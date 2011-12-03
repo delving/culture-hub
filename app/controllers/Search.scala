@@ -58,15 +58,15 @@ object Search extends DelvingController {
   @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
     val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
     request.params.put("start", start.toString)
-    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), List("delving_recordType:%s".format(recordType)))
+    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), List("%s:%s".format(RECORD_TYPE, recordType)))
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(params, theme, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
-    val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getThingTitle, description = bd.getThingDescription, thumbnail = bd.getThingThumbnailId match {
+    val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getTitle, description = bd.getDescription, thumbnail = bd.getThumbnailDirect match {
       case id if ObjectId.isValid(id) => Some(new ObjectId(id))
       case _ => None
-    }, userName = bd.getThingUserName, fullUserName = "", isPrivate = bd.getThingVisibility.toInt == Visibility.PRIVATE))
+    }, userName = bd.getOwner, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE))
 
     (items, briefItemView.pagination.getNumFound)
   }

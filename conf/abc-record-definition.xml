@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright 2011 DELVING BV
+  ~
+  ~ Licensed under the EUPL, Version 1.1 or as soon they
+  ~ will be approved by the European Commission - subsequent
+  ~ versions of the EUPL (the "Licence");
+  ~ you may not use this work except in compliance with the
+  ~ Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ http://ec.europa.eu/idabc/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in
+  ~ writing, software distributed under the Licence is
+  ~ distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+  ~ express or implied.
+  ~ See the Licence for the specific language governing
+  ~ permissions and limitations under the Licence.
+  -->
+
+<record-definition prefix="abc">
+    <namespaces>
+        <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+        <namespace prefix="dcterms" uri="http://purl.org/dc/terms/" schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+        <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="icn" uri="http://www.icn.nl/" schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"/>
+        <namespace prefix="abc" uri="http://www.ab-c.nl/" schema="http://www.ab-c.nl/schemas/ABC-V3.2.xsd"/>
+
+    </namespaces>
+    <!--
+    sortable            => default false; action index also with sort_ prefix in fieldname
+    searchField         => add content of field to each field specified in the list
+    fulldoc             => default true; when set to false the field will no be displayed in the full view
+    briefdoc            => default false; if true store with prefix summ_; if false store with prefix md_* (this means that the fieldContents are not stored)
+    housekeeping        => default false; this field can never be mapped and its value is only used in back-end processes
+    facetPrefix         => this is the prefix used during Solr Query construction for multivalued search
+                           If facetPrefix is non-empty store this field with prefix facet_ to enable its use as facet.
+    facetName           => this is the name used for the facet
+    fieldType           => default text; this value is used to determine the fieldType for the Solr search Engine
+
+    Validation
+
+    multivalued         => default = true; check if field name appears multiple times.
+
+
+    -->
+    <root localName="record">
+         <!-- Category AB-C -->
+        <field prefix="abc" localName="titel" summaryField="TITLE"/>
+        <field prefix="abc" localName="birthDate"/>
+        <field prefix="abc" localName="deathDate"/>
+        <field prefix="abc" localName="beginjaar"/>
+        <field prefix="abc" localName="eindjaar"/>
+        <field prefix="abc" localName="objectId"/>
+        <field prefix="abc" localName="dimensionValue"/>
+        <field prefix="abc" localName="dimensionUnit"/>
+        <field prefix="abc" localName="dimension"/>
+        <field prefix="abc" localName="technique"/>
+        <field prefix="abc" localName="material"/>
+        <field prefix="abc" localName="deepzoomUrl"/>
+        <field prefix="abc" localName="smallThumbnail"/>
+        <field prefix="abc" localName="largeThumbnail" summaryField="THUMBNAIL"/>
+        <field prefix="abc" localName="description" summaryField="DESCRIPTION"/>
+        <field prefix="abc" localName="name"/>
+        <field prefix="abc" localName="school"/>
+        <field prefix="abc" localName="onderwerp"/>
+        <field prefix="abc" localName="collection" /> <!--facetName="collectie" facetPrefix="col" sortable="true"-->
+        <field prefix="abc" localName="objectName" /> <!--facetName="object" facetPrefix="obj" sortable="true"-->
+        <field prefix="abc" localName="kunstenaar" summaryField="CREATOR"/> <!--facetName="kunstenaar" facetPrefix="knst" sortable="true"-->
+        <field prefix="abc" localName="production" /> <!--facetName="periode" facetPrefix="per" sortable="true"-->
+
+        <!--  Vervaardiger Velden -->
+        <field prefix="abc" localName="vName"/>
+        <field prefix="abc" localName="vOccuppation"/>
+        <field prefix="abc" localName="vNationality"/>
+        <field prefix="abc" localName="vBirthDate"/>
+        <field prefix="abc" localName="vBirthPlace"/>
+        <field prefix="abc" localName="vDeathDate"/>
+        <field prefix="abc" localName="vDeathPlace"/>
+        <field prefix="abc" localName="vBiography"/>
+
+        <!--Europeana Fields-->
+        <field prefix="europeana" localName="collectionName" factName="spec"/>
+        <field prefix="europeana" localName="collectionTitle" factName="name" summaryField="SNIPPET"/>
+        <field prefix="europeana" localName="country" factName="country"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string" summaryField="OWNER"/>
+        <field prefix="europeana" localName="isShownAt" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string" summaryField="THUMBNAIL"/>
+        <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
+        <field prefix="europeana" localName="object" fieldType="string"/>
+        <field prefix="europeana" localName="provider" factName="provider" fieldType="string"/>
+        <field prefix="europeana" localName="rights" factName="rights" fieldType="string"/>
+        <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
+        <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
+        <field prefix="europeana" localName="unstored" fieldType="text"/>
+        <field prefix="europeana" localName="uri" identifierField="true" fieldType="string"/>
+        <field prefix="europeana" localName="year"  fieldType="string">
+                <converter multipleOutput="true" call=".extractYear()"/>
+        </field>
+    </root>
+    <validation>
+        assert record.'europeana:collectionTitle'
+        assert record.'europeana:country'
+        assert record.'europeana:dataProvider'
+        assert record.'europeana:provider'
+        assert record.'europeana:language'
+        assert record.'europeana:rights'
+        assert record.'europeana:type'
+        assert record.'europeana:uri'
+        assert isUnique(record.'europeana:uri')
+    </validation>
+</record-definition>
