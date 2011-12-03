@@ -58,7 +58,11 @@ object Search extends DelvingController {
   @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
     val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
     request.params.put("start", start.toString)
-    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), List("%s:%s".format(RECORD_TYPE, recordType)))
+    val queryList = (user match {
+      case Some(u) => List("%s:%s".format(OWNER, u))
+      case None => List()
+    }) ::: List("%s:%s".format(RECORD_TYPE, recordType))
+    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), queryList)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(params, theme, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
