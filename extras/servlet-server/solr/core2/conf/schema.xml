@@ -502,6 +502,14 @@
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+   <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="description" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="owner" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_visibility" type="string" indexed="true" stored="true" multiValued="false" />
+   <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="false"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -573,12 +581,15 @@
      <dynamicField name="sort_all_*" type="string" indexed="true" stored="false" multiValued="false" termVectors="true"/>
      <dynamicField name="sort_*" type="alphaOnlySort" indexed="true" stored="false" multiValued="false" termVectors="true"/>
 
-   <!-- uncomment the following to ignore any fields that don't already match an existing
-        field name or dynamic field, rather than reporting them as an error. 
-        alternately, change the type="ignored" to some other type e.g. "text" if you want 
-        unknown fields indexed and/or stored by default --> 
-   <dynamicField name="*" type="text_general" multiValued="true" />
-   
+     <dynamicField name="*_snippet" type="text_general" multiValued="true"/>
+
+     <!-- uncomment the following to ignore any fields that don't already match an existing
+field name or dynamic field, rather than reporting them as an error.
+alternately, change the type="ignored" to some other type e.g. "text" if you want
+unknown fields indexed and/or stored by default -->
+     <dynamicField name="*" type="text_general" multiValued="true" />
+
+
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 

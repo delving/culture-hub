@@ -1,5 +1,5 @@
 import java.io.File
-import models.{Link, DObject}
+import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers
 import play.mvc.Http.Response
 import play.test.{FunctionalTest, UnitFlatSpec}
@@ -20,7 +20,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link".format(dobject._id.toString), Map("label" -> "toto", "linkType" -> "freeText"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/freeText".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
 
     response.status should be (200)
 
@@ -44,7 +44,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "DELETE"
-    val response: Response = FunctionalTest.DELETE(req, "/bob/object/%s/link/%s".format(dobject._id.toString, link._id.toString))
+    val response: Response = FunctionalTest.DELETE(req, "/bob/object/%s/link/freeText/%s".format(dobject._id.toString, link._id.toString))
 
     response.status should be (200)
 
@@ -59,7 +59,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link".format(dobject._id.toString), Map("label" -> "Earth", "linkType" -> "place", "geonameID" -> "42"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/place".format(dobject._id.toString), Map("label" -> "Earth", "geonameID" -> "42"), Map.empty[String, File])
 
     response.status should be (200)
     Link.count(MongoDBObject("value.label" -> "Earth", "value.geonameID" -> "42", "linkType" -> Link.LinkType.PLACE)) should equal (1)
@@ -69,6 +69,49 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     embedded.linkType should equal (Link.LinkType.PLACE)
     embedded.value("label") should be ("Earth")
     embedded.value("geonameID") should be ("42")
+  }
+
+  it should "create a link to an MDR" in {
+    val uCol = UserCollection.findOne(MongoDBObject()).get
+    val req = getAuthenticated()
+    req.method = "POST"
+
+    // /{orgId}/object/{spec}/{recordId}/link/{id}
+    val response: Response = FunctionalTest.POST(req, "/delving/object/Verzetsmuseum/00001/link/partOf/%s".format(uCol._id.toString), Map.empty[String, String], Map.empty[String, File])
+    response.status should be (200)
+
+    val links = Link.find(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.uri" -> "http://culturehub/delving/object/Verzetsmuseum/00001", "to.id" -> uCol._id))
+    val linksList = links.toList
+    linksList.length should be (1)
+    val theLink = linksList.head
+
+    val mdr = DataSet.getRecord("delving:Verzetsmuseum:00001", "icn")
+    mdr should not be (None)
+    mdr.get.links.size should be (1)
+    val embedded = mdr.get.links.head
+    embedded.link should equal (theLink._id)
+    embedded.linkType should be (Link.LinkType.PARTOF)
+    embedded.userName should be ("bob")
+  }
+
+  it should "remove a link to an MDR" in {
+    val uCol = UserCollection.findOne(MongoDBObject()).get
+
+    val links = Link.find(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.uri" -> "http://culturehub/delving/object/Verzetsmuseum/00001", "to.id" -> uCol._id))
+    links.size should be (1)
+
+    val req = getAuthenticated()
+    req.method = "POST"
+
+    val response: Response = FunctionalTest.DELETE(req, "/delving/object/Verzetsmuseum/00001/link/partOf/%s".format(uCol._id.toString))
+    response.status should be (200)
+
+    val mdr = DataSet.getRecord("delving:Verzetsmuseum:00001", "icn")
+    mdr should not be (None)
+    mdr.get.links.size should be (0)
+
+    val newLinks = Link.find(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.uri" -> "http://culturehub/delving/object/Verzetsmuseum/00001", "to.id" -> uCol._id))
+    newLinks.size should be (0)
   }
 
   /*

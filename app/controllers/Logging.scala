@@ -58,6 +58,10 @@ trait Logging extends UserAuthentication { self: Controller =>
     warning("Bad request")
     new BadRequest()
   }
+  def BadRequest(why: String) = {
+    warning(why)
+    new BadRequest
+  }
   def TextError(why: String, status: Int = 500) = {
     response.status = new java.lang.Integer(status)
     Logger.error(why)
@@ -73,10 +77,10 @@ trait Logging extends UserAuthentication { self: Controller =>
   // ~~~ Logger wrappers, with more context
 
   def info(message: String, args: String*) {
-    Logger.warn(withContext(message), args : _ *)
+    Logger.info(withContext(message), args : _ *)
   }
   def info(e: Throwable, message: String, args: String*) {
-    Logger.warn(e, withContext(message), args : _ *)
+    Logger.info(e, withContext(message), args : _ *)
   }
   def warning(message: String, args: String*) {
     Logger.warn(withContext(message), args : _ *)
@@ -96,7 +100,7 @@ trait Logging extends UserAuthentication { self: Controller =>
     Mails.reportError(securitySubject, toReport(user, message, request, params))
   }
 
-  private def withContext(msg: String) = "[%s] While accessing %s: %s".format(user, request.url, msg)
+  private def withContext(msg: String) = "[%s] While accessing %s %s: %s".format(user, request.method, request.url, msg)
 
   private def securitySubject = "***[CultureHub] Security alert on %s".format(request.host + ":" + request.port)
 

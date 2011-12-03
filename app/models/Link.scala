@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
 import java.util.Date
+import com.mongodb.casbah.commons.MongoDBObject
 
 case class Link(_id: ObjectId = new ObjectId,
                  userName: String, // user who created the label in the first place
@@ -21,12 +22,15 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   object LinkType {
     val FREETEXT = "freeText"
     val PLACE = "place"
+    val PARTOF = "partOf"
   }
 
   def create(linkType: String, userName: String, value: Map[String, String], from: LinkReference, to: LinkReference): (Option[ObjectId], Link) = {
     val link = Link(userName = userName, linkType = linkType, value = value, from = from, to = to)
     (Link.insert(link), link)
   }
+
+  def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri))
 
 }
 

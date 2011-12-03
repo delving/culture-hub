@@ -58,6 +58,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
 
     // TODO handle all "automatic facts"
     factsObject.append("spec", spec)
+    factsObject.append("orgId", orgId)
 
     dataSet.id match {
       // TODO for update, add the operator that appends key-value pairs rather than setting all
@@ -183,6 +184,13 @@ object DataSetControl extends DelvingController with OrganizationSecured {
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeDeleted"))
       }
+    }
+  }
+
+  def forceUnlock(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
+      DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
+      Ok
     }
   }
 

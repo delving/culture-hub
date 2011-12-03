@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import views.context.PAGE_SIZE
+import util.Constants._
 
 /**
  *
@@ -240,7 +241,7 @@ object SolrQueryService extends SolrServer {
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
-    val defaultSystemHQFs = if (connectedUser.isEmpty) List("delving_visibility_single:10") else List("delving_visibility_single: 10 OR delving_userName_single:\"%s\"".format(connectedUser.get))
+    val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
     val systemHQFs  =  defaultSystemHQFs  ++ additionalSystemHQFs
     systemHQFs.foreach(fq => query addFilterQuery (fq))
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
@@ -442,17 +443,17 @@ case class DocId(solrIdentifier: String)  {
 
 case class DelvingIdType(id: String, idType: String) {
   lazy val idSearchField = idType match {
-    case "solr" => "id"
+    case "solr" => ID
     //case "mongo" => "delving"
-    case "pmh" => "delving_pmhId"
+    case "pmh" => PMH_ID
     case "drupal" => "id" // maybe later drup_id
-    case "dataSetId" => "delving_hubId"
-    case "hubId" => "delving_hubId"
+    case "dataSetId" => HUB_ID
+    case "hubId" => HUB_ID
     case "legacy" => "europeana_uri"
-    case _ => "delving_pmhId"
+    case _ => PMH_ID
   }
   lazy val normalisedId = idSearchField match {
-    case "delving_pmhId" => id.replaceAll("/", "_")
+    case PMH_ID => id.replaceAll("/", "_")
     case _ => id
   }
 }

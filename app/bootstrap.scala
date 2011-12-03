@@ -1,3 +1,5 @@
+import cake.ComponentRegistry
+import java.lang.Throwable
 import java.util.Properties
 import java.util.regex.{Pattern, Matcher}
 import javax.imageio.spi.IIORegistry
@@ -6,8 +8,8 @@ import models.User
 import play.exceptions.ConfigurationException
 import play.jobs._
 import play.libs.IO
-import play.Play
 import play.test._
+import play.{Logger, Play}
 import util.{MongoCacheImpl, ScalaCacheAccessor, ThemeHandler}
 
 @OnApplicationStart class BootStrap extends Job {
@@ -65,7 +67,6 @@ import util.{MongoCacheImpl, ScalaCacheAccessor, ThemeHandler}
     // mongo-based cache, to get press to work without having to deploy memcached
     ScalaCacheAccessor.set(new MongoCacheImpl)
 
-
     // TODO bootstrap all lazy Mongo connections here
 
     // see http://download.oracle.com/javase/1.4.2/docs/api/javax/imageio/spi/IIORegistry.html#registerApplicationClasspathSpis():
@@ -84,5 +85,8 @@ import util.{MongoCacheImpl, ScalaCacheAccessor, ThemeHandler}
     println("Started up in %s ms".format(System.currentTimeMillis() - start))
   }
 
-
+  override def onException(e: Throwable) {
+    Logger.fatal(e, "Error while starting the CultureHub, shuting down")
+    System.exit(-1)
+  }
 }

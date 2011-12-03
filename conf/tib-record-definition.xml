@@ -30,17 +30,6 @@
         <namespace prefix="delving" uri="http://www.delving.eu/schemas/delving/" schema="http://www.delving.eu/schemas/delving/DELVING-1.0.xsd"/>
         <namespace prefix="tib" uri="http://www.thuisinbrabant.nl/" schema="http://www.thuisinbrabant.nl/schemas/TIB-V1.0.xsd"/>
     </namespaces>
-    <!--
-    sortable            => default false; action index also with sort_ prefix in fieldname
-    searchField         => add content of field to each field specified in the list
-    housekeeping        => default false; this field can never be mapped and its value is only used in back-end processes
-    facetPrefix         => this is the prefix used during Solr Query construction for multivalued search
-                           If facetPrefix is non-empty store this field with prefix facet_ to enable its use as facet.
-    facetName           => this is the name used for the facet
-    fieldType           => default text; this value is used to determine the fieldType for the Solr search Engine
-    multivalued         => default = true; check if field name appears multiple times.
-    -->
-
 
     <!-- mapping instructions
        Adlib fields that don't need to be mapped
@@ -76,7 +65,7 @@
 
         <!-- add dimensions in a prefab form with unit value and type -->
 	<field prefix="tib" localName="dimension"/>
-        <field prefix="tib" localName="objectSoort">
+        <field prefix="tib" localName="objectSoort" fieldType="string">
             <options>
                 <string>dummy item1</string>
                 <string>dummy item2</string>
@@ -95,7 +84,7 @@
             </options>
         </field>
         <field prefix="tib" localName="date"/>
-        <field prefix="tib" localName="collectionPart"/>
+        <field prefix="tib" localName="collectionPart" fieldType="string"/>
 
         <field prefix="icn" localName="creatorYearOfBirth">
             <converter multipleOutput="true" call=".extractYear()"/>
@@ -146,9 +135,9 @@
 
         <field prefix="dc" localName="contributor" />
         <field prefix="dc" localName="coverage" />
-        <field prefix="dc" localName="creator"  sortable="true"/>
+        <field prefix="dc" localName="creator" summaryField="CREATOR"/>
         <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
-        <field prefix="dc" localName="description" />
+        <field prefix="dc" localName="description" summaryField="DESCRIPTION"/>
         <field prefix="dc" localName="format"/>
         <field prefix="dc" localName="identifier" />
         <field prefix="dc" localName="language"/>
@@ -156,10 +145,10 @@
         <field prefix="dc" localName="relation" />
         <field prefix="dc" localName="rights"/>
         <field prefix="dc" localName="source"/>
-        <field prefix="dc" localName="subject"  />
-        <field prefix="dc" localName="title" sortable="true"/>
+        <field prefix="dc" localName="subject"  summaryField="SNIPPET"/>
+        <field prefix="dc" localName="title" summaryField="TITLE"/>
         <field prefix="dc" localName="type"/>
-        <field prefix="dcterms" localName="alternative"/>
+        <field prefix="dcterms" localName="alternative" summaryField="SNIPPET"/>
         <field prefix="dcterms" localName="conformsTo"/>
         <field prefix="dcterms" localName="created" />
         <field prefix="dcterms" localName="extent" />
@@ -183,12 +172,12 @@
         <field prefix="dcterms" localName="temporal" />
         <field prefix="dcterms" localName="rightsHolder"/>
 
-        <field prefix="europeana" localName="collectionName"/>
+        <field prefix="europeana" localName="collectionName" factName="spec"/>
         <field prefix="europeana" localName="collectionTitle" factName="name"/>
         <field prefix="europeana" localName="country" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" factName="dataProvider"/>
+        <field prefix="europeana" localName="dataProvider" factName="dataProvider" summaryField="OWNER"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
-        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string" summaryField="THUMBNAIL"/>
         <field prefix="europeana" localName="language" fieldType="string"/>
         <field prefix="europeana" localName="object"/>
         <field prefix="europeana" localName="provider" factName="provider"/>

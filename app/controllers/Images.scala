@@ -10,15 +10,15 @@ import play.Play
  */
 object Images extends DelvingController {
 
-  def view(image: String): AnyRef = {
+  def view: AnyRef = {
+
+    val image = params.get("image")
 
     // just for testing
     val smallballs = Play.applicationPath.getAbsolutePath + "/public/images/smallballs.tif"
 
-    // FIXME won't work anymore, image.store.path needs to be rethought
-
     if (image.isEmpty || image.equalsIgnoreCase("smallballs")) Template('image -> smallballs)
-    else Template("/Image/view.html", 'image -> (Play.configuration.getProperty("image.store.path") + "/" + image))
+    else Template("/Image/view.html", 'image -> (image))
 
   }
 
