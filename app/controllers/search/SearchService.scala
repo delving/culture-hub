@@ -14,12 +14,12 @@ import util.Constants._
  */
 object SearchService {
 
-  def getApiResult(request: Request, theme: PortalTheme) : Result =
-    new SearchService(request, theme).getApiResult
+  def getApiResult(request: Request, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) : Result =
+    new SearchService(request, theme, hiddenQueryFilters).getApiResult
 
 }
 
-class SearchService(request: Request, theme: PortalTheme) {
+class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
 
   import play.mvc.results.Result
   import xml.PrettyPrinter
@@ -104,7 +104,7 @@ class SearchService(request: Request, theme: PortalTheme) {
 
   private def getBriefResultsFromSolr: BriefItemView = {
     require(!paramMap.get("query").head.isEmpty)
-    val chQuery = SolrQueryService.createCHQuery(request, theme, true)
+    val chQuery = SolrQueryService.createCHQuery(request, theme, true, additionalSystemHQFs = hiddenQueryFilters)
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
