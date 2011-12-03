@@ -21,7 +21,7 @@
 #{breadcrumbs /}
 
 #{if browsedUserName}
-    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${userName}</span> (${count})</h1>
+    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
