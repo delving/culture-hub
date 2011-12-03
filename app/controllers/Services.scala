@@ -1,6 +1,7 @@
 package controllers
 
 import models.DataSet
+import util.Constants
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -63,9 +64,12 @@ object Services extends DelvingController with HTTPClient {
     new RenderXml(oaiPmhService.parseRequest)
   }
 
-  def searchApi : Result = {
+  def searchApi(orgId: Option[String]) : Result = {
     import search.SearchService
-    SearchService.getApiResult(request, theme)
+    orgId match {
+      case Some(id) => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, id)))
+      case None => SearchService.getApiResult(request, theme)
+    }
   }
 
   def retrieveRecord(spec: String, id: String): Result = {

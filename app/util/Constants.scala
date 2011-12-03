@@ -19,6 +19,7 @@ object Constants {
   val ID = "id"
   val HUB_ID = "delving_hubId"
   val PMH_ID = "delving_pmhId"
+  val ORG_ID = "delving_orgId"
 
   val SPEC = "delving_spec"
   val FORMAT = "delving_currentFormat"

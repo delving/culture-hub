@@ -48,8 +48,10 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     doc addField ("europeana_uri", id.nodeId)
     doc addField ("europeana_collectionName_s", id.bundle)
     doc addField ("europeana_provider_s", "ITIN")
+    doc addField (ORG_ID, "ifthenisnow")
     doc addField (RECORD_TYPE, "drupal")
     doc addField (PMH_ID, "drupal_%s".format(_id))
+    doc addField (VISIBILITY, "10") // set visibilty to true alwaysbt
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields
     fields.filter(node => node.label != "#PCDATA").foreach{
