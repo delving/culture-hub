@@ -165,8 +165,9 @@ object SolrQueryService extends SolrServer {
               query setFacetLimit (values.head.toInt)
             case "sortBy" =>
               val sortOrder = if (params._contains("sortOrder") && !params.get("sortOrder").equalsIgnoreCase("desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+              val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey else values.head
               query setSortField (
-                      values.head,
+                      sortField,
                       sortOrder
                       )
             case "facet.field" | "facet.field[]" =>
@@ -287,7 +288,7 @@ object SolrQueryService extends SolrServer {
   }
 
   def createRandomNumber: Int = scala.util.Random.nextInt(1000)
-  def createRandomSortKey : String = "random_%i".format(createRandomNumber)
+  def createRandomSortKey : String = "random_%d".format(createRandomNumber)
 
   def createBreadCrumbList(chQuery: CHQuery) : List[BreadCrumb] = {
     import collection.mutable.ListBuffer
