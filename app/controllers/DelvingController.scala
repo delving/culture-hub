@@ -77,7 +77,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
-  @Before def setLanguage() {
+  @Before(priority = 1) def setLanguage() {
 
     // if a lang param is passed, this is a request to explicitely change the language
     // and will change it in the user's cookie
