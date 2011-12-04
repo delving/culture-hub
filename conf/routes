@@ -27,6 +27,11 @@ GET         /logout                                                          Aut
 GET         /authorize                                                       OAuth2Authenticator.authenticate
 GET         /token                                                           OAuth2TokenEndpoint.token
 
+# Image viewer for high-resolution images
+GET        /image/viewer                                                     Images.view
+GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
+GET        /deepzoom/?                                                       Images.iipsrv
+
 # Image Upload - with authentication
 POST       /file/upload/{uid}                                                user.FileUpload.uploadFile
 DELETE     /file/{id}                                                        user.FileUpload.deleteFile
@@ -177,12 +182,8 @@ POST       /admin/themes/submit                                              adm
 GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
 GET        /admin/indexUGC                                                   admin.Admin.indexUGC
 
-# Image viewer for high-resolution images
 GET        /image/upload                                                     ImageUpload.upload
 POST       /image/upload                                                     ImageUpload.uploadFile
-GET        /image/viewer                                                     Images.view
-GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
-GET        /deepzoom/?                                                       Images.iipsrv
 
 # Ignore favicon requests
 GET         /favicon.ico                                                     404
