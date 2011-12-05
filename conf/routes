@@ -91,15 +91,16 @@ GET         /{user}/label/search                                             Lin
 GET         /{user}/object                                                   DObjects.list
 GET         /{user}/object/add                                               user.DObjects.dobject
 GET         /{user}/object/{id}/update                                       user.DObjects.dobject
-POST        /{user}/object/{id}/link/{linkType}                              user.Links.add(hubType:'object')
-DELETE      /{user}/object/{id}/link/{linkType}/{link}                       user.Links.removeById(hubType:'object')
+POST        /{user}/object/{id}/link/{linkType}                              user.Links.add(fromType:'object')
+POST        /{user}/object/{id}/link/{linkType}/{toType}/{toId}              user.Links.add(fromType:'object')
+DELETE      /{user}/object/{id}/link/{linkType}/{link}                       user.Links.removeById(fromType:'object')
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
 
 GET         /{user}/object/{id}                                              DObjects.dobject
 GET         /{orgId}/object/{spec}/{recordId}/overlay                        Search.record(overlay:'true')
-POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.add(hubType:'collection')
-DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{id}           user.Links.remove(hubType:'collection')
+POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.add(fromType:'object')
+DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.remove(fromType:'object')
 GET         /{orgId}/object/{spec}/{recordId}                                Search.record
 
 GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
@@ -109,8 +110,8 @@ GET         /{user}/collection/{id}/objects                                  Col
 GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
 GET         /{user}/collection/add                                           user.Collections.collection
 GET         /{user}/collection/{id}/update                                   user.Collections.collection
-POST        /{user}/collection/{id}/link/{linkType}                          user.Links.add(hubType:'collection')
-DELETE      /{user}/collection/{id}/link/{linkType}/{link}                   user.Links.removeById(hubType:'collection')
+POST        /{user}/collection/{id}/link/{linkType}                          user.Links.add(fromType:'collection')
+DELETE      /{user}/collection/{id}/link/{linkType}/{link}                   user.Links.removeById(fromType:'collection')
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
 GET         /{user}/collection/{id}                                          Collections.collection
@@ -118,8 +119,8 @@ GET         /{user}/collection/{id}                                          Col
 GET         /{user}/story                                                    Stories.list
 GET         /{user}/story/add                                                user.Stories.story
 GET         /{user}/story/{id}/update                                        user.Stories.story
-POST        /{user}/story/{id}/link/{linkType}                               user.Links.add(hubType:'story')
-DELETE      /{user}/story/{id}/link/{linkType}/{link}                        user.Links.removeById(hubType:'story')
+POST        /{user}/story/{id}/link/{linkType}                               user.Links.add(fromType:'story')
+DELETE      /{user}/story/{id}/link/{linkType}/{link}                        user.Links.removeById(fromType:'story')
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
 GET         /{user}/story/{id}                                               Stories.story

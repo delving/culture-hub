@@ -14,6 +14,7 @@ object Constants {
   val STORY = "story"
   val USER = "user"
   val DATASET = "dataset"
+  val MDR = "mdr"
 
   // ~~~ identifier fields
   val ID = "id"
@@ -24,6 +25,9 @@ object Constants {
   val SPEC = "delving_spec"
   val FORMAT = "delving_currentFormat"
   val RECORD_TYPE = "delving_recordType"
+
+  // ~~~ special indexing fields
+  val COLLECTIONS = "delving_userCollections"
 
   // ~~~ "the guys" for access
   val TITLE = "title"

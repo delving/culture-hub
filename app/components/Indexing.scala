@@ -38,19 +38,11 @@ object Indexing extends SolrServer {
             DataSet.updateIndexingCount(dataSet, records.numSeen)
             state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
-          val mapping = engine.executeMapping(record.getXmlString())
-
-          mapping match {
-            case indexDoc: IndexDocument => {
-              val doc = createSolrInputDocument(indexDoc)
-              addDelvingHouseKeepingFields(doc, dataSet, record, metadataFormatForIndexing)
-              try {
-                getStreamingUpdateServer.add(doc)
-              } catch {
-                case t: Throwable => throw new SolrConnectionException("Unable to add document to Solr", t)
-              }
-            }
-            case _ => // catching null
+          val mapped = Option(engine.executeMapping(record.getXmlString()))
+          val res = indexOne(dataSet, record, mapped, metadataFormatForIndexing)
+          res match {
+            case Left(t) => throw t
+            case Right(ok) => // continue
           }
       }
     }
@@ -68,6 +60,34 @@ object Indexing extends SolrServer {
     (1, 0)
   }
 
+  def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Option[IndexDocument], metadataFormatForIndexing: String): Either[Throwable, String] = {
+    mapped match {
+      case Some(indexDoc) =>
+        val doc = createSolrInputDocument(indexDoc)
+        addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
+        try {
+          getStreamingUpdateServer.add(doc)
+        } catch {
+          case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
+        }
+      case None => // do nothing
+    }
+    Right("ok")
+  }
+
+  def indexOneInSolr(orgId: String, spec: String, metadataFormatForIndexing: String, mdr: MetadataRecord) = {
+    DataSet.findBySpecAndOrgId(spec, orgId) match {
+      case Some(dataSet) =>
+        val mapping = dataSet.mappings.get(metadataFormatForIndexing)
+        if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
+        val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
+        val mapped = Option(engine.executeMapping(mdr.getXmlString()))
+        indexOne(dataSet, mdr, mapped, metadataFormatForIndexing)
+      case None =>
+        Logger.warn("Could not index MDR")
+    }
+
+  }
 
   def deleteFromSolr(dataSet: DataSet) {
     val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery(SPEC + ":" + dataSet.spec)
@@ -118,6 +138,9 @@ object Indexing extends SolrServer {
           inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
         }
     }
+
+    // user collections
+    inputDoc.addField(COLLECTIONS, record.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl"

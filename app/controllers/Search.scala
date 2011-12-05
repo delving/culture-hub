@@ -28,7 +28,7 @@ object Search extends DelvingController {
     session.put(RETURN_TO_RESULTS, request.querystring)
     session.put(SEARCH_TERM, request.params.get("query"))
 
-    val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
+    val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
   }
