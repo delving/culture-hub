@@ -51,7 +51,8 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     doc addField (ORG_ID, "ifthenisnow")
     doc addField (RECORD_TYPE, "drupal")
     doc addField (PMH_ID, "drupal_%s".format(_id))
-    if (!doc.containsKey(VISIBILITY)) {
+    if (!doc.containsKey(VISIBILITY + "_string")) {
+      doc remove (VISIBILITY + "_string")
       doc addField(VISIBILITY, "10") // set visibilty to true always if not set by Drupal
     }
     val fields = XML.loadString(rawXml).nonEmptyChildren
