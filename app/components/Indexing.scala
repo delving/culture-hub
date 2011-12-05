@@ -117,7 +117,7 @@ object Indexing extends SolrServer {
     inputDoc.addField(PMH_ID, "%s_%s".format(dataSet.spec, record._id.toString))
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(FORMAT, format)
-    inputDoc.addField(RECORD_TYPE, DATASET)
+    inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(VISIBILITY, dataSet.visibility.value)
     val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
     inputDoc.addField(HUB_ID, hubId)

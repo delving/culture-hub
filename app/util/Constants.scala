@@ -13,7 +13,6 @@ object Constants {
   val USERCOLLECTION = "collection"
   val STORY = "story"
   val USER = "user"
-  val DATASET = "dataset"
   val MDR = "mdr"
 
   // ~~~ identifier fields

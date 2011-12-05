@@ -381,7 +381,7 @@ abstract class MetadataAccessors {
         case _ => thumbnailUrl(None, size)
     }
     // TODO plug-in the image cache here for datasets
-    case DATASET => assign(THUMBNAIL)
+    case MDR => assign(THUMBNAIL)
     case _ => ""
   }
   def getMimeType: String = "unknown/unknown"

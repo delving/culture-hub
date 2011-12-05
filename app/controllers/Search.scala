@@ -56,12 +56,16 @@ object Search extends DelvingController {
   }
 
   @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
+    search(user, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
+  }
+
+  @Util def search(user: Option[String], request: Request, theme: PortalTheme, query: List[String]) = {
     val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
     request.params.put("start", start.toString)
     val queryList = (user match {
       case Some(u) => List("%s:%s".format(OWNER, u))
       case None => List()
-    }) ::: List("%s:%s".format(RECORD_TYPE, recordType))
+    }) ::: query
     val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), queryList)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(params, theme, queryResponse, chQuery)
@@ -74,5 +78,8 @@ object Search extends DelvingController {
 
     (items, briefItemView.pagination.getNumFound)
   }
+
+
+
 
 }
