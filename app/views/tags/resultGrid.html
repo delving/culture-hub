@@ -6,7 +6,7 @@
     #{/if}
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
         <div class="widget-container">
-        <div class="media thing draggable">
+        <div class="media thing draggable ${doc.getRecordType()}">
             <a href="#" class="clip"><img src="${doc.getThumbnail(100)}" width="84" class="img"/></a>
 
             <div class="bd">

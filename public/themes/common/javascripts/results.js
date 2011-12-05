@@ -50,7 +50,7 @@ $(document).ready(function() {
     });
 
     $("#dropbox").droppable({
-        accept: '.draggable',
+        accept: '.object, .mdr',
         drop: addToDropbox
     });
 
