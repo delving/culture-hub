@@ -360,11 +360,20 @@ abstract class MetadataAccessors {
   // ~~~ identifiers
   def getThingId: String = assign(ID)
   def getId : String = assign(HUB_ID)
+  def getOwnerId: String = getRecordType match {
+    case OBJECT | USERCOLLECTION | STORY => getOwner
+    case MDR => getOrgId
+    case _ => ""
+  }
   def getOrgId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(0) else ""
   def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
   def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
   def getDelvingId : String = assign(PMH_ID)
-  def getIdUri : String = assign(HUB_ID).replaceAll("_", "/")
+  def getIdUri : String = getRecordType match {
+    case OBJECT | USERCOLLECTION | STORY => "/" + getId.replaceAll("_", "/")
+    case MDR => "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
+    case _ => ""
+  }
 
   // ~~~ well-known, always provided, meta-data fields
   def getRecordType: String = assign(RECORD_TYPE)

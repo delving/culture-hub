@@ -1,5 +1,7 @@
 package util
 
+import eu.delving.metadata.SummaryField
+
 /**
  * Constants, used across several building blocks
  *
@@ -29,12 +31,12 @@ object Constants {
   val COLLECTIONS = "delving_userCollections"
 
   // ~~~ "the guys" for access
-  val TITLE = "title"
-  val DESCRIPTION = "description"
-  val OWNER = "owner"
-  val CREATOR = "creator"
-  val VISIBILITY = "delving_visibility"
-  val THUMBNAIL = "thumbnail"
+  val TITLE = SummaryField.TITLE.tag
+  val DESCRIPTION = SummaryField.DESCRIPTION.tag
+  val OWNER = SummaryField.OWNER.tag
+  val CREATOR = SummaryField.CREATOR.tag
+  val VISIBILITY = SummaryField.VISIBILITY.tag
+  val THUMBNAIL = SummaryField.THUMBNAIL.tag
 
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection

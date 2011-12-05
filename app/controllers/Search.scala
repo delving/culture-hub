@@ -74,7 +74,7 @@ object Search extends DelvingController {
     val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getTitle, description = bd.getDescription, thumbnail = bd.getThumbnailDirect match {
       case id if ObjectId.isValid(id) => Some(new ObjectId(id))
       case _ => None
-    }, userName = bd.getOwner, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE))
+    }, userName = bd.getOwnerId, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE, url = bd.getIdUri))
 
     (items, briefItemView.pagination.getNumFound)
   }
