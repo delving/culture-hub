@@ -9,7 +9,7 @@
 <div class="row">
     <div class="g-12of12 grid_12">
         <div class="media record">
-            <img src="${fullDoc.getThumbnail()}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
+            <img src="${fullDoc.getThumbnail(100)}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
             <div class="extra">
                 <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
             </div>
@@ -56,7 +56,7 @@
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
 <div class="contentWrap">
-    <img src="${fullDoc.getThumbnail()}" alt="${fullDoc.getTitle()}"/>
+    <img src="${fullDoc.getThumbnail(100)}" alt="${fullDoc.getTitle()}"/>
     <div class="title"> ${fullDoc.getTitle()}</div>
 </div>
 </div>

@@ -19,7 +19,7 @@
                     <ul>
                     #{list objects, as: 'object'}
                         <li>
-                           <a href="/${object.userName}/collection/${collection._id}/object/${object.id}" title="${object.title}" class="show">
+                           <a href="${object.url}" title="${object.title}" class="show">
                                 <img src="${views.context.package.thumbnailUrl(object.thumbnail, 80)}"  width="80" alt="${object.title}"/>
                                 <input type="hidden" name="show" value="${views.context.package.thumbnailUrl(object.thumbnail, 350)}"/>
                             </a>

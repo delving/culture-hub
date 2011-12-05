@@ -13,6 +13,7 @@ import java.util.Date
 import controllers.dos.FileUploadResponse
 import extensions.JJson
 import models._
+import util.Constants._
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -69,31 +70,63 @@ object DObjects extends DelvingController with UserSecured {
       None
     }
 
-    val persistedObject = objectModel.id match {
+    def addCollectionLinks(links: List[ObjectId], objectId: ObjectId) {
+      links foreach {
+        createCollectionLink(_, objectId)
+      }
+    }
+
+    def createCollectionLink(collectionId: ObjectId, objectId: ObjectId) = {
+      Link.create(
+        linkType = Link.LinkType.PARTOF,
+        userName = connectedUser,
+        value = Map(USERCOLLECTION_ID -> collectionId),
+        from = LinkReference(
+          id = Some(objectId),
+          hubType = Some(OBJECT)
+        ),
+        to = LinkReference(
+          id = Some(collectionId),
+          hubType = Some(USERCOLLECTION)
+        )
+      )
+    }
+
+    val persistedObject: Either[(String, Option[Throwable]), ObjectModel] = objectModel.id match {
       case None =>
-          val newObject: DObject = DObject(
-            TS_update = new Date(),
-            name = objectModel.name,
-            description = objectModel.description,
-            user_id = connectedUserId,
-            userName = connectedUser,
-            visibility = Visibility.get(objectModel.visibility),
-            thumbnail_id = None,
+        val newObject: DObject = DObject(
+          TS_update = new Date(),
+          name = objectModel.name,
+          description = objectModel.description,
+          user_id = connectedUserId,
+          userName = connectedUser,
+          visibility = Visibility.get(objectModel.visibility),
+          thumbnail_id = None,
             collections = objectModel.collections,
-            files = files)
-          val inserted: Option[ObjectId] = DObject.insert(newObject)
+          files = files)
+        
+        val inserted: Option[ObjectId] = DObject.insert(newObject)
+
         inserted match {
           case Some(iid) => {
+            // link collections
+            addCollectionLinks(objectModel.collections, iid)
+
+            // link files
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
+
+            // activate thumbnails
             val thumbnailId = activateThumbnail(iid, objectModel.selectedFile) match {
               case Some(thumb) => DObject.updateThumbnail(iid, thumb); Some(iid)
               case None => None
             }
+
+            // index
             SolrServer.indexSolrDocument(newObject.copy(_id = iid, thumbnail_id = thumbnailId).toSolrDocument)
             SolrServer.commit()
-            Some(objectModel.copy(id = inserted))
+            Right(objectModel.copy(id = inserted))
           }
-          case None => None
+          case None => Left("Not saved", None)
         }
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
@@ -101,29 +134,49 @@ object DObjects extends DelvingController with UserSecured {
         val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files)
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
+
+          // update collection links - we use the existing object, in its previous state
+          val existingCollectionLinks = existingObject.get.collections
+          val intersection = objectModel.collections.intersect(existingObject.get.collections)
+          val removed = existingCollectionLinks.filterNot(intersection.contains(_))
+          val added = objectModel.collections.filterNot(intersection.contains(_))
+
+          // remove removed links
+          Link.remove(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.hubType" -> OBJECT,  "to.hubType" -> USERCOLLECTION,  "from.id" -> id) ++ "to.id" $in removed)
+
+          // add added
+          addCollectionLinks(added, id)
+
+          // link files
           controllers.dos.FileUpload.markFilesAttached(uid, id)
+
+          // activate thumbnails
           val thumbnailId = activateThumbnail(id, objectModel.selectedFile) match {
             case Some(thumb) => DObject.updateThumbnail(id, thumb); Some(id)
             case None => None
           }
+
+          // index
           SolrServer.indexSolrDocument(updatedObject.copy(thumbnail_id = thumbnailId).toSolrDocument)
           SolrServer.commit()
-          Some(objectModel)
+          Right(objectModel)
         } catch {
           case e: SalatDAOUpdateError =>
             SolrServer.rollback()
-            None
-          case _ =>
+            Left(e.getMessage, Some(e))
+          case t: Throwable =>
             SolrServer.rollback()
-            None
+            Left(t.getMessage, Some(t))
         }
     }
 
     persistedObject match {
-      case Some(theObject) => {
+      case Right(theObject) => {
         Json(theObject)
       }
-      case None => Error(&("user.dobjects.saveError", objectModel.name))
+      case Left((message, exception)) =>
+        logError(exception.getOrElse(new Exception(message)), message)
+        Error(&("user.dobjects.saveError", objectModel.name))
     }
   }
 
@@ -140,6 +193,7 @@ object DObjects extends DelvingController with UserSecured {
 
 // ~~~ view models
 
+// TODO replace owner objectId with userName
 case class ObjectModel(id: Option[ObjectId] = None,
                        @Required name: String = "",
                        @Required description: String = "",

@@ -28,7 +28,7 @@ object Search extends DelvingController {
     session.put(RETURN_TO_RESULTS, request.querystring)
     session.put(SEARCH_TERM, request.params.get("query"))
 
-    val userCollections = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
+    val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
     Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
   }
@@ -56,12 +56,16 @@ object Search extends DelvingController {
   }
 
   @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
+    search(user, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
+  }
+
+  @Util def search(user: Option[String], request: Request, theme: PortalTheme, query: List[String]) = {
     val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
     request.params.put("start", start.toString)
     val queryList = (user match {
       case Some(u) => List("%s:%s".format(OWNER, u))
       case None => List()
-    }) ::: List("%s:%s".format(RECORD_TYPE, recordType))
+    }) ::: query
     val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), queryList)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(params, theme, queryResponse, chQuery)
@@ -70,9 +74,12 @@ object Search extends DelvingController {
     val items = briefItemView.getBriefDocs.map(bd => ListItem(id = bd.getThingId, title = bd.getTitle, description = bd.getDescription, thumbnail = bd.getThumbnailDirect match {
       case id if ObjectId.isValid(id) => Some(new ObjectId(id))
       case _ => None
-    }, userName = bd.getOwner, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE))
+    }, userName = bd.getOwnerId, fullUserName = "", isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE, url = bd.getIdUri))
 
     (items, briefItemView.pagination.getNumFound)
   }
+
+
+
 
 }

@@ -35,6 +35,8 @@ trait Thing extends Base {
   def freeTextLinks = links.filter(_.linkType == Link.LinkType.FREETEXT)
   def placeLinks = links.filter(_.linkType == Link.LinkType.PLACE)
 
+  def url = "/%s/%s/%s".format(userName, getType, _id)
+
   def getType: String
   def toSolrDocument: SolrInputDocument = getAsSolrDocument
 

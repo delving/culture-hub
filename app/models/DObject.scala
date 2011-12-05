@@ -30,6 +30,12 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   def getType = OBJECT
 
+
+  override def toSolrDocument = {
+    val doc = getAsSolrDocument
+    doc addField (COLLECTIONS, links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
+    doc
+  }
   def fileIds = files.map(_.id)
 
 }
