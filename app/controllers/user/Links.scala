@@ -180,7 +180,7 @@ object Links extends DelvingController {
   * Add a link involving a hub entity. There will be a denormalized copy of the link saved in the document pointed by (toId, tofromType)
   * TODO eventually add support to store also in another entity (from)
   */
-  private def addLink(toId: ObjectId, mongoCollection: MongoCollection, label: String, createLink: => (Option[ObjectId], Link)): Result = {
+  private def addLink(toId: ObjectId, mongoCollection: MongoCollection, label: String, createLink: => (Option[ObjectId], Link, Boolean)): Result = {
 
     val created = createLink
 
@@ -189,9 +189,12 @@ object Links extends DelvingController {
       case None => return Error("Could not create link")
     }
 
-    val embedded = EmbeddedLink(userName = connectedUser, linkType = created._2.linkType, link = lid, value = created._2.value)
-    val serEmb = grater[EmbeddedLink].asDBObject(embedded)
-    mongoCollection.update(MongoDBObject("_id" -> toId), $push ("links" -> serEmb))
+    // if this is not a duplicate
+    if(!created._3) {
+      val embedded = EmbeddedLink(userName = connectedUser, linkType = created._2.linkType, link = lid, value = created._2.value)
+      val serEmb = grater[EmbeddedLink].asDBObject(embedded)
+      mongoCollection.update(MongoDBObject("_id" -> toId), $push ("links" -> serEmb))
+    }
 
     Json(Map("id" -> lid))
   }
