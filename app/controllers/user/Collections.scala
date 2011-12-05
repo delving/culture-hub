@@ -3,15 +3,13 @@ package controllers.user
 import play.mvc.results.Result
 import org.bson.types.ObjectId
 import com.mongodb.WriteConcern
-import com.novus.salat.dao.SalatDAOUpdateError
-import extensions.JJson._
+import extensions.JJson
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
 import models.{Visibility, DObject, UserCollection}
-import extensions.JJson
 
 /**
  * Manipulation of user collections
@@ -28,7 +26,14 @@ object Collections extends DelvingController with UserSecured {
       case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        JJson.generate(CollectionViewModel(id = Some(col._id), name = col.name, description = col.description, allObjects = allObjects, objects = objects, availableObjects = (allObjects filterNot (objects contains)), thumbnail = col.thumbnail_id, visibility = col.visibility.value))
+        JJson.generate(CollectionViewModel(
+          id = Some(col._id),
+          name = col.name,
+          description = col.description,
+          allObjects = allObjects,
+          objects = objects,
+          availableObjects = (allObjects filterNot (objects contains)),
+          thumbnail = col.thumbnail_id, visibility = col.visibility.value))
       }
     }
   }
@@ -41,7 +46,7 @@ object Collections extends DelvingController with UserSecured {
 
   def collectionSubmit(data: String): Result = {
 
-    val collectionModel: CollectionViewModel = parse[CollectionViewModel](data)
+    val collectionModel: CollectionViewModel = JJson.parse[CollectionViewModel](data)
     validate(collectionModel).foreach { errors => return JsonBadRequest(collectionModel.copy(errors = errors)) }
 
     val persistedUserCollection: Option[CollectionViewModel] = collectionModel.id match {
@@ -57,6 +62,8 @@ object Collections extends DelvingController with UserSecured {
         inserted match {
           case None => None
           case Some(iid) =>
+            val objectIds = for(o <- collectionModel.objects) yield o.id.get
+            DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> iid)), false, true)
             SolrServer.indexSolrDocument(newCollection.toSolrDocument)
             SolrServer.commit()
             Some(collectionModel.copy(id = inserted))
@@ -66,6 +73,11 @@ object Collections extends DelvingController with UserSecured {
         if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
         val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
+          // objects
+
+          // FIXME here we should be updating the added/removed objects
+          // to that end we should save the reverse links from object / mdr to UserCollection, with additional information (url, title, thumbnail, ...)
+
           SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
           SolrServer.commit()
@@ -80,7 +92,10 @@ object Collections extends DelvingController with UserSecured {
     persistedUserCollection match {
       case Some(theCollection) => {
         val objectIds = for(o <- collectionModel.objects) yield o.id.get
+
+        // FIXME remove collections that were removed...
         DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theCollection.id.get)), false, true)
+
         Json(theCollection)
       }
       case None => Error(&("user.collections.saveError", collectionModel.name))
