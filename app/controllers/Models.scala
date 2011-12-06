@@ -19,7 +19,7 @@ case class ListItem(id: String,
                     userName: String,
                     fullUserName: String,
                     isPrivate: Boolean,
-                    childItems: List[ObjectId] = List.empty[ObjectId])
+                    url: String)
 
 
 // ~~ reference objects
@@ -42,11 +42,11 @@ trait ModelImplicits {
 
   // ~~ ListItems
 
-  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), o.userName, fullName(o.userName), o.visibility == Visibility.PRIVATE)
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, c.userName, fullName(c.userName), c.visibility == Visibility.PRIVATE)
-  implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, s.userName, fullName(s.userName), s.visibility == Visibility.PRIVATE)
-  implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, u.email, None, u.userName, u.fullname, false)
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.getCreator.userName, ds.getCreator.fullname, false)
+  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), o.userName, fullName(o.userName), o.visibility == Visibility.PRIVATE, o.url)
+  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, c.userName, fullName(c.userName), c.visibility == Visibility.PRIVATE, c.url)
+  implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, s.userName, fullName(s.userName), s.visibility == Visibility.PRIVATE, s.url)
+  implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, u.email, None, u.userName, u.fullname, false, "/" + u.userName)
+  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, ds.getCreator.userName, ds.getCreator.fullname, false, "/nope")
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }

@@ -40,21 +40,29 @@ $(document).ready(function() {
 
     var actionArea = $("#dropbox-actions");
 
-    $('.draggable').draggable( {
+    $('.draggable').draggable({
         opacity: .5,
         revert: true,
         revertDuration: 500,
         helpers: 'clone',
         containment: 'body',
         cursor: 'move'
-     } );
+    });
 
     $("#dropbox").droppable({
-        accept: '.draggable',
+        accept: '.object, .mdr',
         drop: addToDropbox
     });
 
     $("#dropbox").droppable({ hoverClass: 'hover' });
+
+    $('#dropbox').bind('removeItem', function(event) {
+        $('#dropbox input[value="' + event.itemId + '"]').closest('li').remove();
+        if ($('#dropbox ul').find('li').size() == 0) {
+            $("#dropbox-info").show();
+            actionArea.delay(500).fadeOut(500);
+        }
+    });
 
     function addToDropbox(e, ui) {
         var item = ui.draggable;
@@ -63,30 +71,29 @@ $(document).ready(function() {
         var itemId = $(item).find('input[name="idUri"]').val();
 
         var list = $(this).find("ul");
-        if( $(list).find('li').size() == 0){
-              $("#dropbox-info").hide();
-              actionArea.delay(500).fadeIn(500);
+        if ($(list).find('li').size() == 0) {
+            $("#dropbox-info").hide();
+            actionArea.delay(500).fadeIn(500);
         }
 
         var exists = false;
-        $('#dropbox input[name="itemId"]').each(function(){
+        $('#dropbox input[name="itemId"]').each(function() {
             if ($(this).val() == itemId) {
                 exists = true;
                 $(this).closest('.media').effect("bounce", { times:3 }, 300);
             }
         });
 
-        if(exists == false){
+        if (!exists) {
             var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
-            html += title + '<input type="hidden" name="itemId" value="' + itemId +'"/></div></li>';
+            html += title + '<input type="hidden" name="itemId" value="' + itemId + '"/></div></li>';
             $(html).appendTo(list).hide().delay("250").fadeIn("500");
         }
-        $("a.remove").click(function(){
-            $(this).closest("li").remove();
-            if( $(list).find('li').size() == 0){
-                $("#dropbox-info").show();
-                actionArea.delay(500).fadeOut(500);
-                }
+        $("a.remove").click(function() {
+            $('#dropbox').trigger({
+                type: 'removeItem',
+                itemId: itemId
+            });
         });
     }
 });
