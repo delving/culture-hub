@@ -82,10 +82,10 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
         case None =>
           
           // sanity check on the embedded stuff
-          if(embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None) && (link.from.hubType == None || link.from.id == None))) {
+          if(embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None || link.from.hubType == None) && (link.from.hubType == None || link.from.id == None))) {
             throw new ProgrammerException("You can't create a link with an embedFrom if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
-          if(embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None) && (link.to.hubType == None || link.to.id == None))) {
+          if(embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None || link.to.hubType == None) && (link.to.hubType == None || link.to.id == None))) {
             throw new ProgrammerException("You can't create a link with an embedTo if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
           
