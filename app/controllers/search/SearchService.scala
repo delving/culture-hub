@@ -109,8 +109,10 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
   }
 
   private def getFullResultsFromSolr : FullItemView = {
-    require(params._contains("id"))
-    val response = SolrQueryService.getFullSolrResponseFromServer(params.get("id"), paramMap.getOrElse("idType", Array[String](PMH_ID)).head)
+    require(params._contains("id") || params._contains("rid"))
+    val idType = paramMap.getOrElse("idType", Array[String](PMH_ID)).head
+    val response = if (params._contains("rid")) SolrQueryService.getFullSolrResponseFromServer(params.get("rid"), idType, true)
+      else SolrQueryService.getFullSolrResponseFromServer(params.get("id"), idType)
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
 
@@ -309,6 +311,21 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
             SolrQueryService.renderXMLFields(field, chResponse)}
           </fields>
         </item>
+        <relatedItems>
+          {fullResult.getRelatedItems.map(item =>
+          <item>
+            <fields>
+              {item.getFieldValuesFiltered(false, Array()).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
+            </fields>
+          {if (item.getHighlights.isEmpty) <highlights/>
+           else
+            <highlights>
+              {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse) )}
+            </highlights>
+          }
+          </item>
+        )}
+        </relatedItems>
       </result>
     response
     }

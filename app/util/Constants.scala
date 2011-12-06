@@ -42,7 +42,7 @@ object Constants {
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection
 
 
-
-
+  // ~~~~~ Solr Constants
+  val MORE_LIKE_THIS = "moreLikeThis"
 
 }

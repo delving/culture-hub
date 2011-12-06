@@ -9,6 +9,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import views.context.PAGE_SIZE
 import util.Constants._
+import util.Constants
 
 /**
  *
@@ -248,9 +249,11 @@ object SolrQueryService extends SolrServer {
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
   }
 
-  def getFullSolrResponseFromServer(id: String, idType: String = ""): QueryResponse = {
+  def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false): QueryResponse = {
     val r = DelvingIdType(id, idType)
-    SolrQueryService.getSolrResponseFromServer(new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId)))
+    val query = new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId))
+    if (relatedItems) query.setQueryType(Constants.MORE_LIKE_THIS)
+    SolrQueryService.getSolrResponseFromServer(query)
   }
 
   def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
@@ -614,18 +617,22 @@ case class BriefItemView(chResponse: CHResponse) {
 }
 
 case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
-//case class FullItemView(pager: DocIdWindowPager, relatedItems: List[BriefDocItem], fullItem: FullDocItem) {
+
+  import org.apache.solr.common.SolrDocumentList
+
+  //case class FullItemView(pager: DocIdWindowPager, relatedItems: List[BriefDocItem], fullItem: FullDocItem) {
 
 //  def getDocIdWindowPager: DocIdWindowPager = pager
-//
-//  def getRelatedItems: List[BriefDocItem] = relatedItems
 
-  def getFullDoc: FullDocItem = fullItem
+  private val matchDoc: SolrDocumentList = response.getResponse.get("match").asInstanceOf[SolrDocumentList]
+
+  // todo implement code here that checks if there are related items
+  def getRelatedItems: List[BriefDocItem] = if (matchDoc != null) SolrBindingService.getBriefDocsWithIndex(response) else List.empty
+
+  def getFullDoc: FullDocItem = if (matchDoc != null) SolrBindingService.getFullDoc(matchDoc) else fullItem
 }
 
 // todo implement the traits as case classes
-
-
 
 class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
