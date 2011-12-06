@@ -20,7 +20,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/freeText".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/link/freeText/object/%s".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
 
     response.status should be (200)
 
@@ -43,7 +43,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/freeText".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/link/freeText/object/%s".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
 
     response.status should be (200)
 
@@ -75,7 +75,7 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
     val req = getAuthenticated()
     req.method = "POST"
-    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/place".format(dobject._id.toString), Map("label" -> "Earth", "geonameID" -> "42"), Map.empty[String, File])
+    val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/place/place/42".format(dobject._id.toString), Map("label" -> "Earth", "geonameID" -> "42"), Map.empty[String, File])
 
     response.status should be (200)
     Link.count(MongoDBObject("value.label" -> "Earth", "value.geonameID" -> "42", "linkType" -> Link.LinkType.PLACE)) should equal (1)

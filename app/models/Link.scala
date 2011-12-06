@@ -1,23 +1,29 @@
 package models
 
+import _root_.util.Constants._
+import _root_.util.ProgrammerException
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
+import com.novus.salat._
+import play.Logger
 
 case class Link(_id: ObjectId = new ObjectId,
-                 userName: String, // user who created the label in the first place
-                 linkType: String, // internal type of the link: freeText, place
-                 from: LinkReference,
-                 to: LinkReference,
-                 value: Map[String, String]) {
+                userName: String, // user who created the label in the first place
+                linkType: String, // internal type of the link: freeText, place
+                from: LinkReference,
+                to: LinkReference,
+                value: Map[String, String]) {
 
 }
 
 object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
-  val LABEL = "label" // the label / name of a link
+  val LABEL = "label"
+
+  // the label / name of a link
 
   object LinkType {
     val FREETEXT = "freeText"
@@ -25,9 +31,24 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     val PARTOF = "partOf"
   }
 
-  def create(linkType: String, userName: String, value: Map[String, String], from: LinkReference, to: LinkReference, allowDuplicates: Boolean = false): (Option[ObjectId], Link, Boolean) = {
+  /**
+   * Creates a link
+   *
+   * @param linkType        type of the link, see LinkType object
+   * @param userName        user name of the creator
+   * @param value           value of the link
+   * @param from            from where this link comes
+   * @param to              to where this link goes
+   * @param embedFrom       optional embedded link to be written in the source object
+   * @param embedTo         optional embedded link to be written in the target object
+   * @param allowDuplicates whether or not this link can exist more than one time (false by default)
+   */
+  def create(linkType: String, userName: String, value: Map[String, String], from: LinkReference, to: LinkReference,
+             embedFrom: Option[EmbeddedLinkWriter] = None, embedTo: Option[EmbeddedLinkWriter] = None,
+             allowDuplicates: Boolean = false): (Option[ObjectId], Link, Boolean) = {
+
     val link = Link(userName = userName, linkType = linkType, value = value, from = from, to = to)
-    if(allowDuplicates) {
+    if (allowDuplicates) {
       (Link.insert(link), link, true)
     } else {
 
@@ -40,7 +61,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
           case None =>
         }
         ref.hubType match {
-          case Some(ht) => builder+= (refName + ".hubType" -> ht)
+          case Some(ht) => builder += (refName + ".hubType" -> ht)
           case None =>
         }
         ref.uri match {
@@ -58,9 +79,79 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
       Link.findOne(q) match {
         case Some(l) => (Some(l._id), l, true)
-        case None => (Link.insert(link), link, false)
+        case None =>
+          
+          // sanity check on the embedded stuff
+          if(embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None || link.from.hubType == None) && (link.from.hubType == None || link.from.id == None))) {
+            throw new ProgrammerException("You can't create a link with an embedFrom if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
+          }
+          if(embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None || link.to.hubType == None) && (link.to.hubType == None || link.to.id == None))) {
+            throw new ProgrammerException("You can't create a link with an embedTo if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
+          }
+          
+          val inserted = Link.insert(link)
+
+          inserted match {
+            case Some(l) =>
+              val e = EmbeddedLink(userName = link.userName, linkType = link.linkType, link = l)
+              embedFrom match {
+                case Some(from) => from.write(e)
+                case None => // nope
+              }
+              embedTo match {
+                case Some(to) => to.write(e)
+                case None => // nope
+              }
+            case None =>
+              // well this should never be returned, Salat will blow up first
+              return (null, null, false)
+          }
+          (inserted, link, false)
       }
     }
+  }
+  
+  def removeById(linkId: ObjectId) {
+    Link.findOneByID(linkId) match {
+      case Some(link) => removeLink(link)
+      case None => // it's not there
+    }
+  }
+
+  def removeLink(link: Link) {
+    
+    def removeEmbedded(link: ObjectId, hubType: String, id: Option[ObjectId], hubCollection: Option[String], hubAlternativeId: Option[String]) {
+      val collection: Option[MongoCollection] = Option(hubType match {
+        case OBJECT => objectsCollection
+        case USERCOLLECTION => userCollectionsCollection
+        case STORY => userStoriesCollection
+        case USER => userCollection
+        case _ => null
+      })
+      val pull = $pull ("links" -> MongoDBObject("link" -> link))
+      collection match {
+        case Some(c) =>
+          c.update(MongoDBObject("_id" -> id.get), pull)
+        case None =>
+          if(hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
+            connection(hubCollection.get).update(MongoDBObject(MDR_ID -> hubAlternativeId.get), pull)
+          } else {
+            Logger.warn("Could not delete embedded Link %s %s %s", hubType, id, hubCollection)
+          }
+      }
+
+    }
+    
+    // remove embedded guys
+    if((link.from.hubType != None && link.from.id != None) || (link.from.hubCollection != None && link.from.hubAlternativeId != None && link.from.hubType != None)) {
+      removeEmbedded(link._id, link.from.hubType.get, link.from.id, link.from.hubCollection, link.from.hubAlternativeId)
+    }
+    if((link.to.hubType != None && link.to.id != None) || (link.to.hubCollection != None && link.to.hubAlternativeId != None && link.to.hubType != None)) {
+      removeEmbedded(link._id, link.to.hubType.get, link.to.id, link.to.hubCollection, link.to.hubAlternativeId)
+    }
+
+    Link.remove(link)
+
   }
 
   def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri))
@@ -71,12 +162,41 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
  * An arrow in a link. This is flexible: if we have a hubType we can lookup by mongo id, or else we have a uri.
  */
 case class LinkReference(id: Option[ObjectId] = None, // mongo id for hub-based reference
-                         uri: Option[String] = None, // URI
                          hubType: Option[String] = None, // internal CH type of the reference (DObject, ...)
+                         hubCollection: Option[String] = None, // name of the mongodb collection this reference lives in, if it can't be infered from the hubType
+                         hubAlternativeId: Option[String] = None, // alternative ID value in case ID does not apply
+                         uri: Option[String] = None, // URI
                          refType: Option[String] = None) // external type of the reference
 
 
 /**
  * A denormalized bit of a link that lives in a linked object. Makes it easy to do lookups.
  */
-case class EmbeddedLink(TS: Date = new Date(), userName: String, linkType: String, link: ObjectId, value: Map[String,  String])
+case class EmbeddedLink(TS: Date = new Date(), userName: String, linkType: String, link: ObjectId, value: Map[String, String] = Map.empty[String, String])
+
+/**
+ * This guy knows how to write an embedded link and give it a value
+ */
+case class EmbeddedLinkWriter(value: Map[String, String], collection: MongoCollection, id: Option[ObjectId] = None, alternativeId: Option[(String, String)] = None) {
+
+  def write(embeddedLink: EmbeddedLink): Either[String, String] = {
+    if (id == None && alternativeId == None) return Left("No ID provided for writing embedded link")
+    val serEmb = grater[EmbeddedLink].asDBObject(embeddedLink.copy(value = value))
+    id match {
+      case Some(objectId) =>
+        collection.update(MongoDBObject("_id" -> objectId), $push("links" -> serEmb))
+        // TODO check write result
+        Right("ok")
+      case None =>
+        alternativeId match {
+          case Some(tuple) =>
+            val field = tuple._1
+            val value = tuple._2
+            collection.update(MongoDBObject(field -> value), $push("links" -> serEmb))
+            // TODO check write result
+            Right("ok")
+          case None => Left("impossible!")
+        }
+    }
+  }
+}
