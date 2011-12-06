@@ -1,0 +1,22 @@
+- !!models.PortalTheme
+    name: default
+    subdomain: default
+    defaultLanguage: nl
+    solrSelectUrl: "http://dimcon.nl/solr"
+    cacheUrl: "http://localhost:8983/services/image?"
+    emailTarget:
+        adminTo: servers@delving.eu
+        exceptionTo: servers@delving.eu
+        feedbackTo: servers@delving.eu
+        registerTo: servers@delving.eu
+        systemFrom: noreply@delving.eu
+        feedbackFrom: noreply@delving.eu
+    localiseQueryKeys:
+        - dc.title
+        - dc.creator
+    hiddenQueryFilter:
+    homePage:
+    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
+    sortFields: europeana_year
+    metadataPrefix: icn
+    apiWsKey: false

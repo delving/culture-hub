@@ -27,7 +27,7 @@ import org.bson.types.ObjectId
 import play.data.validation.Validation
 import extensions.AdditionalActions
 import play.i18n.{Lang, Messages}
-import util.{ThemeHandler, LocalizedFieldNames, ProgrammerException}
+import util.{ThemeInfoReader, ThemeHandler, LocalizedFieldNames, ProgrammerException}
 
 /**
  * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
@@ -306,11 +306,10 @@ class ViewUtils(theme: PortalTheme) {
   }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val key = "themes.%s.%s".format(theme.name, property)
-    val value = Option(Play.configuration.getProperty(key)) match {
+    val value: String = ThemeInfoReader.get(property, theme.name) match {
       case Some(prop) => prop
       case None =>
-        Option(Play.configuration.getProperty("themes.default.%s".format(property))) match {
+        ThemeInfoReader.get(property, "default") match {
           case Some(prop) => prop
           case None => throw new ProgrammerException("No default value, nor actual value, defined for property '%s' in application.conf".format(property))
         }

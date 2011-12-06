@@ -1,39 +1,7 @@
 - !!models.PortalTheme
-    name: default
-    templateDir: default
-    isDefault: true
-    subdomain: default
-    displayName: Delving Culture Hub
-    defaultLanguage: nl
-    colorScheme: default
-    solrSelectUrl: "http://dimcon.nl/solr"
-    cacheUrl: "http://localhost:8983/services/image?"
-    emailTarget:
-        adminTo: servers@delving.eu
-        exceptionTo: servers@delving.eu
-        feedbackTo: servers@delving.eu
-        registerTo: servers@delving.eu
-        systemFrom: noreply@delving.eu
-        feedbackFrom: noreply@delving.eu
-    localiseQueryKeys:
-        - dc.title
-        - dc.creator
-    hiddenQueryFilter:
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
-    homePage:
-    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
-    sortFields: europeana_year
-    metadataPrefix: icn
-    text: Hello
-
-- !!models.PortalTheme
     name: frieseverhalen
-    templateDir: frieseverhalen
     subdomain: frieseverhalen
-    displayName: Friese Verhalen
     defaultLanguage: fy
-    colorScheme: default
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
@@ -47,22 +15,16 @@
         - dc.title
         - dc.creator
     hiddenQueryFilter:
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
     homePage:
     facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
-    text: Hello
+    apiWsKey: false
 
 - !!models.PortalTheme
     name: nassau
-    templateDir: nassau
-    isDefault: false
     subdomain: nassau
-    displayName: De Friese Nassau's
     defaultLanguage: nl
-    colorScheme: default
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
@@ -76,49 +38,16 @@
         - dc.title
         - dc.creator
     hiddenQueryFilter:
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
     homePage:
     facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
-    text: Hello
-
-- !!models.PortalTheme
-    name: friesmuseum
-    templateDir: friesmuseum
-    subdomain: friesmuseum
-    displayName: Fries Museum
-    defaultLanguage: no
-    colorScheme: azure
-    solrSelectUrl: "http://localhost:8983/solr/core2"
-    cacheUrl: "http://localhost:8983/services/image?"
-    emailTarget:
-        adminTo: servers@delving.eu
-        exceptionTo: servers@delving.eu
-        feedbackTo: servers@delving.eu
-        registerTo: servers@delving.eu
-        systemFrom: noreply@delving.eu
-        feedbackFrom: noreply@delving.eu
-    localiseQueryKeys:
-        - dc.title
-        - dc.creator
-    hiddenQueryFilter: Fries Museum
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
-    homePage:
-    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
-    sortFields: europeana_year
-    metadataPrefix: icn
-    text: Hello
+    apiWsKey: false
 
 - !!models.PortalTheme
     name: thuisinbrabant
-    templateDir: thuisinbrabant
     subdomain: thuisinbrabant
-    displayName: Thuis in Brabant
-    defaultLanguage: no
-    colorScheme: default
+    defaultLanguage: nl
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
@@ -131,22 +60,17 @@
     localiseQueryKeys:
         - dc.title
         - dc.creator
-    hiddenQueryFilter: Fries Museum
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
+    hiddenQueryFilter:
     homePage:
     facets: tib_objectSoort,tib_material,tib_collection,europeana_dataProvider:metadata.searchfield.dataprovider,tib_place,tib_productionStart
     sortFields: tib_objectSoort
     metadataPrefix: tib
-    text: Hello
+    apiWsKey: false
 
 - !!models.PortalTheme
     name: dimcon
-    templateDir: dimcon
     subdomain: dimcon
-    displayName: Rijksdienst voor het Cultureel Erfgoed
     defaultLanguage: nl
-    colorScheme: default
     solrSelectUrl: "http://localhost:8983/solr/core2"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
@@ -159,11 +83,9 @@
     localiseQueryKeys:
         - dc.title
         - dc.creator
-    hiddenQueryFilter: Fries Museum
-    googleAnalyticsTrackingCode:
-    addThisTrackingCode:
+    hiddenQueryFilter:
     homePage:
     facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
     sortFields: europeana_year
     metadataPrefix: icn
-    text: Hello
+    apiWsKey: false
