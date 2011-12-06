@@ -22,8 +22,6 @@ package controllers.search
  */
 
 import scala.collection.JavaConversions._
-import java.util. {Date, ArrayList}
-import java.lang.{Boolean => JBoolean, Float => JFloat}
 import org.apache.solr.client.solrj.response. {FacetField, QueryResponse}
 import java.net.URL
 import xml. {NodeSeq, Elem, XML}
@@ -31,6 +29,9 @@ import collection.immutable. {HashMap, Map => ImMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable. {ListBuffer, Map}
 import util.Constants._
+import org.apache.solr.common.SolrDocumentList
+import java.lang.{Integer, Boolean => JBoolean, Float => JFloat}
+import java.util.{Date, ArrayList, List => JList, Map => JMap}
 
 /**
  *
@@ -76,11 +77,42 @@ object SolrBindingService {
     FullDocItem(solrDoc)
   }
 
-  def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrResultDocument] = {
-    def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
-      for (value <- values; if value != null ) yield (FieldValueNode(key, value.toString))
+  def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
+    for (value <- values; if value != null ) yield (FieldValueNode(key, value.toString))
 
-    import java.util.{List => JList, Map => JMap}
+
+  def getSolrDocumentList(docList : SolrDocumentList) : List[SolrResultDocument] = {
+
+    import java.lang.{Integer => JInteger}
+    val docs = new ListBuffer[SolrResultDocument]
+    val ArrayListObject = classOf[ArrayList[Any]]
+    val StringObject = classOf[String]
+    val DateObject = classOf[Date]
+    val FloatObject = classOf[JFloat]
+    val BooleanObject = classOf[JBoolean]
+    val IntegerObject = classOf[JInteger]
+    // check for required fields else check exception
+    docList.foreach{
+      doc =>
+        val solrDoc = SolrResultDocument()
+        doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach{
+          field =>
+            val normalisedField = stripDynamicFieldLabels(field.getKey)
+            val FieldValueClass: Class[_] = field.getValue.getClass
+            FieldValueClass match {
+              case ArrayListObject => solrDoc.add(normalisedField, addFieldNodes(normalisedField, field.getValue.asInstanceOf[ArrayList[Any]].toList))
+              case StringObject | DateObject | BooleanObject | FloatObject | IntegerObject =>
+                solrDoc.add(normalisedField, List(FieldValueNode(normalisedField, field.getValue.toString)))
+              case _ => println("unknown class in SolrBindingService " + normalisedField + FieldValueClass.getCanonicalName)
+            }
+        }
+        docs add solrDoc
+    }
+    docs.toList
+  }
+
+  def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrResultDocument] = {
+    
     import java.lang.{Integer => JInteger}
     val highLightMap: JMap[String, JMap[String, JList[String]]] = queryResponse.getHighlighting
 
@@ -143,8 +175,18 @@ object SolrBindingService {
     results.head
   }
 
+  def getFullDoc(sorlDocList: SolrDocumentList): FullDocItem = {
+    val results = getFullDocs(sorlDocList)
+    if (results.isEmpty) throw new RuntimeException("Full Doc not found") // todo change this to a better exception
+    results.head
+  }
+
   def getFullDocs(queryResponse: QueryResponse): List[FullDocItem] = {
     getSolrDocumentList(queryResponse).map(doc => FullDocItem(doc))
+  }
+
+  def getFullDocs(solrDocList: SolrDocumentList): List[FullDocItem] = {
+    getSolrDocumentList(solrDocList).map(doc => FullDocItem(doc))
   }
 
   def createFacetMap(links : List[FacetQueryLinks]) = FacetMap(links.toList)

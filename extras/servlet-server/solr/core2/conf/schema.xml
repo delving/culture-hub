@@ -540,6 +540,7 @@
    <dynamicField name="*_string"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_single"  type="string"  indexed="true"  stored="true"/>
+   <dynamicField name="*_link"  type="string"  indexed="true"  stored="true"/>
    <dynamicField name="*_long"  type="long"   indexed="true"  stored="true"/>
    <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
    <dynamicField name="*_txt" type="text_general"    indexed="true"  stored="true" multiValued="true"/>
@@ -607,7 +608,11 @@ unknown fields indexed and/or stored by default -->
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-     <copyField source="*" dest="text"/>
+     <copyField source="*_string" dest="text"/>
+     <copyField source="*_text" dest="text"/>
+     <copyField source="*_date" dest="text"/>
+     <copyField source="*_int" dest="text"/>
+
 
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
