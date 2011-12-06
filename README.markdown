@@ -18,7 +18,7 @@
 - in order to use the project in IDEA (until there will be plugin support for it), run `play idealize` to generate a module, then create a new project (without module) and import the generated module
 - configure the subdomains for testing in your `/etc/hosts` file by adding e.g.:
 
-    127.0.0.1       friesmuseum.localhost
+    127.0.0.1       default.localhost
 
 ### Running the application - development mode
 
