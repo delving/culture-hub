@@ -14,13 +14,11 @@ import com.mongodb.casbah.MongoCollection
 import play.mvc.Before
 import components.Indexing
 import controllers.{SolrServer, DelvingController}
+import collection.immutable.Map
 
 /**
  * Controller to add simple, free-text labels to Things.
  * This actually creates links that hold as a value the label
- *
- * TODO refactor freeText linking to use the standardized /from/type/to URL
- * TODO refactor place linking to use the standardized /from/type/to URL
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -50,11 +48,11 @@ object Links extends DelvingController {
   /**
    * Add a link between a hub entity and something else
    */
-  def add(id: ObjectId, fromType: String, linkType: String, toType: String, toId: String): Result = {
+  def add(fromId: ObjectId, fromType: String, linkType: String, toType: String, toId: String): Result = {
 
     val label = params.get("label")
 
-    val filter = List("id", "linkType", "fromType", "page", "user")
+    val filter = List("fromId", "toId", "linkType", "fromType", "toType", "page", "user", "body", "_id")
     val filteredParams: Map[String, String] = params.allSimple().filterNot(e => filter.contains(e._1)).toMap
 
     // collection of the hub type we link against, passed in via the router
@@ -63,35 +61,50 @@ object Links extends DelvingController {
       case None => return BadRequest("unmatched fromType " + fromType)
     }
 
-    linkType match {
+    val created = linkType match {
 
       case Link.LinkType.FREETEXT =>
-        if(label == null || label.isEmpty) BadRequest("empty label")
-        val toMongoCollection = targetCollection
-        addLink(id, toMongoCollection, label, Link.create(
+        if(label == null || label.isEmpty) return BadRequest("empty label")
+        val toObjectId = toId match {
+          case oid if ObjectId.isValid(oid) => new ObjectId(oid)
+          case _ => return BadRequest("bad oid")
+        }
+
+        Link.create(
           linkType = Link.LinkType.FREETEXT,
           userName = connectedUser,
           value = Map("label" -> label),
           from = LinkReference(
             id = Some(connectedUserId),
-            hubType = Some("user")),
+            hubType = Some(USER)),
           to = LinkReference(
-            id = Some(id),
-            hubType = Some(fromType)))
+            id = Some(toObjectId),
+            hubType = Some(toType)),
+          embedTo = Some(EmbeddedLinkWriter(
+            value = Map("label" -> label),
+            collection = objectsCollection,
+            id = Some(toObjectId)))
         )
 
       case Link.LinkType.PLACE =>
-        if(label == null || label.isEmpty) BadRequest("empty label")
+        if(label == null || label.isEmpty) return BadRequest("empty label")
         val fromMongoCollection = targetCollection
-        addLink(id, fromMongoCollection, label, Link.create(
+        Link.create(
           linkType = Link.LinkType.PLACE,
           userName = connectedUser,
           value = filteredParams,
           from = LinkReference(
-            id = Some(id),
+            id = Some(fromId),
             hubType = Some(fromType)),
-          to = LinkReference(refType = Some("place"), uri = Some("http://sws.geonames.org/%s/".format(filteredParams("geonameID"))))
-        ))
+          to = LinkReference(
+            refType = Some("place"),
+            uri = Some("http://sws.geonames.org/%s/".format(toId))),
+          embedFrom = Some(EmbeddedLinkWriter(
+            value = filteredParams,
+            collection = fromMongoCollection,
+            id = Some(fromId)
+          ))
+        )
 
       case Link.LinkType.PARTOF =>
         toType match {
@@ -116,19 +129,32 @@ object Links extends DelvingController {
                   case Some(one) => one
                   case None => return NotFound("Record with identifier %s_%s_%s was not found".format(orgId, spec, recordId))
                 }
-                val res = addLink(mdr._id.get, collection, toId, Link.create(
+                val linkValue: Map[String, String] = Map(USERCOLLECTION_ID -> toId)
+                val res = Link.create(
                   linkType = Link.LinkType.PARTOF,
                   userName = connectedUser,
-                  value = Map(USERCOLLECTION_ID -> toId),
+                  value = linkValue,
                   from = LinkReference(
                     uri = Some(buildMdrUri(orgId, spec, recordId)), // TODO need TW blessing
-                    refType = Some("institutionalObject") // TODO need TW blessing
+                    refType = Some("institutionalObject"), // TODO need TW blessing
+                    hubType = Some(MDR),
+                    hubCollection = Some(collection.getName()),
+                    hubAlternativeId = Some(recordId)
                   ),
                   to = LinkReference(
                     id = Some(collectionId),
                     hubType = Some(USERCOLLECTION)
-                  )
-                ))
+                  ),
+                  embedFrom = Some(EmbeddedLinkWriter(
+                    value = linkValue,
+                    collection = collection,
+                    id = mdr._id
+                  )),
+                  embedTo = Some(EmbeddedLinkWriter(
+                    value = linkValue,
+                    collection = userCollectionsCollection,
+                    id = Some(collectionId))
+                  ))
 
                 // re-index the MDR
                 collection.findOne(MongoDBObject("localRecordKey" -> recordId)) match {
@@ -141,105 +167,73 @@ object Links extends DelvingController {
                 res
 
               case OBJECT =>
-                addLink(id, objectsCollection, toId, Link.create(
+                val linkValue: Map[String, String] = Map(USERCOLLECTION_ID -> toId)
+                val res = Link.create(
                   linkType = Link.LinkType.PARTOF,
                   userName = connectedUser,
-                  value = Map(USERCOLLECTION_ID -> toId),
+                  value = linkValue,
                   from = LinkReference(
-                   id = Some(id),
+                   id = Some(fromId),
                    hubType = Some(OBJECT)
-                 ),
+                  ),
                   to = LinkReference(
                    id = Some(collectionId),
                     hubType = Some(USERCOLLECTION)
-                 )
-                ))
+                  ),
+                  embedFrom = Some(EmbeddedLinkWriter(
+                    value = linkValue,
+                    collection = objectsCollection,
+                    id = Some(fromId)
+                  )),
+                  embedTo = Some(EmbeddedLinkWriter(
+                    value = linkValue,
+                    collection = userCollectionsCollection,
+                    id = Some(collectionId)
+                  )))
 
                 // re-index the object
-                DObject.findOneByID(id) match {
+                DObject.findOneByID(fromId) match {
                   case Some(obj) =>
                     SolrServer.indexSolrDocument(obj.toSolrDocument)
                     SolrServer.commit()
                   case None =>
-                    warning("Object with ID %s does not exist!".format(id.toString))
+                    warning("Object with ID %s does not exist!".format(fromId.toString))
                 }
-                Ok
+                res
 
-              case _ => BadRequest("unmatched fromType with toType collection " + fromType)
+              case _ => return BadRequest("unmatched fromType with toType collection " + fromType)
             }
 
-          case _ => BadRequest("unmatched fromType " + fromType)
+          case _ => return BadRequest("unmatched fromType " + fromType)
         }
 
-
-      case _ => BadRequest("unmatched LinkType " + linkType)
+      case _ => return BadRequest("unmatched LinkType " + linkType)
     }
-  }
 
-  /**
-  * Add a link involving a hub entity. There will be a denormalized copy of the link saved in the document pointed by (toId, tofromType)
-  * TODO eventually add support to store also in another entity (from)
-  */
-  private def addLink(toId: ObjectId, mongoCollection: MongoCollection, label: String, createLink: => (Option[ObjectId], Link, Boolean)): Result = {
-
-    val created = createLink
-
-    val lid = created._1 match {
-      case Some(i) => i
+    val lid: ObjectId = created._1 match {
+      case Some(linkId) => linkId
       case None => return Error("Could not create link")
     }
 
-    // if this is not a duplicate
-    if(!created._3) {
-      val embedded = EmbeddedLink(userName = connectedUser, linkType = created._2.linkType, link = lid, value = created._2.value)
-      val serEmb = grater[EmbeddedLink].asDBObject(embedded)
-      mongoCollection.update(MongoDBObject("_id" -> toId), $push ("links" -> serEmb))
-    }
-
     Json(Map("id" -> lid))
+
   }
 
   /**
   * Remove a link by ID
   */
   def removeById(id: ObjectId, link: ObjectId, fromType: String): Result = {
-
-    val targetCollection: MongoCollection = ht(fromType) match {
-      case Some(col) => col
-      case None => return Error(400, "Bad request")
-    }
-
-    val wr = targetCollection.update(MongoDBObject("_id" -> id), $pull("links" -> MongoDBObject("link" -> link)), false, false, WriteConcern.Safe)
-    // TODO fixme...
-    if(wr.getN == 0 || !wr.getLastError.ok()) {
-      logError("Could not delete label ")
-      return Error("Could not delete label")
-    }
-    linksCollection.remove(MongoDBObject("_id" -> link))
+    Link.removeById(link)
     Ok
   }
 
   def remove(id: ObjectId, linkType: String, toType: String, toId: ObjectId): Result = {
-    linkType match {
-      case PARTOF =>
-        toType match {
-          case USERCOLLECTION =>
-
-            // remove embedded
-            val (collection, orgId, spec, recordId) = mdrInfo
-            val linkDesc = "%s_%s_%s to %s of type %s with linkType %s".format(orgId, spec, recordId, toId.toString, toType, linkType)
-            val wr = collection.update(MongoDBObject("localRecordKey" -> recordId), $pull("links" -> MongoDBObject("value.%s".format(USERCOLLECTION_ID) -> toId.toString, "linkType" -> linkType)), false, false, WriteConcern.Safe)
-            if(wr.getN != 1) return Error("Error deleting embedded link: " + linkDesc)
-
-            // remove master
-            val mwr = linksCollection.remove(MongoDBObject("from.uri" -> buildMdrUri(orgId, spec, recordId), "linkType" -> linkType, "to.id" -> toId), WriteConcern.Safe)
-            if(mwr.getN != 1) return Error("Error deleting master link! " + linkDesc)
-            Ok
-          case _ => BadRequest("unmatched toType " + toType)
-        }
-      case _ => BadRequest("unmatched LinkType " + linkType)
+    val (collection, orgId, spec, recordId) = mdrInfo
+    Link.findOne(MongoDBObject("from.uri" -> buildMdrUri(orgId, spec, recordId), "linkType" -> linkType, "to.id" -> toId)) match {
+      case Some(l) => Link.removeLink(l)
+      case None => // nope
     }
-
+    Ok
   }
 
   private def mdrInfo = {
@@ -257,7 +251,7 @@ object Links extends DelvingController {
     "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, recordId)
   }
 
-  private def ht(fromType: String): Option[MongoCollection] = fromType match {
+  def ht(fromType: String): Option[MongoCollection] = fromType match {
       case OBJECT => Some(objectsCollection)
       case USERCOLLECTION => Some(userCollectionsCollection)
       case STORY => Some(userStoriesCollection)
