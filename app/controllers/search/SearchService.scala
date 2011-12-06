@@ -109,9 +109,9 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
   }
 
   private def getFullResultsFromSolr : FullItemView = {
-    require(params._contains("id") || params._contains("rid"))
+    require(params._contains("id"))
     val idType = paramMap.getOrElse("idType", Array[String](PMH_ID)).head
-    val response = if (params._contains("rid")) SolrQueryService.getFullSolrResponseFromServer(params.get("rid"), idType, true)
+    val response = if (params._contains("mlt") && params.get("mlt").equalsIgnoreCase("true")) SolrQueryService.getFullSolrResponseFromServer(params.get("id"), idType, true)
       else SolrQueryService.getFullSolrResponseFromServer(params.get("id"), idType)
     FullItemView(SolrBindingService.getFullDoc(response), response)
   }
@@ -311,6 +311,7 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
             SolrQueryService.renderXMLFields(field, chResponse)}
           </fields>
         </item>
+        { if (!fullResult.getRelatedItems.isEmpty)
         <relatedItems>
           {fullResult.getRelatedItems.map(item =>
           <item>
@@ -326,6 +327,7 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
           </item>
         )}
         </relatedItems>
+       }
       </result>
     response
     }
