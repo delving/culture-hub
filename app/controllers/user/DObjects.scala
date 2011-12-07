@@ -31,6 +31,7 @@ import extensions.JJson
 import models._
 import models.salatContext._
 import util.Constants._
+import play.mvc.Util
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -91,30 +92,6 @@ object DObjects extends DelvingController with UserSecured {
       links foreach {
         createCollectionLink(_, objectId)
       }
-    }
-
-    def createCollectionLink(collectionId: ObjectId, objectId: ObjectId) = {
-      Link.create(
-        linkType = Link.LinkType.PARTOF,
-        userName = connectedUser,
-        value = Map(USERCOLLECTION_ID -> collectionId),
-        from = LinkReference(
-          id = Some(objectId),
-          hubType = Some(OBJECT)
-        ),
-        to = LinkReference(
-          id = Some(collectionId),
-          hubType = Some(USERCOLLECTION)
-        ),
-        embedFrom = Some(EmbeddedLinkWriter(
-          collection = objectsCollection,
-          id = Some(objectId)
-        )),
-        embedTo = Some(EmbeddedLinkWriter(
-          collection = userCollectionsCollection,
-          id = Some(collectionId)
-        ))
-      )
     }
 
     val persistedObject: Either[(String, Option[Throwable]), ObjectModel] = objectModel.id match {
@@ -182,8 +159,11 @@ object DObjects extends DelvingController with UserSecured {
             case None => None
           }
 
+          // re-query that damn thing
+          val updatedUpdatedObject = DObject.findOneByID(updatedObject._id).get
+
           // index
-          SolrServer.indexSolrDocument(updatedObject.copy(thumbnail_id = thumbnailId).toSolrDocument)
+          SolrServer.indexSolrDocument(updatedUpdatedObject.toSolrDocument)
           SolrServer.commit()
 
           Right(objectModel)
@@ -216,6 +196,32 @@ object DObjects extends DelvingController with UserSecured {
       Forbidden("Big brother is watching you")
     }
   }
+
+  @Util def createCollectionLink(collectionId: ObjectId, objectId: ObjectId) = {
+    Link.create(
+      linkType = Link.LinkType.PARTOF,
+      userName = connectedUser,
+      value = Map(USERCOLLECTION_ID -> collectionId),
+      from = LinkReference(
+        id = Some(objectId),
+        hubType = Some(OBJECT)
+      ),
+      to = LinkReference(
+        id = Some(collectionId),
+        hubType = Some(USERCOLLECTION)
+      ),
+      embedFrom = Some(EmbeddedLinkWriter(
+        collection = objectsCollection,
+        id = Some(objectId)
+      )),
+      embedTo = Some(EmbeddedLinkWriter(
+        value = Some(Map(OBJECT_ID -> objectId)),
+        collection = userCollectionsCollection,
+        id = Some(collectionId)
+      ))
+    )
+  }
+
 }
 
 // ~~~ view models

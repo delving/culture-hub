@@ -56,6 +56,7 @@ object Constants {
 
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection
+  val OBJECT_ID = "objectId"
 
   // ~~~~~ Solr Constants
   val MORE_LIKE_THIS = "moreLikeThis"

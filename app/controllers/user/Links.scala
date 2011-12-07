@@ -178,26 +178,7 @@ object Links extends DelvingController {
                 res
 
               case OBJECT =>
-                val res = Link.create(
-                  linkType = Link.LinkType.PARTOF,
-                  userName = connectedUser,
-                  value = Map(USERCOLLECTION_ID -> toId),
-                  from = LinkReference(
-                   id = Some(fromId),
-                   hubType = Some(OBJECT)
-                  ),
-                  to = LinkReference(
-                   id = Some(collectionId),
-                    hubType = Some(USERCOLLECTION)
-                  ),
-                  embedFrom = Some(EmbeddedLinkWriter(
-                    collection = objectsCollection,
-                    id = Some(fromId)
-                  )),
-                  embedTo = Some(EmbeddedLinkWriter(
-                    collection = userCollectionsCollection,
-                    id = Some(collectionId)
-                  )))
+                val res = DObjects.createCollectionLink(new ObjectId(toId), fromId)
 
                 // re-index the object
                 DObject.findOneByID(fromId) match {

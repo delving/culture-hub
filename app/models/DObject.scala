@@ -56,7 +56,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
-  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("collections" -> id, "deleted" -> false))
+  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "deleted" -> false))
 
   def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
 
