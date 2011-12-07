@@ -21,9 +21,8 @@ import extensions.JJson
 import org.bson.types.ObjectId
 import util.ThemeHandler
 import com.mongodb.casbah.commons.MongoDBObject
-import play.mvc.Before
-import controllers.{Secure, ViewModel, DelvingController}
-import models.{User, EmailTarget, PortalTheme}
+import controllers.{ViewModel, DelvingController}
+import models.{EmailTarget, PortalTheme}
 
 /**
  *
@@ -40,7 +39,20 @@ object Themes extends DelvingController with AdminSecure {
   def load(id: String): Result = {
     PortalTheme.findOneByID(new ObjectId(id)) match {
       case None => Json(ThemeViewModel())
-      case Some(theme) => Json(ThemeViewModel(id = Some(theme._id), name = theme.name, templateDir = theme.templateDir, isDefault = theme.isDefault, localisedQueryKeys = theme.localiseQueryKeys, hiddenQueryFilter = theme.hiddenQueryFilter, subdomain = theme.subdomain, displayName = theme.displayName, googleAnalyticsTrackingCode = theme.googleAnalyticsTrackingCode, addThisTrackingCode = theme.addThisTrackingCode, defaultLanguage = theme.defaultLanguage, colorScheme = theme.colorScheme, solrSelectUrl = theme.solrSelectUrl, cacheUrl = theme.cacheUrl, emailTarget = theme.emailTarget, homePage = theme.homePage, metadataPrefix = theme.metadataPrefix, text = theme.text, possibleQueryKeys = theme.localiseQueryKeys))
+      case Some(theme) => Json(ThemeViewModel(
+        id = Some(theme._id),
+        name = theme.name,
+        localisedQueryKeys = theme.localiseQueryKeys,
+        hiddenQueryFilter = theme.hiddenQueryFilter,
+        subdomain = theme.subdomain,
+        defaultLanguage = theme.defaultLanguage,
+        solrSelectUrl = theme.solrSelectUrl,
+        cacheUrl = theme.cacheUrl,
+        emailTarget = theme.emailTarget,
+        homePage = theme.homePage,
+        metadataPrefix = theme.metadataPrefix,
+        possibleQueryKeys = theme.localiseQueryKeys)
+      )
     }
   }
 
@@ -56,7 +68,17 @@ object Themes extends DelvingController with AdminSecure {
 
     val persistedTheme = theme.id match {
       case None => {
-        val inserted = PortalTheme.insert(PortalTheme(name = theme.name, templateDir = theme.templateDir, isDefault = theme.isDefault, localiseQueryKeys = theme.localisedQueryKeys, hiddenQueryFilter = theme.hiddenQueryFilter, subdomain = theme.subdomain, displayName = theme.displayName, googleAnalyticsTrackingCode = theme.googleAnalyticsTrackingCode, addThisTrackingCode = theme.addThisTrackingCode, defaultLanguage = theme.defaultLanguage, colorScheme = theme.colorScheme, solrSelectUrl = theme.solrSelectUrl, cacheUrl = theme.cacheUrl, emailTarget = theme.emailTarget, homePage = theme.homePage, metadataPrefix = theme.metadataPrefix, text = theme.text))
+        val inserted = PortalTheme.insert(PortalTheme(
+          name = theme.name,
+          localiseQueryKeys = theme.localisedQueryKeys,
+          hiddenQueryFilter = theme.hiddenQueryFilter,
+          subdomain = theme.subdomain,
+          defaultLanguage = theme.defaultLanguage,
+          solrSelectUrl = theme.solrSelectUrl, 
+          cacheUrl = theme.cacheUrl,
+          emailTarget = theme.emailTarget,
+          homePage = theme.homePage, metadataPrefix = theme.metadataPrefix)
+        )
         inserted match {
           case Some(id) => Some(theme.copy(id = inserted))
           case None => None
@@ -65,7 +87,17 @@ object Themes extends DelvingController with AdminSecure {
       case Some(oid) => {
         val existing = PortalTheme.findOneByID(oid)
         if(existing == None) return NotFound(&("admin.themes.themeNotFound", oid))
-        val updated = existing.get.copy(name = theme.name, templateDir = theme.templateDir, isDefault = theme.isDefault, localiseQueryKeys = theme.localisedQueryKeys, hiddenQueryFilter = theme.hiddenQueryFilter, subdomain = theme.subdomain, displayName = theme.displayName, googleAnalyticsTrackingCode = theme.googleAnalyticsTrackingCode, addThisTrackingCode = theme.addThisTrackingCode, defaultLanguage = theme.defaultLanguage, colorScheme = theme.colorScheme, solrSelectUrl = theme.solrSelectUrl, cacheUrl = theme.cacheUrl, emailTarget = theme.emailTarget, homePage = theme.homePage, metadataPrefix = theme.metadataPrefix, text = theme.text)
+        val updated = existing.get.copy(
+          name = theme.name,
+          localiseQueryKeys = theme.localisedQueryKeys,
+          hiddenQueryFilter = theme.hiddenQueryFilter,
+          subdomain = theme.subdomain,
+          defaultLanguage = theme.defaultLanguage,
+          solrSelectUrl = theme.solrSelectUrl,
+          cacheUrl = theme.cacheUrl,
+          emailTarget = theme.emailTarget,
+          homePage = theme.homePage,
+          metadataPrefix = theme.metadataPrefix)
         PortalTheme.save(updated)
         Some(theme)
       }
@@ -95,21 +127,14 @@ object Themes extends DelvingController with AdminSecure {
 
 case class ThemeViewModel(id: Option[ObjectId] = None,
                           name: String = "",
-                          templateDir: String = "",
-                          isDefault: Boolean = false,
                           localisedQueryKeys: List[String] = List(),
                           possibleQueryKeys: List[String] = List(),
                           hiddenQueryFilter: Option[String] = Some(""),
                           subdomain: Option[String] = None,
-                          displayName: String = "",
-                          googleAnalyticsTrackingCode: Option[String] = Some(""),
-                          addThisTrackingCode: Option[String] = Some(""),
                           defaultLanguage: String = "",
-                          colorScheme: String = "",
                           solrSelectUrl: String = "http://localhost:8983/solr",
                           cacheUrl: String = "http://localhost:8983/services/image?",
                           emailTarget: EmailTarget = EmailTarget(),
                           homePage: Option[String] = None,
                           metadataPrefix: Option[String] = Some("icn"),
-                          text: String = "",
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

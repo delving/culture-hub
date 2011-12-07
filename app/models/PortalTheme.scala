@@ -32,25 +32,18 @@ import controllers.search.SolrSortElement
 
 case class PortalTheme(_id:                                 ObjectId = new ObjectId,
                        name:                                String,
-                       templateDir:                         String,
-                       isDefault:                           Boolean = false,
-                       localiseQueryKeys:                   List[String] = List(),
-                       hiddenQueryFilter:                   Option[String] = Some(""),
                        subdomain:                           Option[String] = None,
-                       displayName:                         String,
-                       googleAnalyticsTrackingCode:         Option[String] = Some(""),
-                       addThisTrackingCode:                 Option[String] = Some(""),
                        defaultLanguage:                     String = "en",
-                       colorScheme:                         String = "azure",
                        solrSelectUrl:                       String = "http://localhost:8983/solr",
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
+                       localiseQueryKeys:                   List[String] = List(),
+                       hiddenQueryFilter:                   Option[String] = Some(""),
                        homePage:                            Option[String] = None,
-                       metadataPrefix:                      Option[String] = None,
                        facets:                              Option[String] = None, // dc_creator:crea:Creator,dc_type
                        sortFields:                          Option[String] = None, // dc_creator,dc_provider:desc
-                       apiWsKey:                            Boolean = false,
-                       text:                                String = "") {
+                       metadataPrefix:                      Option[String] = None,
+                       apiWsKey:                            Boolean = false) {
 
 
 

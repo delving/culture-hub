@@ -19,12 +19,12 @@ package views {
 import play.data.validation.Validation
 import play.templates.JavaExtensions
 import org.bson.types.ObjectId
-import play.mvc.Http
 import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
 import controllers.dos.ImageDisplay
-import controllers.{Internationalization, ViewModel}
+import play.mvc.{Util, Http}
+import controllers.{ViewUtils, Internationalization, ViewModel}
 
 package object context extends Internationalization {
 
@@ -157,10 +157,10 @@ package object context extends Internationalization {
   // ~~~ themes
   def theme = renderArgs.get("theme").asInstanceOf[PortalTheme]
 
+  def viewUtils: ViewUtils = renderArgs.get("viewUtils").asInstanceOf[ViewUtils]
   def themeName = theme.name
-  def themeTemplateDir = theme.templateDir
-  def themeDisplayName = theme.displayName
-  def themeText = theme.text
+  def themeDisplayName = viewUtils.themeProperty("displayName")
+  def themeText = viewUtils.themeProperty("text")
 
   def themePath(path: String) = "/public/themes/%s/%s".format(themeName, path)
 
