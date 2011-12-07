@@ -66,9 +66,9 @@
     $(document).ready(function() {
 
         // load templates and data
-        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
+        $.get("/asset?path=/public/common/templates/_availableObjects.tmpl.html", null, function(template) {
           addTemplate('availableObjectsList', template);
-          $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+          $.get("/asset?path=/public/common/templates/_selectedObjects.tmpl.html", null, function(template) {
             addTemplate('objectsList', template);
             load(${data.raw()}, collectionModel, null, function() {
               $("body").css('visibility', 'visible');

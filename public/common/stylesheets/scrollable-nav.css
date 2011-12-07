@@ -5,7 +5,7 @@
 }
 
 .scroll-nav a {
-    background: transparent url(/public/themes/common/images/scrollable-nav.png) top left no-repeat;
+    background: transparent url(/public/common/images/scrollable-nav.png) top left no-repeat;
     display: inline-block;
     width: 28px;
     height: 50px;

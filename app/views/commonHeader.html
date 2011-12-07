@@ -7,28 +7,28 @@
     <meta name="keywords" content=""/>
     <meta charset="utf-8">
     <title>#{get 'title' /} </title>
-    #{press.stylesheet '/public/themes/common/stylesheets/reset.css', pos:1 /}
+    #{press.stylesheet '/public/common/stylesheets/reset.css', pos:1 /}
     #{if useGrid && useGrid == "960"}
-    #{press.stylesheet '/public/themes/common/stylesheets/grid/960-fluid.css', pos:2 /}
+    #{press.stylesheet '/public/common/stylesheets/grid/960-fluid.css', pos:2 /}
     #{/if}
     #{else}
-    #{press.stylesheet '/public/themes/common/stylesheets/grid/grid-zemmy.css', pos:2 /}
+    #{press.stylesheet '/public/common/stylesheets/grid/grid-zemmy.css', pos:2 /}
     #{/else}
-    #{press.stylesheet '/public/themes/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:3 /}
-    *{#{press.stylesheet '/public/themes/common/stylesheets/module/mod.css', pos:4 /}}*
-    #{press.stylesheet '/public/themes/common/stylesheets/media/media.css', pos:5 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/spacing/space.css', pos:6 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/forms/form-elements.css', pos:7 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/breadcrumb/breadcrumb.css', pos:8 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/tiptip.css', pos:9 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/tables.css', pos:10 /}
-    *{#{press.stylesheet '/public/themes/common/stylesheets/links.css', pos:11 /}}*
-    #{press.stylesheet '/public/themes/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:12 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/pagination/pagination.css', pos:13 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/plugins/token-input.css', pos:14 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/plugins/token-input-facebook.css', pos:15 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
-    #{press.stylesheet '/public/themes/common/stylesheets/helpers.css', pos:17 /}
+    #{press.stylesheet '/public/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:3 /}
+    *{#{press.stylesheet '/public/common/stylesheets/module/mod.css', pos:4 /}}*
+    #{press.stylesheet '/public/common/stylesheets/media/media.css', pos:5 /}
+    #{press.stylesheet '/public/common/stylesheets/spacing/space.css', pos:6 /}
+    #{press.stylesheet '/public/common/stylesheets/forms/form-elements.css', pos:7 /}
+    #{press.stylesheet '/public/common/stylesheets/breadcrumb/breadcrumb.css', pos:8 /}
+    #{press.stylesheet '/public/common/stylesheets/tiptip.css', pos:9 /}
+    #{press.stylesheet '/public/common/stylesheets/tables.css', pos:10 /}
+    *{#{press.stylesheet '/public/common/stylesheets/links.css', pos:11 /}}*
+    #{press.stylesheet '/public/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:12 /}
+    #{press.stylesheet '/public/common/stylesheets/pagination/pagination.css', pos:13 /}
+    #{press.stylesheet '/public/common/stylesheets/plugins/token-input.css', pos:14 /}
+    #{press.stylesheet '/public/common/stylesheets/plugins/token-input-facebook.css', pos:15 /}
+    #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
+    #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:17 /}
     #{press.compressed-stylesheet /}
     *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
@@ -40,30 +40,30 @@
         jsLabels.cancel = "${viewUtils.getKey('ui.label.cancel')}";
         jsLabels.remove = "${viewUtils.getKey('ui.label.delete')}";
     </script>
-    *{#{press.script '/public/themes/common/javascripts/less-1.1.3.min.js', compress:false, pos:1 /}}*
-    #{press.script '/public/themes/common/javascripts/modernizr-2.0.6.min.js', compress:false, pos:2 /}
-    #{press.script '/public/themes/common/javascripts/jquery-1.6.2.min.js', compress:false, pos:3 /}
-    #{press.script '/public/themes/common/javascripts/jquery.hoverIntent.minified.js', compress:false, pos:4 /}
-    #{press.script '/public/themes/common/javascripts/jquery-ui-1.8.16.custom.min.js', compress:false, pos:5 /}
-    #{press.script '/public/themes/common/javascripts/jquery.iframe-transport.js', pos:6 /}
-    #{press.script '/public/themes/common/javascripts/jquery.fileupload.js', pos:7 /}
-    #{press.script '/public/themes/common/javascripts/jquery.fileupload-ui.js', pos:8 /}
-    #{press.script '/public/themes/common/javascripts/upload.js', pos:9 /}
-    #{press.script '/public/themes/common/javascripts/jquery.tmpl.min.js', compress:false, pos:10 /}
-    #{press.script '/public/themes/common/javascripts/jquery.metadata.js', pos:11 /}
-    #{press.script '/public/themes/common/javascripts/jquery.validate.js', pos:12 /}
-    #{press.script '/public/themes/common/javascripts/knockout-1.2.1.js', pos:13 /}
-    #{press.script '/public/themes/common/javascripts/knockout.mapping-latest.js', compress:false, pos:14 /}
-    #{press.script '/public/themes/common/javascripts/jquery.form.js', pos:15 /}
-    #{press.script '/public/themes/common/javascripts/jquery.delving.spinner.js', pos:16 /}
-    #{press.script '/public/themes/common/javascripts/jquery.tokeninput.js', pos:17 /}
-    #{press.script '/public/themes/common/javascripts/jquery.multiselect.min.js', pos:18 /}
-    #{press.script '/public/themes/common/javascripts/jquery.multiselect.filter.js', pos:19 /}
-    #{press.script '/public/themes/common/javascripts/jquery.tools.min.js', compress:false, pos:20 /}
-    #{press.script '/public/themes/common/javascripts/jquery.tiptip.js', pos:21 /}
-    #{press.script '/public/themes/common/javascripts/smartupdater.js', pos:22 /}
-    #{press.script '/public/themes/common/javascripts/jquery.pagination.js', pos:23 /}
-    #{press.script '/public/themes/common/javascripts/culturehub.js', pos:24 /}
+    *{#{press.script '/public/common/javascripts/less-1.1.3.min.js', compress:false, pos:1 /}}*
+    #{press.script '/public/common/javascripts/modernizr-2.0.6.min.js', compress:false, pos:2 /}
+    #{press.script '/public/common/javascripts/jquery-1.6.2.min.js', compress:false, pos:3 /}
+    #{press.script '/public/common/javascripts/jquery.hoverIntent.minified.js', compress:false, pos:4 /}
+    #{press.script '/public/common/javascripts/jquery-ui-1.8.16.custom.min.js', compress:false, pos:5 /}
+    #{press.script '/public/common/javascripts/jquery.iframe-transport.js', pos:6 /}
+    #{press.script '/public/common/javascripts/jquery.fileupload.js', pos:7 /}
+    #{press.script '/public/common/javascripts/jquery.fileupload-ui.js', pos:8 /}
+    #{press.script '/public/common/javascripts/upload.js', pos:9 /}
+    #{press.script '/public/common/javascripts/jquery.tmpl.min.js', compress:false, pos:10 /}
+    #{press.script '/public/common/javascripts/jquery.metadata.js', pos:11 /}
+    #{press.script '/public/common/javascripts/jquery.validate.js', pos:12 /}
+    #{press.script '/public/common/javascripts/knockout-1.2.1.js', pos:13 /}
+    #{press.script '/public/common/javascripts/knockout.mapping-latest.js', compress:false, pos:14 /}
+    #{press.script '/public/common/javascripts/jquery.form.js', pos:15 /}
+    #{press.script '/public/common/javascripts/jquery.delving.spinner.js', pos:16 /}
+    #{press.script '/public/common/javascripts/jquery.tokeninput.js', pos:17 /}
+    #{press.script '/public/common/javascripts/jquery.multiselect.min.js', pos:18 /}
+    #{press.script '/public/common/javascripts/jquery.multiselect.filter.js', pos:19 /}
+    #{press.script '/public/common/javascripts/jquery.tools.min.js', compress:false, pos:20 /}
+    #{press.script '/public/common/javascripts/jquery.tiptip.js', pos:21 /}
+    #{press.script '/public/common/javascripts/smartupdater.js', pos:22 /}
+    #{press.script '/public/common/javascripts/jquery.pagination.js', pos:23 /}
+    #{press.script '/public/common/javascripts/culturehub.js', pos:24 /}
     #{press.compressed-script /}
 #{get 'moreScripts' /}
     <script type="text/javascript">

@@ -367,7 +367,7 @@ button.beware:active .label,
 .ddm span.icon, 
 button span.icon, 
 .button span.icon {
-	background-image: url(/public/themes/common/stylesheets/buttons/button-icons-gray.png);
+	background-image: url(/public/common/stylesheets/buttons/button-icons-gray.png);
 	
 	display: inline-block;
 	margin: 0 7px;
@@ -393,7 +393,7 @@ button:hover span.icon,
 .button:hover span.icon,
 button.on span.icon,
 .button.on span.icon{
-	background-image: url(/public/themes/common/stylesheets/buttons/button-icons-color.png);
+	background-image: url(/public/common/stylesheets/buttons/button-icons-color.png);
 }
 
 
@@ -647,7 +647,7 @@ div.dropdown span.toggle {
 	
 	float: right;
 	
-	background: url(/public/themes/common/stylesheets/buttons/toggle.png) top right no-repeat;
+	background: url(/public/common/stylesheets/buttons/toggle.png) top right no-repeat;
 	border-left: 1px solid #D9D9D9;
 	
 	-webkit-transition: border-color .20s;
@@ -656,7 +656,7 @@ div.dropdown span.toggle {
 	transition: border-color .20s;
 }
 div.dropdown span.toggle.active {
-	background: url(/public/themes/common/stylesheets/buttons/toggle.png) bottom right no-repeat;
+	background: url(/public/common/stylesheets/buttons/toggle.png) bottom right no-repeat;
 }
 div.dropdown 
 button:hover span.toggle, 

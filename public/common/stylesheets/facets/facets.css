@@ -6,7 +6,7 @@
 
 h4.trigger
 {
-	background: #fff url(/public/themes/common/stylesheets/facets/togglerch.gif) no-repeat 98% 50%;
+	background: #fff url(/public/common/stylesheets/facets/togglerch.gif) no-repeat 98% 50%;
 	border-bottom:1px solid #ccc;
     font-family: Arial;
     font-weight: normal;
@@ -19,17 +19,17 @@ h4.trigger
 }
 
 h4.trigger:hover {
-   background: #fff url(/public/themes/common/stylesheets/facets/togglerc.gif) no-repeat 98% 50%;
+   background: #fff url(/public/common/stylesheets/facets/togglerc.gif) no-repeat 98% 50%;
     color: #555;
     text-decoration: underline;
 }
 
 h4.trigger.active {
-   background: #fff url(/public/themes/common/stylesheets/facets/toggleroh.gif) no-repeat 98% 50%;
+   background: #fff url(/public/common/stylesheets/facets/toggleroh.gif) no-repeat 98% 50%;
 }
 
 h4.trigger.active:hover {
-   background: #fff url(/public/themes/common/stylesheets/facets/togglero.gif) no-repeat 98% 50%;
+   background: #fff url(/public/common/stylesheets/facets/togglero.gif) no-repeat 98% 50%;
 }
 
 .facet-container
