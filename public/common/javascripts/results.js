@@ -96,4 +96,23 @@ $(document).ready(function() {
             });
         });
     }
+
+    $('#addToCollectionButton').click(function(event) {
+      event.preventDefault();
+      $('#dropbox input[name="itemId"]').each(function() {
+        var uri = $(this).val();
+        $.ajax({
+          type: 'POST',
+          url: uri + '/link/partOf/collection/' + $('#collection').val(),
+          success: function() {
+            $('#dropbox').trigger({
+              type: 'removeItem',
+              itemId: uri
+            });
+          },
+          error: function() { $("select#collection").css("background", "#cc3300")}
+        });
+      });
+    });
+
 });

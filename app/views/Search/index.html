@@ -88,7 +88,6 @@
                                 <option value="${col.id}">${col.title}</option>
                              #{/list}
                             </select>
-                            <div class="error">You must select a collection</div>
                             <hr/>
                             <button id="addToCollectionButton" type="submit" class="button action submit">&{'search.addToCollection'}</button>
                         #{/if}
@@ -127,7 +126,7 @@
     &{'ui.message.nothingFound'}
 </div>
 #{/else}
-
+</div>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#addToCollectionButton').click(function(event) {

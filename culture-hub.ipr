@@ -233,6 +233,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/culture-hub.iml" filepath="$PROJECT_DIR$/culture-hub.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../culture-hub-private/culture-hub-private.iml" filepath="$PROJECT_DIR$/../culture-hub-private/culture-hub-private.iml" />
     </modules>
   </component>
   <component name="ProjectResources">
@@ -245,6 +246,7 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../culture-hub-private" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
