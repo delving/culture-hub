@@ -851,10 +851,10 @@ button.dui-button {
 }
 
 .edit {
-    background-image: url("../themes/common/images/pencil_go.gif");
+    background-image: url("../common/images/pencil_go.gif");
 }
 
 .delete {
-    background-image: url("../themes/common/images/delete.gif");
+    background-image: url("../common/images/delete.gif");
 }
 

@@ -20,9 +20,10 @@ import java.lang.String
 import play.mvc.Http
 import scala.collection.JavaConversions._
 import models.PortalTheme
-import play.exceptions.ConfigurationException
 import com.mongodb.casbah.commons.MongoDBObject
 import play.{Logger, Play}
+import java.io.File
+import play.exceptions.ConfigurationException
 
 /**
  * ThemHandler taking care of loading themes (initially from YML, then from mongo)
@@ -43,8 +44,6 @@ object ThemeHandler {
     set
   }
 
-  private lazy val debug = Play.configuration.getProperty("debug").trim.toBoolean
-
   /**
    * Look into the database if we have some themes. If we don't attempt to load from YML.
    */
@@ -60,6 +59,7 @@ object ThemeHandler {
       } catch {
         case t: Throwable =>
           Logger.error("Error reading Themes from the database.", t)
+          throw t
       }
     }
 
@@ -77,7 +77,6 @@ object ThemeHandler {
 
   def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
 
-
   def readThemesFromDisk(): Seq[PortalTheme] = {
     try {
       loadThemesYaml()
@@ -93,7 +92,7 @@ object ThemeHandler {
 
   def hasTheme(themeName: String): Boolean = !themeList.filter(theme => theme.name == themeName).isEmpty
 
-  def getDefaultTheme = themeList.filter(_.isDefault == true).headOption
+  def getDefaultTheme = themeList.filter(_.name == Play.configuration.getProperty("themes.defaultTheme", "default")).headOption
 
   def getByThemeName(name: String) = {
     val theme = themeList.filter(_.name.equalsIgnoreCase(name))
@@ -103,7 +102,6 @@ object ThemeHandler {
 
   def getByRequest(request: Http.Request): PortalTheme = {
     if (hasSingleTheme) getDefaultTheme.get
-    else if (debug && request.params._contains("theme")) getByThemeName(request.params.get("theme"))
     else {
       // fetch by longest matching subdomain
       themeList.foldLeft(getDefaultTheme.get) {
@@ -124,18 +122,16 @@ object ThemeHandler {
 
   private[util] def loadThemesYaml(): Seq[PortalTheme] = {
 
-    def getProperty(prop: String): String = Play.configuration.getProperty(prop).trim
+    val themeFiles = new File(Play.applicationPath + "/conf").list().filter(_.endsWith("_themes.yml"))
 
-    val themeFileName = getProperty("cultureHub.portalThemeFile")
-
-    if (themeFileName == null) {
-      Logger.fatal("cultureHub.portalThemeFile path must be defined in application.conf");
+    if (themeFiles.length == 0) {
+      Logger.fatal("No themes configuration YML file could be found in conf/");
       System.exit(1);
     }
 
     PortalTheme.removeAll()
 
-    val themes = for (theme: PortalTheme <- YamlLoader.load[List[PortalTheme]](themeFileName)) yield {
+    val themes = for (theme: PortalTheme <- themeFiles.flatMap(f => YamlLoader.load[List[PortalTheme]](f))) yield {
       theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
     }
     themes

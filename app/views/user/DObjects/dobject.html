@@ -3,8 +3,8 @@
 #{set title: id.isEmpty() ? viewUtils.getKey('user.object.title.create', fullName) : viewUtils.getKey('user.object.title.update', fullName) /}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/plugins/jquery.multiselect.css'}"/>
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/plugins/jquery.multiselect.filter.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/common/stylesheets/plugins/jquery.multiselect.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/common/stylesheets/plugins/jquery.multiselect.filter.css'}"/>
 #{/set}
 
 #{breadcrumbs /}
@@ -89,7 +89,7 @@
       };
 
       // load templates and data
-      $.get("/asset?path=/public/themes/common/templates/_addLabel.tmpl.html", null, function(template) {
+      $.get("/asset?path=/public/common/templates/_addLabel.tmpl.html", null, function(template) {
         addTemplate('addLabelTemplate', template);
         load(${data.raw()}, objectModel, null, function() {
             var files = ko.toJS(objectModel.files);
