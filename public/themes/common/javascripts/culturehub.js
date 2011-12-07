@@ -34,7 +34,7 @@ function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteU
         $.ajax({
           type: 'POST',
           data: typeof addData === 'function' ? addData.call(this, item) : addData,
-          url: addUrl,
+          url: typeof addUrl === 'function' ? addUrl.call(this, item) : addUrl,
           success: function(data) {
             if(item.wasCreated) {
               item.id = data.id;
