@@ -109,7 +109,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
           inserted match {
             case Some(l) =>
-              val e = EmbeddedLink(userName = link.userName, linkType = link.linkType, link = l)
+              val e = EmbeddedLink(userName = link.userName, linkType = link.linkType, link = l, value = link.value)
               embedFrom match {
                 case Some(from) => from.write(e)
                 case None => // nope
@@ -193,11 +193,15 @@ case class EmbeddedLink(TS: Date = new Date(), userName: String, linkType: Strin
 /**
  * This guy knows how to write an embedded link and give it a value
  */
-case class EmbeddedLinkWriter(value: Map[String, String], collection: MongoCollection, id: Option[ObjectId] = None, alternativeId: Option[(String, String)] = None) {
+case class EmbeddedLinkWriter(value: Option[Map[String, String]] = None, collection: MongoCollection, id: Option[ObjectId] = None, alternativeId: Option[(String, String)] = None) {
 
   def write(embeddedLink: EmbeddedLink): Either[String, String] = {
     if (id == None && alternativeId == None) return Left("No ID provided for writing embedded link")
-    val serEmb = grater[EmbeddedLink].asDBObject(embeddedLink.copy(value = value))
+    val el = value match {
+      case Some(v) => embeddedLink.copy(value = v)
+      case None => embeddedLink
+    }
+    val serEmb = grater[EmbeddedLink].asDBObject(el)
     id match {
       case Some(objectId) =>
         collection.update(MongoDBObject("_id" -> objectId), $push("links" -> serEmb))

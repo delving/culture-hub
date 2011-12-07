@@ -18,7 +18,6 @@ package models
 
 import org.bson.types.ObjectId
 import salatContext._
-import org.apache.solr.common.SolrInputDocument
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
@@ -41,8 +40,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                    thumbnail_id: Option[ObjectId],
                    links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                    thumbnail_file_id: Option[ObjectId] = None, // pointer to the file selected as the thumbnail. This is _not_ helping to fetch the thumbnail, which is retrieved using the ID of the object
-                   files: Seq[StoredFile] = Seq.empty[StoredFile],
-                   collections: List[ObjectId] = List.empty[ObjectId]) extends Thing {
+                   files: Seq[StoredFile] = Seq.empty[StoredFile]) extends Thing {
 
   def getType = OBJECT
 

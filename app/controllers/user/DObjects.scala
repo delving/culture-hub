@@ -29,6 +29,7 @@ import java.util.Date
 import controllers.dos.FileUploadResponse
 import extensions.JJson
 import models._
+import models.salatContext._
 import util.Constants._
 
 /**
@@ -51,7 +52,7 @@ object DObjects extends DelvingController with UserSecured {
           anObject.description,
           anObject.user_id,
           anObject.visibility.value,
-          anObject.collections,
+          anObject.flattenLinksWithIds(Link.LinkType.PARTOF, USERCOLLECTION_ID).map(_._2),
           availableCollections,
           anObject.files map {f => FileUploadResponse(name = f.name, size = f.length, url = "/file/" + f.id, thumbnail_url = f.thumbnailUrl, delete_url = "/file/" + f.id, selected = Some(f.id) == anObject.thumbnail_file_id, id = f.id.toString)},
           anObject.thumbnail_file_id.toString)
@@ -104,7 +105,15 @@ object DObjects extends DelvingController with UserSecured {
         to = LinkReference(
           id = Some(collectionId),
           hubType = Some(USERCOLLECTION)
-        )
+        ),
+        embedFrom = Some(EmbeddedLinkWriter(
+          collection = objectsCollection,
+          id = Some(objectId)
+        )),
+        embedTo = Some(EmbeddedLinkWriter(
+          collection = userCollectionsCollection,
+          id = Some(collectionId)
+        ))
       )
     }
 
@@ -118,7 +127,6 @@ object DObjects extends DelvingController with UserSecured {
           userName = connectedUser,
           visibility = Visibility.get(objectModel.visibility),
           thumbnail_id = None,
-            collections = objectModel.collections,
           files = files)
         
         val inserted: Option[ObjectId] = DObject.insert(newObject)
@@ -147,18 +155,20 @@ object DObjects extends DelvingController with UserSecured {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
-        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, collections = objectModel.collections, files = existingObject.get.files ++ files)
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, files = existingObject.get.files ++ files)
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
 
           // update collection links - we use the existing object, in its previous state
-          val existingCollectionLinks = existingObject.get.collections
-          val intersection = objectModel.collections.intersect(existingObject.get.collections)
-          val removed = existingCollectionLinks.filterNot(intersection.contains(_))
+          val existingCollectionLinks = existingObject.get.flattenLinksWithIds(Link.LinkType.PARTOF, USERCOLLECTION_ID)
+          val intersection = objectModel.collections.intersect(existingCollectionLinks.map(_._2))
+          val removedLinks = existingCollectionLinks.filterNot(e => intersection.contains(e._2))
           val added = objectModel.collections.filterNot(intersection.contains(_))
 
           // remove removed links
-          Link.remove(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.hubType" -> OBJECT,  "to.hubType" -> USERCOLLECTION,  "from.id" -> id) ++ "to.id" $in removed)
+          removedLinks.foreach {
+            r => Link.removeById(r._1.link)
+          }
 
           // add added
           addCollectionLinks(added, id)
@@ -175,6 +185,7 @@ object DObjects extends DelvingController with UserSecured {
           // index
           SolrServer.indexSolrDocument(updatedObject.copy(thumbnail_id = thumbnailId).toSolrDocument)
           SolrServer.commit()
+
           Right(objectModel)
         } catch {
           case e: SalatDAOUpdateError =>

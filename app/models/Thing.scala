@@ -56,6 +56,10 @@ trait Thing extends Base {
   def getType: String
   def toSolrDocument: SolrInputDocument = getAsSolrDocument
 
+  def flattenLinksWithIds(linkType: String, key: String) = {
+    links.filter(_.linkType == linkType).map(l => (l, new ObjectId(l.value(key)))).toList
+  }
+
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField (ID, _id)
