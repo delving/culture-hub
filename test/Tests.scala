@@ -25,7 +25,6 @@ class ThemeHandlerTests extends UnitFlatSpec with ShouldMatchers with TestDataGe
 
   it should "load themes from disk into the database" in {
     themeHandler.startup()
-    themeHandler.hasSingleTheme should be(false)
     PortalTheme.find(MongoDBObject()).size should not be (0)
   }
 
