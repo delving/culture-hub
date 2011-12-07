@@ -10,6 +10,8 @@ test-result
 /out
 /system.out
 /conf/production.conf
+/conf/*_themes.yml
+!/conf/default_theme.yml
 target/
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
@@ -18,6 +20,9 @@ legacyServices/lib/*.jar
 /public/sip-creator/*.jar
 /public/sip-creator/*.zip
 /public/sip-creator/*.jnlp
+/public/themes/
+!/public/themes/default
+!/public/themes/common
 /extras/iipsrv-0.9.9
 /extras/jpeg-8c
 /extras/tiff-3.9.5
