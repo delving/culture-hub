@@ -1,4 +1,6 @@
-# Delving Culture-Hub
+# Delving CultureHub
+
+This is the Delving CultureHub. More information at http://delving.eu
 
 ## Getting started
 
@@ -55,13 +57,3 @@ This is how:
 - you also need to run a connector for FastCGI. Normally this happens in a web server but for convenience you can also do this without additional
 installation by running `cd extras/servlet-server && java -jar start.jar`
 - now you are ready to go and use the advanced image viewer
-
-### Batch conversion of high-resolution images
-
-In order to convert high-resoltution images in batch mode, we can use the magicktiler:
-
-- clone it with `git clone git@github.com:delving/magicktiler.git`
-- build it with `ant build:dist`
-- run it with `java -jar magicktiler.jar -s ptif -i /path/to/the/images`
-
-This will render PTIF (tiled TIF) images in the same directory than the input directory (until this is fixed in magicktiler)

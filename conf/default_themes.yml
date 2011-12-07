@@ -1,7 +1,7 @@
 - !!models.PortalTheme
     name: default
     subdomain: default
-    defaultLanguage: nl
+    defaultLanguage: en
     solrSelectUrl: "http://dimcon.nl/solr"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
