@@ -28,6 +28,7 @@ import java.util.Date
 import models.{Link, Visibility, DObject, UserCollection}
 import util.Constants._
 import collection.immutable.List
+import views.context.thumbnailUrl
 
 /**
  * Manipulation of user collections
@@ -38,12 +39,12 @@ import collection.immutable.List
 object Collections extends DelvingController with UserSecured {
 
   private def load(id: String): String = {
-    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
+    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name)}).toList
 
     UserCollection.findById(id, connectedUserId) match {
       case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
-        val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
+        val objects = DObject.findAllWithCollection(col._id).toList map { o => ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name) }
         JJson.generate(CollectionViewModel(
           id = Some(col._id),
           name = col.name,
@@ -51,7 +52,8 @@ object Collections extends DelvingController with UserSecured {
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = col.thumbnail_id, visibility = col.visibility.value))
+          thumbnail = col.thumbnail_id,
+          visibility = col.visibility.value))
       }
     }
   }
@@ -167,9 +169,9 @@ object Collections extends DelvingController with UserSecured {
 case class CollectionViewModel(id: Option[ObjectId] = None,
                               @Required name: String = "",
                               @Required description: String = "",
-                              objects: List[ObjectModel] = List.empty[ObjectModel],
-                              allObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              availableObjects: List[ObjectModel] = List.empty[ObjectModel],
+                              objects: List[ShortObjectModel] = List.empty[ShortObjectModel],
+                              allObjects: List[ShortObjectModel] = List.empty[ShortObjectModel],
+                              availableObjects: List[ShortObjectModel] = List.empty[ShortObjectModel],
                               visibility: Int = Visibility.PRIVATE.value,
                               thumbnail: String = "",
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

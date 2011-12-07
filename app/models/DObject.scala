@@ -56,9 +56,9 @@ case class DObject(_id: ObjectId = new ObjectId,
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
-  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "deleted" -> false))
+  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "deleted" -> false)).toList
 
-  def findAllUnassignedForUser(id: ObjectId) = find(MongoDBObject("deleted" -> false, "user_id" -> id, "collections" -> MongoDBObject("$size" -> 0)))
+  def findAllUnassignedForUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName) ++ ("links.linkType" $ne (Link.LinkType.PARTOF))).toList
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
     update(MongoDBObject("_id" -> id), $set ("thumbnail_file_id" -> thumbnail_id, "thumbnail_id" -> id) , false, false)

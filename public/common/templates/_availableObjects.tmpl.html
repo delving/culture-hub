@@ -12,8 +12,8 @@
     {{each(i, object) $item.availableObjects()}}
     <tr>
         <td><input type="checkbox" value="${object.id}" data-bind="checked: $item.selectedIds" /></td>
-        <td><img src='${thumbnailUrl(object.id)}' width="50" alt="${object.name}"/></td>
-        <td><h4>${object.name}</h4></td>
+        <td><img src='${object.thumbnail}' width="50" alt="${object.title}"/></td>
+        <td><h4>${object.title}</h4></td>
     </tr>
     {{/each}}
     </tbody>
