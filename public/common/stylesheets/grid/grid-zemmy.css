@@ -1,22 +1,5 @@
-/*
-    Ultimate Grid (fluid)
-    This grid system is a combination of grid practices inspired by
-    the 960 grid system (http://960.gs) and the fluid versions there of.
-    As well as the oocss grid system by Stubornella ( http://oocss.org).
-    Many thanks to them for their grids!
-*/
-
-/* Container >> page or page section width containers. Set in px for static, % for fluid
-----------------------------------------------------------------------------------------------------*/
-
-.container {
-    margin-left: auto;
-    margin-right: auto;
-    width: 960px;
-}
-
-/* Line >> can contain grids - instead of the .clear
-----------------------------------------------------------------------------------------------------*/
+/* temp extra grid stuff */
+/* Row >> can contain grids - instead of the .clear */
 
 .row:after, .lastUnit:after {
     clear: both;
@@ -32,22 +15,6 @@
 .row {
     *zoom: 1;
 }
-
-/* Grid >> Global
-----------------------------------------------------------------------------------------------------*/
-
-.g-1of12,
-.g-2of12,
-.g-3of12,
-.g-4of12,
-.g-5of12,
-.g-6of12,
-.g-7of12,
-.g-8of12,
-.g-9of12,
-.g-10of12,
-.g-11of12,
-.g-12of12,
 .g-1of2,
 .g-1of3,
 .g-2of3,
@@ -63,75 +30,6 @@
     margin-left: 1%;
     margin-right: 1%;
 }
-
-/* Grid >> Children (Alpha ~ First, Omega ~ Last)
-----------------------------------------------------------------------------------------------------*/
-
-.alpha {
-    margin-left: 0;
-}
-
-.omega {
-    margin-right: 0;
-}
-
-/* Grid >> 12 Columns use for general page layout
-----------------------------------------------------------------------------------------------------*/
-
-.g-1of12 {
-    width: 6.333%;
-}
-
-.g-2of12 {
-    width: 14.667%;
-}
-
-.g-3of12 {
-    width: 23%;
-}
-
-.g-4of12 {
-    width: 31.333%;
-}
-
-.g-5of12 {
-    width: 39.667%;
-}
-
-.g-6of12 {
-    width: 48%;
-}
-
-.g-6of12 {
-    width: 48%;
-}
-
-.g-7of12 {
-    width: 56.333%;
-}
-
-.g-8of12 {
-    width: 64.667%;
-}
-
-.g-9of12 {
-    width: 73%;
-}
-
-.g-10of12 {
-    width: 81.333%;
-}
-
-.g-11of12 {
-    width: 89.667%;
-}
-
-.g-12of12 {
-    width: 98%;
-}
-
-/* Grid >> 6 units use for items contained with a layout grid
-----------------------------------------------------------------------------------------------------*/
 
 .g-1of1 {
     float: none;
@@ -173,55 +71,11 @@
     width: 78%;
 }
 
-/* Prefix Extra Space >> 12 Columns
-----------------------------------------------------------------------------------------------------*/
 
-.container .prefix-1 {
-    padding-left: 8.333%;
+.alpha {
+    margin-left: 0;
 }
 
-.container .prefix-2 {
-    padding-left: 16.667%;
+.omega {
+    margin-right: 0;
 }
-
-.container .prefix-3 {
-    padding-left: 25.0%;
-}
-
-.container .prefix-4 {
-    padding-left: 33.333%;
-}
-
-.container .prefix-5 {
-    padding-left: 41.667%;
-}
-
-.container .prefix-6 {
-    padding-left: 50.0%;
-}
-
-.container .prefix-7 {
-    padding-left: 58.333%;
-}
-
-.container .prefix-8 {
-    padding-left: 66.667%;
-}
-
-.container .prefix-9 {
-    padding-left: 75.0%;
-}
-
-.container .prefix-10 {
-    padding-left: 83.333%;
-}
-
-.container .prefix-11 {
-    padding-left: 91.667%;
-}
-
-
-
-
-
-
