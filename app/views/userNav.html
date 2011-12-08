@@ -8,8 +8,10 @@
 #{else}
 
 <div class="buttons">
-    #{gravatar.img fullName /}
-    #{btnButton label: "Hi " + fullName /}
+    <button class="button">
+        <span class="label">Hi ${userName}</span>
+        <span class="">#{gravatar.img "eric@delving.eu", size:20 /}</span>
+    </button>
     <div class="dropdown">
         #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
         <div class="dropdown-slider">
