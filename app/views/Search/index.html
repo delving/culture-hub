@@ -88,7 +88,6 @@
                                 <option value="${col.id}">${col.title}</option>
                              #{/list}
                             </select>
-                            <div class="error">You must select a collection</div>
                             <hr/>
                             <button id="addToCollectionButton" type="submit" class="button action submit">&{'search.addToCollection'}</button>
                         #{/if}
@@ -121,12 +120,12 @@
         <div class="contentWrap"></div>
     </div>
 
-#{/if}
-#{else}
-<div class="g-12of12 grid_12 centered pam">
-    &{'ui.message.nothingFound'}
-</div>
-#{/else}
+    #{/if}
+    #{else}
+    <div class="g-12of12 grid_12 centered pam">
+        &{'ui.message.nothingFound'}
+    </div>
+    #{/else}
 
 <script type="text/javascript">
   $(document).ready(function() {
