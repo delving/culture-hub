@@ -19,7 +19,8 @@
 
 }
 
-.pagination .current {
+.pagination .current,
+.pagination .active {
     background: #26B;
     color: #fff;
     /*border: solid 1px #AAE;*/

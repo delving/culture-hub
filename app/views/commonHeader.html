@@ -7,6 +7,7 @@
     <meta name="keywords" content=""/>
     <meta charset="utf-8">
     <title>#{get 'title' /} </title>
+
     #{press.stylesheet '/public/common/stylesheets/reset.css', pos:1 /}
     #{if useGrid && useGrid == "960"}
     #{press.stylesheet '/public/common/stylesheets/grid/960-fluid.css', pos:2 /}
@@ -32,7 +33,7 @@
     #{press.compressed-stylesheet /}
     *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
-    <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/style.scss")}'/>
+    <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
     <script>
         var themePath = "${views.context.package.themePath('')}";
         jsLabels = new Object();
@@ -40,7 +41,7 @@
         jsLabels.cancel = "${viewUtils.getKey('ui.label.cancel')}";
         jsLabels.remove = "${viewUtils.getKey('ui.label.delete')}";
     </script>
-    *{#{press.script '/public/common/javascripts/less-1.1.3.min.js', compress:false, pos:1 /}}*
+    #{press.script '/public/common/javascripts/less-1.1.5.min.js', compress:false, pos:1 /}
     #{press.script '/public/common/javascripts/modernizr-2.0.6.min.js', compress:false, pos:2 /}
     #{press.script '/public/common/javascripts/jquery-1.6.2.min.js', compress:false, pos:3 /}
     #{press.script '/public/common/javascripts/jquery.hoverIntent.minified.js', compress:false, pos:4 /}

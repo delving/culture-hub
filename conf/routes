@@ -3,6 +3,7 @@
 # ~~~~
 
 GET         /public/themes/{theme}/info.conf                                 404
+GET         /public/themes/{theme}/{<.*>relativePath}                        Asset.serveTheme
 
 GET         /asset                                                           Asset.get
 
