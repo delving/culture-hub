@@ -261,7 +261,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
 
           // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
           val incomingLinks = Link.findTo(record.getUri(dataSet.orgId, dataSet.spec), Link.LinkType.PARTOF)
-          val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value)).toList
+          val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value))
 
           val toInsert = record.copy(modified = new Date(), deleted = false, links = embeddedLinks)
           records.insert(toInsert)

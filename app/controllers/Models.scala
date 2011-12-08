@@ -19,6 +19,8 @@ package controllers
 import org.bson.types.ObjectId
 import models._
 import views.context.thumbnailUrl
+import eu.delving.sip.IndexDocument
+import com.mongodb.casbah.Imports._
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -82,7 +84,21 @@ trait ModelImplicits {
   }
 
 
+  implicit def toDBObject(indexDocument: IndexDocument): DBObject = {
+    val m = indexDocument.getMap
+    import scala.collection.JavaConverters._
+    val values: Map[String, List[String]] = (m.keySet().asScala.map { key =>
+    val value: java.util.List[IndexDocument#Value] = m.get(key)
+      (key, value.asScala.map(_.toString).toList)
+    }).toMap
+    values
+    val builder = MongoDBObject.newBuilder
+    values.keys foreach { k => builder += (k -> values(k))}
+    builder.result()
+  }
+
 }
+
 
 trait ViewModel {
   val errors: Map[String, String]

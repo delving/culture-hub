@@ -170,7 +170,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
   }
 
-  def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri))
+  def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri)).toList
 
 }
 

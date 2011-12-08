@@ -25,10 +25,11 @@ import com.mongodb.casbah.Imports._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
-import models.{Link, Visibility, DObject, UserCollection}
 import util.Constants._
 import collection.immutable.List
-import views.context.thumbnailUrl
+import models.salatContext._
+import com.novus.salat.grater
+import models._
 
 /**
  * Manipulation of user collections
@@ -39,12 +40,29 @@ import views.context.thumbnailUrl
 object Collections extends DelvingController with UserSecured {
 
   private def load(id: String): String = {
-    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name)}).toList
+    val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
 
     UserCollection.findById(id, connectedUserId) match {
       case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
-        val objects = DObject.findAllWithCollection(col._id).toList map { o => ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name) }
+        // retrieve objects of the collections via the inbound links. This is not very efficient.
+        val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
+        val links = Link.find("_id" $in linkedObjectLinks).toList
+        val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
+        val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
+
+        val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
+
+        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
+        val convertedMdrs = mdrs.flatMap(mdr =>
+          if(mdr.mappedMetadata.contains(theme.metadataPrefix.get)) {
+            val record = mdr.getAccessor(theme.metadataPrefix.get)
+            Some(ShortObjectModel(id = record.getId, url = record.getIdUri, thumbnail = record.getThumbnail(220), title = record.getTitle))
+          } else {
+            None
+          })
+
+        val objects = userObjects ++ convertedMdrs
         JJson.generate(CollectionViewModel(
           id = Some(col._id),
           name = col.name,
