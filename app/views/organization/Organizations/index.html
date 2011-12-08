@@ -31,7 +31,7 @@
         <h3>&{'organization.members'}</h3>
         <ol>
             #{list members, as: 'm'}
-            <li>${m.userName} (${m.fullUserName})</li>
+            <li><a href="/${m.userName}">${m.userName}</a></li>
             #{/list}
         </ol>
     </div>
