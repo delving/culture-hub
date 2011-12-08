@@ -16,20 +16,17 @@
 
 .scroll-nav {
     height: 32px;
+    /*line-height: 32px;*/
     position: relative;
     top: 0px;
     clear: both;
 }
 
 .scroll-nav .prev {
-    /*float: left;*/
-    /*margin-left: 75px;*/
     display: inline-block;
 }
 
 .scroll-nav .next {
-    /*float: right;*/
-    /*margin-right: 75px;*/
     display: inline-block;
 
 }
@@ -38,11 +35,8 @@
  	/* required settings */
 	position:relative;
 	overflow:hidden;
-	/*overflow-y: auto;*/
     width: 710px;
     margin:  0 auto;
-    /*min-height: 500px;*/
-
 	/* custom decorations */
     top: 0px;
     display: block;
@@ -59,70 +53,38 @@
 	width:20000em;
 	position:absolute;
 	clear:both;
+    background: #f1f1f1;
 }
 
 .scrollable .page {
 	float:left;
 	width:710px;
     position: relative;
-    top: 20px;
+    top: 0px;
     left: 0px;
 }
 
-/*.scrollable .page img {*/
-    /*max-height: 300px;*/
-    /*max-width: 350px;*/
-/*}*/
-
 .scrollable .page-left {
     float: left;
-    /*width: 48%;*/
-    /*margin-right:  1%;*/
 }
 
 .scrollable .page-right {
     float: left;
-    /*width: 48%;*/
-    /*margin-left:  1%;*/
 }
 
 .scrollable .title-page {
-    text-align: left;
+    text-align: center;
 }
-
-/*.scrollable .title-page h1 {*/
-    /*font-size: 300%;*/
-    /*margin: 30px 0 10px 0;*/
-/*}*/
 
 .scrollable .title-page h2 {
    color: #000;
 }
-
-/*.scrollable .page h2 {*/
-    /*color: #555;*/
-    /*font-size: 150%;*/
-/*}*/
-
-/* single scrollable item */
-/*.scrollable img {*/
-	/*float:left;*/
-    /*margin:  0 20px 20px 0;*/
-/*}*/
-
-/* active item */
-/*.scrollable .active {*/
-	/*border:2px solid #000;*/
-	/*position:relative;*/
-	/*cursor:default;*/
-/*}*/
 
 /* Navigation */
 
 .story .browse {
     cursor: pointer;
     display: inline-block;
-    /*margin-right: 20px;*/
 }
 .story .browse.disabled {
     color: #ccc;

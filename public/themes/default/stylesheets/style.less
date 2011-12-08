@@ -54,7 +54,7 @@
   -webkit-border-radius: 0 @radius 0 0;
 }
 
-/* TYPOGRAPHY */
+/* The basics *************************************************************************************************/
 h1, .h1,
 h2, .h2,
 h3, .h3 {
@@ -65,6 +65,7 @@ h1, .h1 {
     font-size: 196%;
     font-weight: normal;
     font-style: normal;
+    margin-bottom: 21px;
 }
 
 h2, .h2 {
@@ -72,26 +73,29 @@ h2, .h2 {
     font-size: 167%;
     font-weight: normal;
     font-style: normal;
+    margin-bottom: 11px;
 }
 
 h3, .h3 {
-    color: @color11;
+    color: @color10;
     font-size: 146.5%;
     font-weight: normal;
     font-style: normal;
+    margin-bottom: 11px;
 }
 
 h4, .h4 {
-    color: @color14;
+    color: @color10;
     font-size: 123.1%;
     font-weight: normal;
     font-style: normal;
+    margin-bottom: 11px;
 }
 
 h5, .h5 {
     color: @color14;
     font-size: 108%;
-    font-weight: bold;
+    font-weight: normal;
     font-style: normal;
 }
 
@@ -104,13 +108,11 @@ h6, .h6 {
 
 h1.sep {
     margin: 10px;
-    /*padding-bottom: 5px;*/
-    //border-bottom: 1px solid lighten(@color5, 30%);
 }
 
 p {
     line-height: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 11px;
 }
 
 ul, ol {
@@ -130,8 +132,6 @@ hr {
    border-color: @color2;
 }
 
-/* base */
-
 body {
     background: @color3;
     color: @color14;
@@ -148,7 +148,7 @@ a:visited {
     color: @color7;
 }
 
-/* page layout container ***********/
+/* page layout container ***************************************************************************************/
 
 .container {
     height: inherit;
@@ -158,9 +158,7 @@ a:visited {
     position: relative;
 }
 
-/* SECTIONS ************************/
-
-/* header */
+/* header *****************************************************************************************************/
 
 .header {
     background: @color7;
@@ -169,7 +167,7 @@ a:visited {
     z-index: 10;
 }
 
-/* branding */
+/* branding ***************************************************************************************************/
 
 .site-name {
     color: @color1;
@@ -197,7 +195,7 @@ a:visited {
     display: none;
 }
 
-/* user-nav */
+/* user-nav ****************************************************************************************************/
 
 .user-nav {
     background: @color2;
@@ -215,7 +213,8 @@ a:visited {
     margin-right: 0px;
 }
 
-/* site-nav */
+/* site-nav ***************************************************************************************************/
+
 .site-nav {
     position: absolute;
     bottom: 0px;
@@ -265,7 +264,7 @@ a:visited {
     background: @color5;
 }
 
-/* search */
+/* search **************************************************************************************************/
 
 .search {
     position: absolute;
@@ -280,7 +279,6 @@ a:visited {
 
 .search input[type=text] {
     background: none repeat scroll 0 0 #fff;
-    /*border: medium none;*/
     border:  0px solid  @color1;
     .border-all(@radius);
     padding: 8px;
@@ -289,12 +287,10 @@ a:visited {
 
 .search input[type="submit"]  {
     background: none repeat scroll 0 0 @color8;
-    /*border: medium none;*/
     border:  0px solid @color9;
     .border-all(2px);
     color: #fff;
     cursor: pointer;
-//    font-family: $ffam-2;
     font-size: @fsize1;
     font-weight: bold;
     margin-left: 4px;
@@ -305,14 +301,13 @@ a:visited {
 }
 
 .search input {
-    /*font-weight: bold;*/
     vertical-align: top;
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 }
 
-/* main */
+/* main***************************************************************************************************/
 
 .main .container {
     background: @color1;
@@ -320,7 +315,7 @@ a:visited {
     padding-top: 20px;
 }
 
-/* footer */
+/* footer ************************************************************************************************/
 
 .footer .container {
     background: @color1;
@@ -329,44 +324,25 @@ a:visited {
     margin-bottom: 20px;
 }
 
-/* breadcrumb */
+/* breadcrumb ********************************************************************************************/
+
 .breadcrumb {
-    border-bottom: 1px solid @color2;
     padding-bottom: 5px;
 }
 .breadcrumb ul {
    margin: 0 0 10px 10px;
 }
 
-/* media block in recent wrapper */
-
-.recent .media p {
-    margin: 0;
-    padding: 0;
-}
+/* media block in recent wrapper *************************************************************************/
 
 .recent .media .clip {
     display: block;
+    float: left;
     height: 80px;
     overflow: hidden;
 }
 
-.recent .clip img {
-    position:absolute;
-    clip:rect(0px,280px,200px,0px);
-}
-
-.recent .media .img {
-    clear: both;
-    float: none;
-
-}
-
-.recent .title {
-    display: block;
-}
-
-
+/* widget container *************************************************************************************/
 
 .widget.object{
     background-color: @color6;
@@ -409,9 +385,8 @@ a:visited {
     width: auto;
 }
 
+/* overrides *******************************************************************************************/
 
-
-/* overrides */
 ul.token-input-list {
     border: 1px solid @color3;
     width: 300px;
@@ -427,13 +402,11 @@ div.token-input-dropdown {
 }
 
 div.token-input-dropdown ul li.token-input-selected-dropdown-item {
-background-color: lighten(@color8, 40%);
+    background-color: lighten(@color8, 40%);
 }
 
 form {
     background: transparent;
-//    .border-all(4px);
-//    border: 1px solid @color3;
 }
 
 form h3 {
@@ -466,16 +439,21 @@ form legend {
     background: #f3f3f3;
 }
 
+
+.scroll-nav .pagination {
+    text-align: right;
+}
+
 .facets h3 {
     font-size: @fsize1;
+    color: @color14;
+    font-weight: bold;
+    width: inherit;
 }
 
 .facet-container {
     background: @color2;
 }
-
-/* media overrides */
-
 
 .media .img {
     margin-right: 10px;
@@ -538,7 +516,6 @@ form legend {
     background-color: lighten(@color10, 40%);
 }
 
-
 #tiptip_content {
 	font-size: 85%;
 	color: @color14;
@@ -562,6 +539,7 @@ div.dropdown-slider .ddm.heading.orgs {
 .toolbar {
     margin: 0px 0px 20px 0;
 }
+
 
 
 

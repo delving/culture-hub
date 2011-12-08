@@ -33,7 +33,7 @@
     #{press.compressed-stylesheet /}
     *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
-    <link rel="stylesheet" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
+    <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
     <script>
         var themePath = "${views.context.package.themePath('')}";
         jsLabels = new Object();

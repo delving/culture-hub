@@ -1,75 +1,43 @@
 .scroll-nav {
     width: auto;
     text-align: center;
-    height: 80px;
 }
 
 .scroll-nav a {
-    background: transparent url(/public/common/images/scrollable-nav.png) top left no-repeat;
     display: inline-block;
-    width: 28px;
-    height: 50px;
     overflow: hidden;
-    text-indent: -2000px;
-    margin-right: 10px;
+    cursor: pointer;
 }
 
-.scroll-nav .prev {
-    background-position: -30px 0px;
-}
-
-.scroll-nav .next {
-    background-position: -142px 0px;
-}
-
-.scroll-nav .page {
-    background-position: -102px 0px;
-    width: 36px;
-}
-
-.scroll-nav .active .page {
-    background-position: -62px 0px;
-    width: 36px;
-}
-
-.scroll-nav .prev.disabled {
-    background-position: -0px 0px;
-}
-
-.scroll-nav .next.disabled {
-    background-position: -172px 0px;
+.scroll-nav a.disabled {
+    color: #ccc;
+    cursor: default;
 }
 
 #pnav {
     display: inline-block;
 }
 
+#pnav a {
+   cursor: pointer;
+}
+
 #pnav .active {
     font-weight: bold;
 }
 
-#pnav li {
-    display: inline-block;
-    margin: 0px;
-}
-
 #inav {
-    background: #eaeaea;
-    padding: 0;
     margin: 0;
 }
 
 #inav li {
     margin: 10px 0;
-    padding: 2px 4px;
+}
+
+#inav li:hover {
+    cursor: pointer;
 }
 
 #inav .active {
-    background: #000;
-    color: #fff;
     font-weight: bold;
-}
-
-#inav .active a {
-    color: #fff;
 }
