@@ -14,7 +14,7 @@
         pageObject.itemsPerPage = ${views.context.package.PAGE_SIZE()}
         pageObject.selector = ".pager"
     </script>
-    <script type="text/javascript" language="javascript" src="/public/common/javascripts/paginationInit.js"></script>
+    <script type="text/javascript" language="javascript" src="/public/themes/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 
@@ -45,7 +45,7 @@
     <div class="row">
     #{/if}
     <div class="g-3of12 grid_3 #{if i.isPrivate}private#{/if}">
-        <div class="mod list">
+        <div class="list">
             <div class="media ${itemName}">
                 <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
                     <img src='${views.context.package.thumbnailUrl(i.thumbnail, 220)}' widht="220" alt="${i.title}" class="img"/>

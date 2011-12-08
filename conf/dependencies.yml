@@ -6,7 +6,6 @@ require:
     - delving -> dos 1.4.1
     - delving -> scala 0.9.1_20111028
     - delving -> press 1.0.24.P1
-    - play -> sass 1.1
     - play -> gravatar 1.0.2
     - org.joda -> joda-convert 1.1
     - commons-httpclient -> commons-httpclient 3.1

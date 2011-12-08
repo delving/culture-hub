@@ -112,6 +112,14 @@ button[disabled],
     width: 150px;
 }
 
+.info-box.small {
+    font-size: smaller;
+}
+
+.info-box.small .label {
+    width: 85px;
+}
+
 .info-box .text {
     display: block;
     float: left;
@@ -229,6 +237,10 @@ div.dropdown-slider .ddm.heading {
     display: none;
 }
 
+#dropbox .error {
+    display: none;
+}
+
 /* WIDGET */
 
 .widget.yellow {background:#f2bc00;}
@@ -258,7 +270,7 @@ div.dropdown-slider .ddm.heading {
     color: #000;
     overflow: hidden;
     width: 100%;
-    height: 30px;
+    /*height: 30px;*/
     line-height: 30px;
 }
 
@@ -270,7 +282,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .widget .bd {
-    background: #fff;
+    /*background: #fff;*/
     display: block;
     padding: 0 5px;
     color: #555;
@@ -283,7 +295,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .widget .bd p {
-    padding: 0.5em;
+    padding: 0.5em 0;
 }
 
 .widget .bd pre {
@@ -340,7 +352,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .result-overlay .close {
-    background-image: url("/public/common/images/close.png");
+    background-image: url("/public/themes/common/images/close.png");
     cursor: pointer;
     height: 35px;
     position: absolute;
@@ -357,6 +369,9 @@ div.dropdown-slider .ddm.heading {
 .metadata h4 {
     margin-top: 0px;
     margin-bottom: 0px;
+}
+.metadata {
+    padding: 4px;
 }
 .metadata p {
     margin-top: 0px;
@@ -397,7 +412,6 @@ div.dropdown-slider .ddm.heading {
 
 .list .media .title {
     display: block;
-    padding: 4px;
     text-decoration: none;
 }
 
