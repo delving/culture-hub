@@ -54,7 +54,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
   def dataSetSubmit(orgId: String, data: String): Result = {
     val dataSet = JJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
-    if("^[A-Za-z0-9_-]{3,40}$".r.findFirstIn(spec) == None) {
+    if("^[A-Za-z0-9-]{3,40}$".r.findFirstIn(spec) == None) {
       return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("spec" -> "Invalid spec format!"))))
     }
     val factsObject = new BasicDBObject(dataSet.facts)
