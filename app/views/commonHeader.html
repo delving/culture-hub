@@ -8,29 +8,24 @@
     <meta charset="utf-8">
     <title>#{get 'title' /} </title>
     #{press.stylesheet '/public/common/stylesheets/reset.css', pos:1 /}
-    #{if useGrid && useGrid == "960"}
     #{press.stylesheet '/public/common/stylesheets/grid/960-fluid.css', pos:2 /}
-    #{/if}
-    #{else}
-    #{press.stylesheet '/public/common/stylesheets/grid/grid-zemmy.css', pos:2 /}
-    #{/else}
-    #{press.stylesheet '/public/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:3 /}
-    *{#{press.stylesheet '/public/common/stylesheets/module/mod.css', pos:4 /}}*
-    #{press.stylesheet '/public/common/stylesheets/media/media.css', pos:5 /}
-    #{press.stylesheet '/public/common/stylesheets/spacing/space.css', pos:6 /}
-    #{press.stylesheet '/public/common/stylesheets/forms/form-elements.css', pos:7 /}
-    #{press.stylesheet '/public/common/stylesheets/breadcrumb/breadcrumb.css', pos:8 /}
-    #{press.stylesheet '/public/common/stylesheets/tiptip.css', pos:9 /}
-    #{press.stylesheet '/public/common/stylesheets/tables.css', pos:10 /}
-    *{#{press.stylesheet '/public/common/stylesheets/links.css', pos:11 /}}*
-    #{press.stylesheet '/public/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:12 /}
-    #{press.stylesheet '/public/common/stylesheets/pagination/pagination.css', pos:13 /}
-    #{press.stylesheet '/public/common/stylesheets/plugins/token-input.css', pos:14 /}
-    #{press.stylesheet '/public/common/stylesheets/plugins/token-input-facebook.css', pos:15 /}
-    #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
-    #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:17 /}
+    #{press.stylesheet '/public/common/stylesheets/grid/grid-zemmy.css', pos:3 /}
+    #{press.stylesheet '/public/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:4 /}
+    *{#{press.stylesheet '/public/common/stylesheets/module/mod.css', pos:5 /}}*
+    #{press.stylesheet '/public/common/stylesheets/media/media.css', pos:6 /}
+    #{press.stylesheet '/public/common/stylesheets/spacing/space.css', pos:7 /}
+    #{press.stylesheet '/public/common/stylesheets/forms/form-elements.css', pos:8 /}
+    #{press.stylesheet '/public/common/stylesheets/breadcrumb/breadcrumb.css', pos:9 /}
+    #{press.stylesheet '/public/common/stylesheets/tiptip.css', pos:10 /}
+    #{press.stylesheet '/public/common/stylesheets/tables.css', pos:11 /}
+    *{#{press.stylesheet '/public/common/stylesheets/links.css', pos:12 /}}*
+    #{press.stylesheet '/public/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:13 /}
+    #{press.stylesheet '/public/common/stylesheets/pagination/pagination.css', pos:14 /}
+    #{press.stylesheet '/public/common/stylesheets/plugins/token-input.css', pos:15 /}
+    #{press.stylesheet '/public/common/stylesheets/plugins/token-input-facebook.css', pos:16 /}
+    #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:17 /}
+    #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:18 /}
     #{press.compressed-stylesheet /}
-    *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
     <script>
