@@ -31,4 +31,8 @@ legacyServices/lib/*.jar
 /extras/tiff-3.9.5.tar.gz
 /module-extra/
 /public/javascripts/press
+<<<<<<< HEAD
 /public/stylesheets/press
+=======
+/public/stylesheets/press
+>>>>>>> theme layout, userNav as include ( layout1 only for now )

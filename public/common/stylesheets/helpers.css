@@ -345,14 +345,13 @@ div.dropdown-slider .ddm.heading {
     display: none;
     margin: 0 auto;
     width: 940px;
-   @include  border-all(10px);
     border: 1px solid #666666;
     box-shadow: 0 0 50px 5px #000000;
     z-index: 1000;
 }
 
 .result-overlay .close {
-    background-image: url("/public/themes/common/images/close.png");
+    background-image: url("/public/common/images/close.png");
     cursor: pointer;
     height: 35px;
     position: absolute;
@@ -381,16 +380,6 @@ div.dropdown-slider .ddm.heading {
 
 .list .media {
     position: relative;
-}
-
-.list .media.object{
-    background-color: lighten($color-2, 30%);
-}
-.list .media.collection{
-    background-color: lighten($color-3, 40%);
-}
-.list .media.story{
-    background-color: lighten($color-4, 40%);
 }
 
 .list .media .clip {
