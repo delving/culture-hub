@@ -17,17 +17,17 @@
 package controllers
 
 import play.mvc.Controller
-import play.Play
 import java.io.File
-import play.mvc.results.Result
 import play.libs.IO
+import play.mvc.results.{RenderBinary, Result}
+import play.{Logger, Play}
 
 /**
  * Helper controller to pre-process assets such as jquery templates
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Asset extends Controller with Internationalization {
+object Asset extends Controller with Logging with Internationalization {
 
   def get(path: String): Result = {
     val f = new File(Play.applicationPath + path)
@@ -41,6 +41,27 @@ object Asset extends Controller with Internationalization {
         (m._1, key, args)
     }
     Text(messages.foldLeft(content) { (r, c) => r.replace(c._1, &(c._2, c._3 : _*))})
+  }
+
+  def serveTheme(relativePath: String, theme: String): Result = {
+    val available = Play.configuration.getProperty("themes.available", "default").split(",")
+    if(available.contains(theme)) {
+      return Continue
+    }
+
+    val additionalThemes = Option(Play.configuration.getProperty("themes.additionalThemesDir"))
+    additionalThemes match {
+      case Some(s) =>
+        val f = new File(Play.applicationPath + "/" + s).getCanonicalFile
+        if(!f.exists() || !f.isDirectory) {
+          return Error("Incorrectly configured additional themes directory %s".format(s))
+        }
+        val r = new File(f, theme + "/" + relativePath)
+        if(!r.exists()) return NotFound
+        new RenderBinary(r)
+      case None =>
+        NotFound
+    }
   }
 
 }

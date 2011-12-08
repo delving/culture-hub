@@ -10,6 +10,7 @@ test-result
 /out
 /system.out
 /conf/production.conf
+/conf/additional.conf
 /conf/*_themes.yml
 !/conf/default_theme.yml
 target/
