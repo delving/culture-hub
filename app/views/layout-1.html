@@ -1,21 +1,25 @@
 #{include 'commonHeader.html' /}
 <!--<link rel="stylesheet" href='${views.context.package.themePath("stylesheets/font-face.css")}' type="text/css"/>-->
 <link href='http://fonts.googleapis.com/css?family=IM+Fell+English:400,400italic' rel='stylesheet' type='text/css'>
+
 <div class="user-nav row">
     #{include 'userNav.html' /}
 </div>
 
 <div class="header">
     <div class="container_12">
-        <div class="row">
-            <div class="grid_6">
-                <div id="primary-branding">
-                    <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
-                </div>
-                <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
+
+        <div class="header-top">
+        <div class="grid_12">
+            <div id="primary-branding">
+                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
             </div>
+            <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
         </div>
-        <div class="row">
+        </div>
+
+
+        <div class="header-main">
             <div class="grid_6">
                 <div id="site-nav">
                     <ul>
@@ -40,10 +44,11 @@
                     </form>
                 </div>
             </div>
-        </div>
 
-        <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
-        <div class="header-bg"></div>
+        </div>
+        <div class="header-bg">
+            <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
+        </div>
     </div>
 </div>
 
