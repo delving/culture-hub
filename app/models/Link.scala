@@ -150,7 +150,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
           c.update(MongoDBObject("_id" -> id.get), pull)
         case None =>
           if(hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
-            connection(hubCollection.get).update(MongoDBObject(MDR_ID -> hubAlternativeId.get), pull)
+            connection(hubCollection.get).update(MongoDBObject(MDR_LOCAL_ID -> hubAlternativeId.get), pull)
           } else {
             Logger.warn("Could not delete embedded Link %s %s %s", hubType, id, hubCollection)
           }

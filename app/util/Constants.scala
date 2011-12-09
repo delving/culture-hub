@@ -62,7 +62,8 @@ object Constants {
   val MORE_LIKE_THIS = "moreLikeThis"
 
   // ~~~ special cases
-  val MDR_ID: String = "localRecordKey"
-
+  val MDR_LOCAL_ID: String = "localRecordKey"
+  val MDR_HUB_ID = "hubId"
+  val MDR_HUBCOLLECTION = "hubCollection"
 
 }

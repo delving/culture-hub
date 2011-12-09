@@ -57,7 +57,7 @@ trait Thing extends Base {
   def toSolrDocument: SolrInputDocument = getAsSolrDocument
 
   def flattenLinksWithIds(linkType: String, key: String) = {
-    links.filter(_.linkType == linkType).map(l => (l, new ObjectId(l.value(key)))).toList
+    links.filter(_.linkType == linkType).filter(_.value.contains(key)).map(l => (l, new ObjectId(l.value(key)))).toList
   }
 
   protected def getAsSolrDocument: SolrInputDocument = {

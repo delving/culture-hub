@@ -30,7 +30,7 @@ import collection.immutable.List
 import models.salatContext._
 import com.novus.salat.grater
 import models._
-
+import views.context.thumbnailUrl
 /**
  * Manipulation of user collections
  *
@@ -43,7 +43,8 @@ object Collections extends DelvingController with UserSecured {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
 
     UserCollection.findById(id, connectedUserId) match {
-      case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
+      case None =>
+        JJson.generate[CollectionViewModel](CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
         // retrieve objects of the collections via the inbound links. This is not very efficient.
         val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
@@ -53,7 +54,7 @@ object Collections extends DelvingController with UserSecured {
 
         val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
 
-        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
+        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_LOCAL_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
         val convertedMdrs = mdrs.flatMap(mdr =>
           if(mdr.mappedMetadata.contains(theme.metadataPrefix.get)) {
             val record = mdr.getAccessor(theme.metadataPrefix.get)
@@ -63,14 +64,14 @@ object Collections extends DelvingController with UserSecured {
           })
 
         val objects = userObjects ++ convertedMdrs
-        JJson.generate(CollectionViewModel(
+        JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = col.name,
           description = col.description,
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = col.thumbnail_id,
+          thumbnail = thumbnailUrl(col.thumbnail_id),
           visibility = col.visibility.value))
       }
     }
@@ -119,20 +120,25 @@ object Collections extends DelvingController with UserSecured {
 
           // update link to objects
           val linkedObjects = existingCollection.get.flattenLinksWithIds(Link.LinkType.PARTOF, OBJECT_ID)
-          val updatedObjects: List[ObjectId] = collectionModel.objects.map(_.id.get)
+          val updatedObjects: List[ObjectId] = collectionModel.objects.filter(_.hubType == OBJECT).map(o => new ObjectId(o.id))
           val intersection = updatedObjects.intersect(linkedObjects.map(_._2))
-          val removedLinks = linkedObjects.filterNot(e => intersection.contains(e._2))
+          val removedObjectLinks = linkedObjects.filterNot(e => intersection.contains(e._2))
           val added = updatedObjects.filterNot(intersection.contains(_))
 
-          removedLinks.foreach {
-            r => Link.removeById(r._1.link)
+          val linkedMdrs: List[(EmbeddedLink, String)] = existingCollection.get.links.filter(l => l.linkType == Link.LinkType.PARTOF && l.value.contains(HUB_ID)).map(e => (e, e.value(HUB_ID)))
+          val updatedMdrs = collectionModel.objects.filter(_.hubType == MDR).map(_.id)
+          val removedMdrs = linkedMdrs.filterNot(l => updatedMdrs.contains(l._2))
+
+          // remove removed objects and MDRs
+          (removedObjectLinks ++ removedMdrs).map(_._1.link).foreach {
+            r => Link.removeById(r)
           }
 
           added foreach { o =>
             user.DObjects.createCollectionLink(id, o)
           }
 
-          val affectedObjectIds = removedLinks.map(_._2) ++ added
+          val affectedObjectIds = removedObjectLinks.map(_._2) ++ added
           affectedObjectIds foreach { affected =>
             val obj = DObject.findOneByID(affected).get
             SolrServer.indexSolrDocument(obj.toSolrDocument)
@@ -150,14 +156,7 @@ object Collections extends DelvingController with UserSecured {
     }
 
     persistedUserCollection match {
-      case Some(theCollection) => {
-        val objectIds = for(o <- collectionModel.objects) yield o.id.get
-
-        // FIXME remove collections that were removed...
-        DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theCollection.id.get)), false, true)
-
-        Json(theCollection)
-      }
+      case Some(theCollection) => Json(theCollection)
       case None => Error(&("user.collections.saveError", collectionModel.name))
     }
 

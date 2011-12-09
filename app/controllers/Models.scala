@@ -100,7 +100,7 @@ trait ModelImplicits {
 }
 
 
-trait ViewModel {
+abstract class ViewModel {
   val errors: Map[String, String]
   lazy val validationRules: Map[String, String] = util.Validation.getClientSideValidationRules(this.getClass)
 }
