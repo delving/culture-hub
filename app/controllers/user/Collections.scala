@@ -25,8 +25,12 @@ import com.mongodb.casbah.Imports._
 import controllers._
 import play.data.validation.Annotations._
 import java.util.Date
-import models.{Visibility, DObject, UserCollection}
-
+import util.Constants._
+import collection.immutable.List
+import models.salatContext._
+import com.novus.salat.grater
+import models._
+import views.context.thumbnailUrl
 /**
  * Manipulation of user collections
  *
@@ -36,20 +40,39 @@ import models.{Visibility, DObject, UserCollection}
 object Collections extends DelvingController with UserSecured {
 
   private def load(id: String): String = {
-    val allObjects = (DObject.browseByUser(browsedUserId, connectedUserId).map {o => ObjectModel(Some(o._id), o.name, o.description, o.user_id)}).toList
+    val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
 
     UserCollection.findById(id, connectedUserId) match {
-      case None => JJson.generate(CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
+      case None =>
+        JJson.generate[CollectionViewModel](CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
-        val objects = DObject.findAllWithCollection(col._id).toList map { obj => ObjectModel(Some(obj._id), obj.name, obj.description, obj.user_id)}
-        JJson.generate(CollectionViewModel(
+        // retrieve objects of the collections via the inbound links. This is not very efficient.
+        val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
+        val links = Link.find("_id" $in linkedObjectLinks).toList
+        val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
+        val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
+
+        val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
+
+        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_LOCAL_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
+        val convertedMdrs = mdrs.flatMap(mdr =>
+          if(mdr.mappedMetadata.contains(theme.metadataPrefix.get)) {
+            val record = mdr.getAccessor(theme.metadataPrefix.get)
+            Some(ShortObjectModel(id = record.getId, url = record.getIdUri, thumbnail = record.getThumbnail(220), title = record.getTitle, hubType = MDR))
+          } else {
+            None
+          })
+
+        val objects = userObjects ++ convertedMdrs
+        JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = col.name,
           description = col.description,
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = col.thumbnail_id, visibility = col.visibility.value))
+          thumbnail = thumbnailUrl(col.thumbnail_id),
+          visibility = col.visibility.value))
       }
     }
   }
@@ -78,8 +101,12 @@ object Collections extends DelvingController with UserSecured {
         inserted match {
           case None => None
           case Some(iid) =>
-            val objectIds = for(o <- collectionModel.objects) yield o.id.get
-            DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> iid)), false, true)
+            // TODO this has to be replaced by a mechanism that does atomic adds / deletes in the view, not all at once
+            for(o <- collectionModel.objects) {
+              user.DObjects.createCollectionLink(iid, o.id.get)
+              val obj = DObject.findOneByID(o.id.get).get
+              SolrServer.indexSolrDocument(obj.toSolrDocument)
+            }
             SolrServer.indexSolrDocument(newCollection.toSolrDocument)
             SolrServer.commit()
             Some(collectionModel.copy(id = inserted))
@@ -89,31 +116,47 @@ object Collections extends DelvingController with UserSecured {
         if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
         val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
         try {
-          // objects
+          UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
 
-          // FIXME here we should be updating the added/removed objects
-          // to that end we should save the reverse links from object / mdr to UserCollection, with additional information (url, title, thumbnail, ...)
+          // update link to objects
+          val linkedObjects = existingCollection.get.flattenLinksWithIds(Link.LinkType.PARTOF, OBJECT_ID)
+          val updatedObjects: List[ObjectId] = collectionModel.objects.filter(_.hubType == OBJECT).map(o => new ObjectId(o.id))
+          val intersection = updatedObjects.intersect(linkedObjects.map(_._2))
+          val removedObjectLinks = linkedObjects.filterNot(e => intersection.contains(e._2))
+          val added = updatedObjects.filterNot(intersection.contains(_))
+
+          val linkedMdrs: List[(EmbeddedLink, String)] = existingCollection.get.links.filter(l => l.linkType == Link.LinkType.PARTOF && l.value.contains(HUB_ID)).map(e => (e, e.value(HUB_ID)))
+          val updatedMdrs = collectionModel.objects.filter(_.hubType == MDR).map(_.id)
+          val removedMdrs = linkedMdrs.filterNot(l => updatedMdrs.contains(l._2))
+
+          // remove removed objects and MDRs
+          (removedObjectLinks ++ removedMdrs).map(_._1.link).foreach {
+            r => Link.removeById(r)
+          }
+
+          added foreach { o =>
+            user.DObjects.createCollectionLink(id, o)
+          }
+
+          val affectedObjectIds = removedObjectLinks.map(_._2) ++ added
+          affectedObjectIds foreach { affected =>
+            val obj = DObject.findOneByID(affected).get
+            SolrServer.indexSolrDocument(obj.toSolrDocument)
+          }
 
           SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
-          UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
           SolrServer.commit()
           Some(collectionModel)
         } catch {
-          case _ =>
+          case t =>
+            logError(t, "Could not save collection " + id)
             SolrServer.rollback()
             None
         }
     }
 
     persistedUserCollection match {
-      case Some(theCollection) => {
-        val objectIds = for(o <- collectionModel.objects) yield o.id.get
-
-        // FIXME remove collections that were removed...
-        DObject.update(("_id" $in objectIds), ($addToSet ("collections" -> theCollection.id.get)), false, true)
-
-        Json(theCollection)
-      }
+      case Some(theCollection) => Json(theCollection)
       case None => Error(&("user.collections.saveError", collectionModel.name))
     }
 
@@ -143,9 +186,9 @@ object Collections extends DelvingController with UserSecured {
 case class CollectionViewModel(id: Option[ObjectId] = None,
                               @Required name: String = "",
                               @Required description: String = "",
-                              objects: List[ObjectModel] = List.empty[ObjectModel],
-                              allObjects: List[ObjectModel] = List.empty[ObjectModel],
-                              availableObjects: List[ObjectModel] = List.empty[ObjectModel],
+                              objects: List[ShortObjectModel] = List.empty[ShortObjectModel],
+                              allObjects: List[ShortObjectModel] = List.empty[ShortObjectModel],
+                              availableObjects: List[ShortObjectModel] = List.empty[ShortObjectModel],
                               visibility: Int = Visibility.PRIVATE.value,
                               thumbnail: String = "",
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

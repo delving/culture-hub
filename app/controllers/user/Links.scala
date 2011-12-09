@@ -97,7 +97,6 @@ object Links extends DelvingController {
             id = Some(toObjectId),
             hubType = Some(toType)),
           embedTo = Some(EmbeddedLinkWriter(
-            value = Map("label" -> label),
             collection = objectsCollection,
             id = Some(toObjectId)))
         )
@@ -116,7 +115,6 @@ object Links extends DelvingController {
             refType = Some("place"),
             uri = Some("http://sws.geonames.org/%s/".format(toId))),
           embedFrom = Some(EmbeddedLinkWriter(
-            value = filteredParams,
             collection = fromMongoCollection,
             id = Some(fromId)
           ))
@@ -145,11 +143,10 @@ object Links extends DelvingController {
                   case Some(one) => one
                   case None => return NotFound("Record with identifier %s_%s_%s was not found".format(orgId, spec, recordId))
                 }
-                val linkValue: Map[String, String] = Map(USERCOLLECTION_ID -> toId)
                 val res = Link.create(
                   linkType = Link.LinkType.PARTOF,
                   userName = connectedUser,
-                  value = linkValue,
+                  value = Map(USERCOLLECTION_ID -> toId),
                   from = LinkReference(
                     uri = Some(buildMdrUri(orgId, spec, recordId)), // TODO need TW blessing
                     refType = Some("institutionalObject"), // TODO need TW blessing
@@ -162,12 +159,11 @@ object Links extends DelvingController {
                     hubType = Some(USERCOLLECTION)
                   ),
                   embedFrom = Some(EmbeddedLinkWriter(
-                    value = linkValue,
                     collection = collection,
                     id = mdr._id
                   )),
                   embedTo = Some(EmbeddedLinkWriter(
-                    value = linkValue,
+                    value = Some(Map(HUB_ID -> mdr.get(MDR_HUB_ID).toString, MDR_LOCAL_ID -> mdr.get(MDR_LOCAL_ID).toString, MDR_HUBCOLLECTION -> collection.getName())),
                     collection = userCollectionsCollection,
                     id = Some(collectionId))
                   ))
@@ -183,29 +179,7 @@ object Links extends DelvingController {
                 res
 
               case OBJECT =>
-                val linkValue: Map[String, String] = Map(USERCOLLECTION_ID -> toId)
-                val res = Link.create(
-                  linkType = Link.LinkType.PARTOF,
-                  userName = connectedUser,
-                  value = linkValue,
-                  from = LinkReference(
-                   id = Some(fromId),
-                   hubType = Some(OBJECT)
-                  ),
-                  to = LinkReference(
-                   id = Some(collectionId),
-                    hubType = Some(USERCOLLECTION)
-                  ),
-                  embedFrom = Some(EmbeddedLinkWriter(
-                    value = linkValue,
-                    collection = objectsCollection,
-                    id = Some(fromId)
-                  )),
-                  embedTo = Some(EmbeddedLinkWriter(
-                    value = linkValue,
-                    collection = userCollectionsCollection,
-                    id = Some(collectionId)
-                  )))
+                val res = DObjects.createCollectionLink(new ObjectId(toId), fromId)
 
                 // re-index the object
                 DObject.findOneByID(fromId) match {

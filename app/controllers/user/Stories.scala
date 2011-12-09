@@ -46,10 +46,7 @@ object Stories extends DelvingController with UserSecured {
           visibility = story.visibility.value,
           isDraft = story.isDraft,
           thumbnail = story.thumbnail,
-          pages = for (p <- story.pages) yield PageViewModel(title = p.title, text = p.text, objects = {
-            val objects = DObject.findAllWithIds(p.objects map { _.dobject_id})
-            (objects map { o => ObjectModel(id = Some(o._id), name = o.name, description = o.description, owner = o.user_id) }).toList
-          }),
+          pages = for (p <- story.pages) yield PageViewModel(title = p.title, text = p.text, objects = DObject.findAllWithIds(p.objects.map(_.dobject_id)).toList),
           collections = collectionVMs)
 
         JJson.generate(storyVM)
@@ -120,4 +117,4 @@ case class StoryViewModel(id: Option[ObjectId] = None,
                           collections: List[CollectionReference] = List.empty[CollectionReference],
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
-case class PageViewModel(title: String = "", text: String = "", objects: List[ObjectModel] = List.empty[ObjectModel])
+case class PageViewModel(title: String = "", text: String = "", objects: List[ShortObjectModel] = List.empty[ShortObjectModel])
