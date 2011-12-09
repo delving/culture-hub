@@ -445,7 +445,10 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
 class MultiValueMapMetadataAccessors(hubId: String, dbo: MongoDBObject) extends MetadataAccessors {
   protected def assign(key: String) = {
-    dbo(key).asInstanceOf[BasicDBList].toList.head.toString
+    dbo.get(key) match {
+      case Some(v) => v.asInstanceOf[BasicDBList].toList.head.toString
+      case None => ""
+    }
   }
 
   override def getId = hubId
