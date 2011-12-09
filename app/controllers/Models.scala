@@ -39,7 +39,7 @@ case class ListItem(id: String,
                     isPrivate: Boolean,
                     url: String)
 
-case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String)
+case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)
 
 // ~~ reference objects
 
@@ -56,7 +56,7 @@ trait ModelImplicits {
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getCreator.userName)
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name)
+  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name, util.Constants.OBJECT)
   implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
   // ~~ ListItems

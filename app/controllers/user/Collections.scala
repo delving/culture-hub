@@ -57,7 +57,7 @@ object Collections extends DelvingController with UserSecured {
         val convertedMdrs = mdrs.flatMap(mdr =>
           if(mdr.mappedMetadata.contains(theme.metadataPrefix.get)) {
             val record = mdr.getAccessor(theme.metadataPrefix.get)
-            Some(ShortObjectModel(id = record.getId, url = record.getIdUri, thumbnail = record.getThumbnail(220), title = record.getTitle))
+            Some(ShortObjectModel(id = record.getId, url = record.getIdUri, thumbnail = record.getThumbnail(220), title = record.getTitle, hubType = MDR))
           } else {
             None
           })
