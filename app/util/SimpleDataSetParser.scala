@@ -72,6 +72,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
         case EvElemEnd(_, "input") =>
           inRecord = false
           record = MetadataRecord(
+            hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
             rawMetadata = Map("raw" -> recordXml.toString()),
             validOutputFormats = getValidMappings(dataSet, recordCounter),
             localRecordKey = recordId,

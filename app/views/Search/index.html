@@ -3,11 +3,11 @@
 #{set title:'Search results' /}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/themes/common/stylesheets/facets/facets.css'}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/common/stylesheets/facets/facets.css'}"/>
 #{/set}
 
 #{set 'moreScripts'}
-<script src="@{'/public/themes/common/javascripts/results.js'}" type='text/javascript'></script>
+<script src="@{'/public/common/javascripts/results.js'}" type='text/javascript'></script>
 #{/set}
 
 #{breadcrumbs /}
@@ -127,4 +127,25 @@
     &{'ui.message.nothingFound'}
 </div>
 #{/else}
-</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#addToCollectionButton').click(function(event) {
+      event.preventDefault();
+      $('#dropbox input[name="itemId"]').each(function() {
+        var uri = $(this).val();
+        $.ajax({
+          type: 'POST',
+          url: uri + '/link/partOf/collection/' + $('#collection').val(),
+          success: function() {
+            $('#dropbox').trigger({
+              type: 'removeItem',
+              itemId: uri
+            });
+          },
+          error: function() { alert("mayday")}
+        });
+      });
+    });
+  });
+</script>
