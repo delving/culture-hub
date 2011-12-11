@@ -2,7 +2,7 @@
     name: default
     subdomain: default
     defaultLanguage: en
-    solrSelectUrl: "http://dimcon.nl/solr"
+    solrSelectUrl: "http://localhost:8983/solr"
     cacheUrl: "http://localhost:8983/services/image?"
     emailTarget:
         adminTo: servers@delving.eu
