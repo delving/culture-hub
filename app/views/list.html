@@ -1,7 +1,4 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-
-#{set title: '' /}
-
 #{if count > views.context.package.PAGE_SIZE()}
 #{set 'moreScripts'}
     <script>
@@ -21,9 +18,11 @@
 #{breadcrumbs /}
 
 #{if browsedUserName}
+    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
+    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ' (' + count +')' /}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
