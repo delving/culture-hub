@@ -10,14 +10,13 @@
     <div class="container_12">
 
         <div class="header-top">
-        <div class="grid_12">
-            <div id="primary-branding">
-                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
+            <div class="grid_12">
+                <div id="primary-branding">
+                    <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
+                </div>
+                <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
             </div>
-            <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
         </div>
-        </div>
-
 
         <div class="header-main">
             <div class="grid_6">
@@ -44,9 +43,8 @@
                     </form>
                 </div>
             </div>
-
         </div>
-        <div class="header-bg">
+        <div class="header-bg row">
             <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
         </div>
     </div>
@@ -54,7 +52,7 @@
 
 <div class="main">
     <div class="container_12">
-        <div class="page">
+        <div class="content">
             #{doLayout /}
         </div>
     </div>
@@ -67,9 +65,10 @@
         </div>
     </div>
 </div>
-</div>
+
 
 <div id="secondary-branding" role="banner">
     <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
 </div>
+
 #{include 'commonFooter.html' /}
