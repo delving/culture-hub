@@ -93,7 +93,8 @@ import util.{MongoCacheImpl, ScalaCacheAccessor, ThemeHandler}
     ThemeHandler.startup()
 
     // Import initial data if the database is empty
-    if (User.count() == 0) {
+    if (Play.mode == Play.Mode.DEV && User.count() == 0) {
+      println("No test data found, reloading it")
       new util.TestDataLoader
     }
 
