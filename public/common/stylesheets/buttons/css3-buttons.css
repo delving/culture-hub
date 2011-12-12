@@ -691,6 +691,7 @@ div.dropdown-slider {
 	-moz-transition: border .20s;
 	-o-transition: border-color .20s;
 	transition: border-color .20s;
+    text-align: left;
     /*width: auto;*/
 }
 .left div.dropdown-slider {
