@@ -14,18 +14,23 @@
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
             #{/if}
         </div>
-
     </div>
     <div class="row">
-        <div class="g-6of12 grid_6">
+        <div class="g-1of4 grid_4">
+          #{gravatar.img user.email, size:220 /}
+        </div>
+        <div class="g-1of4 grid_4">
             <div class="info-box">
                 <span class="label">&{'ui.label.username'}:</span><span class="text">${user.userName}</span>
+                #{if isVisible}
                 <span class="label">&{'ui.label.fullname'}:</span><span class="text">${user.fullname()}</span>
                 <span class="label">&{'profile.activesince'}:</span><span class="text">${views.context.package.niceTime(user._id.getTime())}</span>
                 <span class="label">&{'user.profile.aboutYou'}:</span><span class="text">${user.userProfile.description().isEmpty() ? " - " : user.userProfile.description().get()}</span>
+                #{/if}
             </div>
         </div>
-        <div class="g-6of12 grid_6">
+        #{if isVisible}
+        <div class="g-1of4 grid_4">
             <div class="info-box long">
                 <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objects.length()}</a></span>
                 <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collections.length()}</a></span>
@@ -35,9 +40,10 @@
                 <span class="label">LinkedIn:</span><span class="text">${user.userProfile.linkedIn().isEmpty() ? " - " : user.userProfile.linkedIn().get()}</span>
             </div>
         </div>
+        #{/if}
     </div>
 
-
+    #{if isVisible}
     <div class="row">
         <div class="g-1of3 grid_4">
             <div class="widget">
@@ -106,5 +112,6 @@
             </div>
         </div>
     </div>
+    #{/if}
 </div>
 </div>
