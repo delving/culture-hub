@@ -286,7 +286,7 @@ object SolrQueryService extends SolrServer {
       solrQuery.setStart(solrQuery.getStart.intValue() - 1)
     }
     try {
-      Logger.info(solrQuery.toString)
+      Logger.debug(solrQuery.toString)
       runQuery(solrQuery)
     }
     catch {
