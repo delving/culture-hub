@@ -16,6 +16,9 @@
                 </div>
                 <h1 id="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
             </div>
+             <div id="secondary-branding" role="banner">
+                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+            </div>
         </div>
 
         <div class="header-main">
@@ -67,8 +70,6 @@
 </div>
 
 
-<div id="secondary-branding" role="banner">
-    <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
-</div>
+
 
 #{include 'commonFooter.html' /}
