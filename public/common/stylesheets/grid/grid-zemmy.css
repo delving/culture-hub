@@ -14,6 +14,7 @@
 
 .row {
     *zoom: 1;
+    clear:both;
 }
 .g-1of2,
 .g-1of3,
