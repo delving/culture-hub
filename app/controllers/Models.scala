@@ -54,6 +54,7 @@ case class ListItem(id: String,
     case (Some(id), None) => getThumbnailUrl(Some(id), size)
     case (None, Some(url)) => url
   }
+}
 
 case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)
 
