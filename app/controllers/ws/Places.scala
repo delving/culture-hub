@@ -16,20 +16,19 @@
 
 package controllers.ws
 
-import controllers.DelvingController
 import play.mvc.results.Result
-import play.libs.WS
 import scala.collection.JavaConversions._
 import com.mongodb.casbah.Imports._
 import models.salatContext._
 import java.util.regex.Pattern
+import controllers.{Secure, DelvingController}
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Places extends DelvingController {
+object Places extends DelvingController with Secure {
 
   def find(q: String): Result = {
 
