@@ -435,16 +435,22 @@ abstract class MetadataAccessors {
   def getOwner: String = assign(OWNER)
   def getCreator: String = assign(CREATOR)
   def getVisibility: String = assign(VISIBILITY)
-  def getThumbnail(size: Int) : String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => assign(THUMBNAIL) match {
-        case id if ObjectId.isValid(id) =>
-          val mongoId = Some(new ObjectId(id))
-          thumbnailUrl(mongoId, size)
+
+  def getThumbnail(size: Int): String = {
+    getRecordType match {
+      case OBJECT | USERCOLLECTION | STORY => assign(THUMBNAIL) match {
+          case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
+            val mongoId = Some(new ObjectId(id))
+            thumbnailUrl(mongoId, size)
+          case _ => thumbnailUrl(None, size)
+        }
+      // TODO plug-in the image cache here for MDRs
+      case MDR => assign(THUMBNAIL) match {
+        case url if url.trim.length() > 0 => url
         case _ => thumbnailUrl(None, size)
+      }
+      case _ => thumbnailUrl(None, size)
     }
-    // TODO plug-in the image cache here for datasets
-    case MDR => assign(THUMBNAIL)
-    case _ => ""
   }
   def getMimeType: String = "unknown/unknown"
 
