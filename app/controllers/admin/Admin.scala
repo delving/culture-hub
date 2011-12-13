@@ -19,6 +19,7 @@ package controllers.admin
 import controllers.DelvingController
 import play.mvc.results.Result
 import jobs.UGCIndexing
+import models.{DataSetState, DataSet}
 
 /**
  * 
@@ -35,6 +36,14 @@ object Admin extends DelvingController with AdminSecure {
       return WaitFor(task)
     }
     Text("Indexed all things")
+  }
+
+  def indexDataSets: Result = {
+
+    val reIndexable = DataSet.findByState(DataSetState.ENABLED).toList
+    reIndexable foreach { r => DataSet.changeState(r, DataSetState.QUEUED)}
+    
+    Text("Queued %s DataSets for indexing".format(reIndexable.size))
   }
 
 }

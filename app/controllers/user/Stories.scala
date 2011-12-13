@@ -45,7 +45,7 @@ object Stories extends DelvingController with UserSecured {
           name = story.name,
           visibility = story.visibility.value,
           isDraft = story.isDraft,
-          thumbnail = story.thumbnail,
+          thumbnail = story.thumbnailId,
           pages = for (p <- story.pages) yield PageViewModel(title = p.title, text = p.text, objects = DObject.findAllWithIds(p.objects.map(_.dobject_id)).toList),
           collections = collectionVMs)
 
