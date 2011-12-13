@@ -6,14 +6,12 @@ require:
     - delving -> dos 1.4.1
     - delving -> scala 0.9.1_20111028
     - delving -> press 1.0.24.P1
-    - play -> sass 1.1
     - play -> gravatar 1.0.2
     - org.joda -> joda-convert 1.1
     - commons-httpclient -> commons-httpclient 3.1
     - net.liftweb -> lift-json-ext_2.8.1 2.4-M4:
         exclude:
             - org.scala-lang -> *
-    - de.micromata.jak -> JavaAPIforKml 2.2.0
     - com.thoughtworks.xstream -> xstream 1.3
     - xpp3 -> xpp3_min 1.1.4c
     - org.codehaus.woodstox -> woodstox-core-asl 4.0.9
@@ -41,7 +39,6 @@ repositories:
          type: iBiblio
          root: "http://download.java.net/maven/2/"
          contains:
-            - de.micromata.jak -> *
             - com.sun.xml.bind -> *
     - apache-snapshots:
          type: iBiblio

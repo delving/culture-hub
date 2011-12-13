@@ -13,7 +13,6 @@
 - solr.baseUrl
 - iipsrv.url
 - debug
-- cultureHub.portalThemeFile
 - services.harvindexing.prefix
 - services.password
 - services.api.useAccessKey

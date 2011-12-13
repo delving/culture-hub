@@ -25,9 +25,11 @@ import org.apache.solr.client.solrj.response.UpdateResponse
 import eu.delving.sip.MappingEngine
 import scala.collection.JavaConversions.asJavaMap
 import models._
+import salatContext.connection
 import java.lang.String
 import java.io.{FilenameFilter, File}
 import play.Logger
+import com.novus.salat.grater
 import util.Constants._
 
 /**
@@ -35,7 +37,7 @@ import util.Constants._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Indexing extends SolrServer {
+object Indexing extends SolrServer with controllers.ModelImplicits {
 
   @throws(classOf[MappingNotFoundException])
   @throws(classOf[SolrConnectionException])
@@ -55,6 +57,15 @@ object Indexing extends SolrServer {
             state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
           val mapped = Option(engine.executeMapping(record.getXmlString()))
+
+          // cache the result of the mapping so that we can use it to present the record directly without re-running a mapping
+          mapped match {
+            case Some(mappedDocument) =>
+              val c: DBObject = mappedDocument
+              connection(DataSet.getRecordsCollectionName(dataSet)).update(MongoDBObject("_id" -> record._id), $set ("mappedMetadata.%s".format(metadataFormatForIndexing) -> c))
+            case None => // do nothing
+          }
+
           val res = indexOne(dataSet, record, mapped, metadataFormatForIndexing)
           res match {
             case Left(t) => throw t

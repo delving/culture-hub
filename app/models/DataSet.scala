@@ -23,8 +23,6 @@ import com.mongodb.casbah.Imports._
 import controllers.SolrServer
 import com.novus.salat._
 import dao.SalatDAO
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.MongoCollection
 import cake.metaRepo.PmhVerbType.PmhVerb
 import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
@@ -34,6 +32,10 @@ import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
 import eu.delving.sip.IndexDocument
+import controllers.ModelImplicits
+import controllers.search.MetadataAccessors
+import com.mongodb.casbah.{MongoCollection}
+import models.MDRCollection
 
 /**
  * DataSet model
@@ -105,7 +107,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
   }
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with ModelImplicits {
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -251,8 +253,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       record
     else {
       val mappedRecord = record.get
-      val solrDoc: IndexDocument = transFormXml(metadataFormat, ds.get, mappedRecord)
-      Some(mappedRecord.copy(mappedMetadata = Map[String, IndexDocument](metadataFormat -> solrDoc)))
+      val transformedDoc: DBObject = transFormXml(metadataFormat, ds.get, mappedRecord)
+
+      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
     }
   }
 
@@ -394,15 +397,16 @@ case class Details(name: String,
 }
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
+                          hubId: String,
                           rawMetadata: Map[String, String], // this is the raw xml data string
-                          mappedMetadata: Map[String, IndexDocument] = Map.empty[String, IndexDocument], // this is the mapped xml data string only added after transformation
+                          mappedMetadata: Map[String, DBObject] = Map.empty[String, DBObject], // this is the mapped xml data string only added after transformation, and it's a DBObject because Salat won't let us use an inner Map[String, List[String]]
                           modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String],
                           deleted: Boolean = false, // if the record has been deleted
                           localRecordKey: String, // the unique element value
+                          links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           globalHash: String, // the hash of the raw content
-                          hash: Map[String, String], // the hash for each field, for duplicate detection
-                          links: List[EmbeddedLink] = List.empty[EmbeddedLink]
+                          hash: Map[String, String] // the hash for each field, for duplicate detection
                          ) {
 
   def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
@@ -413,11 +417,11 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
     }
     else if (mappedMetadata.contains(metadataPrefix)) {
       import scala.collection.JavaConversions._
-      val indexDocument = mappedMetadata.get(metadataPrefix).get
-      indexDocument.getMap.entrySet().foldLeft("")(
+      val indexDocument: MongoDBObject = mappedMetadata.get(metadataPrefix).get
+      indexDocument.entrySet().foldLeft("")(
         (output, indexDoc) => {
-          val unMungedKey = indexDoc.getKey.replaceAll("_", ":")
-          output + indexDoc.getValue.map(value => {
+          val unMungedKey = indexDoc.getKey.replaceFirst("_", ":")
+          output + indexDoc.getValue.asInstanceOf[List[String]].map(value => {
             "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
           }).mkString
         }
@@ -430,7 +434,25 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {
     "<record>%s</record>".format(getXmlString(metadataPrefix))
   }
+  
+  def getAccessor(prefix: String) = {
+    if(!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, MongoDBObject())
+    val map = mappedMetadata(prefix)
+    new MultiValueMapMetadataAccessors(hubId, map)
+  }
 
+}
+
+class MultiValueMapMetadataAccessors(hubId: String, dbo: MongoDBObject) extends MetadataAccessors {
+  protected def assign(key: String) = {
+    dbo.get(key) match {
+      case Some(v) => v.asInstanceOf[BasicDBList].toList.head.toString
+      case None => ""
+    }
+  }
+
+  override def getId = hubId
+  override def getRecordType = _root_.util.Constants.MDR
 }
 
 trait MDRCollection {

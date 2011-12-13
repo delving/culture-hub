@@ -16,8 +16,6 @@
 
 package extensions
 
-import play.mvc.Http.{Response, Request}
-import models.User
 import play.mvc.Controller
 import play.mvc.results._
 
@@ -32,15 +30,4 @@ trait AdditionalActions extends Extensions {
     Json(data)
   }
 
-  def RenderKml(entity: AnyRef) = new RenderKml(entity)
-}
-
-class RenderKml(entity: AnyRef) extends Result {
-  def apply(request: Request, response: Response) {
-    val doc = entity match {
-      case u: User => KMLSerializer.toKml(Option(u))
-      case _ => KMLSerializer.toKml(None)
-    }
-    new RenderXml(doc.toString())(request, response)
-  }
 }

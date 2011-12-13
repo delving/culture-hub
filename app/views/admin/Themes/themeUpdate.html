@@ -13,19 +13,13 @@
                 <div class="mod">
                     <h3>&{'admin.themes.section.systeminfo'}</h3>
                     #{textField name: "name", label: viewUtils.getKey('admin.themes.label.themename'), dataBind: "value: name", help: viewUtils.getKey('admin.themes.help.themename'), required: true, disabled: false /}
-                    #{checkboxField name: "isDefault", label: viewUtils.getKey('admin.themes.label.isdefault'), dataBind: "checked: isDefault" /}
-
-                    #{textField name: "templateDir", label: viewUtils.getKey('admin.themes.label.templatedir'), dataBind: "value: templateDir", required: true /}
-
                 </div>
             </div>
             <div class="g-6of12">
                 <div class="mod">
                     <h3>&{'admin.themes.section.displayinfo'}</h3>
-                    #{textField name: "displayName", label: viewUtils.getKey('admin.themes.label.displayname'), dataBind: "value: displayName", required: true, extHelp: viewUtils.getKey('admin.themes.help.displayname') /}
                     #{textField name: "homePage", label: viewUtils.getKey('admin.themes.label.homepage'), dataBind: "value: homePage", required: true /}<!-- todo: this should become the secondary branding url -->
                     #{textField name: "defaultLanguage", label: viewUtils.getKey('admin.themes.label.defaultlanguage'), dataBind: "value: defaultLanguage", required: true /}
-                    #{textField name: "colorScheme", label: viewUtils.getKey('admin.themes.label.colorscheme'), dataBind: "value: colorScheme" /}
                 </div>
             </div>
         </div>
@@ -58,11 +52,6 @@
                     #{textField name: "registerTo", label: viewUtils.getKey('admin.themes.label.registerto'), dataBind: "value: emailTarget.registerTo" /}
                     #{textField name: "systemFrom", label: viewUtils.getKey('admin.themes.label.systemfrom'), dataBind: "value: emailTarget.systemFrom" /}
                     #{textField name: "feedbackFrom", label: viewUtils.getKey('admin.themes.label.feedbackfrom'), dataBind: "value: emailTarget.feedbackFrom" /}
-                </div>
-                <div class="mod">
-                    <h3>Extras</h3>
-                    #{textField name: "googleAnalyticsTrackingCode", label: viewUtils.getKey('admin.themes.label.ga'), dataBind: "value: googleAnalyticsTrackingCode" /}
-                    #{textField name: "addThisTrackingCode", label: viewUtils.getKey('admin.themes.label.addthis'), dataBind: "value: addThisTrackingCode" /}
                 </div>
             </div>
         </div>

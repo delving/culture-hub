@@ -53,18 +53,14 @@ object Collections extends DelvingController {
 
   def listObjects(user: String, id: String): Result = {
 
-    def objectToObjectModel(o: DObject) = ObjectModel(Some(o._id), o.name, o.description, o.user_id)
-
     // unassigned objects
     if (id == NO_COLLECTION) {
-      getUser(user) match {
-        case Right(aUser) => Json(DObject.findAllUnassignedForUser(aUser._id) map { objectToObjectModel(_) })
-        case Left(error) => error
-      }
+      val shortObject: List[ShortObjectModel] = DObject.findAllUnassignedForUser(user)
+      Json(shortObject)
     } else {
       if (!ObjectId.isValid(id)) Error(&("collections.invalidCollectionId", id))
       val cid = new ObjectId(id)
-      val objects = DObject.findAllWithCollection(cid) map { objectToObjectModel(_) }
+      val objects: List[ShortObjectModel] = DObject.findAllWithCollection(cid)
       request.format match {
         case "json" => Json(objects)
         case _ => BadRequest

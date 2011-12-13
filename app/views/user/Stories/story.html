@@ -89,7 +89,7 @@
     </p>
 </div>
 
-<script id='delving-wysiyg' src="@{'/public/themes/common/javascripts/tiny_mce/tiny_mce.js'}" type='text/javascript'></script>
+<script id='delving-wysiyg' src="@{'/public/common/javascripts/tiny_mce/tiny_mce.js'}" type='text/javascript'></script>
 
 <script type="text/html" id="pageTemplate">
     <form id="#{verbatim}${'${$item.action}'}PageForm#{/verbatim}" action="" class="box">
@@ -264,9 +264,9 @@
         };
 
         // load templates and data
-        $.get("/asset?path=/public/themes/common/templates/_availableObjects.tmpl.html", null, function(template) {
+        $.get("/asset?path=/public/common/templates/_availableObjects.tmpl.html", null, function(template) {
             addTemplate('availableObjectsList', template);
-            $.get("/asset?path=/public/themes/common/templates/_selectedObjects.tmpl.html", null, function(template) {
+            $.get("/asset?path=/public/common/templates/_selectedObjects.tmpl.html", null, function(template) {
                 addTemplate('objectsList', template);
                 load(${data.raw()}, storyModel, null, function() {
                   $("body").css('visibility', 'visible');

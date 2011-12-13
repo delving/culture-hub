@@ -3,12 +3,12 @@
 #{set title: viewUtils.getKey('thing.story') + ' ' + story.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable.css'}"/>
-<link rel="stylesheet" type="text/css" href="@{'/public/themes/common/stylesheets/scrollable-nav.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable-nav.css'}"/>
 #{/set}
 
 #{set 'moreScripts'}
-<script src="@{'/public/themes/common/javascripts/story.js'}" language="javascript"></script>
+<script src="@{'/public/common/javascripts/story.js'}" language="javascript"></script>
 #{/set}
 
 #{breadcrumbs /}
@@ -19,17 +19,17 @@
         <div class="g-3of12 grid_3 alpha">
             <div class="widget">
                 <div class="hd"><h3>${story.name}</h3></div>
-                <div class="bd pan">
+                <div class="bd pam">
                     <ul id="inav">
-                        <li class="active"><a class="browse page">&{'story.titlePage'}</a></li>
+                        <li><a class="browse active">&{'story.titlePage'}</a></li>
                         #{list story.pages, as: 'page'}
-                        <li><a class="browse page" title="${page.title}">${page.title}</a></li>
+                        <li><a class="browse" title="${page.title}">${page.title}</a></li>
                         #{/list}
                     </ul>
                 </div>
             </div>
             #{if userName == story.userName}
-                 #{btnHref label: viewUtils.getKey('ui.label.edit'), href: "/"+story.userName+"/story/"+story._id+"/update", iconClass:"icon145", extraClass: "submit fright" /}
+            #{btnHref label: viewUtils.getKey('ui.label.edit'), href: "/"+story.userName+"/story/"+story._id+"/update", iconClass:"icon145", extraClass: "fright" /}
             #{/if}
         </div>
 
@@ -38,14 +38,18 @@
             <div class="story-container">
 
                 <div class="scroll-nav">
-                    <a class="prev browse">&{'story.previouspage'}</a>
-                    <ul id="pnav" class="s-nav">
-                        <li class="active"><a class="browse page">1</a></li>
-                        #{list story.pages, as: 'page'}
-                        <li><a class="browse page" title="${page.title}">${page_index + 1}</a></li>
-                        #{/list}
-                    </ul>
-                    <a class="next browse">&{'story.nextpage'}</a>
+                    <div class="pagination">
+                        <a class="prev browse">&{'story.previouspage'}</a>
+
+                        <div id="pnav">
+                            <a class="browse active">1</a>
+                            #{list story.pages, as: 'page'}
+                            <a class="browse" title="${page.title}">${page_index + 1}</a>
+                            #{/list}
+                        </div>
+                        <a class="next browse">&{'story.nextpage'}</a>
+                    </div>
+
                 </div>
                 <div class="scrollable">
 
@@ -60,7 +64,7 @@
                                     <h1>${story.name}</h1>
                                     <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 220)}" width="220" alt=""/>
 
-                                    <h3>By: ${story.userName}</h3>
+                                    <h2>${story.userName}</h2>
                                     <p>${story.description}</p>
                                 </div>
 
@@ -75,9 +79,10 @@
                             <div class="page-left g-1of2 alpha">
                                 ${page.text.raw()}
                             </div>
-                            <div class="page-right g-1of2 omega">
-                                #{list page.objects.headOption(), as: 'o'}
-                                <img src="${views.context.package.imageUrl(o.dobject_id)}" width="340" alt="${page.title}">
+                            <div class="page-right g-1of2 omega images">
+                                *{#{list page.objects.headOption(), as: 'o'}}*
+                                #{list page.objects, as: 'o'}
+                                <img src="${views.context.package.imageUrl(o.dobject_id)}" id="img_${o_index}" width="340" alt="${page.title}">
                                 #{/list}
                             </div>
 
@@ -92,3 +97,34 @@
     </div>
 
 </div>
+<!-- overlayed element -->
+<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
+    <div class="contentWrap"></div>
+</div>
+<script>
+    $(function () {
+        $(".images").find("img").each(function(index) {
+            var showMe = $(this).attr("src");
+            $(this).overlay({
+                closeOnClick: true,
+                left: "centered",
+                target: '#overlay',
+                mask: {
+                    color: "#ddddd0",
+                    loadSpeed: 200,
+                    opacity: 0.5
+                },
+                onBeforeLoad: function() {
+                    var wrap = $("#overlay .contentWrap");
+                    var image = new Image();
+                    image.src = showMe;
+                    wrap.append(image);
+                },
+                onClose: function() {
+                    $('.contentWrap').empty();
+                }
+            });
+        });
+    });
+
+</script>

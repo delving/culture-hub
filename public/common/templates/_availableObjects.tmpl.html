@@ -1,0 +1,21 @@
+<!--
+  Template
+    List of available objects with checkbox to select them
+
+  Template parameters
+    availableObjects         observable array of objects
+    selectedIds              observable array of selected object IDs
+-->
+<div class="data-grid">
+<table>
+    <tbody>
+    {{each(i, object) $item.availableObjects()}}
+    <tr>
+        <td><input type="checkbox" value="${object.id}" data-bind="checked: $item.selectedIds" /></td>
+        <td><img src='${object.thumbnail}' width="50" alt="${object.title}"/></td>
+        <td><h4>${object.title}</h4></td>
+    </tr>
+    {{/each}}
+    </tbody>
+</table>
+</div>
