@@ -1,0 +1,20 @@
+<div class="thing-container">
+<div class="ic_container">
+
+    <a href="/${_thing.userName}/object/${_thing.id}" class="clip clip-${_iSize}">
+        <img src='${views.context.package.thumbnailUrl(_thing.thumbnail, 300)}' width="${_iSize}" class="img" alt="${_thing.title}"/>
+        <div class="overlay" style="display:none"></div>
+    </a>
+
+    <div class="ic_caption">
+        <p class="ic_category">category</p>
+        <h3 class="title"><a href="/${_thing.userName}/object/${_thing.id}" title="${_thing.title}">${_thing.title.shorten(50)}</a></h3>
+        <p class="ic_text info-container small">
+            <span class="label">${messages.get('ui.label.user')}</span><span class="text">${_thing.userName}</span>
+            <span class="label"></span><span class="text">${_thing.description.shorten(80)}</span>
+        </p>
+    </div>
+</div>
+</div>
+
+
