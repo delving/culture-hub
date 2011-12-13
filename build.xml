@@ -45,6 +45,9 @@
     </target>
 
     <target name="test" description="Runs all tests" depends="prepare, check">
+        <!-- JAR-->
+        <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
+        
         <!-- Run the test command -->
         <echo message="Running command: ${testcommand}"/>
         <exec command="${testcommand}" failonerror="false" resultproperty="testresult">
