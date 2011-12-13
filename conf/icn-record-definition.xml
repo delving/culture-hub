@@ -42,6 +42,10 @@
         <field prefix="icn" localName="creatorYearOfBirth">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
+        <field prefix="icn" localName="creatorYearOfDeath">
+            <converter multipleOutput="true" call=".extractYear()"/>
+        </field>
+        <field prefix="icn" localName="creatorRole"/>
         <field prefix="icn" localName="technique">
             <options>
                 <string>Schilderkunst</string>
@@ -219,3 +223,4 @@
         assert isUnique(record.'europeana:uri')
     </validation>
 </record-definition>
+
