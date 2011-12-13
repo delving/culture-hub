@@ -504,12 +504,12 @@
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
-   <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="owner" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_description" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_owner" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_visibility" type="string" indexed="true" stored="true" multiValued="false" />
-   <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_thumbnail" type="string" indexed="true" stored="true" multiValued="true"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -526,6 +526,7 @@
         a default value of "NOW" to indicate when each document was indexed.
      -->
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+
 
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
@@ -608,11 +609,17 @@ unknown fields indexed and/or stored by default -->
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
+     <copyField source="delving_title" dest="text"/>
+     <copyField source="delving_description" dest="text"/>
+     <copyField source="delving_owner" dest="text"/>
+     <copyField source="delving_creator" dest="text"/>
+     <copyField source="delving_visibility" dest="text"/>
+     <copyField source="delving_thumbnail" dest="text"/>
+
      <copyField source="*_string" dest="text"/>
      <copyField source="*_text" dest="text"/>
      <copyField source="*_date" dest="text"/>
      <copyField source="*_int" dest="text"/>
-
 
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
