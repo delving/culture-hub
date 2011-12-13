@@ -20,8 +20,8 @@
                     #{list objects, as: 'object'}
                         <li>
                            <a href="${object.url}" title="${object.title}" class="show">
-                                <img src="${views.context.package.thumbnailUrl(object.thumbnail, 80)}"  width="80" alt="${object.title}"/>
-                                <input type="hidden" name="show" value="${views.context.package.thumbnailUrl(object.thumbnail, 350)}"/>
+                                <img src="${object.thumbnail(80)}"  width="80" alt="${object.title}"/>
+                                <input type="hidden" name="show" value="${object.thumbnail(80)}"/>
                             </a>
                        </li>
                     #{/list}
