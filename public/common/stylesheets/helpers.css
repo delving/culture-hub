@@ -144,6 +144,19 @@ button[disabled],
     margin: 10px 0;
 }
 
+.media ic_container a {
+    display: block;
+}
+
+.media .clip {
+    display: block;
+    width: 220px;
+    height: 220px;
+    overflow: hidden;
+}
+
+
+
 /* metadata */
 
 .metadata h5 {
@@ -384,11 +397,38 @@ div.dropdown-slider .ddm.heading {
 }
 
 /* RESULT / BROWSE LIST CAPTIONS ***********************************************************************************/
-
+.thing-container {
+    background: #000;
+    margin-bottom: 10px;
+}
 .ic_container {
     vertical-align: baseline;
     position: relative;
-    height: 160px !important;
+    /*min-height: 200px !important;*/
+    /*margin-bottom: 10px;*/
+}
+
+.ic_container img {
+    height: auto;
+}
+
+.ic_container bd {
+    margin: 0;
+    padding: 0;
+}
+
+.ic_container .clip-220 {
+    display: block;
+    width: 220px;
+    height: 220px;
+    overflow: hidden;
+}
+
+.ic_container .clip-300 {
+    display: block;
+    width: 300px;
+    height: 260px;
+    overflow: hidden;
 }
 
 .overlay {
