@@ -1,11 +1,33 @@
 %{ def counter = 1 }%
 #{list _results, as: 'doc'}
-
+%{
+    def recordType = doc.getRecordType()
+    switch (recordType) {
+        case "object":
+            recordType = messages.get('thing.object')
+            break
+        case "collection":
+            recordType = messages.get('thing.collection')
+            break
+        case "story":
+            recordType = messages.get('thing.story')
+            break
+        case "mdr":
+            recordType = "Metadata record"
+            break
+        default:
+            recordType = doc.getRecordType()
+    }
+}%
 #{if counter == 1}
 <div class="row">
-    #{/if}
+#{/if}
     <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
-        <div class="widget-container">
+
+        <div class="draggable">
+            #{thingSummaryView data: doc, uri: doc.getIdUri(), iSize:300 /}
+        </div>
+
         <div class="media thing draggable ${doc.getRecordType()}">
 
             <a href="${doc.getIdUri()}" class="clip" title="${doc.getTitle()}"><img src="${doc.getThumbnail(100) ? doc.getThumbnail(100) : '/public/images/dummy-object.png'}" width="84" class="img" alt="image: ${doc.getTitle()}"/></a>
@@ -20,25 +42,7 @@
                         </div>
                         <div class="bd info-box small">
                             <!--<span property="dc:description" content="${doc.getDescription()}">${doc.getDescription()}</span>-->
-                            %{
-                                def recordType = doc.getRecordType()
-                                switch (recordType) {
-                                    case "object":
-                                        recordType = messages.get('thing.object')
-                                        break
-                                    case "collection":
-                                        recordType = messages.get('thing.collection')
-                                        break
-                                    case "story":
-                                        recordType = messages.get('thing.story')
-                                        break
-                                    case "mdr":
-                                        recordType = "Metadata record"
-                                        break
-                                    default:
-                                        recordType = doc.getRecordType()
-                                }
-                            }%
+
                             <span class="label">&{'thing.owner'}: </span><span class="text" property="europeana:dataProvider" content="${doc.getOwner()}">${doc.getOwner()}</span>
                             <!--<span class="label">&{'metadata.dc.creator'}: </span><span class="text" property="dc:creator" content="${doc.getCreator()}">${doc.getCreator()}</span>-->
                             <span class="label">&{'metadata.dc.type'}: </span><span class="text" >${recordType}</span>
