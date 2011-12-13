@@ -212,14 +212,15 @@ function confirmationDialog(elementId, onConfirm, message, title) {
  * i18n version. Labels are set in the commonHeader.html
  * If no labels are found default englsih texts 'Delete' and 'Cancel' are used
  */
-function confirmDeletion(elementSelector, onDelete) {
+function confirmDeletion(elementSelector, onDelete, onCancel) {
     var btnDelete, btnCancel;
     btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
     btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
     var btnOptions = {};
-    btnOptions[btnDelete] = function(){if (typeof onDelete !== 'undefined' && typeof onDelete === 'function') onDelete.call();$(this).dialog("close");};
-    btnOptions[btnCancel] = function(){$(this).dialog("close");};
+    btnOptions[btnDelete] = function() { if (typeof onDelete === 'function') onDelete.call(); $(this).dialog("close"); }
+    btnOptions[btnCancel] = function() { if (typeof onCancel === 'function') onCancel.call(); $(this).dialog("close"); }
     $(elementSelector).dialog({
+        autoOpen: true,
         resizable: false,
         minHeight: 150,
         modal: true,

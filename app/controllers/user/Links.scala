@@ -176,6 +176,10 @@ object Links extends DelvingController {
                   case None => // huh?
                     warning("MDR %s_%s_%s does not exist!", orgId, spec, recordId)
                 }
+                
+                // re-index the UserCollection
+                SolrServer.indexSolrDocument(UserCollection.findOneByID(collectionId).get.toSolrDocument)
+                
                 res
 
               case OBJECT =>

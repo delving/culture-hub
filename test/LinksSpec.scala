@@ -1,18 +1,21 @@
+import controllers.Search
 import java.io.File
 import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers
 import play.mvc.Http.Response
 import play.test.{FunctionalTest, UnitFlatSpec}
 import scala.Predef._
-import util.TestDataGeneric
 import scala.collection.JavaConversions._
 import com.mongodb.casbah.Imports._
+import util.Constants._
+import util.{ThemeHandler, TestDataGeneric}
+
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
+class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
   it should "add a freetext link to an object" in {
 
@@ -108,6 +111,17 @@ class LabelsSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     embedded.link should equal (theLink._id)
     embedded.linkType should be (Link.LinkType.PARTOF)
     embedded.userName should be ("bob")
+  }
+
+  it should "find the linked MDR in SOLR " in {
+    val request = getAuthenticated()
+
+    val testTheme = ThemeHandler.getDefaultTheme
+    testTheme should not be (None)
+
+    val userCollection = UserCollection.findOne(MongoDBObject()).get
+    Search.search(None, request, testTheme.get, List("%s:%s OR %s:%s %s:%s".format(RECORD_TYPE, OBJECT, RECORD_TYPE, MDR, COLLECTIONS, userCollection._id)))._1
+
   }
 
   it should "remove a link to an MDR" in {

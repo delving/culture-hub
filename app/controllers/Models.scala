@@ -18,6 +18,9 @@ package controllers
 
 import org.bson.types.ObjectId
 import models._
+import views.context.getThumbnailUrl
+import eu.delving.sip.IndexDocument
+import com.mongodb.casbah.Imports._
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -40,10 +43,18 @@ case class Token(id: String, name: String, tokenType: String, data: Map[String, 
 case class ListItem(id: String,
                     title: String,
                     description: String = "",
-                    thumbnail: Option[ObjectId] = None,
+                    thumbnailId: Option[ObjectId] = None,
+                    thumbnailUrl: Option[String] = None,
                     userName: String,
                     isPrivate: Boolean,
-                    url: String)
+                    url: String) {
+  
+  def thumbnail(size: Int = 100): String = (thumbnailId, thumbnailUrl) match {
+    case (None,  None) => getThumbnailUrl(None)
+    case (Some(id), None) => getThumbnailUrl(Some(id), size)
+    case (None, Some(url)) => url
+  }
+}
 
 case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)
 

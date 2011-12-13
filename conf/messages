@@ -364,7 +364,7 @@ user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
 user.admin.profile.help.linkedIn=URL to your linkedIn profile page
-user.admin.profile.help.public=If you check this option, your profile is visible to all other users
+user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 
 ##Collections
 user.collection.title.create=Create new collection for user %s

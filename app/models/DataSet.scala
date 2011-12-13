@@ -35,7 +35,6 @@ import eu.delving.sip.IndexDocument
 import controllers.ModelImplicits
 import controllers.search.MetadataAccessors
 import com.mongodb.casbah.{MongoCollection}
-import models.MDRCollection
 
 /**
  * DataSet model

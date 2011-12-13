@@ -187,6 +187,7 @@ GET        /admin/themes/{id}/update                                         adm
 POST       /admin/themes/submit                                              admin.Themes.themeSubmit
 GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
 GET        /admin/indexUGC                                                   admin.Admin.indexUGC
+GET        /admin/indexDataSets                                              admin.Admin.indexDataSets
 
 GET        /image/upload                                                     ImageUpload.upload
 POST       /image/upload                                                     ImageUpload.uploadFile
