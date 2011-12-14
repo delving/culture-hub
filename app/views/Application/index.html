@@ -51,28 +51,28 @@
 
 <div class="row">
     #{if recentObjects.size() > 0}
-    <div class="g-4of12 grid_4">
+    <div class="g-1of4 grid_3">
         <h3>${recentObjects.size() == 1 ? viewUtils.getKey('home.recentobject') : viewUtils.getKey('home.recentobjects')}</h3>
         #{list recentObjects, as: 'o'}
-            #{thingSummaryView data: o, type: messages.get('thing.object'), iSize: 300 /}
+            #{thingSummaryView data: o, type: messages.get('thing.object'), iSize: 220 /}
         #{/list}
     </div>
     #{/if}
 
     #{if recentCollections.size() > 0}
-    <div class="g-4of12 grid_4">
+    <div class="g-1of4 grid_3">
         <h3>${recentCollections.size() == 1 ? viewUtils.getKey('home.recentcollection') : viewUtils.getKey('home.recentcollections')}</h3>
         #{list recentCollections, as: 'c'}
-            #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 300 /}
+            #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
         #{/list}
     </div>
     #{/if}
 
     #{if recentStories.size() > 0}
-    <div class="g-4of12 grid_4">
+    <div class="g-1of4 grid_3">
         <h3>${recentStories.size() == 1 ? viewUtils.getKey('home.recentstory') : viewUtils.getKey('home.recentstories')}</h3>
         #{list recentStories, as: 's'}
-            #{thingSummaryView data: s, type:messages.get('thing.story'), iSize: 300 /}
+            #{thingSummaryView data: s, type:messages.get('thing.story'), iSize: 220 /}
         #{/list}
     </div>
     #{/if}

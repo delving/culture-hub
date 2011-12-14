@@ -5,9 +5,15 @@ hr {
 }
 
 .user-name {
-    display: inline-block;
+    display: block;
     float: left;
     margin-right: 10px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.user-name img {
+    vertical-align: middle;
 }
 
 .extHelp {
@@ -201,7 +207,6 @@ button[disabled],
 
 .clip-500 {
     display: block;
-
 }
 
 
