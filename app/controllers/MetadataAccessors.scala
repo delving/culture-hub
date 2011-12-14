@@ -19,12 +19,13 @@ package controllers
 import util.Constants._
 import views.context._
 import org.bson.types.ObjectId
+import models.Universal
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class MetadataAccessors {
+abstract class MetadataAccessors extends Universal {
 
   protected def assign(key: String): String
 
