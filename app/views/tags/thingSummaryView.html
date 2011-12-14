@@ -21,15 +21,22 @@
         <img src='${_data.thumbnail(_iSize)}' width="${_iSize}" class="img" alt="${_data.title}"/>
         <div class="overlay" style="display:none"></div>
     </a>
-
-    <div class="ic_caption">
-        <p class="ic_category">category</p>
-        <h3 class="title"><a href="${link}" title="${_data.title}">${_data.title.shorten(50)}</a></h3>
-        <p class="ic_text info-container small">
-            <span class="label">${messages.get('ui.label.user')}</span><span class="text">${_data.userName}</span>
-            <span class="label"></span><span class="text">${_data.description.shorten(80)}</span>
+        #{if _isPrivate}
+        <p class="is_private">
+            %{ def updateLink = '/'+ _data.userName + '/' + _type + '/' + _data.id + '/update' }%
+            <span> ${messages.get('ui.message.statusPrivate', updateLink).raw()}</span>
         </p>
+        #{/if}
+    <div class="ic_caption">
+        <p class="ic_category">${_type}</p>
+        <span class="title"><a href="${link}" title="${_data.title}">${_data.title.shorten(50)}</a></span>
+        <p class="ic_text info-box small">
+            <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.userName}</span>
+            #{if _data.description}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.description.shorten(80)}</span>#{/if}
+        </p>
+
     </div>
+
 </div>
 </div>
 

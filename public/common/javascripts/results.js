@@ -2,7 +2,7 @@ $(document).ready(function() {
     // Facets stuff
     if ($(".facet-container").length > 0) {
         // hide() or show() the toggle containers on load
-        $(".facet-container").show();
+        $(".facet-container").hide();
 
         //Switch the "Open" and "Close" state per click then slide up/down (depending on open/close state)
         $("h4.trigger").click(function() {
@@ -114,5 +114,11 @@ $(document).ready(function() {
         });
       });
     });
-
+    $(".ic_container").capslide({
+        caption_color    : 'white',
+        caption_bgcolor    : 'black',
+        overlay_bgcolor : 'black',
+        border            : '',
+        showcaption        : true
+    });
 });
