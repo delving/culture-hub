@@ -1,79 +1,38 @@
-<!--
-  ~ Copyright 2011 Delving B.V.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
 %{ def counter = 1 }%
 #{list _results, as: 'doc'}
-
+%{
+def recordType = doc.getRecordType()
+switch (recordType) {
+case "object":
+recordType = messages.get('thing.object')
+break
+case "collection":
+recordType = messages.get('thing.collection')
+break
+case "story":
+recordType = messages.get('thing.story')
+break
+case "mdr":
+recordType = "Metadata record"
+break
+default:
+recordType = doc.getRecordType()
+}
+}%
 #{if counter == 1}
 <div class="row">
-    #{/if}
-    <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
-        <div class="widget-container">
-        <div class="media thing draggable ${doc.getRecordType()}">
-
-            <a href="${doc.getUri()}" class="clip" title="${doc.getTitle()}"><img src="${doc.getThumbnailUri(80) ? doc.getThumbnailUri(80) : '/public/images/dummy-object.png'}" width="80" class="img" alt="image: ${doc.getTitle()}"/></a>
-
-            <div class="bd">
-
-                    <div class="inner">
-                        <div class="hd title">
-                            <a href="${doc.getUri()}" title="${doc.getTitle()}">
-                                <span property="dc:title" content="${doc.getTitle()}">${doc.getTitle().shorten(70)}</span>
-                            </a>
-                        </div>
-                        <div class="bd info-box small">
-                            <!--<span property="dc:description" content="${doc.getDescription()}">${doc.getDescription()}</span>-->
-                            %{
-                                def recordType = doc.getRecordType()
-                                switch (recordType) {
-                                    case "object":
-                                        recordType = messages.get('thing.object')
-                                        break
-                                    case "collection":
-                                        recordType = messages.get('thing.collection')
-                                        break
-                                    case "story":
-                                        recordType = messages.get('thing.story')
-                                        break
-                                    case "mdr":
-                                        recordType = "Metadata record"
-                                        break
-                                    default:
-                                        recordType = doc.getRecordType()
-                                }
-                            }%
-                            <span class="label">&{'thing.owner'}: </span><span class="text" property="europeana:dataProvider" content="${doc.getOwner()}">${doc.getOwner()}</span>
-                            <!--<span class="label">&{'metadata.dc.creator'}: </span><span class="text" property="dc:creator" content="${doc.getCreator()}">${doc.getCreator()}</span>-->
-                            <span class="label">&{'metadata.dc.type'}: </span><span class="text" >${recordType}</span>
-
-                        </div>
-                    </div>
-
-            </div>
+#{/if}
+    <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
+        <div class="thing-container draggable ${doc.getRecordType()} ">
+            #{thingSummaryView data: doc, iSize: 220, type: itemName/}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(80)}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
-        </div>
     </div>
-
     %{ counter++ }%
-
-    #{if counter > 2 || doc_isLast }
-</div>
-<!-- end line -->
+#{if counter > 3 || doc_isLast }
+</div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
 #{/list}
