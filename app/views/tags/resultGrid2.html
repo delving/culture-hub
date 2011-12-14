@@ -40,21 +40,21 @@ recordType = doc.getRecordType()
     <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
         <div class="thing-container draggable ${doc.getRecordType()} ">
             <div class="ic_container">
-                <a href="${doc.getIdUri()}" class="clip clip-220" title="${doc.getTitle()}">
-                    <img src="${doc.getThumbnail(300) ? doc.getThumbnail(220) : '/public/images/dummy-object.png'}" width="200" class="img" alt="image: ${doc.getTitle()}"/>
+                <a href="${doc.getUri()}" class="clip clip-220" title="${doc.getTitle()}">
+                    <img src="${doc.getThumbnailUri(220) ? doc.getThumbnailUri(220) : '/public/images/dummy-object.png'}" width="200" class="img" alt="image: ${doc.getTitle()}"/>
                     <div class="overlay" style="display:none"></div>
                 </a>
                 <div class="ic_caption">
                     <p class="ic_category">${recordType}</p>
-                    <span class="title"><a href="${doc.getIdUri()}" title="${doc.getTitle()}">${doc.getTitle().shorten(50)}</a></span>
+                    <span class="title"><a href="${doc.getUri()}" title="${doc.getTitle()}">${doc.getTitle().shorten(50)}</a></span>
                     <p class="ic_text info-box small">
                         #{if doc.getOwner()}<span class="label">&{'thing.owner'}: </span><span class="text" property="europeana:dataProvider" content="${doc.getOwner()}">${doc.getOwner()}</span>#{/if}
                         #{if doc.getDescription()}<span class="label">&{'metadata.dc.description'}: </span><span class="text" property="dc:description" content="${doc.getDescription()}">${doc.getDescription().shorten(70)}</span>#{/if}
                     </p>
                 </div>
             </div>
-            <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnail(100)}"/>
+            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
     </div>

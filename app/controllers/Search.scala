@@ -88,13 +88,13 @@ object Search extends DelvingController {
     val briefItemView = BriefItemView(chResponse)
 
     val items = briefItemView.getBriefDocs.map(bd =>
-      ListItem(id = bd.getThingId,
+      ListItem(id = bd.getMongoId,
         title = bd.getTitle,
         description = bd.getDescription,
-        thumbnailUrl = Some(bd.getThumbnail(220)),
+        thumbnailUrl = Some(bd.getThumbnailUri(220)),
         userName = bd.getOwnerId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getIdUri))
+        url = bd.getUri))
 
     (items, briefItemView.pagination.getNumFound)
   }

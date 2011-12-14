@@ -20,7 +20,6 @@ import java.util.Date
 import org.bson.types.ObjectId
 import models.salatContext._
 import com.mongodb.casbah.Imports._
-import controllers.SolrServer
 import com.novus.salat._
 import dao.SalatDAO
 import cake.metaRepo.PmhVerbType.PmhVerb
@@ -32,7 +31,7 @@ import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
 import eu.delving.sip.IndexDocument
-import controllers.ModelImplicits
+import controllers.{MetadataAccessors, SolrServer, ModelImplicits}
 import controllers.search.MetadataAccessors
 import com.mongodb.casbah.{MongoCollection}
 
@@ -450,7 +449,7 @@ class MultiValueMapMetadataAccessors(hubId: String, dbo: MongoDBObject) extends 
     }
   }
 
-  override def getId = hubId
+  override def getHubId = hubId
   override def getRecordType = _root_.util.Constants.MDR
 }
 

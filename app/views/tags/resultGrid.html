@@ -23,13 +23,13 @@
         <div class="widget-container">
         <div class="media thing draggable ${doc.getRecordType()}">
 
-            <a href="${doc.getIdUri()}" class="clip" title="${doc.getTitle()}"><img src="${doc.getThumbnail(100) ? doc.getThumbnail(100) : '/public/images/dummy-object.png'}" width="84" class="img" alt="image: ${doc.getTitle()}"/></a>
+            <a href="${doc.getUri()}" class="clip" title="${doc.getTitle()}"><img src="${doc.getThumbnailUri(80) ? doc.getThumbnailUri(80) : '/public/images/dummy-object.png'}" width="80" class="img" alt="image: ${doc.getTitle()}"/></a>
 
             <div class="bd">
 
                     <div class="inner">
                         <div class="hd title">
-                            <a href="${doc.getIdUri()}" title="${doc.getTitle()}">
+                            <a href="${doc.getUri()}" title="${doc.getTitle()}">
                                 <span property="dc:title" content="${doc.getTitle()}">${doc.getTitle().shorten(70)}</span>
                             </a>
                         </div>
@@ -62,8 +62,8 @@
                     </div>
 
             </div>
-            <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnail(100)}"/>
+            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(80)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
         </div>
