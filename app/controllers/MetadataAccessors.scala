@@ -79,8 +79,14 @@ abstract class MetadataAccessors extends Universal {
   }
   def getMimeType: String = "unknown/unknown"
 
+  def hasDigitalObject = assign(THUMBNAIL) match {
+    case url if url.trim().length() > 0 => true
+    case _ => false
+  }
+
   // ~~~ old and others
   //  def getCreator : String = assign("dc_creator")
+
   def getYear : String = assign("europeana_year")
   def getProvider : String = assign("europeana_provider")
   def getDataProvider : String = assign("europeana_dataProvider")

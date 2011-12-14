@@ -55,6 +55,9 @@ object Constants {
   val VISIBILITY = SummaryField.VISIBILITY.tag
   val THUMBNAIL = SummaryField.THUMBNAIL.tag
 
+  // TODO add to SummaryField??
+  val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
+
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection
   val OBJECT_ID = "objectId"
