@@ -199,11 +199,13 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     
     if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
     inputDoc.addField(ID, hubId)
+    val hasDigialObject: Boolean = inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
+    inputDoc.addField(HAS_DIGITAL_OBJECT, hasDigialObject)
+
+    if (hasDigialObject) inputDoc.setDocumentBoost(1.4.toFloat)
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
-
-    // todo add more elements: hasDigitalObject. etc
   }
 
 }

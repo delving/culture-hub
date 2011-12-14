@@ -510,6 +510,7 @@
    <field name="delving_creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_visibility" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="delving_thumbnail" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_hasDigitalObject" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -615,6 +616,7 @@ unknown fields indexed and/or stored by default -->
      <copyField source="delving_creator" dest="text"/>
      <copyField source="delving_visibility" dest="text"/>
      <copyField source="delving_thumbnail" dest="text"/>
+     <copyField source="delving_hasDigitalObject" dest="text"/>
 
      <copyField source="*_string" dest="text"/>
      <copyField source="*_text" dest="text"/>

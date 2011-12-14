@@ -75,6 +75,7 @@ trait Thing extends Base with Universal {
   def getThumbnailUri = getThumbnailUri(180)
   def getThumbnailUri(size: Int) = getThumbnailUrl(thumbnail_id, size)
   def getMimeType = "unknown/unknown"
+  def hasDigitalObject = thumbnail_id != None
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
@@ -90,6 +91,7 @@ trait Thing extends Base with Universal {
     if (thumbnail_id != None) {
       doc addField(THUMBNAIL, thumbnail_id.get)
     }
+    doc addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
     doc
   }
 
