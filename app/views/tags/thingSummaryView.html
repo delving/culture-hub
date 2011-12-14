@@ -17,8 +17,8 @@
 <div class="thing-container">
 <div class="ic_container">
     %{def link = _uri ? _uri : "/" + _data.userName + "/" + _type + "/" + _data.id }%
-    <a href="${link}" class="clip clip-${_iSize}">
-        <img src='${_data.thumbnail(_iSize)}' width="${_iSize}" class="img" alt="${_data.title}"/>
+    <a href="${_data.getUri()}" class="clip clip-${_iSize}">
+        <img src='${_data.thumbnail(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
         <div class="overlay" style="display:none"></div>
     </a>
         #{if _isPrivate}
@@ -29,10 +29,10 @@
         #{/if}
     <div class="ic_caption">
         <p class="ic_category">${_type}</p>
-        <span class="title"><a href="${link}" title="${_data.title}">${_data.title.shorten(50)}</a></span>
+        <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
         <p class="ic_text info-box small">
             <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.userName}</span>
-            #{if _data.description}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.description.shorten(80)}</span>#{/if}
+            #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
         </p>
 
     </div>
