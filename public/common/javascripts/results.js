@@ -49,12 +49,11 @@ $(document).ready(function() {
         cursor: 'move'
     });
 
-    $("#dropbox").droppable({
+    $("#dropbox ").droppable({
         accept: '.object, .mdr',
-        drop: addToDropbox
+        drop: addToDropbox,
+        hoverClass: 'hover'
     });
-
-    $("#dropbox").droppable({ hoverClass: 'hover' });
 
     $('#dropbox').bind('removeItem', function(event) {
         $('#dropbox input[value="' + event.itemId + '"]').closest('li').remove();

@@ -233,7 +233,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 #dropbox.hover {
-    background-color: gold;
+    background-color: #ccc;
 }
 
 #dropbox-actions {
@@ -470,7 +470,7 @@ div.dropdown-slider .ddm.heading {
     padding: 5px;
     margin: 0px;
     text-align: justify;
-    /*font-size: 11px;*/
+    font-size: smaller;
 
 }
 
@@ -480,6 +480,7 @@ div.dropdown-slider .ddm.heading {
     opacity: 0.7;
     position: absolute;
     top: 0px;
+    /*font-size: smaller;*/
     /*text-align: justify;*/
 }
 
