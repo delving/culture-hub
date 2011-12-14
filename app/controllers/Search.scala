@@ -89,6 +89,7 @@ object Search extends DelvingController {
 
     val items = briefItemView.getBriefDocs.map(bd =>
       ListItem(id = bd.getMongoId,
+        recordType = bd.getRecordType,
         title = bd.getTitle,
         description = bd.getDescription,
         thumbnailUrl = Some(bd.getThumbnailUri(220)),
