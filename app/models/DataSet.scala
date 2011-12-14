@@ -32,7 +32,6 @@ import cake.ComponentRegistry
 import play.i18n.Messages
 import eu.delving.sip.IndexDocument
 import controllers.{MetadataAccessors, SolrServer, ModelImplicits}
-import controllers.search.MetadataAccessors
 import com.mongodb.casbah.{MongoCollection}
 
 /**
