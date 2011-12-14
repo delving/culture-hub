@@ -32,6 +32,7 @@ object Constants {
   val STORY = "story"
   val USER = "user"
   val MDR = "mdr"
+  val DATASET ="dataSet"
 
   // ~~~ identifier fields
   val ID = "id"
