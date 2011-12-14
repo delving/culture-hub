@@ -93,7 +93,7 @@ object Search extends DelvingController {
         description = bd.getDescription,
         thumbnailUrl = Some(bd.getThumbnail(220)),
         userName = bd.getOwnerId,
-        isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE,
+        isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
         url = bd.getIdUri))
 
     (items, briefItemView.pagination.getNumFound)
