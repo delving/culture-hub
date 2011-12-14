@@ -345,8 +345,11 @@ metadata.icn.province=Province
 metadata.icn.purchasePrice=Purchase Price
 
 metadata.is.about=Is about
+metadata.searchfield.recordType=Object type
 metadata.searchfield.contributor=Contributor
 metadata.searchfield.dataprovider=Provider
+metadata.searchfield.creator=Creator
+metadata.searchfield.hasDigitalObject=Has digital object
 metadata.type.all=All
 metadata.type.images=Images
 metadata.type.sounds=Sounds
