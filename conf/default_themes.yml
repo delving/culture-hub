@@ -16,7 +16,7 @@
         - dc.creator
     hiddenQueryFilter:
     homePage:
-    facets: delving_recordType,europeana_year,europeana_provider:metadata.searchfield.dataprovider
-    sortFields: europeana_year
+    facets: delving_recordType:metadata.searchfield.recordType,europeana_provider:metadata.searchfield.dataprovider,delving_creator:metadata.searchfield.creator,delving_hasDigitalObject:metadata.searchfield.hasDigitalObject
+    sortFields: delving_hasDigitalObject
     metadataPrefix: icn
     apiWsKey: false

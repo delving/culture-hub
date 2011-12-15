@@ -1,7 +1,7 @@
 $(document).ready(function() {
     // Facets stuff
     if ($(".facet-container").length > 0) {
-        //Hide (Collapse) the toggle containers on load
+        // hide() or show() the toggle containers on load
         $(".facet-container").hide();
 
         //Switch the "Open" and "Close" state per click then slide up/down (depending on open/close state)
@@ -49,12 +49,11 @@ $(document).ready(function() {
         cursor: 'move'
     });
 
-    $("#dropbox").droppable({
+    $("#dropbox ").droppable({
         accept: '.object, .mdr',
-        drop: addToDropbox
+        drop: addToDropbox,
+        hoverClass: 'hover'
     });
-
-    $("#dropbox").droppable({ hoverClass: 'hover' });
 
     $('#dropbox').bind('removeItem', function(event) {
         $('#dropbox input[value="' + event.itemId + '"]').closest('li').remove();
@@ -96,4 +95,29 @@ $(document).ready(function() {
             });
         });
     }
+
+    $('#addToCollectionButton').click(function(event) {
+      event.preventDefault();
+      $('#dropbox input[name="itemId"]').each(function() {
+        var uri = $(this).val();
+        $.ajax({
+          type: 'POST',
+          url: uri + '/link/partOf/collection/' + $('#collection').val(),
+          success: function() {
+            $('#dropbox').trigger({
+              type: 'removeItem',
+              itemId: uri
+            });
+          },
+          error: function() { $("select#collection").css("background", "#cc3300")}
+        });
+      });
+    });
+    $(".ic_container").capslide({
+        caption_color    : 'white',
+        caption_bgcolor    : 'black',
+        overlay_bgcolor : 'black',
+        border            : '',
+        showcaption        : true
+    });
 });

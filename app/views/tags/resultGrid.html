@@ -1,40 +1,19 @@
 %{ def counter = 1 }%
 #{list _results, as: 'doc'}
-
 #{if counter == 1}
 <div class="row">
-    #{/if}
-    <div class="g-1of2 ${counter == 1 ? 'alpha' : 'omega'}">
-        <div class="widget-container">
-        <div class="media thing draggable ${doc.getRecordType()}">
-            <a href="#" class="clip"><img src="${doc.getThumbnail(100)}" width="84" class="img"/></a>
-
-            <div class="bd">
-                <div class="mod">
-                    <div class="inner">
-                        <div class="hd title">
-                            <a href="${doc.getIdUri()}" >
-                                <span property="dc:title" content="${doc.getTitle()}">${doc.getTitle()}</span>
-                            </a>
-                        </div>
-                        <div class="bd">
-                            <span property="dc:description" content="${doc.getDescription()}">${doc.getDescription()}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <input type="hidden" name="idUri" value="${doc.getIdUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnail(100)}"/>
+#{/if}
+    <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
+        <div class="thing-container draggable ${doc.getRecordType()} ">
+            #{thingSummaryView data: doc, iSize: 220 /}
+            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
-        </div>
     </div>
-
     %{ counter++ }%
-
-    #{if counter > 2 || doc_isLast }
-</div>
-<!-- end line -->
+#{if counter > 3 || doc_isLast }
+</div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
 #{/list}

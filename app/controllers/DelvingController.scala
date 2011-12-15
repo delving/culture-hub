@@ -57,6 +57,8 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("userId", u._id)
         renderArgs += ("authenticityToken", session.getAuthenticityToken)
         renderArgs += ("organizations", u.organizations)
+        renderArgs += ("email", u.email)
+
 
         // refresh session parameters
         session.put(AccessControl.ORGANIZATIONS, u.organizations.mkString(","))

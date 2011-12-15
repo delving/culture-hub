@@ -41,19 +41,35 @@ case class ShortLabel(labelType: String, value: String)
 case class Token(id: String, name: String, tokenType: String, data: Map[String, String] = Map.empty[String, String])
 
 case class ListItem(id: String,
+                    recordType: String,
                     title: String,
                     description: String = "",
                     thumbnailId: Option[ObjectId] = None,
                     thumbnailUrl: Option[String] = None,
                     userName: String,
                     isPrivate: Boolean,
-                    url: String) {
+                    url: String) extends Universal {
   
   def thumbnail(size: Int = 100): String = (thumbnailId, thumbnailUrl) match {
     case (None,  None) => getThumbnailUrl(None)
     case (Some(id), None) => getThumbnailUrl(Some(id), size)
     case (None, Some(url)) => url
   }
+
+  def getMongoId = id
+  def getHubId = "%s_%s_%s".format(userName, recordType, id)
+  def getOwnerId = userName
+  def getRecordType = recordType
+  def getTitle = title
+  def getDescription = description
+  def getOwner = userName
+  def getCreator = userName
+  def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
+  def getUri = url
+  def getThumbnailUri = thumbnail(100)
+  def getThumbnailUri(size: Int) = thumbnail(size)
+  def getMimeType = "unknown/unknown"
+  def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }
 
 case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)

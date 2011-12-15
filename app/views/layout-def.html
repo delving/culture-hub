@@ -1,7 +1,7 @@
 #{include 'commonHeader.html' /}
 
     <div class="user-nav">
-        <div class="container">
+        <div class="container container_12">
             #{if !userName}
             <div class="buttons">
                 #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
@@ -62,7 +62,7 @@
     </div>
 
 <div class="header">
-    <div class="container">
+    <div class="container container_12">
         <div class="branding">
             <h1 class="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
@@ -99,13 +99,13 @@
 <!--</div>-->
 
 <div class="main">
-    <div class="container">
+    <div class="container container_12">
         #{doLayout /}
     </div>
 </div>
 
 <div class="footer">
-    <div class="container">
+    <div class="container  container_12">
         <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
 
 

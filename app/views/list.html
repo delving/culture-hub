@@ -1,7 +1,4 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
-
-#{set title: '' /}
-
 #{if count > views.context.package.PAGE_SIZE()}
 #{set 'moreScripts'}
     <script>
@@ -14,16 +11,18 @@
         pageObject.itemsPerPage = ${views.context.package.PAGE_SIZE()}
         pageObject.selector = ".pager"
     </script>
-    <script type="text/javascript" language="javascript" src="/public/themes/common/javascripts/paginationInit.js"></script>
+    <script type="text/javascript" language="javascript" src="/public/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 
 #{breadcrumbs /}
 
 #{if browsedUserName}
+    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
+    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ' (' + count +')' /}
     <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
@@ -44,35 +43,8 @@
     #{if counter == 1}
     <div class="row">
     #{/if}
-    <div class="g-3of12 grid_3 #{if i.isPrivate}private#{/if}">
-        <div class="list">
-            <div class="media ${itemName}">
-                <a href="/${i.userName}/${itemName}/${i.id}" class="clip" rel="nofollow">
-                    <img src='${i.thumbnail(220)}' widht="220" alt="${i.title}" class="img"/>
-                </a>
-                <div class="bd">
-                    <div class="metadata">
-                        <a href="/${i.userName}/${itemName}/${i.id}" class="title" rel="nofollow">${i.title.shorten(50)}</a>
-                        <span class="label">&{'thing.owner'}:</span> <a href="/${i.userName}">${i.userName}</a>
-                        *{
-                        #{if i.description}
-                        <div class="more-info">
-                            <div class="inner">
-                                ${i.description.shorten(100)}
-                            </div>
-                        </div>
-                        #{/if}
-                        }*
-                        #{if i.isPrivate}
-                        <div class="private">
-                            %{ def updateLink = '/'+ i.userName + '/' + itemName + '/' + i.id + '/update' }%
-                            <span> ${viewUtils.getKey('ui.message.statusPrivate', updateLink).raw()}</span>
-                        </div>
-                        #{/if}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="g-1of3 grid_3 #{if i.isPrivate}private#{/if}">
+        #{thingSummaryView data: i, iSize: 220, isPrivate: i.isPrivate /}
     </div>
     %{ counter++ }%
     #{if counter > 4 || i_isLast }
@@ -90,10 +62,14 @@
 #{/if}
 
 <script>
-//    $(document).ready(function(){
-//       $('.media').hover(function(){
-//             $(this).find('.more-info').toggle('fast');
-//       })
-//    });
+    $(document).ready(function(){
+    $(".ic_container").capslide({
+        caption_color    : 'white',
+        caption_bgcolor    : 'black',
+        overlay_bgcolor : 'black',
+        border            : '',
+        showcaption        : true
+    });
+    });
 
 </script>
