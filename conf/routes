@@ -79,11 +79,11 @@ GET         /enrichment/place/search                                         ws.
 
 # Delving URL scheme
 
-GET         /users                                                           Users.list
+GET         /users/?                                                         Users.list
 GET         /users/search                                                    Users.listAsTokens
-GET         /collections                                                     Collections.list
-GET         /objects                                                         DObjects.list
-GET         /stories                                                         Stories.list
+GET         /collections/?                                                   Collections.list
+GET         /objects/?                                                       DObjects.list
+GET         /stories/?                                                       Stories.list
 
 GET         /search                                                          Search.index
 
