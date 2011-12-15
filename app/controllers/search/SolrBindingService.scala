@@ -43,6 +43,7 @@ import util.Constants._
 import org.apache.solr.common.SolrDocumentList
 import java.lang.{Integer, Boolean => JBoolean, Float => JFloat}
 import java.util.{Date, ArrayList, List => JList, Map => JMap}
+import controllers.MetadataAccessors
 
 /**
  *
@@ -400,68 +401,4 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
 
 }
 
-abstract class MetadataAccessors {
 
-  import util.Constants._
-  import views.context._
-  import org.bson.types.ObjectId
-
-  protected def assign(key: String): String
-
-  // TODO cleanup, unify, decide, conquer
-
-  // ~~~ identifiers
-  def getThingId: String = assign(ID)
-  def getId : String = assign(HUB_ID)
-  def getOwnerId: String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => getOwner
-    case MDR => getOrgId
-    case _ => ""
-  }
-  def getOrgId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(0) else ""
-  def getSpec : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(1) else ""
-  def getRecordId : String = if(getId != null && getId.split("_").length == 3) getId.split("_")(2) else ""
-  def getDelvingId : String = assign(PMH_ID)
-  def getIdUri : String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => "/" + getId.replaceAll("_", "/")
-    case MDR => "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
-    case _ => ""
-  }
-
-  // ~~~ well-known, always provided, meta-data fields
-  def getRecordType: String = assign(RECORD_TYPE)
-  def getTitle : String = assign(TITLE)
-  def getDescription: String = assign(DESCRIPTION)
-  def getOwner: String = assign(OWNER)
-  def getCreator: String = assign(CREATOR)
-  def getVisibility: String = assign(VISIBILITY)
-
-  def getThumbnail(size: Int): String = {
-    getRecordType match {
-      case OBJECT | USERCOLLECTION | STORY => assign(THUMBNAIL) match {
-          case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
-            val mongoId = Some(new ObjectId(id))
-            thumbnailUrl(mongoId, size)
-          case _ => thumbnailUrl(None, size)
-        }
-      // TODO plug-in the image cache here for MDRs
-      case MDR => assign(THUMBNAIL) match {
-        case url if url.trim.length() > 0 => url
-        case _ => thumbnailUrl(None, size)
-      }
-      case _ => thumbnailUrl(None, size)
-    }
-  }
-  def getMimeType: String = "unknown/unknown"
-
-  // ~~~ REFACTORME, requires change in thumbnail accessing everywhere in the view
-  def getThumbnailDirect: String = assign(THUMBNAIL)
-
-  // ~~~ old and others
-  //  def getCreator : String = assign("dc_creator")
-  def getYear : String = assign("europeana_year")
-  def getProvider : String = assign("europeana_provider")
-  def getDataProvider : String = assign("europeana_dataProvider")
-  def getLanguage : String = assign("europeana_language")
-
-}

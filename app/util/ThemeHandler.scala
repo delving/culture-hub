@@ -101,6 +101,9 @@ object ThemeHandler {
   }
 
   def getByRequest(request: Http.Request): PortalTheme = {
+    if(Play.mode == Play.Mode.DEV) {
+      startup()
+    }
     if (hasSingleTheme) getDefaultTheme.get
     else {
       // fetch by longest matching subdomain

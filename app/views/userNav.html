@@ -1,0 +1,47 @@
+#{if !userName}
+
+<div class="buttons">
+    #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
+    #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+    #{languageSelect /}
+</div>
+
+#{/if}
+
+#{else}
+
+<div class="buttons">
+    <span class="user-name">
+        <span class="label">Hi ${userName}</span>
+        #{gravatar.img email, size:26 /}
+    </span>
+    <div class="dropdown">
+        #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
+        <div class="dropdown-slider">
+            *{<a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>}*
+            <a href="/${userName}" class="ddm user"><span class="label">&{'user.nav.yourprofile'}</span></a>
+            <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
+            <a href="/${userName}/collection" class="ddm"></span>
+                <span class="label">&{'user.nav.yourcollections'} </span></a>
+            <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
+            #{if organizations.length() > 0}
+            <a class="ddm heading orgs"><span class="label">&{'thing.organizations'}</span></a>
+            #{list organizations, as: 'org'}
+            <a href="/organizations/${org}" class="ddm org">${org}</a>
+            #{/list}
+            #{/if}
+        </div>
+    </div>
+    <div class="dropdown">
+        #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
+        <div class="dropdown-slider">
+            <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
+            <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
+            <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
+        </div>
+    </div>
+    #{languageSelect /}
+    #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout", extraClass: "complete" /}
+</div>
+
+#{/else}

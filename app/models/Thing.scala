@@ -21,6 +21,7 @@ import com.novus.salat.annotations.raw.Salat
 import org.bson.types.ObjectId
 import java.util.Date
 import util.Constants._
+import views.context._
 
 @Salat
 trait Base extends AnyRef with Product {
@@ -39,7 +40,7 @@ trait Base extends AnyRef with Product {
  */
 
 @Salat
-trait Thing extends Base {
+trait Thing extends Base with Universal {
 
   val name: String
   val description: String
@@ -60,10 +61,26 @@ trait Thing extends Base {
     links.filter(_.linkType == linkType).filter(_.value.contains(key)).map(l => (l, new ObjectId(l.value(key)))).toList
   }
 
+  // ~~~ universal accessors
+  def getMongoId = _id.toString
+  def getHubId = "%s_%s_%s".format(userName, getType, _id)
+  def getOwnerId = userName
+  def getRecordType = getType
+  def getTitle = name
+  def getDescription = description
+  def getOwner = userName
+  def getCreator = userName
+  def getVisibility = visibility.value.toString
+  def getUri = url
+  def getThumbnailUri = getThumbnailUri(180)
+  def getThumbnailUri(size: Int) = getThumbnailUrl(thumbnail_id, size)
+  def getMimeType = "unknown/unknown"
+  def hasDigitalObject = thumbnail_id != None
+
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField (ID, _id)
-    doc addField (HUB_ID, "%s_%s_%s".format(userName, getType, _id))
+    doc addField (HUB_ID, getHubId)
     doc addField (RECORD_TYPE, getType)
     doc addField (VISIBILITY, visibility.value.toString)
     doc addField (OWNER, userName)
@@ -74,6 +91,7 @@ trait Thing extends Base {
     if (thumbnail_id != None) {
       doc addField(THUMBNAIL, thumbnail_id.get)
     }
+    doc addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
     doc
   }
 

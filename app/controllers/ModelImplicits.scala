@@ -21,6 +21,7 @@ import models._
 import com.mongodb.casbah.Imports._
 import views.context.thumbnailUrl
 import eu.delving.sip.IndexDocument
+import util.Constants._
 
 /**
  * Implicits for conversion between backend models and view models
@@ -32,7 +33,7 @@ trait ModelImplicits extends Internationalization {
 
   // ~~~ View models
 
-  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link, embeddedLink.value("label"), embeddedLink.linkType, embeddedLink.value)
+  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), embeddedLink.linkType, embeddedLink.value)
   implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
 
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getCreator.userName)
@@ -43,11 +44,11 @@ trait ModelImplicits extends Internationalization {
 
   // ~~ ListItems
 
-  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), None, o.userName, o.visibility == Visibility.PRIVATE, o.url)
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, if(c.getBookmarksCollection) &("thing.bookmarksCollection") else c.name, if(c.getBookmarksCollection) &("thing.bookmarksCollectionDescription") else c.description, c.thumbnail_id, None, c.userName, c.visibility == Visibility.PRIVATE, c.url)
-  implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, None,  s.userName, s.visibility == Visibility.PRIVATE, s.url)
-  implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, u.email, None, None,  u.userName, false, "/" + u.userName)
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, None, ds.getCreator.userName, false, "/nope")
+  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, OBJECT, o.name, o.description, Some(o._id), None, o.userName, o.visibility == Visibility.PRIVATE, o.url)
+  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, None, c.userName, c.visibility == Visibility.PRIVATE, c.url)
+  implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, None,  s.userName, s.visibility == Visibility.PRIVATE, s.url)
+  implicit def userToListItem(u: User) = ListItem(u._id, USER, u.fullname, u.email, None, None,  u.userName, false, "/" + u.userName)
+  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, ds.getCreator.userName, false, "/nope")
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }
@@ -57,9 +58,9 @@ trait ModelImplicits extends Internationalization {
 
   // ~~~ ObjectId
 
-  implicit def oidToString(oid: ObjectId) = oid.toString
+  implicit def oidToString(oid: ObjectId): String = oid.toString
 
-  implicit def oidOptionToString(oid: Option[ObjectId]) = oid match {
+  implicit def oidOptionToString(oid: Option[ObjectId]): String = oid match {
     case Some(id) => id.toString
     case None => ""
   }

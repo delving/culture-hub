@@ -18,6 +18,7 @@ package controllers
 
 import models.{DObject, Story, UserCollection}
 import play.mvc.results.Result
+import util.Constants._
 
 /**
  * 
@@ -31,8 +32,9 @@ object Application extends DelvingController {
     val recentCollections: List[ListItem] = UserCollection.findRecent(viewUtils.themeProperty("recentCollectionsCount", classOf[Int])).toList
     val recentStories: List[ListItem] = Story.findRecent(viewUtils.themeProperty("recentStoriesCount", classOf[Int])).toList
     val recentObjects: List[ListItem] = DObject.findRecent(viewUtils.themeProperty("recentObjectsCount", classOf[Int])).toList
+    val recentMdrs: List[ListItem] = Search.search(None, request, theme, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, viewUtils.themeProperty("recentMdrsCount", classOf[Int]))
 
-    Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects)
+    Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs)
   }
 
 }

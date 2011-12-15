@@ -32,6 +32,7 @@ object Constants {
   val STORY = "story"
   val USER = "user"
   val MDR = "mdr"
+  val DATASET ="dataSet"
 
   // ~~~ identifier fields
   val ID = "id"
@@ -53,6 +54,9 @@ object Constants {
   val CREATOR = SummaryField.CREATOR.tag
   val VISIBILITY = SummaryField.VISIBILITY.tag
   val THUMBNAIL = SummaryField.THUMBNAIL.tag
+
+  // TODO add to SummaryField??
+  val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
 
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection

@@ -50,77 +50,59 @@
 </div>
 
 <div class="row">
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.objects.heritage'}</h3>
+        <p>&{'thing.objects.heritage.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.objects.user'}</h3>
+        <p>&{'thing.objects.user.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.collections'}</h3>
+        <p>&{'thing.collections.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.stories'}</h3>
+        <p>&{'thing.stories.info'}</p>
+    </div>
+</div>
+<div class="row">
+    <div class="g-1of4 grid_3">
+    #{if recentMdrs.size() > 0}
+        #{list recentMdrs, as: 'm'}
+            #{thingSummaryView data: m, iSize: 220 /}
+        #{/list}
+    #{/if}
+    #{else}&#160;#{/else}
+    </div>
+
+    <div class="g-1of4 grid_3">
     #{if recentObjects.size() > 0}
-    <div class="g-4of12 grid_4">
-        <div class="widget recent object">
-            <div class="hd">
-                <h3>${recentObjects.size() == 1 ? viewUtils.getKey('home.recentobject') : viewUtils.getKey('home.recentobjects')}</h3>
-            </div>
-            <div class="bd">
-                #{list recentObjects, as: 'o'}
-                <div class="media">
-                    <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${o.thumbnail(100)}' width="100" class="img" alt="${o.title}"/></a>
-
-                    <div class="bd">
-                        <div class="metadata">
-                            <span class="title"><a href="/${o.userName}/object/${o.id}" title="${o.title}">${o.title.shorten(50)}</a></span>
-                            <p>${o.description.shorten(80)}</p>
-                        </div>
-                    </div>
-                </div>
-                #{/list}
-            </div>
-        </div>
-    </div>
+        #{list recentObjects, as: 'o'}
+            #{thingSummaryView data: o, iSize: 220 /}
+        #{/list}
     #{/if}
+    #{else}&#160;#{/else}
+    </div>
 
+    <div class="g-1of4 grid_3">
     #{if recentCollections.size() > 0}
-    <div class="g-4of12 grid_4">
-        <div class="widget recent collection">
-            <div class="hd">
-                <h3>${recentCollections.size() == 1 ? viewUtils.getKey('home.recentcollection') : viewUtils.getKey('home.recentcollections')}</h3>
-            </div>
-            <div class="bd">
-                #{list recentCollections, as: 'c'}
-                <div class="media">
-                    <a href="/${c.userName}/collection/${c.id}" class="clip"><img src='${c.thumbnail(100)}' width="100" class="img" alt="${c.title}"/></a>
-
-                    <div class="bd">
-                        <div class="metadata">
-                            <span class="title"><a href="/${c.userName}/collection/${c.id}" title="${c.title}">${c.title.shorten(50)}</a></span>
-                            <p>${c.description.shorten(80)}</p>
-                        </div>
-                    </div>
-                </div>
-                #{/list}
-            </div>
-        </div>
+        #{list recentCollections, as: 'c'}
+            #{thingSummaryView data: c, iSize: 220 /}
+        #{/list}
+    #{/if}#{else}&#160;#{/else}
     </div>
-    #{/if}
 
+    <div class="g-1of4 grid_3">
     #{if recentStories.size() > 0}
-    <div class="g-4of12 grid_4">
-        <div class="widget recent story">
-            <div class="hd">
-                <h3>${recentStories.size() == 1 ? viewUtils.getKey('home.recentstory') : viewUtils.getKey('home.recentstories')}</h3>
-            </div>
-            <div class="bd">
-                #{list recentStories, as: 's'}
-                <div class="media">
-                    <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${s.thumbnail(100)}' class="img" width="100" alt="${s.title}"/></a>
-
-                    <div class="bd">
-                        <div class="metadata">
-                            <span class="title"><a href="/${s.userName}/story/${s.id}" title="${s.title}">${s.title.shorten(50)}</a></span>
-                            <p>${s.description.shorten(100)}</p>
-                        </div>
-                    </div>
-                </div>
-                #{/list}
-            </div>
-        </div>
+        #{list recentStories, as: 's'}
+            #{thingSummaryView data: s, iSize: 220 /}
+        #{/list}
+    #{/if}#{else}&#160;#{/else}
     </div>
-    #{/if}
+
+
 </div>
 
 
