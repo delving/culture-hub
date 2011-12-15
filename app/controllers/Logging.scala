@@ -106,9 +106,11 @@ trait Logging extends UserAuthentication { self: Controller =>
   }
   def logError(message: String, args: String*) {
     Logger.error(withContext(message), args : _ *)
+    reportError(request, params, user, message.format(args))
   }
   def logError(e: Throwable, message: String, args: String*) {
     Logger.error(e, withContext(message), args : _ *)
+    reportError(request, params, user, message.format(args))
   }
 
   def reportSecurity(message: String) {

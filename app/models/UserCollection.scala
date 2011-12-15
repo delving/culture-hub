@@ -38,9 +38,13 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           visibility: Visibility,
                           deleted: Boolean = false,
                           thumbnail_id: Option[ObjectId],
-                          links: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {
+                          links: List[EmbeddedLink] = List.empty[EmbeddedLink],
+                          isBookmarksCollection: Option[Boolean] = None) extends Thing {
 
   def getType = USERCOLLECTION
+
+  // meh...
+  def getBookmarksCollection = isBookmarksCollection.getOrElse(false)
 }
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
