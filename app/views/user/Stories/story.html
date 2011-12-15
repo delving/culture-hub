@@ -58,7 +58,34 @@
             #{btnHref label: viewUtils.getKey('user.story.label.addPage'), iconClass:"icon3", dataBind:"click: function() { this.addPage(); }", rel:"nofollow" /}
         </div>
 
-        <div id="page-list" class="data-grid" data-bind="template: 'pageList', visible: pages().length > 0"></div>
+        <div id="page-list" class="data-grid" data-bind="visible: pages().length > 0">
+            <table class="list">
+                    <caption>&{'user.story.existingPage'}:</caption>
+                    <thead>
+                    <tr>
+                        <th>&{'thing.name'}</th>
+                        <th>&{'thing.actions'}</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: pages(), sortable: { connectWith: '.sortable' }">
+                    <tr id="#{verbatim}page-${$index}#{/}">
+                        <td>
+                            <span class="page-title" data-bind="text: title"></span>
+                        </td>
+                        <td>
+                            <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
+                                <span class="icon icon145"></span>
+                                <span class="label">&{'ui.label.edit'} </span>
+                            </a>
+                            <a class="button beware" href="#" data-bind="click: function() { this.deletePage(page); }">
+                                <span class="icon icon186"></span>
+                                <span class="label">&{'ui.label.delete'}</span>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+        </div>
 
          <div id="save-story" class="line">
             <div class="buttons">
@@ -130,38 +157,6 @@
             #{btnButton label: viewUtils.getKey('ui.label.cancel'), dataBind:'click: cancelPage', extraClass:'action grey', type:'reset'/}
         </div>
     </form>
-
-</script>
-<script type="text/html" id="pageList">
-
-    <table class="list">
-        <caption>&{'user.story.existingPage'}:</caption>
-        <thead>
-        <tr>
-            <th>&{'thing.name'}</th>
-            <th>&{'thing.actions'}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{each(i, page) pages()}}
-        <tr id="#{verbatim}page-${i}#{/}">
-            <td>
-                <span class="page-title">#{verbatim}${'${page.title}'}#{/}</span>
-            </td>
-            <td>
-                <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
-                    <span class="icon icon145"></span>
-                    <span class="label">&{'ui.label.edit'} </span>
-                </a>
-                <a class="button beware" href="#" data-bind="click: function() { this.deletePage(page); }">
-                    <span class="icon icon186"></span>
-                    <span class="label">&{'ui.label.delete'}</span>
-                </a>
-            </td>
-        </tr>
-        {{/each}}
-        </tbody>
-    </table>
 
 </script>
 
