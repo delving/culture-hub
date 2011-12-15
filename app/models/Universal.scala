@@ -58,5 +58,6 @@ trait Universal {
   def getThumbnailUri: String
   def getThumbnailUri(size: Int): String
   def getMimeType: String
+  def hasDigitalObject: Boolean
 
 }

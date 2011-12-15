@@ -68,7 +68,8 @@ case class ListItem(id: String,
   def getUri = url
   def getThumbnailUri = thumbnail(100)
   def getThumbnailUri(size: Int) = thumbnail(size)
-  def getMimeType = "unknown/unknwon"
+  def getMimeType = "unknown/unknown"
+  def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }
 
 case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)
