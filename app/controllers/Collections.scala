@@ -43,7 +43,8 @@ object Collections extends DelvingController {
         }
         val labels: List[Token] = thing.freeTextLinks
         val places: List[Token] = thing.placeLinks
-        Template('collection -> thing, 'objects -> objects, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
+        val theThing = if(thing.getBookmarksCollection) thing.copy(name = &("thing.bookmarksCollection"), description = &("thing.bookmarksCollectionDescription")) else thing
+        Template('collection -> theThing, 'isBookmarksCollection -> thing.getBookmarksCollection, 'objects -> objects, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
       }
       case _ => NotFound
     }
