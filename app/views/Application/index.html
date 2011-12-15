@@ -50,10 +50,27 @@
 </div>
 
 <div class="row">
-    #{if recentCollections.size() > 0}
     <div class="g-1of4 grid_3">
         <h3>&{'thing.objects.heritage'}</h3>
         <p>&{'thing.objects.heritage.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.objects.user'}</h3>
+        <p>&{'thing.objects.user.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.collections'}</h3>
+        <p>&{'thing.collections.info'}</p>
+    </div>
+    <div class="g-1of4 grid_3">
+        <h3>&{'thing.stories'}</h3>
+        <p>&{'thing.stories.info'}</p>
+    </div>
+</div>
+<div class="row">
+    #{if recentCollections.size() > 0}
+    <div class="g-1of4 grid_3">
+
         #{list recentCollections, as: 'c'}
             #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
         #{/list}
@@ -62,8 +79,7 @@
 
     #{if recentObjects.size() > 0}
     <div class="g-1of4 grid_3">
-        <h3>&{'thing.objects.user'}</h3>
-        <p>&{'thing.objects.user.info'}</p>
+
         #{list recentObjects, as: 'o'}
             #{thingSummaryView data: o, type: messages.get('thing.object'), iSize: 220 /}
         #{/list}
@@ -72,8 +88,7 @@
 
     #{if recentCollections.size() > 0}
     <div class="g-1of4 grid_3">
-        <h3>&{'thing.collections'}</h3>
-        <p>&{'thing.collections.info'}</p>
+
         #{list recentCollections, as: 'c'}
             #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
         #{/list}
@@ -82,8 +97,7 @@
 
     #{if recentStories.size() > 0}
     <div class="g-1of4 grid_3">
-        <h3>&{'thing.stories'}</h3>
-        <p>&{'thing.stories.info'}</p>
+
         #{list recentStories, as: 's'}
             #{thingSummaryView data: s, type:messages.get('thing.story'), iSize: 220 /}
         #{/list}
