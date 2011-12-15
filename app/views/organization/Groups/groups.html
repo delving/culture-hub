@@ -11,67 +11,68 @@
 
 <div class="g-12of12 grid_12 dashboard">
 
-<h1 class="sep">&{'thing.groups'}</h1>
+    <h1 class="sep">&{'thing.groups'}</h1>
 
-<div class="row">
+
 
         <div class="g-12of12 grid_12">
             <form action="" id="groupForm">
-            #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
-            <div class="field" data-bind="visible: canChangeGrantType">
-                <label class="label" for="grantType">&{'thing.grantType'}</label>
+                #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
+                <div class="field" data-bind="visible: canChangeGrantType">
+                    <label class="label" for="grantType">&{'thing.grantType'}</label>
 
-                <div class="inputs">
-                    <select id="grantType" name="grantType" data-bind="value: grantType">
-                        <option value="${models.GrantType.VIEW().value}">&{'org.group.grantType.view'}</option>
-                        <option value="${models.GrantType.MODIFY().value}">&{'org.group.grantType.modify'}</option>
-                    </select>
-                    <span class="error">${views.context.package.showError('grantType')}</span>
-                    <span class="help"><strong>&{'ui.label.required'}</strong></span>
+                    <div class="inputs">
+                        <select id="grantType" name="grantType" data-bind="value: grantType">
+                            <option value="${models.GrantType.VIEW().value}">&{'org.group.grantType.view'}</option>
+                            <option value="${models.GrantType.MODIFY().value}">&{'org.group.grantType.modify'}</option>
+                        </select>
+                        <span class="error">${views.context.package.showError('grantType')}</span>
+                        <span class="help"><strong>&{'ui.label.required'}</strong></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="field">
-                <label class="label" for="users">&{'thing.users'}</label>
+                <div class="field">
+                    <label class="label" for="users">&{'thing.users'}</label>
 
-                <div class="inputs">
-                    #{if id.isDefined()}
-                    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
-                    #{/if}
-                    #{else}
-                    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
-                    #{/else}
+                    <div class="inputs">
+                        #{if id.isDefined()}
+                        #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+                        #{/if}
+                        #{else}
+                        #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
+                        #{/else}
+                    </div>
                 </div>
-            </div>
 
-            <div class="field" data-bind="visible: canChangeGrantType">
-                <label class="label" for="datasets">&{'thing.datasets'}</label>
+                <div class="field" data-bind="visible: canChangeGrantType">
+                    <label class="label" for="datasets">&{'thing.datasets'}</label>
 
-                <div class="inputs">
-                    #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
-                    #{/if}
-                    #{else}
-                    #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
-                    #{/else}
+                    <div class="inputs">
+                        #{if id.isDefined()}
+                        #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
+                        #{/if}
+                        #{else}
+                        #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+                        #{/else}
+                    </div>
                 </div>
-            </div>
-        <div class="buttons">
-            #{btnButton label: viewUtils.getKey('org.group.save'), extraClass:"submit", id:"saveButton", type:"submit" /}
-            <div class="wait"></div>
+                <div class="buttons">
+                    #{btnButton label: viewUtils.getKey('org.group.save'), extraClass:"submit", id:"saveButton", type:"submit" /}
+                    <div class="wait"></div>
+                </div>
+
+            </form>
         </div>
-    </form>
-        </div>
+
+
 
 </div>
-
-</div>
-
+<div class="clear"></div>
 <script type="text/javascript">
     $(document).ready(function() {
         var groupModel = {};
         load(${data.raw()}, groupModel, null, function() {
-          $("body").css('visibility', 'visible');
+            $("body").css('visibility', 'visible');
         });
 
         $('#saveButton').click(function(event) {
