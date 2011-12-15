@@ -71,7 +71,7 @@ object Collections extends DelvingController with UserSecured {
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = thumbnailUrl(col.thumbnail_id),
+          thumbnail = col.thumbnail_id,
           visibility = col.visibility.value,
           isBookmarksCollection = col.getBookmarksCollection))
       }
