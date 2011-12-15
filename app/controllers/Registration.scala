@@ -25,14 +25,16 @@ import play.Play
 import play.mvc.results.Result
 import models.salatContext._
 import play.mvc.Controller
-import models.{User, Organization}
+import models.{User, Organization, UserCollection, Visibility}
+import java.util.Date
+import com.mongodb.WriteConcern
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Registration extends Controller with ThemeAware with Internationalization {
+object Registration extends Controller with ThemeAware with Internationalization with Logging {
 
   def index(): Result = {
     Template('randomId -> Codec.UUID())
@@ -78,21 +80,51 @@ object Registration extends Controller with ThemeAware with Internationalization
       index()
     } else {
       val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(userName = r.userName, firstName = r.firstName, lastName = r.lastName, nodes = List(getNode), email = r.email, password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512), userProfile = models.UserProfile(), isActive = false, activationToken = Some(activationToken))
+      val newUser = User(
+        userName = r.userName,
+        firstName = r.firstName,
+        lastName = r.lastName,
+        nodes = List(getNode),
+        email = r.email,
+        password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512),
+        userProfile = models.UserProfile(),
+        isActive = false,
+        activationToken = Some(activationToken))
       val inserted = User.insert(newUser)
 
       inserted match {
         case Some(id) =>
           try {
+            // create default bookmarks collection
+            val bookmarksCollection = UserCollection(
+              TS_update = new Date(),
+              user_id = id,
+              userName =r.userName,
+              name = "Bookmarks",
+              description = "Bookmarks",
+              visibility = Visibility.PRIVATE,
+              thumbnail_id = None,
+              isBookmarksCollection = Some(true))
+            val userCollectionId = UserCollection.insert(bookmarksCollection)
             Mails.activation(newUser, activationToken)
             flash += ("registrationSuccess" -> newUser.email)
+            
+            try {
+              SolrServer.indexSolrDocument(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
+              SolrServer.commit()
+            } catch {
+              case t => logError(t, "Could not index Bookmarks collection %s for newly created user %s", userCollectionId.get.toString, r.userName)
+            }
+
           } catch {
             case t: Throwable => {
               User.remove(newUser.copy(_id = id))
+              logError(t, t.getMessage, r.userName)
               flash += ("registrationError" -> t.getMessage)
             }
           }
         case None =>
+          logError("Could not save new user %s", r.userName)
           flash += ("registrationError" -> &("registration.errorCreating"))
       }
 

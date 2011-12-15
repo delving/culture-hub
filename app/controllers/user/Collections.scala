@@ -66,13 +66,14 @@ object Collections extends DelvingController with UserSecured {
         val objects = userObjects ++ convertedMdrs
         JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
-          name = col.name,
-          description = col.description,
+          name = if(col.getBookmarksCollection) &("thing.bookmarksCollection") else col.name,
+          description = if(col.getBookmarksCollection) &("thing.bookmarksCollectionDescription") else col.description,
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
           thumbnail = thumbnailUrl(col.thumbnail_id),
-          visibility = col.visibility.value))
+          visibility = col.visibility.value,
+          isBookmarksCollection = col.getBookmarksCollection))
       }
     }
   }
@@ -114,7 +115,10 @@ object Collections extends DelvingController with UserSecured {
       case Some(id) =>
         val existingCollection = UserCollection.findOneByID(id)
         if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
-        val updatedUserCollection = existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
+        val updatedUserCollection = existingCollection.get.getBookmarksCollection match {
+          case false => existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
+          case true => existingCollection.get.copy(TS_update = new Date(), thumbnail_id = collectionModel.thumbnail)
+        }
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
 
@@ -162,14 +166,20 @@ object Collections extends DelvingController with UserSecured {
 
   }
 
-  def remove(id: ObjectId) = {
+  def remove(id: ObjectId): Result = {
     if(UserCollection.owns(connectedUserId, id)) {
+      UserCollection.findOneByID(id) match {
+        case Some(col) =>
+          if(col.getBookmarksCollection) return Error("Cannot delete bookmarks collection!")
+        case None =>
+      }
       val objects = DObject.findForCollection(id)
       UserCollection.setObjects(id, objects)
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
       SolrServer.deleteFromSolrById(id)
       SolrServer.commit()
+      Ok
     } else {
       Forbidden("Big brother is watching you")
     }
@@ -191,4 +201,5 @@ case class CollectionViewModel(id: Option[ObjectId] = None,
                               availableObjects: List[ShortObjectModel] = List.empty[ShortObjectModel],
                               visibility: Int = Visibility.PRIVATE.value,
                               thumbnail: String = "",
+                              isBookmarksCollection: Boolean = false,
                               errors: Map[String, String] = Map.empty[String, String]) extends ViewModel

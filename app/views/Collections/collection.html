@@ -32,7 +32,7 @@
                 #{/if}
             </div>
             <div class="bd">
-                #{thingToolbar owner: collection.userName, id: collection._id, authUser: userName, type:"collection", labels:labels, places:places/}
+                #{thingToolbar owner: collection.userName, id: collection._id, authUser: userName, type:"collection", cannotDelete: isBookmarksCollection, labels:labels, places:places/}
                 <div class="metadata">
                     <h5>&{'thing.description'}:</h5>
                     <p>${views.context.package.niceText(collection.description.isEmpty() ? "No description available" : collection.description)}</p>

@@ -28,7 +28,7 @@ import eu.delving.sip.IndexDocument
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait ModelImplicits {
+trait ModelImplicits extends Internationalization {
 
   // ~~~ View models
 
@@ -44,7 +44,7 @@ trait ModelImplicits {
   // ~~ ListItems
 
   implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, o.name, o.description, Some(o._id), None, o.userName, o.visibility == Visibility.PRIVATE, o.url)
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, c.name, c.description, c.thumbnail_id, None, c.userName, c.visibility == Visibility.PRIVATE, c.url)
+  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, if(c.getBookmarksCollection) &("thing.bookmarksCollection") else c.name, if(c.getBookmarksCollection) &("thing.bookmarksCollectionDescription") else c.description, c.thumbnail_id, None, c.userName, c.visibility == Visibility.PRIVATE, c.url)
   implicit def storyToListItem(s: Story) = ListItem(s._id, s.name, s.description, s.thumbnail_id, None,  s.userName, s.visibility == Visibility.PRIVATE, s.url)
   implicit def userToListItem(u: User) = ListItem(u._id, u.fullname, u.email, None, None,  u.userName, false, "/" + u.userName)
   implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, ds.details.name, ds.description.getOrElse(""), None, None, ds.getCreator.userName, false, "/nope")
