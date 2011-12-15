@@ -50,12 +50,12 @@
 </div>
 
 <div class="row">
-    #{if recentCollections.size() > 0}
+    #{if recentMdrs.size() > 0}
     <div class="g-1of4 grid_3">
         <h3>&{'thing.objects.heritage'}</h3>
         <p>&{'thing.objects.heritage.info'}</p>
-        #{list recentCollections, as: 'c'}
-            #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
+        #{list recentMdrs, as: 'm'}
+            #{thingSummaryView data: m, type:messages.get('thing.collection'), iSize: 220 /}
         #{/list}
     </div>
     #{/if}
