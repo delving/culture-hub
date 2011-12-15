@@ -1,21 +1,20 @@
 <div class="thing-container">
 <div class="ic_container">
-    %{def link = _uri ? _uri : "/" + _data.userName + "/" + _type + "/" + _data.id }%
+
     <a href="${_data.getUri()}" class="clip clip-${_iSize}">
-        <img src='${_data.thumbnail(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
+        <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
         <div class="overlay" style="display:none"></div>
     </a>
         #{if _isPrivate}
         <p class="is_private">
-            %{ def updateLink = '/'+ _data.userName + '/' + _type + '/' + _data.id + '/update' }%
-            <span> ${messages.get('ui.message.statusPrivate', updateLink).raw()}</span>
+            <span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>
         </p>
         #{/if}
     <div class="ic_caption">
         <p class="ic_category">${_type}</p>
         <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
         <p class="ic_text info-box small">
-            <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.userName}</span>
+            <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
             #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
         </p>
 
