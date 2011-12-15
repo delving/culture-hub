@@ -17,8 +17,8 @@
     <fieldset>
     <legend><span>&{'user.collection.info'}</span></legend>
 
-    #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", labelClass:"required", required: true /}
-    #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description", required: true, help:viewUtils.getKey('user.collection.help.description') /}
+    #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name, disable: isBookmarksCollection", labelClass:"required", required: true /}
+    #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description, disable: isBookmarksCollection", required: true, help:viewUtils.getKey('user.collection.help.description') /}
     </fieldset>
 
     <fieldset>
@@ -39,8 +39,8 @@
         <label class="label">&{'ui.label.visibility'}</label>
 
         <div class="inputs">
-            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'} <br/>
-            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.notpublic'} <br/>
+            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.public'}
         </div>
     </div>
     </fieldset>

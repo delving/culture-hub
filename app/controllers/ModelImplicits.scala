@@ -29,7 +29,7 @@ import util.Constants._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait ModelImplicits {
+trait ModelImplicits extends Internationalization {
 
   // ~~~ View models
 

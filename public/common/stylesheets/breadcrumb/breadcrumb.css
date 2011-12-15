@@ -1,9 +1,14 @@
+.breadcrumb ul {
+    margin: 0;
+    padding: 0;
+}
+
 .breadcrumb li {
     /*background: transparent url(/public/common/images/crumb.png) no-repeat top right;*/
     display: inline-block;
     height: 16px;
     line-height: 16px;
-    padding-right: 32px;
+    margin: 0;
 }
 
 .breadcrumb li:after {

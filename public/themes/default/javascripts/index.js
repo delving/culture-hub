@@ -1,5 +1,9 @@
-//$(fx).getElementById('recent-objects').addClass('jcarousel-skin-default');
-
 jQuery(document).ready(function() {
-//    jQuery('#recent-objects-list').jcarousel();
+    $(".ic_container").capslide({
+        caption_color    : 'white',
+        caption_bgcolor    : 'black',
+        overlay_bgcolor : 'black',
+        border            : '',
+        showcaption        : true
+    });
 });
