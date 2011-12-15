@@ -68,16 +68,16 @@
                     </tr>
                     </thead>
                     <tbody data-bind="foreach: pages(), sortable: { connectWith: '.sortable' }">
-                    <tr id="#{verbatim}page-${$index}#{/}">
+                    <tr>
                         <td>
                             <span class="page-title" data-bind="text: title"></span>
                         </td>
                         <td>
-                            <a class="button" href="#" data-bind="click: function() { this.editPage(page); }">
+                            <a class="button" href="#" data-bind="click: function() { $parent.editPage($data); }">
                                 <span class="icon icon145"></span>
                                 <span class="label">&{'ui.label.edit'} </span>
                             </a>
-                            <a class="button beware" href="#" data-bind="click: function() { this.deletePage(page); }">
+                            <a class="button beware" href="#" data-bind="click: function() { $parent.deletePage($data); }">
                                 <span class="icon icon186"></span>
                                 <span class="label">&{'ui.label.delete'}</span>
                             </a>
