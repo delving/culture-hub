@@ -68,41 +68,39 @@
     </div>
 </div>
 <div class="row">
-    #{if recentCollections.size() > 0}
     <div class="g-1of4 grid_3">
-
-        #{list recentCollections, as: 'c'}
-            #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
+    #{if recentMdrs.size() > 0}
+        #{list recentMdrs, as: 'm'}
+            #{thingSummaryView data: m, iSize: 220 /}
         #{/list}
-    </div>
     #{/if}
+    #{else}&#160;#{/else}
+    </div>
 
+    <div class="g-1of4 grid_3">
     #{if recentObjects.size() > 0}
-    <div class="g-1of4 grid_3">
-
         #{list recentObjects, as: 'o'}
-            #{thingSummaryView data: o, type: messages.get('thing.object'), iSize: 220 /}
+            #{thingSummaryView data: o, iSize: 220 /}
         #{/list}
-    </div>
     #{/if}
+    #{else}&#160;#{/else}
+    </div>
 
+    <div class="g-1of4 grid_3">
     #{if recentCollections.size() > 0}
-    <div class="g-1of4 grid_3">
-
         #{list recentCollections, as: 'c'}
-            #{thingSummaryView data: c, type:messages.get('thing.collection'), iSize: 220 /}
+            #{thingSummaryView data: c, iSize: 220 /}
         #{/list}
+    #{/if}#{else}&#160;#{/else}
     </div>
-    #{/if}
 
-    #{if recentStories.size() > 0}
     <div class="g-1of4 grid_3">
-
+    #{if recentStories.size() > 0}
         #{list recentStories, as: 's'}
-            #{thingSummaryView data: s, type:messages.get('thing.story'), iSize: 220 /}
+            #{thingSummaryView data: s, iSize: 220 /}
         #{/list}
+    #{/if}#{else}&#160;#{/else}
     </div>
-    #{/if}
 
 
 </div>

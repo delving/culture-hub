@@ -1,30 +1,11 @@
 %{ def counter = 1 }%
 #{list _results, as: 'doc'}
-%{
-def recordType = doc.getRecordType()
-switch (recordType) {
-case "object":
-recordType = messages.get('thing.object')
-break
-case "collection":
-recordType = messages.get('thing.collection')
-break
-case "story":
-recordType = messages.get('thing.story')
-break
-case "mdr":
-recordType = "Metadata record"
-break
-default:
-recordType = doc.getRecordType()
-}
-}%
 #{if counter == 1}
 <div class="row">
 #{/if}
     <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
         <div class="thing-container draggable ${doc.getRecordType()} ">
-            #{thingSummaryView data: doc, iSize: 220, type: itemName/}
+            #{thingSummaryView data: doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
             <input type="hidden" name="title" value="${doc.getTitle()}"/>

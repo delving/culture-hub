@@ -59,7 +59,7 @@ case class ListItem(id: String,
   def getMongoId = id
   def getHubId = "%s_%s_%s".format(userName, recordType, id)
   def getOwnerId = userName
-  def getRecordType = userName
+  def getRecordType = recordType
   def getTitle = title
   def getDescription = description
   def getOwner = userName
