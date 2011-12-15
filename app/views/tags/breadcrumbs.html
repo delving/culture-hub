@@ -12,7 +12,7 @@
             ${c._1._2.shorten(50)}
             #{/}
             #{else}
-            <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+            <a href="${c._1._1}"><span>${c._1._2.shorten(50)}</span></a>
             #{/else}
         #{/if}
         #{if c._2 < views.context.package.crumble(_params).length() - 1 && views.context.package.crumble(_params).length() == 1}
@@ -20,7 +20,7 @@
             ${c._1._2.shorten(50)}
             #{/}
             #{else}
-            <a href="${c._1._1}">${c._1._2.shorten(50)}</a>
+            <a href="${c._1._1}"><span>${c._1._2.shorten(50)}</span></a>
             #{/else}
           #{/if}
         </li>
