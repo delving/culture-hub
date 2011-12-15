@@ -53,7 +53,7 @@ isOwner: isOwner/}
                     #{list items, as: 'i'}
                     <tr>
                         <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
-                        <td width="100">${i.total_records}</td>
+                        <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
                         <td id="description${i.spec}" width="150">
                             #{if i.state.name() == models.DataSetState.ERROR().name()}
                             <span class="error">${i.state.description()}</span>
