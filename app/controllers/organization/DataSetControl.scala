@@ -42,7 +42,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     else {
       val dS = dataSet.get
       if(DataSet.canEdit(dS, connectedUser)) {
-        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, indexingMappingPrefix = dS.getIndexingMappingPrefix, visibility = dS.visibility.value))
+        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""), visibility = dS.visibility.value))
       } else {
         return Forbidden("You are not allowed to edit DataSet %s".format(spec))
       }
@@ -130,14 +130,14 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
-          if(theme.metadataPrefix != None && dataSet.mappings.containsKey(theme.metadataPrefix.get)) {
-            DataSet.addIndexingState(dataSet, theme.metadataPrefix.get, theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+          try {
+            DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.changeState(dataSet, DataSetState.QUEUED)
-          } else {
-            // TODO give the user some decent feedback in the interface
-           LoggedError(("Unable to index with mapping %s for dataset %s " +
-                   "in theme %s. Problably dataset does not have required mapping").format(theme.metadataPrefix, dataSet.name, theme.name))
-           DataSet.changeState(dataSet, DataSetState.ERROR)
+          } catch {
+            case rt if rt.getMessage.contains() =>
+              // TODO give the user some decent feedback in the interface
+              LoggedError(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
+              DataSet.changeState(dataSet, DataSetState.ERROR)
           }
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeIndexed"))
@@ -149,7 +149,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case ENABLED =>
-          DataSet.addIndexingState(dataSet, theme.metadataPrefix.get, theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+          DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
           DataSet.changeState(dataSet, DataSetState.QUEUED)
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeReIndexed"))

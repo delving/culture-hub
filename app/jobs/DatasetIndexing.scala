@@ -35,8 +35,8 @@ class DataSetIndexing extends Job {
     if (play.Play.started) {
       val dataSet = DataSet.findCollectionForIndexing()
       if (dataSet != None) {
-        dataSet.get.idxMappings foreach {
-          prefix =>
+        dataSet.get.getIndexingMappingPrefix match {
+          case Some(prefix) =>
             try {
               Indexing.indexInSolr(dataSet.get, prefix)
             } catch {
@@ -45,6 +45,9 @@ class DataSetIndexing extends Job {
                 DataSet.updateState(dataSet.get, DataSetState.ERROR)
               }
             }
+          case None =>
+            Logger.error("No indexing mapping prefix set for DataSet " + dataSet.get.spec)
+            DataSet.updateState(dataSet.get, DataSetState.ERROR)
         }
       }
     }

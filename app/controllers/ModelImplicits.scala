@@ -43,7 +43,7 @@ trait ModelImplicits extends Internationalization {
     state = ds.state,
     facts = ds.getFacts,
     recordDefinitions = ds.mappings.keySet.toList,
-    indexingMappingPrefix = ds.getIndexingMappingPrefix,
+    indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
     orgId = ds.orgId,
     userName = ds.getCreator.userName)
 

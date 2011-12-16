@@ -75,10 +75,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
     initialFacts ++ storedFacts
   }
   
-  def getIndexingMappingPrefix = idxMappings.headOption match {
-    case Some(thing) => thing
-    case None => throw new RuntimeException("DataSet without indexing mapping!")
-  }
+  def getIndexingMappingPrefix = idxMappings.headOption
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
 
@@ -267,7 +264,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
   def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
-    val dataSetLatest = DataSet.findBySpec(dataSet.spec).get
+    val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
     val mappings = dataSetLatest.mappings.transform((key, map) => map.copy(rec_indexed = 0))
     val updatedDataSet = dataSetLatest.copy(state = state, mappings = mappings)
     DataSet.save(updatedDataSet)

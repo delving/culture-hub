@@ -50,7 +50,6 @@ object Themes extends DelvingController with AdminSecure {
         cacheUrl = theme.cacheUrl,
         emailTarget = theme.emailTarget,
         homePage = theme.homePage,
-        metadataPrefix = theme.metadataPrefix,
         possibleQueryKeys = theme.localiseQueryKeys)
       )
     }
@@ -77,7 +76,7 @@ object Themes extends DelvingController with AdminSecure {
           solrSelectUrl = theme.solrSelectUrl, 
           cacheUrl = theme.cacheUrl,
           emailTarget = theme.emailTarget,
-          homePage = theme.homePage, metadataPrefix = theme.metadataPrefix)
+          homePage = theme.homePage)
         )
         inserted match {
           case Some(id) => Some(theme.copy(id = inserted))
@@ -96,8 +95,7 @@ object Themes extends DelvingController with AdminSecure {
           solrSelectUrl = theme.solrSelectUrl,
           cacheUrl = theme.cacheUrl,
           emailTarget = theme.emailTarget,
-          homePage = theme.homePage,
-          metadataPrefix = theme.metadataPrefix)
+          homePage = theme.homePage)
         PortalTheme.save(updated)
         Some(theme)
       }

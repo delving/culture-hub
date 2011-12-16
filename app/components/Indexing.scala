@@ -102,14 +102,14 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     Right("ok")
   }
 
-  def indexOneInSolr(orgId: String, spec: String, metadataFormatForIndexing: String, mdr: MetadataRecord) = {
+  def indexOneInSolr(orgId: String, spec: String, mdr: MetadataRecord) = {
     DataSet.findBySpecAndOrgId(spec, orgId) match {
       case Some(dataSet) =>
-        val mapping = dataSet.mappings.get(metadataFormatForIndexing)
-        if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
+        val mapping = dataSet.mappings.get(dataSet.getIndexingMappingPrefix.getOrElse(""))
+        if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"))
         val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
         val mapped = Option(engine.executeMapping(mdr.getXmlString()))
-        indexOne(dataSet, mdr, mapped, metadataFormatForIndexing)
+        indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))
       case None =>
         Logger.warn("Could not index MDR")
     }
