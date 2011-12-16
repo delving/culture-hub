@@ -190,7 +190,6 @@ object DObjects extends DelvingController with UserSecured {
     if(DObject.owns(connectedUserId, id)) {
       DObject.delete(id)
       SolrServer.deleteFromSolrById(id)
-      SolrServer.commit()
     } else {
       Forbidden("Big brother is watching you")
     }
