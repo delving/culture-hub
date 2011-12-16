@@ -38,7 +38,7 @@ case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
 
-case class Token(id: String, name: String, tokenType: String, data: Map[String, String] = Map.empty[String, String])
+case class Token(id: String, name: String, tokenType: Option[String] = None)
 
 case class ListItem(id: String,
                     recordType: String,
