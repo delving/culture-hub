@@ -164,9 +164,13 @@ site.nav.home=Home
 
 # jQuery templates
 tmpl.selectedObjects.useAsDefault=Thumbnail
-tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
 tmpl.selectedObjects.defaultImage=Gebruik deze afbeelding als miniatuur weergave voor uw collectie of verhaal
 
+# labels
+labels.searchLabelHint=Type een label tekst
+labels.searchPlaceHint=Type een plaatsnaam
+labels.tokenSearching=Zoeken...
+labels.createLabel=Nieuwe label
 
 # Views
 
