@@ -70,7 +70,7 @@
                         <ul></ul>
                         <div id="dropbox-actions">
                             #{if collections}
-                                <select name="collection" id="collection">
+                                <select name="collection" id="dropbox-collection">
                                  <option selected='selected'>&{'user.story.label.selectCollection'}</option>
                                  #{list collections, as: 'col'}
                                     <option value="${col.id}">${col.title}</option>
@@ -117,22 +117,26 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#addToCollectionButton').click(function(event) {
-      event.preventDefault();
-      $('#dropbox input[name="itemId"]').each(function() {
-        var uri = $(this).val();
-        $.ajax({
-          type: 'POST',
-          url: uri + '/link/partOf/collection/' + $('#collection').val(),
-          success: function() {
-            $('#dropbox').trigger({
-              type: 'removeItem',
-              itemId: uri
-            });
-          },
-          error: function() { alert("mayday")}
+
+  $('#dropbox').dropbox();
+
+  $('#addToCollectionButton').click(function(event) {
+        event.preventDefault();
+        $('#dropbox input[name="itemId"]').each(function() {
+          var uri = $(this).val();
+          $.ajax({
+            type: 'POST',
+            url: uri + '/link/partOf/collection/' + $('#dropbox-collection').val(),
+            success: function() {
+              $('#dropbox').trigger({
+                type: 'removeItem',
+                itemId: uri
+              });
+            },
+            error: function() { $("select#dropbox-collection").css("background", "#cc3300")}
+          });
         });
       });
-    });
+
   });
 </script>
