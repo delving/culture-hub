@@ -1,4 +1,3 @@
-#{get 'useGrid' /}
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +24,6 @@
     #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
     #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:17 /}
     #{press.compressed-stylesheet /}
-    *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
     <script>
