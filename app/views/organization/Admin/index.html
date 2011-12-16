@@ -13,7 +13,7 @@
 
 <div class="row">
   <div class="g-1of3 grid_4">
-    <h3>Owners</h3>
+    <h3>&{'org.admin.index.owners'}</h3>
 
     <div>
       <ul class="token-input-list">
@@ -30,7 +30,7 @@
 
   </div>
   <div class="g-1of3 grid_4">
-    <h3>Members</h3>
+    <h3>&{'org.admin.index.members'}</h3>
 
     <div>
       #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('org.admin.index.removeMemberConfirmation') /}
