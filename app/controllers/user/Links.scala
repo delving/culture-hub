@@ -123,10 +123,13 @@ object Links extends DelvingController {
       case Link.LinkType.PARTOF =>
         toType match {
           case USERCOLLECTION =>
-
             val collectionId: ObjectId = toId match {
               case cid if ObjectId.isValid(cid) => new ObjectId(cid)
               case _ => return BadRequest("Invalid collectionId " + toId)
+            }
+            UserCollection.findByIdSecured(collectionId, connectedUser) match {
+              case Some(col) => col
+              case None => return NotFound("UserCollection with ID %s not found".format(collectionId))
             }
 
             fromType match {
