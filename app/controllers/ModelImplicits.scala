@@ -36,7 +36,17 @@ trait ModelImplicits extends Internationalization {
   implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), Some(embeddedLink.linkType), Some(embeddedLink.value))
   implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
 
-  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getCreator.userName)
+  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(
+    id = Option(ds._id),
+    spec = ds.spec,
+    total_records = ds.details.total_records,
+    state = ds.state,
+    facts = ds.getFacts,
+    recordDefinitions = ds.mappings.keySet.toList,
+    indexingMappingPrefix = ds.getIndexingMappingPrefix,
+    orgId = ds.orgId,
+    userName = ds.getCreator.userName)
+
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
   implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name, util.Constants.OBJECT)

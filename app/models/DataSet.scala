@@ -57,7 +57,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   idxMappings: List[String] = List.empty[String],
+                   idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String],
                    idxSortFields: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
@@ -73,6 +73,11 @@ case class DataSet(_id: ObjectId = new ObjectId,
     val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]
     val storedFacts = (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
     initialFacts ++ storedFacts
+  }
+  
+  def getIndexingMappingPrefix = idxMappings.headOption match {
+    case Some(thing) => thing
+    case None => throw new RuntimeException("DataSet without indexing mapping!")
   }
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty

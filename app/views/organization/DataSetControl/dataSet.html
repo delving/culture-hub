@@ -44,10 +44,15 @@ isOwner: isOwner /}
                     %{ }}%
                 </div>
                 <div class="g-6of12 grid_6">
-                    <h3>Record Definitions</h3>
+                    <h3>Target Record Definitions</h3>
                     #{list recordDefinitions, as: 'recordDef'}
                     #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
                     #{/list}
+                </div>
+                <div class="g-6of12 grid_6">
+                    <h3>Indexing Mapping Record Definition</h3>
+                    <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
+                    <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
                 </div>
             </div>
             <div class="row">
@@ -67,7 +72,7 @@ isOwner: isOwner /}
                 handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
                     window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
                 }, function() {
-                    alert("Could not save dataset! Maybe an invalid spec was passed in? (this message will get better very soon)")
+                    alert("Could not save dataset! Maybe an invalid spec was passed in or no mapping was selected for indexing?")
                 });
             });
 
