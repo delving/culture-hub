@@ -40,10 +40,10 @@
                 <span class="label">&{'user.profile.funFact'}:</span><span class="text">${user.userProfile.funFact().get()}</span>
                 #{/ifnot}
                 #{ifnot user.userProfile.twitter().isEmpty()}
-                <span class="label">Twitter:</span><span class="text">${user.userProfile.twitter().get()}</span>
+                <span class="label">Twitter:</span><span class="text"><a href="http://twitter.com/${user.userProfile.twitter().get()}">${user.userProfile.twitter().get()}</a></span>
                 #{/ifnot}
                 #{ifnot user.userProfile.linkedIn().isEmpty()}
-                <span class="label">LinkedIn:</span><span class="text">${user.userProfile.linkedIn().get()}</span>
+                <span class="label">LinkedIn:</span><span class="text"><a href="http://at.linkedin.com/in/${user.userProfile.linkedIn().get()}"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></span>
                 #{/ifnot}
             </div>
         </div>

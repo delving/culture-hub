@@ -375,7 +375,8 @@ user.admin.index.title=Account space
 user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
-user.admin.profile.help.linkedIn=URL to your linkedIn profile page
+user.admin.profile.help.twitter=Your twitter username, e.g. johndoe
+user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 
 ##Collections
