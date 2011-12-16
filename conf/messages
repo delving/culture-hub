@@ -25,6 +25,7 @@ validation.range=Value out of range
 ui.label.add=Add
 ui.label.addcomment=Add comment
 ui.label.administration=Administration
+ui.label.browse=Browse
 ui.label.cancel=Cancel
 ui.label.captcha=Enter the code you see here
 ui.label.collectionSelect=Select a collection
@@ -456,6 +457,9 @@ org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
 org.admin.index.editOwners=You can edit the owners of the organization at the
 org.admin.index.editOwnersLink=owners group page
+org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
+org.admin.index.members=Members
+org.admin.index.owners=Owners
 
 organization.dataset.title.create=Create new dataset for user %s
 organization.dataset.title.update=Update dataset for user %s

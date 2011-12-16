@@ -41,7 +41,9 @@
                         #{else}
                         #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
                         #{/else}
+                        <p>&{'org.admin.index.addMembers'}</p>
                     </div>
+
                 </div>
 
                 <div class="field" data-bind="visible: canChangeGrantType">
