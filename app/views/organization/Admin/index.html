@@ -12,7 +12,7 @@
 <h1 class="sep">${orgId}</h1>
 
 <div class="row">
-  <div class="g-6of12 grid_6">
+  <div class="g-1of3 grid_4">
     <h3>Owners</h3>
 
     <div>
@@ -24,18 +24,20 @@
         #{/}
       </ul>
     </div>
-    <div><p>
+    <p>
       &{'org.admin.index.editOwners'} <a href="/organizations/${orgId}/groups/update/${ownerGroupId}">&{'org.admin.index.editOwnersLink'}</a>
-    </p></div>
+    </p>
 
   </div>
-  <div class="g-6of12 grid_6">
+  <div class="g-1of3 grid_4">
     <h3>Members</h3>
 
     <div>
       #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('org.admin.index.removeMemberConfirmation') /}
     </div>
-    <div><p></p></div>
+    <div>
+        <p>&{'org.admin.index.addMembers'}</p>
+    </div>
 
   </div>
 </div>
