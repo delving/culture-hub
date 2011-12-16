@@ -561,7 +561,7 @@ $(document).ready(function() {
             $('span.toggle').removeClass('active');
         }
 
-// open selected dropown
+    // open selected dropown
         $(this).parent().find('.dropdown-slider').slideToggle('fast');
         $(this).find('span.toggle').toggleClass('active');
 
@@ -582,8 +582,151 @@ $(document).bind('click', function (e) {
 });
 
 
+/**
+ * jQuery plugin for the dropbox
+ */
+(function($) {
+    var DEFAULT_SETTINGS = {
+        dropboxActionsSelector: "#dropbox-actions",
+        dropboxInfoSelector: "#dropbox-info",
+        dropboxCollectionSelector: "#dropbox-collection",
+        dropboxCookieName: 'dropbox-data'
+    };
 
+    var bookmarkItem = function(title, thumb, uri) {
+         this.title = title;
+         this.thumb = thumb;
+         this.uri = uri;
+     }.bind(this);
 
+    var methods = {
+        init : function(options) {
+            return this.each(function() {
 
+                var $this = $(this);
+                var data = $this.data('dropbox');
 
+                var settings = DEFAULT_SETTINGS;
+                $.extend(settings, options);
 
+                if (!data) {
+                    var cookieData = $.cookie(settings.dropboxCookieName);
+                    if(cookieData) {
+                        var elements = JSON.parse(cookieData);
+                        data = { dropboxElements: [] };
+                        $.each(elements.dropboxElements, function(idx, it) {
+                            if(it != null && typeof it !== 'undefined') {
+                                var el = new bookmarkItem(it.title, it.thumb, it.uri);
+                                data.dropboxElements.push(el);
+                            }
+                        });
+                    } else {
+                        data = { dropboxElements: [] }
+                    }
+                    $this.data('dropbox', data);
+                }
+
+                // re-load items
+                $.each(data.dropboxElements, function(idx, it) {
+                    if(it != null && typeof it !== 'undefined') {
+                      addToDropbox(it, true);
+                    }
+                });
+
+                $('.draggable').draggable({
+                    opacity: .5,
+                    revert: true,
+                    revertDuration: 500,
+                    helpers: 'clone',
+                    containment: 'body',
+                    cursor: 'move'
+                });
+
+                $this.droppable({
+                    accept: '.object, .mdr',
+                    drop: addDraggedToDropBox,
+                    hoverClass: 'hover'
+                });
+
+                $this.bind('removeItem', function(event) {
+                    $this.find('input[value="' + event.itemId + '"]').closest('li').remove();
+                    if ($this.find('ul').find('li').size() == 0) {
+                        $(settings.dropboxInfoSelector).show();
+                        $(settings.dropboxActionsSelector).delay(500).fadeOut(500);
+                    }
+                    data.dropboxElements = $.grep(data.dropboxElements, function(value) {
+                      return value.uri != event.itemId;
+                    });
+                    $.cookie(settings.dropboxCookieName, JSON.stringify(data));
+                });
+
+                function addDraggedToDropBox(e, ui) {
+                    var item = ui.draggable;
+                    var title = $(item).find('input[name="title"]').val();
+                    var thumb = $(item).find('input[name="thumb"]').val();
+                    var itemId = $(item).find('input[name="idUri"]').val();
+
+                    var element = new bookmarkItem(title, thumb, itemId);
+                    addToDropbox(element, false)
+
+                }
+
+                function addToDropbox(item, reload) {
+                    var list = $this.find("ul");
+                    if ($(list).find('li').size() == 0) {
+                        $(settings.dropboxInfoSelector).hide();
+                        if(reload) {
+                            $(settings.dropboxActionsSelector).show();
+                        } else {
+                            $(settings.dropboxActionsSelector).delay(500).fadeIn(500);
+                        }
+                    }
+
+                    var exists = false;
+                    $this.find('input[name="itemId"]').each(function() {
+                        if ($(this).val() == item.uri) {
+                            exists = true;
+                            $(this).closest('.media').effect("bounce", { times:3 }, 300);
+                        }
+                    });
+
+                    if (!exists) {
+                        if(!reload) {
+                          data.dropboxElements.push(item);
+                          $.cookie(settings.dropboxCookieName, JSON.stringify(data));
+                        }
+                        var html = '<li><div class="media"><img class="img" src="' + item.thumb + '" width="50" /><a id="' + item.uri + '" class="remove imgExt" href="#">X</a>';
+                        html += item.title + '<input type="hidden" name="itemId" value="' + item.uri + '"/></div></li>';
+                        if(!reload) {
+                            $(html).appendTo(list).hide().delay("250").fadeIn("500");
+                        } else {
+                            $(html).appendTo(list);
+                        }
+                        $('a[id="' + item.uri + '"]').click(function() {
+                            $this.trigger({
+                                type: 'removeItem',
+                                itemId: item.uri
+                            });
+                        });
+                    }
+                }
+
+                return $this;
+            });
+        }
+    };
+
+    $.fn.dropbox = function(method) {
+
+        // Method calling logic
+        if (methods[method]) {
+            return methods[ method ].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || ! method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.dropbox');
+        }
+
+    };
+
+})(jQuery);

@@ -36,88 +36,11 @@ $(document).ready(function() {
         }
     });
 
-    // Drag and Drop stuff
-
-    var actionArea = $("#dropbox-actions");
-
-    $('.draggable').draggable({
-        opacity: .5,
-        revert: true,
-        revertDuration: 500,
-        helpers: 'clone',
-        containment: 'body',
-        cursor: 'move'
-    });
-
-    $("#dropbox ").droppable({
-        accept: '.object, .mdr',
-        drop: addToDropbox,
-        hoverClass: 'hover'
-    });
-
-    $('#dropbox').bind('removeItem', function(event) {
-        $('#dropbox input[value="' + event.itemId + '"]').closest('li').remove();
-        if ($('#dropbox ul').find('li').size() == 0) {
-            $("#dropbox-info").show();
-            actionArea.delay(500).fadeOut(500);
-        }
-    });
-
-    function addToDropbox(e, ui) {
-        var item = ui.draggable;
-        var title = $(item).find('input[name="title"]').val();
-        var thumb = $(item).find('input[name="thumb"]').val();
-        var itemId = $(item).find('input[name="idUri"]').val();
-
-        var list = $(this).find("ul");
-        if ($(list).find('li').size() == 0) {
-            $("#dropbox-info").hide();
-            actionArea.delay(500).fadeIn(500);
-        }
-
-        var exists = false;
-        $('#dropbox input[name="itemId"]').each(function() {
-            if ($(this).val() == itemId) {
-                exists = true;
-                $(this).closest('.media').effect("bounce", { times:3 }, 300);
-            }
-        });
-
-        if (!exists) {
-            var html = '<li><div class="media"><img class="img" src="' + thumb + '" width="50" /><a class="remove imgExt" href="#">X</a>';
-            html += title + '<input type="hidden" name="itemId" value="' + itemId + '"/></div></li>';
-            $(html).appendTo(list).hide().delay("250").fadeIn("500");
-        }
-        $("a.remove").click(function() {
-            $('#dropbox').trigger({
-                type: 'removeItem',
-                itemId: itemId
-            });
-        });
-    }
-
-    $('#addToCollectionButton').click(function(event) {
-      event.preventDefault();
-      $('#dropbox input[name="itemId"]').each(function() {
-        var uri = $(this).val();
-        $.ajax({
-          type: 'POST',
-          url: uri + '/link/partOf/collection/' + $('#collection').val(),
-          success: function() {
-            $('#dropbox').trigger({
-              type: 'removeItem',
-              itemId: uri
-            });
-          },
-          error: function() { $("select#collection").css("background", "#cc3300")}
-        });
-      });
-    });
     $(".ic_container").capslide({
         caption_color    : 'white',
-        caption_bgcolor    : 'black',
-        overlay_bgcolor : 'black',
-        border            : '',
-        showcaption        : true
+        caption_bgcolor  : 'black',
+        overlay_bgcolor  : 'black',
+        border           : '',
+        showcaption      : true
     });
 });
