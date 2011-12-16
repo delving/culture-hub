@@ -50,14 +50,19 @@ object Admin extends DelvingController with UserSecured {
       case None => // happy
     }
 
+    def StrictOption(s: String) = s match {
+      case s if s != null && s.trim.length() > 0 => Some(s)
+      case _ => None
+    }
+
     val updated = User.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email,
       UserProfile(
         isPublic = profileModel.isPublic,
-        description = Option(profileModel.description),
-        funFact = Option(profileModel.funFact),
+        description = StrictOption(profileModel.description),
+        funFact = StrictOption(profileModel.funFact),
         websites = profileModel.websites,
-        twitter = Option(profileModel.twitter),
-        linkedIn = Option(profileModel.linkedIn)))
+        twitter = StrictOption(profileModel.twitter),
+        linkedIn = StrictOption(profileModel.linkedIn)))
     if(updated) {
       Json(data)
     } else {
