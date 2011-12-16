@@ -4,6 +4,10 @@ hr {
     margin: 10px 0;
 }
 
+.smaller {
+    font-size: smaller;
+}
+
 .user-name {
     display: block;
     float: left;
@@ -131,7 +135,50 @@ button[disabled],
     float: left;
 }
 
-/* media */
+/* CLIP SIZES */
+.clip {
+    display: block;
+    overflow: hidden;
+}
+
+.clip-40 {
+    display: block;
+    height: 40px;
+}
+
+.clip-80 {
+    display: block;
+    height: 80px;
+}
+
+.clip-100 {
+    display: block;
+    height: 80px;
+}
+
+.clip-180 {
+    display: block;
+    height: 120px;
+}
+
+.clip-220 {
+    display: block;
+    height: 220px;
+}
+
+.clip-300 {
+    display: block;
+    height: 260px;
+}
+
+.clip-350 {
+    display: block;
+    height: 100%;
+}
+
+.clip-500 {
+    display: block;
+}
 
 /* media overrides */
 
@@ -155,58 +202,7 @@ button[disabled],
 }
 
 .media .clip {
-    display: block;
-    width: 220px;
-    height: 220px;
-    overflow: hidden;
-}
-
-/* CLIP SIZES */
-
-.clip-80 {
-    display: block;
-    width: 100%;
-    height: 80px;
-    overflow: hidden;
-}
-
-.clip-100 {
-    display: block;
-    width: 100%;
-    height: 80px;
-    overflow: hidden;
-}
-
-.clip-180 {
-    display: block;
-    width: 100%;
-    height: 120px;
-    overflow: hidden;
-}
-
-.clip-220 {
-    display: block;
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-}
-
-.clip-300 {
-    display: block;
-    width: 100%;
-    height: 260px;
-    overflow: hidden;
-}
-
-.clip-350 {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.clip-500 {
-    display: block;
+    float: left;
 }
 
 
@@ -545,7 +541,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .metadata {
-    padding: 4px;
+    padding: 0 4px;
 }
 
 .metadata p {

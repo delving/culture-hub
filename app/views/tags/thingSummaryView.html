@@ -17,29 +17,41 @@ switch (recordType) {
     recordType = doc.getRecordType()
 }
 }%
+#{ifnot _viewType == 'media'}
 <div class="thing-container">
-<div class="ic_container">
-
-    <a href="${_data.getUri()}" class="clip clip-${_iSize}">
-        <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
-        <div class="overlay" style="display:none"></div>
-    </a>
-        #{if _isPrivate}
-        <p class="is_private">
-            <span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>
-        </p>
-        #{/if}
-    <div class="ic_caption">
-        <p class="ic_category">${recordType}</p>
-        <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
-        <p class="ic_text info-box small">
-            <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-            #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
-        </p>
-
+    <div class="ic_container">
+        <a href="${_data.getUri()}" class="clip clip-${_iSize}">
+            <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
+            <div class="overlay" style="display:none"></div>
+        </a>
+            #{if _isPrivate}
+            <p class="is_private">
+                <span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>
+            </p>
+            #{/if}
+        <div class="ic_caption">
+            <p class="ic_category">${recordType}</p>
+            <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
+            <p class="ic_text info-box small">
+                <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
+                #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
+            </p>
+        </div>
     </div>
-
 </div>
-</div>
+#{/ifnot}
+#{if _viewType == 'media'}
+    <div class="media">
+        <a href="${_data.getUri()}" class="clip clip-${_iSize}"><img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/></a>
+        <div class="bd">
+            <div class="metadata">
+                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
 
+                <div class="info-box smaller">
+                    ${_data.getDescription().shorten(70)}
+                </div>
+            </div>
+        </div>
+    </div>
+#{/if}
 
