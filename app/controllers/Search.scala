@@ -37,8 +37,10 @@ object Search extends DelvingController {
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
 
-  def index(query: String = "*:*", page: Int = 1) = {
-    val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser))
+  def index(query: String = "*:*", page: Int = 1) = search(theme, query, page)
+
+  @Util def search(theme: PortalTheme, query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = {
+    val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser), additionalSystemHQFs)
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     session.put(RETURN_TO_RESULTS, request.querystring)
@@ -46,7 +48,7 @@ object Search extends DelvingController {
 
     val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
-    Template('briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
+    Template("/Search/index.html", 'briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
   }
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
