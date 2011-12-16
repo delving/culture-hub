@@ -17,7 +17,9 @@ switch (recordType) {
     recordType = doc.getRecordType()
 }
 }%
+
 #{ifnot _viewType == 'media'}
+    *{*** summary view for things that have a digital object ***}*
     #{if _data.hasDigitalObject()}
     <div class="thing-container">
         <div class="ic_container">
@@ -41,14 +43,19 @@ switch (recordType) {
         </div>
     </div>
     #{/if}
+    *{*** summary view for things that have a no digital object ***}*
     #{else}
     <div class="thing-container no-image">
-        <div class="media">
+        <div class="media" style="margin:0; height:inherit">
             <div class="bd">
+                <a href="${_data.getUri()}">
+                    <img src='/public/images/dummy-object.png' width="" class="img" alt="${_data.getTitle()}"/>
+                </a>
                 <div class="metadata">
+                    <p class="ic_category">${recordType}</p>
                     <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
                     <div class="info-box small smaller">
-                        <span class="label">${messages.get('thing.owner')}</span><span class="text">${_data.getOwner()}</span>
+                        <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
                         #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
                     </div>
                 </div>
@@ -57,6 +64,7 @@ switch (recordType) {
     </div>
     #{/else}
 #{/ifnot}
+
 #{if _viewType == 'media'}
 <div class="thing-container">
     <div class="media">
@@ -65,7 +73,7 @@ switch (recordType) {
             <div class="metadata">
                 <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
                 <div class="info-box small smaller">
-                    <span class="label">${messages.get('thing.owner')}</span><span class="text">${_data.getOwner()}</span>
+                    <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
                     #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
                 </div>
             </div>
