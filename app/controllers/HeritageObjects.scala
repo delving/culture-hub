@@ -17,6 +17,7 @@ package controllers
  */
 
 import util.Constants._
+import play.mvc.results.Result
 
 
 /**
@@ -26,6 +27,9 @@ import util.Constants._
 
 object HeritageObjects extends DelvingController {
 
-  def list(page: Int = 1): AnyRef = Search.search(theme, additionalSystemHQFs = List("%s:%s".format(RECORD_TYPE, MDR)))
+  def list(user: Option[String], page: Int = 1): Result = {
+    val browser: (List[ListItem], Int) = Search.browse(MDR, user, request, theme)
+    Template("/list.html", 'title -> listPageTitle("mdr"), 'itemName -> MDR, 'items -> browser._1, 'page -> page, 'count -> browser._2)
+  }
 
 }
