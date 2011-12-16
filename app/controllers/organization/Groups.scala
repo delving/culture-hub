@@ -102,14 +102,22 @@ object Groups extends DelvingController with OrganizationSecured {
     val groupModel = JJson.parse[GroupViewModel](data)
     validate(groupModel).foreach { errors => return JsonBadRequest(groupModel.copy(errors = errors)) }
 
-    if(groupModel.grantType == GrantType.OWN.value && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
+    val grantType = try {
+      GrantType.get(groupModel.grantType)
+    } catch {
+      case t =>
+        reportSecurity("Attempting to save Group with grantType " + groupModel.grantType)
+        return BadRequest("Invalid GrantType " + groupModel.grantType)
+    }
+
+    if(grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
       reportSecurity("User %s tried to create an owners team!".format(connectedUser))
       return Forbidden("Your IP has been logged and reported to the police.")
     }
 
     val persisted = groupModel.id match {
       case None =>
-        Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = GrantType.get(groupModel.grantType))) match {
+        Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType)) match {
           case None => None
           case Some(id) =>
             groupModel.users.foreach(u => Group.addUser(u.id, id))
@@ -120,7 +128,10 @@ object Groups extends DelvingController with OrganizationSecured {
         Group.findOneByID(groupModel.id.get) match {
           case None => return NotFound("Group with ID %s was not found".format(id))
           case Some(g) =>
-            Group.updateGroupInfo(id, groupModel.name, if(g.grantType == GrantType.OWN) GrantType.OWN.value else groupModel.grantType)
+            g.grantType match {
+              case GrantType.OWN => // do nothing
+              case _ => Group.updateGroupInfo(id, groupModel.name, grantType)
+            }
             Some(groupModel)
         }
     }
