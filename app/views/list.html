@@ -18,12 +18,12 @@
 #{breadcrumbs /}
 
 #{if browsedUserName}
-    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
-    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
+    #{set title: viewUtils.getKey('ui.label.browse') + ' ' + viewUtils.getKey("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
+    <h1 class="sep">&{'ui.label.browse'} ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
-    #{set title: 'Browse  '+ viewUtils.getKey("thing.${itemName.pluralize()}") + ' (' + count +')' /}
-    <h1 class="sep">Browse ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
+    #{set title: viewUtils.getKey('ui.label.browse') + ' ' + viewUtils.getKey("thing.${itemName.pluralize()}") + ' (' + count +')' /}
+    <h1 class="sep">&{'ui.label.browse'} ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
         <div class="g-12of12 grid_12 mbm">

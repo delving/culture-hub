@@ -31,6 +31,8 @@ import models.salatContext._
 import com.novus.salat.grater
 import models._
 import views.context.thumbnailUrl
+import components.Indexing
+
 /**
  * Manipulation of user collections
  *
@@ -142,12 +144,31 @@ object Collections extends DelvingController with UserSecured {
             user.DObjects.createCollectionLink(id, o)
           }
 
+          // synchronize SOLR index
+
+          // removed user objects
           val affectedObjectIds = removedObjectLinks.map(_._2) ++ added
           affectedObjectIds foreach { affected =>
             val obj = DObject.findOneByID(affected).get
             SolrServer.indexSolrDocument(obj.toSolrDocument)
           }
 
+          // removed MDRs
+          for((embeddedLink, hubId: String) <- removedMdrs) {
+            val hubCollection = embeddedLink.value(MDR_HUBCOLLECTION)
+            connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
+              case Some(dbo) =>
+                val mdr = grater[MetadataRecord].asObject(dbo)
+                val Array(orgId, spec, localRecordKey) = hubId.split("_")
+                Indexing.indexOneInSolr(orgId, spec, theme.metadataPrefix.get, mdr)
+              case None =>
+                // meh?
+                warning("While updating UserCollection %s: could not find MDR with hubId %s, removed the document from SOLR", existingCollection.get._id, hubId)
+                SolrServer.deleteFromSolrByQuery("%s:%s".format(HUB_ID, hubId))
+            }
+          }
+
+          // user collection
           SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
           SolrServer.commit()
           Some(collectionModel)
@@ -178,7 +199,6 @@ object Collections extends DelvingController with UserSecured {
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
       SolrServer.deleteFromSolrById(id)
-      SolrServer.commit()
       Ok
     } else {
       Forbidden("Big brother is watching you")

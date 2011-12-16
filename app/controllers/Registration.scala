@@ -110,8 +110,7 @@ object Registration extends Controller with ThemeAware with Internationalization
             flash += ("registrationSuccess" -> newUser.email)
             
             try {
-              SolrServer.indexSolrDocument(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
-              SolrServer.commit()
+              SolrServer.pushToSolr(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
             } catch {
               case t => logError(t, "Could not index Bookmarks collection %s for newly created user %s", userCollectionId.get.toString, r.userName)
             }

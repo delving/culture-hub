@@ -24,19 +24,27 @@
                 #{if isVisible}
                 <span class="label">&{'ui.label.fullname'}:</span><span class="text">${user.fullname()}</span>
                 <span class="label">&{'profile.activesince'}:</span><span class="text">${views.context.package.niceTime(user._id.getTime())}</span>
-                <span class="label">&{'user.profile.aboutYou'}:</span><span class="text">${user.userProfile.description().isEmpty() ? " - " : user.userProfile.description().get()}</span>
+                #{ifnot user.userProfile.description().isEmpty()}
+                <span class="label">&{'user.profile.aboutYou'}:</span><span class="text">${user.userProfile.description().get()}</span>
+                #{/ifnot}
                 #{/if}
             </div>
         </div>
         #{if isVisible}
         <div class="g-1of4 grid_4">
             <div class="info-box long">
-                <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objects.length()}</a></span>
-                <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collections.length()}</a></span>
-                <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${stories.length()}</a></span>
-                <span class="label">&{'user.profile.funFact'}:</span><span class="text">${user.userProfile.funFact().isEmpty() ? " - " : user.userProfile.funFact().get()}</span>
-                <span class="label">Twitter:</span><span class="text">${user.userProfile.twitter().isEmpty() ? " - " : user.userProfile.twitter().get()}</span>
-                <span class="label">LinkedIn:</span><span class="text">${user.userProfile.linkedIn().isEmpty() ? " - " : user.userProfile.linkedIn().get()}</span>
+                <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objectsCount}</a></span>
+                <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collectionsCount}</a></span>
+                <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${storiesCount}</a></span>
+                #{ifnot user.userProfile.funFact().isEmpty()}
+                <span class="label">&{'user.profile.funFact'}:</span><span class="text">${user.userProfile.funFact().get()}</span>
+                #{/ifnot}
+                #{ifnot user.userProfile.twitter().isEmpty()}
+                <span class="label">Twitter:</span><span class="text"><a href="http://twitter.com/${user.userProfile.twitter().get()}">${user.userProfile.twitter().get()}</a></span>
+                #{/ifnot}
+                #{ifnot user.userProfile.linkedIn().isEmpty()}
+                <span class="label">LinkedIn:</span><span class="text"><a href="http://at.linkedin.com/in/${user.userProfile.linkedIn().get()}"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></span>
+                #{/ifnot}
             </div>
         </div>
         #{/if}
@@ -48,21 +56,17 @@
             <div class="widget">
                 <div class="hd"><h3>&{'thing.objects'} (${objectsCount ? objectsCount : 0})</h3></div>
                 <div class="bd">
-                    #{list objects, as: 'o'}
-                    <div class="media">
-                        <a href="/${o.userName}/object/${o.id}" class="clip"><img src='${o.thumbnail(80)}' width="40" class="img" alt="${o.title}"/></a>
 
-                        <div class="bd">
-                            <div class="metadata">
-                                <span class="title"><a href="/${o.userName}/object/${o.id}" title="${o.title}">${o.title.shorten(50)}</a></span>
-                            </div>
-                        </div>
-                    </div>
+                    #{list objects, as: 'o'}
+                    #{thingSummaryView data: o, iSize: 40, viewType: 'media'  /}
+                    <hr/>
                     #{/list}
                     #{if objectsCount > objects.size()}
                     #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
                     #{/if}
+
                 </div>
+
             </div>
         </div>
 
@@ -71,15 +75,8 @@
                 <div class="hd"><h3>&{'thing.collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
-                    <div class="media">
-                        <a href="/${c.userName}/collections/${c.id}" class="clip"><img src='${c.thumbnail(80)}' width="40" class="img" alt="${c.title}"/></a>
-
-                        <div class="bd">
-                            <div class="metadata">
-                                <span class="title"><a href="/${c.userName}/collection/${c.id}" title="${c.title}">${c.title.shorten(50)}</a></span>
-                            </div>
-                        </div>
-                    </div>
+                    #{thingSummaryView data: c, iSize: 40, viewType: 'media'  /}
+                    <hr/>
                     #{/list}
                     #{if collectionsCount > collections.size()}
                     #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/collection" /}
@@ -93,15 +90,8 @@
                 <div class="hd"><h3>&{'thing.stories'} (${storiesCount? storiesCount : 0})</h3></div>
                 <div class="bd">
                     #{list stories, as: 's'}
-                    <div class="media">
-                        <a href="/${s.userName}/story/${s.id}" class="clip"><img src='${s.thumbnail(80)}' width="40" class="img" alt="${s.title}"/></a>
-
-                        <div class="bd">
-                            <div class="metadata">
-                                <span class="title"><a href="/${s.userName}/story/${s.id}" title="${s.title}">${s.title.shorten(50)}</a></span>
-                            </div>
-                        </div>
-                    </div>
+                    #{thingSummaryView data: s, iSize: 40, viewType: 'media'  /}
+                    <hr/>
                     #{/list}
                     #{if storiesCount > stories.size()}
                     #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/story" /}

@@ -100,7 +100,8 @@ package object context extends Internationalization {
     val crumbs = crumbList match {
 
       case "users" :: Nil => List(("/users", &("thing.users")))
-      case "objects" :: Nil => List(("/objects", &("thing.objects")))
+      case "objects" :: Nil => List(("/objects", &("thing.objects.user")))
+      case "heritageObjects" :: Nil => List(("/objects", &("thing.objects.heritage")))
       case "collections" :: Nil => List(("/collections", &("thing.collection")))
       case "stories" :: Nil => List(("/stories", &("thing.stories")))
 

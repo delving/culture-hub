@@ -68,8 +68,23 @@ object SolrServer {
   streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
-  def deleteFromSolrById(id: ObjectId): UpdateResponse = deleteFromSolrById(id.toString)
+  def deleteFromSolrById(id: ObjectId): UpdateResponse = {
+    val response = deleteFromSolrById(id.toString)
+    commit()
+    response
+  }
+  def deleteFromSolrByQuery(query: String) = {
+    val response = streamingUpdateServer.deleteByQuery(query)
+    commit()
+    response
+  }
+
   def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
+
+  def pushToSolr(doc: SolrInputDocument) {
+    indexSolrDocument(doc)
+    commit()
+  }
 
   def commit() {
     streamingUpdateServer.commit()

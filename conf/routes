@@ -83,6 +83,7 @@ GET         /users/?                                                         Use
 GET         /users/search                                                    Users.listAsTokens
 GET         /collections/?                                                   Collections.list
 GET         /objects/?                                                       DObjects.list
+GET         /heritageObjects/?                                               HeritageObjects.list
 GET         /stories/?                                                       Stories.list
 
 GET         /search                                                          Search.index

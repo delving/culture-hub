@@ -18,7 +18,7 @@
           #{textField name:"email", label:viewUtils.getKey('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true /}
           #{textArea name:"description", label:viewUtils.getKey('user.profile.aboutYou'), dataBind:"value: description", help:viewUtils.getKey('user.admin.profile.help.aboutYou'), dataMaxChars:"400" /}
           #{textField name:"funFact", label:viewUtils.getKey('user.profile.funFact'), dataBind:"value: funFact" /}
-          #{textField name:"twitter", label:"Twitter", dataBind:"value: twitter" /}
+          #{textField name:"twitter", label:"Twitter", dataBind:"value: twitter", help: viewUtils.getKey('user.admin.profile.help.twitter') /}
           #{textField name:"linkedIn", label:"LinkedIn", dataBind:"value: linkedIn", help: viewUtils.getKey('user.admin.profile.help.linkedIn') /}
           #{checkboxField name:"isPublic", label:viewUtils.getKey('ui.label.visibility.public'), dataBind:"checked: isPublic", help:viewUtils.getKey('user.admin.profile.help.public') /}
 

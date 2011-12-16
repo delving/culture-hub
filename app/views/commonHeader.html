@@ -1,4 +1,3 @@
-#{get 'useGrid' /}
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,7 +16,6 @@
     #{press.stylesheet '/public/common/stylesheets/breadcrumb/breadcrumb.css', pos:8 /}
     #{press.stylesheet '/public/common/stylesheets/tiptip.css', pos:9 /}
     #{press.stylesheet '/public/common/stylesheets/tables.css', pos:10 /}
-    *{#{press.stylesheet '/public/common/stylesheets/links.css', pos:11 /}}*
     #{press.stylesheet '/public/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:12 /}
     #{press.stylesheet '/public/common/stylesheets/pagination/pagination.css', pos:13 /}
     #{press.stylesheet '/public/common/stylesheets/plugins/token-input.css', pos:14 /}
@@ -25,7 +23,6 @@
     #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
     #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:17 /}
     #{press.compressed-stylesheet /}
-    *{#{press.stylesheet views.context.package.themePath("stylesheets/style.scss") /}}*
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
     <script>
