@@ -14,10 +14,18 @@
 # limitations under the License.
 #
 
+
+# Validation rules
+validation.url=Niet een valide URL
+validation.required=Verplicht
+validation.range=Onjuiste waarde
+
+
 # Global  ##########################################
 ui.label.add=Toevoegen
 ui.label.addcomment=Commentaar toevoegen
 ui.label.administration=Administratie
+ui.label.browse=Ontdek
 ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
 ui.label.collectionSelect=Selecteer een collectie
@@ -75,9 +83,6 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
-ui.label.searchLabelHint=Type een label naam
-ui.label.tokenSearching=Zoeken...
-ui.label.createLabel=Maak een label
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -130,8 +135,9 @@ thing.comments=Comments
 thing.addcomment=Comment toevoegen
 thing.collaborators=Collaborators
 thing.createnew=Maak een nieuw %s aan
-thing.browse=Browse %s
-thing.browse.ownedby=Browse %s van gebruiker
+thing.browse=Ontdek %s
+thing.browse.of=Ontdek %s van
+thing.browse.ownedby=Ontdek %s van gebruiker
 thing.confirmation:Zeker weten?
 
 # Account registration and activation messages
@@ -275,6 +281,13 @@ story.confirmDeletion=Weet u zeker dat u dit verhaal wilt verwijderen?
 story.titlePage=Titelpagina
 
 #metadata
+metadata.abm.contentProvider=Content Provider
+metadata.abm.county=County
+metadata.abm.data.provider=Data Provider
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.abm.aboutPerson=About Person
+
 metadata.dc.contributor=Met bijdrage(n) van
 metadatadc.coverage=Vervaardiging plaats
 metadata.dc.creator=Vervaardiger
@@ -334,6 +347,14 @@ metadata.type.videos=Videos
 
 #Users
 
+##Index
+user.index.title=Gebruiker %s
+
+##List
+user.list.browse=Ontdek gebruikers
+user.list.noUsers=Er zijn momenteel geen geregistreerde gebruikers (hoe ben je eigenlijk op deze pagina terecht gekomen?)
+user.list.editProfile=Profiel aanpassen
+
 ##Admin
 user.admin.index.title=Account space
 user.admin.profile.title=Jouw profiel
@@ -374,11 +395,6 @@ user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
 user.object.label.file=Bestand
 user.object.save=Bewaar object
-
-##List
-user.list.browse=Browse gebruikers
-user.list.noUsers=Er zijn momenteel geen gebruikers in het systeem (hoe kom jij hier eigenlijk?)
-user.list.editProfile=Profiel aanpassen
 
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
@@ -500,6 +516,7 @@ registration.accountNotActive=This account is not active yet. Please activate yo
 registration.resetTokenNotFound=Reset password token not found
 registration.errorPasswordChange=Error changing your password. Try resetting it again.
 registration.passwordsDiffer=Passwords are not the same
+registration.userNameInvalid=Gebruikersnaam niet juist geformateerd. Een gebruikersnaam mag bestaain uit kleine letter, nummers, en is tussen 3 and 15 characters lang.
 
 authentication.usernameRequired=Gebruikersnaam is verplicht
 authentication.passwordRequired=Wachtwoord is verplicht
@@ -836,7 +853,7 @@ _unused.aggregator.explain=* Een aggregator verzamelt materiaal van een scala va
 _unused.altprint=Print deze pagina
 _unused.aplacetoshareideas=een plaats voor inspiratie en ideeën. Doorzoek de culturele collecties van Europa, volg het pad van andere gebruikers en deel je ontdekkingen.
 _unused.bosnia.and.herzegovina=Bosnië en Herzegovina
-_unused.browse.through.time=Browse door de tijd
+_unused.browse.through.time=Navigeer door de tijd
 _unused.contacts=Contact
 _unused.contributors=Bijdragende organisaties
 _unused.createaccount=Maak een account
