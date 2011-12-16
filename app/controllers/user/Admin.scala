@@ -41,19 +41,12 @@ object Admin extends DelvingController with UserSecured {
   def profileSubmit(data: String): Result = {
     val profileModel = JJson.parse[ProfileViewModel](data)
 
-    if(!Validation.url("linkedIn", profileModel.linkedIn).ok) {
-      Validation.addError("object.linkedIn", "validation.url")
-    }
-
     validate(profileModel) match {
       case Some(errors) => return JsonBadRequest(profileModel.copy(errors = errors))
       case None => // happy
     }
 
-    def StrictOption(s: String) = s match {
-      case s if s != null && s.trim.length() > 0 => Some(s)
-      case _ => None
-    }
+    def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
     val updated = User.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email,
       UserProfile(

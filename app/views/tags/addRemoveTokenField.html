@@ -16,7 +16,7 @@
 
     $(id).tokenInput(searchUrl, {
       prePopulate: typeof prePopulate !== 'undefined' ? prePopulate : [],
-      preventDuplicates: false,
+      preventDuplicates: true,
       onAdd: function(item) {
         $.ajax({
           type: 'POST',
