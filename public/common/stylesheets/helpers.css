@@ -445,6 +445,11 @@ div.dropdown-slider .ddm.heading {
     background: #000;
     margin-bottom: 10px;
 }
+.thing-container.no-image {
+    background: #e1e1e1;
+    margin-bottom: 10px;
+}
+
 .ic_container {
     vertical-align: baseline;
     position: relative;
