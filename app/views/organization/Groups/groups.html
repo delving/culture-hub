@@ -17,7 +17,7 @@
 
         <div class="g-12of12 grid_12">
             <form action="" id="groupForm">
-                #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name", required: true /}
+                #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
                 <div class="field" data-bind="visible: canChangeGrantType">
                     <label class="label" for="grantType">&{'thing.grantType'}</label>
 
@@ -41,7 +41,9 @@
                         #{else}
                         #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
                         #{/else}
+                        <p>&{'org.admin.index.addMembers'}</p>
                     </div>
+
                 </div>
 
                 <div class="field" data-bind="visible: canChangeGrantType">

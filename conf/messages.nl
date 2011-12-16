@@ -14,10 +14,18 @@
 # limitations under the License.
 #
 
+
+# Validation rules
+validation.url=Niet een valide URL
+validation.required=Verplicht
+validation.range=Onjuiste waarde
+
+
 # Global  ##########################################
 ui.label.add=Toevoegen
 ui.label.addcomment=Commentaar toevoegen
 ui.label.administration=Administratie
+ui.label.browse=Ontdek
 ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
 ui.label.collectionSelect=Selecteer een collectie
@@ -75,9 +83,6 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
-ui.label.searchLabelHint=Type een label naam
-ui.label.tokenSearching=Zoeken...
-ui.label.createLabel=Maak een label
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -130,8 +135,9 @@ thing.comments=Comments
 thing.addcomment=Comment toevoegen
 thing.collaborators=Collaborators
 thing.createnew=Maak een nieuw %s aan
-thing.browse=Browse %s
-thing.browse.ownedby=Browse %s van gebruiker
+thing.browse=Ontdek %s
+thing.browse.of=Ontdek %s van
+thing.browse.ownedby=Ontdek %s van gebruiker
 thing.confirmation:Zeker weten?
 
 # Account registration and activation messages
@@ -164,9 +170,13 @@ site.nav.home=Home
 
 # jQuery templates
 tmpl.selectedObjects.useAsDefault=Thumbnail
-tmpl.selectedObjects.defaultImage=This will set the image as the default image to represent your collection or story
 tmpl.selectedObjects.defaultImage=Gebruik deze afbeelding als miniatuur weergave voor uw collectie of verhaal
 
+# labels
+labels.searchLabelHint=Type een label tekst
+labels.searchPlaceHint=Type een plaatsnaam
+labels.tokenSearching=Zoeken...
+labels.createLabel=Nieuwe label
 
 # Views
 
@@ -271,6 +281,13 @@ story.confirmDeletion=Weet u zeker dat u dit verhaal wilt verwijderen?
 story.titlePage=Titelpagina
 
 #metadata
+metadata.abm.contentProvider=Content Provider
+metadata.abm.county=County
+metadata.abm.data.provider=Data Provider
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.abm.aboutPerson=About Person
+
 metadata.dc.contributor=Met bijdrage(n) van
 metadatadc.coverage=Vervaardiging plaats
 metadata.dc.creator=Vervaardiger
@@ -330,6 +347,14 @@ metadata.type.videos=Videos
 
 #Users
 
+##Index
+user.index.title=Gebruiker %s
+
+##List
+user.list.browse=Ontdek gebruikers
+user.list.noUsers=Er zijn momenteel geen geregistreerde gebruikers (hoe ben je eigenlijk op deze pagina terecht gekomen?)
+user.list.editProfile=Profiel aanpassen
+
 ##Admin
 user.admin.index.title=Account space
 user.admin.profile.title=Jouw profiel
@@ -370,11 +395,6 @@ user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
 user.object.label.file=Bestand
 user.object.save=Bewaar object
-
-##List
-user.list.browse=Browse gebruikers
-user.list.noUsers=Er zijn momenteel geen gebruikers in het systeem (hoe kom jij hier eigenlijk?)
-user.list.editProfile=Profiel aanpassen
 
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
@@ -428,8 +448,15 @@ org.list.dataSetCount=%s DataSet(s)
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
 org.group.save=Save group
+org.group.create=Create group
 
-org.admin.index.title=Organization administration
+org.admin.index.title=Organisatie administratie
+org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
+org.admin.index.editOwners=U kunt de eigenaren van de organisatie aanpassen op de groep-pagina voor
+org.admin.index.editOwnersLink=eigenaren
+org.admin.index.addMembers=Voeg een nieuw lid toe door de gebruikersnaam hierboven in te vullen en dan op de ENTER toets indrukken
+org.admin.index.members=Leden
+org.admin.index.owners=Eigenaren
 
 organization.dataset.title.create=Create new dataset for user %s
 organization.dataset.title.update=Update dataset for user %s
@@ -460,15 +487,10 @@ dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
+user.admin.userNotFound=Could not find user %s
+user.admin.profile.saveError=Error saving your profile, please try again
 user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
-user.datasets.dataSetNotFound=DataSet %s was not found
-user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
-user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 user.dobjects.objectNotFound=Object with id %s was not found
 user.dobjects.saveError=Error saving object %s
 user.fileupload.removeError=Error removing file, invalid id %s
@@ -496,6 +518,7 @@ registration.accountNotActive=This account is not active yet. Please activate yo
 registration.resetTokenNotFound=Reset password token not found
 registration.errorPasswordChange=Error changing your password. Try resetting it again.
 registration.passwordsDiffer=Passwords are not the same
+registration.userNameInvalid=Gebruikersnaam niet juist geformateerd. Een gebruikersnaam mag bestaain uit kleine letter, nummers, en is tussen 3 and 15 characters lang.
 
 authentication.usernameRequired=Gebruikersnaam is verplicht
 authentication.passwordRequired=Wachtwoord is verplicht
@@ -505,6 +528,53 @@ authentication.notactive.error=Uw account is nog niet actief. Activeer uw accoun
 servicessecurity.userNotFound=De gebruiker %s was niet gevonden
 
 stories.storyNotFound=Story with id %s was not found
+
+profile.profileNotFound=Geen profiel gevonden voor: %s
+
+organizations.organization.orgNotFound=%s niet gevonden
+
+organizations.admin.userNotFound=Gebruiker met gebruikersnaam %s niet gevonden
+
+organizations.group.cannotAddUser=Gebruiker met gebruikersnaam %s kon niet toegevoegd worden aan %s
+organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam %s kon niet verwijderd worden van %s
+organizations.group.cannotAddDataset=Dataset met ID %s kon niet toegevoegd worden aan %s
+organizations.group.cannotRemoveDataset=Dataset met %s kon niet verwijderd worden van %s
+organizations.group.groupNotFound=Group met ID %s kon niet gevonden worden
+organizations.group.cannotSaveGroup=Groep kon niet bewaard worden, probeer opnnieuw
+
+organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Old stuff
 
 _action.OpenInNewWindow=Opent in een nieuw venster
 _action.add.annotation=null
@@ -832,7 +902,7 @@ _unused.aggregator.explain=* Een aggregator verzamelt materiaal van een scala va
 _unused.altprint=Print deze pagina
 _unused.aplacetoshareideas=een plaats voor inspiratie en ideeën. Doorzoek de culturele collecties van Europa, volg het pad van andere gebruikers en deel je ontdekkingen.
 _unused.bosnia.and.herzegovina=Bosnië en Herzegovina
-_unused.browse.through.time=Browse door de tijd
+_unused.browse.through.time=Navigeer door de tijd
 _unused.contacts=Contact
 _unused.contributors=Bijdragende organisaties
 _unused.createaccount=Maak een account

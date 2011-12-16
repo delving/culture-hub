@@ -4,7 +4,7 @@
 <div class="row">
 #{/if}
     <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
-        <div class="thing-container draggable ${doc.getRecordType()} ">
+        <div class="draggable ${doc.getRecordType()} ">
             #{thingSummaryView data: doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>

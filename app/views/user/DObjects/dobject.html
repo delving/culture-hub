@@ -110,6 +110,10 @@
       $('#fileupload').fileupload({
           url: '@{user.FileUpload.uploadFile(uid)}',
           autoUpload: true
+      }).bind('fileuploadsend', function (e, data) {
+          $('.buttons').find('button').prop('disabled', true);
+      }).bind('fileuploaddone', function (e, data) {
+          $('.buttons').find('button').prop('disabled', false);
       });
 
       $('#saveButton').click(function(event) {

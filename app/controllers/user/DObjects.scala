@@ -123,8 +123,7 @@ object DObjects extends DelvingController with UserSecured {
             }
 
             // index
-            SolrServer.indexSolrDocument(newObject.copy(_id = iid, thumbnail_id = thumbnailId).toSolrDocument)
-            SolrServer.commit()
+            SolrServer.pushToSolr(newObject.copy(_id = iid, thumbnail_id = thumbnailId).toSolrDocument)
             Right(objectModel.copy(id = inserted))
           }
           case None => Left("Not saved", None)
@@ -191,7 +190,6 @@ object DObjects extends DelvingController with UserSecured {
     if(DObject.owns(connectedUserId, id)) {
       DObject.delete(id)
       SolrServer.deleteFromSolrById(id)
-      SolrServer.commit()
     } else {
       Forbidden("Big brother is watching you")
     }

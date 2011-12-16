@@ -18,7 +18,6 @@ package controllers
 
 import play.mvc.results.Result
 import org.bson.types.ObjectId
-import user.ObjectModel
 import models.{Visibility, DObject, UserCollection}
 import extensions.JJson
 import util.Constants._

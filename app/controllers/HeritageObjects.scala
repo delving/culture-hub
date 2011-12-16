@@ -1,3 +1,5 @@
+package controllers
+
 /*
  * Copyright 2011 Delving B.V.
  *
@@ -14,24 +16,20 @@
  * limitations under the License.
  */
 
-package controllers
-
+import util.Constants._
 import play.mvc.results.Result
-import com.mongodb.casbah.commons.MongoDBObject
-import java.util.regex.Pattern
-import models.Link
+
 
 /**
- *
+ * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Links extends DelvingController {
+object HeritageObjects extends DelvingController {
 
-  def listFreeTextAsTokens(q: String): Result = {
-    val query = MongoDBObject("value.label" -> Pattern.compile(Pattern.quote(q), Pattern.CASE_INSENSITIVE), "userName" -> connectedUser, "linkType" -> Link.LinkType.FREETEXT)
-    val tokens = Link.find(query).map(l => Token(l._id, l.value("label"), Some(l.linkType))).toList
-    Json(tokens)
+  def list(user: Option[String], page: Int = 1): Result = {
+    val browser: (List[ListItem], Int) = Search.browse(MDR, user, request, theme)
+    Template("/list.html", 'title -> listPageTitle("mdr"), 'itemName -> MDR, 'items -> browser._1, 'page -> page, 'count -> browser._2)
   }
 
 }

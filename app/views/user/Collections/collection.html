@@ -29,7 +29,7 @@
 
     <div id="objectList" class="data-grid mam" data-bind="template: {name:'objectsList', templateOptions: {title: '&{'user.collection.title.objectsList'}', objects: objects, thumbnail: thumbnail} }"></div>
 
-    <div class="objects-container" id="objects-dialogue" title="&{'user.collection.title.selectObjects'}">
+    <div class="objects-container" id="objects-dialogue" title="&{'user.collection.label.addObjects'}">
         <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
     </div>
     </fieldset>
@@ -86,6 +86,8 @@
 
         $('#objects-dialogue').dialog({
             autoOpen: false,
+            width: 500,
+            maxHeight: 600,
             buttons: {
                 "&{'user.collection.label.addObjects'}": function() {
                     addSelectedObjects(collectionModel.objects, collectionModel.selectedObjects, collectionModel.availableObjects, collectionModel.thumbnail);

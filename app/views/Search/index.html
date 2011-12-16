@@ -60,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            *{<!--TODO: find a way to keep dropped items in here while paging! -->}*
+
             #{if userName}
             <div id="dropbox" class="widget object">
                 <div class="hd"><h3>&{'search.addItemsToCollection'}</h3></div>
@@ -133,7 +133,10 @@
                 itemId: uri
               });
             },
-            error: function() { $("select#dropbox-collection").css("background", "#cc3300")}
+            error: function() {
+                $("select#dropbox-collection").css("background","#cc3300").effect("bounce", { times:4 }, 200);
+                setTimeout('$("select#dropbox-collection").delay(800).css("background","#ffffff")', 1500);
+            }
           });
         });
       });
