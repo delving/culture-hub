@@ -133,7 +133,10 @@
                 itemId: uri
               });
             },
-            error: function() { $("select#dropbox-collection").css("background", "#cc3300")}
+            error: function() {
+                $("select#dropbox-collection").css("background","#cc3300").effect("bounce", { times:4 }, 200);
+                setTimeout('$("select#dropbox-collection").delay(800).css("background","#ffffff")', 1500);
+            }
           });
         });
       });
