@@ -19,8 +19,6 @@ package controllers
 import org.bson.types.ObjectId
 import models._
 import views.context.getThumbnailUrl
-import eu.delving.sip.IndexDocument
-import com.mongodb.casbah.Imports._
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -38,7 +36,7 @@ case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
 
-case class Token(id: String, name: String, tokenType: Option[String] = None)
+case class Token(id: String, name: String, tokenType: Option[String] = None, data: Option[Map[String, String]] = None)
 
 case class ListItem(id: String,
                     recordType: String,
