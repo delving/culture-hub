@@ -274,6 +274,8 @@
         $('#objects-dialogue').dialog({
             autoOpen: false,
             modal: true,
+            width: 500,
+            maxHeight: 600,
             buttons: {
                 "&{'user.collection.label.addObjects'}": function() {
                     addSelectedObjects(storyModel.currentPage.objects, storyModel.currentPage.selectedObjectIds, storyModel.currentPage.availableObjects, storyModel.thumbnail);
