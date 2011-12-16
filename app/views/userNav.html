@@ -12,8 +12,9 @@
 
 <div class="buttons">
     <span class="user-name">
-        <span class="label">Hi ${userName}</span>
         #{gravatar.img email, size:26 /}
+        <span class="label">Hi ${userName}</span>
+
     </span>
     <div class="dropdown">
         #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
