@@ -71,6 +71,11 @@ object SolrServer {
   def deleteFromSolrById(id: ObjectId): UpdateResponse = deleteFromSolrById(id.toString)
   def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
 
+  def pushToSolr(doc: SolrInputDocument) {
+    indexSolrDocument(doc)
+    commit()
+  }
+
   def commit() {
     streamingUpdateServer.commit()
   }

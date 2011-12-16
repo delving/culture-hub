@@ -178,8 +178,8 @@ object Links extends DelvingController {
                 }
                 
                 // re-index the UserCollection
-                SolrServer.indexSolrDocument(UserCollection.findOneByID(collectionId).get.toSolrDocument)
-                
+                SolrServer.pushToSolr(UserCollection.findOneByID(collectionId).get.toSolrDocument)
+
                 res
 
               case OBJECT =>

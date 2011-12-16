@@ -81,8 +81,7 @@ object Stories extends DelvingController with UserSecured {
         inserted match {
           case Some(iid) =>
             if(!story.isDraft) {
-              SolrServer.indexSolrDocument(story.copy(_id = iid).toSolrDocument)
-              SolrServer.commit()
+              SolrServer.pushToSolr(story.copy(_id = iid).toSolrDocument)
             }
             storyVM.copy(id = inserted)
           case None => None
