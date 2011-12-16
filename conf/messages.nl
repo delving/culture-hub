@@ -487,15 +487,10 @@ dataSetState.error=Error occured while indexing
 
 admin.themes.themeNotFound=Theme with id %s was not found
 admin.themes.saveError=Error saving theme %s
+user.admin.userNotFound=Could not find user %s
+user.admin.profile.saveError=Error saving your profile, please try again
 user.collections.objectNotFound=Object with id %s was not found
 user.collections.saveError=Error saving collection %s
-user.datasets.dataSetNotFound=DataSet %s was not found
-user.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-user.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
-user.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-user.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-user.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-user.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 user.dobjects.objectNotFound=Object with id %s was not found
 user.dobjects.saveError=Error saving object %s
 user.fileupload.removeError=Error removing file, invalid id %s
@@ -533,6 +528,53 @@ authentication.notactive.error=Uw account is nog niet actief. Activeer uw accoun
 servicessecurity.userNotFound=De gebruiker %s was niet gevonden
 
 stories.storyNotFound=Story with id %s was not found
+
+profile.profileNotFound=Geen profiel gevonden voor: %s
+
+organizations.organization.orgNotFound=%s niet gevonden
+
+organizations.admin.userNotFound=Gebruiker met gebruikersnaam %s niet gevonden
+
+organizations.group.cannotAddUser=Gebruiker met gebruikersnaam %s kon niet toegevoegd worden aan %s
+organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam %s kon niet verwijderd worden van %s
+organizations.group.cannotAddDataset=Dataset met ID %s kon niet toegevoegd worden aan %s
+organizations.group.cannotRemoveDataset=Dataset met %s kon niet verwijderd worden van %s
+organizations.group.groupNotFound=Group met ID %s kon niet gevonden worden
+organizations.group.cannotSaveGroup=Groep kon niet bewaard worden, probeer opnnieuw
+
+organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Old stuff
 
 _action.OpenInNewWindow=Opent in een nieuw venster
 _action.add.annotation=null
