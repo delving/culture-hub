@@ -33,7 +33,7 @@ trait ModelImplicits extends Internationalization {
 
   // ~~~ View models
 
-  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), Some(embeddedLink.linkType))
+  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), Some(embeddedLink.linkType), Some(embeddedLink.value))
   implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
 
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(Option(ds._id), ds.spec, ds.details.total_records, ds.state, ds.getFacts, ds.mappings.keySet.toList, ds.orgId, ds.getCreator.userName)
