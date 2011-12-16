@@ -24,7 +24,7 @@
         #{if _owner == _authUser}
            #{if _owner && _id}
             #{if !_cannotDelete}
-            #{btnHref label:messages.get('ui.label.delete', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
+            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
             #{/if}
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
@@ -44,7 +44,7 @@
         #{/if}
     </div>
 </div>
-<div id="add-label-dialog">
+<div id="add-label-dialog" title="${messages.get('ui.label.labeladd')}">
     <p>&{'thing.label.explain'}</p>
     <div class="field">
         <label class="label">${messages.get('thing.label.freeText')}</label>
