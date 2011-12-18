@@ -62,18 +62,12 @@ abstract class MetadataAccessors extends Universal {
   }
   def getThumbnailUri: String = getThumbnailUri(180)
   def getThumbnailUri(size: Int): String = {
-    getRecordType match {
-      case OBJECT | USERCOLLECTION | STORY => assign(THUMBNAIL) match {
-          case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
-            val mongoId = Some(new ObjectId(id))
-            thumbnailUrl(mongoId, size)
-          case _ => thumbnailUrl(None, size)
-        }
+    assign(THUMBNAIL) match {
+      case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
+        val mongoId = Some(new ObjectId(id))
+        thumbnailUrl(mongoId, size)
       // TODO plug-in the image cache here for MDRs
-      case MDR => assign(THUMBNAIL) match {
-        case url if url.trim.length() > 0 => url
-        case _ => thumbnailUrl(None, size)
-      }
+      case url if url.startsWith("http") => url
       case _ => thumbnailUrl(None, size)
     }
   }

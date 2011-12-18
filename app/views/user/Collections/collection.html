@@ -15,36 +15,31 @@
     <form method="post" action="" id="collectionForm">
 
     <fieldset>
-    <legend><span>&{'user.collection.info'}</span></legend>
-
-    #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name, disable: isBookmarksCollection", labelClass:"required", required: true /}
-    #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description, disable: isBookmarksCollection", required: true, help:viewUtils.getKey('user.collection.help.description') /}
+        <legend><span>&{'user.collection.info'}</span></legend>
+        #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name, disable: isBookmarksCollection", labelClass:"required", required: true /}
+        #{textArea name:"description", label:viewUtils.getKey('thing.description'), dataBind:"value: description, disable: isBookmarksCollection", required: true, help:viewUtils.getKey('user.collection.help.description') /}
     </fieldset>
 
     <fieldset>
-    <legend><span>&{'user.collection.objects'}</span></legend>
-    <div class="buttons">
-        #{btnHref label:viewUtils.getKey('user.collection.label.addObjects'), iconClass:"icon3", id:"addObject" /}
-    </div>
-
-    <div id="objectList" class="data-grid mam" data-bind="template: {name:'objectsList', templateOptions: {title: '&{'user.collection.title.objectsList'}', objects: objects, thumbnail: thumbnail} }"></div>
-
-    <div class="objects-container" id="objects-dialogue" title="&{'user.collection.label.addObjects'}">
-        <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
-    </div>
+        <legend><span>&{'user.collection.objects'}</span></legend>
+        <div class="buttons">
+            #{btnHref label:viewUtils.getKey('user.collection.label.addObjects'), iconClass:"icon3", id:"addObject" /}
+        </div>
+        <div id="objectList" class="data-grid mam" data-bind="template: {name:'objectsList', templateOptions: {title: '&{'user.collection.title.objectsList'}', objects: objects, thumbnail: thumbnail} }"></div>
+        <div class="objects-container" id="objects-dialogue" title="&{'user.collection.label.addObjects'}">
+            <div id="objects-list" data-bind="template: {name: 'availableObjectsList', templateOptions: {selectedIds: selectedObjects, availableObjects: availableObjects}}"></div>
+        </div>
     </fieldset>
     <fieldset>
         <legend><span>&{'user.collection.status'}</span></legend>
-    <div class="field" for="objectVisibility">
-        <label class="label">&{'ui.label.visibility'}</label>
-
-        <div class="inputs">
-            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.notpublic'} <br/>
-            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.public'}
+        <div class="field" for="objectVisibility">
+            <label class="label">&{'ui.label.visibility'}</label>
+            <div class="inputs">
+                <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.notpublic'} <br/>
+                <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility, disable: isBookmarksCollection"/>&{'ui.label.visibility.public'}
+            </div>
         </div>
-    </div>
     </fieldset>
-
 
     <div class="buttons">
         #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}

@@ -155,7 +155,7 @@ object Links extends DelvingController {
                     refType = Some("institutionalObject"), // TODO need TW blessing
                     hubType = Some(MDR),
                     hubCollection = Some(collection.getName()),
-                    hubAlternativeId = Some(recordId)
+                    hubAlternativeId = Some("%s_%s_%s".format(orgId, spec, recordId))
                   ),
                   to = LinkReference(
                     id = Some(collectionId),

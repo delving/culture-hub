@@ -75,6 +75,7 @@ object Stories extends DelvingController with UserSecured {
           userName = connectedUser,
           visibility = Visibility.get(storyVM.visibility.intValue()),
           thumbnail_id = thumbnail,
+          thumbnail_url = None, // TODO
           pages = pages,
           isDraft = storyVM.isDraft)
         val inserted = Story.insert(story)

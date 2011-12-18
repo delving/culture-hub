@@ -37,6 +37,7 @@ case class Story(_id: ObjectId = new ObjectId,
                  visibility: Visibility,
                  deleted: Boolean = false,
                  thumbnail_id: Option[ObjectId],
+                 thumbnail_url: Option[String],
                  isDraft: Boolean,
                  pages: List[Page],
                  links: List[EmbeddedLink] = List.empty[EmbeddedLink]) extends Thing {

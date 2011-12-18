@@ -38,6 +38,7 @@ case class DObject(_id: ObjectId = new ObjectId,
                    visibility: Visibility,
                    deleted: Boolean = false,
                    thumbnail_id: Option[ObjectId],
+                   thumbnail_url: Option[String] = None,
                    links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                    thumbnail_file_id: Option[ObjectId] = None, // pointer to the file selected as the thumbnail. This is _not_ helping to fetch the thumbnail, which is retrieved using the ID of the object
                    files: Seq[StoredFile] = Seq.empty[StoredFile]) extends Thing {

@@ -21,7 +21,6 @@ import com.novus.salat.dao.SalatDAO
 import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
-import org.apache.solr.common.SolrInputDocument
 import util.Constants._
 
 /**
@@ -38,6 +37,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           visibility: Visibility,
                           deleted: Boolean = false,
                           thumbnail_id: Option[ObjectId],
+                          thumbnail_url: Option[String],
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           isBookmarksCollection: Option[Boolean] = None) extends Thing {
 
@@ -53,6 +53,32 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
 
   def setObjects(id: ObjectId, objectIds: List[ObjectId]) {
     userCollectionsCollection.update(MongoDBObject("_id" -> id), $set("linkedObjects" -> objectIds))
+  }
+
+  def createThumbnailLink(userCollection: ObjectId, hubId: String, userName: String) = {
+    val Array(orgId, spec, recordId) = hubId.split("_")
+    val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
+
+    Link.create(
+      linkType = Link.LinkType.THUMBNAIL,
+      userName = userName,
+      value = Map.empty,
+      from = LinkReference(
+        id = Some(userCollection),
+        hubType = Some(USERCOLLECTION)
+      ),
+      to = LinkReference(
+        hubType = Some(MDR),
+        hubCollection = Some(mdrCollectionName),
+        hubAlternativeId = Some(hubId)
+      ),
+      embedFrom = Some(EmbeddedLinkWriter(
+        value = Some(Map(MDR_HUB_ID -> hubId)),
+        collection = userCollectionsCollection,
+        id = Some(userCollection)
+      ))
+    )
+
   }
 
 }
