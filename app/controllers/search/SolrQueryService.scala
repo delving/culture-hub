@@ -469,7 +469,7 @@ case class DelvingIdType(id: String, idType: String) {
     case "drupal" => "id" // maybe later drup_id
     case "dataSetId" => HUB_ID
     case "hubId" => HUB_ID
-    case "legacy" => "europeana_uri"
+    case "legacy" => EUROPEANA_URI
     case _ => PMH_ID
   }
   lazy val normalisedId = idSearchField match {
