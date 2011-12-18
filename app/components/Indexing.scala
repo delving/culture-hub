@@ -150,21 +150,6 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     inputDoc.addField(HUB_ID, hubId)
     inputDoc.addField(ORG_ID, dataSet.orgId)
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
-    // add facets at indexing time
-    dataSet.idxFacets.foreach {
-      facet =>
-        if (indexedKeys.contains(facet)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
-          inputDoc addField("%s_facet".format(facet), facetContent)
-        }
-    }
-    // adding sort fields at index time
-    dataSet.idxSortFields.foreach {
-      sort =>
-        if (indexedKeys.contains(sort)) {
-          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
-        }
-    }
 
     // user collections
     inputDoc.addField(COLLECTIONS, record.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
@@ -199,13 +184,29 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     
     if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
     inputDoc.addField(ID, hubId)
-    val hasDigialObject: Boolean = inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
-    inputDoc.addField(HAS_DIGITAL_OBJECT, hasDigialObject)
+    val hasDigitalObject: Boolean = inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
+    inputDoc.addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
 
-    if (hasDigialObject) inputDoc.setDocumentBoost(1.4.toFloat)
+    if (hasDigitalObject) inputDoc.setDocumentBoost(1.4.toFloat)
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
+
+    // add facets at indexing time
+    dataSet.idxFacets.foreach {
+      facet =>
+        if (indexedKeys.contains(facet)) {
+          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
+          inputDoc addField("%s_facet".format(facet), facetContent)
+        }
+    }
+    // adding sort fields at index time
+    dataSet.idxSortFields.foreach {
+      sort =>
+        if (indexedKeys.contains(sort)) {
+          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
+        }
+    }
   }
 
 }
