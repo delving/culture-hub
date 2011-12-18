@@ -28,6 +28,7 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         state: DataSetState = DataSetState.INCOMPLETE,
                         facts: Map[String, String] = Map.empty[String, String],
                         recordDefinitions: List[String] = List.empty[String],
+                        indexingMappingPrefix: String,
                         orgId: String,
                         userName: String,
                         errors: Map[String, String] = Map.empty[String, String], visibility: Int = 0)

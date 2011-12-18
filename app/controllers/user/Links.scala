@@ -175,7 +175,7 @@ object Links extends DelvingController {
                 collection.findOne(MongoDBObject("localRecordKey" -> recordId)) match {
                   case Some(one) =>
                     val mdr = grater[MetadataRecord].asObject(one)
-                    Indexing.indexOneInSolr(orgId, spec, theme.metadataPrefix.getOrElse(""), mdr)
+                    Indexing.indexOneInSolr(orgId, spec, mdr)
                   case None => // huh?
                     warning("MDR %s_%s_%s does not exist!", orgId, spec, recordId)
                 }
