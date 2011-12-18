@@ -39,6 +39,7 @@ object Constants {
   val HUB_ID = "delving_hubId"
   val PMH_ID = "delving_pmhId"
   val ORG_ID = "delving_orgId"
+  val EUROPEANA_URI = "europeana_uri"
 
   val SPEC = "delving_spec"
   val FORMAT = "delving_currentFormat"

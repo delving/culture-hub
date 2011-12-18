@@ -61,7 +61,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
     doc addField("drup_id_string", id.id)
     doc addField ("drup_entityType_string", id.nodeType)
     doc addField ("drup_bundle_string", id.bundle)
-    doc addField ("europeana_uri", id.nodeId)
+    doc addField (EUROPEANA_URI, id.nodeId)
     doc addField ("europeana_collectionName_s", id.bundle)
     doc addField ("europeana_provider_s", "ITIN")
     doc addField (ORG_ID, "ifthenisnow")
