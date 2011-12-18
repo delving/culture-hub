@@ -104,6 +104,7 @@
         ? icn
         : *icnMapping
     hints: ""
+    idxMappings: ["icn"]
     invalidRecords: !!map { }
 
 - !!models.DataSet
@@ -155,6 +156,7 @@
     mappings:
         ? icn
         : *icnMapping
+    idxMappings: ["icn"]
     hints: ""
     invalidRecords: !!map { }
 

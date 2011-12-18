@@ -38,11 +38,11 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
 
     val data = if (dataSet == None)
-      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId))
+      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = ""))
     else {
       val dS = dataSet.get
       if(DataSet.canEdit(dS, connectedUser)) {
-        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, visibility = dS.visibility.value))
+        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""), visibility = dS.visibility.value))
       } else {
         return Forbidden("You are not allowed to edit DataSet %s".format(spec))
       }
@@ -54,9 +54,19 @@ object DataSetControl extends DelvingController with OrganizationSecured {
   def dataSetSubmit(orgId: String, data: String): Result = {
     val dataSet = JJson.parse[ShortDataSet](data)
     val spec: String = dataSet.spec
+
+    // TODO validation!
+
     if("^[A-Za-z0-9-]{3,40}$".r.findFirstIn(spec) == None) {
-      return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("spec" -> "Invalid spec format!"))))
+      return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("ds.spec" -> "Invalid spec format!"))))
     }
+
+    if(dataSet.indexingMappingPrefix.trim.isEmpty || !dataSet.recordDefinitions.contains(dataSet.indexingMappingPrefix)) {
+      return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("ds.indexingMappingPrefix" -> "Choose an indexing mapping prefix!"))))
+    }
+
+
+
     val factsObject = new BasicDBObject(dataSet.facts)
 
     def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
@@ -83,7 +93,12 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         if(!DataSet.canEdit(existing, connectedUser)) return Forbidden("You have no rights to edit this DataSet")
 
         val updatedDetails = existing.details.copy(facts = factsObject)
-        val updated = existing.copy(spec = spec, details = updatedDetails, mappings = updateMappings(dataSet.recordDefinitions, existing.mappings), visibility = Visibility.get(dataSet.visibility))
+        val updated = existing.copy(
+          spec = spec,
+          details = updatedDetails,
+          mappings = updateMappings(dataSet.recordDefinitions, existing.mappings),
+          idxMappings = List(dataSet.indexingMappingPrefix),
+          visibility = Visibility.get(dataSet.visibility))
         DataSet.save(updated)
         }
       case None =>
@@ -103,7 +118,8 @@ object DataSetControl extends DelvingController with OrganizationSecured {
             facts = factsObject,
             metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
           ),
-          mappings = buildMappings(dataSet.recordDefinitions)
+          mappings = buildMappings(dataSet.recordDefinitions),
+          idxMappings = List(dataSet.indexingMappingPrefix)
         )
       )
     }
@@ -114,14 +130,14 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
-          if(theme.metadataPrefix != None && dataSet.mappings.containsKey(theme.metadataPrefix.get)) {
-            DataSet.addIndexingState(dataSet, theme.metadataPrefix.get, theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+          try {
+            DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.changeState(dataSet, DataSetState.QUEUED)
-          } else {
-            // TODO give the user some decent feedback in the interface
-           LoggedError(("Unable to index with mapping %s for dataset %s " +
-                   "in theme %s. Problably dataset does not have required mapping").format(theme.metadataPrefix, dataSet.name, theme.name))
-           DataSet.changeState(dataSet, DataSetState.ERROR)
+          } catch {
+            case rt if rt.getMessage.contains() =>
+              // TODO give the user some decent feedback in the interface
+              LoggedError(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
+              DataSet.changeState(dataSet, DataSetState.ERROR)
           }
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeIndexed"))
@@ -133,7 +149,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case ENABLED =>
-          DataSet.addIndexingState(dataSet, theme.metadataPrefix.get, theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+          DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
           DataSet.changeState(dataSet, DataSetState.QUEUED)
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeReIndexed"))

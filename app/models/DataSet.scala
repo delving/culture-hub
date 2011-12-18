@@ -57,7 +57,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String],
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   idxMappings: List[String] = List.empty[String],
+                   idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String],
                    idxSortFields: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
@@ -74,6 +74,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
     val storedFacts = (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
     initialFacts ++ storedFacts
   }
+  
+  def getIndexingMappingPrefix = idxMappings.headOption
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
 
@@ -262,7 +264,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
   def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
-    val dataSetLatest = DataSet.findBySpec(dataSet.spec).get
+    val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
     val mappings = dataSetLatest.mappings.transform((key, map) => map.copy(rec_indexed = 0))
     val updatedDataSet = dataSetLatest.copy(state = state, mappings = mappings)
     DataSet.save(updatedDataSet)

@@ -58,9 +58,17 @@ object Collections extends DelvingController with UserSecured {
 
         val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_LOCAL_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
         val convertedMdrs = mdrs.flatMap(mdr =>
-          if(mdr.mappedMetadata.contains(theme.metadataPrefix.get)) {
-            val record = mdr.getAccessor(theme.metadataPrefix.get)
-            Some(ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(220), title = record.getTitle, hubType = MDR))
+          // we assume that the first mapping we find will do
+          if(!mdr.mappedMetadata.isEmpty) {
+            val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
+            DataSet.findBySpecAndOrgId(spec, orgId) match {
+              case Some(ds) =>
+                val record = mdr.getAccessor(ds.getIndexingMappingPrefix.getOrElse(""))
+                Some(ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(220), title = record.getTitle, hubType = MDR))
+              case None =>
+                warning("Could not find DataSet for " + mdr.hubId)
+                None // huh?!?
+            }
           } else {
             None
           })
@@ -160,7 +168,7 @@ object Collections extends DelvingController with UserSecured {
               case Some(dbo) =>
                 val mdr = grater[MetadataRecord].asObject(dbo)
                 val Array(orgId, spec, localRecordKey) = hubId.split("_")
-                Indexing.indexOneInSolr(orgId, spec, theme.metadataPrefix.get, mdr)
+                Indexing.indexOneInSolr(orgId, spec, mdr)
               case None =>
                 // meh?
                 warning("While updating UserCollection %s: could not find MDR with hubId %s, removed the document from SOLR", existingCollection.get._id, hubId)

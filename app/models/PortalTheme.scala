@@ -43,14 +43,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        homePage:                            Option[String] = None,
                        facets:                              Option[String] = None, // dc_creator:crea:Creator,dc_type
                        sortFields:                          Option[String] = None, // dc_creator,dc_provider:desc
-                       metadataPrefix:                      Option[String] = None,
                        apiWsKey:                            Boolean = false) {
-
-
-
-  def getRecordDefinition: eu.delving.metadata.RecordDefinition = {
-      ComponentRegistry.metadataModel.asInstanceOf[MetadataModelImpl].getRecordDefinition(metadataPrefix.get)
-  }
 
   def getFacets: List[SolrFacetElement] = {
     facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
