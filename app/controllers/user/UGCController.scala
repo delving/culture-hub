@@ -61,7 +61,7 @@ trait UGCController { self: DelvingController =>
     }
   }
 
-  def retrieveMDRs(links: List[Link]) = {
+  def retrieveMDRs(links: List[Link]): List[ShortObjectModel] = {
     val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
     val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_HUB_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
     mdrs.flatMap(mdr =>
