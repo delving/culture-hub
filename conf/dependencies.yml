@@ -18,7 +18,7 @@ require:
     - org.apache.amber -> oauth2-authzserver 0.2-SNAPSHOT
     - org.apache.amber -> oauth2-client 0.2-SNAPSHOT
     # delving dependencies
-    - eu.delving -> sip-core 0.4.4-SNAPSHOT:
+    - eu.delving -> sip-core 0.4.5-SNAPSHOT:
         exclude:
             - cglib -> *
     # remove later
