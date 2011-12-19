@@ -65,6 +65,7 @@ case class ListItem(id: String,
   def getCreator = userName
   def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
   def getUri = url
+  def getLandingPage = url
   def getThumbnailUri = thumbnail(100)
   def getThumbnailUri(size: Int) = thumbnail(size)
   def getMimeType = "unknown/unknown"

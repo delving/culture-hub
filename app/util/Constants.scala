@@ -55,6 +55,8 @@ object Constants {
   val CREATOR = SummaryField.CREATOR.tag
   val VISIBILITY = SummaryField.VISIBILITY.tag
   val THUMBNAIL = SummaryField.THUMBNAIL.tag
+  val LANDING_PAGE = SummaryField.LANDING_PAGE.tag
+  val DEEP_ZOOM_URL = SummaryField.DEEP_ZOOM_URL.tag
 
   // TODO add to SummaryField??
   val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"

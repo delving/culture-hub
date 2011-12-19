@@ -72,6 +72,7 @@ trait Thing extends Base with Universal {
   def getCreator = userName
   def getVisibility = visibility.value.toString
   def getUri = url
+  def getLandingPage = url
   def getThumbnailUri = getThumbnailUri(180)
   def getThumbnailUri(size: Int) = getThumbnailUrl(thumbnail_id, size)
   def getMimeType = "unknown/unknown"
