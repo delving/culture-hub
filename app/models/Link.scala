@@ -135,16 +135,18 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     }
   }
 
+  def hubTypeToCollection(hubType: String) = Option(hubType match {
+    case OBJECT => objectsCollection
+    case USERCOLLECTION => userCollectionsCollection
+    case STORY => userStoriesCollection
+    case USER => userCollection
+    case _ => null
+  })
+
   def removeLink(link: Link) {
     
     def removeEmbedded(link: ObjectId, hubType: String, id: Option[ObjectId], hubCollection: Option[String], hubAlternativeId: Option[String]) {
-      val collection: Option[MongoCollection] = Option(hubType match {
-        case OBJECT => objectsCollection
-        case USERCOLLECTION => userCollectionsCollection
-        case STORY => userStoriesCollection
-        case USER => userCollection
-        case _ => null
-      })
+      val collection: Option[MongoCollection] = hubTypeToCollection(hubType)
       val pull = $pull ("links" -> MongoDBObject("link" -> link))
       collection match {
         case Some(c) =>

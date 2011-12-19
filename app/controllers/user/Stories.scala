@@ -25,6 +25,7 @@ import play.data.validation.Annotations._
 import java.util.Date
 import extensions.JJson
 import util.Constants._
+import views.context.DEFAULT_THUMBNAIL
 
 /**
  *
@@ -65,10 +66,11 @@ object Stories extends DelvingController with UserSecured with UGCController {
     def findThumbnailUrl(thumbnailId: String) = {
       thumbnailId match {
         case oid if ObjectId.isValid(oid) => None // it's an object ID
-        case hubId => MetadataRecord.getMDR(hubId) match {
+        case hubId if hubId.count(_ == '_') == 2 => MetadataRecord.getMDR(hubId) match {
           case Some(m) => Some(m.getDefaultAccessor.getThumbnailUri)
           case None => None
         }
+        case _ => Some(DEFAULT_THUMBNAIL)
       }
     }
     

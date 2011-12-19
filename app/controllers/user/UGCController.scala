@@ -38,13 +38,17 @@ trait UGCController { self: DelvingController =>
 
   def getThumbnailId(collectionId: ObjectId, thumbnailId: String, thumbnailUrl: Option[String]) = thumbnailId match {
     case oid if ObjectId.isValid(oid) => Right(new ObjectId(oid))
-    case hubId if hubId.count(_ == '_') == 3 => Left(thumbnailUrl.getOrElse(DEFAULT_THUMBNAIL))
+    case hubId if hubId.count(_ == '_') == 2 => Left(thumbnailUrl.getOrElse(DEFAULT_THUMBNAIL))
     case _ => Left(DEFAULT_THUMBNAIL)
   }
 
   def setThumbnaiL(fromId: ObjectId, fromType: String, thumbnailId: String, thumbnailUrl: Option[String], thumbnailLink: Option[ObjectId]) {
     // remove existing thumbnail link, if any
     thumbnailLink.foreach(Link.removeById(_))
+
+    if(thumbnailId.length() == 0) {
+      return
+    }
 
     val collection = fromType match {
       case USERCOLLECTION => userCollectionsCollection
