@@ -47,6 +47,8 @@
     -->
     <root localName="record">
         <field prefix="delving" localName="deepZoomUrl" fieldType="string"/>
+        <field prefix="delving" localName="year" fieldType="string"/>
+
         <field prefix="tib" localName="citName" fieldType="string"/>
         <field prefix="tib" localName="citOldId" fieldType="string"/>
         <field prefix="tib" localName="thumbLarge" fieldType="string" summaryField="THUMBNAIL"/>
@@ -90,6 +92,7 @@
         <field prefix="tib" localName="person" fieldType="text"/>
         <field prefix="tib" localName="region" fieldType="text"/>
         <field prefix="tib" localName="event" fieldType="text"/>
+        <field prefix="tib" localName="theme" fieldType="text"/>
         <field prefix="tib" localName="location" fieldType="location"/>
         <field prefix="tib" localName="fullTextObjectUrl" fieldType="string"/>
 
