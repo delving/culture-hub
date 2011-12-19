@@ -22,6 +22,8 @@ import play.mvc.Http.Request
 import play.Logger
 import play.mvc.results.Result
 import util.Constants._
+import controllers.Internationalization
+import play.i18n.Messages
 
 /**
  *
@@ -33,6 +35,11 @@ object SearchService {
   def getApiResult(request: Request, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) : Result =
     new SearchService(request, theme, hiddenQueryFilters).getApiResult
 
+
+  def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
+    val localizedName = Messages.getMessage(language, "metadata." + metadataField.replaceAll("_", "."))
+    if (localizedName != null && !defaultLabel.startsWith("#")) localizedName else defaultLabel
+  }
 }
 
 class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
@@ -46,6 +53,7 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
   val params = request.params
   val paramMap: Map[String, Array[String]] = params.all()
   val format = paramMap.getOrElse("format", Array[String]("default")).head
+  val apiLanguage = paramMap.getOrElse("lang", Array[String]("en")).head
 
   /**
    * This function parses the response for with output format needs to be rendered
@@ -89,10 +97,10 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
       case x : List[String] if x.contains("id") && !paramMap.get("id").head.isEmpty =>
         val fullItemView = getFullResultsFromSolr
         val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "json"), response = fullItemView.response)
-        FullView(fullItemView, response1).renderAsJSON(authorized)
+        FullView(fullItemView, apiLanguage, response1).renderAsJSON(authorized)
       case _ =>
         val briefView = getBriefResultsFromSolr
-        SearchSummary(result = briefView, chResponse = briefView.chResponse).renderAsJSON(authorized)
+        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsJSON(authorized)
     }
     new RenderJson(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response)
 
@@ -109,10 +117,10 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
         import org.apache.solr.client.solrj.SolrQuery
         val fullItemView = getFullResultsFromSolr
         val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "xml"), response = fullItemView.response)
-        FullView(fullItemView, response1).renderAsXML(authorized)
+        FullView(fullItemView, apiLanguage, response1).renderAsXML(authorized)
       case _ =>
         val briefView = getBriefResultsFromSolr
-        SearchSummary(result = briefView, chResponse = briefView.chResponse).renderAsXML(authorized)
+        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsXML(authorized)
     }
 
     new RenderXml("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response))
@@ -182,27 +190,25 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
-  def localiseKey(metadataField: String, defaultLabel: String = "unknown", language: String = "en"): String = {
-    import java.util.Locale
-    val locale = new Locale(language)
-//    val localizedName: String = aro.lookup.toLocalizedName(metadataField.replace(":", "_"), locale)
-    val localizedName: String = metadataField.replace(":", "_")
-    if (localizedName != null && !defaultLabel.startsWith("#")) localizedName else defaultLabel
-  }
+  val briefDocs = result.getBriefDocs
 
-  val layoutMap = LinkedHashMap[String, String]("#thumbnail" -> "europeana:object", "#title" -> "dc:title", "#uri" -> "europeana:uri",
-    "#isShownAt" -> "europeana:isShownAt", "#description" -> "dc:description", "Creator" -> "dc:creator",
-    "Subject(s)" -> "dc:subject", "County" -> "abm:county", "Municipality" -> "abm:municipality", "Place" -> "abm:namedPlace",
-    "Person(s)" -> "abm:aboutPerson")
+  val filterKeys = List("id", "timestamp", "score")
+  val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
+
+  val drupalLayoutMap = LinkedHashMap[String, String]("#thumbnail" -> "europeana_object", "#title" -> "dc_title", "#uri" -> "europeana_uri",
+    "#isShownAt" -> "europeana_isShownAt", "#description" -> "dc_description", "Creator" -> "dc_creator",
+    "Subject(s)" -> "dc_subject", "County" -> "abm_county", "Municipality" -> "abm_municipality", "Place" -> "abm_namedPlace",
+    "Person(s)" -> "abm_aboutPerson")
 
   def renderAsXML(authorized : Boolean) : Elem = {
 
+    // todo add years from query if they exist
     val response : Elem =
       <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
                  xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
-        <query numFound={pagination.getNumFound.toString}>
+        <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
             <terms>{searchTerms}</terms>
             <breadCrumbs>
               {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>{bc.display}</breadcrumb>)}
@@ -221,10 +227,19 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
             </links>
         </pagination>
         <layout>
-          <drupal>
-            {layoutMap.map(item =>
+          <fields>
+            {uniqueKeyNames.map {
+            item =>
               <field>
-                <key>{localiseKey(item._2, item._1, language)}</key>
+                <key> {SearchService.localiseKey(item, language)} </key>
+                <value> {item} </value>
+              </field>
+          }}
+          </fields>
+          <drupal>
+            {drupalLayoutMap.map(item =>
+              <field>
+                <key>{SearchService.localiseKey(item._2, language, item._1)}</key>
                 <value>{item._2}</value>
               </field>
               )
@@ -232,7 +247,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
           </drupal>
         </layout>
         <items>
-          {result.getBriefDocs.map(item =>
+        {briefDocs.map(item =>
           <item>
             <fields>
               {item.getFieldValuesFiltered(false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
@@ -248,7 +263,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
         </items>
         <facets>
           {result.getFacetQueryLinks.map(fql =>
-            <facet name={fql.getType} isSelected={fql.facetSelected.toString}>
+            <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet","").replaceAll("_", "."), language)}>
               {fql.links.map(link =>
                     <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{link.value} ({link.count.toString})</link>
             )}
@@ -273,8 +288,8 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
     def createLayoutItems : ListMap[String, Any] = {
       val recordMap = collection.mutable.ListMap[String, Any]();
-      layoutMap.map(item =>
-              recordMap.put(localiseKey(item._2, item._1, language), item._2))
+      drupalLayoutMap.map(item =>
+              recordMap.put(SearchService.localiseKey(item._2, item._1, language), item._2))
       ListMap(recordMap.toSeq: _*)
     }
 
@@ -309,11 +324,16 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 }
 
 
-case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
+case class FullView(fullResult : FullItemView, language: String = "en", chResponse: CHResponse) { //
 
   import xml.Elem
 
   private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet")
+
+  val filterKeys = List("id", "timestamp", "score")
+  val uniqueKeyNames = fullResult.getFullDoc.solrDocument.getFieldNames.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).toList.sortWith(_ > _)
+
+
 
   def renderAsXML(authorized : Boolean) : Elem = {
       val response: Elem =
@@ -321,6 +341,17 @@ case class FullView(fullResult : FullItemView, chResponse: CHResponse) { //
               xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
                  xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
+        <layout>
+          <fields>
+            {uniqueKeyNames.map {
+            item =>
+              <field>
+                <key> {SearchService.localiseKey(item, language)} </key>
+                <value> {item} </value>
+              </field>
+          }}
+          </fields>
+        </layout>
         <item>
           <fields>
             {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
@@ -406,11 +437,13 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("idType", List("solr", "mongo", "pmh", "drupal","datasetId"), "//todo complete this"),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
+    ExplainItem("facetBoolType", List("AND", "OR", "Default is OR"), "Will determine how the Facet Multiselect functionality is handled within a facet. Between facets it is always AND."),
     ExplainItem("start", List("any non negative integer")),
     ExplainItem("qf", List("any valid Facet as defined in the facets block")),
     ExplainItem("hqf", List("any valid Facet as defined in the facets block"), "This link is not used for the display part of the API." +
             "It is used to send hidden constraints to the API to create custom API views"),
     ExplainItem("explain", List("all")),
+    ExplainItem("mlt", List("true", "false"), "This enables the related item search functionality in combination with requesting a record via the 'id' parameter."),
     ExplainItem("sortBy", List("any valid sort field prefixed by 'sort_'", "geodist()"), "Geodist is can be used to sort the results by distance."),
     ExplainItem("sortOrder", List("asc", "desc"), "The sort order of the field specified by sortBy"),
     ExplainItem("lang", List("any valid iso 2 letter lang codes"), "Feature still experimental. In the future it will allow you to get " +

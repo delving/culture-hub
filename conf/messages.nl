@@ -318,13 +318,26 @@ metadata.dcterms.replaces=Vervangt
 metadata.dcterms.requires=Vereist
 metadata.dcterms.spatial=Plaats van vervaardiging
 metadata.dcterms.temporal=Periode
+
 metadata.delving.dimensions=Afmeting
 metadata.delving.owner=Eigenaar
+metadata.delving.creator=Vervaardiger
+metadata.delving.recordType=Record type
+metadata.delving.hasDigitalObject=Record heeft een digital object
+
+
 metadata.europeana.country=Land
+metadata.europeana.isShownAt=Externe Landing Pagina
+metadata.europeana.isShownBy=Externe URL naar digitaal object
 metadata.europeana.dataProvider=Data-aanbieder
 metadata.europeana.provider=Aanbieder
 metadata.europeana.type=Type
 metadata.europeana.year=Jaar
+metadata.europeana.language=Taal
+metadata.europeana.collectionTitle=Collectie titel
+metadata.europeana.collectionName=Collectie naam
+metadata.europeana.rights=Rechten
+
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
 metadata.icn.acquiredWithHelpFrom=Verworven met steun van
@@ -333,6 +346,7 @@ metadata.icn.collection=Collectie
 metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.location=Locatie
 metadata.icn.material=Materiaal
+metadata.icn.collectionType=Collectie type
 metadata.icn.physicalState=Fysieke staat
 metadata.icn.province=Provincie
 metadata.icn.purchasePrice=Aankoopbedrag
@@ -344,6 +358,28 @@ metadata.type.sounds=Geluiden
 metadata.type.texts=Teksten
 metadata.type.video=Video
 metadata.type.videos=Videos
+
+metadata.tib.period=Periode
+metadata.tib.citName= Cit collectie naam
+metadata.tib.citOldId= Cit record nummer
+metadata.tib.thumbLarge= Grote thumbnail
+metadata.tib.thumbSmall= Kleine thumbail
+metadata.tib.deepZoomUrl= URL voor DeepZoom afbeelding
+metadata.tib.collection=Collectie
+metadata.tib.creatorRole=Rol vervaardiger
+metadata.tib.productionPeriod=Productie periode
+metadata.tib.productionStart=Start productie periode
+metadata.tib.productionEnd=Einde productie periode
+metadata.tib.creatorBirthYear=Geboortejaar
+metadata.tib.creatorDeathYear=Sterfjaar
+metadata.tib.year=Jaar
+metadata.tib.dimension=Afmetingen
+metadata.tib.objectSoort=Object soort
+metadata.tib.material=Materiaal
+metadata.tib.place=Plaats
+metadata.tib.technique=Techniek
+metadata.tib.date=Datum
+metadata.tib.collectionPart=Deelcollectie
 
 #Users
 
