@@ -127,20 +127,22 @@
         <field prefix="europeana" localName="country" factName="country"/>
         <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string" summaryField="OWNER"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
-        <field prefix="europeana" localName="isShownBy" fieldType="string" summaryField="THUMBNAIL"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
         <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
-        <field prefix="europeana" localName="object" fieldType="string"/>
+        <field prefix="europeana" localName="object" fieldType="string" summaryField="THUMBNAIL"/>
         <field prefix="europeana" localName="provider" factName="provider" fieldType="string"/>
         <field prefix="europeana" localName="rights" factName="rights" fieldType="string"/>
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
         <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
         <field prefix="europeana" localName="unstored" fieldType="text"/>
         <field prefix="europeana" localName="uri" identifierField="true" fieldType="string">
-            <converter call=".toId(spec)"/>
+            <converter call=".toLocalId(spec)"/>
         </field>
-        <field prefix="europeana" localName="year" fieldType="string">
+        <field prefix="delving" localName="year" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
+        <field prefix="delving" localName="thumbnail" fieldType="string" summaryField="THUMBNAIL"/>
+        <field prefix="delving" localName="deepZoomUrl" fieldType="string"/>
     </root>
     <views>
         <view name="full">

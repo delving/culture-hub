@@ -115,7 +115,7 @@ object SolrQueryService extends SolrServer {
     query setFields ("*,score")
     // highlighting parameters
     query setHighlight true
-    query addHighlightField ("*")
+    query addHighlightField ("*_snippet")
   }
 
 //  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
