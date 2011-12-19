@@ -60,6 +60,11 @@ abstract class MetadataAccessors extends Universal {
     case MDR => "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
     case _ => ""
   }
+  def getLandingPage = getRecordType match {
+    case OBJECT | USERCOLLECTION | STORY => getUri
+    case MDR => assign(LANDING_PAGE)
+    case _ => ""
+  }
   def getThumbnailUri: String = getThumbnailUri(180)
   def getThumbnailUri(size: Int): String = {
     getRecordType match {

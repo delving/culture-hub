@@ -55,6 +55,7 @@ trait Universal {
   def getCreator: String
   def getVisibility: String
   def getUri : String
+  def getLandingPage: String // external landing page for this thing
   def getThumbnailUri: String
   def getThumbnailUri(size: Int): String
   def getMimeType: String
