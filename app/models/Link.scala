@@ -45,6 +45,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     val FREETEXT = "freeText"
     val PLACE = "place"
     val PARTOF = "partOf"
+    val THUMBNAIL = "thumbnail" // special internal link to denote usage as thumbnail
   }
 
   /**
@@ -134,23 +135,25 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     }
   }
 
+  def hubTypeToCollection(hubType: String) = Option(hubType match {
+    case OBJECT => objectsCollection
+    case USERCOLLECTION => userCollectionsCollection
+    case STORY => userStoriesCollection
+    case USER => userCollection
+    case _ => null
+  })
+
   def removeLink(link: Link) {
     
     def removeEmbedded(link: ObjectId, hubType: String, id: Option[ObjectId], hubCollection: Option[String], hubAlternativeId: Option[String]) {
-      val collection: Option[MongoCollection] = Option(hubType match {
-        case OBJECT => objectsCollection
-        case USERCOLLECTION => userCollectionsCollection
-        case STORY => userStoriesCollection
-        case USER => userCollection
-        case _ => null
-      })
+      val collection: Option[MongoCollection] = hubTypeToCollection(hubType)
       val pull = $pull ("links" -> MongoDBObject("link" -> link))
       collection match {
         case Some(c) =>
           c.update(MongoDBObject("_id" -> id.get), pull)
         case None =>
           if(hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
-            connection(hubCollection.get).update(MongoDBObject(MDR_LOCAL_ID -> hubAlternativeId.get), pull)
+            connection(hubCollection.get).update(MongoDBObject(MDR_HUB_ID -> hubAlternativeId.get), pull)
           } else {
             Logger.warn("Could not delete embedded Link %s %s %s", hubType, id, hubCollection)
           }
@@ -171,6 +174,41 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   }
 
   def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri)).toList
+
+
+  // ~~~ shared link creation, we maybe find a better place for this
+
+  def createThumbnailLink(fromId: ObjectId, fromType: String, hubId: String, userName: String) = {
+    val Array(orgId, spec, recordId) = hubId.split("_")
+    val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
+
+    val fromCollection = fromType match {
+      case USERCOLLECTION => userCollectionsCollection
+      case STORY => userStoriesCollection
+      case _ => throw new ProgrammerException("What are you doing?")
+    }
+
+      Link.create(
+        linkType = Link.LinkType.THUMBNAIL,
+        userName = userName,
+        value = Map.empty,
+        from = LinkReference(
+          id = Some(fromId),
+          hubType = Some(fromType)
+        ),
+        to = LinkReference(
+          hubType = Some(MDR),
+          hubCollection = Some(mdrCollectionName),
+          hubAlternativeId = Some(hubId)
+        ),
+        embedFrom = Some(EmbeddedLinkWriter(
+          value = Some(Map(MDR_HUB_ID -> hubId)),
+          collection = fromCollection,
+          id = Some(fromId)
+        ))
+      )
+
+    }
 
 }
 

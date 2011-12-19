@@ -52,11 +52,14 @@ trait ModelImplicits extends Internationalization {
   implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name, util.Constants.OBJECT)
   implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
+  implicit def mdrAccessorToShortObjectModel(record: MultiValueMapMetadataAccessors) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(80), title = record.getTitle, hubType = MDR)
+  implicit def mdrAccessorListToSOMList(records: List[MultiValueMapMetadataAccessors]) = records.map(mdrAccessorToShortObjectModel(_))
+
   // ~~ ListItems
 
   implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, OBJECT, o.name, o.description, Some(o._id), None, o.userName, o.visibility == Visibility.PRIVATE, o.url)
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, None, c.userName, c.visibility == Visibility.PRIVATE, c.url)
-  implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, None,  s.userName, s.visibility == Visibility.PRIVATE, s.url)
+  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, c.thumbnail_url, c.userName, c.visibility == Visibility.PRIVATE, c.url)
+  implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, s.thumbnail_url,  s.userName, s.visibility == Visibility.PRIVATE, s.url)
   implicit def userToListItem(u: User) = ListItem(u._id, USER, u.fullname, u.email, None, None,  u.userName, false, "/" + u.userName)
   implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, ds.getCreator.userName, false, "/nope")
 

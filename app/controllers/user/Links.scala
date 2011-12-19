@@ -155,7 +155,7 @@ object Links extends DelvingController {
                     refType = Some("institutionalObject"), // TODO need TW blessing
                     hubType = Some(MDR),
                     hubCollection = Some(collection.getName()),
-                    hubAlternativeId = Some(recordId)
+                    hubAlternativeId = Some("%s_%s_%s".format(orgId, spec, recordId))
                   ),
                   to = LinkReference(
                     id = Some(collectionId),
@@ -166,7 +166,11 @@ object Links extends DelvingController {
                     id = mdr._id
                   )),
                   embedTo = Some(EmbeddedLinkWriter(
-                    value = Some(Map(HUB_ID -> mdr.get(MDR_HUB_ID).toString, MDR_LOCAL_ID -> mdr.get(MDR_LOCAL_ID).toString, MDR_HUBCOLLECTION -> collection.getName())),
+                    value = Some(Map(
+                      MDR_HUB_ID -> mdr.get(MDR_HUB_ID).toString,
+                      MDR_LOCAL_ID -> mdr.get(MDR_LOCAL_ID).toString,
+                      MDR_HUBCOLLECTION -> collection.getName())
+                    ),
                     collection = userCollectionsCollection,
                     id = Some(collectionId))
                   ))

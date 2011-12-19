@@ -83,8 +83,8 @@
                             </div>
                             <div class="page-right g-1of2 omega images">
                                 *{#{list page.objects.headOption(), as: 'o'}}*
-                                #{list page.objects, as: 'o'}
-                                <img src="${views.context.package.imageUrl(o.dobject_id)}" id="img_${o_index}" width="340" alt="${page.title}">
+                                #{list page.getPageObjects(), as: 'o'}
+                                <img src="${o.thumbnail()}" id="img_${o_index}" width="340" alt="${page.title}">
                                 #{/list}
                             </div>
 

@@ -30,7 +30,6 @@ import collection.immutable.List
 import models.salatContext._
 import com.novus.salat.grater
 import models._
-import views.context.thumbnailUrl
 import components.Indexing
 
 /**
@@ -39,7 +38,7 @@ import components.Indexing
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserSecured {
+object Collections extends DelvingController with UserSecured with UGCController {
 
   private def load(id: String): String = {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
@@ -52,28 +51,10 @@ object Collections extends DelvingController with UserSecured {
         val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
         val links = Link.find("_id" $in linkedObjectLinks).toList
         val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
-        val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
-
         val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
+        val convertedMdrs = retrieveMDRs(links)
 
-        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_LOCAL_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
-        val convertedMdrs = mdrs.flatMap(mdr =>
-          // we assume that the first mapping we find will do
-          if(!mdr.mappedMetadata.isEmpty) {
-            val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
-            DataSet.findBySpecAndOrgId(spec, orgId) match {
-              case Some(ds) =>
-                val record = mdr.getAccessor(ds.getIndexingMappingPrefix.getOrElse(""))
-                Some(ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(220), title = record.getTitle, hubType = MDR))
-              case None =>
-                warning("Could not find DataSet for " + mdr.hubId)
-                None // huh?!?
-            }
-          } else {
-            None
-          })
-
-        val objects = userObjects ++ convertedMdrs
+        val objects: List[ShortObjectModel] = userObjects ++ convertedMdrs
         JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = if(col.getBookmarksCollection) &("thing.bookmarksCollection") else col.name,
@@ -81,7 +62,7 @@ object Collections extends DelvingController with UserSecured {
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = col.thumbnail_id,
+          thumbnail = col.getThumbnailIdInternal,
           visibility = col.visibility.value,
           isBookmarksCollection = col.getBookmarksCollection))
       }
@@ -96,6 +77,13 @@ object Collections extends DelvingController with UserSecured {
 
   def collectionSubmit(data: String): Result = {
 
+    def findThumbnailUrl(thumbnailMDRId: String, objects: List[ShortObjectModel]) = {
+      objects.filter(_.id == thumbnailMDRId).headOption match {
+        case Some(thing) => Some(thing.thumbnail)
+        case None => None
+      }
+    }
+
     val collectionModel: CollectionViewModel = JJson.parse[CollectionViewModel](data)
     validate(collectionModel).foreach { errors => return JsonBadRequest(collectionModel.copy(errors = errors)) }
 
@@ -107,30 +95,49 @@ object Collections extends DelvingController with UserSecured {
             userName = connectedUser,
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
-            thumbnail_id = collectionModel.thumbnail)
+            thumbnail_id = None,
+            thumbnail_url = None)
         val inserted: Option[ObjectId] = UserCollection.insert(newCollection)
         inserted match {
           case None => None
           case Some(iid) =>
+            // set the thumbnail
+            setThumbnaiL(iid, USERCOLLECTION, collectionModel.thumbnail, findThumbnailUrl(collectionModel.thumbnail, collectionModel.objects), None)
+
             // TODO this has to be replaced by a mechanism that does atomic adds / deletes in the view, not all at once
             for(o <- collectionModel.objects) {
               user.DObjects.createCollectionLink(iid, o.id.get)
               val obj = DObject.findOneByID(o.id.get).get
               SolrServer.indexSolrDocument(obj.toSolrDocument)
             }
-            SolrServer.indexSolrDocument(newCollection.toSolrDocument)
+
+            // fetch the collection again & index
+            val updatedCollection = UserCollection.findOneByID(iid)
+
+            SolrServer.indexSolrDocument(updatedCollection.get.toSolrDocument)
             SolrServer.commit()
             Some(collectionModel.copy(id = inserted))
         }
       case Some(id) =>
-        val existingCollection = UserCollection.findOneByID(id)
-        if (existingCollection == None) NotFound(&("user.collections.objectNotFound", id))
-        val updatedUserCollection = existingCollection.get.getBookmarksCollection match {
-          case false => existingCollection.get.copy(TS_update = new Date(), name = collectionModel.name, description = collectionModel.description, thumbnail_id = collectionModel.thumbnail, visibility = Visibility.get(collectionModel.visibility))
-          case true => existingCollection.get.copy(TS_update = new Date(), thumbnail_id = collectionModel.thumbnail)
+        val updatedUserCollection = UserCollection.findOneByID(id) match {
+          case None => return NotFound(&("user.collections.objectNotFound", id))
+          case Some(existingCollection) =>
+            existingCollection.getBookmarksCollection match {
+              case false => existingCollection.copy(
+                TS_update = new Date(),
+                name = collectionModel.name,
+                description = collectionModel.description,
+                visibility = Visibility.get(collectionModel.visibility))
+              case true => existingCollection.copy(TS_update = new Date())
+          }
         }
         try {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
+
+          // update the thumbnail
+          setThumbnaiL(id, USERCOLLECTION, collectionModel.thumbnail, findThumbnailUrl(collectionModel.thumbnail, collectionModel.objects), updatedUserCollection.links.filter(_.linkType == Link.LinkType.THUMBNAIL).map(_.link).headOption)
+
+          val existingCollection = UserCollection.findOneByID(id)
 
           // update link to objects
           val linkedObjects = existingCollection.get.flattenLinksWithIds(Link.LinkType.PARTOF, OBJECT_ID)
