@@ -35,10 +35,10 @@
     multivalued         => default = true; check if field name appears multiple times.
     -->
     <root localName="record">
-        <field prefix="icn" localName="creatorYearOfBirth">
+        <field prefix="icn" localName="creatorYearOfBirth" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
-        <field prefix="icn" localName="creatorYearOfDeath">
+        <field prefix="icn" localName="creatorYearOfDeath" fieldType="string">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
         <field prefix="icn" localName="creatorRole"/>
@@ -81,7 +81,7 @@
                 <string>mm</string>
             </options>
         </field>
-        <field prefix="icn" localName="acquisitionYear"/>
+        <field prefix="icn" localName="acquisitionYear" fieldType="string"/>
         <field prefix="icn" localName="purchasePrice"/>
         <field prefix="icn" localName="acquiredWithHelpFrom"/>
         <field prefix="icn" localName="physicalState"/>

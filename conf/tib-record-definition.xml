@@ -47,9 +47,11 @@
     -->
     <root localName="record">
         <field prefix="delving" localName="deepZoomUrl" fieldType="string"/>
+        <field prefix="delving" localName="year" fieldType="string"/>
+
         <field prefix="tib" localName="citName" fieldType="string"/>
         <field prefix="tib" localName="citOldId" fieldType="string"/>
-        <field prefix="tib" localName="thumbLarge" fieldType="string"/>
+        <field prefix="tib" localName="thumbLarge" fieldType="string" summaryField="THUMBNAIL"/>
         <field prefix="tib" localName="thumbSmall" fieldType="string"/>
         <field prefix="tib" localName="deepZoomUrl" fieldType="string"/>
         <field prefix="tib" localName="collection" fieldType="string"/>
@@ -59,9 +61,13 @@
         <field prefix="tib" localName="productionEnd" fieldType="string"/>
         <field prefix="tib" localName="creatorBirthYear" fieldType="string"/>
         <field prefix="tib" localName="creatorDeathYear" fieldType="string"/>
+        <field prefix="tib" localName="year" fieldType="date">
+            <converter multipleOutput="true" call=".extractYear()"/>
+        </field>
+        <field prefix="tib" localName="period" fieldType="string"/>
 
         <!-- add dimensions in a prefab form with unit value and type -->
-	<field prefix="tib" localName="dimension"/>
+	    <field prefix="tib" localName="dimension"/>
         <field prefix="tib" localName="objectSoort" fieldType="string">
             <options>
                 <string>dummy item1</string>
@@ -83,12 +89,18 @@
         <field prefix="tib" localName="technique"/>
         <field prefix="tib" localName="date"/>
         <field prefix="tib" localName="collectionPart" fieldType="string"/>
+        <field prefix="tib" localName="person" fieldType="text"/>
+        <field prefix="tib" localName="region" fieldType="text"/>
+        <field prefix="tib" localName="event" fieldType="text"/>
+        <field prefix="tib" localName="theme" fieldType="text"/>
+        <field prefix="tib" localName="location" fieldType="location"/>
+        <field prefix="tib" localName="fullTextObjectUrl" fieldType="string"/>
 
         <field prefix="dc" localName="contributor" />
         <field prefix="dc" localName="coverage" />
         <field prefix="dc" localName="creator" summaryField="CREATOR"/>
         <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
-        <field prefix="dc" localName="description" summaryField="DESCRIPTION"/>
+        <field prefix="dc" localName="description" summaryField="SNIPPET"/>
         <field prefix="dc" localName="format"/>
         <field prefix="dc" localName="identifier" />
         <field prefix="dc" localName="language"/>
@@ -96,10 +108,10 @@
         <field prefix="dc" localName="relation" />
         <field prefix="dc" localName="rights"/>
         <field prefix="dc" localName="source"/>
-        <field prefix="dc" localName="subject"  summaryField="SNIPPET"/>
+        <field prefix="dc" localName="subject"/>
         <field prefix="dc" localName="title" summaryField="TITLE"/>
         <field prefix="dc" localName="type"/>
-        <field prefix="dcterms" localName="alternative" summaryField="SNIPPET"/>
+        <field prefix="dcterms" localName="alternative"/>
         <field prefix="dcterms" localName="conformsTo"/>
         <field prefix="dcterms" localName="created" />
         <field prefix="dcterms" localName="extent" />
@@ -128,7 +140,7 @@
         <field prefix="europeana" localName="country" factName="country"/>
         <field prefix="europeana" localName="dataProvider" factName="dataProvider" summaryField="OWNER"/>
         <field prefix="europeana" localName="isShownAt" fieldType="string"/>
-        <field prefix="europeana" localName="isShownBy" fieldType="string" summaryField="THUMBNAIL"/>
+        <field prefix="europeana" localName="isShownBy" fieldType="string" />
         <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
         <field prefix="europeana" localName="object"/>
         <field prefix="europeana" localName="provider" factName="provider"/>
