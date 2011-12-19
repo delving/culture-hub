@@ -16,8 +16,9 @@
 
 package controllers
 
-import models.User
 import play.mvc.Scope.Session
+import java.util.Date
+import models.{UserCollection, Visibility, User}
 
 class ServicesSecurity extends Security with Internationalization {
 
@@ -25,11 +26,34 @@ class ServicesSecurity extends Security with Internationalization {
     User.connect(username, password)
   }
 
-  def onAuthenticated(username: String, session: Session) {
-    val user = User.findByUsername(username)
+  def onAuthenticated(userName: String, session: Session) {
+    val user = User.findByUsername(userName)
     if(user == None) {
-      throw new RuntimeException(&("servicessecurity.userNotFound", username))
+      throw new RuntimeException(&("servicessecurity.userNotFound", userName))
     }
+
+    User.findBookmarksCollection(userName) match {
+      case None =>
+        // create default bookmarks collection
+        val bookmarksCollection = UserCollection(
+          TS_update = new Date(),
+          user_id = user.get._id,
+          userName = userName,
+          name = "Bookmarks",
+          description = "Bookmarks",
+          visibility = Visibility.PRIVATE,
+          thumbnail_id = None,
+          thumbnail_url = None,
+          isBookmarksCollection = Some(true))
+        val userCollectionId = UserCollection.insert(bookmarksCollection)
+        try {
+          SolrServer.pushToSolr(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
+        } catch {
+          case t => ErrorReporter.reportError(this.getClass.getName, t, "Could not index Bookmarks collection %s for newly created user %s".format(userCollectionId.get.toString, userName))
+        }
+      case Some(bookmarks) => // it's ok
+    }
+
     session.put("connectedUserId", user.get._id.toString)
     session.put(AccessControl.ORGANIZATIONS, user.get.organizations.mkString(","))
     session.put(AccessControl.GROUPS, user.get.groups.mkString(","))

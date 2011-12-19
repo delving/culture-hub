@@ -112,6 +112,10 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     true
   }
 
+  def findBookmarksCollection(userName: String): Option[UserCollection] = {
+    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
+  }
+
   // ~~~ OAuth2
 
   def setOauthTokens(user: User, accessToken: String, refreshToken: String) {

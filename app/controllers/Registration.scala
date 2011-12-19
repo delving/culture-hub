@@ -95,27 +95,8 @@ object Registration extends Controller with ThemeAware with Internationalization
       inserted match {
         case Some(id) =>
           try {
-            // create default bookmarks collection
-            val bookmarksCollection = UserCollection(
-              TS_update = new Date(),
-              user_id = id,
-              userName =r.userName,
-              name = "Bookmarks",
-              description = "Bookmarks",
-              visibility = Visibility.PRIVATE,
-              thumbnail_id = None,
-              thumbnail_url = None,
-              isBookmarksCollection = Some(true))
-            val userCollectionId = UserCollection.insert(bookmarksCollection)
             Mails.activation(newUser, activationToken)
             flash += ("registrationSuccess" -> newUser.email)
-            
-            try {
-              SolrServer.pushToSolr(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
-            } catch {
-              case t => logError(t, "Could not index Bookmarks collection %s for newly created user %s", userCollectionId.get.toString, r.userName)
-            }
-
           } catch {
             case t: Throwable => {
               User.remove(newUser.copy(_id = id))
