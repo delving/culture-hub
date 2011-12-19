@@ -380,6 +380,12 @@ metadata.tib.place=Plaats
 metadata.tib.technique=Techniek
 metadata.tib.date=Datum
 metadata.tib.collectionPart=Deelcollectie
+metadata.tib.person=Persoon
+metadata.tib.region=Regio
+metadata.tib.event=Gebeurtenis
+metadata.tib.location=Geolocatie
+metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
+
 
 #Users
 

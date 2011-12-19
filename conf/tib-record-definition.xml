@@ -87,6 +87,11 @@
         <field prefix="tib" localName="technique"/>
         <field prefix="tib" localName="date"/>
         <field prefix="tib" localName="collectionPart" fieldType="string"/>
+        <field prefix="tib" localName="person" fieldType="text"/>
+        <field prefix="tib" localName="region" fieldType="text"/>
+        <field prefix="tib" localName="event" fieldType="text"/>
+        <field prefix="tib" localName="location" fieldType="location"/>
+        <field prefix="tib" localName="fullTextObjectUrl" fieldType="string"/>
 
         <field prefix="dc" localName="contributor" />
         <field prefix="dc" localName="coverage" />
