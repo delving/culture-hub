@@ -224,8 +224,6 @@ object SolrQueryService extends SolrServer {
 
     val paramMap: JMap[String, Array[String]] = request.params.all()
     
-    println(paramMap)
-
     def getAllFilterQueries(fqKey: String): Array[String] = {
       paramMap.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
     }
