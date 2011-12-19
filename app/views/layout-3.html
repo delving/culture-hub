@@ -27,22 +27,24 @@
             #{else}
             <div class="buttons">
                 <div class="user-name">
-                      Hi ${fullName}
+                    Hi ${fullName}
                 </div>
                 <div class="dropdown">
                     #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
                     <div class="dropdown-slider">
                         *{<a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>}*
                         <a href="/${userName}" class="ddm user"><span class="label">&{'user.nav.yourprofile'}</span></a>
-                        <a href="/${userName}/object" class="ddm"></span><span class="label">&{'user.nav.yourobjects'}</span></a>
+                        <a href="/${userName}/object" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourobjects'}</span></a>
                         <a href="/${userName}/collection" class="ddm"></span>
                             <span class="label">&{'user.nav.yourcollections'} </span></a>
-                        <a href="/${userName}/story" class="ddm"></span><span class="label">&{'user.nav.yourstories'}</span></a>
+                        <a href="/${userName}/story" class="ddm"></span>
+                            <span class="label">&{'user.nav.yourstories'}</span></a>
                         #{if organizations.length() > 0}
                         <a class="ddm heading orgs"><span class="label">&{'thing.organizations'}</span></a>
-                            #{list organizations, as: 'org'}
-                                <a href="/organizations/${org}" class="ddm org">${org}</a>
-                            #{/list}
+                        #{list organizations, as: 'org'}
+                        <a href="/organizations/${org}" class="ddm org">${org}</a>
+                        #{/list}
                         #{/if}
                     </div>
                 </div>
@@ -111,11 +113,14 @@
 
 <div id="footer">
     <div class="container_12">
-        <div class="grid_12">
+        <div class="grid_6">
+            <div class="poweredBy">
+                <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/common/images/powered-by-delving.png'}" alt="Powered by DELVING.EU" width="100"/></a>
+            </div>
+        </div>
+        <div class="grid_6">
             <div class="secondary-branding" role="banner">
-                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}">
-                    <img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/>
-                </a>
+                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title="" align="absmiddle"/></a>
             </div>
         </div>
     </div>
