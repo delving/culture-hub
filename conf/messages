@@ -31,7 +31,6 @@ ui.label.captcha=Enter the code you see here
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
 ui.label.delete=Delete
-ui.label.delete=Delete
 ui.label.edit=Edit
 ui.label.email=Email
 ui.label.enlargeImage=Enlarge image
@@ -332,12 +331,21 @@ metadata.dcterms.temporal=Temporal coverage
 
 metadata.delving.dimensions=Dimensions
 metadata.delving.owner=Owner
+metadata.delving.creator=Creator
+metadata.delving.recordType=Record type
+metadata.delving.hasDigitalObject=Record has a digital object
 
 metadata.europeana.country=Country
 metadata.europeana.dataProvider=Data Provider
 metadata.europeana.provider=Provider
+metadata.europeana.isShownAt=Remote Landing Page
+metadata.europeana.isShownBy=Remote url to digital object
 metadata.europeana.type=Type
 metadata.europeana.year=Year
+metadata.europeana.language=Language
+metadata.europeana.collectionTitle=Collection Title
+metadata.europeana.collectionName=Collection Name
+metadata.europeana.rights=Rights
 
 metadata.icn.material=Material
 metadata.icn.collection=Collection
@@ -351,6 +359,37 @@ metadata.icn.location=Location
 metadata.icn.physicalState=Physical State
 metadata.icn.province=Province
 metadata.icn.purchasePrice=Purchase Price
+metadata.icn.collectionType=Collection type
+
+# Tib
+metadata.tib.period=Period
+metadata.tib.citName= Cit collection name
+metadata.tib.citOldId= Cit record identifier
+metadata.tib.thumbLarge= Large thumbnail
+metadata.tib.thumbSmall= Small thumbnail
+metadata.tib.deepZoomUrl= URL for DeepZoom Image
+metadata.tib.collection=Collection
+metadata.tib.creatorRole= Creator Role
+metadata.tib.productionPeriod= Production period
+metadata.tib.productionStart= Pruduction start date
+metadata.tib.productionEnd= Production end date
+metadata.tib.creatorBirthYear= Year of birth
+metadata.tib.creatorDeathYear= Year of death
+metadata.tib.year=Year
+metadata.tib.dimension=Dimension
+metadata.tib.objectSoort=Object type
+metadata.tib.material=Material
+metadata.tib.place=Place
+metadata.tib.technique=Technique
+metadata.tib.date=Date
+metadata.tib.collectionPart=Sub-collection name
+metadata.tib.person=Person
+metadata.tib.region=Region
+metadata.tib.event=Event
+metadata.tib.location=Geo-location
+metadata.tib.fullTextObjectUrl=URL to full-text search-able object
+
+
 
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type

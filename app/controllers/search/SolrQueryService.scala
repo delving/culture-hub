@@ -26,6 +26,8 @@ import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import views.context.PAGE_SIZE
 import util.Constants._
 import util.Constants
+import java.lang.String
+import java.util.{Map => JMap}
 
 /**
  *
@@ -220,7 +222,9 @@ object SolrQueryService extends SolrServer {
 
   def createCHQuery(request: Request, theme: PortalTheme, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
 
-    val paramMap = request.params.all()
+    val paramMap: JMap[String, Array[String]] = request.params.all()
+    
+    println(paramMap)
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       paramMap.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -230,19 +234,26 @@ object SolrQueryService extends SolrServer {
       val FacetExtractor = """\{!ex=(.*)\}(.*)""".r
 
       val solrFacetFields = query.getFacetFields
-      val facetFieldMap = if (solrFacetFields == null ) Map[String, String]()
+      val facetFieldMap = if (solrFacetFields == null) Map[String,String]()
       else {
         solrFacetFields.map {
-        field => field match {
-          case FacetExtractor(prefix, facetName) => (facetName, prefix)
-          case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
-        }
-      }.toMap
+          field => field match {
+            case FacetExtractor(prefix, facetName) => (facetName, prefix)
+            case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
+          }
+        }.toMap
       }
       fqs.groupBy(_.field) foreach {
         item => {
           val prefix = facetFieldMap.get(item._1)
-          val orString = "%s:(%s)".format(item._1, item._2.map(_.value).mkString("\"", "\" OR \"" ,"\""))
+          val facetQueriesValues = item._2.map(_.value)
+          val facetType = paramMap.getOrElse("facetBoolType", Array("OR")).head.equalsIgnoreCase("AND")
+          val orString = if (!facetQueriesValues.filter(_.startsWith("[")).isEmpty)
+            "%s:%s".format(item._1, facetQueriesValues.head.mkString(" "))
+          else if (facetType)
+            "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" AND \"" ,"\"")) 
+          else
+            "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" OR \"" ,"\""))
           prefix match {
             case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, orString))
             case None => query addFilterQuery (orString)
@@ -253,7 +264,7 @@ object SolrQueryService extends SolrServer {
 
     val format = if (paramMap.containsKey("format") && !paramMap.get("format").isEmpty) paramMap.get("format").head else "xml"
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
-    val hiddenQueryFilters = createFilterQueryList(if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else request.params.getAll("hqf"))
+    val hiddenQueryFilters = createFilterQueryList(if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
 
     val query = parseSolrQueryFromRequest(request, theme)
 
