@@ -47,6 +47,7 @@ trait Thing extends Base with Universal {
   val visibility: Visibility
   val deleted: Boolean
   val thumbnail_id: Option[ObjectId]
+  val thumbnail_url: Option[String]
   val links: List[EmbeddedLink]
 
   def freeTextLinks = links.filter(_.linkType == Link.LinkType.FREETEXT)
@@ -59,6 +60,12 @@ trait Thing extends Base with Universal {
 
   def flattenLinksWithIds(linkType: String, key: String) = {
     links.filter(_.linkType == linkType).filter(_.value.contains(key)).map(l => (l, new ObjectId(l.value(key)))).toList
+  }
+
+  def thumbnail(size: Int = 100): String = (thumbnail_id, thumbnail_url) match {
+    case (None,  None) => getThumbnailUrl(None)
+    case (Some(id), None) => getThumbnailUrl(Some(id), size)
+    case (None, Some(url)) => url
   }
 
   // ~~~ universal accessors
@@ -74,9 +81,19 @@ trait Thing extends Base with Universal {
   def getUri = url
   def getLandingPage = url
   def getThumbnailUri = getThumbnailUri(180)
-  def getThumbnailUri(size: Int) = getThumbnailUrl(thumbnail_id, size)
+  def getThumbnailUri(size: Int) = thumbnail(size)
   def getMimeType = "unknown/unknown"
-  def hasDigitalObject = thumbnail_id != None
+  def hasDigitalObject = thumbnail_id != None || thumbnail_url != None
+
+  // ~~~ special (internal) accessors:
+  def getThumbnailIdInternal: String = {
+    if(thumbnail_id != None) thumbnail_id.get.toString else {
+      links.find(_.linkType == Link.LinkType.THUMBNAIL).headOption match {
+        case Some(e) => e.value(MDR_HUB_ID)
+        case None => ""
+      }
+    }
+  }
 
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
@@ -91,6 +108,8 @@ trait Thing extends Base with Universal {
     doc addField (TITLE, name)
     if (thumbnail_id != None) {
       doc addField(THUMBNAIL, thumbnail_id.get)
+    } else if (thumbnail_url != None) {
+      doc addField(THUMBNAIL, thumbnail_url.get)
     }
     doc addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
     doc

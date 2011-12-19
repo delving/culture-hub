@@ -33,6 +33,7 @@ import play.i18n.Messages
 import eu.delving.sip.IndexDocument
 import controllers.{MetadataAccessors, SolrServer, ModelImplicits}
 import com.mongodb.casbah.{MongoCollection}
+import _root_.util.Constants._
 
 /**
  * DataSet model
@@ -433,11 +434,30 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {
     "<record>%s</record>".format(getXmlString(metadataPrefix))
   }
+
+  def getDefaultAccessor = {
+    val (prefix, map) = mappedMetadata.head
+    new MultiValueMapMetadataAccessors(hubId, map)
+  }
   
   def getAccessor(prefix: String) = {
     if(!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, MongoDBObject())
     val map = mappedMetadata(prefix)
     new MultiValueMapMetadataAccessors(hubId, map)
+  }
+
+}
+
+
+object MetadataRecord {
+
+  def getMDR(hubId: String): Option[MetadataRecord] = {
+    val Array(orgId, spec, recordId) = hubId.split("_")
+    val collectionName = DataSet.getRecordsCollectionName(orgId, spec)
+    connection(collectionName).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
+      case Some(dbo) => Some(grater[MetadataRecord].asObject(dbo))
+      case None => None
+    }
   }
 
 }

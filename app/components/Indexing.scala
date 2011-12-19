@@ -42,6 +42,10 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
   @throws(classOf[MappingNotFoundException])
   @throws(classOf[SolrConnectionException])
   def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String): (Int, Int) = {
+    
+    // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
+    val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
+    
     val records = DataSet.getRecords(dataSet).find(MongoDBObject())
     DataSet.updateState(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
@@ -56,12 +60,19 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
             DataSet.updateIndexingCount(dataSet, records.numSeen)
             state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
-          val mapped = Option(engine.executeMapping(record.getXmlString()))
+          val mapped: Option[IndexDocument] = Option(engine.executeMapping(record.getXmlString()))
 
-          // cache the result of the mapping so that we can use it to present the record directly without re-running a mapping
           mapped match {
             case Some(mappedDocument) =>
+              // refresh thumbnails of UGC objects
+              thumbnailLinks.get(record.hubId).foreach(_.foreach(link => {
+                val thumbnailUrl = mappedDocument.getMap.get(THUMBNAIL).get(0).toString
+                val collection = Link.hubTypeToCollection(link.from.hubType.get)
+                collection.get.update(MongoDBObject("_id" -> link.from.id.get), $set("thumbnail_url" -> thumbnailUrl))
+              }))
+              
               val c: DBObject = mappedDocument
+              // cache the result of the mapping so that we can use it to present the record directly without re-running a mapping
               connection(DataSet.getRecordsCollectionName(dataSet)).update(MongoDBObject("_id" -> record._id), $set ("mappedMetadata.%s".format(metadataFormatForIndexing) -> c))
             case None => // do nothing
           }

@@ -21,7 +21,6 @@ import com.novus.salat.dao.SalatDAO
 import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
-import org.apache.solr.common.SolrInputDocument
 import util.Constants._
 
 /**
@@ -38,6 +37,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           visibility: Visibility,
                           deleted: Boolean = false,
                           thumbnail_id: Option[ObjectId],
+                          thumbnail_url: Option[String],
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           isBookmarksCollection: Option[Boolean] = None) extends Thing {
 

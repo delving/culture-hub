@@ -104,6 +104,7 @@ object Registration extends Controller with ThemeAware with Internationalization
               description = "Bookmarks",
               visibility = Visibility.PRIVATE,
               thumbnail_id = None,
+              thumbnail_url = None,
               isBookmarksCollection = Some(true))
             val userCollectionId = UserCollection.insert(bookmarksCollection)
             Mails.activation(newUser, activationToken)
