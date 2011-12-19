@@ -173,6 +173,41 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
   def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri)).toList
 
+
+  // ~~~ shared link creation, we maybe find a better place for this
+
+  def createThumbnailLink(fromId: ObjectId, fromType: String, hubId: String, userName: String) = {
+    val Array(orgId, spec, recordId) = hubId.split("_")
+    val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
+
+    val fromCollection = fromType match {
+      case USERCOLLECTION => userCollectionsCollection
+      case STORY => userStoriesCollection
+      case _ => throw new ProgrammerException("What are you doing?")
+    }
+
+      Link.create(
+        linkType = Link.LinkType.THUMBNAIL,
+        userName = userName,
+        value = Map.empty,
+        from = LinkReference(
+          id = Some(fromId),
+          hubType = Some(fromType)
+        ),
+        to = LinkReference(
+          hubType = Some(MDR),
+          hubCollection = Some(mdrCollectionName),
+          hubAlternativeId = Some(hubId)
+        ),
+        embedFrom = Some(EmbeddedLinkWriter(
+          value = Some(Map(MDR_HUB_ID -> hubId)),
+          collection = fromCollection,
+          id = Some(fromId)
+        ))
+      )
+
+    }
+
 }
 
 /**

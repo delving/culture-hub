@@ -38,7 +38,7 @@ import components.Indexing
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserSecured {
+object Collections extends DelvingController with UserSecured with UGCController {
 
   private def load(id: String): String = {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
@@ -51,28 +51,10 @@ object Collections extends DelvingController with UserSecured {
         val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
         val links = Link.find("_id" $in linkedObjectLinks).toList
         val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
-        val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
-
         val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
+        val convertedMdrs = retrieveMDRs(links)
 
-        val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_HUB_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
-        val convertedMdrs = mdrs.flatMap(mdr =>
-          // we assume that the first mapping we find will do
-          if(!mdr.mappedMetadata.isEmpty) {
-            val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
-            DataSet.findBySpecAndOrgId(spec, orgId) match {
-              case Some(ds) =>
-                val record = mdr.getAccessor(ds.getIndexingMappingPrefix.getOrElse(""))
-                Some(ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(80), title = record.getTitle, hubType = MDR))
-              case None =>
-                warning("Could not find DataSet for " + mdr.hubId)
-                None // huh?!?
-            }
-          } else {
-            None
-          })
-
-        val objects = userObjects ++ convertedMdrs
+        val objects: List[ShortObjectModel] = userObjects ++ convertedMdrs
         JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = if(col.getBookmarksCollection) &("thing.bookmarksCollection") else col.name,
@@ -80,12 +62,7 @@ object Collections extends DelvingController with UserSecured {
           allObjects = allObjects,
           objects = objects,
           availableObjects = (allObjects filterNot (objects contains)),
-          thumbnail = if(col.thumbnail_id != None) col.thumbnail_id.get else {
-            col.links.find(_.linkType == Link.LinkType.THUMBNAIL).headOption match {
-              case Some(e) => e.value(MDR_HUB_ID)
-              case None => ""
-            }
-          },
+          thumbnail = col.getThumbnailIdInternal,
           visibility = col.visibility.value,
           isBookmarksCollection = col.getBookmarksCollection))
       }
@@ -99,23 +76,11 @@ object Collections extends DelvingController with UserSecured {
   }
 
   def collectionSubmit(data: String): Result = {
-    
-    def getThumbnailId(collectionId: ObjectId, thumbnailId: String, objects: List[ShortObjectModel]): Either[String, String] = thumbnailId match {
-      case oid if ObjectId.isValid(oid) => Right(new ObjectId(oid))
-      case hubId =>
-        val thumbnailUrl = objects.find(_.id == hubId).get.thumbnail
-        Left(thumbnailUrl)
-    }
 
-    def setThumbnaiL(collectionId: ObjectId, thumbnailId: String, objects: List[ShortObjectModel], thumbnailLink: Option[ObjectId]) {
-      // remove existing thumbnail link, if any
-      thumbnailLink.foreach(Link.removeById(_))
-      getThumbnailId(collectionId, thumbnailId, objects) match {
-        case Right(oid) =>
-          UserCollection.update(MongoDBObject("_id" -> collectionId), $set ("thumbnail_id" -> oid) ++ $unset("thumbnail_url"))
-        case Left(url) =>
-          UserCollection.createThumbnailLink(collectionId, thumbnailId, connectedUser)
-          UserCollection.update(MongoDBObject("_id" -> collectionId), $set("thumbnail_url" -> url) ++ $unset("thumbnail_id"))
+    def findThumbnailUrl(thumbnailMDRId: String, objects: List[ShortObjectModel]) = {
+      objects.filter(_.id == thumbnailMDRId).headOption match {
+        case Some(thing) => Some(thing.thumbnail)
+        case None => None
       }
     }
 
@@ -137,7 +102,7 @@ object Collections extends DelvingController with UserSecured {
           case None => None
           case Some(iid) =>
             // set the thumbnail
-            setThumbnaiL(iid, collectionModel.thumbnail, collectionModel.objects, None)
+            setThumbnaiL(iid, USERCOLLECTION, collectionModel.thumbnail, findThumbnailUrl(collectionModel.thumbnail, collectionModel.objects), None)
 
             // TODO this has to be replaced by a mechanism that does atomic adds / deletes in the view, not all at once
             for(o <- collectionModel.objects) {
@@ -145,7 +110,11 @@ object Collections extends DelvingController with UserSecured {
               val obj = DObject.findOneByID(o.id.get).get
               SolrServer.indexSolrDocument(obj.toSolrDocument)
             }
-            SolrServer.indexSolrDocument(newCollection.toSolrDocument)
+
+            // fetch the collection again & index
+            val updatedCollection = UserCollection.findOneByID(iid)
+
+            SolrServer.indexSolrDocument(updatedCollection.get.toSolrDocument)
             SolrServer.commit()
             Some(collectionModel.copy(id = inserted))
         }
@@ -166,7 +135,7 @@ object Collections extends DelvingController with UserSecured {
           UserCollection.update(MongoDBObject("_id" -> id), updatedUserCollection, false, false, WriteConcern.SAFE)
 
           // update the thumbnail
-          setThumbnaiL(id, collectionModel.thumbnail, collectionModel.objects, updatedUserCollection.links.filter(_.linkType == Link.LinkType.THUMBNAIL).map(_.link).headOption)
+          setThumbnaiL(id, USERCOLLECTION, collectionModel.thumbnail, findThumbnailUrl(collectionModel.thumbnail, collectionModel.objects), updatedUserCollection.links.filter(_.linkType == Link.LinkType.THUMBNAIL).map(_.link).headOption)
 
           val existingCollection = UserCollection.findOneByID(id)
 

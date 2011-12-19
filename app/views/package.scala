@@ -23,11 +23,12 @@ import models.{UserCollection, DObject, PortalTheme}
 import java.util.Date
 import java.text.SimpleDateFormat
 import controllers.dos.ImageDisplay
-import play.mvc.{Util, Http}
+import play.mvc.Http
 import controllers.{ViewUtils, Internationalization, ViewModel}
 
 package object context extends Internationalization {
 
+  val DEFAULT_THUMBNAIL = "/public/images/dummy-object.png"
   val PAGE_SIZE = 12
 
   // ~~~ play variables
@@ -59,7 +60,7 @@ package object context extends Internationalization {
 
   def thumbnailUrl(thumbnail: Option[ObjectId], size: Int = 100) = thumbnail match {
     case Some(t) => "/thumbnail/%s/%s".format(t, size)
-    case None => "/public/images/dummy-object.png" // TODO now that's not very clean, is it?
+    case None => DEFAULT_THUMBNAIL // TODO now that's not very clean, is it?
   }
 
   def imageUrl(image: ObjectId) = if(ImageDisplay.imageExists(image)) "/image/" + image else "/public/images/dummy-object.png" // TODO now that's not very clean, is it?

@@ -84,6 +84,16 @@ trait Thing extends Base with Universal {
   def getMimeType = "unknown/unknown"
   def hasDigitalObject = thumbnail_id != None || thumbnail_url != None
 
+  // ~~~ special (internal) accessors:
+  def getThumbnailIdInternal: String = {
+    if(thumbnail_id != None) thumbnail_id.get.toString else {
+      links.find(_.linkType == Link.LinkType.THUMBNAIL).headOption match {
+        case Some(e) => e.value(MDR_HUB_ID)
+        case None => ""
+      }
+    }
+  }
+
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField (ID, _id)

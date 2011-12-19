@@ -55,30 +55,4 @@ object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollections
     userCollectionsCollection.update(MongoDBObject("_id" -> id), $set("linkedObjects" -> objectIds))
   }
 
-  def createThumbnailLink(userCollection: ObjectId, hubId: String, userName: String) = {
-    val Array(orgId, spec, recordId) = hubId.split("_")
-    val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
-
-    Link.create(
-      linkType = Link.LinkType.THUMBNAIL,
-      userName = userName,
-      value = Map.empty,
-      from = LinkReference(
-        id = Some(userCollection),
-        hubType = Some(USERCOLLECTION)
-      ),
-      to = LinkReference(
-        hubType = Some(MDR),
-        hubCollection = Some(mdrCollectionName),
-        hubAlternativeId = Some(hubId)
-      ),
-      embedFrom = Some(EmbeddedLinkWriter(
-        value = Some(Map(MDR_HUB_ID -> hubId)),
-        collection = userCollectionsCollection,
-        id = Some(userCollection)
-      ))
-    )
-
-  }
-
 }

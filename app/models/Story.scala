@@ -22,6 +22,7 @@ import models.salatContext._
 import org.bson.types.ObjectId
 import java.util.Date
 import util.Constants._
+import controllers.{ModelImplicits, ShortObjectModel}
 
 /**
  *
@@ -63,7 +64,19 @@ object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commo
 
 }
 
-case class Page(title: String, text: String, objects: List[PageObject])
+case class Page(title: String, text: String, objects: List[PageObject]) extends ModelImplicits {
 
-/**object in a page. may contain more things such as position, location, ... **/
-case class PageObject(dobject_id: ObjectId)
+  def getPageObjects = {
+    val (userPageObjects, mdrPageObjects) = objects.partition(_.objectId != None)
+    val userObjects: List[ShortObjectModel] = DObject.findAllWithIds(userPageObjects.flatMap(_.objectId)).toList
+    // TODO optimize, refactor
+    val heritageObjects: List[ShortObjectModel] = mdrPageObjects.flatMap(_.hubId).flatMap(MetadataRecord.getMDR(_)).map(_.getDefaultAccessor)
+    userObjects ++ heritageObjects
+  }
+
+}
+
+/**
+ * References an object in a page, either a UserObject or MDR. May contain additional information such as position in the page etc.
+ */
+case class PageObject(objectId: Option[ObjectId] = None, hubId: Option[String] = None)
