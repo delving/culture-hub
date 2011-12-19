@@ -43,11 +43,13 @@ class DataSetIndexing extends Job {
               case t => {
                 Logger.error(t, "Error while processing indexing for DataSet %s with mapping prefix %s".format(dataSet.get.spec, prefix))
                 DataSet.updateState(dataSet.get, DataSetState.ERROR)
+                throw t
               }
             }
           case None =>
             Logger.error("No indexing mapping prefix set for DataSet " + dataSet.get.spec)
             DataSet.updateState(dataSet.get, DataSetState.ERROR)
+            throw new RuntimeException("No indexing mapping prefix set for DataSet " + dataSet.get.spec)
         }
       }
     }
