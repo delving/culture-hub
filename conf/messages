@@ -289,7 +289,7 @@ story.nextpage=Next page
 story.read=Read story
 story.previouspage=Previous page
 story.confirmDeletion=Are you sure you want to remove this story?
-story.titlePage=Title-page
+story.titlePage=Title page
 
 #metadata
 metadata.abm.contentProvider=Content Provider

@@ -47,7 +47,7 @@
                                 "dc_relation", "dcterms_references", "dcterms_isReferencedBy", "dcterms_isReplacedBy", "dcterms_isRequiredBy", "dcterms_isPartOf", "dcterms_hasPart",
                                 "dcterms_replaces", "dcterms_requires", "dcterms_isVersionOf", "dcterms_hasVersion", "dcterms_conformsTo", "dcterms_hasFormat"]), separator:", "  /}
                             #{metadataField label: viewUtils.getKey('metadata.dcterms.provenance'), data: fullDoc.getAsString("dcterms_provenance") /}
-                            #{metadataField label: viewUtils.getKey('metadata.icn.technique'), data: fullDoc.getAsString("icn_technique") /}
+                            #{metadataField label: viewUtils.getKey('metadata.icn.technique'), data: fullDoc.getAsString("icn_technique"), queryLink:true /}
 
                         </div>
                     </div>
