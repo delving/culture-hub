@@ -271,7 +271,7 @@ search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
 search.trail=U bekijkt resultaten <strong>%s - %s</strong> van <strong>%s</strong> voor:
-
+search.viewInOriginalContext=Bekijk in oorspronkelijke context
 ##Story
 story.pages=Pagina's
 story.nextpage=Volgende pagina
