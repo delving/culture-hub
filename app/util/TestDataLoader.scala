@@ -19,8 +19,8 @@ package util
 import models.salatContext._
 import com.mongodb.casbah.Imports._
 import models._
-import controllers.AccessControl
 import play.libs.Crypto
+import controllers.{SolrServer, AccessControl}
 
 /**
  * 
@@ -40,6 +40,8 @@ trait TestData {
     collection =>
       commonsConnection.getCollection(collection).remove(MongoDBObject())
   }
+
+  SolrServer.deleteFromSolrByQuery("*:*")
 
 }
 

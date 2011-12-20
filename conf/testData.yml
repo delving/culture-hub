@@ -158,7 +158,9 @@
         : *icnMapping
     idxMappings: ["icn"]
     hints: ""
-    invalidRecords: !!map { }
+    invalidRecords:
+        ? icn
+        : [ 1 ]
 
 - !!models.MetadataRecord
   hubId: "delving_Verzetsmuseum_00001"

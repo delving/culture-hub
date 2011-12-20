@@ -1,4 +1,5 @@
-import controllers.Search
+import collection.immutable.List
+import controllers.{ListItem, Search}
 import java.io.File
 import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers
@@ -91,7 +92,7 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "create a link to an MDR" in {
-    val uCol = UserCollection.findOne(MongoDBObject()).get
+    val uCol = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
     val req = getAuthenticated()
     req.method = "POST"
 
@@ -119,13 +120,14 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     val testTheme = ThemeHandler.getDefaultTheme
     testTheme should not be (None)
 
-    val userCollection = UserCollection.findOne(MongoDBObject()).get
-    Search.search(None, request, testTheme.get, List("%s:%s OR %s:%s %s:%s".format(RECORD_TYPE, OBJECT, RECORD_TYPE, MDR, COLLECTIONS, userCollection._id)))._1
+    val userCollection = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
+    val mdrListItemList: List[ListItem] = Search.search(None, request, testTheme.get, List("%s:%s OR %s:%s %s:%s".format(RECORD_TYPE, OBJECT, RECORD_TYPE, MDR, COLLECTIONS, userCollection._id)))._1
 
+    mdrListItemList.size should be (1)
   }
 
   it should "remove a link to an MDR" in {
-    val uCol = UserCollection.findOne(MongoDBObject()).get
+    val uCol = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
 
     val links = Link.find(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.uri" -> "http://culturehub/delving/object/Verzetsmuseum/00001", "to.id" -> uCol._id))
     links.size should be (1)
