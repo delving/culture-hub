@@ -143,6 +143,21 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     case _ => null
   })
 
+  def buildUri(hubType: String, id: String, hostName: String) = {
+    hubType match {
+      case USER => "http://id.culturecloud.eu/actor/" + id
+      case _ =>
+        val typeUri = hubType match {
+          case OBJECT => "thing/" + id
+          case USERCOLLECTION => "collection/" + id
+          case STORY => "story/" + id
+          case MDR => "thing/" + id
+          case _ => throw new ProgrammerException("Invalid hubType " + hubType)
+        }
+        "http://id.%s/%s".format(hostName, typeUri)
+    }
+  }
+
   def removeLink(link: Link) {
     
     def removeEmbedded(link: ObjectId, hubType: String, id: Option[ObjectId], hubCollection: Option[String], hubAlternativeId: Option[String]) {
@@ -178,7 +193,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
   // ~~~ shared link creation, we maybe find a better place for this
 
-  def createThumbnailLink(fromId: ObjectId, fromType: String, hubId: String, userName: String) = {
+  def createThumbnailLink(fromId: ObjectId, fromType: String, hubId: String, userName: String, hostName: String) = {
     val Array(orgId, spec, recordId) = hubId.split("_")
     val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
 
@@ -193,10 +208,12 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
         userName = userName,
         value = Map.empty,
         from = LinkReference(
+          uri = Some(Link.buildUri(fromType, fromId.toString, hostName)),
           id = Some(fromId),
           hubType = Some(fromType)
         ),
         to = LinkReference(
+          uri = Some(Link.buildUri(MDR, hubId, hostName)),
           hubType = Some(MDR),
           hubCollection = Some(mdrCollectionName),
           hubAlternativeId = Some(hubId)
