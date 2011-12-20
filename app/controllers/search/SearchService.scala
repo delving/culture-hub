@@ -186,7 +186,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet")
+  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "fullTextObjectUrl")
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
@@ -328,7 +328,7 @@ case class FullView(fullResult : FullItemView, language: String = "en", chRespon
 
   import xml.Elem
 
-  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet")
+  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
 
   val filterKeys = List("id", "timestamp", "score")
   val uniqueKeyNames = fullResult.getFullDoc.solrDocument.getFieldNames.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).toList.sortWith(_ > _)
