@@ -12,6 +12,9 @@
             <img src="${fullDoc.getThumbnailUri(350)}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
             <div class="extra">
                 <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+                #{if fullDoc.getLandingPage()}
+
+                #{/if}
             </div>
             <div class="bd">
                 #{if returnToResults}
