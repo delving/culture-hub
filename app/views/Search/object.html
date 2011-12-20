@@ -68,7 +68,12 @@
 <script type="text/javascript" language="javascript">
     $(function () {
         $("a.overlay-trigger").overlay({
-            closeOnClick:true
+            closeOnClick: true,
+            mask: {
+                color: "#ddddd0",
+                loadSpeed: 200,
+                opacity: 0.5
+            }
         });
     });
 </script>
