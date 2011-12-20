@@ -245,15 +245,15 @@ object SolrQueryService extends SolrServer {
         item => {
           val prefix = facetFieldMap.get(item._1)
           val facetQueriesValues = item._2.map(_.value)
-          val facetType = paramMap.getOrElse("facetBoolType", Array("OR")).head.equalsIgnoreCase("AND")
+          val multiSelect = paramMap.getOrElse("facetBoolType", Array("OR")).head.equalsIgnoreCase("OR")
           val orString = if (!facetQueriesValues.filter(_.startsWith("[")).isEmpty)
-            "%s:%s".format(item._1, facetQueriesValues.head.mkString(" "))
-          else if (facetType)
+            "%s:%s".format(item._1, facetQueriesValues.head.mkString(""))
+          else if (!multiSelect)
             "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" AND \"" ,"\"")) 
           else
             "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" OR \"" ,"\""))
           prefix match {
-            case Some(tag) => query addFilterQuery ("{!tag=%s}%s".format(tag, orString))
+            case Some(tag) => query addFilterQuery (if (multiSelect) "{!tag=%s}%s".format(tag, orString) else orString)
             case None => query addFilterQuery (orString)
           }
         }
