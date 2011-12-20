@@ -25,9 +25,7 @@ import play.Play
 import play.mvc.results.Result
 import models.salatContext._
 import play.mvc.Controller
-import models.{User, Organization, UserCollection, Visibility}
-import java.util.Date
-import com.mongodb.WriteConcern
+import models.{User, Organization}
 
 /**
  *
@@ -121,8 +119,23 @@ object Registration extends Controller with ThemeAware with Internationalization
   }
 
   def activate(activationToken: Option[String]): AnyRef = {
-    val success = activationToken.isDefined && User.activateUser(activationToken.get)
-    if (success) flash += ("activation" -> "true") else flash += ("activation" -> "false")
+    if(activationToken.isEmpty) {
+      warning("Empty activation token")
+      flash += ("activation" -> "false")
+    } else {
+      val activated = User.activateUser(activationToken.get)
+      val success = activated != None
+      if (success) {
+        flash += ("activation" -> "true")
+        try {
+          Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullname, activated.get.email)
+        } catch {
+          case t => logError(t, "Could not send activation email")
+        }
+      } else {
+        flash += ("activation" -> "false")
+      }
+    }
     Action(controllers.Application.index)
   }
 

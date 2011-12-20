@@ -20,8 +20,8 @@ import com.novus.salat._
 import com.mongodb.casbah.Imports._
 import dao.{SalatDAOError, SalatDAO}
 import models.salatContext._
-import controllers.InactiveUserException
 import play.libs.Crypto
+import controllers.{ServicesSecurity, InactiveUserException}
 
 case class User(_id: ObjectId = new ObjectId,
                 userName: String, // userName, unique in the world
@@ -87,13 +87,14 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def existsWithUsername(userName: String) = User.count(MongoDBObject("userName" -> userName)) != 0
 
-  def activateUser(activationToken: String): Boolean = {
-    val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return false)
+  def activateUser(activationToken: String): Option[User] = {
+    val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return None)
     val activeUser: User = user.copy(isActive = true, activationToken = None)
     User.update(MongoDBObject("userName" -> activeUser.userName), activeUser, false, false, new WriteConcern())
     // also log the guy in
-    play.mvc.Scope.Session.current().put("username", activeUser.userName)
-    true
+    play.mvc.Scope.Session.current().put("userName", activeUser.userName)
+    new ServicesSecurity().onAuthenticated(activeUser.userName, play.mvc.Scope.Session.current())
+    Some(user)
   }
 
   def preparePasswordReset(user: User, resetPasswordToken: String) {
