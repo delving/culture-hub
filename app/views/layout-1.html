@@ -1,9 +1,11 @@
 #{include 'commonHeader.html' /}
-<!--<link rel="stylesheet" href='${views.context.package.themePath("stylesheets/font-face.css")}' type="text/css"/>-->
-<link href='http://fonts.googleapis.com/css?family=IM+Fell+English:400,400italic' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href='${views.context.package.themePath("stylesheets/font-face.css")}' type="text/css"/>
+<!--<link href='http://fonts.googleapis.com/css?family=IM+Fell+English:400,400italic' rel='stylesheet' type='text/css'>-->
 
-<div class="user-nav row">
-    #{userNav userName: userName, email:email, organizations:organizations /}
+<div class="user-nav">
+    <div class="container_12">
+       #{userNav userName: userName, email:email, organizations:organizations/}
+    </div>
 </div>
 
 <div class="header">
@@ -18,11 +20,11 @@
             </div>
              <div id="secondary-branding" role="banner">
                 <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
-            </div>
+             </div>
         </div>
 
         <div class="header-main">
-            <div class="grid_6">
+            <div class="grid_8">
                 <div id="site-nav">
                     <ul>
                         <li class='${"Application".isCurrent()}'>
@@ -30,7 +32,7 @@
                         <li class='${"HeritageObjects".isCurrent()}'>
                             <a href="@{HeritageObjects.list()}"><span>&{'thing.objects.heritage'}</span></a></li>
                         <li class='${"DObjects".isCurrent()}'>
-                            <a href="@{DObjects.list()}"><span>&{'thing.objects'}</span></a></li>
+                            <a href="@{DObjects.list()}"><span>&{'thing.objects.user'}</span></a></li>
                         <li class='${"Collections".isCurrent()}'>
                             <a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
                         <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
@@ -40,7 +42,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="grid_6">
+            <div class="grid_4">
                 <div id="search" role="search">
                     <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                         <input type="text" id="query" name="query" value='${params.query}'/>
@@ -65,9 +67,9 @@
 
 <div class="footer">
     <div class="container_12">
-        <div class="grid_6">
-        <div class="poweredBy">
-            <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
+        <div class="grid_6 row">
+        <div class="poweredBy ptm">
+            <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/common/images/powered-by-delving.png'}" alt="Powered by DELVING.EU" width="100"/></a>
         </div>
         </div>
 

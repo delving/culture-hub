@@ -8,7 +8,14 @@
             #{gravatar.img _email, size:26 /}
             <span class="label">Hi ${_userName}</span>
         </span>
+        <a href="/${_userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a>
+        <a href="/${_userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a>
+        <a href="/${_userName}/collection"><span class="label">${messages.get('user.nav.yourcollections')}</span></a>
+        <a href="/${_userName}/story"><span class="label">${messages.get('user.nav.yourstories')}</span></a>
 
+        <a href="/${_userName}/object/add"><span class="label">${messages.get('user.nav.newobject')}</span></a>
+        <a href="/${_userName}/collection/add"><span class="label">${messages.get('user.nav.newcollection')}</span></a>
+        <a href="/${_userName}/story/add"><span class="label">${messages.get('user.nav.newstory')}</span></a>
     #{/else}
 #{/if}
 #{else}
@@ -27,11 +34,12 @@
 
         </span>
         <div class="dropdown">
-            #{btnHref label: messages.get('user.nav.goto'), iconClass:"icon9", toggle:true/}
+            <!--#{btnHref label: messages.get('user.nav.goto'), iconClass:"icon9", toggle:true/}-->
+            #{btnHref label: messages.get('user.nav.goto'), toggle:true/}
             <div class="dropdown-slider">
                 <a href="/${_userName}" class="ddm user"><span class="label">${messages.get('user.nav.yourprofile')}</span></a>
-                <a href="/${_userName}/object" class="ddm"></span><span class="label">${messages.get('user.nav.yourobjects')}</span></a>
-                <a href="/${_userName}/collection" class="ddm"></span>
+                <a href="/${_userName}/object" class="ddm"><span class="label">${messages.get('user.nav.yourobjects')}</span></a>
+                <a href="/${_userName}/collection" class="ddm">
                     <span class="label">${messages.get('user.nav.yourcollections')}</span></a>
                 <a href="/${_userName}/story" class="ddm"></span><span class="label">${messages.get('user.nav.yourstories')}</span></a>
                 #{if _organizations.length() > 0}
@@ -43,7 +51,8 @@
             </div>
         </div>
         <div class="dropdown">
-            #{btnHref label: messages.get('user.nav.create'), iconClass:"icon144", toggle:true/}
+            <!--#{btnHref label: messages.get('user.nav.create'), iconClass:"icon144", toggle:true/}-->
+            #{btnHref label: messages.get('user.nav.create'), toggle:true/}
             <div class="dropdown-slider">
                 <a href="/${_userName}/object/add" class="ddm"><span class="label">${messages.get('user.nav.newobject')}</span></a>
                 <a href="/${_userName}/collection/add" class="ddm"><span class="label">${messages.get('user.nav.newcollection')}</span></a>
@@ -51,7 +60,7 @@
             </div>
         </div>
         #{languageSelect /}
-        #{btnHref label: messages.get('ui.label.logout'), href:"/logout", extraClass: "complete" /}
+        #{btnHref label: messages.get('ui.label.logout'), href:"/logout", extraClass: "complete", extraClass: "complete" /}
     </div>
     #{/else}
 #{/else}
