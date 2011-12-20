@@ -186,7 +186,7 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "fullTextObjectUrl")
+  private val filteredFields = Array("delving_title","delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
 
   def minusAmp(link : String) = link.replaceAll("amp;", "").replaceAll(" ","%20").replaceAll("qf=","qf[]=")
 
