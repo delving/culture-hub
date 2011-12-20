@@ -25,6 +25,8 @@ require:
     - com.google.collections -> google-collections 1.0
     # Solr dependencies
     - org.apache.solr -> solr-solrj 3.4.0
+    - org.apache.tika -> tika-parsers 1.0
+
     #- com.twitter -> finagle 1.8.0
     #- com.twitter -> finagle-core 1.8.0
 
