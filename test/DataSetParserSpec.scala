@@ -12,9 +12,7 @@ import util.{TestDataGeneric, SimpleDataSetParser}
 
 class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
-
-  it should "parse an input stream" in {
-
+  def parseStream = {
     val ds = DataSet.findBySpecAndOrgId("Verzetsmuseum", "delving").get
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
@@ -37,15 +35,21 @@ class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
       case t => fail(t)
     }
 
-    buffer.length should be (2)
-
-    // TODO implement test. assert things.
-    
-
-
+    buffer
   }
 
-// TODO parse from a real gzipped source!!!!!
+  it should "parse an input stream" in {
+    val buffer = parseStream
+
+    buffer.length should be (2)
+  }
+
+  it should "properly assign valid metadata formats" in {
+    val buffer = parseStream
+    buffer(1).validOutputFormats should not contain ("icn")
+  }
+
+// TODO parse from a real gzipped source
   val sampleDataSet =
     """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >

@@ -502,6 +502,15 @@
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+   <field name="delving_title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_description" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_owner" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_visibility" type="string" indexed="true" stored="true" multiValued="false" />
+   <field name="delving_thumbnail" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_hasDigitalObject" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -520,6 +529,7 @@
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
 
 
+
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
         RESTRICTION: the glob-like pattern in the name attribute must have
@@ -532,6 +542,7 @@
    <dynamicField name="*_string"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_single"  type="string"  indexed="true"  stored="true"/>
+   <dynamicField name="*_link"  type="string"  indexed="true"  stored="true"/>
    <dynamicField name="*_long"  type="long"   indexed="true"  stored="true"/>
    <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
    <dynamicField name="*_txt" type="text_general"    indexed="true"  stored="true" multiValued="true"/>
@@ -573,12 +584,15 @@
      <dynamicField name="sort_all_*" type="string" indexed="true" stored="false" multiValued="false" termVectors="true"/>
      <dynamicField name="sort_*" type="alphaOnlySort" indexed="true" stored="false" multiValued="false" termVectors="true"/>
 
-   <!-- uncomment the following to ignore any fields that don't already match an existing
-        field name or dynamic field, rather than reporting them as an error. 
-        alternately, change the type="ignored" to some other type e.g. "text" if you want 
-        unknown fields indexed and/or stored by default --> 
-   <dynamicField name="*" type="text_general" multiValued="true" />
-   
+     <dynamicField name="*_snippet" type="text_general" multiValued="true"/>
+
+     <!-- uncomment the following to ignore any fields that don't already match an existing
+field name or dynamic field, rather than reporting them as an error.
+alternately, change the type="ignored" to some other type e.g. "text" if you want
+unknown fields indexed and/or stored by default -->
+     <dynamicField name="*" type="text_general" multiValued="true" />
+
+
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
@@ -596,7 +610,18 @@
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-     <copyField source="*" dest="text"/>
+     <copyField source="delving_title" dest="text"/>
+     <copyField source="delving_description" dest="text"/>
+     <copyField source="delving_owner" dest="text"/>
+     <copyField source="delving_creator" dest="text"/>
+     <copyField source="delving_visibility" dest="text"/>
+     <copyField source="delving_thumbnail" dest="text"/>
+     <copyField source="delving_hasDigitalObject" dest="text"/>
+
+     <copyField source="*_string" dest="text"/>
+     <copyField source="*_text" dest="text"/>
+     <copyField source="*_date" dest="text"/>
+     <copyField source="*_int" dest="text"/>
 
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
