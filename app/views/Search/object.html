@@ -25,12 +25,13 @@
                 #{/else}
                 <div class="metadata">
                     <h5>&{'metadata.dc.description'}:</h5>
-                    <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
+                    <!--<p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>-->
+                    #{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /} `
                     <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">
                             #{metadataField label: viewUtils.getKey('metadata.dc.title'), data: fullDoc.getTitle() /}
-                            #{metadataField label: viewUtils.getKey('metadata.dc.type'), data: fullDoc.getAsString("dc_type") /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.type'), data: fullDoc.getAsString("dc_type"), queryLink: true /}
                             #{metadataField label: viewUtils.getKey('metadata.dcterms.alternative'), data: fullDoc.getConcatenatedList("dcterms_alternative", ["_metadata.dcterms.alternative"]), separator:", "  /}
                             #{metadataField label: viewUtils.getKey('metadata.icn.material'), data: fullDoc.getAsString("icn_material"), queryLink:true /}
                             #{metadataField label: viewUtils.getKey('metadata.icn.creatorYearOfBirth'), data: fullDoc.getConcatenatedList("icn_creatorYearOfBirth", ["icn_creatorYearOfBirth"]), separator:", "  /}

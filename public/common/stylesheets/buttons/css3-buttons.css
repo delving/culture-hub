@@ -327,12 +327,12 @@ button:hover .label.yellow,
 button.submit .label,
 .button.submit .label {
 	color: #FFF !important;
-	text-shadow: 0 1px 0 #2F5BB7 !important;
+	text-shadow: 0 0px 0 #2F5BB7 !important;
 }
 button.complete .label,
 .button.complete .label {
 	color: #FFF !important;
-	text-shadow: 0 1px 0 #2D6200 !important;
+	text-shadow: 0 0px 0 #2D6200 !important;
 }
 button.beware .label,
 .button.beware .label {
