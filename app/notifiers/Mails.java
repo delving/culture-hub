@@ -17,12 +17,20 @@
 package notifiers;
 
 import models.User;
+import play.Play;
+import play.libs.IO;
 import play.mvc.Mailer;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 public class Mails extends Mailer {
+    
+    private static List<String> quotes;
 
     public static void activation(User user, String activationToken) {
         setSubject("Welcome to CultureHub");
@@ -57,8 +65,41 @@ public class Mails extends Mailer {
         } finally {
             ThemeAwareBridge.after();
         }
-        send(report);
+        String quote = getRandomQuote();
+        send(report, quote);
+    }
 
+    public static void newUser(String subject, String hub, String userName, String fullName, String email) {
+        ThemeAwareBridge.before();
+        try {
+            setSubject(subject);
+            addRecipient(ThemeAwareBridge.theme().emailTarget().exceptionTo());
+            setFrom(ThemeAwareBridge.theme().emailTarget().systemFrom());
+        } finally {
+            ThemeAwareBridge.after();
+        }
+        String quote = getRandomQuote();
+        send(fullName, hub, userName, email, quote);
+    }
+
+    private static String getRandomQuote() {
+        if(quotes == null) {
+            // quotes.txt courtesy of Rudy Velthuis - http://blogs.teamb.com/rudyvelthuis/2006/07/29/26308
+            File f = Play.getFile("/app/views/Mails/quotes.txt");
+            quotes = new ArrayList<String>();
+            List<String> lines = IO.readLines(f);
+            StringBuffer sb = new StringBuffer();
+            for(String line : lines) {
+                if(line.equals(".")) {
+                    quotes.add(sb.toString());
+                    sb = new StringBuffer();
+                } else {
+                    sb.append(line).append("\n");
+                }
+            }
+        }
+        int index = (int)(Math.random() * quotes.size() + 1);
+        return quotes.get(index);
     }
 
 }
