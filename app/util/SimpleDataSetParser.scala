@@ -17,13 +17,13 @@
 package util
 
 import io.Source
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.InputStream
 import xml.pull._
 import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
 import eu.delving.metadata.{Hasher, Tag, Path}
 import models.{MetadataRecord, DataSet}
-import org.apache.commons.lang.StringEscapeUtils
+import scala.collection.JavaConverters._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -35,11 +35,18 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
 
   val parser = new XMLEventReader(Source.fromInputStream(is))
   val hasher = new Hasher
+  var recordCounter = 0
+
+  // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
+  val invalidRecords = dataSet.invalidRecords.map(valid => {
+    val key = valid._1.toString
+    val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(_.asInstanceOf[Int]).toSet
+    (key, value)
+  }).toMap[String, Set[Int]]
 
   def nextRecord: Option[MetadataRecord] = {
 
     var hasParsedOne = false
-    var recordCounter = 0
     var inRecord = false
     var inIdentifierElement = false
     var justLeftIdentifierElement = false
@@ -120,18 +127,8 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     Option(record)
   }
 
-  private def getValidMappings(dataSet: DataSet, index: Int): List[String] = {
-    val invalidRecords: Map[String, _] = dataSet.invalidRecords
-    val mappings: Iterable[String] = for (valid <- invalidRecords) yield {
-      val thing = valid._2
+  private def getValidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(valid => if(valid._2.contains(index)) None else Some(valid._1)).toList
 
-      // workaround for a Salat bug
-      if(thing.isInstanceOf[com.mongodb.BasicDBList]) {
-        if(thing.asInstanceOf[com.mongodb.BasicDBList].contains(index)) "" else valid._1
-      } else if(thing.asInstanceOf[List[Int]].contains(index)) "" else valid._1
-    }
-    mappings.filterNot(_.length == 0).toList
-  }
 
   private def elemStartToString(start: EvElemStart): String = {
       val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
@@ -163,94 +160,4 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     }
     bits.flatten.toMap
   }
-}
-
-object SimpleDataSetParser {
-
-  def main(args: Array[String]) {
-
-    import models.salatContext._
-
-    val ds = DataSet.findBySpec("Verzetsmuseum").get
-
-    val txt =
-    """
-    <?xml version='1.0' encoding='UTF-8'?>
-<delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<input id="1">
-<edit.source>collect>intern</edit.source>
-<edit.source>collect>intern</edit.source>
-<edit.source>collect>intern</edit.source>
-<edit.source>collect>intern</edit.source>
-<edit.time>16:14:27</edit.time>
-<edit.time>15:45:34</edit.time>
-<edit.time>11:55:25</edit.time>
-<edit.time>16:16:41</edit.time>
-<edit.name>d.terpstra</edit.name>
-<edit.name>d.terpstra</edit.name>
-<edit.name>alina</edit.name>
-<edit.name>alina</edit.name>
-<input.name>Conversie AIS</input.name>
-<association.subject>Heerenveen</association.subject>
-<association.subject>Hemelum</association.subject>
-<association.subject.type option="GEOKEYW" value="GEOKEYW"><text language="0">geography</text>
-<text language="1">geografie</text>
-<text language="2">g<C3><A9>ographie</text>
-<text language="3">Geografie</text>
-<text language="4"><D8><AC><D8><BA><D8><B1><D8><A7><D9><81><D9><8A></text>
-<text language="6"><CE><B3><CE><B5><CF><89><CE><B3><CF><81><CE><B1><CF><86><CE><AF><CE><B1></text>
-</association.subject.type>
-<association.subject.type option="GEOKEYW" value="GEOKEYW"><text language="0">geography</text>
-<text language="1">geografie</text>
-<text language="2">g<C3><A9>ographie</text>
-<text language="3">Geografie</text>
-<text language="4"><D8><AC><D8><BA><D8><B1><D8><A7><D9><81><D9><8A></text>
-<text language="6"><CE><B3><CE><B5><CF><89><CE><B3><CF><81><CE><B1><CF><86><CE><AF><CE><B1></text>
-</association.subject.type>
-<edit.date>2009-04-15</edit.date>
-<edit.date>2009-04-15</edit.date>
-<edit.date>2007-11-19</edit.date>
-<edit.date>2007-11-07</edit.date>
-<input.date>2005-02-08</input.date>
-<acquisition.method>schenking</acquisition.method>
-<production.place>Friesland</production.place>
-<acquisition.source>Yntema</acquisition.source>
-<free_field.content>ja</free_field.content>
-<free_field.type>Ge<C3><AF>llustreerd</free_field.type>
-<acquisition.date>1979</acquisition.date>
-<valuation.value.currency>EUR</valuation.value.currency>
-<condition>matig</condition>
-<title>Archiefmap van Iede Boukes Yntema, slachtoffer verzet</title>
-<valuation.date>2004</valuation.date>
-<valuation.value>100.00</valuation.value>
-<location>ARCH</location>
-<association.period.date.start>1945-03-17</association.period.date.start>
-<related_object.notes>VM000008 VM000009</related_object.notes>
-<number_of_parts>1</number_of_parts>
-<object_name>map</object_name>
-<location.default>ARCH</location.default>
-<object_number>00001</object_number>
-<institution.code>1023</institution.code>
-<content.motif.specific>PERSONEN/YNTEMA, IEDE BOUKES SLACHTOFFER</content.motif.specific>
-<content.motif.general>verzet</content.motif.general>
-<production.date.notes>1902 Hemelum</production.date.notes>
-<dimension.notes>-</dimension.notes>
-<institution.place/>
-<description>Slachtoffer verzet</description>
-<institution.name>Verzetsmuseum Friesland</institution.name>
-<administration_name>Objecten</administration_name>
-<percentH>J</percentH>
-</input>
-</delving-sip-source>"""
-
-    val bis = new ByteArrayInputStream(txt.getBytes)
-
-    val parser = new SimpleDataSetParser(bis, ds)
-
-    println(parser.nextRecord)
-    println(parser.nextRecord)
-    println(parser.nextRecord)
-
-  }
-
 }
