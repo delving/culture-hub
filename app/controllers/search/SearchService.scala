@@ -434,7 +434,7 @@ case class ExplainResponse(theme : PortalTheme) {
     ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep")),
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
     ExplainItem("id", List("any valid europeana_uri identifier"), "Will output a full-view"),
-    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal","datasetId"), "//todo complete this"),
+    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal","datasetId", "legacy"), "//todo complete this"),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
     ExplainItem("facetBoolType", List("AND", "OR", "Default is OR"), "Will determine how the Facet Multiselect functionality is handled within a facet. Between facets it is always AND."),

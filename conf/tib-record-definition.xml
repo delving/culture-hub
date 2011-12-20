@@ -151,7 +151,7 @@
         <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
         <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
         <field prefix="europeana" localName="unstored" fieldType="text"/>
-        <field prefix="europeana" localName="uri" identifierField="true">
+        <field prefix="europeana" localName="uri" fieldType="string" identifierField="true">
             <!--<converter call=".toId(spec)"/>-->
         </field>
         <field prefix="europeana" localName="year" fieldType="string">
