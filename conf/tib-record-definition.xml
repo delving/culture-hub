@@ -94,7 +94,8 @@
         <field prefix="tib" localName="event" fieldType="text"/>
         <field prefix="tib" localName="theme" fieldType="text"/>
         <field prefix="tib" localName="location" fieldType="location"/>
-        <field prefix="tib" localName="fullTextObjectUrl" fieldType="string"/>
+        <field prefix="delving" localName="fullTextObjectUrl" fieldType="string"/>
+        <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
 
         <field prefix="dc" localName="contributor" />
         <field prefix="dc" localName="coverage" />
@@ -139,7 +140,7 @@
         <field prefix="europeana" localName="collectionTitle" factName="name"/>
         <field prefix="europeana" localName="country" factName="country"/>
         <field prefix="europeana" localName="dataProvider" factName="dataProvider" summaryField="OWNER"/>
-        <field prefix="europeana" localName="isShownAt" fieldType="string"/>
+        <field prefix="europeana" localName="isShownAt" fieldType="string" summaryField="LANDING_PAGE"/>
         <field prefix="europeana" localName="isShownBy" fieldType="string" />
         <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
         <field prefix="europeana" localName="object"/>

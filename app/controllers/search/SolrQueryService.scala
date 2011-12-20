@@ -51,7 +51,7 @@ object SolrQueryService extends SolrServer {
         try {
           import xml.XML
           val normalisedValue = if (field.getKeyAsXml.endsWith("_text")) "<![CDATA[%s]]>".format(value) else value
-          XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(normalisedValue, field, response), keyAsXml))
+          XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(normalisedValue.replaceAll("&nbsp;", " "), field, response), keyAsXml))
         }
         catch {
           case ex: Exception =>
@@ -67,7 +67,7 @@ object SolrQueryService extends SolrServer {
     field.getHighLightValuesAsArray.map(value =>
       try {
         import xml.XML
-        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(value, field, response), field.getKeyAsXml))
+        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(value.replaceAll("&nbsp;", " "), field, response), field.getKeyAsXml))
       }
       catch {
         case ex : Exception =>

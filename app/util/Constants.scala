@@ -60,6 +60,7 @@ object Constants {
 
   // TODO add to SummaryField??
   val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
+  val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
 
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection

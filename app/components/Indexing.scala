@@ -27,10 +27,16 @@ import scala.collection.JavaConversions.asJavaMap
 import models._
 import salatContext.connection
 import java.lang.String
-import java.io.{FilenameFilter, File}
 import play.Logger
 import com.novus.salat.grater
 import util.Constants._
+import controllers.dos.HTTPClient
+import org.apache.commons.httpclient.methods.GetMethod
+import controllers.dos.WebResource._
+import java.io.{InputStream, FilenameFilter, File}
+import org.apache.tika.sax.BodyContentHandler
+import org.apache.tika.metadata.Metadata
+import org.apache.tika.parser.pdf.PDFParser
 
 /**
  *
@@ -193,6 +199,15 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         }
       }
     }
+
+    // add full text from digital objects
+    if (inputDoc.containsKey(FULL_TEXT_OBJECT_URL)) {
+      val pdfUrl = inputDoc.get(FULL_TEXT_OBJECT_URL).getFirstValue.toString
+      if (pdfUrl.endsWith(".pdf")) {
+        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
+        inputDoc.addField("delving_fullText_text", fullText)
+      }
+    }
     
     if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
     inputDoc.addField(ID, hubId)
@@ -228,5 +243,36 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         }
     }
   }
+
+}
+
+object TikaIndexer extends HTTPClient {
+
+  def getFullTextFromRemoteURL (url: String): Option[String] = {
+    try {
+      Some(parseFullTextFromPdf(getObject(url)))
+    }
+    catch {
+      case e: Exception =>
+        Logger.error("unable to process digital object found at " + url)
+        None
+    }
+  }
+
+  def getObject(url: String): InputStream  = {
+    val method = new GetMethod(url)
+    getHttpClient executeMethod (method)
+    method.getResponseBodyAsStream
+  }
+
+  def parseFullTextFromPdf(input: InputStream): String = {
+    val textHandler = new BodyContentHandler()
+    val metadata = new Metadata()
+    val parser = new PDFParser()
+    parser.parse(input, textHandler, metadata)
+    input.close()
+    textHandler.toString
+  }
+
 
 }
