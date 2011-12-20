@@ -40,7 +40,10 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
   val invalidRecords = dataSet.invalidRecords.map(valid => {
     val key = valid._1.toString
-    val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(_.asInstanceOf[Int]).toSet
+    val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+      case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+      case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+    }).toSet
     (key, value)
   }).toMap[String, Set[Int]]
 
