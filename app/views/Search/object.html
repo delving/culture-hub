@@ -38,8 +38,8 @@
                             #{metadataField label: viewUtils.getKey('metadata.dc.source'), data: fullDoc.getAsString("dc_source") /}
                         </div>
                         <div class="g-1of2 omega">
-                            #{metadataField label: viewUtils.getKey('metadata.dc.creator'), data: fullDoc.getCreator() /}
-                            #{metadataField label: viewUtils.getKey('metadata.dc.date'), data: fullDoc.getYear() /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.creator'), data: fullDoc.getCreator(), queryLink:true /}
+                            #{metadataField label: viewUtils.getKey('metadata.dc.date'), data: fullDoc.getYear(), queryLink:true /}
                             #{metadataField label: viewUtils.getKey('metadata.dc.language'), data: fullDoc.getLanguage() /}
                             #{metadataField label: viewUtils.getKey('metadata.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
                             #{metadataField label: viewUtils.getKey('metadata.dc.format'), data: fullDoc.getConcatenatedList("dc_format", ["dc_format", "dcterms_extent"]), separator:", "  /}
@@ -64,8 +64,10 @@
 </div>
 </div>
 
-<script>
+<script type="text/javascript" language="javascript">
     $(function () {
-        $("a.overlay-trigger").overlay();
-});
+        $("a.overlay-trigger").overlay({
+            closeOnClick:true
+        });
+    });
 </script>
