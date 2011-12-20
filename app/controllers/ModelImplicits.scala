@@ -49,10 +49,10 @@ trait ModelImplicits extends Internationalization {
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id), o.name, util.Constants.OBJECT)
+  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, util.Constants.OBJECT)
   implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
-  implicit def mdrAccessorToShortObjectModel(record: MultiValueMapMetadataAccessors) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(80), title = record.getTitle, hubType = MDR)
+  implicit def mdrAccessorToShortObjectModel(record: MultiValueMapMetadataAccessors) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)
   implicit def mdrAccessorListToSOMList(records: List[MultiValueMapMetadataAccessors]) = records.map(mdrAccessorToShortObjectModel(_))
 
   // ~~ ListItems
