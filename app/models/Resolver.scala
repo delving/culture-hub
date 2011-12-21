@@ -20,6 +20,7 @@ import com.novus.salat.dao.SalatDAO
 import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
+import models.Commons.FilteredMDO
 
 /**
  * 
@@ -32,7 +33,7 @@ trait Resolver[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =
     id match {
       case null => None
       case objectId if !ObjectId.isValid(objectId) => None
-      case objectId => findOne(MongoDBObject("_id" -> new ObjectId(id), "deleted" -> false))
+      case objectId => findOne(FilteredMDO("_id" -> new ObjectId(id)))
     }
   }
 
@@ -40,7 +41,7 @@ trait Resolver[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =
     id match {
       case null => None
       case objectId if !ObjectId.isValid(objectId) => None
-      case objectId => findOne(MongoDBObject("_id" -> new ObjectId(id), "deleted" -> false) ++ $or("user_id" -> user, "contributors" -> user))
+      case objectId => findOne(FilteredMDO("_id" -> new ObjectId(id)) ++ $or("user_id" -> user, "contributors" -> user))
     }
   }
 

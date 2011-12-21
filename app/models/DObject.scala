@@ -65,9 +65,9 @@ case class DObject(_id: ObjectId = new ObjectId,
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
-  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "deleted" -> false)).toList
+  def findAllWithCollection(id: ObjectId) = find(FilteredMDO("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF)).toList
 
-  def findAllUnassignedForUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName) ++ ("links.linkType" $ne (Link.LinkType.PARTOF))).toList
+  def findAllUnassignedForUser(userName: String) = find(FilteredMDO("userName" -> userName) ++ ("links.linkType" $ne (Link.LinkType.PARTOF))).toList
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
     update(MongoDBObject("_id" -> id), $set ("thumbnail_file_id" -> thumbnail_id, "thumbnail_id" -> id) , false, false)
@@ -77,6 +77,10 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
 
   def removeFile(oid: ObjectId) {
     DObject.update(MongoDBObject(), (MongoDBObject("$pull" -> MongoDBObject("files" -> MongoDBObject("id" -> oid)))))
+  }
+
+  def findForCollection(collectionId: ObjectId) = {
+    objectsCollection.find(FilteredMDO("collections" -> collectionId), MongoDBObject("_id" -> 1)).map(dbo => dbo.get("_id").asInstanceOf[ObjectId]).toList
   }
 
   def unlinkCollection(collectionId: ObjectId) {
