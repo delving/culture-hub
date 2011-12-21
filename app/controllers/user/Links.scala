@@ -91,9 +91,11 @@ object Links extends DelvingController {
           userName = connectedUser,
           value = Map("label" -> label),
           from = LinkReference(
+            uri = Some(Link.buildUri(USER, connectedUser, request.host)),
             id = Some(connectedUserId),
             hubType = Some(USER)),
           to = LinkReference(
+            uri = Some(Link.buildUri(OBJECT, toObjectId, request.host)),
             id = Some(toObjectId),
             hubType = Some(toType)),
           embedTo = Some(EmbeddedLinkWriter(
@@ -109,6 +111,7 @@ object Links extends DelvingController {
           userName = connectedUser,
           value = filteredParams,
           from = LinkReference(
+            uri = Some(Link.buildUri(fromType, fromId, request.host)),
             id = Some(fromId),
             hubType = Some(fromType)),
           to = LinkReference(
@@ -146,18 +149,20 @@ object Links extends DelvingController {
                   case Some(one) => one
                   case None => return NotFound("Record with identifier %s_%s_%s was not found".format(orgId, spec, recordId))
                 }
+                val hubId = "%s_%s_%s".format(orgId, spec, recordId)
                 val res = Link.create(
                   linkType = Link.LinkType.PARTOF,
                   userName = connectedUser,
                   value = Map(USERCOLLECTION_ID -> toId),
                   from = LinkReference(
-                    uri = Some(buildMdrUri(orgId, spec, recordId)), // TODO need TW blessing
+                    uri = Some(Link.buildUri(MDR, hubId, request.host)),
                     refType = Some("institutionalObject"), // TODO need TW blessing
                     hubType = Some(MDR),
                     hubCollection = Some(collection.getName()),
-                    hubAlternativeId = Some("%s_%s_%s".format(orgId, spec, recordId))
+                    hubAlternativeId = Some(hubId)
                   ),
                   to = LinkReference(
+                    uri = Some(Link.buildUri(USERCOLLECTION, collectionId, request.host)),
                     id = Some(collectionId),
                     hubType = Some(USERCOLLECTION)
                   ),
@@ -190,7 +195,7 @@ object Links extends DelvingController {
                 res
 
               case OBJECT =>
-                val res = DObjects.createCollectionLink(new ObjectId(toId), fromId)
+                val res = DObjects.createCollectionLink(new ObjectId(toId), fromId, request.host)
 
                 // re-index the object
                 DObject.findOneByID(fromId) match {
@@ -230,7 +235,7 @@ object Links extends DelvingController {
 
   def remove(id: ObjectId, linkType: String, toType: String, toId: ObjectId): Result = {
     val (collection, orgId, spec, recordId) = mdrInfo
-    Link.findOne(MongoDBObject("from.uri" -> buildMdrUri(orgId, spec, recordId), "linkType" -> linkType, "to.id" -> toId)) match {
+    Link.findOne(MongoDBObject("from.uri" -> Link.buildUri(MDR, "%s_%s_%s".format(orgId, spec, recordId), request.host), "linkType" -> linkType, "to.id" -> toId)) match {
       case Some(l) => Link.removeLink(l)
       case None => // nope
     }
@@ -246,10 +251,6 @@ object Links extends DelvingController {
 
     (collection, orgId, spec, recordId)
 
-  }
-
-  private def buildMdrUri(orgId: String, spec: String, recordId: String) = {
-    "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, recordId)
   }
 
   def ht(fromType: String): Option[MongoCollection] = fromType match {

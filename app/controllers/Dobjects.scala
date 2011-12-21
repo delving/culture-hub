@@ -42,7 +42,9 @@ object DObjects extends DelvingController {
         case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
           val labels: List[Token] = thing.freeTextLinks
           val places: List[Token] = thing.placeLinks
-          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places)
+          val userLabels: List[Token] = if(thing.userName == connectedUser) labels else thing.freeTextLinks.filter(_.userName == connectedUser)
+          val userPlaces: List[Token] = if(thing.userName == connectedUser) labels else thing.placeLinks.filter(_.userName == connectedUser)
+          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places, 'userLabels -> JJson.generate(userLabels), 'userPlaces -> JJson.generate(userPlaces))
         }
         case _ => NotFound
     }

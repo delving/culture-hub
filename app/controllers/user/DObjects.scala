@@ -88,9 +88,9 @@ object DObjects extends DelvingController with UserSecured {
       None
     }
 
-    def addCollectionLinks(links: List[ObjectId], objectId: ObjectId) {
+    def addCollectionLinks(links: List[ObjectId], objectId: ObjectId, hostName: String) {
       links foreach {
-        createCollectionLink(_, objectId)
+        createCollectionLink(_, objectId, hostName)
       }
     }
 
@@ -111,7 +111,7 @@ object DObjects extends DelvingController with UserSecured {
         inserted match {
           case Some(iid) => {
             // link collections
-            addCollectionLinks(objectModel.collections, iid)
+            addCollectionLinks(objectModel.collections, iid, request.host)
 
             // link files
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
@@ -147,7 +147,7 @@ object DObjects extends DelvingController with UserSecured {
           }
 
           // add added
-          addCollectionLinks(added, id)
+          addCollectionLinks(added, id, request.host)
 
           // link files
           controllers.dos.FileUpload.markFilesAttached(uid, id)
@@ -195,16 +195,18 @@ object DObjects extends DelvingController with UserSecured {
     }
   }
 
-  @Util def createCollectionLink(collectionId: ObjectId, objectId: ObjectId) = {
+  @Util def createCollectionLink(collectionId: ObjectId, objectId: ObjectId, hostName: String) = {
     Link.create(
       linkType = Link.LinkType.PARTOF,
       userName = connectedUser,
       value = Map(USERCOLLECTION_ID -> collectionId),
       from = LinkReference(
+        uri = Some(Link.buildUri(OBJECT, objectId, hostName)),
         id = Some(objectId),
         hubType = Some(OBJECT)
       ),
       to = LinkReference(
+        uri = Some(Link.buildUri(USERCOLLECTION, collectionId, hostName)),
         id = Some(collectionId),
         hubType = Some(USERCOLLECTION)
       ),
