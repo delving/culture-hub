@@ -10,7 +10,7 @@
 <div class="places" id="places">
   <ul>
   #{list _places, as: 'p'}
-    <li id="${p.id}"><span class="place"><a target="_blank" href="http://sws.geonames.org/${p.data.apply("geonameID")}/">${p.name} (<em>${p.data.apply("countryName")}</em>)</a></span></li>
+    <li id="${p.id}"><span class="place"><a target="_blank" href="http://sws.geonames.org/${p.data.get().apply("geonameID")}/">${p.name} (<em>${p.data.get().apply("countryName")}</em>)</a></span></li>
   #{/list}
   </ul>
 </div>
