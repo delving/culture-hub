@@ -23,6 +23,7 @@ import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
 import util.Constants._
+import views.context.DEFAULT_THUMBNAIL
 
 /**
  * 
@@ -45,6 +46,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   def getType = OBJECT
 
+  def getSourceFileUrl = if(thumbnail_file_id.isDefined) "/file/" + thumbnail_file_id.get else DEFAULT_THUMBNAIL
 
   override def toSolrDocument = {
     val doc = getAsSolrDocument
