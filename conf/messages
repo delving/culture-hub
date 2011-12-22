@@ -252,7 +252,7 @@ dataset.cancelindex=Cancel indexing
 dataset.disable=Disable
 dataset.enable=Enable
 dataset.confirmDeletion=Are you sure you want to remove this DataSet?
-
+dataset.find=Find a DataSet
 ##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
 mail.message.resetpassword=In order to reset your password for %s, please follow the link below
