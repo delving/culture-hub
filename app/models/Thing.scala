@@ -94,7 +94,7 @@ trait Thing extends Base with Universal {
       }
     }
   }
-
+  
   protected def getAsSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
     doc addField (ID, _id)
@@ -107,11 +107,20 @@ trait Thing extends Base with Universal {
     doc addField (DESCRIPTION, description)
     doc addField (TITLE, name)
     if (thumbnail_id != None) {
-      doc addField(THUMBNAIL, thumbnail_id.get)
+      doc addField (THUMBNAIL, thumbnail_id.get)
     } else if (thumbnail_url != None) {
-      doc addField(THUMBNAIL, thumbnail_url.get)
+      doc addField (THUMBNAIL, thumbnail_url.get)
     }
-    doc addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
+    doc addField (HAS_DIGITAL_OBJECT, hasDigitalObject)
+
+    // facetting and sorting
+    doc addField (RECORD_TYPE + "_facet", getType)
+    doc addField (OWNER + "_facet", getOwner)
+    doc addField (CREATOR + "_facet", getCreator)
+    doc addField (HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+
+    // todo add sort by creation date, when we have standardized it
+
     doc
   }
 
