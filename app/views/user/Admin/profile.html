@@ -5,9 +5,7 @@
 #{set 'moreScripts'}
 #{press.script '/public/common/javascripts/jquery.limitChars.min.js', compress:false, pos:25 /}
 #{/set}
-        <style>
 
-        </style>
 <h1 class="sep">Your profile</h1>
 
 <div class="row">
@@ -15,7 +13,7 @@
         <form id="profileForm" action="">
           #{textField name:"firstName", label:viewUtils.getKey('ui.label.firstname'), dataBind:"value: firstName", labelClass:"required", required: true /}
           #{textField name:"lastName", label:viewUtils.getKey('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}
-          #{textField name:"email", label:viewUtils.getKey('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true /}
+          #{textField name:"email", label:viewUtils.getKey('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true, help: viewUtils.getKey('user.admin.profile.gravatarHelp').raw() /}
           #{textArea name:"description", label:viewUtils.getKey('user.profile.aboutYou'), dataBind:"value: description", help:viewUtils.getKey('user.admin.profile.help.aboutYou'), dataMaxChars:"400" /}
           #{textField name:"funFact", label:viewUtils.getKey('user.profile.funFact'), dataBind:"value: funFact" /}
           #{textField name:"twitter", label:"Twitter", dataBind:"value: twitter", help: viewUtils.getKey('user.admin.profile.help.twitter') /}
