@@ -117,3 +117,9 @@ table.files{
     width: auto;
 
 }
+
+/*Sortable */
+
+table.sortable th {
+    cursor: pointer;
+}

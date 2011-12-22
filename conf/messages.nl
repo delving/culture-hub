@@ -241,6 +241,8 @@ dataset.reindex=Opnieuw indexeren
 dataset.cancelindex=Annuleer indexeren
 dataset.disable=Uitschakelen
 dataset.enable=Inschakelen
+dataset.confirmDeletion=Verwijder deze DataSet?
+dataset.find=Vind een DataSet
 
 ##Mails
 mail.message.activateaccount=uw account voor %s is aangemaakt. Om uw account te activeren, klik op de onderstaande link
@@ -507,12 +509,12 @@ org.admin.index.owners=Eigenaren
 
 organization.dataset.title.create=Create new dataset for user %s
 organization.dataset.title.update=Update dataset for user %s
-organization.dataset.create=Create a dataset
-organization.dataset.update=Update a dataset
-organization.dataset.info=Data Set Information
+organization.dataset.create=DataSet aanmaken
+organization.dataset.update=DataSet aanpassen
+organization.dataset.info=DataSet informatie
 organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this DataSet
-organization.dataset.save=Save DataSet
+organization.dataset.save=DataSet bewaren
 organization.members=Leden
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
