@@ -19,22 +19,19 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
 ],
 isOwner: isOwner/}
 
-<div class="dashboard">
 
-    #{if browsedUserName}
-
-    <div class="g-12of12 grid_12">
-        &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
-        &{'thing.count'}: ${count}
-    </div>
-
-    #{/if}
 
     <div class="row">
-        <div class="g-12of12 grid_12">
+        <div class="g-12of12 grid_12 dashboard">
+            #{if browsedUserName}
+            <div class="g-1of1">
+                &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
+                &{'thing.count'}: ${count}
+            </div>
+            #{/if}
             #{if items.length() > 0}
 
-            <form id="filter-form" class="mtm mbm">
+            <form id="filter-form" class="pam">
                 <label>&{'dataset.find'}: </label>
                 <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"/>
             </form>
@@ -171,7 +168,7 @@ isOwner: isOwner/}
         </div>
     </div>
 
-</div>
+
 <script type="text/javascript" language="javascript">
 $(document).ready(function()
     {
