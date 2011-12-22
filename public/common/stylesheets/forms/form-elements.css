@@ -93,6 +93,11 @@ label.label {
     word-wrap: break-word;
 }
 
+.field .help strong {
+    display: inline-block;
+    margin-right: 8px;
+}
+
 .field .extHelp {
     cursor:help;
 }

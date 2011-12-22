@@ -1,22 +1,17 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 #{set title: viewUtils.getKey('profile.title') + ': ' + userName /}
-
-#{breadcrumbs /}
+#{set bodyId: 'profile' /}
+<div class="row">
+    #{breadcrumbs /}
+</div>
 
 <h1 class="sep">&{'profile.title'}: <span>${user.userName()}</span></h1>
 
 <div class="dashboard ptm pbm">
 
     <div class="row">
-        <div class="g-12of12 grid_12">
-            #{if user.userName == userName}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
-            #{/if}
-        </div>
-    </div>
-    <div class="row">
-        <div class="g-1of4 grid_4">
-          #{gravatar.img user.email, size:220 /}
+        <div class="g-1of4 grid_3">
+          #{gravatar.img user.email, size:200 /}
         </div>
         <div class="g-1of4 grid_4">
             <div class="info-box">
@@ -31,7 +26,7 @@
             </div>
         </div>
         #{if isVisible}
-        <div class="g-1of4 grid_4">
+        <div class="g-1of4 grid_3">
             <div class="info-box long">
                 <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objectsCount}</a></span>
                 <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collectionsCount}</a></span>
@@ -48,8 +43,14 @@
             </div>
         </div>
         #{/if}
-    </div>
 
+        <div class="grid_2">
+            #{if user.userName == userName}
+            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
+            #{/if}
+        </div>
+    </div>
+    <hr/>
     #{if isVisible}
     <div class="row">
         <div class="g-1of3 grid_4">
