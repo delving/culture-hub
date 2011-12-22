@@ -2,6 +2,11 @@
 
 #{set title: viewUtils.getKey('thing.browse.of', viewUtils.getKey('thing.datasets')) + ': ' + orgId /}
 
+#{set 'moreScripts'}
+#{press.script '/public/common/javascripts/jquery.tablesorter.min.js', pos:28, compress:false /}
+#{press.script '/public/common/javascripts/jquery.uitablefilter.js', pos:29 /}
+#{/set}
+
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs /}
@@ -28,8 +33,14 @@ isOwner: isOwner/}
     <div class="row">
         <div class="g-12of12 grid_12">
             #{if items.length() > 0}
+
+            <form id="filter-form" class="mtm mbm">
+                <label>&{'dataset.find'}: </label>
+                <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"/>
+            </form>
+
             <div class="data-grid">
-                <table width="100%">
+                <table width="100%" id="dataset-table" class="sortable">
                     <caption>${viewUtils.getKey('thing.datasets')}</caption>
                     <thead>
                     <tr>
@@ -161,3 +172,26 @@ isOwner: isOwner/}
     </div>
 
 </div>
+<script type="text/javascript" language="javascript">
+$(document).ready(function()
+    {
+      $("#dataset-table").tablesorter();
+
+      var theTable = $('#dataset-table')
+
+      theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+        $(this).prev().find(":checkbox").click()
+      });
+
+      $("#filter").keyup(function() {
+        $.uiTableFilter( theTable, this.value );
+      })
+
+      $('#filter-form').submit(function(){
+        theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+        return false;
+      }).focus(); //Give focus to input field
+
+    }
+);
+</script>
