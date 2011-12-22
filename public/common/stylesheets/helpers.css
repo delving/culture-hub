@@ -365,7 +365,7 @@ div.dropdown-slider .ddm.heading {
     /*background: #fff;*/
     display: block;
     padding: 0 5px;
-    color: #555;
+    color: #888;
     -moz-border-radius-bottomleft: 2px;
     -moz-border-radius-bottomright: 2px;
     -webkit-border-bottom-left-radius: 2px;
@@ -418,14 +418,18 @@ div.dropdown-slider .ddm.heading {
     width: 35px;
 }
 
-/* RESULT / BROWSE LIST CAPTIONS ***********************************************************************************/
+/* RESULT / BROWSE LIST CAPTIONS / THING-CONTAINER ************************************************************************/
 .thing-container {
-    background: #000;
+    background: #222;
     margin-bottom: 10px;
 }
 .thing-container.no-image {
     background: #e1e1e1;
     margin-bottom: 10px;
+}
+
+#profile .thing-container {
+    background: transparent;
 }
 
 .ic_container {

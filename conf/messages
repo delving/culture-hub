@@ -424,6 +424,7 @@ user.admin.profile.save=Save profile
 user.admin.profile.help.twitter=Your twitter username, e.g. johndoe
 user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
+user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
 
 ##Collections
 user.collection.title.create=Create new collection for user %s
@@ -474,7 +475,7 @@ user.story.label.freeText=Free Text
 user.story.label.selectCollection=Select a collection
 user.story.label.addImageFromCollection=Add an image from this collection
 user.story.title.selectObjects=Select Object(s)
-user.story.noCollection=No collection
+user.story.noCollection=Objects without collection
 user.story.existingPage=Existing pages
 user.story.pageTitle=Page title
 user.story.saveStory=Save story
