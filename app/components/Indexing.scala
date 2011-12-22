@@ -167,7 +167,6 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
     inputDoc.addField(HUB_ID, hubId)
     inputDoc.addField(ORG_ID, dataSet.orgId)
-    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 
     // user collections
     inputDoc.addField(COLLECTIONS, record.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
@@ -226,6 +225,8 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
 
     dataSet.getMetadataFormats(true).foreach(format => inputDoc.addField("delving_publicFormats", format.prefix))
     dataSet.getMetadataFormats(false).foreach(format => inputDoc.addField("delving_allFormats", format.prefix))
+
+    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 
     // add facets at indexing time
     dataSet.idxFacets.foreach {
