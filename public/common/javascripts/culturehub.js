@@ -597,7 +597,7 @@ $(document).bind('click', function (e) {
          this.title = title;
          this.thumb = thumb;
          this.uri = uri;
-     }.bind(this);
+     };
 
     var methods = {
         init : function(options) {
