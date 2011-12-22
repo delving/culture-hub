@@ -320,6 +320,7 @@ metadata.dcterms.conformsTo=Conforms to
 metadata.dcterms.created=Date
 metadata.dcterms.hasFormat=Has format
 metadata.dcterms.hasPart=Has part
+metadata.dcterms.hasVersion=Has version
 metadata.dcterms.isFormatOf=Is format of
 metadata.dcterms.isPartOf=Is Part of
 metadata.dcterms.isReferencedBy=Is referenced by
