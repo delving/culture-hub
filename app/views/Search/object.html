@@ -11,7 +11,9 @@
         <div class="media record">
             <img src="${fullDoc.getThumbnailUri(350)}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
             <div class="extra">
+                #{ifnot fullDoc.getThumbnailUri(350).contains('dummy-object.png')}
                 <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+                #{/ifnot}
                 #{if fullDoc.getLandingPage()}
                      <br/><a href="${fullDoc.getLandingPage()}" target="_blank">&{'search.viewInOriginalContext'}</a>
                 #{/if}
