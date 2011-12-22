@@ -68,7 +68,7 @@
 
         <!-- add dimensions in a prefab form with unit value and type -->
 	    <field prefix="tib" localName="dimension"/>
-        <field prefix="tib" localName="objectNumber" fieldType="string">
+        <field prefix="tib" localName="objectNumber" fieldType="string"/>
         <field prefix="tib" localName="objectSoort" fieldType="string">
             <options>
                 <string>dummy item1</string>
