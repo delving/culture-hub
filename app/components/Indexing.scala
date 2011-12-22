@@ -200,8 +200,9 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     }
 
     // add full text from digital objects
-    if (inputDoc.containsKey(FULL_TEXT_OBJECT_URL)) {
-      val pdfUrl = inputDoc.get(FULL_TEXT_OBJECT_URL).getFirstValue.toString
+    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL)
+    if (inputDoc.containsKey(fullTextUrl)) {
+      val pdfUrl = inputDoc.get(fullTextUrl).getFirstValue.toString
       if (pdfUrl.endsWith(".pdf")) {
         val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
         inputDoc.addField("delving_fullText_text", fullText)
