@@ -424,6 +424,7 @@ user.admin.profile.save=Save profile
 user.admin.profile.help.twitter=Your twitter username, e.g. johndoe
 user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
+user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
 
 ##Collections
 user.collection.title.create=Create new collection for user %s

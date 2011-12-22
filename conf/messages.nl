@@ -403,6 +403,7 @@ user.admin.profile.title=Jouw profiel
 user.admin.profile.help.aboutYou=Vertel wat over jezelf
 user.admin.profile.save=Bewaar profiel
 user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
+user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
 ##Collections
 user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
