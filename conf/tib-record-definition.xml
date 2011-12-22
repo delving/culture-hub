@@ -214,11 +214,11 @@
         assert record.'europeana:type'
         assert record.'europeana:uri'
         assert record.'europeana:isShownAt' || record.'europeana:isShownBy'
-        assert isUrl(record.'europeana:isShownAt')
-        assert isUrl(record.'europeana:isShownBy')
+        <!--assert isUrl(record.'europeana:isShownAt')-->
+        <!--assert isUrl(record.'europeana:isShownBy')-->
         assert isUrl(record.'delving:deepZoomUrl')
         assert record.'tib:collection'
-        assert record.'tib:objectSoort'
+        <!--assert record.'tib:objectSoort'-->
         assert isUnique(record.'europeana:uri')
     </validation>
 </record-definition>
