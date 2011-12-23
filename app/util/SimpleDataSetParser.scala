@@ -85,6 +85,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
             hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
             rawMetadata = Map("raw" -> recordXml.toString()),
             validOutputFormats = getValidMappings(dataSet, recordCounter),
+            transferIdx = Some(recordCounter),
             localRecordKey = recordId,
             globalHash = hasher.getHashString(recordXml.toString()),
             hash = createHashToPathMap(valueMap))

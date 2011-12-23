@@ -221,8 +221,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
     val dis = new DataInputStream(inputStream)
     val howMany = dis.readInt()
     val invalidIndexes: List[Int] = (for(i <- 1 to howMany) yield dis.readInt()).toList
-    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes))
-    DataSet.save(updatedDataSet)
+
+    DataSet.updateInvalidRecords(dataSet, prefix, invalidIndexes)
+
     Right("All clear")
   }
 
