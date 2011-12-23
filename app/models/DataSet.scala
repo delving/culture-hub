@@ -82,6 +82,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
+  def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
+
   def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
     val metadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
     if (publicCollectionsOnly)
@@ -209,6 +211,17 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
   }
 
+  def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
+    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes))
+    DataSet.save(updatedDataSet)
+
+    if(dataSet.hasRecords) {
+      val collection = getRecordsCollection(dataSet)
+      collection.update(MongoDBObject(), $addToSet ("validOutputFormats" -> prefix), false, true)
+      collection.update("transferIdx" $in (invalidIndexes), $pull("validOutputFormats" -> prefix), false, true)
+    }
+  }
+
   def unlock(dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
   }
@@ -228,10 +241,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecordsCollectionName(orgId: String, spec: String): String = "Records.%s_%s".format(orgId, spec)
 
+  def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
+
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
     val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1, "globalHash" -> 1))
+    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
+    recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
     CollectionMDR
   }
@@ -401,8 +417,9 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           rawMetadata: Map[String, String], // this is the raw xml data string
                           mappedMetadata: Map[String, DBObject] = Map.empty[String, DBObject], // this is the mapped xml data string only added after transformation, and it's a DBObject because Salat won't let us use an inner Map[String, List[String]]
                           modified: Date = new Date(),
-                          validOutputFormats: List[String] = List.empty[String],
+                          validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
                           deleted: Boolean = false, // if the record has been deleted
+                          transferIdx: Option[Int] = None, // 0-based index for the transfer order
                           localRecordKey: String, // the unique element value
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           globalHash: String, // the hash of the raw content
