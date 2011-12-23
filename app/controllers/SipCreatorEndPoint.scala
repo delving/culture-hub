@@ -250,6 +250,8 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
     val records = DataSet.getRecords(dataSet)
     records.collection.drop()
 
+    var uploadedRecords = 0
+
     try {
 
       val parser = new SimpleDataSetParser(inputStream, dataSet)
@@ -258,6 +260,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
       while (continue) {
         val maybeNext = parser.nextRecord
         if (maybeNext != None) {
+          uploadedRecords += 1
           val record = maybeNext.get
 
           // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
@@ -280,7 +283,9 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
 
     val recordCount: Int = DataSet.getRecordCount(dataSet)
 
+    // TODO review the semantics behind total_records, deleted records etc.
     val details = dataSet.details.copy(
+      uploaded_records = uploadedRecords,
       total_records = recordCount,
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
