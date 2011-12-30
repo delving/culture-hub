@@ -264,7 +264,7 @@ trait ThemeAware { self: Controller =>
   
   @Before(priority = 0)
   def setTheme() {
-    val portalTheme = ThemeHandler.getByRequest(Http.Request.current())
+    val portalTheme = if(Http.Request.current() == null) ThemeHandler.getDefaultTheme.get else ThemeHandler.getByRequest(Http.Request.current())
     themeThreadLocal.set(portalTheme)
     lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
     renderArgs.put("theme", theme)
