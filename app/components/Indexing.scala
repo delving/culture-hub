@@ -183,7 +183,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
           val tileSetPath = url.substring(i + DEEPZOOM_PATH.length(), url.length())
           val tileSetParentPath = tileSetPath.substring(0, tileSetPath.lastIndexOf(File.separator))
           val parent = new File(tileSetParentPath)
-          val extensionIdx = if(tileSetPath.indexOf(".") > -1) tileSetPath.indexOf(".") else tileSetPath.length()
+          val extensionIdx = if(tileSetPath.indexOf(".") > -1) tileSetPath.lastIndexOf(".") else tileSetPath.length()
           val imageIdx = tileSetPath.lastIndexOf(File.separator)
           val image = tileSetPath.substring(imageIdx + 1, extensionIdx)
           if(!(parent.exists() && parent.isDirectory)) {
