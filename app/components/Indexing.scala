@@ -177,7 +177,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     if(inputDoc.containsKey(DEEPZOOMURL)) {
       try {
         // http://some.delving.org/iip/deepzoom/mnt/tib/tiles/<orgId>/<spec>/<image>
-        val url = inputDoc.get(DEEPZOOMURL).getValue.toString
+        val url = inputDoc.get(DEEPZOOMURL).getFirstValue.toString
         val i = url.indexOf(DEEPZOOM_PATH)
         if(i > -1) {
           val tileSetPath = url.substring(i + DEEPZOOM_PATH.length(), url.length())
@@ -201,7 +201,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         }
       } catch {
         case t =>
-          Logger.error(t, "Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL))
+          Logger.error(t, "Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue)
           // in doubt, remove
           inputDoc.remove(DEEPZOOMURL)
       }
