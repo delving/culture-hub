@@ -111,7 +111,7 @@ object DObjects extends DelvingController with UserSecured {
         inserted match {
           case Some(iid) => {
             // link collections
-            addCollectionLinks(objectModel.collections, iid, request.host)
+            addCollectionLinks(objectModel.collections, iid, request.domain)
 
             // link files
             controllers.dos.FileUpload.markFilesAttached(uid, iid)
@@ -147,7 +147,7 @@ object DObjects extends DelvingController with UserSecured {
           }
 
           // add added
-          addCollectionLinks(added, id, request.host)
+          addCollectionLinks(added, id, request.domain)
 
           // link files
           controllers.dos.FileUpload.markFilesAttached(uid, id)

@@ -60,7 +60,7 @@ trait UGCController { self: DelvingController =>
       case Right(oid: ObjectId) =>
         collection.update(MongoDBObject("_id" -> fromId), $set ("thumbnail_id" -> oid) ++ $unset("thumbnail_url"))
       case Left(url: String) =>
-        Link.createThumbnailLink(fromId, fromType, thumbnailId, connectedUser, request.host)
+        Link.createThumbnailLink(fromId, fromType, thumbnailId, connectedUser, request.domain)
         collection.update(MongoDBObject("_id" -> fromId), $set("thumbnail_url" -> url) ++ $unset("thumbnail_id"))
     }
   }

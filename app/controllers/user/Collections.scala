@@ -106,7 +106,7 @@ object Collections extends DelvingController with UserSecured with UGCController
 
             // TODO this has to be replaced by a mechanism that does atomic adds / deletes in the view, not all at once
             for(o <- collectionModel.objects) {
-              user.DObjects.createCollectionLink(iid, o.id.get, request.host)
+              user.DObjects.createCollectionLink(iid, o.id.get, request.domain)
               val obj = DObject.findOneByID(o.id.get).get
               SolrServer.indexSolrDocument(obj.toSolrDocument)
             }
@@ -156,7 +156,7 @@ object Collections extends DelvingController with UserSecured with UGCController
           }
 
           added foreach { o =>
-            user.DObjects.createCollectionLink(id, o, request.host)
+            user.DObjects.createCollectionLink(id, o, request.domain)
           }
 
           // synchronize SOLR index

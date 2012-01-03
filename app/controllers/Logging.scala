@@ -120,7 +120,7 @@ trait Logging extends UserAuthentication { self: Controller =>
 
   private def withContext(msg: String) = "[%s] While accessing %s %s: %s".format(user, request.method, request.url, msg)
 
-  private def securitySubject = "***[CultureHub] Security alert on %s".format(request.host + ":" + request.port)
+  private def securitySubject = "***[CultureHub] Security alert on %s".format(request.domain + ":" + request.port)
 
   private def user = (if(connectedUser == null) "Unknown" else connectedUser)
 
@@ -139,7 +139,7 @@ object ErrorReporter {
     Mails.reportError("[CultureHub] An error occured on node %s".format(play.Play.configuration.getProperty("culturehub.nodeName")), toReport(job, message, t))
   }
 
-  private def subject(request: Request) = "[CultureHub] An error occured on %s".format(request.host + ":" + request.port)
+  private def subject(request: Request) = "[CultureHub] An error occured on %s".format(request.domain + ":" + request.port)
 
   def toReport(job: String, m: String, t: Throwable): String = {
     val sw = new StringWriter()
