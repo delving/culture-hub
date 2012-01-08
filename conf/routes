@@ -5,6 +5,8 @@
 GET         /public/themes/{theme}/info.conf                                 404
 GET         /public/themes/{theme}/{<.*>relativePath}                        Asset.serveTheme
 
+GET         /robots.txt                                                      staticFile:public/robots.txt
+
 GET         /asset                                                           Asset.get
 
 # Home page
@@ -199,7 +201,7 @@ GET         /favicon.ico                                                     404
 # Map static resources from the /app/public folder to the /public path
 GET         /public/                                                         staticDir:public
 
-%{ if (play.Play.mode.isDev()) { }%
+#{if play.Play.mode.isDev()}
 # Catch all
 *           /{controller}/{action}                                           {controller}.{action}
-%{ } }%
+#{/if}
