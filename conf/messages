@@ -283,6 +283,8 @@ search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
 search.trail=You are looking at <strong>%s - %s</strong> of <strong>%s</strong> results for:
 search.viewInOriginalContext=View in original context
+search.invalidQuery=Query "%s" is not a valid query. Please try something else.
+
 ##Story
 story.pages=Pages
 story.nextpage=Next page
@@ -604,7 +606,7 @@ organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current
 organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
 organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
 
-
+search.backendConnectionError=Cannot connect to the search backend
 
 
 

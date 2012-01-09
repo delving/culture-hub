@@ -659,6 +659,6 @@ case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
 
 // todo implement the traits as case classes
 
-class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+case class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
 }

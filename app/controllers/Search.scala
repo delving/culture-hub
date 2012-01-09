@@ -20,11 +20,10 @@ import scala.collection.JavaConversions._
 import search._
 import play.mvc.results.Result
 import play.mvc.Http.Request
-import org.bson.types.ObjectId
 import play.mvc.Util
-import models.{PortalTheme, Visibility, UserCollection}
 import views.context.PAGE_SIZE
 import util.Constants._
+import models.{SolrConnectionException, PortalTheme, Visibility, UserCollection}
 
 /**
  *
@@ -41,14 +40,21 @@ object Search extends DelvingController {
 
   @Util def search(theme: PortalTheme, query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = {
     val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser), additionalSystemHQFs)
-    val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
-    val briefItemView = BriefItemView(response)
-    session.put(RETURN_TO_RESULTS, request.querystring)
-    session.put(SEARCH_TERM, request.params.get("query"))
+    try {
+      session.put(RETURN_TO_RESULTS, request.querystring)
+      session.put(SEARCH_TERM, request.params.get("query"))
+      val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+      val briefItemView = BriefItemView(response)
 
-    val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
+      val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
-    Template("/Search/index.html", 'briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
+      Template("/Search/index.html", 'briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
+    } catch {
+      case MalformedQueryException(s, t) => Template("/Search/invalidQuery.html", 'query -> params.get("query"))
+      case c: SolrConnectionException =>
+        logError(c, "Search backend connection problem")
+        Error(&("search.backendConnectionError"))
+    }
   }
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
