@@ -332,7 +332,7 @@ metadata.delving.hasDigitalObject=Record heeft een digital object
 metadata.europeana.country=Land
 metadata.europeana.isShownAt=Externe Landing Pagina
 metadata.europeana.isShownBy=Externe URL naar digitaal object
-metadata.europeana.dataProvider=Instelling
+metadata.europeana.dataProvider=Instelling/Bron
 metadata.europeana.provider=Aanbieder
 metadata.europeana.type=Type
 metadata.europeana.year=Jaar
@@ -376,8 +376,8 @@ metadata.tib.productionEnd=Datering
 metadata.tib.creatorBirthYear=Geboortejaar
 metadata.tib.creatorDeathYear=Sterfjaar
 metadata.tib.year=Jaar
-metadata.tib.pageStart=Begin pagina
-metadata.tib.pageEnd=Eind pagina
+metadata.tib.pageStart=Beginpagina
+metadata.tib.pageEnd=Eindpagina
 metadata.tib.dimension=Afmetingen
 metadata.tib.objectSoort=Soort object
 metadata.tib.objectNumber=Inventarisnummer
@@ -388,9 +388,11 @@ metadata.tib.date=Datum
 metadata.tib.collectionPart=Deelcollectie
 metadata.tib.person=Persoon
 metadata.tib.region=Regio
+metadata.tib.theme=Thema
 metadata.tib.event=Gebeurtenis
 metadata.tib.location=Geolocatie
 metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
+metadata.tib.pages=Paginering
 
 
 #Users
