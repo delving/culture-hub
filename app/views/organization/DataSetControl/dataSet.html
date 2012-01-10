@@ -13,12 +13,12 @@ extraButtons: [
 ],
 isOwner: isOwner /}
 <div class="row">
-    <div class="dashboard">
+    <div class="grid_12 dashboard">
         <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
 
         <form method="post" action="" id="collectionForm">
             <div class="row">
-                <div class="g-6of12 grid_6">
+                <div class="g-1of2">
                     <h3>&{'organization.dataset.info'}</h3>
                     #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
                     <div class="field">
@@ -43,13 +43,11 @@ isOwner: isOwner /}
 
                     %{ }}%
                 </div>
-                <div class="g-6of12 grid_6">
+                <div class="g-1of2">
                     <h3>Target Record Definitions</h3>
                     #{list recordDefinitions, as: 'recordDef'}
                     #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
                     #{/list}
-                </div>
-                <div class="g-6of12 grid_6">
                     <h3>Indexing Mapping Record Definition</h3>
                     <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
                     <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
