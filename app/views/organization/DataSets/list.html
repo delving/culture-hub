@@ -22,7 +22,7 @@ isOwner: isOwner/}
 
 
     <div class="row">
-        <div class="g-12of12 grid_12 dashboard">
+        <div class="grid_12 dashboard">
             #{if browsedUserName}
             <div class="g-1of1">
                 &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
@@ -36,7 +36,7 @@ isOwner: isOwner/}
                 <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"/>
             </form>
 
-            <div class="data-grid">
+             <div class="data-grid">
                 <table width="100%" id="dataset-table" class="sortable">
                     <caption>${viewUtils.getKey('thing.datasets')}</caption>
                     <thead>
@@ -161,6 +161,8 @@ isOwner: isOwner/}
                     </tbody>
                 </table>
             </div>
+
+
             #{/}
             #{else}
             <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>

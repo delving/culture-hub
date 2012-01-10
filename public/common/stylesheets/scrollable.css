@@ -35,7 +35,7 @@
  	/* required settings */
 	position:relative;
 	overflow:hidden;
-    width: 710px;
+    /*width: 700px;*/
     margin:  0 auto;
 	/* custom decorations */
     top: 0px;
@@ -58,7 +58,7 @@
 
 .scrollable .page {
 	float:left;
-	width:710px;
+	width: 700px;
     position: relative;
     top: 0px;
     left: 0px;

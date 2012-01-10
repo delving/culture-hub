@@ -10,7 +10,7 @@
 #{/set}
 
 <div class="messages-container row">
-    <div class="messages g-1of1 grid_12">
+    <div class="messages grid_12">
         #{if flash.registrationSuccess}
         <p class="success">
             ${viewUtils.getKey("ui.message.registration.success", flash.registrationSuccess)}
@@ -50,25 +50,25 @@
 </div>
 
 <div class="row">
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
         <h3>&{'thing.objects.heritage'}</h3>
         <p>&{'thing.objects.heritage.info'}</p>
     </div>
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
         <h3>&{'thing.objects.user'}</h3>
         <p>&{'thing.objects.user.info'}</p>
     </div>
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
         <h3>&{'thing.collections'}</h3>
         <p>&{'thing.collections.info'}</p>
     </div>
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
         <h3>&{'thing.stories'}</h3>
         <p>&{'thing.stories.info'}</p>
     </div>
 </div>
 <div class="row">
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
     #{if recentMdrs.size() > 0}
         #{list recentMdrs, as: 'm'}
             #{thingSummaryView data: m, iSize: 220 /}
@@ -77,7 +77,7 @@
     #{else}&#160;#{/else}
     </div>
 
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
     #{if recentObjects.size() > 0}
         #{list recentObjects, as: 'o'}
             #{thingSummaryView data: o, iSize: 220 /}
@@ -86,7 +86,7 @@
     #{else}&#160;#{/else}
     </div>
 
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
     #{if recentCollections.size() > 0}
         #{list recentCollections, as: 'c'}
             #{thingSummaryView data: c, iSize: 220 /}
@@ -94,7 +94,7 @@
     #{/if}#{else}&#160;#{/else}
     </div>
 
-    <div class="g-1of4 grid_3">
+    <div class="grid_3">
     #{if recentStories.size() > 0}
         #{list recentStories, as: 's'}
             #{thingSummaryView data: s, iSize: 220 /}

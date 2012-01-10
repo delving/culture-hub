@@ -7,9 +7,9 @@
 #{if memberSince.isDefined()}
 #{organizationNavBar orgId: orgId, isOwner: isOwner /}
 #{/if}
-<div class="g-12of12 grid_12 dashboard">
+<div class="grid_12 dashboard">
 
-    <div class="g-1of3 grid_4">
+    <div class="g-1of3">
 
         <div class="info-box">
             <h3>&{'org.info'}</h3>
@@ -19,7 +19,7 @@
             #{/if}
         </div>
     </div>
-    <div class="g-1of3 grid_4">
+    <div class="g-1of3">
         <h3>&{'thing.datasets'}</h3>
         <ol>
             #{list dataSets, as: 'ds'}
@@ -27,7 +27,7 @@
             #{/list}
         </ol>
     </div>
-    <div class="g-1of3 grid_4">
+    <div class="g-1of3">
         <h3>&{'organization.members'}</h3>
         <ol>
             #{list members, as: 'm'}
