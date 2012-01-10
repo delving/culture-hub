@@ -139,9 +139,20 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def getIndexingState(orgId: String, spec: String): (Int, Int) = {
-    val ds = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return (100, 100))
-    if(ds.state == DataSetState.ENABLED) return (ds.details.total_records, ds.details.total_records)
-    (ds.details.indexing_count, ds.details.total_records)
+
+    val stateData = dataSetsCollection.findOne(
+      MongoDBObject("orgId" -> orgId, "spec" -> spec),
+      MongoDBObject("state" -> 1, "details" -> 1)).getOrElse(return (100, 100))
+
+    val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
+
+    val totalRecords = details.getAsOrElse[Int]("total_records", 0)
+    val indexingCount = details.getAsOrElse[Int]("indexing_count", 0)
+    val invalidRecords = details.getAsOrElse[Int]("invalid_records", 0)
+
+    if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
+
+    (indexingCount, totalRecords - invalidRecords)
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
@@ -212,7 +223,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
-    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes))
+    val updatedDetails = dataSet.details.copy(invalid_records = Some(invalidIndexes.size))
+    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
 
     if(dataSet.hasRecords) {
@@ -395,6 +407,7 @@ case class Details(name: String,
                    total_records: Int = 0,
                    deleted_records: Int = 0,
                    indexing_count: Int = 0,
+                   invalid_records: Option[Int] = Some(0),
                    metadataFormat: RecordDefinition,
                    facts: BasicDBObject = new BasicDBObject(),
                    errorMessage: Option[String] = Some("")
