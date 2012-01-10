@@ -17,8 +17,8 @@
 
 <div class="row">
 
-    <div class="g-12of12 grid_12 story-wrapper">
-        <div class="g-3of12 grid_3 alpha">
+    <div class="story-wrapper">
+        <div class="grid_3">
             <div class="widget">
                 <div class="hd"><h3>${story.name}</h3></div>
                 <div class="bd pam">
@@ -35,9 +35,9 @@
             #{/if}
         </div>
 
-        <div class="g-9of12 grid_9 omega">
+        <!--<div class="grid_9">-->
 
-            <div class="story-container">
+            <div class="story-container grid_9">
 
                 <div class="scroll-nav">
                     <div class="pagination">
@@ -78,13 +78,13 @@
                         <div class="page pam" id="page_${page_index}">
                             <h2>${page.title}</h2>
 
-                            <div class="page-left g-1of2 alpha">
+                            <div class="page-left g-1of2">
                                 ${page.text.raw()}
                             </div>
-                            <div class="page-right g-1of2 omega images">
+                            <div class="page-right g-1of2 images">
                                 *{#{list page.objects.headOption(), as: 'o'}}*
                                 #{list page.getPageObjects(), as: 'o'}
-                                <img src="${o.thumbnail()}" id="img_${o_index}" width="340" alt="${page.title}">
+                                <img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">
                                 #{/list}
                             </div>
 
@@ -95,7 +95,7 @@
                 </div>
 
             </div>
-        </div>
+        <!--</div>-->
     </div>
 
 </div>

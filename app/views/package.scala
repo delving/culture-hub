@@ -145,7 +145,7 @@ package object context extends Internationalization {
       case user :: "story" :: id :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/" + id, models.Story.fetchName(id)))
       case user :: "story" :: id :: "read" :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/" + id, models.Story.fetchName(id)), ("/" + user + "/story/" + id, &("thing.story")))
 
-      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")), ("/" + user + "/object/" + id, &("user.object.updateObject", DObject.fetchName(id))))
+      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", &("thing.objects")), ("/" + user + "/object/" + id,  DObject.fetchName(id)),("/" + user + "/object/" + id, &("user.object.updateObject", DObject.fetchName(id))))
       case user :: "collection" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")), ("/" + user + "/collection/" + id, &("user.collection.update", UserCollection.fetchName(id))))
       case user :: "story" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/story", &("thing.stories")), ("/" + user + "/story/" + id, &("user.story.updateStory", models.Story.fetchName(id))))
 

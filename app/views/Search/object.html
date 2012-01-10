@@ -4,9 +4,9 @@
 
 #{breadcrumbs params:["title":["url":"", "label": fullDoc.getTitle()]] /}
 
-<h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
+<div class="row dashboard">
 
-<div class="row">
+<h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
     <div class="g-12of12 grid_12">
         <div class="media record">
             <img src="${fullDoc.getThumbnailUri(350)}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
@@ -27,8 +27,8 @@
                 #{/else}
                 <div class="metadata">
                     <h5>&{'metadata.dc.description'}:</h5>
-                    <!--<p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>-->
-                    #{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /} `
+                    <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
+                    <!--#{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /} `-->
                     <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">

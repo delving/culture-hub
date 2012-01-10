@@ -6,7 +6,7 @@
 
 <h1 class="sep">&{'user.list.browse'} (${count})</h1>
 
-<div class="g-12of12 grid_12">
+<div class="grid_12">
   #{if items.length() > views.context.package.PAGE_SIZE()}
   <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
   #{/if}
@@ -23,7 +23,7 @@
 <div class="row">
 #{/if}
 
-<div class="g-4of12 grid_4">
+<div class="grid_3">
     <div class="media ${itemName}">
 
       <a href="/${i.userName}/" class="img" rel="nofollow">
@@ -55,7 +55,7 @@
 
 %{ counter++ }%
 
-#{if counter > 3 || i_isLast }
+#{if counter > 4 || i_isLast }
 </div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
@@ -64,7 +64,7 @@
 
 #{if items.length() > views.context.package.PAGE_SIZE()}
 <div class="row">
-  <div class="g-12of12 grid_12 mtm">
+  <div class="grid_12 mtm">
     <div class="pager">#{pagination selector: ".pager", count: count, start: page /}</div>
   </div>
 </div>

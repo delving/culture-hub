@@ -8,38 +8,35 @@
 orgId: orgId,
 active:"datasets",
 extraButtons: [
-    [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-    [label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
-    [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit]
+[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+[label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
+[label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit]
 ],
 isOwner: isOwner /}
-
-<div class="dashboard row">
-
-
-<h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
-
 <div class="row">
-    <div class="g-6of12 grid_6">
-    %{
-      for (i in 0..facts.size() - 1) {
-        def fact = facts.get(i);
-    }%
-        <div class="info-box">
-            <span class="label">${fact.prompt}</span>
+    <div class="grid_12 dashboard">
+        <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
+        <div class="row">
+            <div class="g-1of2">
+                %{
+                for (i in 0..facts.size() - 1) {
+                def fact = facts.get(i);
+                }%
+                <div class="info-box">
+                    <span class="label">${fact.prompt}</span>
 
             <span class="text">
                 ${fact.value}
             </span>
+                </div>
+                #{if i == 4}
+            </div>
+            <div class="g-1of2">
+                #{/if}
+                %{}}%
+            </div>
         </div>
-      #{if i == 4}
-        </div>
-        <div class="g-6of12 grid_6">
-      #{/if}
-    %{}}%
     </div>
-</div>
-
 </div>
 
 

@@ -9,13 +9,13 @@
 
 #{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner /}
 
-<div class="g-12of12 grid_12 dashboard">
+<div class="grid_12 dashboard">
 
     <h1 class="sep">&{'thing.groups'}</h1>
 
 
 
-        <div class="g-12of12 grid_12">
+        <div class="row">
             <form action="" id="groupForm">
                 #{textField name:"name", label:viewUtils.getKey('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
                 <div class="field" data-bind="visible: canChangeGrantType">
