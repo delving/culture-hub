@@ -28,15 +28,14 @@ import models._
 import salatContext.connection
 import java.lang.String
 import play.Logger
-import com.novus.salat.grater
 import util.Constants._
 import controllers.dos.HTTPClient
 import org.apache.commons.httpclient.methods.GetMethod
-import controllers.dos.WebResource._
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
+import exceptions.{SolrConnectionException, MappingNotFoundException}
 
 /**
  *
@@ -54,7 +53,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
 
     // only retrieve records that have a valid mapping for this metadata
     val records = DataSet.getRecords(dataSet).find(MongoDBObject("validOutputFormats" -> metadataFormatForIndexing))
-    DataSet.updateState(dataSet, DataSetState.INDEXING)
+    DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)

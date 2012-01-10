@@ -23,7 +23,8 @@ import play.mvc.Http.Request
 import play.mvc.Util
 import views.context.PAGE_SIZE
 import util.Constants._
-import models.{SolrConnectionException, PortalTheme, Visibility, UserCollection}
+import models.{PortalTheme, Visibility, UserCollection}
+import exceptions.SolrConnectionException
 
 /**
  *

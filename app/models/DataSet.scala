@@ -22,7 +22,6 @@ import models.salatContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
 import dao.SalatDAO
-import cake.metaRepo.PmhVerbType.PmhVerb
 import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
 import play.exceptions.ConfigurationException
@@ -31,9 +30,9 @@ import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
 import eu.delving.sip.IndexDocument
-import controllers.{MetadataAccessors, SolrServer, ModelImplicits}
+import controllers.{SolrServer, ModelImplicits}
 import com.mongodb.casbah.{MongoCollection}
-import _root_.util.Constants._
+import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingNotFoundException}
 
 /**
  * DataSet model
@@ -63,6 +62,8 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    idxSortFields: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
                    invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
+
+  // ~~~ accessors
 
   val name = spec
 
@@ -98,15 +99,6 @@ case class DataSet(_id: ObjectId = new ObjectId,
     metadataNamespaces ++ mdFormatNamespaces
   }
 
-  def setMapping(mapping: RecordMapping, accessKeyRequired: Boolean = true): DataSet = {
-    val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
-    if (ns == None) {
-      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
-    }
-    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
-    // remove First Harvest Step
-    this.copy(mappings = this.mappings.updated(mapping.getPrefix, newMapping))
-  }
 }
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with ModelImplicits {
@@ -132,10 +124,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       (node \ "automatic" text).equalsIgnoreCase("true"),
       for (option <- (node \ "options" \ "string")) yield (option text)
     )
-  }
-
-  def findByState(state: DataSetState) = {
-    DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
   }
 
   def getIndexingState(orgId: String, spec: String): (Int, Int) = {
@@ -165,12 +153,17 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
+  // ~~~ finders
 
   // FIXME: this assumes that the spec is unique accross all users
   @Deprecated
   def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "deleted" -> false))
 
   def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
+
+  def findByState(state: DataSetState) = {
+    DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
+  }
 
   def findAll(publicCollectionsOnly: Boolean = true) = {
     val allDateSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
@@ -187,6 +180,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             map(g => if(g.grantType == GrantType.OWN) DataSet.findAllByOrgId(g.orgId).toList else DataSet.find("_id" $in g.dataSets).toList).
             toList.flatten.distinct
 
+  def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
+    if(Organization.isOwner(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
+    val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
+  }
+
+  def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
+
+  // ~~~ access control
+
   def canView(ds: DataSet, userName: String) = {
     Organization.isOwner(ds.orgId, userName) ||
     Group.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
@@ -201,13 +204,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     ) > 0
   }
 
-  def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
-    if(Organization.isOwner(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
-    val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
-  }
 
-  def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
+  // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
   def updateById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
@@ -215,11 +213,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def upsertById(id: ObjectId, dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
-  }
-
-  def updateState(dataSet: DataSet, state: DataSetState) {
-    val sdbo: MongoDBObject = grater[DataSetState].asDBObject(state)
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
@@ -232,6 +225,18 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       collection.update(MongoDBObject(), $addToSet ("validOutputFormats" -> prefix), false, true)
       collection.update("transferIdx" $in (invalidIndexes), $pull("validOutputFormats" -> prefix), false, true)
     }
+  }
+
+  def updateMapping(dataSet: DataSet, mapping: RecordMapping, accessKeyRequired: Boolean = true): DataSet = {
+    val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
+    if (ns == None) {
+      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
+    }
+    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
+    // remove First Harvest Step
+    val updated = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, newMapping))
+    DataSet.updateById(dataSet._id, updated)
+    updated
   }
 
   def unlock(dataSet: DataSet) {
@@ -249,11 +254,20 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
   }
 
+
+  // ~~~ record handling
+
   def getRecordsCollectionName(dataSet: DataSet): String = getRecordsCollectionName(dataSet.orgId, dataSet.spec)
 
   def getRecordsCollectionName(orgId: String, spec: String): String = "Records.%s_%s".format(orgId, spec)
 
   def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
+
+  def getRecordCount(dataSet: DataSet): Int = {
+    val records: MongoCollection = connection(getRecordsCollectionName(dataSet))
+    val count: Long = records.count
+    count.toInt
+  }
 
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
@@ -281,18 +295,27 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       record
     else {
       val mappedRecord = record.get
-      val transformedDoc: DBObject = transFormXml(metadataFormat, ds.get, mappedRecord)
+      val transformedDoc: DBObject = transformXml(metadataFormat, ds.get, mappedRecord)
 
       Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
     }
   }
 
-  @Deprecated
-  def getStateBySpec(spec: String) = DataSet.findBySpec(spec).get.state
+  def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
+    import eu.delving.sip.MappingEngine
+    import scala.collection.JavaConversions.asJavaMap
+    val mapping = dataSet.mappings.get(prefix)
+    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader, ComponentRegistry.metadataModel)
+    val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
+    mappedRecord
+  }
+
+  // ~~~ indexing control
 
   def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
-  def changeState(dataSet: DataSet, state: DataSetState): DataSet = {
+  def updateStateAndIndexingCount(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
     val mappings = dataSetLatest.mappings.transform((key, map) => map.copy(rec_indexed = 0))
     val updatedDataSet = dataSetLatest.copy(state = state, mappings = mappings)
@@ -300,7 +323,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     updatedDataSet
   }
 
-  def addIndexingState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
+  def updateState(dataSet: DataSet, state: DataSetState) {
+    val sdbo: MongoDBObject = grater[DataSetState].asDBObject(state)
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
+  }
+
+  def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
   }
 
@@ -308,11 +336,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
 
-  def getRecordCount(dataSet: DataSet): Int = {
-    val records: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    val count: Long = records.count
-    count.toInt
-  }
+  // ~~~ OAI-PMH
 
   def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
     val metadataFormats = findAll(publicCollectionsOnly).flatMap {
@@ -331,15 +355,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
-  def transFormXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
-    import eu.delving.sip.MappingEngine
-    import scala.collection.JavaConversions.asJavaMap
-    val mapping = dataSet.mappings.get(prefix)
-    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader, ComponentRegistry.metadataModel)
-    val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
-    mappedRecord
-  }
 }
 
 case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
@@ -373,35 +388,6 @@ case class Mapping(recordMapping: Option[String] = None,
                    errorMessage: Option[String] = Some(""),
                    indexed: Boolean = false)
 
-case class RecordDefinition(prefix: String,
-                          schema: String,
-                          namespace: String,
-                          accessKeyRequired: Boolean = false)
-
-object RecordDefinition {
-
-  val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
-
-  def recordDefinitions = parseRecordDefinitions
-
-  def getRecordDefinitionFiles: Seq[File] = {
-    val conf = new File("conf/")
-    conf.listFiles().filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
-  }
-
-  private def parseRecordDefinitions: List[RecordDefinition] = {
-    val definitionContent = getRecordDefinitionFiles.map { f => XML.loadFile(f) }
-    definitionContent.flatMap(parseRecordDefinition(_)).toList
-  }
-
-  private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
-    val prefix = node \ "@prefix" text
-    val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find {_.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
-    Some(RecordDefinition(recordDefinitionNamespace \ "@prefix" text, recordDefinitionNamespace \ "@schema" text, recordDefinitionNamespace \ "@uri" text))
-  }
-
-}
-
 case class Details(name: String,
                    uploaded_records: Int = 0,
                    total_records: Int = 0,
@@ -423,200 +409,4 @@ case class Details(name: String,
   }
 
 
-}
-
-case class MetadataRecord(_id: ObjectId = new ObjectId,
-                          hubId: String,
-                          rawMetadata: Map[String, String], // this is the raw xml data string
-                          mappedMetadata: Map[String, DBObject] = Map.empty[String, DBObject], // this is the mapped xml data string only added after transformation, and it's a DBObject because Salat won't let us use an inner Map[String, List[String]]
-                          modified: Date = new Date(),
-                          validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
-                          deleted: Boolean = false, // if the record has been deleted
-                          transferIdx: Option[Int] = None, // 0-based index for the transfer order
-                          localRecordKey: String, // the unique element value
-                          links: List[EmbeddedLink] = List.empty[EmbeddedLink],
-                          globalHash: String, // the hash of the raw content
-                          hash: Map[String, String] // the hash for each field, for duplicate detection
-                         ) {
-
-  def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
-
-  def getXmlString(metadataPrefix: String = "raw"): String = {
-    if (rawMetadata.contains(metadataPrefix)) {
-      rawMetadata.get(metadataPrefix).get
-    }
-    else if (mappedMetadata.contains(metadataPrefix)) {
-      import scala.collection.JavaConversions._
-      val indexDocument: MongoDBObject = mappedMetadata.get(metadataPrefix).get
-      indexDocument.entrySet().foldLeft("")(
-        (output, indexDoc) => {
-          val unMungedKey = indexDoc.getKey.replaceFirst("_", ":")
-          output + indexDoc.getValue.asInstanceOf[List[String]].map(value => {
-            "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
-          }).mkString
-        }
-      )
-    }
-    else
-      throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
-  }
-
-  def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {
-    "<record>%s</record>".format(getXmlString(metadataPrefix))
-  }
-
-  def getDefaultAccessor = {
-    val (prefix, map) = mappedMetadata.head
-    new MultiValueMapMetadataAccessors(hubId, map)
-  }
-  
-  def getAccessor(prefix: String) = {
-    if(!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, MongoDBObject())
-    val map = mappedMetadata(prefix)
-    new MultiValueMapMetadataAccessors(hubId, map)
-  }
-
-}
-
-
-object MetadataRecord {
-
-  def getMDR(hubId: String): Option[MetadataRecord] = {
-    val Array(orgId, spec, recordId) = hubId.split("_")
-    val collectionName = DataSet.getRecordsCollectionName(orgId, spec)
-    connection(collectionName).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
-      case Some(dbo) => Some(grater[MetadataRecord].asObject(dbo))
-      case None => None
-    }
-  }
-
-}
-
-class MultiValueMapMetadataAccessors(hubId: String, dbo: MongoDBObject) extends MetadataAccessors {
-  protected def assign(key: String) = {
-    dbo.get(key) match {
-      case Some(v) => v.asInstanceOf[BasicDBList].toList.head.toString
-      case None => ""
-    }
-  }
-
-  override def getHubId = hubId
-  override def getRecordType = _root_.util.Constants.MDR
-}
-
-trait MDRCollection {
-  self: SalatDAO[MetadataRecord, ObjectId] =>
-
-  def existsByLocalRecordKey(key: String) = {
-    count(MongoDBObject("localRecordKey" -> key)) > 0
-  }
-
-  def findByLocalRecordKey(key: String) = {
-    findOne(MongoDBObject("localRecordKey" -> key))
-  }
-
-  def upsertByLocalKey(updatedRecord: MetadataRecord) {
-    update(MongoDBObject("localRecordKey" -> updatedRecord.localRecordKey), updatedRecord, true, false, new WriteConcern())
-  }
-}
-
-
-case class PmhRequest(
-                             verb: PmhVerb,
-                             set: String,
-                             from: Option[Date],
-                             until: Option[Date],
-                             prefix: String
-                             ) {
-
-
-  // extends PmhRequest {
-  def getVerb: PmhVerb = verb
-
-  def getSet: String = set
-
-  def getFrom: Option[Date] = from
-
-  def getUntil: Option[Date] = until
-
-  def getMetadataPrefix: String = prefix
-}
-
-case class HarvestStep(_id: ObjectId = new ObjectId,
-                       first: Boolean,
-                       exporatopm: Date,
-                       listSize: Int,
-                       cursor: Int,
-                       pmhRequest: PmhRequest,
-                       namespaces: Map[String, String],
-                       error: String,
-                       afterId: ObjectId,
-                       nextId: ObjectId
-                              )
-
-object HarvestStep extends SalatDAO[HarvestStep, ObjectId](collection = harvestStepsCollection) {
-
-  //  def getFirstHarvestStep(verb: PmhVerb, set: String, from: Date, until: Date, metadataPrefix: String, accessKey: String): HarvestStep = {
-  //
-  //  }
-  //
-  //  def getHarvestStep(resumptionToken: String, accessKey: String): HarvestStep {
-  //
-  //  }
-
-  //  def removeExpiredHarvestSteps {}
-  def removeFirstHarvestSteps(dataSetSpec: String) {
-    import com.mongodb.casbah.commons.MongoDBObject
-    val step = MongoDBObject("pmhRequest.set," -> dataSetSpec, "first" -> true)
-    remove(step)
-  }
-}
-
-
-class AccessKeyException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class UnauthorizedException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class BadArgumentException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class DataSetNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class HarvindexingException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class MappingNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class RecordNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class MetaRepoSystemException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class RecordParseException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class ResumptionTokenNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class SolrConnectionException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
-class InvalidIdentifierException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
 }
