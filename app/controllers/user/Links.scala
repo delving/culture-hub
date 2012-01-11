@@ -28,9 +28,9 @@ import scala.collection.JavaConversions.asScalaMap
 import java.lang.String
 import com.mongodb.casbah.MongoCollection
 import play.mvc.Before
-import components.Indexing
-import controllers.{SolrServer, DelvingController}
+import controllers.{DelvingController}
 import collection.immutable.Map
+import components.{IndexingService}
 
 /**
  * Controller to add simple, free-text labels to Things.
@@ -184,13 +184,13 @@ object Links extends DelvingController {
                 collection.findOne(MongoDBObject("localRecordKey" -> recordId)) match {
                   case Some(one) =>
                     val mdr = grater[MetadataRecord].asObject(one)
-                    Indexing.indexOneInSolr(orgId, spec, mdr)
+                    IndexingService.index(mdr)
                   case None => // huh?
                     warning("MDR %s_%s_%s does not exist!", orgId, spec, recordId)
                 }
                 
                 // re-index the UserCollection
-                SolrServer.pushToSolr(UserCollection.findOneByID(collectionId).get.toSolrDocument)
+                IndexingService.index(UserCollection.findOneByID(collectionId).get)
 
                 res
 
@@ -200,8 +200,7 @@ object Links extends DelvingController {
                 // re-index the object
                 DObject.findOneByID(fromId) match {
                   case Some(obj) =>
-                    SolrServer.indexSolrDocument(obj.toSolrDocument)
-                    SolrServer.commit()
+                    IndexingService.index(obj)
                   case None =>
                     warning("Object with ID %s does not exist!".format(fromId.toString))
                 }

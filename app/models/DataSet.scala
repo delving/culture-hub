@@ -30,7 +30,7 @@ import xml.{Node, XML}
 import cake.ComponentRegistry
 import play.i18n.Messages
 import eu.delving.sip.IndexDocument
-import controllers.{SolrServer, ModelImplicits}
+import controllers.ModelImplicits
 import com.mongodb.casbah.{MongoCollection}
 import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingNotFoundException}
 
@@ -101,7 +101,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with SolrServer with ModelImplicits {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with ModelImplicits {
 
   lazy val factDefinitionList = parseFactDefinitionList
 

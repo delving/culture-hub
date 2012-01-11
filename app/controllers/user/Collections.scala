@@ -30,7 +30,7 @@ import collection.immutable.List
 import models.salatContext._
 import com.novus.salat.grater
 import models._
-import components.Indexing
+import components.IndexingService
 
 /**
  * Manipulation of user collections
@@ -106,14 +106,14 @@ object Collections extends DelvingController with UserSecured with UGCController
             for(o <- collectionModel.objects) {
               user.DObjects.createCollectionLink(iid, o.id.get, request.domain)
               val obj = DObject.findOneByID(o.id.get).get
-              SolrServer.indexSolrDocument(obj.toSolrDocument)
+              IndexingService.stageForIndexing(obj)
             }
 
             // fetch the collection again & index
             val updatedCollection = UserCollection.findOneByID(iid)
 
-            SolrServer.indexSolrDocument(updatedCollection.get.toSolrDocument)
-            SolrServer.commit()
+            IndexingService.stageForIndexing(updatedCollection.get)
+            IndexingService.commit()
             Some(collectionModel.copy(id = inserted))
         }
       case Some(id) =>
@@ -163,7 +163,7 @@ object Collections extends DelvingController with UserSecured with UGCController
           val affectedObjectIds = removedObjectLinks.map(_._2) ++ added
           affectedObjectIds foreach { affected =>
             val obj = DObject.findOneByID(affected).get
-            SolrServer.indexSolrDocument(obj.toSolrDocument)
+            IndexingService.stageForIndexing(obj)
           }
 
           // removed MDRs
@@ -172,23 +172,22 @@ object Collections extends DelvingController with UserSecured with UGCController
             connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
               case Some(dbo) =>
                 val mdr = grater[MetadataRecord].asObject(dbo)
-                val Array(orgId, spec, localRecordKey) = hubId.split("_")
-                Indexing.indexOneInSolr(orgId, spec, mdr)
+                IndexingService.stageForIndexing(mdr)
               case None =>
                 // meh?
                 warning("While updating UserCollection %s: could not find MDR with hubId %s, removed the document from SOLR", existingCollection.get._id, hubId)
-                SolrServer.deleteFromSolrByQuery("%s:%s".format(HUB_ID, hubId))
+                IndexingService.deleteByQuery("%s:%s".format(HUB_ID, hubId))
             }
           }
 
           // user collection
-          SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
-          SolrServer.commit()
+          IndexingService.stageForIndexing(updatedUserCollection)
+          IndexingService.commit()
           Some(collectionModel)
         } catch {
           case t =>
             logError(t, "Could not save collection " + id)
-            SolrServer.rollback()
+            IndexingService.rollback()
             None
         }
     }
@@ -211,7 +210,7 @@ object Collections extends DelvingController with UserSecured with UGCController
       UserCollection.setObjects(id, objects)
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
-      SolrServer.deleteFromSolrById(id)
+      IndexingService.deleteById(id)
       Ok
     } else {
       Forbidden("Big brother is watching you")

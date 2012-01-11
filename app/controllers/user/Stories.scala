@@ -26,6 +26,7 @@ import java.util.Date
 import extensions.JJson
 import util.Constants._
 import views.context.DEFAULT_THUMBNAIL
+import components.IndexingService
 
 /**
  *
@@ -109,7 +110,7 @@ object Stories extends DelvingController with UserSecured with UGCController {
             setThumbnaiL(iid, STORY, storyVM.thumbnail, findThumbnailUrl(storyVM.thumbnail), None)
 
             if(!story.isDraft) {
-              SolrServer.pushToSolr(Story.findOneByID(iid).getOrElse(return Error(&("user.stories.storyNotFound", iid))).toSolrDocument)
+              IndexingService.index(Story.findOneByID(iid).getOrElse(return Error(&("user.stories.storyNotFound", iid))))
             }
             storyVM.copy(id = inserted)
           case None => None
@@ -129,7 +130,7 @@ object Stories extends DelvingController with UserSecured with UGCController {
         setThumbnaiL(id, STORY, storyVM.thumbnail, findThumbnailUrl(storyVM.thumbnail), updatedStory.links.filter(_.linkType == Link.LinkType.THUMBNAIL).map(_.link).headOption)
 
         // index in solr
-        SolrServer.pushToSolr(Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id))).toSolrDocument)
+        IndexingService.index(Story.findOneByID(id).getOrElse(return Error(&("user.stories.storyNotFound", id))))
         storyVM
     }
     Json(persistedStory)
@@ -138,7 +139,7 @@ object Stories extends DelvingController with UserSecured with UGCController {
   def remove(id: ObjectId) = {
     if(Story.owns(connectedUserId, id)) {
       Story.delete(id)
-      SolrServer.deleteFromSolrById(id)
+      IndexingService.deleteById(id)
     } else Forbidden("Big brother is watching you")
   }
 
