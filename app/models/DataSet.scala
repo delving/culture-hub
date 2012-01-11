@@ -336,6 +336,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
 
+  def invalidateHashes(dataSet: DataSet) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
+  }
+
   // ~~~ OAI-PMH
 
   def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {

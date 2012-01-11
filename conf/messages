@@ -253,6 +253,8 @@ dataset.disable=Disable
 dataset.enable=Enable
 dataset.confirmDeletion=Are you sure you want to remove this DataSet?
 dataset.find=Find a DataSet
+dataset.invalidate=Reset hashes
+
 ##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
 mail.message.resetpassword=In order to reset your password for %s, please follow the link below
@@ -609,6 +611,7 @@ organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in 
 organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
 organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+organization.datasets.cannotBeInvalidated=DataSet hashes cannot be reset in the current state
 
 search.backendConnectionError=Cannot connect to the search backend
 

@@ -172,6 +172,7 @@ GET         /organizations/{orgId}/dataset/{spec}/state                      org
 POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
 POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
 DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.delete
+POST        /organizations/{orgId}/dataset/{spec}/invalidate                 organization.DataSetControl.invalidate
 
 GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
 

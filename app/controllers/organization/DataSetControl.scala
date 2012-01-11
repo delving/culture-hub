@@ -219,6 +219,20 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     }
   }
 
+  def invalidate(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
+      dataSet.state match {
+        case DISABLED | ENABLED | UPLOADED | ERROR =>
+          DataSet.invalidateHashes(dataSet)
+          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INCOMPLETE)
+          Redirect("/organizations/%s/dataset".format(orgId))
+        case _ => Error(&("organization.datasets.cannotBeInvalidated"))
+      }
+    }
+  }
+
+
+
   def forceUnlock(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>
       DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
