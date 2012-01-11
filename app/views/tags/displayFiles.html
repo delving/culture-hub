@@ -1,0 +1,60 @@
+<div class="scrollable img" style="min-height:400px">
+    <a class="prev browse left">prev</a><a class="next browse right">next</a>
+    <div class="items">
+        #{list items: _fileIds, as:'fileId'}
+        <div class="page" id="page_${page_index}">
+            <img src='/file/thumbnail/${fileId}/350' width="350" alt="${_objectName}"/>
+            <div class="extra">
+                   <a href="#" class="overlay-trigger" rel="#overlay" id="${fileId}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+            </div>
+        </div>
+        #{/list}
+    </div>
+</div>
+<!-- overlayed element -->
+<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
+    <div class="contentWrap"></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var viewAreaHeight = 0;
+        var root = $(".scrollable.img");
+        var api = root.scrollable();
+
+         $(".scrollable").find("a.overlay-trigger").each(function(index) {
+            var showMe = "/file/image/" + $(this).attr("id");
+            $(this).overlay({
+                closeOnClick: true,
+                left: "centered",
+                target: '#overlay',
+                mask: {
+                    color: "#ddddd0",
+                    loadSpeed: 200,
+                    opacity: 0.5
+                },
+                onBeforeLoad: function() {
+                    var wrap = $("#overlay .contentWrap");
+                    var image = new Image();
+                    image.src = showMe;
+                    wrap.append(image);
+                },
+                onClose: function() {
+                    $('.contentWrap').empty();
+                }
+            });
+        });
+
+
+        function setHeight() {
+            currentIndex = api.getIndex();
+            $('div#page_' + currentIndex).each(function(i) {
+                viewAreaHeight += $(this).outerHeight() + 40;
+            });
+            $('.scrollable').css("height", viewAreaHeight);
+            viewAreaHeight = 0;
+
+        }
+    });
+
+</script>
