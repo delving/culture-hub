@@ -20,7 +20,6 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import _root_.util.Constants._
 import models.salatContext._
-import com.novus.salat.grater
 import controllers.{ShortObjectModel, DelvingController}
 import models._
 import views.context.DEFAULT_THUMBNAIL
@@ -64,25 +63,4 @@ trait UGCController { self: DelvingController =>
         collection.update(MongoDBObject("_id" -> fromId), $set("thumbnail_url" -> url) ++ $unset("thumbnail_id"))
     }
   }
-
-  def retrieveMDRs(links: List[Link]): List[ShortObjectModel] = {
-    val mdrIds = links.filter(_.from.hubType == Some(MDR)).map(l => (l.from.hubCollection.get, l.from.hubAlternativeId.get))
-    val mdrs = mdrIds.groupBy(_._1).map(m => connection(m._1).find(MDR_HUB_ID $in m._2.map(_._2)).toList).flatten.map(grater[MetadataRecord].asObject(_))
-    mdrs.flatMap(mdr =>
-      // we assume that the first mapping we find will do
-      if(!mdr.mappedMetadata.isEmpty) {
-        val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
-        DataSet.findBySpecAndOrgId(spec, orgId) match {
-          case Some(ds) =>
-            val record = mdr.getAccessor(ds.getIndexingMappingPrefix.getOrElse(""))
-            Some(record)
-          case None =>
-            warning("Could not find DataSet for " + mdr.hubId)
-            None // huh?!?
-        }
-      } else {
-        None
-      }).toList
-  }
-
 }

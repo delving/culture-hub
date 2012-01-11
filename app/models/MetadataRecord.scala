@@ -39,7 +39,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           globalHash: String, // the hash of the raw content
                           hash: Map[String, String] // the hash for each field, for duplicate detection
-                           ) {
+                         ) {
 
   def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
 
@@ -89,6 +89,21 @@ object MetadataRecord {
       case Some(dbo) => Some(grater[MetadataRecord].asObject(dbo))
       case None => None
     }
+  }
+
+  def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
+    val collectionName = DataSet.getRecordsCollectionName(orgIdSpec._1, orgIdSpec._2)
+    getAccessors(collectionName, hubIds : _ *)
+  }
+
+  def getAccessors(hubCollection: String, hubIds: String*): List[_ <: MetadataAccessors] = {
+    val mdrs: Iterator[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_))
+    mdrs.map(mdr =>
+      if(!mdr.mappedMetadata.isEmpty) {
+        Some(mdr.getDefaultAccessor)
+      } else {
+        None
+      }).toList.flatten
   }
 
 }

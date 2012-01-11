@@ -47,14 +47,12 @@ object Collections extends DelvingController with UserSecured with UGCController
       case None =>
         JJson.generate[CollectionViewModel](CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
-        // retrieve objects of the collections via the inbound links. This is not very efficient.
-        val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
-        val links = Link.find("_id" $in linkedObjectLinks).toList
-        val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
+        val userObjectIds = col.links.filter(el => el.linkType == Link.LinkType.PARTOF && el.value.contains(OBJECT_ID)).map(el => new ObjectId(el.value(OBJECT_ID)))
         val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
-        val convertedMdrs = retrieveMDRs(links)
 
-        val objects: List[ShortObjectModel] = userObjects ++ convertedMdrs
+        val linkedMdrs: List[ShortObjectModel] = col.getLinkedMDRAccessors
+
+        val objects: List[ShortObjectModel] = userObjects ++ linkedMdrs
         JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = if(col.getBookmarksCollection) &("thing.bookmarksCollection") else col.name,

@@ -22,6 +22,7 @@ import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
 import util.Constants._
+import controllers.MetadataAccessors
 
 /**
  *
@@ -45,6 +46,12 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 
   // meh...
   def getBookmarksCollection = isBookmarksCollection.getOrElse(false)
+
+  def getLinkedMDRAccessors: List[MetadataAccessors] = {
+    val mdrLinks = links.filter(el => el.linkType == Link.LinkType.PARTOF && el.value.contains(MDR_HUB_ID)).groupBy(_.value(MDR_HUBCOLLECTION)).map(grouped => (grouped._1, grouped._2.map(_.value(MDR_HUB_ID)))).toMap
+    mdrLinks.map(l => MetadataRecord.getAccessors(l._1, l._2 : _ *)).toList.flatten
+  }
+
 }
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
