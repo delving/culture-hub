@@ -391,9 +391,13 @@ metadata.tib.date=Date
 metadata.tib.collectionPart=Sub-collection name
 metadata.tib.person=Person
 metadata.tib.region=Region
+metadata.tib.theme=Theme
 metadata.tib.event=Event
 metadata.tib.location=Geo-location
 metadata.tib.fullTextObjectUrl=URL to full-text search-able object
+metadata.tib.pageStart=Start page
+metadata.tib.pageEnd=End page
+metadata.tib.pages=Pages
 
 
 

@@ -588,6 +588,8 @@ case class ResultPagination (chResponse: CHResponse) {
   def getBreadcrumbs: List[BreadCrumb] = chResponse.breadCrumbs
 
   def getPresentationQuery: PresentationQuery = PresentationQuery(chResponse)
+
+  def getLastViewablePage: Int = pager.totalPages
 }
 
 // implemented

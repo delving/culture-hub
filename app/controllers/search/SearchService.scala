@@ -218,9 +218,14 @@ case class SearchSummary(result : BriefItemView, language: String = "en", chResp
             <start>{pagination.getStart}</start>
             <rows>{pagination.getRows}</rows>
             <numFound>{pagination.getNumFound}</numFound>
-            {if (pagination.isNext) <nextPage>{pagination.getNextPage}</nextPage>}
+            {if (pagination.isNext) {
+              <nextPage>{pagination.getNextPage}</nextPage>
+              <lastPage>{pagination.getLastViewablePage}</lastPage>
+              }
+            }
             {if (pagination.isPrevious) <previousPage>{pagination.getPreviousPage}</previousPage>}
             <currentPage>{pagination.getStart}</currentPage>
+
             <links>
               {pagination.getPageLinks.map(pageLink =>
               <link start={pageLink.start.toString} isLinked={pageLink.isLinked.toString}>{pageLink.display}</link>)}
