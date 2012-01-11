@@ -2,30 +2,29 @@
 
 #{set title: viewUtils.getKey('thing.object') + ' ' + dobject.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 
+#{set 'moreScripts'}
 <script src="@{'/public/common/javascripts/mediaelement/build/mediaelement-and-player.js'}"></script>
+<script src="@{'/public/common/javascripts/culturehub.media.switch.js'}"></script>
+<script src="@{'/public/common/javascripts/jquery.culturehub.mediaSwitcher.js'}"></script>
+#{/}
+#{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
 <link rel="stylesheet" type="text/css" href="@{'/public/common/javascripts/mediaelement/build/mediaelementplayer.css'}"/>
-
+#{/}
 
 #{set bodyId:'object-view' /}
 
 #{breadcrumbs /}
-<style>
-    .scrollable {
-        width: 350px;
-    }
-    .browse.active {
-        display: inline-block;
-        border-bottom: 12px solid green;
-    }
-</style>
+
 <h1 class="sep">${dobject.name}</h1>
 
 <div class="row">
     <div class="grid_12">
         <div class="dashboard">
             <div class="media record">
-                #{displayFiles files: dobject.files(), fileWidth:350, objectName: dobject.name /}
+                <div class="img">
+                   #{displayFiles files: dobject.files(), fileWidth:350, thumbWidth:350, objectName: dobject.name, targetId:dobject._id, enlargeImage:true /}
+                </div>
                 <div class="bd">
                     #{thingToolbar owner: dobject.userName, id: dobject._id, authUser: userName, type:"object", labels:userLabels, places: userPlaces/}
                     <div class="metadata">
@@ -55,5 +54,56 @@
 
     </div>
 </div>
+
+<!-- overlay element -->
+<div id="overlay" class="result-overlay" style="padding: 20px;width:auto"><div class="contentWrap"></div></div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        mediaSwitch({
+            'triggerElement' : '.thumbNav',
+            'mediaWidth'     : '350',
+            'enlargeImage'   : true
+        });
+        $(".img").find("a.overlay-trigger").each(function(index) {
+            var showMe = "/file/image/" + $(this).attr("id");
+            $(this).overlay({
+                closeOnClick: true,
+                left: "centered",
+                target: '#overlay',
+                mask: {
+                    color: "#ddddd0",
+                    loadSpeed: 200,
+                    opacity: 0.5
+                },
+                onBeforeLoad: function() {
+                    var wrap = $("#overlay .contentWrap");
+                    var image = new Image();
+                    image.src = showMe;
+                    wrap.append(image);
+                },
+                onClose: function() {
+                    $('.contentWrap').empty();
+                }
+            });
+        });
+
+        // set media elements
+        var player = $('audio, video').mediaelementplayer({
+            enableAutosize: true,
+            defaultVideoWidth: 350,
+            defaultVideoHeight: 240,
+            videoWidth: 350,
+            videoHeight: -1,
+            audioWidth: 350,
+            audioHeight: 30,
+            plugins: ['flash','silverlight'],
+            features: ['playpause','progress','current','duration','volume','fullscreen']
+        });
+
+
+    });
+</script>
 
 
