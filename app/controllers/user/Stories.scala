@@ -33,7 +33,7 @@ import components.IndexingService
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Stories extends DelvingController with UserSecured with UGCController {
+object Stories extends DelvingController with UserSecured with ThumbnailLinking {
 
   private def load(id: String): String = {
 

@@ -27,8 +27,6 @@ import play.data.validation.Annotations._
 import java.util.Date
 import util.Constants._
 import collection.immutable.List
-import models.salatContext._
-import com.novus.salat.grater
 import models._
 import components.IndexingService
 
@@ -38,7 +36,7 @@ import components.IndexingService
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserSecured with UGCController {
+object Collections extends DelvingController with UserSecured with ThumbnailLinking {
 
   private def load(id: String): String = {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
@@ -169,9 +167,8 @@ object Collections extends DelvingController with UserSecured with UGCController
           // removed MDRs
           for((embeddedLink, hubId: String) <- removedMdrs) {
             val hubCollection = embeddedLink.value(MDR_HUBCOLLECTION)
-            connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
-              case Some(dbo) =>
-                val mdr = grater[MetadataRecord].asObject(dbo)
+            MetadataRecord.getMDR(hubCollection, hubId) match {
+              case Some(mdr) =>
                 IndexingService.stageForIndexing(mdr)
               case None =>
                 // meh?
@@ -182,7 +179,10 @@ object Collections extends DelvingController with UserSecured with UGCController
 
           // user collection
           IndexingService.stageForIndexing(updatedUserCollection)
+
+          // commit them all
           IndexingService.commit()
+
           Some(collectionModel)
         } catch {
           case t =>

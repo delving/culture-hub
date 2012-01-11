@@ -168,7 +168,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     inputDoc.addField(ORG_ID, dataSet.orgId)
 
     // user collections
-    inputDoc.addField(COLLECTIONS, record.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
+    inputDoc.addField(COLLECTIONS, record.linkedUserCollections.toArray)
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"

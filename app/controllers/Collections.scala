@@ -19,7 +19,7 @@ package controllers
 import play.mvc.results.Result
 import org.bson.types.ObjectId
 import extensions.JJson
-import user.UGCController
+import user.ThumbnailLinking
 import util.Constants._
 import com.mongodb.casbah.Imports._
 import models.{Link, Visibility, DObject, UserCollection}
@@ -29,7 +29,7 @@ import models.{Link, Visibility, DObject, UserCollection}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UGCController {
+object Collections extends DelvingController with ThumbnailLinking {
 
   def list(user: Option[String], page: Int = 1): Result = {
     val browser: (List[ListItem], Int) = Search.browse(USERCOLLECTION, user, request, theme)

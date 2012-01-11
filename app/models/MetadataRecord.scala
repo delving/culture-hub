@@ -77,6 +77,10 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
     val map = mappedMetadata(prefix)
     new MultiValueMapMetadataAccessors(hubId, map)
   }
+  
+  // ~~~ linked meta-data
+  
+  def linkedUserCollections: Seq[String] = links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID))
 
 }
 
@@ -85,11 +89,10 @@ object MetadataRecord {
   def getMDR(hubId: String): Option[MetadataRecord] = {
     val Array(orgId, spec, recordId) = hubId.split("_")
     val collectionName = DataSet.getRecordsCollectionName(orgId, spec)
-    connection(collectionName).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
-      case Some(dbo) => Some(grater[MetadataRecord].asObject(dbo))
-      case None => None
-    }
+    getMDR(collectionName, hubId)
   }
+  
+  def getMDR(hubCollection: String, hubId: String) = connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)).map(grater[MetadataRecord].asObject(_))
 
   def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
     val collectionName = DataSet.getRecordsCollectionName(orgIdSpec._1, orgIdSpec._2)

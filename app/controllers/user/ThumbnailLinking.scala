@@ -20,20 +20,18 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import _root_.util.Constants._
 import models.salatContext._
-import controllers.{ShortObjectModel, DelvingController}
+import controllers.DelvingController
 import models._
 import views.context.DEFAULT_THUMBNAIL
 import util.ProgrammerException
 
 /**
- * Common operations amongst UGC controllers.
- *
- * TODO move this where it actually belongs to
+ * Handles linking of thumbnails to user collections and Stories
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait UGCController { self: DelvingController =>
+trait ThumbnailLinking { self: DelvingController =>
 
   def getThumbnailId(collectionId: ObjectId, thumbnailId: String, thumbnailUrl: Option[String]) = thumbnailId match {
     case oid if ObjectId.isValid(oid) => Right(new ObjectId(oid))
