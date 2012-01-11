@@ -1,22 +1,28 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.object') + ' ' + dobject.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
-
+#{set 'moreCss'}
+    <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
+#{/set}
 #{set bodyId:'object-view' /}
 
 #{breadcrumbs /}
-
+<style>
+    .scrollable {
+        width: 350px;
+    }
+</style>
 <h1 class="sep">${dobject.name}</h1>
 
 <div class="row">
     <div class="grid_12">
         <div class="dashboard">
             <div class="media record">
-                <img src='/thumbnail/${dobject._id}/350' width="350" alt="${dobject.name}" class="img"/>
-
-                <div class="extra">
-                    <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
-                </div>
+                <!--<img src='/thumbnail/${dobject._id}/350' width="350" alt="${dobject.name}" class="img"/>-->
+                #{displayFiles fileIds: dobject.fileIds(), fileWidth:350, objectName: dobject.name /}
+                <!--<div class="extra">-->
+                    <!--<a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>-->
+                <!--</div>-->
                 <div class="bd">
                     #{thingToolbar owner: dobject.userName, id: dobject._id, authUser: userName, type:"object", labels:userLabels, places: userPlaces/}
                     <div class="metadata">
@@ -43,23 +49,23 @@
     </div>
 </div>
 <!-- overlayed element -->
-<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
-    <div class="contentWrap">
-        <img src="${dobject.getSourceFileUrl()}" alt="${dobject.name}" style="max-width:900px"/>
+<!--<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">-->
+    <!--<div class="contentWrap">-->
+        <!--<img src="${dobject.getSourceFileUrl()}" alt="${dobject.name}" style="max-width:900px"/>-->
 
-        <div class="title">${dobject.name}</div>
-    </div>
-</div>
-<script type="text/javascript" language="javascript">
-    $(function () {
-        $("a.overlay-trigger").overlay({
-            closeOnClick: true,
-            mask: {
-                color: "#ddddd0",
-                loadSpeed: 200,
-                opacity: 0.5
-            }
-        });
-    });
-</script>
+        <!--<div class="title">${dobject.name}</div>-->
+    <!--</div>-->
+<!--</div>-->
+<!--<script type="text/javascript" language="javascript">-->
+    <!--$(function () {-->
+        <!--$("a.overlay-trigger").overlay({-->
+            <!--closeOnClick: true,-->
+            <!--mask: {-->
+                <!--color: "#ddddd0",-->
+                <!--loadSpeed: 200,-->
+                <!--opacity: 0.5-->
+            <!--}-->
+        <!--});-->
+    <!--});-->
+<!--</script>-->
 
