@@ -1,15 +1,32 @@
-<div class="scrollable img" style="min-height:400px">
+<div class="img">
+<div class="scrollable" >
     <a class="prev browse left">prev</a><a class="next browse right">next</a>
     <div class="items">
-        #{list items: _fileIds, as:'fileId'}
-        <div class="page" id="page_${page_index}">
-            <img src='/file/thumbnail/${fileId}/350' width="350" alt="${_objectName}"/>
+        #{list items: _files, as:'file'}
+        <div class="page" id="page_${file_index}">
+            ${file.contentType()}
+            #{if file.contentType() == "image/jpeg"}
+
+
+            <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
             <div class="extra">
-                   <a href="#" class="overlay-trigger" rel="#overlay" id="${fileId}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+                <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+
             </div>
+        #{/if}
+        #{if file.contentType()=="video/avi" || file.contentType()=="video/mp4" || file.contentType()=="video/x-flv" || file.contentType()=="video/ogg" || file.contentType()=="audio/ogg"}
+         <video width="320" height="240" poster="" controls="controls" preload="none">
+            <source type="${file.contentType()}" src="/file/image/${file.id()}" />
+            <object width="320" height="240" type="application/x-shockwave-flash" data="flashmediaelement.swf">
+                <param name="movie" value="flashmediaelement.swf" />
+                <param name="flashvars" value="controls=true&file=/file/image/${file.id()}" />
+            </object>
+         </video>
+        #{/if}
         </div>
         #{/list}
     </div>
+</div>
 </div>
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
@@ -18,11 +35,15 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var viewAreaHeight = 0;
-        var root = $(".scrollable.img");
-        var api = root.scrollable();
 
-         $(".scrollable").find("a.overlay-trigger").each(function(index) {
+        $(".scrollable").scrollable();
+        var api = $(".scrollable").data("scrollable");
+        setTimeout(function(){ setHeight(1) }, 2000);
+        api.onSeek(function() {
+            setHeight(api.getIndex()+1);
+        });
+
+        $(".scrollable").find("a.overlay-trigger").each(function(index) {
             var showMe = "/file/image/" + $(this).attr("id");
             $(this).overlay({
                 closeOnClick: true,
@@ -43,18 +64,38 @@
                     $('.contentWrap').empty();
                 }
             });
+
         });
 
-
-        function setHeight() {
-            currentIndex = api.getIndex();
-            $('div#page_' + currentIndex).each(function(i) {
-                viewAreaHeight += $(this).outerHeight() + 40;
+       function setHeight(index) {
+            $(".scrollable #page_"+index).each(function(i){
+                  viewAreaHeight = $(this).outerHeight() + 40;
+                $('.scrollable').css("height", viewAreaHeight);
             });
-            $('.scrollable').css("height", viewAreaHeight);
-            viewAreaHeight = 0;
 
         }
+
+        // set media elements
+
+        $('audio, video').mediaelementplayer({
+            enableAutosize: true,
+            // if the <video width> is not specified, this is the default
+            defaultVideoWidth: 460,
+            // if the <video height> is not specified, this is the default
+            defaultVideoHeight: 270,
+            // if set, overrides <video width>
+            videoWidth: -1,
+            // if set, overrides <video height>
+            videoHeight: -1,
+            // width of audio player
+            audioWidth: 460,
+            // height of audio player
+            audioHeight: 30,
+            plugins: ['flash','silverlight'],
+            // the order of controls you want on the control bar (and other plugins below)
+            features: ['playpause','progress','current','duration','volume','fullscreen']
+        });
+
     });
 
 </script>

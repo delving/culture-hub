@@ -1,9 +1,12 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
 
 #{set title: viewUtils.getKey('thing.object') + ' ' + dobject.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
-#{set 'moreCss'}
-    <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
-#{/set}
+
+<script src="@{'/public/common/javascripts/mediaelement/build/mediaelement-and-player.js'}"></script>
+<link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/common/javascripts/mediaelement/build/mediaelementplayer.css'}"/>
+
+
 #{set bodyId:'object-view' /}
 
 #{breadcrumbs /}
@@ -19,7 +22,7 @@
         <div class="dashboard">
             <div class="media record">
                 <!--<img src='/thumbnail/${dobject._id}/350' width="350" alt="${dobject.name}" class="img"/>-->
-                #{displayFiles fileIds: dobject.fileIds(), fileWidth:350, objectName: dobject.name /}
+                #{displayFiles files: dobject.files(), fileWidth:350, objectName: dobject.name /}
                 <!--<div class="extra">-->
                     <!--<a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>-->
                 <!--</div>-->
@@ -52,24 +55,5 @@
 
     </div>
 </div>
-<!-- overlayed element -->
-<!--<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">-->
-    <!--<div class="contentWrap">-->
-        <!--<img src="${dobject.getSourceFileUrl()}" alt="${dobject.name}" style="max-width:900px"/>-->
 
-        <!--<div class="title">${dobject.name}</div>-->
-    <!--</div>-->
-<!--</div>-->
-<!--<script type="text/javascript" language="javascript">-->
-    <!--$(function () {-->
-        <!--$("a.overlay-trigger").overlay({-->
-            <!--closeOnClick: true,-->
-            <!--mask: {-->
-                <!--color: "#ddddd0",-->
-                <!--loadSpeed: 200,-->
-                <!--opacity: 0.5-->
-            <!--}-->
-        <!--});-->
-    <!--});-->
-<!--</script>-->
 
