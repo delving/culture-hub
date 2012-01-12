@@ -206,7 +206,7 @@ object Collections extends DelvingController with UserSecured with ThumbnailLink
           if(col.getBookmarksCollection) return Error("Cannot delete bookmarks collection!")
         case None =>
       }
-      val objects = DObject.findForCollection(id)
+      val objects = DObject.findAllWithCollection(id).map(_._id)
       UserCollection.setObjects(id, objects)
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
