@@ -41,7 +41,7 @@ object Admin extends DelvingController with AdminSecure {
   def indexDataSets: Result = {
 
     val reIndexable = DataSet.findByState(DataSetState.ENABLED).toList
-    reIndexable foreach { r => DataSet.changeState(r, DataSetState.QUEUED)}
+    reIndexable foreach { r => DataSet.updateStateAndIndexingCount(r, DataSetState.QUEUED)}
     
     Text("Queued %s DataSets for indexing".format(reIndexable.size))
   }

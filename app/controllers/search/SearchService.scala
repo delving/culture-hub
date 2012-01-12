@@ -24,6 +24,7 @@ import play.mvc.results.Result
 import util.Constants._
 import controllers.Internationalization
 import play.i18n.Messages
+import exceptions.AccessKeyException
 
 /**
  *
@@ -66,7 +67,6 @@ class SearchService(request: Request, theme: PortalTheme, hiddenQueryFilters: Li
         val wskey = paramMap.getOrElse("wskey", Array[String]("unknown")).head
         // todo add proper wskey checking
         if (wskey.isEmpty) {
-          import models.AccessKeyException
           Logger.warn(String.format("Service Access Key %s invalid!", wskey));
           throw new AccessKeyException(String.format("Access Key %s not accepted", wskey));
         }

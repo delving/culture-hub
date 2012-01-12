@@ -19,6 +19,7 @@ package controllers
 import play.mvc.Scope.Session
 import java.util.Date
 import models.{UserCollection, Visibility, User}
+import components.IndexingService
 
 class ServicesSecurity extends Security with Internationalization {
 
@@ -47,7 +48,7 @@ class ServicesSecurity extends Security with Internationalization {
           isBookmarksCollection = Some(true))
         val userCollectionId = UserCollection.insert(bookmarksCollection)
         try {
-          SolrServer.pushToSolr(bookmarksCollection.copy(_id = userCollectionId.get).toSolrDocument)
+          IndexingService.index(bookmarksCollection.copy(_id = userCollectionId.get))
         } catch {
           case t => ErrorReporter.reportError(this.getClass.getName, t, "Could not index Bookmarks collection %s for newly created user %s".format(userCollectionId.get.toString, userName))
         }

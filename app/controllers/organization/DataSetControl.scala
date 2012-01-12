@@ -38,11 +38,22 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
 
     val data = if (dataSet == None)
-      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = ""))
+      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = "", lockedBy = None))
     else {
       val dS = dataSet.get
       if(DataSet.canEdit(dS, connectedUser)) {
-        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""), visibility = dS.visibility.value))
+        JJson.generate(
+          ShortDataSet(
+            id = Some(dS._id),
+            spec = dS.spec,
+            facts = dS.getFacts,
+            userName = dS.getCreator.userName,
+            orgId = dS.orgId,
+            recordDefinitions = dS.recordDefinitions,
+            indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
+            visibility = dS.visibility.value,
+            lockedBy = dS.lockedBy)
+        )
       } else {
         return Forbidden("You are not allowed to edit DataSet %s".format(spec))
       }
@@ -131,13 +142,13 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       dataSet.state match {
         case DISABLED | UPLOADED | ERROR =>
           try {
-            DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-            DataSet.changeState(dataSet, DataSetState.QUEUED)
+            DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
           } catch {
             case rt if rt.getMessage.contains() =>
               // TODO give the user some decent feedback in the interface
               LoggedError(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
-              DataSet.changeState(dataSet, DataSetState.ERROR)
+              DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
           }
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeIndexed"))
@@ -149,8 +160,8 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case ENABLED =>
-          DataSet.addIndexingState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-          DataSet.changeState(dataSet, DataSetState.QUEUED)
+          DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeReIndexed"))
       }
@@ -161,11 +172,11 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId: String, spec) { dataSet =>
       dataSet.state match {
         case QUEUED | INDEXING =>
-          DataSet.changeState(dataSet, DataSetState.UPLOADED)
+          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.UPLOADED)
           try {
             Indexing.deleteFromSolr(dataSet)
           } catch {
-            case _ => DataSet.changeState(dataSet, DataSetState.ERROR)
+            case _ => DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
           }
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeCancelled"))
@@ -189,7 +200,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case QUEUED | INDEXING | ERROR | ENABLED =>
-          val updatedDataSet = DataSet.changeState(dataSet, DataSetState.DISABLED)
+          val updatedDataSet = DataSet.updateStateAndIndexingCount(dataSet, DataSetState.DISABLED)
           Indexing.deleteFromSolr(updatedDataSet)
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeDisabled"))
@@ -201,7 +212,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     withDataSet(orgId, spec) { dataSet =>
       dataSet.state match {
         case DISABLED =>
-          DataSet.changeState(dataSet, DataSetState.ENABLED)
+          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ENABLED)
           Redirect("/organizations/%s/dataset".format(orgId))
         case _ => Error(&("organization.datasets.cannotBeEnabled"))
       }
@@ -218,6 +229,20 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       }
     }
   }
+
+  def invalidate(orgId: String, spec: String): Result = {
+    withDataSet(orgId, spec) { dataSet =>
+      dataSet.state match {
+        case DISABLED | ENABLED | UPLOADED | ERROR =>
+          DataSet.invalidateHashes(dataSet)
+          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INCOMPLETE)
+          Redirect("/organizations/%s/dataset".format(orgId))
+        case _ => Error(&("organization.datasets.cannotBeInvalidated"))
+      }
+    }
+  }
+
+
 
   def forceUnlock(orgId: String, spec: String): Result = {
     withDataSet(orgId, spec) { dataSet =>

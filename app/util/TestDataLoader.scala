@@ -20,7 +20,7 @@ import models.salatContext._
 import com.mongodb.casbah.Imports._
 import models._
 import play.libs.Crypto
-import controllers.{SolrServer, AccessControl}
+import components.IndexingService
 
 /**
  * 
@@ -41,7 +41,7 @@ trait TestData {
       commonsConnection.getCollection(collection).remove(MongoDBObject())
   }
 
-  SolrServer.deleteFromSolrByQuery("*:*")
+  IndexingService.deleteByQuery("*:*")
 
 }
 

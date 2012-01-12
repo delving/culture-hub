@@ -19,7 +19,7 @@ package controllers
 import play.mvc.results.Result
 import org.bson.types.ObjectId
 import extensions.JJson
-import user.UGCController
+import user.ThumbnailLinking
 import util.Constants._
 import com.mongodb.casbah.Imports._
 import models.{Link, Visibility, DObject, UserCollection}
@@ -29,7 +29,7 @@ import models.{Link, Visibility, DObject, UserCollection}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UGCController {
+object Collections extends DelvingController with ThumbnailLinking {
 
   def list(user: Option[String], page: Int = 1): Result = {
     val browser: (List[ListItem], Int) = Search.browse(USERCOLLECTION, user, request, theme)
@@ -63,14 +63,12 @@ object Collections extends DelvingController with UGCController {
       if (!ObjectId.isValid(id)) return Error(&("collections.invalidCollectionId", id))
       val cid = new ObjectId(id)
       val userCollection = UserCollection.findOneByID(cid).getOrElse(return Error("Could not find collection " + cid))
-      val userObjects: List[ShortObjectModel] = DObject.findAllWithCollection(cid)
 
-      val (userObjectLinks, mdrLinks) = userCollection.links.filter(_.linkType == Link.LinkType.PARTOF).partition(_.value.contains(OBJECT_ID))
-      val links = Link.find("_id" $in (mdrLinks.map(_.link)))
-      val mdrs: List[ShortObjectModel] = retrieveMDRs(links.toList)
+      val userObjects: List[ShortObjectModel] = DObject.findAllWithCollection(cid)
+      val linkedMdrs: List[ShortObjectModel] = userCollection.getLinkedMDRAccessors
 
       request.format match {
-        case "json" => Json(userObjects ++ mdrs)
+        case "json" => Json(userObjects ++ linkedMdrs)
         case _ => BadRequest
       }
     }

@@ -20,7 +20,6 @@ import play.mvc.results.Result
 import models.salatContext._
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
-import com.novus.salat.grater
 import models._
 import util.Constants._
 import Link.LinkType._
@@ -28,9 +27,9 @@ import scala.collection.JavaConversions.asScalaMap
 import java.lang.String
 import com.mongodb.casbah.MongoCollection
 import play.mvc.Before
-import components.Indexing
-import controllers.{SolrServer, DelvingController}
+import controllers.{DelvingController}
 import collection.immutable.Map
+import components.{IndexingService}
 
 /**
  * Controller to add simple, free-text labels to Things.
@@ -141,15 +140,14 @@ object Links extends DelvingController {
                 // URL is /{orgId}/object/{spec}/{recordId}/link/{toType}/{toId}
                 // we store an EmbeddedLink in the MDR so that we can index it without additional lookup
                 // for this, reconstruct where it is stored
-                val (collection, orgId, spec, recordId) = mdrInfo
+                val (collection, orgId, spec, recordId, hubId) = mdrInfo
 
                 // sanity check
                 val ohBeOne = collection.findOne(MongoDBObject("localRecordKey" -> recordId))
                 val mdr = ohBeOne match {
                   case Some(one) => one
-                  case None => return NotFound("Record with identifier %s_%s_%s was not found".format(orgId, spec, recordId))
+                  case None => return NotFound("Record with identifier %s was not found".format(hubId))
                 }
-                val hubId = "%s_%s_%s".format(orgId, spec, recordId)
                 val res = Link.create(
                   linkType = Link.LinkType.PARTOF,
                   userName = connectedUser,
@@ -181,16 +179,15 @@ object Links extends DelvingController {
                   ))
 
                 // re-index the MDR
-                collection.findOne(MongoDBObject("localRecordKey" -> recordId)) match {
-                  case Some(one) =>
-                    val mdr = grater[MetadataRecord].asObject(one)
-                    Indexing.indexOneInSolr(orgId, spec, mdr)
+                MetadataRecord.getMDR(collection.getName(), hubId) match {
+                  case Some(record) =>
+                    IndexingService.index(record)
                   case None => // huh?
-                    warning("MDR %s_%s_%s does not exist!", orgId, spec, recordId)
+                    warning("MDR %s does not exist!", hubId)
                 }
                 
                 // re-index the UserCollection
-                SolrServer.pushToSolr(UserCollection.findOneByID(collectionId).get.toSolrDocument)
+                IndexingService.index(UserCollection.findOneByID(collectionId).get)
 
                 res
 
@@ -200,8 +197,7 @@ object Links extends DelvingController {
                 // re-index the object
                 DObject.findOneByID(fromId) match {
                   case Some(obj) =>
-                    SolrServer.indexSolrDocument(obj.toSolrDocument)
-                    SolrServer.commit()
+                    IndexingService.index(obj)
                   case None =>
                     warning("Object with ID %s does not exist!".format(fromId.toString))
                 }
@@ -234,11 +230,8 @@ object Links extends DelvingController {
   }
 
   def remove(id: ObjectId, linkType: String, toType: String, toId: ObjectId): Result = {
-    val (collection, orgId, spec, recordId) = mdrInfo
-    Link.findOne(MongoDBObject("from.uri" -> Link.buildUri(MDR, "%s_%s_%s".format(orgId, spec, recordId), request.domain), "linkType" -> linkType, "to.id" -> toId)) match {
-      case Some(l) => Link.removeLink(l)
-      case None => // nope
-    }
+    val (collection, orgId, spec, recordId, hubId) = mdrInfo
+    Link.findOne(MongoDBObject("from.uri" -> Link.buildUri(MDR, "%s_%s_%s".format(orgId, spec, recordId), request.domain), "linkType" -> linkType, "to.id" -> toId)).map(Link.removeLink(_))
     Ok
   }
 
@@ -248,8 +241,9 @@ object Links extends DelvingController {
     val recordId: String = params.get("recordId").toString
     val recordCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
     val collection: MongoCollection = connection(recordCollectionName)
+    val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
-    (collection, orgId, spec, recordId)
+    (collection, orgId, spec, recordId, hubId)
 
   }
 
@@ -259,7 +253,7 @@ object Links extends DelvingController {
       case STORY => Some(userStoriesCollection)
       case USER => Some(userCollection)
       case MDR =>
-        val (collection, orgId, spec, recordId) = mdrInfo
+        val (collection, orgId, spec, recordId, hubId) = mdrInfo
         Some(collection)
       case _ => None
   }

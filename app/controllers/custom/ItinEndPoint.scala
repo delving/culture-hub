@@ -16,7 +16,6 @@
 
 package controllers.custom
 
-import play.mvc.results.RenderXml
 import play.mvc.Controller
 import controllers.ThemeAware
 import scala.collection.JavaConversions.asScalaIterable
@@ -42,9 +41,7 @@ object ItinEndPoint extends Controller with ThemeAware{
     import models.{StoreResponse, DrupalEntity}
     import play.Logger
     import java.lang.String
-    import xml.parsing.ConstructingParser
-    import io.Source
-    import xml.{Node, Elem}
+    import xml.Elem
 
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
     val body: String = params.get("body")
@@ -75,11 +72,6 @@ object ItinEndPoint extends Controller with ThemeAware{
     </response>
     if (!xmlResponse.success) response.status = new Integer(404)
     Xml(responseString.toString())
-  }
-
-  // todo implement this
-  def sync(data: String): Result = {
-    new RenderXml("<bla>rocks</bla>")
   }
 
 }

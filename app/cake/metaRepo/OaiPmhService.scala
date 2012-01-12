@@ -24,6 +24,7 @@ import xml.Elem
 import models.MetadataRecord
 import scala.collection.JavaConversions._
 import cake.metaRepo.PmhVerbType.PmhVerb
+import exceptions._
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -318,7 +319,6 @@ class OaiPmhService(request: Http.Request, accessKey: String = "") extends MetaC
 
   private[metaRepo] def getDate(dateString: String): Date = {
     import java.text.ParseException
-    import models.BadArgumentException
 
     if (dateString.isEmpty) return null
     val date = try {

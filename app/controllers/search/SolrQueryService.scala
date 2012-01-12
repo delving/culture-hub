@@ -28,6 +28,7 @@ import util.Constants._
 import util.Constants
 import java.lang.String
 import java.util.{Map => JMap}
+import exceptions.SolrConnectionException
 
 /**
  *
@@ -308,7 +309,6 @@ object SolrQueryService extends SolrServer {
         throw new MalformedQueryException("Malformed Query", e)
       }
       case e: SolrServerException => {
-        import models.SolrConnectionException
         Logger.error("Unable to connect to Solr Server", e)
         throw new SolrConnectionException("SOLR_UNREACHABLE", e)
       }

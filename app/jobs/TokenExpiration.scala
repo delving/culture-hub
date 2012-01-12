@@ -16,8 +16,9 @@
 
 package jobs
 
-import play.jobs.{Every, On, Job}
+import play.jobs.{Every, Job}
 import controllers.OAuth2TokenEndpoint
+import models.User
 
 /**
  * 
@@ -29,3 +30,11 @@ class OAuth2TokenExpiration extends Job {
     OAuth2TokenEndpoint.evictExpiredTokens()
   }
 }
+
+@Every("5min")
+class PasswordResetExpiration extends Job {
+  override def doJob() {
+    User.evictExpiredPasswordResetTokens()
+  }
+}
+

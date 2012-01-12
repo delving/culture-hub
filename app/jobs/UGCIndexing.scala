@@ -19,9 +19,9 @@ package jobs
 import play.jobs.Job
 import com.mongodb.casbah.commons.MongoDBObject
 import models.{Story, UserCollection, Thing, DObject}
-import controllers.{ErrorReporter, SolrServer}
-import org.apache.solr.client.solrj.response.UpdateResponse
+import controllers.ErrorReporter
 import util.Constants._
+import components.IndexingService
 
 /**
  * Index all things UGC
@@ -29,7 +29,7 @@ import util.Constants._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class UGCIndexing extends Job with SolrServer {
+class UGCIndexing extends Job {
 
   override def doJob() {
     index(OBJECT, DObject.find(MongoDBObject("deleted" -> false)))
@@ -38,17 +38,15 @@ class UGCIndexing extends Job with SolrServer {
   }
 
   private def index(thingType: String, things: Iterator[Thing]) {
-    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery("%s:%s".format(RECORD_TYPE, thingType))
-    deleteResponse.getStatus
-    getStreamingUpdateServer.commit
+    IndexingService.deleteByQuery("%s:%s".format(RECORD_TYPE, thingType))
 
     things.zipWithIndex.foreach(el => {
-      getStreamingUpdateServer add (el._1.toSolrDocument)
+      IndexingService.stageForIndexing(el._1)
       if (el._2 % 100 == 0) {
-        getStreamingUpdateServer.commit()
+        IndexingService.commit()
       }
     })
-    getStreamingUpdateServer.commit()
+    IndexingService.commit()
   }
 
   override def onException(e: Throwable) {

@@ -69,8 +69,11 @@ case class Page(title: String, text: String, objects: List[PageObject]) extends 
   def getPageObjects = {
     val (userPageObjects, mdrPageObjects) = objects.partition(_.objectId != None)
     val userObjects: List[ShortObjectModel] = DObject.findAllWithIds(userPageObjects.flatMap(_.objectId)).toList
-    // TODO optimize, refactor
-    val heritageObjects: List[ShortObjectModel] = mdrPageObjects.flatMap(_.hubId).flatMap(MetadataRecord.getMDR(_)).map(_.getDefaultAccessor)
+    val groupedIds = mdrPageObjects.flatMap(_.hubId).groupBy(id => {
+      val Array(orgId, spec, localRecordKey) = id.split("_")
+      (orgId, spec)
+    })
+    val heritageObjects: List[ShortObjectModel] = groupedIds.map(g => MetadataRecord.getAccessors(g._1, g._2 : _ *)).toList.flatten
     userObjects ++ heritageObjects
   }
 
