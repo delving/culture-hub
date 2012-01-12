@@ -44,7 +44,9 @@ object DObjects extends DelvingController {
           val places: List[Token] = thing.placeLinks
           val userLabels: List[Token] = if(thing.userName == connectedUser) labels else thing.freeTextLinks.filter(_.userName == connectedUser)
           val userPlaces: List[Token] = if(thing.userName == connectedUser) labels else thing.placeLinks.filter(_.userName == connectedUser)
-          Template('dobject -> thing, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places, 'userLabels -> JJson.generate(userLabels), 'userPlaces -> JJson.generate(userPlaces))
+          val linkedFromCollections: List[ListItem] = thing.linkedCollections
+          val linkedFromStories: List[ListItem] = thing.linkedStories
+          Template('dobject -> thing, 'linkedFromCollections -> linkedFromCollections, 'linkedFromStories -> linkedFromStories, 'labels -> JJson.generate(labels), 'labelsList -> labels, 'places -> JJson.generate(places), 'placesList -> places, 'userLabels -> JJson.generate(userLabels), 'userPlaces -> JJson.generate(userPlaces))
         }
         case _ => NotFound
     }

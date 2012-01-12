@@ -24,6 +24,7 @@ import controllers.dos.StoredFile
 import java.util.Date
 import util.Constants._
 import views.context.DEFAULT_THUMBNAIL
+import controllers.ListItem
 
 /**
  * 
@@ -54,6 +55,11 @@ case class DObject(_id: ObjectId = new ObjectId,
     doc
   }
   def fileIds = files.map(_.id)
+
+  def linkedCollections: List[UserCollection] = UserCollection.find(MongoDBObject("links.value.objectId" -> _id.toString)).toList
+
+  def linkedStories: List[Story] = Story.find(MongoDBObject("pages.objects.objectId" -> _id)).toList
+
 
 }
 
