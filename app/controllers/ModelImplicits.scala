@@ -45,7 +45,8 @@ trait ModelImplicits extends Internationalization {
     recordDefinitions = ds.mappings.keySet.toList,
     indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
     orgId = ds.orgId,
-    userName = ds.getCreator.userName)
+    userName = ds.getCreator.userName,
+    lockedBy = ds.lockedBy)
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 

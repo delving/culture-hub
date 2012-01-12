@@ -76,6 +76,7 @@ ui.label.share=Share
 ui.label.sipcreator=Sip-Creator
 ui.label.startupload=Start upload
 ui.label.status=Status
+ui.label.unlock=Unlock
 ui.label.uploadcancel=Cancel upload
 ui.label.username=Username
 ui.label.visibility=Visibility

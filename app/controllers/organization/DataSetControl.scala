@@ -38,11 +38,22 @@ object DataSetControl extends DelvingController with OrganizationSecured {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
 
     val data = if (dataSet == None)
-      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = ""))
+      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = "", lockedBy = None))
     else {
       val dS = dataSet.get
       if(DataSet.canEdit(dS, connectedUser)) {
-        JJson.generate(ShortDataSet(id = Some(dS._id), spec = dS.spec, facts = dS.getFacts, userName = dS.getCreator.userName, orgId = dS.orgId, recordDefinitions = dS.recordDefinitions, indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""), visibility = dS.visibility.value))
+        JJson.generate(
+          ShortDataSet(
+            id = Some(dS._id),
+            spec = dS.spec,
+            facts = dS.getFacts,
+            userName = dS.getCreator.userName,
+            orgId = dS.orgId,
+            recordDefinitions = dS.recordDefinitions,
+            indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
+            visibility = dS.visibility.value,
+            lockedBy = dS.lockedBy)
+        )
       } else {
         return Forbidden("You are not allowed to edit DataSet %s".format(spec))
       }
