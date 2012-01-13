@@ -1,33 +1,54 @@
 <div class="img">
-<div class="scrollable" >
-    <a class="prev browse left">prev</a><a class="next browse right">next</a>
-    <div class="items">
-        #{list items: _files, as:'file'}
-        <div class="page" id="page_${file_index}">
-            ${file.contentType()}
-            #{if file.contentType() == "image/jpeg"}
-
-
-            <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
-            <div class="extra">
-                <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
-
+#{ifnot _files.size() > 1}
+    #{list items: _files, as:'file'}
+    <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
+    <div class="extra"><a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a></div>
+    #{/list}
+#{/ifnot}
+#{else}
+    <div class="scrollable" >
+        <div class="items">
+            #{list items: _files, as:'file'}
+            <div class="page" id="page_${file_index}">
+                #{if file.contentType().contains('image/')}
+                <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
+                <div class="extra"><a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a></div>
+            #{/if}
+            #{if file.contentType().contains('video/')}
+             <video width="350" height="240" poster="" controls="controls" preload="none">
+                <source type="${file.contentType()}" src="/file/image/${file.id()}" />
+                <object width="350" height="240" type="application/x-shockwave-flash" data="flashmediaelement.swf">
+                    <param name="movie" value="flashmediaelement.swf" />
+                    <param name="flashvars" value="controls=true&file=/file/image/${file.id()}" />
+                </object>
+             </video>
+            #{/if}
+            #{if file.contentType().contains('audio/')}
+                <audio  controls="controls"  type="audio/mp3" src="/file/image/${file.id()}"></audio>
+            #{/if}
             </div>
-        #{/if}
-        #{if file.contentType()=="video/avi" || file.contentType()=="video/mp4" || file.contentType()=="video/x-flv" || file.contentType()=="video/ogg" || file.contentType()=="audio/ogg"}
-         <video width="320" height="240" poster="" controls="controls" preload="none">
-            <source type="${file.contentType()}" src="/file/image/${file.id()}" />
-            <object width="320" height="240" type="application/x-shockwave-flash" data="flashmediaelement.swf">
-                <param name="movie" value="flashmediaelement.swf" />
-                <param name="flashvars" value="controls=true&file=/file/image/${file.id()}" />
-            </object>
-         </video>
-        #{/if}
+            #{/list}
         </div>
-        #{/list}
     </div>
+#{/else}
 </div>
+
+#{if _files.size() > 1}
+<div class="extra" id="oNavi">
+    #{list _files, as: 'file'}
+        #{if file.contentType().contains('image/') }
+            <a class="browse #{if file_isFirst}active #{/if}" href="#"><img src="/file/thumbnail/${file.id()}/80"  width="80" alt=""/></a>
+        #{/if}
+        #{elseif file.contentType().contains('audio/') }
+             <a class="browse #{if file_isFirst}active #{/if}"  href="#"><img src="@{'/public/common/images/icon_audio.png'}"  width="80" alt=""/></a>
+        #{/elseif}
+        #{elseif file.contentType().contains('video/') }
+             <a class="browse #{if file_isFirst}active #{/if}"  href="#"><img src="@{'/public/common/images/icon_video.png'}"  width="80" alt=""/></a>
+        #{/elseif}
+    #{/list}
 </div>
+#{/if}
+
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
     <div class="contentWrap"></div>
@@ -36,14 +57,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
 
-        $(".scrollable").scrollable();
-        var api = $(".scrollable").data("scrollable");
-        setTimeout(function(){ setHeight(1) }, 2000);
-        api.onSeek(function() {
-            setHeight(api.getIndex()+1);
-        });
-
-        $(".scrollable").find("a.overlay-trigger").each(function(index) {
+        $(".img").find("a.overlay-trigger").each(function(index) {
             var showMe = "/file/image/" + $(this).attr("id");
             $(this).overlay({
                 closeOnClick: true,
@@ -66,10 +80,20 @@
             });
 
         });
+        #{if _files.size() > 1}
+        $(".scrollable").scrollable().navigator("#oNavi");
+        var api = $(".scrollable").data("scrollable");
+        setTimeout(function(){ setHeight(1) }, 2000);
+        api.onBeforeSeek(function(event, i) {
+            $("#oNavi").removeClass("active").eq(i).addClass("active");
+        });
+        api.onSeek(function() {
+            setHeight(api.getIndex()+1);
+        });
 
        function setHeight(index) {
             $(".scrollable #page_"+index).each(function(i){
-                  viewAreaHeight = $(this).outerHeight() + 40;
+                  viewAreaHeight = $(this).outerHeight();
                 $('.scrollable').css("height", viewAreaHeight);
             });
 
@@ -79,23 +103,16 @@
 
         $('audio, video').mediaelementplayer({
             enableAutosize: true,
-            // if the <video width> is not specified, this is the default
-            defaultVideoWidth: 460,
-            // if the <video height> is not specified, this is the default
-            defaultVideoHeight: 270,
-            // if set, overrides <video width>
-            videoWidth: -1,
-            // if set, overrides <video height>
+            defaultVideoWidth: 350,
+            defaultVideoHeight: 240,
+            videoWidth: 352,
             videoHeight: -1,
-            // width of audio player
-            audioWidth: 460,
-            // height of audio player
+            audioWidth: 350,
             audioHeight: 30,
             plugins: ['flash','silverlight'],
-            // the order of controls you want on the control bar (and other plugins below)
             features: ['playpause','progress','current','duration','volume','fullscreen']
         });
-
+       #{/if}
     });
 
 </script>
