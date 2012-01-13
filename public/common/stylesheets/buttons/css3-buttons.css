@@ -55,7 +55,7 @@ DROPDOWN MENU
 	transition: border-color .20s;
     width: auto;
 }
-button {
+button.button {
 	height: 29px !important;
 	cursor: pointer;
 }
