@@ -27,10 +27,8 @@ import play.data.validation.Annotations._
 import java.util.Date
 import util.Constants._
 import collection.immutable.List
-import models.salatContext._
-import com.novus.salat.grater
 import models._
-import components.Indexing
+import components.IndexingService
 
 /**
  * Manipulation of user collections
@@ -38,7 +36,7 @@ import components.Indexing
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Collections extends DelvingController with UserSecured with UGCController {
+object Collections extends DelvingController with UserSecured with ThumbnailLinking {
 
   private def load(id: String): String = {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
@@ -47,14 +45,12 @@ object Collections extends DelvingController with UserSecured with UGCController
       case None =>
         JJson.generate[CollectionViewModel](CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
-        // retrieve objects of the collections via the inbound links. This is not very efficient.
-        val linkedObjectLinks = col.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.link)
-        val links = Link.find("_id" $in linkedObjectLinks).toList
-        val userObjectIds = links.filter(_.from.hubType == Some(OBJECT)).map(_.from.id.get)
+        val userObjectIds = col.links.filter(el => el.linkType == Link.LinkType.PARTOF && el.value.contains(OBJECT_ID)).map(el => new ObjectId(el.value(OBJECT_ID)))
         val userObjects: List[ShortObjectModel] = DObject.find("_id" $in userObjectIds).toList
-        val convertedMdrs = retrieveMDRs(links)
 
-        val objects: List[ShortObjectModel] = userObjects ++ convertedMdrs
+        val linkedMdrs: List[ShortObjectModel] = col.getLinkedMDRAccessors
+
+        val objects: List[ShortObjectModel] = userObjects ++ linkedMdrs
         JJson.generate[CollectionViewModel](CollectionViewModel(
           id = Some(col._id),
           name = if(col.getBookmarksCollection) &("thing.bookmarksCollection") else col.name,
@@ -108,14 +104,14 @@ object Collections extends DelvingController with UserSecured with UGCController
             for(o <- collectionModel.objects) {
               user.DObjects.createCollectionLink(iid, o.id.get, request.domain)
               val obj = DObject.findOneByID(o.id.get).get
-              SolrServer.indexSolrDocument(obj.toSolrDocument)
+              IndexingService.stageForIndexing(obj)
             }
 
             // fetch the collection again & index
             val updatedCollection = UserCollection.findOneByID(iid)
 
-            SolrServer.indexSolrDocument(updatedCollection.get.toSolrDocument)
-            SolrServer.commit()
+            IndexingService.stageForIndexing(updatedCollection.get)
+            IndexingService.commit()
             Some(collectionModel.copy(id = inserted))
         }
       case Some(id) =>
@@ -165,32 +161,33 @@ object Collections extends DelvingController with UserSecured with UGCController
           val affectedObjectIds = removedObjectLinks.map(_._2) ++ added
           affectedObjectIds foreach { affected =>
             val obj = DObject.findOneByID(affected).get
-            SolrServer.indexSolrDocument(obj.toSolrDocument)
+            IndexingService.stageForIndexing(obj)
           }
 
           // removed MDRs
           for((embeddedLink, hubId: String) <- removedMdrs) {
             val hubCollection = embeddedLink.value(MDR_HUBCOLLECTION)
-            connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)) match {
-              case Some(dbo) =>
-                val mdr = grater[MetadataRecord].asObject(dbo)
-                val Array(orgId, spec, localRecordKey) = hubId.split("_")
-                Indexing.indexOneInSolr(orgId, spec, mdr)
+            MetadataRecord.getMDR(hubCollection, hubId) match {
+              case Some(mdr) =>
+                IndexingService.stageForIndexing(mdr)
               case None =>
                 // meh?
                 warning("While updating UserCollection %s: could not find MDR with hubId %s, removed the document from SOLR", existingCollection.get._id, hubId)
-                SolrServer.deleteFromSolrByQuery("%s:%s".format(HUB_ID, hubId))
+                IndexingService.deleteByQuery("%s:%s".format(HUB_ID, hubId))
             }
           }
 
           // user collection
-          SolrServer.indexSolrDocument(updatedUserCollection.toSolrDocument)
-          SolrServer.commit()
+          IndexingService.stageForIndexing(updatedUserCollection)
+
+          // commit them all
+          IndexingService.commit()
+
           Some(collectionModel)
         } catch {
           case t =>
             logError(t, "Could not save collection " + id)
-            SolrServer.rollback()
+            IndexingService.rollback()
             None
         }
     }
@@ -209,11 +206,11 @@ object Collections extends DelvingController with UserSecured with UGCController
           if(col.getBookmarksCollection) return Error("Cannot delete bookmarks collection!")
         case None =>
       }
-      val objects = DObject.findForCollection(id)
+      val objects = DObject.findAllWithCollection(id).map(_._id)
       UserCollection.setObjects(id, objects)
       DObject.unlinkCollection(id)
       UserCollection.delete(id)
-      SolrServer.deleteFromSolrById(id)
+      IndexingService.deleteById(id)
       Ok
     } else {
       Forbidden("Big brother is watching you")

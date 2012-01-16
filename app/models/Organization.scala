@@ -21,6 +21,7 @@ import com.novus.salat.dao.SalatDAO
 import salatContext._
 import com.mongodb.casbah.Imports._
 import java.util.Date
+import com.mongodb.casbah.WriteConcern
 
 /**
  * 
@@ -51,19 +52,19 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
 
   def addUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
-    Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, SAFE_WC)
+    Organization.update(MongoDBObject("orgId" -> orgId), $addToSet ("users" -> userName), false, false, WriteConcern.Safe)
     val mu = "userMembership." + userName
-    Organization.update(MongoDBObject("orgId" -> orgId), $set (mu -> new Date()), false, false, SAFE_WC)
-    User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, SAFE_WC)
+    Organization.update(MongoDBObject("orgId" -> orgId), $set (mu -> new Date()), false, false, WriteConcern.Safe)
+    User.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, WriteConcern.Safe)
     true
   }
 
   def removeUser(orgId: String, userName: String): Boolean = {
     // TODO FIXME make this operation safe
-    Organization.update(MongoDBObject("orgId" -> orgId), $pull ("users" -> userName), false, false, SAFE_WC)
+    Organization.update(MongoDBObject("orgId" -> orgId), $pull ("users" -> userName), false, false, WriteConcern.Safe)
     val mu = "userMembership." + userName
-    Organization.update(MongoDBObject("orgId" -> orgId), $unset (mu), false, false, SAFE_WC)
-    User.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, SAFE_WC)
+    Organization.update(MongoDBObject("orgId" -> orgId), $unset (mu), false, false, WriteConcern.Safe)
+    User.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
 
     // remove from all groups
     Group.findDirectMemberships(userName, orgId).foreach {
@@ -98,27 +99,27 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
 
   def addUser(userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    User.update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, SAFE_WC)
-    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, SAFE_WC)
+    User.update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
+    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }
 
   def removeUser(userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    User.update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, SAFE_WC)
-    Group.update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, SAFE_WC)
+    User.update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, WriteConcern.Safe)
+    Group.update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }
 
   def addDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("dataSets" -> id), false, false, SAFE_WC)
+    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("dataSets" -> id), false, false, WriteConcern.Safe)
     true
   }
 
   def removeDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    Group.update(MongoDBObject("_id" -> groupId), $pull ("dataSets" -> id), false, false, SAFE_WC)
+    Group.update(MongoDBObject("_id" -> groupId), $pull ("dataSets" -> id), false, false, WriteConcern.Safe)
     true
   }
 

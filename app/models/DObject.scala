@@ -24,6 +24,7 @@ import controllers.dos.StoredFile
 import java.util.Date
 import util.Constants._
 import views.context.DEFAULT_THUMBNAIL
+import controllers.ListItem
 
 /**
  * 
@@ -55,6 +56,11 @@ case class DObject(_id: ObjectId = new ObjectId,
   }
   def fileIds = files.map(_.id)
 
+  def linkedCollections: List[UserCollection] = UserCollection.find(MongoDBObject("links.value.objectId" -> _id.toString)).toList
+
+  def linkedStories: List[Story] = Story.find(MongoDBObject("pages.objects.objectId" -> _id)).toList
+
+
 }
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
@@ -71,10 +77,6 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
 
   def removeFile(oid: ObjectId) {
     DObject.update(MongoDBObject(), (MongoDBObject("$pull" -> MongoDBObject("files" -> MongoDBObject("id" -> oid)))))
-  }
-
-  def findForCollection(collectionId: ObjectId) = {
-    objectsCollection.find(MongoDBObject("collections" -> collectionId, "deleted" -> false), MongoDBObject("_id" -> 1)).map(dbo => dbo.get("_id").asInstanceOf[ObjectId]).toList
   }
 
   def unlinkCollection(collectionId: ObjectId) {

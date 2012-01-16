@@ -5,6 +5,7 @@ function initUploadWidget() {
     $.widget('blueimpUIX.fileupload', $.blueimpUI.fileupload, {
 
         options: {
+            maxFileSize: 52428800, // 50 MB
             errorMessages: {
                 maxFileSize: 'File is too big',
                 minFileSize: 'File is too small',

@@ -22,7 +22,7 @@ import com.mongodb.casbah.Imports._
 import salat.dao.{SalatMongoCursor, SalatDAO}
 
 /**
- * Common trait to be used with the companion object of a {@link models.Thing }
+ * Common trait to be used with the companion object of a Thing
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>

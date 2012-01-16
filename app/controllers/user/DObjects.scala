@@ -32,6 +32,7 @@ import models._
 import models.salatContext._
 import util.Constants._
 import play.mvc.Util
+import components.IndexingService
 
 /**
  * Controller for manipulating user objects (creation, update, ...)
@@ -123,7 +124,7 @@ object DObjects extends DelvingController with UserSecured {
             }
 
             // index
-            SolrServer.pushToSolr(newObject.copy(_id = iid, thumbnail_id = thumbnailId).toSolrDocument)
+            IndexingService.index(newObject.copy(_id = iid, thumbnail_id = thumbnailId))
             Right(objectModel.copy(id = inserted))
           }
           case None => Left("Not saved", None)
@@ -162,16 +163,15 @@ object DObjects extends DelvingController with UserSecured {
           val updatedUpdatedObject = DObject.findOneByID(updatedObject._id).get
 
           // index
-          SolrServer.indexSolrDocument(updatedUpdatedObject.toSolrDocument)
-          SolrServer.commit()
+          IndexingService.index(updatedUpdatedObject)
 
           Right(objectModel)
         } catch {
           case e: SalatDAOUpdateError =>
-            SolrServer.rollback()
+            IndexingService.rollback()
             Left(e.getMessage, Some(e))
           case t: Throwable =>
-            SolrServer.rollback()
+            IndexingService.rollback()
             Left(t.getMessage, Some(t))
         }
     }
@@ -189,7 +189,7 @@ object DObjects extends DelvingController with UserSecured {
   def remove(id: ObjectId) = {
     if(DObject.owns(connectedUserId, id)) {
       DObject.delete(id)
-      SolrServer.deleteFromSolrById(id)
+      IndexingService.deleteById(id)
     } else {
       Forbidden("Big brother is watching you")
     }

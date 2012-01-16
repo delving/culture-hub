@@ -28,15 +28,14 @@ import models._
 import salatContext.connection
 import java.lang.String
 import play.Logger
-import com.novus.salat.grater
 import util.Constants._
 import controllers.dos.HTTPClient
 import org.apache.commons.httpclient.methods.GetMethod
-import controllers.dos.WebResource._
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
+import exceptions.{SolrConnectionException, MappingNotFoundException}
 
 /**
  *
@@ -54,7 +53,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
 
     // only retrieve records that have a valid mapping for this metadata
     val records = DataSet.getRecords(dataSet).find(MongoDBObject("validOutputFormats" -> metadataFormatForIndexing))
-    DataSet.updateState(dataSet, DataSetState.INDEXING)
+    DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
     val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader.getParent, ComponentRegistry.metadataModel)
@@ -98,10 +97,10 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         getStreamingUpdateServer.commit()
       case _ =>
         //        getStreamingUpdateServer.rollback() // todo find out what this does
-        println("deleting dataset from solr " + dataSet.spec)
+        Logger.info("Deleting DataSet %s from SOLR".format(dataSet.spec))
         deleteFromSolr(dataSet)
     }
-    println(engine.toString)
+    Logger.info(engine.toString)
     (1, 0)
   }
 
@@ -169,7 +168,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     inputDoc.addField(ORG_ID, dataSet.orgId)
 
     // user collections
-    inputDoc.addField(COLLECTIONS, record.links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
+    inputDoc.addField(COLLECTIONS, record.linkedUserCollections.toArray)
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
@@ -283,6 +282,81 @@ object TikaIndexer extends HTTPClient {
     input.close()
     textHandler.toString
   }
+}
 
+/**
+ * Indexing API for Controllers
+ */
+object IndexingService extends SolrServer {
+
+  /**
+   * Indexes one Thing
+   */
+  def index(t: Thing) {
+    stageForIndexing(t)
+    getStreamingUpdateServer.commit()
+  }
+
+  /**
+   * Stages one Thing for indexing
+   */
+  def stageForIndexing(t: Thing) {
+    SolrServer.indexSolrDocument(t.toSolrDocument)
+  }
+
+  /**
+   * Indexes one MDR
+   */
+  def index(mdr: MetadataRecord) {
+    stageForIndexing(mdr)
+    getStreamingUpdateServer.commit()
+  }
+
+  /**
+   * Stages one MDR for indexing
+   */
+  def stageForIndexing(mdr: MetadataRecord) {
+    val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
+    Indexing.indexOneInSolr(orgId, spec, mdr)
+  }
+
+  /**
+   * Commits staged Things or MDRs to index
+    */
+  def commit() {
+    getStreamingUpdateServer.commit()
+  }
+
+  /**
+   * Rolls back staged indexing requests
+   */
+  def rollback() {
+    getStreamingUpdateServer.rollback()
+  }
+
+  /**
+   * Deletes from the index by string ID
+   */
+  def deleteById(id: String) {
+    SolrServer.deleteFromSolrById(id)
+    commit()
+  }
+
+  /**
+   * Deletes from the index by ObjectId
+   */
+  def deleteById(id: ObjectId) {
+    SolrServer.deleteFromSolrById(id)
+    commit()
+  }
+
+  /**
+   * Deletes from the index by query
+   */
+  def deleteByQuery(query: String) {
+    SolrServer.deleteFromSolrByQuery(query)
+    commit()
+  }
 
 }
+

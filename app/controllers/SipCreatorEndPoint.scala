@@ -32,6 +32,7 @@ import java.io._
 import util.SimpleDataSetParser
 import org.apache.commons.io.{FileCleaningTracker, IOUtils}
 import java.util.Date
+import exceptions.{UnauthorizedException, AccessKeyException}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -231,8 +232,7 @@ object SipCreatorEndPoint extends Controller with AdditionalActions with Logging
     if(!DataSet.canEdit(dataSet, connectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
 
     HarvestStep.removeFirstHarvestSteps(spec) // todo check if this works
-    val updatedDataSet = dataSet.setMapping(mapping = recordMapping)
-    DataSet.updateById(updatedDataSet._id, updatedDataSet)
+    DataSet.updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }
 

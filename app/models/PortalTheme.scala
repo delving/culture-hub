@@ -19,8 +19,6 @@ package models
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.Imports._
 import models.salatContext._
-import cake.ComponentRegistry
-import eu.delving.metadata.MetadataModelImpl
 import controllers.search.SolrFacetElement
 import controllers.search.SolrSortElement
 import play.Logger

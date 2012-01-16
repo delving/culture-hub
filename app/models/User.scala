@@ -35,7 +35,7 @@ case class User(_id: ObjectId = new ObjectId,
                 nodes: List[String] = List.empty[String], // nodes this user has access to
                 isActive: Boolean = false,
                 activationToken: Option[String] = None,
-                resetPasswordToken: Option[String] = None,
+                resetPasswordToken: Option[ResetPasswordToken] = None,
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None,
                 isHubAdmin: Option[Boolean] = None) {
@@ -45,10 +45,15 @@ case class User(_id: ObjectId = new ObjectId,
   override def toString = email
 }
 
+/** User password reset token **/
+case class ResetPasswordToken(token: String, issueTime: Long = System.currentTimeMillis())
+
 /** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
 object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
+
+  val PASSWORD_RESET_TOKEN_EXPIRATION = 3600 //ms
 
   val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false, userProfile = UserProfile())
 
@@ -98,24 +103,33 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   def preparePasswordReset(user: User, resetPasswordToken: String) {
-    val resetUser = user.copy(resetPasswordToken = Some(resetPasswordToken))
+    val resetUser = user.copy(resetPasswordToken = Some(ResetPasswordToken(resetPasswordToken)))
     User.update(MongoDBObject("userName" -> resetUser.userName), resetUser, false, false, new WriteConcern())
   }
 
-  def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken" -> resetPasswordToken)) != 0
+  def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken)) != 0
 
-  def findByResetPasswordToken(resetPasswordToken: String): Option[User] = User.findOne(MongoDBObject("resetPasswordToken" -> resetPasswordToken))
+  def findByResetPasswordToken(resetPasswordToken: String): Option[User] = {
+    val delta = System.currentTimeMillis() - PASSWORD_RESET_TOKEN_EXPIRATION * 1000
+    User.findOne(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken) ++ "resetPasswordToken.issueTime" $lt delta)
+  }
 
   def changePassword(resetPasswordToken: String, newPassword: String): Boolean = {
     val user = findByResetPasswordToken(resetPasswordToken).getOrElse(return false)
     val resetUser = user.copy(password = Crypto.passwordHash(newPassword, Crypto.HashType.SHA512), resetPasswordToken = None)
-    User.update(MongoDBObject("resetPasswordToken" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
+    User.update(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
   }
 
   def findBookmarksCollection(userName: String): Option[UserCollection] = {
     UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
   }
+
+  def evictExpiredPasswordResetTokens(timeout: Long = 3600) {
+    val delta = System.currentTimeMillis() - timeout * 1000
+    User.update("resetPasswordToken.issueTime" $lt delta, $unset ("resetPasswordToken"), false, false, new WriteConcern())
+  }
+
 
   // ~~~ OAuth2
 
@@ -139,6 +153,6 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def evictExpiredAccessTokens(timeout: Long = 3600) {
     val delta = System.currentTimeMillis() - timeout * 1000
-    User.update(MongoDBObject("accessToken.issueTime" -> MongoDBObject("$lt" -> delta)), MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
+    User.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
   }
 }

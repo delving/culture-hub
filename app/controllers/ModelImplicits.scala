@@ -45,15 +45,16 @@ trait ModelImplicits extends Internationalization {
     recordDefinitions = ds.mappings.keySet.toList,
     indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
     orgId = ds.orgId,
-    userName = ds.getCreator.userName)
+    userName = ds.getCreator.userName,
+    lockedBy = ds.lockedBy)
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
   implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, util.Constants.OBJECT)
   implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
-  implicit def mdrAccessorToShortObjectModel(record: MultiValueMapMetadataAccessors) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)
-  implicit def mdrAccessorListToSOMList(records: List[MultiValueMapMetadataAccessors]) = records.map(mdrAccessorToShortObjectModel(_))
+  implicit def mdrAccessorToShortObjectModel[T <: MetadataAccessors](record: T) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)
+  implicit def mdrAccessorListToSOMList[T <: MetadataAccessors](records: List[T]) = records.map(mdrAccessorToShortObjectModel(_))
 
   // ~~ ListItems
 
