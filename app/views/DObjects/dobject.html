@@ -37,8 +37,31 @@
                         </div>
                     </div>
 
+                    <!-- TODO: Add conditional around this row block for super-admin eyes only -->
+                    <div class="row">
+                        <hr/>
+                        <div class="g-1of1">
+                            <div class="panel">
+                                <h4>Administrator options</h4>
+                                   <table>
+                                       <tr>
+                                           <td width="130">#{btnButton label:"Disable object", extraClass:"beware", id:"btn-disable-object"/}</td>
+                                           <td>This action blocks other users from viewing or using this object.</td>
+                                       </tr>
+                                       <tr>
+                                           <td>#{btnButton label:"Disable user", extraClass:"beware", id:"btn-disable-user"/}</td>
+                                           <td>This action disables this user and all associated objects, collections, and stories.</td>
+                                       </tr>
+                                   </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end TODO -->
+
                 </div>
+
             </div>
+
         </div>
     </div>
 </div>
