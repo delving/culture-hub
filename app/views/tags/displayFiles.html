@@ -1,15 +1,5 @@
 <div class="img">
-    #{ifnot _files.size() > 1}
-        #{list items: _files, as:'file'}
-        <!-- TODO: check for different mime-types and load in appropriate wrapper -->
-        <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
-        <div class="extra">
-            <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
-        </div>
-        #{/list}
-    #{/ifnot}
-    #{else}
-    <div class="scrollable">
+    <div class="#{if _files.size() > 1}scrollable#{/if}">
         <div class="items">
             #{list items: _files, as:'file'}
             <div class="page" id="page_${file_index}">
@@ -35,7 +25,6 @@
             #{/list}
         </div>
     </div>
-    #{/else}
 </div>
 
 #{if _files.size() > 1}
@@ -93,6 +82,7 @@
         api.onSeek(function() {
             setHeight(api.getIndex() + 1);
         });
+        #{/if}
         // set media elements
         $('audio, video').mediaelementplayer({
             enableAutosize: true,
@@ -112,6 +102,6 @@
             });
 
         }
-        #{/if}
+
     });
 </script>
