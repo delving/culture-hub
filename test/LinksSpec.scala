@@ -5,6 +5,7 @@ import java.io.File
 import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers
 import play.mvc.Http.Response
+import play.mvc.Scope
 import play.test.{FunctionalTest, UnitFlatSpec}
 import scala.Predef._
 import scala.collection.JavaConversions._
@@ -148,10 +149,12 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "block and unblock a Link to an object" in {
+
     val dobject = DObject.findOne(MongoDBObject("name" -> "Another test object")).get
     val uCol = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
 
     // create Link between from the object to the collection
+    Scope.Session.current().put("userName", "bob")
     val l = DObjects.createCollectionLink(uCol._id, dobject._id, "localhost")
 
     Link.blockLinks(OBJECT, dobject._id, "bob", true)
