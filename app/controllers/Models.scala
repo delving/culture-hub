@@ -16,6 +16,7 @@
 
 package controllers
 
+import dos.StoredFile
 import org.bson.types.ObjectId
 import models._
 import views.context.getThumbnailUrl
@@ -72,7 +73,7 @@ case class ListItem(id: String,
   def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }
 
-case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String)
+case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String, files: Seq[StoredFile] = Seq.empty[StoredFile])
 
 // ~~ reference objects
 
