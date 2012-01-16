@@ -351,6 +351,15 @@ object IndexingService extends SolrServer {
   }
 
   /**
+   * Deletes a List of ObjectIds
+   */
+  def deleteById(ids: List[ObjectId]) {
+    import scala.collection.JavaConversions._
+    getStreamingUpdateServer.deleteById(ids.map(_.toString))
+    commit()
+  }
+
+  /**
    * Deletes from the index by query
    */
   def deleteByQuery(query: String) {

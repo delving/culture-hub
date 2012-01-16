@@ -17,11 +17,11 @@
 package jobs
 
 import play.jobs.Job
-import com.mongodb.casbah.commons.MongoDBObject
 import models.{Story, UserCollection, Thing, DObject}
 import controllers.ErrorReporter
 import util.Constants._
 import models.Commons.FilteredMDO
+import components.IndexingService
 
 /**
  * Index all things UGC

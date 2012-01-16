@@ -20,7 +20,6 @@ import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import salat.dao.{SalatMongoCursor, SalatDAO}
-import Commons.FilteredMDO
 
 /**
  * Common trait to be used with the companion object of a Thing
@@ -28,15 +27,15 @@ import Commons.FilteredMDO
  */
 trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
-  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false)
+  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false, "blocked" -> false)
 
   def idVisibilityQuery(who: ObjectId) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "user_id" -> who)))
-  def visibilityQuery(who: String) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "userName" -> who)))
+  def visibilityQuery(userName: String) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "userName" -> userName)))
 
-  def browseByUser(id: ObjectId, whoBrowses: ObjectId) = find(FilteredMDO("user_id" -> id) ++ idVisibilityQuery(whoBrowses))
+  def browseByUser(userName: String, whoBrowses: String) = find(FilteredMDO("userName" -> userName) ++ visibilityQuery(whoBrowses))
   def browseAll(whoBrowses: ObjectId) = find(FilteredMDO() ++ idVisibilityQuery(whoBrowses))
 
-  def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids))
+  def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids) ++ FilteredMDO() )
   def findRecent(howMany: Int) = find(FilteredMDO("visibility.value" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
   def findByUser(userName: String) = find(FilteredMDO("userName" -> userName))
 
@@ -59,7 +58,7 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
 object Commons {
 
-  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false)
+  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false, "blocked" -> false)
 
 }
 

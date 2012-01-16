@@ -49,7 +49,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   // ~~~ user variables handling for view rendering (connected and browsed)
 
-  @Before(priority = 1) def setConnectedUser() {
+  @Before(priority = 0) def setConnectedUser() {
     User.findByUsername(connectedUser) match {
       case Some(u) => {
         renderArgs += ("fullName", u.fullname)
@@ -58,6 +58,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("authenticityToken", session.getAuthenticityToken)
         renderArgs += ("organizations", u.organizations)
         renderArgs += ("email", u.email)
+        renderArgs += ("isNodeAdmin", u.nodesAdmin.contains(getNode))
 
 
         // refresh session parameters
@@ -158,6 +159,8 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   @Util def browsedIsConnected: Boolean = browsedUserId == connectedUserId
 
   @Util def browsingUser: Boolean = browsedUserName != null
+
+  @Util def isNodeAdmin: Boolean = renderArgs.get("isNodeAdmin", classOf[Boolean])
 
   // ~~~ convenience methods
 

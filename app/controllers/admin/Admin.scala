@@ -19,14 +19,26 @@ package controllers.admin
 import controllers.DelvingController
 import play.mvc.results.Result
 import jobs.UGCIndexing
-import models.{DataSetState, DataSet}
+import play.mvc.Before
+import models.{User, DataSetState, DataSet}
 
 /**
- * 
+ * Allmighty HubAdmin spot
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends DelvingController with AdminSecure {
+object Admin extends DelvingController {
+
+  @Before
+  def checkHubAdmin(): Result = {
+    val u = User.findByUsername(connectedUser) getOrElse(return Forbidden("Wrong user"))
+    if(!u.isHubAdmin.getOrElse(false)) {
+      reportSecurity("User %s tried to get access to hub administration".format(connectedUser))
+      return Forbidden(&("user.secured.noAccess"))
+    }
+    Continue
+  }
 
   def indexUGC: Result = {
 

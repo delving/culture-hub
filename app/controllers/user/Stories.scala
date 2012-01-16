@@ -37,7 +37,7 @@ object Stories extends DelvingController with UserSecured with ThumbnailLinking 
 
   private def load(id: String): String = {
 
-    val collections = UserCollection.browseByUser(connectedUserId, connectedUserId)
+    val collections = UserCollection.browseByUser(connectedUser, connectedUser)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList ++ List(CollectionReference(controllers.Collections.NO_COLLECTION, &("user.story.noCollection")))
 
     Story.findById(id, connectedUserId) match {

@@ -1,0 +1,3 @@
+&{'ui.label.hello'} ${userName}
+
+${play.i18n.Messages.get('mail.message.accountBlocked', contactEmail)}:

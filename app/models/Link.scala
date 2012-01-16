@@ -31,7 +31,9 @@ case class Link(_id: ObjectId = new ObjectId,
                 linkType: String, // internal type of the link: freeText, place
                 from: LinkReference,
                 to: LinkReference,
-                value: Map[String, String]) {
+                value: Map[String, String],
+                blocked: Boolean = false,
+                blockingInfo: Option[BlockingInfo] = None) {
 
 }
 
@@ -97,15 +99,15 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
       Link.findOne(q) match {
         case Some(l) => (Some(l._id), l, true)
         case None =>
-          
+
           // sanity check on the embedded stuff
-          if(embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None || link.from.hubType == None) && (link.from.hubType == None || link.from.id == None))) {
+          if (embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None || link.from.hubType == None) && (link.from.hubType == None || link.from.id == None))) {
             throw new ProgrammerException("You can't create a link with an embedFrom if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
-          if(embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None || link.to.hubType == None) && (link.to.hubType == None || link.to.id == None))) {
+          if (embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None || link.to.hubType == None) && (link.to.hubType == None || link.to.id == None))) {
             throw new ProgrammerException("You can't create a link with an embedTo if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
-          
+
           val inserted = Link.insert(link)
 
           inserted match {
@@ -127,7 +129,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
       }
     }
   }
-  
+
   def removeById(linkId: ObjectId) {
     Link.findOneByID(linkId) match {
       case Some(link) => removeLink(link)
@@ -159,15 +161,15 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   }
 
   def removeLink(link: Link) {
-    
+
     def removeEmbedded(link: ObjectId, hubType: String, id: Option[ObjectId], hubCollection: Option[String], hubAlternativeId: Option[String]) {
       val collection: Option[MongoCollection] = hubTypeToCollection(hubType)
-      val pull = $pull ("links" -> MongoDBObject("link" -> link))
+      val pull = $pull("links" -> MongoDBObject("link" -> link))
       collection match {
         case Some(c) =>
           c.update(MongoDBObject("_id" -> id.get), pull)
         case None =>
-          if(hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
+          if (hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
             connection(hubCollection.get).update(MongoDBObject(MDR_HUB_ID -> hubAlternativeId.get), pull)
           } else {
             Logger.warn("Could not delete embedded Link %s %s %s", hubType, id, hubCollection)
@@ -175,18 +177,77 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
       }
 
     }
-    
+
     // remove embedded guys
-    if((link.from.hubType != None && link.from.id != None) || (link.from.hubCollection != None && link.from.hubAlternativeId != None && link.from.hubType != None)) {
+    if ((link.from.hubType != None && link.from.id != None) || (link.from.hubCollection != None && link.from.hubAlternativeId != None && link.from.hubType != None)) {
       removeEmbedded(link._id, link.from.hubType.get, link.from.id, link.from.hubCollection, link.from.hubAlternativeId)
     }
-    if((link.to.hubType != None && link.to.id != None) || (link.to.hubCollection != None && link.to.hubAlternativeId != None && link.to.hubType != None)) {
+    if ((link.to.hubType != None && link.to.id != None) || (link.to.hubCollection != None && link.to.hubAlternativeId != None && link.to.hubType != None)) {
       removeEmbedded(link._id, link.to.hubType.get, link.to.id, link.to.hubCollection, link.to.hubAlternativeId)
     }
 
     Link.remove(link)
 
   }
+
+  /**
+   * Blocks all incoming and outgoing links for an object.
+   */
+  def blockLinks(objectType: String, id: ObjectId, whoBlocks: String, block: Boolean = true) = {
+
+    def updateUGCEmbeddedLinks(grouped: Map[String, (String, List[(ObjectId, ObjectId)])]) {
+      grouped foreach {
+        typed =>
+          val collection = hubTypeToCollection(typed._1).getOrElse(throw new RuntimeException("Unknown type while blocking link"))
+          typed._2._2.foreach {
+            l =>
+              collection.update(MongoDBObject("_id" -> (l._2), "links.link" -> l._1), $set("links.$.blocked" -> block), false, true)
+          }
+      }
+    }
+
+    def updateMDREmbeddedLinks(grouped: Map[String, (String, List[(ObjectId, String)])]) {
+      grouped foreach {
+        mdrLinks => mdrLinks._2._2.foreach {
+          mdrLink =>
+            connection(mdrLinks._1).update(MongoDBObject("hubId" -> mdrLink._2, "links.link" -> mdrLink._1), $set("links.$.blocked" -> block), false, true)
+        }
+      }
+    }
+
+    def makeUGCLinkGroup(links: List[Link], select: Link => LinkReference) = {
+      links.filter(select(_).hubType != None).groupBy(select(_).hubType.get).transform((key, value) => (key, value.map(link => (link._id, select(link).id.get))))
+    }
+
+    def makeMDRLinkGroup(links: List[Link], select: Link => LinkReference) = {
+      links.filter(select(_).hubAlternativeId != None).groupBy(select(_).hubCollection.get).transform((key, value) => (key, value.map(link => (link._id, select(link).hubAlternativeId.get))))
+    }
+
+    // block / unblock all links to / from this thing
+    Link.update(MongoDBObject("to.id" -> id, "to.hubType" -> objectType), $set("blocked" -> block, "blockingInfo" -> grater[BlockingInfo].asDBObject(BlockingInfo(whoBlocks))), false, true)
+    Link.update(MongoDBObject("from.id" -> id, "from.hubType" -> objectType), $set("blocked" -> block, "blockingInfo" -> grater[BlockingInfo].asDBObject(BlockingInfo(whoBlocks))), false, true)
+
+    // update all embedded links via the from and mark them as blocked / unblocked - for both ends of the links, respectively
+    val (fromThings, fromMDRs) = Link.find(MongoDBObject("from.id" -> id, "from.hubType" -> objectType)).partition(_.from.hubType != Some(MDR))
+    val (toThings, toMDRs) = Link.find(MongoDBObject("to.id" -> id, "to.hubType" -> objectType)).partition(_.from.hubType != Some(MDR))
+
+    val things = (fromThings ++ toThings).toList
+    val mdrs = (fromMDRs ++ toMDRs).toList
+
+    val groupedFromThings = makeUGCLinkGroup(things, _.from)
+    updateUGCEmbeddedLinks(groupedFromThings)
+
+    val groupedToThings = makeUGCLinkGroup(things, _.to)
+    updateUGCEmbeddedLinks(groupedToThings)
+
+    val groupedFromMDRs = makeMDRLinkGroup(mdrs, _.from)
+    updateMDREmbeddedLinks(groupedFromMDRs)
+
+    val groupedToMDRs = makeMDRLinkGroup(mdrs, _.to)
+    updateMDREmbeddedLinks(groupedToMDRs)
+
+  }
+
 
   def findTo(toUri: String, linkType: String) = Link.find(MongoDBObject("linkType" -> linkType, "to.uri" -> toUri)).toList
 
@@ -203,29 +264,29 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
       case _ => throw new ProgrammerException("What are you doing?")
     }
 
-      Link.create(
-        linkType = Link.LinkType.THUMBNAIL,
-        userName = userName,
-        value = Map.empty,
-        from = LinkReference(
-          uri = Some(Link.buildUri(fromType, fromId.toString, hostName)),
-          id = Some(fromId),
-          hubType = Some(fromType)
-        ),
-        to = LinkReference(
-          uri = Some(Link.buildUri(MDR, hubId, hostName)),
-          hubType = Some(MDR),
-          hubCollection = Some(mdrCollectionName),
-          hubAlternativeId = Some(hubId)
-        ),
-        embedFrom = Some(EmbeddedLinkWriter(
-          value = Some(Map(MDR_HUB_ID -> hubId)),
-          collection = fromCollection,
-          id = Some(fromId)
-        ))
-      )
+    Link.create(
+      linkType = Link.LinkType.THUMBNAIL,
+      userName = userName,
+      value = Map.empty,
+      from = LinkReference(
+        uri = Some(Link.buildUri(fromType, fromId.toString, hostName)),
+        id = Some(fromId),
+        hubType = Some(fromType)
+      ),
+      to = LinkReference(
+        uri = Some(Link.buildUri(MDR, hubId, hostName)),
+        hubType = Some(MDR),
+        hubCollection = Some(mdrCollectionName),
+        hubAlternativeId = Some(hubId)
+      ),
+      embedFrom = Some(EmbeddedLinkWriter(
+        value = Some(Map(MDR_HUB_ID -> hubId)),
+        collection = fromCollection,
+        id = Some(fromId)
+      ))
+    )
 
-    }
+  }
 
 }
 
@@ -237,13 +298,20 @@ case class LinkReference(id: Option[ObjectId] = None, // mongo id for hub-based 
                          hubCollection: Option[String] = None, // name of the mongodb collection this reference lives in, if it can't be infered from the hubType
                          hubAlternativeId: Option[String] = None, // alternative ID value in case ID does not apply
                          uri: Option[String] = None, // URI
-                         refType: Option[String] = None) // external type of the reference
+                         refType: Option[String] = None)
+
+// external type of the reference
 
 
 /**
  * A denormalized bit of a link that lives in a linked object. Makes it easy to do lookups.
  */
-case class EmbeddedLink(TS: Date = new Date(), userName: String, linkType: String, link: ObjectId, value: Map[String, String] = Map.empty[String, String])
+case class EmbeddedLink(TS: Date = new Date(),
+                        userName: String,
+                        linkType: String,
+                        link: ObjectId,
+                        value: Map[String, String] = Map.empty[String, String],
+                        blocked: Boolean = false)
 
 /**
  * This guy knows how to write an embedded link and give it a value

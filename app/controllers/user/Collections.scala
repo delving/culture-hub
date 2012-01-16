@@ -39,7 +39,7 @@ import components.IndexingService
 object Collections extends DelvingController with UserSecured with ThumbnailLinking {
 
   private def load(id: String): String = {
-    val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserId, connectedUserId).toList
+    val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserName, connectedUser).toList
 
     UserCollection.findById(id, connectedUserId) match {
       case None =>

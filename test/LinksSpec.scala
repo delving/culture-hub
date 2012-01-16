@@ -1,5 +1,6 @@
 import collection.immutable.List
 import controllers.{ListItem, Search}
+import controllers.user.DObjects
 import java.io.File
 import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers
@@ -20,9 +21,9 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
   it should "add a freetext link to an object" in {
 
-    val dobject = DObject.findOne(MongoDBObject()).get
+    val dobject = DObject.findOne(MongoDBObject("name" -> "A test object")).get
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "POST"
     val response: Response = FunctionalTest.POST(req, "/bob/link/freeText/object/%s".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
 
@@ -43,9 +44,9 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "not create duplicates of links" in {
-    val dobject = DObject.findOne(MongoDBObject()).get
+    val dobject = DObject.findOne(MongoDBObject("name" -> "A test object")).get
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "POST"
     val response: Response = FunctionalTest.POST(req, "/bob/link/freeText/object/%s".format(dobject._id.toString), Map("label" -> "toto"), Map.empty[String, File])
 
@@ -59,10 +60,10 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "remove a label from an object" in {
-    val dobject = DObject.findOne(MongoDBObject()).get
+    val dobject = DObject.findOne(MongoDBObject("name" -> "A test object")).get
     val link = Link.findOne(MongoDBObject("value.label" -> "toto")).get
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "DELETE"
     val response: Response = FunctionalTest.DELETE(req, "/bob/object/%s/link/freeText/%s".format(dobject._id.toString, link._id.toString))
 
@@ -75,9 +76,9 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "add a place link to an object and store some additional information" in {
-    val dobject = DObject.findOne(MongoDBObject()).get
+    val dobject = DObject.findOne(MongoDBObject("name" -> "A test object")).get
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "POST"
     val response: Response = FunctionalTest.POST(req, "/bob/object/%s/link/place/place/42".format(dobject._id.toString), Map("label" -> "Earth", "geonameID" -> "42"), Map.empty[String, File])
 
@@ -93,7 +94,7 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
 
   it should "create a link to an MDR" in {
     val uCol = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "POST"
 
     // /{orgId}/object/{spec}/{recordId}/link/{id}
@@ -115,7 +116,7 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
 
   it should "find the linked MDR in SOLR " in {
-    val request = getAuthenticated()
+    val request = getAuthenticated
 
     val testTheme = ThemeHandler.getDefaultTheme
     testTheme should not be (None)
@@ -132,7 +133,7 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     val links = Link.find(MongoDBObject("linkType" -> Link.LinkType.PARTOF, "from.uri" -> "http://id.localhost/thing/delving_Verzetsmuseum_00001", "to.id" -> uCol._id))
     links.size should be (1)
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "POST"
 
     val response: Response = FunctionalTest.DELETE(req, "/delving/object/Verzetsmuseum/00001/link/partOf/collection/%s".format(uCol._id.toString))
@@ -146,11 +147,41 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
     newLinks.size should be (0)
   }
 
+  it should "block and unblock a Link to an object" in {
+    val dobject = DObject.findOne(MongoDBObject("name" -> "Another test object")).get
+    val uCol = UserCollection.findOne(MongoDBObject("description" -> "This is a test collection")).get
+
+    // create Link between from the object to the collection
+    val l = DObjects.createCollectionLink(uCol._id, dobject._id, "localhost")
+
+    Link.blockLinks(OBJECT, dobject._id, "bob", true)
+
+    // the Link should be blocked
+    val blocked = Link.findOneByID(l._1.get).get
+    blocked.blocked should be (true)
+    
+    // the embedded links should be marked as blocked
+    UserCollection.findOneByID(uCol._id).get.links.find(_.link == blocked._id).get.blocked should be (true)
+    DObject.findOneByID(dobject._id).get.links.find(_.link == blocked._id).get.blocked should be (true)
+
+    // unblock, not via HTTP yet
+    Link.blockLinks(OBJECT, dobject._id, "bob", false)
+
+    // the Link should be unblocked
+    val unblocked = Link.findOneByID(l._1.get).get
+    unblocked.blocked should be (false)
+
+    // the embedded links should be marked as blocked
+    UserCollection.findOneByID(uCol._id).get.links.find(_.link == unblocked._id).get.blocked should be (false)
+    DObject.findOneByID(dobject._id).get.links.find(_.link == unblocked._id).get.blocked should be (false)
+
+  }
+
   /*
   it should "fail if an unexisting label tries to be removed" in {
     val dobject = DObject.findOne(MongoDBObject()).get
 
-    val req = getAuthenticated()
+    val req = getAuthenticated
     req.method = "DELETE"
     val response: Response = FunctionalTest.DELETE(req, "/bob/object/%s/label/%s".format(dobject._id.toString, "somethingSomething"))
 
@@ -158,7 +189,7 @@ class LinksSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
   }
   */
 
-  def getAuthenticated() = {
+  def getAuthenticated = {
     val login = FunctionalTest.POST("/login", Map("username" -> "bob", "password" -> "secret"))
     val req = FunctionalTest.newRequest()
     req.cookies = login.cookies
