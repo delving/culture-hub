@@ -1,0 +1,7 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+#{set title: page.title /}
+#{set bodyId:'page' /}
+
+<div>
+    ${page.content.raw()}
+</div>

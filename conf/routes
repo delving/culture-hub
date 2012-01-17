@@ -12,6 +12,9 @@ GET         /asset                                                           Ass
 # Home page
 GET         /                                                                Application.index
 
+# Site page
+GET         /page/{key}                                                      Application.page
+
 # Documentation
 GET         /documentation/images/{name}                                     Documentation.image
 
@@ -157,6 +160,12 @@ POST       /organizations/{orgId}/groups/{groupId}/addUser                   org
 DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                organization.Groups.removeUser
 POST       /organizations/{orgId}/groups/{groupId}/addDataset                organization.Groups.addDataset
 DELETE     /organizations/{orgId}/groups/{groupId}/removeDataset             organization.Groups.removeDataset
+
+GET         /organizations/{orgId}/site/?{language}?                          organization.CMS.list
+GET         /organizations/{orgId}/site/{language}/page/add                  organization.CMS.page
+GET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
+POST        /organizations/{orgId}/site/page                                 organization.CMS.pageSubmit
+DELETE      /organizations/{orgId}/site/{language}/page/{key}                organization.CMS.pageDelete
 
 GET         /organizations/{orgId}/dataset/?                                 organization.DataSets.list
 GET         /organizations/{orgId}/dataset/add                               organization.DataSetControl.dataSet

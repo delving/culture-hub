@@ -1,0 +1,85 @@
+#{extends viewUtils.themeProperty('themeLayout') /}
+
+#{set title: viewUtils.getKey('thing.pages') /}
+
+#{set bodyId: 'organization' /}
+
+<div class="field">
+    <label for="language">&{'org.cms.list.languageSwitch'}</label>
+    <select id="language" name="language">
+    #{list languages, as: 'option'}
+        <option value="${option._1}"#{if currentLanguage == option._1} selected#{/}>${option._2}</option>
+    #{/list}
+    </select>
+</div>
+
+<div><a href="/organizations/${orgId}/site/${currentLanguage}/add"></a>&{ui.label.create}</div>
+
+
+<table class="list">
+    <caption>Site pages</caption>
+    <thead>
+    <tr>
+        <th>&{'thing.title'}</th>
+        <th>&{'thing.actions'}</th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: pages()">
+    <tr>
+        <td>
+            <span class="page-title" data-bind="text: title"></span>
+        </td>
+        <td>
+            <a class="button" href="#" data-bind="click: function() { $parent.editPage($data) }">
+                <span class="icon icon145"></span>
+                <span class="label">&{'ui.label.edit'}</span>
+            </a>
+            <a class="button beware" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                <span class="icon icon186"></span>
+                <span class="label">&{'ui.label.delete'}</span>
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="dialog-confirm-page-delete" title="&{'org.cms.list.deletePage'}" style="display: none;">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+    &{'org.cms.list.deletePageConfirm'}
+    </p>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var pagesModel = {
+            editPage:function (page) {
+                document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
+            },
+            deletePage:function (page) {
+                confirmDeletion('#dialog-confirm-page-delete', function () {
+                    $.ajax({
+                        url: '/organizations/${orgId}/site/' + page.lang() + '/page/' + page.key(),
+                        type: 'DELETE',
+                        success: function() {
+                            var idx;
+                            pagesModel.pages.remove(function(item) {
+                                return item.key === page.key;
+                            });
+                        }
+                    });
+                });
+            }
+        };
+
+        load(${data.raw()}, pagesModel, null, function () {
+            $("body").css('visibility', 'visible');
+        });
+
+        $('#language').change(function() {
+            document.location = '/organizations/${orgId}/site/' + $('select option:selected').val();
+        });
+
+
+    });
+</script>

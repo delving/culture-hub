@@ -19,7 +19,6 @@ package controllers.organization
 import play.mvc.Before
 import play.mvc.results.Result
 import controllers.{AccessControl, DelvingController, Secure}
-import models.Organization
 
 /**
  *
