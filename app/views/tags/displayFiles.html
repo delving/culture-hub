@@ -1,107 +1,54 @@
-<div class="img">
-    <div class="#{if _files.size() > 1}scrollable#{/if}">
-        <div class="items">
-            #{list items: _files, as:'file'}
-            <div class="page" id="page_${file_index}">
-                #{if file.contentType().contains('image/')}
-                <img src='/file/thumbnail/${file.id()}/350' width="350" alt="${_objectName}"/>
-                <div class="extra">
-                    <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
-                </div>
-                #{/if}
-                #{if file.contentType().contains('video/')}
-                <video width="350" height="240" poster="" controls="controls" preload="none">
-                    <source type="${file.contentType()}" src="/file/image/${file.id()}"/>
-                    <object width="350" height="240" type="application/x-shockwave-flash" data="/public/common/javascripts/mediaelement/build/flashmediaelement.swf">
-                        <param name="movie" value="/public/common/javascripts/mediaelement/build/flashmediaelement.swf"/>
-                        <param name="flashvars" value="controls=true&file=/file/image/${file.id()}"/>
-                    </object>
-                </video>
-                #{/if}
-                #{if file.contentType().contains('audio/')}
-                <audio controls="controls" type="audio/mp3" src="/file/image/${file.id()}"></audio>
-                #{/if}
-            </div>
-            #{/list}
-        </div>
+<div class="fileDisplay" id="${_targetId}">
+    #{list items: _files.headOption(), as:'file'}
+    #{if file.contentType().contains('image/')}
+    <img src='/file/thumbnail/${file.id()}/${_thumbWidth}' width="${_fileWidth}" alt="${_objectName}"/>
+    <div class="extra">
+        <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
     </div>
+    #{/if}
+    #{if file.contentType().contains('video/')}
+    <video width="${_fileWidth}" height="240" poster="" controls="controls" preload="none">
+        <source type="${file.contentType()}" src="/file/image/${file.id()}"/>
+    </video>
+    #{/if}
+    #{if file.contentType().contains('audio/')}
+    <audio controls="controls" type="audio/mp3" src="/file/image/${file.id()}"></audio>
+    #{/if}
+    #{/list}
 </div>
-
-#{if _files.size() > 1}
-<div class="extra" id="oNavi">
+#{if _files.size() > 0}
+<div id="fileNavi" class="extra">
     #{list _files, as: 'file'}
     #{if file.contentType().contains('image/') }
-    <a class="browse #{if file_isFirst}active #{/if}" href="#"><img src="/file/thumbnail/${file.id()}/80" width="80" alt=""/></a>
+    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+        <img src="/file/thumbnail/${file.id()}/80" width="80" alt=""/>
+        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+        <input type="hidden" name="targetId" value="${_targetId}"/>
+    </a>
     #{/if}
     #{elseif file.contentType().contains('audio/') }
-    <a class="browse #{if file_isFirst}active #{/if}" href="#"><img src="@{'/public/common/images/icon_audio.png'}" width="80" alt=""/></a>
+    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+        <img src="@{'/public/common/images/icon_audio.png'}" width="80" alt=""/>
+        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+        <input type="hidden" name="targetId" value="${_targetId}"/>
+    </a>
     #{/elseif}
     #{elseif file.contentType().contains('video/') }
-    <a class="browse #{if file_isFirst}active #{/if}" href="#"><img src="@{'/public/common/images/icon_video.png'}" width="80" alt=""/></a>
+    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+        <img src="@{'/public/common/images/icon_video.png'}" width="80" alt=""/>
+        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+        <input type="hidden" name="targetId" value="${_targetId}"/>
+    </a>
     #{/elseif}
     #{/list}
 </div>
 #{/if}
 
-<!-- overlay element -->
-<div id="overlay" class="result-overlay" style="padding: 20px;width:auto"><div class="contentWrap"></div></div>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $(".img").find("a.overlay-trigger").each(function(index) {
-            var showMe = "/file/image/" + $(this).attr("id");
-            $(this).overlay({
-                closeOnClick: true,
-                left: "centered",
-                target: '#overlay',
-                mask: {
-                    color: "#ddddd0",
-                    loadSpeed: 200,
-                    opacity: 0.5
-                },
-                onBeforeLoad: function() {
-                    var wrap = $("#overlay .contentWrap");
-                    var image = new Image();
-                    image.src = showMe;
-                    wrap.append(image);
-                },
-                onClose: function() {
-                    $('.contentWrap').empty();
-                }
-            });
-        });
-        #{if _files.size() > 1}
-        $(".scrollable").scrollable().navigator("#oNavi");
-        var api = $(".scrollable").data("scrollable");
-        setTimeout(function() {
-            setHeight(1)
-        }, 2000);
-        api.onBeforeSeek(function(event, i) {
-            $("#oNavi").removeClass("active").eq(i).addClass("active");
-        });
-        api.onSeek(function() {
-            setHeight(api.getIndex() + 1);
-        });
-        #{/if}
-        // set media elements
-        $('audio, video').mediaelementplayer({
-            enableAutosize: true,
-            defaultVideoWidth: 350,
-            defaultVideoHeight: 240,
-            videoWidth: 352,
-            videoHeight: -1,
-            audioWidth: 350,
-            audioHeight: 30,
-            plugins: ['flash','silverlight'],
-            features: ['playpause','progress','current','duration','volume','fullscreen']
-        });
-        function setHeight(index) {
-            $(".scrollable #page_" + index).each(function(i) {
-                viewAreaHeight = $(this).outerHeight();
-                $('.scrollable').css("height", viewAreaHeight);
-            });
 
-        }
-
-    });
-</script>
