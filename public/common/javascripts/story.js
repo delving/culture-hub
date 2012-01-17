@@ -1,6 +1,6 @@
 $(document).ready(function() {
     var viewAreaHeight = 0;
-    var root = $(".scrollable").scrollable().navigator("#pnav").navigator("#inav");
+    var root = $("#story").scrollable().navigator("#pnav").navigator("#inav");
     var api = root.scrollable();
     setTimeout(function(){ setHeight() }, 1200);
     api.onBeforeSeek(function(event, i) {
@@ -15,7 +15,7 @@ $(document).ready(function() {
         $('div#page_' + currentIndex).each(function(i) {
             viewAreaHeight += $(this).outerHeight() + 40;
         });
-        $('.scrollable').css("height", viewAreaHeight);
+        $('#story').css("height", viewAreaHeight);
         viewAreaHeight = 0;
 
     }
