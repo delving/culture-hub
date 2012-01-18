@@ -1,0 +1,72 @@
+#{if _canCensor}
+<div id="disableConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p>
+    <span class="ui-icon ui-icon-alert"
+          style="float:left; margin:0 7px 20px 0;"></span>&{'thing.admin.disable.confirm', messages.get("thing."+_type)}
+</p></div>
+<div class="row">
+    <hr/>
+    <div class="g-1of1">
+        <div class="panel">
+            <h4>&{'ui.label.administratorOptions'}</h4>
+            <table>
+                #{if _type != 'user'}
+                <tr>
+                    <td width="130">#{btnButton label: messages.get("ui.label.disable"), extraClass:"beware", id:"btn-disable-thing"/}</td>
+                    <td>&{'thing.admin.disable.explain'} &{'thing.'+_type}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">&{'thing.admin.disable.goProfile'} <a href="/${_userName}/">&{'thing.admin.disable.profile'}</a></td>
+                </tr>
+                #{/if}
+                #{else}
+                <tr>
+                    <td>#{btnButton label: messages.get("ui.label.disable"), extraClass:"beware", id:"btn-disable-user"/}</td>
+                    <td>&{'thing.admin.disable.user'}</td>
+                </tr>
+                #{/else}
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        #{if _type != 'user'}
+        $('#btn-disable-thing').click(function () {
+            disableConfirmation(function () {
+                $.post('/${_userName}/${_type}/${_id}/block', function () {
+                    document.location = "/";
+                });
+            });
+        });
+        #{/if}
+        #{else}
+        $('#btn-disable-user').click(function () {
+            disableConfirmation(function () {
+                $.post('/${_userName}/block', function () {
+                    document.location = "/";
+                });
+            });
+        });
+        #{/else}
+    });
+
+    function disableConfirmation(onDisable) {
+        $('#disableConfirmation').dialog({
+            autoOpen:true,
+            resizable:false,
+            minHeight:150,
+            modal:true,
+            buttons:{
+                "&{'ui.label.disable'}":function () {
+                    if (typeof onDisable === 'function') onDisable.call();
+                    $(this).dialog("close");
+                },
+                "&{'ui.label.cancel'}":function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+
+</script>
+#{/if}

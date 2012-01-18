@@ -103,4 +103,5 @@
         </div>
     </div>
     #{/if}
+    #{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}
 </div>

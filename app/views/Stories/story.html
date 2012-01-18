@@ -36,6 +36,7 @@
                             #{/list}
                         </ol>
                     </div>
+                    #{censorship canCensor:isNodeAdmin, type:"story", userName: story.userName, id: story._id /}
                 </div>
             </div>
         </div>
