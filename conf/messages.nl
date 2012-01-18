@@ -24,7 +24,9 @@ validation.range=Onjuiste waarde
 # Global  ##########################################
 ui.label.add=Toevoegen
 ui.label.addcomment=Commentaar toevoegen
-ui.label.administration=Administratie
+ui.label.administration=Beheer
+ui.label.administratorOptions=Beheerder opties
+ui.label.block=Blokkeer
 ui.label.browse=Ontdek
 ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
@@ -32,6 +34,7 @@ ui.label.collectionSelect=Selecteer een collectie
 ui.label.choose=Kiezen...
 ui.label.create=Aanmaken
 ui.label.delete=Verwijder
+ui.label.disable=Uitschakelen
 ui.label.edit=Bewerk
 ui.label.email=E-mail
 ui.label.enlargeImage=Afbeelding vergroten
@@ -179,6 +182,19 @@ labels.tokenSearching=Zoeken...
 labels.createLabel=Nieuwe label
 
 # Views
+
+## Admin toolbar
+
+thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers %s kunnen zien of gebruiken.
+thing.admin.disable.user.explain=Deze actie blokkeert de gebruiker en alle objecten, collecties en verhalen van deze gebruiker.
+thing.admin.disable.confirm=Weet u zeker dat u %s wil blokkeren?
+thing.admin.disable.goProfile=Ga naar de profielpagina van deze gebruiker om die te blokkeren. Deze actie blokkeert de gebruiker en ook alle objecten, collecties en verhalen van de gebruiker.
+thing.admin.disable.goProfile=Deze actie neemt u naar de profiel pagina van deze gebruiker waar u vervolgens de gebruiker kunt blokkeren. Tevens worden alle objecten, collecties en verhalen van deze gebruiker geblokkeert.
+thing.admin.disable.object=dit object
+thing.admin.disable.collection=deze collectie
+thing.admin.disable.story=dit verhaal
+thing.admin.disable.user=deze gebruiker
+
 
 ## Admin.Themes view
 admin.themes.title=Themes administration

@@ -24,7 +24,8 @@ import controllers.dos.StoredFile
 import java.util.Date
 import util.Constants._
 import views.context.DEFAULT_THUMBNAIL
-import controllers.ListItem
+import Commons.FilteredMDO
+import components.IndexingService
 
 /**
  * 
@@ -39,6 +40,8 @@ case class DObject(_id: ObjectId = new ObjectId,
                    description: String,
                    visibility: Visibility,
                    deleted: Boolean = false,
+                   blocked: Boolean = false,
+                   blockingInfo: Option[BlockingInfo] = None,
                    thumbnail_id: Option[ObjectId],
                    thumbnail_url: Option[String] = None,
                    links: List[EmbeddedLink] = List.empty[EmbeddedLink],
@@ -51,23 +54,34 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   override def toSolrDocument = {
     val doc = getAsSolrDocument
-    doc addField (COLLECTIONS, links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID)).toArray)
+    doc addField (COLLECTIONS, links.filter(l => l.linkType == Link.LinkType.PARTOF && !l.blocked).map(_.value(USERCOLLECTION_ID)).toArray)
     doc
   }
   def fileIds = files.map(_.id)
 
-  def linkedCollections: List[UserCollection] = UserCollection.find(MongoDBObject("links.value.objectId" -> _id.toString)).toList
+  def linkedCollections: List[UserCollection] = UserCollection.find(FilteredMDO("links.value.objectId" -> _id.toString)).toList
 
-  def linkedStories: List[Story] = Story.find(MongoDBObject("pages.objects.objectId" -> _id)).toList
-
+  def linkedStories: List[Story] = Story.find(FilteredMDO("pages.objects.objectId" -> _id)).toList
 
 }
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
 
-  def findAllWithCollection(id: ObjectId) = find(MongoDBObject("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "deleted" -> false)).toList
+  def block(id: ObjectId, whoBlocks: String) {
 
-  def findAllUnassignedForUser(userName: String) = find(MongoDBObject("deleted" -> false, "userName" -> userName) ++ ("links.linkType" $ne (Link.LinkType.PARTOF))).toList
+    DObject.findOneByID(id) map {
+      o =>
+        val updated = o.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
+        DObject.save(updated)
+        Link.blockLinks(OBJECT, o._id, whoBlocks)
+        IndexingService.deleteById(o._id)
+    }
+
+  }
+
+  def findAllWithCollection(id: ObjectId) = find(FilteredMDO("links.value.%s".format(USERCOLLECTION_ID) -> id.toString, "links.linkType" -> Link.LinkType.PARTOF, "links.blocked" -> false)).toList
+
+  def findAllUnassignedForUser(userName: String) = find(FilteredMDO("userName" -> userName) ++ ("links.linkType" $ne (Link.LinkType.PARTOF))).toList
 
   def updateThumbnail(id: ObjectId, thumbnail_id: ObjectId) {
     update(MongoDBObject("_id" -> id), $set ("thumbnail_file_id" -> thumbnail_id, "thumbnail_id" -> id) , false, false)

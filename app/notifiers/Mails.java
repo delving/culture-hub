@@ -18,6 +18,7 @@ package notifiers;
 
 import models.User;
 import play.Play;
+import play.i18n.Messages;
 import play.libs.IO;
 import play.mvc.Mailer;
 
@@ -43,6 +44,20 @@ public class Mails extends Mailer {
         }
         send(user, activationToken);
     }
+
+    public static void accountBlocked(User user, String contactEmail) {
+        setSubject(Messages.get("mail.subject.accountblocked"));
+        addRecipient(user.email());
+        ThemeAwareBridge.before();
+        try {
+            setFrom(ThemeAwareBridge.theme().emailTarget().systemFrom());
+        } finally {
+            ThemeAwareBridge.after();
+        }
+        String userName = user.userName();
+        send(userName, contactEmail);
+    }
+
 
     public static void resetPassword(User user, String resetPasswordToken) {
         setSubject("Reset your password");

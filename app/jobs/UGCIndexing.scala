@@ -17,10 +17,10 @@
 package jobs
 
 import play.jobs.Job
-import com.mongodb.casbah.commons.MongoDBObject
 import models.{Story, UserCollection, Thing, DObject}
 import controllers.ErrorReporter
 import util.Constants._
+import models.Commons.FilteredMDO
 import components.IndexingService
 
 /**
@@ -32,9 +32,9 @@ import components.IndexingService
 class UGCIndexing extends Job {
 
   override def doJob() {
-    index(OBJECT, DObject.find(MongoDBObject("deleted" -> false)))
-    index(USERCOLLECTION, UserCollection.find(MongoDBObject("deleted" -> false)))
-    index(STORY, Story.find(MongoDBObject("deleted" -> false)))
+    index(OBJECT, DObject.find(FilteredMDO()))
+    index(USERCOLLECTION, UserCollection.find(FilteredMDO()))
+    index(STORY, Story.find(FilteredMDO()))
   }
 
   private def index(thingType: String, things: Iterator[Thing]) {

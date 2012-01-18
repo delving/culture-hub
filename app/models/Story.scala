@@ -22,6 +22,7 @@ import models.salatContext._
 import org.bson.types.ObjectId
 import java.util.Date
 import util.Constants._
+import components.IndexingService
 import controllers.{ModelImplicits, ShortObjectModel}
 
 /**
@@ -37,6 +38,8 @@ case class Story(_id: ObjectId = new ObjectId,
                  description: String,
                  visibility: Visibility,
                  deleted: Boolean = false,
+                 blocked: Boolean = false,
+                 blockingInfo: Option[BlockingInfo] = None,
                  thumbnail_id: Option[ObjectId],
                  thumbnail_url: Option[String],
                  isDraft: Boolean,
@@ -59,6 +62,16 @@ case class Story(_id: ObjectId = new ObjectId,
 }
 
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
+
+  def block(id: ObjectId, whoBlocks: String) {
+    Story.findOneByID(id) map {
+      s =>
+        val updated = s.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
+        Story.save(updated)
+        Link.blockLinks(STORY, s._id, whoBlocks)
+        IndexingService.deleteById(s._id)
+    }
+  }
 
   def fetchName(id: String): String = fetchName(id, userStoriesCollection)
 
