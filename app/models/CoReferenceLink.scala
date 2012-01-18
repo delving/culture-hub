@@ -22,6 +22,7 @@ import salatContext._
 import com.novus.salat.dao.SalatDAO
 
 /**
+ * TODO replace with the Link system
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 11/5/11 11:03 AM  

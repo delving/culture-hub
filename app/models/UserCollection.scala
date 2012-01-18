@@ -18,11 +18,12 @@ package models
 
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
+import _root_.util.Constants._
 import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
-import util.Constants._
 import controllers.MetadataAccessors
+import components.IndexingService
 
 /**
  *
@@ -37,6 +38,8 @@ case class UserCollection(_id: ObjectId = new ObjectId,
                           description: String,
                           visibility: Visibility,
                           deleted: Boolean = false,
+                          blocked: Boolean = false,
+                          blockingInfo: Option[BlockingInfo] = None,
                           thumbnail_id: Option[ObjectId],
                           thumbnail_url: Option[String],
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
@@ -55,6 +58,16 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 }
 
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
+
+  def block(id: ObjectId, whoBlocks: String) {
+    UserCollection.findOneByID(id) map {
+      c =>
+        val updated = c.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
+        UserCollection.save(updated)
+        Link.blockLinks(USERCOLLECTION, c._id, whoBlocks)
+        IndexingService.deleteById(c._id)
+    }
+  }
 
   def fetchName(id: String): String = fetchName(id, userCollectionsCollection)
 

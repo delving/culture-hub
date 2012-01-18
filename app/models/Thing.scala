@@ -46,6 +46,8 @@ trait Thing extends Base with Universal {
   val description: String
   val visibility: Visibility
   val deleted: Boolean
+  val blocked: Boolean
+  val blockingInfo: Option[BlockingInfo]
   val thumbnail_id: Option[ObjectId]
   val thumbnail_url: Option[String]
   val links: List[EmbeddedLink]
@@ -126,6 +128,7 @@ trait Thing extends Base with Universal {
 
 }
 
+case class BlockingInfo(userName: String, at: Date = new Date())
 
 case class Visibility(value: Int)
 object Visibility {

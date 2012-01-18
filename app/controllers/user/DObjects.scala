@@ -44,7 +44,7 @@ import components.IndexingService
 object DObjects extends DelvingController with UserSecured {
 
   private def load(id: String): String = {
-    val availableCollections = UserCollection.browseByUser(connectedUserId, connectedUserId).toList map { c => CollectionReference(c._id, c.name) }
+    val availableCollections = UserCollection.browseByUser(connectedUser, connectedUser).toList map { c => CollectionReference(c._id, c.name) }
     DObject.findByIdUnsecured(id) match {
         case None => JJson.generate(ObjectModel(availableCollections = availableCollections))
         case Some(anObject) => {

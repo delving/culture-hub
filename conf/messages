@@ -25,8 +25,11 @@ validation.range=Value out of range
 ui.label.add=Add
 ui.label.addcomment=Add comment
 ui.label.administration=Administration
+ui.label.administratorOptions=Administrator options
+ui.label.block=Block
 ui.label.browse=Browse
 ui.label.cancel=Cancel
+ui.label.disable=Disable
 ui.label.captcha=Enter the code you see here
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
@@ -41,6 +44,7 @@ ui.label.firstname=First name
 ui.label.fullname=Full name
 ui.label.funFact=Fun fact
 ui.label.hi=Hi
+ui.label.hello=Hello
 ui.label.labeladd=Add label
 ui.label.labelwho=Who
 ui.label.labelwhat=What
@@ -84,7 +88,6 @@ ui.label.visibility.public=Public
 ui.label.visibility.notpublic=Private
 ui.label.website=Website
 ui.label.welcome=Welcome
-
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -149,7 +152,6 @@ thing.browse.ownedby=Browse %s owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
 
-
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: %s
@@ -161,6 +163,8 @@ ui.message.resetpassword.error=Error resetting your password: %s
 ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
 ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="%s"><strong>visibility status</strong></a> to "Public".
 ui.message.charsLeft=characters left
+
+
 # User navigation
 
 user.nav.goto=Go to
@@ -191,6 +195,17 @@ labels.createLabel=Create new label
 
 
 # Views
+
+## Admin toolbar
+
+thing.admin.disable.explain=This action prevent other users from viewing or using this %s
+thing.admin.disable.user.explain=This action disables this user and all associated objects, collections, and stories.
+thing.admin.disable.confirm=Are you sure you want to disable this %s?
+thing.admin.disable.goProfile=This action takes you to the user's profile page where you can proceed to disable this user. Disabling a user also blocks all their objects, collections and stories.
+thing.admin.disable.object=object
+thing.admin.disable.collection=collection
+thing.admin.disable.story=story
+thing.admin.disable.user=user
 
 ## Admin.Themes view
 admin.themes.title=Themes administration
@@ -259,6 +274,8 @@ dataset.invalidate=Reset hashes
 ##Mails
 mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
 mail.message.resetpassword=In order to reset your password for %s, please follow the link below
+mail.subject.accountblocked=Your account has been blocked
+mail.message.accountblocked=Your account has been blocked given the content you have posted is not deemed appropriate for this site. If you think this is an error, please contact %s.
 
 ##Profiles
 profile.title=Profile page for

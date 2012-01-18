@@ -22,23 +22,28 @@ import dao.{SalatDAOError, SalatDAO}
 import models.salatContext._
 import play.libs.Crypto
 import controllers.{ServicesSecurity, InactiveUserException}
+import _root_.util.Constants._
+import components.IndexingService
 
 case class User(_id: ObjectId = new ObjectId,
-                userName: String, // userName, unique in the world
+                userName: String,                                 // userName, unique in the world
                 firstName: String,
                 lastName: String,
                 email: String,
                 password: String,
                 userProfile: UserProfile,
-                groups: List[ObjectId] = List.empty[ObjectId], // groups this user belongs to
+                groups: List[ObjectId] = List.empty[ObjectId],    // groups this user belongs to
                 organizations: List[String] = List.empty[String], // organizations this user belongs to
-                nodes: List[String] = List.empty[String], // nodes this user has access to
+                nodes: List[String] = List.empty[String],         // nodes this user has access to
+                nodesAdmin: List[String] = List.empty[String],    // nodes this user is an admin of
                 isActive: Boolean = false,
+                blocked: Boolean = false,
+                blockingInfo: Option[BlockingInfo] = None,
                 activationToken: Option[String] = None,
                 resetPasswordToken: Option[ResetPasswordToken] = None,
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None,
-                isHubAdmin: Option[Boolean] = None) {
+                isHubAdmin: Option[Boolean] = None) {             // super-user powers everywhere
 
   val fullname = firstName + " " + lastName
 
@@ -62,6 +67,9 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     if (!theOne.getOrElse(return false).isActive) {
       throw new InactiveUserException
     }
+    if(theOne.getOrElse(return false).blocked) {
+      return false
+    }
     true
   }
 
@@ -84,6 +92,38 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
       case s: SalatDAOError => false
       case _ => false
     }
+  }
+
+  def block(userName: String, whoBlocks: String) {
+    User.findByUsername(userName) map {
+      u =>
+        val updated = u.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
+        User.save(updated)
+
+        val blockedObjects = DObject.findByUser(userName).map(_._id).toList
+        val blockedCollections = UserCollection.findByUser(userName).map(_._id).toList
+        val blockedStories = Story.findByUser(userName).map(_._id).toList
+
+        DObject.update(MongoDBObject("userName" -> userName), $set ("blocked" -> true, "blockingInfo" -> grater[BlockingInfo].asDBObject(BlockingInfo(whoBlocks))), false, true)
+        UserCollection.update(MongoDBObject("userName" -> userName), $set ("blocked" -> true, "blockingInfo" -> grater[BlockingInfo].asDBObject(BlockingInfo(whoBlocks))), false, true)
+        Story.update(MongoDBObject("userName" -> userName), $set ("blocked" -> true, "blockingInfo" -> grater[BlockingInfo].asDBObject(BlockingInfo(whoBlocks))), false, true)
+
+        IndexingService.deleteById(blockedObjects ++ blockedCollections ++ blockedStories)
+
+        blockedObjects foreach { o =>
+          Link.blockLinks(OBJECT, o, whoBlocks)
+        }
+
+        blockedCollections foreach { c =>
+          Link.blockLinks(USERCOLLECTION, c, whoBlocks)
+        }
+
+        blockedStories foreach { s =>
+          Link.blockLinks(STORY, s, whoBlocks)
+        }
+
+    }
+
   }
 
   // ~~~ user registration, password reset
@@ -155,4 +195,6 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     val delta = System.currentTimeMillis() - timeout * 1000
     User.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
   }
+
+
 }

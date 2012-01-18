@@ -92,6 +92,8 @@ GET         /search                                                          Sea
 
 GET         /{user}/?                                                        Profile.profile
 
+POST        /{user}/block                                                    admin.NodeAdmin.blockUser
+
 GET         /{user}/label/search                                             Links.listFreeTextAsTokens
 
 POST        /{user}/link/{linkType}/{toType}/{toId}                          user.Links.add(fromType:'user')
@@ -104,8 +106,9 @@ POST        /{user}/object/{fromId}/link/{linkType}/{toType}/{toId}          use
 DELETE      /{user}/object/{fromId}/link/{linkType}/{link}                   user.Links.removeById(fromType:'object')
 POST        /{user}/object/submit                                            user.DObjects.objectSubmit
 DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
+POST        /{user}/object/{id}/block                                        admin.NodeAdmin.blockDObject
+GET         /{user}/object/{id}                                              DObjects.dobject
 
-GET         /{user}/object/{id}                                                DObjects.dobject
 GET         /{orgId}/object/{spec}/{recordId}/overlay                          Search.record(overlay:'true')
 POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.add(fromType:'mdr')
 DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.remove(fromType:'mdr')
@@ -122,6 +125,7 @@ POST        /{user}/collection/{fromId}/link/{linkType}/{toType}/{toId}      use
 DELETE      /{user}/collection/{fromId}/link/{linkType}/{link}               user.Links.removeById(fromType:'collection')
 POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
 DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
+POST        /{user}/collection/{id}/block                                    admin.NodeAdmin.blockUserCollection
 GET         /{user}/collection/{id}                                          Collections.collection
 
 GET         /{user}/story                                                    Stories.list
@@ -131,8 +135,10 @@ POST        /{user}/story/{fromId}/link/{linkType}/{toType}/{toId}           use
 DELETE      /{user}/story/{fromId}/link/{linkType}/{link}                    user.Links.removeById(fromType:'story')
 POST        /{user}/story/submit                                             user.Stories.storySubmit
 DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
+POST        /{user}/story/{id}/block                                         admin.NodeAdmin.blockStory
 GET         /{user}/story/{id}                                               Stories.story
 GET         /{user}/story/{id}/read                                          Stories.read
+
 
 GET         /{user}/admin/?                                                  user.Admin.index
 GET         /{user}/admin/profile/update                                     user.Admin.profile
