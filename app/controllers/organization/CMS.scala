@@ -54,9 +54,10 @@ object CMS extends DelvingController with OrganizationSecured {
     Continue
   }
 
-  def list(orgId: String, language: String = Lang.get()): Result = {
-    val pages = CMSPage.list(orgId, language)
-    Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> language)
+  def list(orgId: String, language: String): Result = {
+    val lang = if(language == null) Lang.get() else language // broken Play binder.......
+    val pages = CMSPage.list(orgId, lang)
+    Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang)
   }
   
   def page(orgId: String, language: String, page: Option[String]): Result = {
@@ -72,7 +73,7 @@ object CMS extends DelvingController with OrganizationSecured {
 
     }
 
-    Template('page -> JJson.generate(p._1), 'versions -> JJson.generate(Map("versions" -> p._2)), 'languages -> getLanguages, 'themes -> PortalTheme.findAll.map(t => (t.name, t.name)), 'isNew -> (p._2.size == 0))
+    Template('page -> JJson.generate(p._1), 'versions -> JJson.generate(Map("versions" -> p._2)), 'languages -> getLanguages, 'themes -> getThemes, 'isNew -> (p._2.size == 0))
   }
   
   def pageSubmit(orgId: String): Result = {
@@ -95,6 +96,14 @@ object CMS extends DelvingController with OrganizationSecured {
     Ok
   }
 
+  private def getThemes = {
+    if(Play.mode.isDev || PortalTheme.findAll.length == 1) {
+      PortalTheme.findAll.map(t => (t.name, t.name))
+    } else {
+      PortalTheme.findAll.filterNot(_.name == "default").map(t => (t.name, t.name))
+    }
+  }
+  
   private def getLanguages = Play.configuration.getProperty("application.langs").split(",").map(l => (l.trim, &("locale." + l.trim)))
   
 }
