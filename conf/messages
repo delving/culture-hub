@@ -26,6 +26,7 @@ ui.label.add=Add
 ui.label.addcomment=Add comment
 ui.label.administration=Administration
 ui.label.administratorOptions=Administrator options
+ui.label.block=Block
 ui.label.browse=Browse
 ui.label.cancel=Cancel
 ui.label.disable=Disable
@@ -197,12 +198,14 @@ labels.createLabel=Create new label
 
 ## Admin toolbar
 
-thing.admin.disable.explain=This action blocks other users from viewing or using this
-thing.admin.disable.user=This action disables this user and all associated objects, collections, and stories.
+thing.admin.disable.explain=This action prevent other users from viewing or using this %s
+thing.admin.disable.user.explain=This action disables this user and all associated objects, collections, and stories.
 thing.admin.disable.confirm=Are you sure you want to disable this %s?
-thing.admin.disable.goProfile=In order to disable this user, go to their
-thing.admin.disable.profile=profile
-
+thing.admin.disable.goProfile=This action takes you to the user's profile page where you can proceed to disable this user. Disabling a user also blocks all their objects, collections and stories.
+thing.admin.disable.object=object
+thing.admin.disable.collection=collection
+thing.admin.disable.story=story
+thing.admin.disable.user=user
 
 ## Admin.Themes view
 admin.themes.title=Themes administration

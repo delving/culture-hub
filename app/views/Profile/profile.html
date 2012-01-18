@@ -49,7 +49,11 @@
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
             #{/if}
         </div>
+        <div class="grid_12">
+            #{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}
+        </div>
     </div>
+
     <hr/>
     #{if isVisible}
     <div class="row">
@@ -103,5 +107,5 @@
         </div>
     </div>
     #{/if}
-    #{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}
+
 </div>
