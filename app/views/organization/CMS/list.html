@@ -3,6 +3,9 @@
 #{set title: viewUtils.getKey('thing.pages') /}
 
 #{set bodyId: 'organization' /}
+
+#{breadcrumbs /}
+
 <div class="row">
     <div class="grid_12">
         <div class="field">
@@ -16,7 +19,7 @@
                 </select>
             </div>
         </div>
-        <div><a href="/organizations/${orgId}/site/${currentLanguage}/page/add">&{'ui.label.create'}</a></div>
+        <div><a href="/organizations/${orgId}/site/${currentLanguage}/page/add">&{'org.cms.page.new'}</a></div>
     </div>
 </div>
 
