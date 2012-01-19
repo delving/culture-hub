@@ -75,8 +75,11 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
 
   def findByPageAndMenu(orgId: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> key))
   
-  def findEntries(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
-  
+  def findEntries(orgId: String, theme: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
+
+  // TODO FIXME this won't scale when more orgs live on one culturehub. we need to fix the theme -> orgId lookup
+  def findEntries(theme: String, menuKey: String) = find(MongoDBObject("theme" -> theme, "menuKey" -> menuKey)).$orderby(MongoDBObject("position" -> 1))
+
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
    */
