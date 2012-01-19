@@ -1,54 +1,57 @@
-<div class="fileDisplay" id="${_targetId}">
-    #{list items: _files.headOption(), as:'file'}
-    #{if file.contentType().contains('image/')}
-    <img src='/file/thumbnail/${file.id()}/${_thumbWidth}' width="${_fileWidth}" alt="${_objectName}"/>
-    <div class="extra">
-        <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+<div class="fileContainer">
+    <div id="${_targetId}">
+        #{list items: _files.headOption(), as:'file'}
+        #{if file.contentType().contains('image/')}
+        <img src='/file/thumbnail/${file.id()}/${_thumbWidth}' width="${_fileWidth}" alt="${_objectName}"/>
+        <div class="extra">
+            <a href="#" class="overlay-trigger" rel="#overlay" id="${file.id()}" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+        </div>
+        #{/if}
+        #{if file.contentType().contains('video/')}
+        <video width="${_fileWidth}" height="240" poster="" controls="controls" preload="none">
+            <source type="${file.contentType()}" src="/file/image/${file.id()}"/>
+        </video>
+        #{/if}
+        #{if file.contentType().contains('audio/')}
+        <audio controls="controls" type="audio/mp3" src="/file/image/${file.id()}"></audio>
+        #{/if}
+        #{/list}
+    </div>
+    #{if _files.size() > 0}
+    <div id="fileNavi" class="extra">
+        #{list _files, as: 'file'}
+        #{if file.contentType().contains('image/') }
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+            <img src="/file/thumbnail/${file.id()}/80" width="80" alt=""/>
+            <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+            <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+            <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+            <input type="hidden" name="targetId" value="${_targetId}"/>
+        </a>
+        #{/if}
+        #{elseif file.contentType().contains('audio/') }
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+            <img src="@{'/public/common/images/icon_audio.png'}" width="80" alt=""/>
+            <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+            <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+            <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+            <input type="hidden" name="targetId" value="${_targetId}"/>
+        </a>
+        #{/elseif}
+        #{elseif file.contentType().contains('video/') }
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
+            <img src="@{'/public/common/images/icon_video.png'}" width="80" alt=""/>
+            <input type="hidden" name="mimeType" value="${file.contentType()}"/>
+            <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
+            <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
+            <input type="hidden" name="targetId" value="${_targetId}"/>
+        </a>
+        #{/elseif}
+        #{/list}
     </div>
     #{/if}
-    #{if file.contentType().contains('video/')}
-    <video width="${_fileWidth}" height="240" poster="" controls="controls" preload="none">
-        <source type="${file.contentType()}" src="/file/image/${file.id()}"/>
-    </video>
-    #{/if}
-    #{if file.contentType().contains('audio/')}
-    <audio controls="controls" type="audio/mp3" src="/file/image/${file.id()}"></audio>
-    #{/if}
-    #{/list}
 </div>
-#{if _files.size() > 0}
-<div id="fileNavi" class="extra">
-    #{list _files, as: 'file'}
-    #{if file.contentType().contains('image/') }
-    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-        <img src="/file/thumbnail/${file.id()}/80" width="80" alt=""/>
-        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
-        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
-        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
-        <input type="hidden" name="targetId" value="${_targetId}"/>
-    </a>
-    #{/if}
-    #{elseif file.contentType().contains('audio/') }
-    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-        <img src="@{'/public/common/images/icon_audio.png'}" width="80" alt=""/>
-        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
-        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
-        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
-        <input type="hidden" name="targetId" value="${_targetId}"/>
-    </a>
-    #{/elseif}
-    #{elseif file.contentType().contains('video/') }
-    <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-        <img src="@{'/public/common/images/icon_video.png'}" width="80" alt=""/>
-        <input type="hidden" name="mimeType" value="${file.contentType()}"/>
-        <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
-        <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
-        <input type="hidden" name="targetId" value="${_targetId}"/>
-    </a>
-    #{/elseif}
-    #{/list}
-</div>
-#{/if}
+
 
 
 
