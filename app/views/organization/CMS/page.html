@@ -21,12 +21,13 @@
                 <label class="label">&{'org.cms.page.menu.add'}</label>
 
                 <div class="inputs">
-                    <select>
-                        <option>None</option>
-                        <option>Main menu</option>
+                    <select name="menu" id="menu">
+                        <option value="none">None</option>
+                        <option value="mainMenu">Main menu</option>
                     </select>
                 </div>
             </div>
+
             #{textField name:"position", label:viewUtils.getKey('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
 
             <div class="buttons">
