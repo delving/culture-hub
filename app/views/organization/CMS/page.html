@@ -5,9 +5,10 @@
 #{set title: viewUtils.getKey('thing.pages') /}
 
 #{set bodyId: 'organization' /}
+
 <div class="row">
     <div class="grid_12">
-        <form id="pageForm" method="post" action="" class="grid_10">
+        <form id="pageForm" method="post" action="">
             <div data-bind="text: errors().global"></div>
 
             #{textField name:"key", label:viewUtils.getKey('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
