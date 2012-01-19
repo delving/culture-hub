@@ -69,8 +69,13 @@
                     <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
                 <li class='${"HeritageObjects".isCurrent()}'>
                     <a href="@{HeritageObjects.list()}"><span>&{'thing.objects.heritage'}</span></a></li>
+
+                #{ifnot viewUtils.themeProperty('showUserObject') == 0}
+
                 <li class='${"DObjects".isCurrent()}'>
                     <a href="@{DObjects.list()}"><span>&{'thing.objects.user'}</span></a></li>
+
+                #{/ifnot}
                 <li class='${"Collections".isCurrent()}'>
                     <a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
                 <li class='${"Stories".isCurrent()}'>
