@@ -343,7 +343,6 @@ ko.bindingHandlers.tinymce = {
         options.setup = function (ed) {
             ed.onChange.add(function (ed, l) {
                 if (ko.isWriteableObservable(modelValue)) {
-                    $(element).data("writeLock")
                     $(element).data("writeLock", true);
                     modelValue(l.content);
                     $(element).data("writeLock", false);
@@ -362,8 +361,13 @@ ko.bindingHandlers.tinymce = {
         });
 
         setTimeout(function() {
-            //$(element).tinymce(options);
-            Delving.wysiwyg(options);
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            Delving.wysiwyg($.extend(options, {
+                oninit: function() {
+                    var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
+                    ed.setContent(value);
+                }
+            }));
         }, 0);
 
     },
