@@ -632,5 +632,14 @@ div.wait {
 		margin: 0 0 20px 0;
 	}
 
+/* multiple file display section */
 
+.fileContainer #fileNavi {
+    margin-top: 20px;
+    display: block;
+}
+
+.fileContainer #fileNavi a {
+    display: inline-block;
+}
 

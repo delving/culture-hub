@@ -37,23 +37,23 @@ function mediaSwitch(options) {
 
         $(this).click(function() {
 
+            $("div#" + targetId).html('').fadeOut('fast');
+
             $(options.triggerElement).removeClass("active");
 
             $(this).addClass("active");
-
-            //$("div#" + targetId).html();
-
+            var html;
             if (mimeType.match(regexImage)) {
-                var html = '<img src="' + previewSrc + '" />';
+                html = '<img src="' + previewSrc + '" />';
             }
             else if (mimeType.match(regexAudio)) {
-                var html = '<audio controls="controls" type="audio/mp3" src="' + fileSrc + '"></audio>';
+                html = '<audio controls="controls" type="audio/mp3" src="' + fileSrc + '"></audio>';
             }
             else if (mimeType.match(regexVideo)) {
-                var html = '<video controls="controls" preload="none"><source type="' + mimeType + '" src="' + fileSrc + '"/></video>';
+                html = '<video controls="controls" preload="none"><source type="' + mimeType + '" src="' + fileSrc + '"/></video>';
             }
 
-            $("div#" + targetId).html(html);
+            $("div#" + targetId).html(html).fadeIn('slow');
 
             $('video, audio').mediaelementplayer({
                 enableAutosize: true,
