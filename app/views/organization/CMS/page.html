@@ -5,54 +5,72 @@
 #{set title: viewUtils.getKey('thing.pages') /}
 
 #{set bodyId: 'organization' /}
+<div class="row">
+    <div class="grid_12">
+        <form id="pageForm" method="post" action="" class="grid_10">
+            <div data-bind="text: errors().global"></div>
 
-<form id="pageForm" method="post" action="" class="grid_10">
-    <div data-bind="text: errors().global"></div>
+            #{textField name:"key", label:viewUtils.getKey('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
+            #{populatedSelectField options: themes, name:"theme", label:viewUtils.getKey('ui.label.theme'), dataBind:"value: theme", required: true /}
+            #{populatedSelectField options: languages, name:"lang", label:viewUtils.getKey('ui.label.language'), dataBind:"value: lang", required: true /}
+            #{textField name:"title", label:viewUtils.getKey('thing.title'), dataBind:"value: title", required: true /}
+            #{textArea name:"content", extraClass:"mceEditor", label:viewUtils.getKey('thing.content'), dataBind:"tinymce: content", required: true /}
 
-    #{textField name:"key", label:viewUtils.getKey('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
-    #{populatedSelectField options: themes, name:"theme", label:viewUtils.getKey('ui.label.theme'), dataBind:"value: theme", required: true /}
-    #{populatedSelectField options: languages, name:"lang", label:viewUtils.getKey('ui.label.language'), dataBind:"value: lang", required: true /}
-    #{textField name:"title", label:viewUtils.getKey('thing.title'), dataBind:"value: title", required: true /}
-    #{textArea name:"content", extraClass:"mceEditor", label:viewUtils.getKey('thing.content'), dataBind:"tinymce: content", required: true /}
-    #{textField name:"position", label:viewUtils.getKey('org.cms.page.position'), dataBind:"value: position", required: true /}
+            <div class="field">
+                <label class="label">&{'org.cms.page.menu.add'}</label>
 
-    <div class="buttons">
-        #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
-        #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"submit", type:"reset" /}
-        #{btnButton label: viewUtils.getKey('org.cms.page.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
-        <div class="wait"></div>
+                <div class="inputs">
+                    <select>
+                        <option>Main menu</option>
+                    </select>
+                </div>
+            </div>
+            #{textField name:"position", label:viewUtils.getKey('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+
+            <div class="buttons">
+                #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
+                #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"submit", type:"reset" /}
+                #{btnButton label: viewUtils.getKey('org.cms.page.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
+                <div class="wait"></div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="grid_12">
+
+        <div class="data-grid" style="display:block">
+            <table class="list" id="versions">
+                <caption>Previous versions</caption>
+                <thead>
+                <tr>
+                    <th>&{'thing.title'}</th>
+                    <th>&{'thing.datecreated'}</th>
+                    <th>&{'thing.actions'}</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: versions()">
+                <tr>
+                    <td>
+                        <span class="page-title" data-bind="text: title"></span>
+                    </td>
+                    <td>
+                        <span class="page-title" data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
+                    </td>
+                    <td>
+                        <a class="button" href="#" data-bind="click: function() { $parent.loadVersion($data) }">
+                            <span class="icon icon120"></span>
+                            <span class="label">&{'ui.label.load'}</span>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-</form>
-
-<table class="list" id="versions">
-    <caption>Previous versions</caption>
-    <thead>
-    <tr>
-        <th>&{'thing.title'}</th>
-        <th>&{'thing.datecreated'}</th>
-        <th>&{'thing.actions'}</th>
-    </tr>
-    </thead>
-    <tbody data-bind="foreach: versions()">
-    <tr>
-        <td>
-            <span class="page-title" data-bind="text: title"></span>
-        </td>
-        <td>
-            <span class="page-title" data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
-        </td>
-        <td>
-            <a class="button" href="#" data-bind="click: function() { $parent.loadVersion($data) }">
-                <span class="icon icon120"></span>
-                <span class="label">&{'ui.label.load'}</span>
-            </a>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-
+</div>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -72,8 +90,10 @@
         });
 
         $('#saveButton').click(function(event) {
-          event.preventDefault();
-          handleSubmit('/organizations/${orgId}/site/page', pageModel, '#pageForm', null, function() { document.location = '/organizations/${orgId}/site/' + pageModel.lang(); });
+            event.preventDefault();
+            handleSubmit('/organizations/${orgId}/site/page', pageModel, '#pageForm', null, function() {
+                document.location = '/organizations/${orgId}/site/' + pageModel.lang();
+            });
         });
     });
 </script>

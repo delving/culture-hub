@@ -521,7 +521,8 @@ org.group.create=Create group
 
 org.cms.page.key=Page key
 org.cms.page.save=Save page
-org.cms.page.position=Position in the menu
+org.cms.page.menu.add=Add page to a menu
+org.cms.page.menu.position=Position in the menu
 org.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 15 characters long.
 org.cms.list.languageSwitch=List pages in
 org.cms.list.deletePage=Delete page
