@@ -40,7 +40,7 @@ object CMS extends DelvingController with OrganizationSecured {
     // for the moment we have one main menu so we can do it like this
     val menuEntryPosition = MenuEntry.findByPageAndMenu(p.orgId, MAIN_MENU, p.key) match {
       case Some(e) => e.position
-      case None => MenuEntry.findEntries(p.orgId, MAIN_MENU).length + 1
+      case None => MenuEntry.findEntries(p.orgId, p.theme, MAIN_MENU).length + 1
     }
     CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, menuEntryPosition)
   }
@@ -62,7 +62,7 @@ object CMS extends DelvingController with OrganizationSecured {
   
   def page(orgId: String, language: String, page: Option[String]): Result = {
 
-    def menuEntries = MenuEntry.findEntries(orgId, MAIN_MENU)
+    def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
 
     val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
       case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, menuEntries.length + 1), List.empty)

@@ -17,6 +17,7 @@
 package controllers
 
 import dos.StoredFile
+import organization.CMS
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
 import scala.collection.JavaConversions._
@@ -58,6 +59,9 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("authenticityToken", session.getAuthenticityToken)
         renderArgs += ("organizations", u.organizations)
         renderArgs += ("email", u.email)
+
+        // TODO move someplace else
+        renderArgs += ("menu", MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).map(e => (Map("title" -> e.title(Lang.get()), "page" -> e.targetPageKey.getOrElse("")))).toList)
 
 
         // refresh session parameters

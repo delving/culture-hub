@@ -41,11 +41,10 @@ object Application extends DelvingController {
   
   def page(key: String): Result = {
     // TODO link the themes to the organization so this also works on multi-org hubs
-    CMSPage.findOne(MongoDBObject("key" -> key, "lang" -> Lang.get(), "theme" -> theme.name)) match {
+    CMSPage.find(MongoDBObject("key" -> key, "lang" -> Lang.get(), "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
       case None => NotFound
       case Some(page) => Template('page -> page)
     }
-    
   }
 
 }

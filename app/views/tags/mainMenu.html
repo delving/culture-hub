@@ -1,0 +1,5 @@
+<ul>
+#{list _menu, as:'m'}
+<li><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>
+#{/list}
+</ul>
