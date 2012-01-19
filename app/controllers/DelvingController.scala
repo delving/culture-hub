@@ -60,8 +60,13 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("organizations", u.organizations)
         renderArgs += ("email", u.email)
 
+        val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
+            "title" -> e.title(Lang.get()),
+            "page" -> e.targetPageKey.getOrElse("")))
+        ).toList
+
         // TODO move someplace else
-        renderArgs += ("menu", MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).map(e => (Map("title" -> e.title(Lang.get()), "page" -> e.targetPageKey.getOrElse("")))).toList)
+        renderArgs += ("menu", mainMenuEntries)
 
 
         // refresh session parameters
