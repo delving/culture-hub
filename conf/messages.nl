@@ -501,6 +501,16 @@ org.group.grantType.modify=Modification rights
 org.group.save=Save group
 org.group.create=Create group
 
+org.cms.page.key=Pagina sleutel
+org.cms.page.new=Nieuwe pagina
+org.cms.page.save=Bewaar pagina
+org.cms.page.menu.add=Voeg toe aan menu
+org.cms.page.menu.position=Positie in menu
+org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 3 tot 15 characters lang.
+org.cms.list.languageSwitch=Bekijk paginas in
+org.cms.list.deletePage=Verwijder pagina
+org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
 org.admin.index.editOwners=U kunt de eigenaren van de organisatie aanpassen op de groep-pagina voor
