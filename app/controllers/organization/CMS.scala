@@ -93,6 +93,19 @@ object CMS extends DelvingController with OrganizationSecured {
   
   def pageDelete(orgId: String, key: String, language: String): Result = {
     CMSPage.delete(orgId, key, language)
+
+    // also delete menu entries that refer to that page
+    MenuEntry.findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme.name, "targetPageKey" -> key)) match {
+      case Some(entry) =>
+        val updated = entry.copy(title = entry.title - (language))
+        if(updated.title.isEmpty) {
+          MenuEntry.remove(updated)
+        } else {
+          MenuEntry.save(updated)
+        }
+      case None => // nothing
+    }
+
     Ok
   }
 
