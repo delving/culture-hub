@@ -22,6 +22,7 @@ import models.salatContext._
 import controllers.search.SolrFacetElement
 import controllers.search.SolrSortElement
 import play.Logger
+import org.apache.solr.client.solrj.SolrQuery
 
 /**
  *
@@ -64,7 +65,6 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
   }
 
   def getSortFields: List[SolrSortElement] = {
-    import org.apache.solr.client.solrj.SolrQuery
     sortFields.getOrElse("").split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
       entry => {
         val k = entry.split(":")
@@ -83,6 +83,8 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
 }
 
 object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalThemeCollection) with Resolver[PortalTheme] {
+
+  def findAll = find(MongoDBObject()).toList
 
   def removeAll() {
     remove(MongoDBObject())
