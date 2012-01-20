@@ -148,6 +148,11 @@ button[disabled],
     height: 40px;
 }
 
+.clip-60 {
+    display: block;
+    height: 60px;
+}
+
 .clip-80 {
     display: block;
     height: 80px;
@@ -633,7 +638,11 @@ div.wait {
 	}
 
 /* multiple file display section */
-
+/*.fileContainer .file {*/
+    		/*box-shadow: 0 2px 5px rgba(0,0,0,0.5);*/
+		/*-webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.5);*/
+		/*-moz-box-shadow: 0 2px 5px rgba(0,0,0,0.75);*/
+/*}*/
 .fileContainer #fileNavi {
     margin-top: 20px;
     display: block;
@@ -641,5 +650,12 @@ div.wait {
 
 .fileContainer #fileNavi a {
     display: inline-block;
+    margin-right: 4px;
+}
+
+#fileNavi a.active {
+		box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+		-webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+		-moz-box-shadow: 0 2px 5px rgba(0,0,0,0.75);
 }
 
