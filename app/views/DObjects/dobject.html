@@ -2,24 +2,20 @@
 
 #{set title: viewUtils.getKey('thing.object') + ' ' + dobject.name + ' - ' + viewUtils.getKey('thing.owner') + ': ' + browsedFullName /}
 
+#{set 'moreScripts'}
 <script src="@{'/public/common/javascripts/mediaelement/build/mediaelement-and-player.js'}"></script>
 <script src="@{'/public/common/javascripts/culturehub.media.switch.js'}"></script>
 <script src="@{'/public/common/javascripts/jquery.culturehub.mediaSwitcher.js'}"></script>
+#{/}
+#{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
 <link rel="stylesheet" type="text/css" href="@{'/public/common/javascripts/mediaelement/build/mediaelementplayer.css'}"/>
-
+#{/}
 
 #{set bodyId:'object-view' /}
 
 #{breadcrumbs /}
-<style>
-    /*.scrollable {*/
-        /*width: 350px;*/
-    /*}*/
-    /*.thumbNav {*/
-        /*display: inline-block;*/
-    /*}*/
-</style>
+
 <h1 class="sep">${dobject.name}</h1>
 
 <div class="row">
@@ -27,7 +23,7 @@
         <div class="dashboard">
             <div class="media record">
                 <div class="img">
-                   #{displayFiles files: dobject.files(), fileWidth:350, thumbWidth:350, objectName: dobject.name, targetId:dobject._id /}
+                   #{displayFiles files: dobject.files(), fileWidth:350, thumbWidth:350, objectName: dobject.name, targetId:dobject._id, enlargeImage:true /}
                 </div>
                 <div class="bd">
                     #{thingToolbar owner: dobject.userName, id: dobject._id, authUser: userName, type:"object", labels:userLabels, places: userPlaces/}
@@ -67,30 +63,31 @@
 
         mediaSwitch({
             'triggerElement' : '.thumbNav',
-            'mediaWidth'     : '350'
+            'mediaWidth'     : '350',
+            'enlargeImage'   : true
         });
-//        $(".img").find("a.overlay-trigger").each(function(index) {
-//            var showMe = "/file/image/" + $(this).attr("id");
-//            $(this).overlay({
-//                closeOnClick: true,
-//                left: "centered",
-//                target: '#overlay',
-//                mask: {
-//                    color: "#ddddd0",
-//                    loadSpeed: 200,
-//                    opacity: 0.5
-//                },
-//                onBeforeLoad: function() {
-//                    var wrap = $("#overlay .contentWrap");
-//                    var image = new Image();
-//                    image.src = showMe;
-//                    wrap.append(image);
-//                },
-//                onClose: function() {
-//                    $('.contentWrap').empty();
-//                }
-//            });
-//        });
+        $(".img").find("a.overlay-trigger").each(function(index) {
+            var showMe = "/file/image/" + $(this).attr("id");
+            $(this).overlay({
+                closeOnClick: true,
+                left: "centered",
+                target: '#overlay',
+                mask: {
+                    color: "#ddddd0",
+                    loadSpeed: 200,
+                    opacity: 0.5
+                },
+                onBeforeLoad: function() {
+                    var wrap = $("#overlay .contentWrap");
+                    var image = new Image();
+                    image.src = showMe;
+                    wrap.append(image);
+                },
+                onClose: function() {
+                    $('.contentWrap').empty();
+                }
+            });
+        });
 
         // set media elements
         var player = $('audio, video').mediaelementplayer({

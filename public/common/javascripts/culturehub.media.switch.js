@@ -21,7 +21,8 @@ function mediaSwitch(options) {
             'targetElement'         : '#msContainer',
             'triggerElement'        : '.msTrigger',
             'triggerActiveClass'    : 'active',
-            'mediaWidth'            : '350'
+            'mediaWidth'            : '350',
+            'enlargeImage'          : false
     }, options);
 
     $(options.triggerElement).each(function(index) {
@@ -44,13 +45,16 @@ function mediaSwitch(options) {
             $(this).addClass("active");
             var html;
             if (mimeType.match(regexImage)) {
-                html = '<img src="' + previewSrc + '" />';
+                html =  '<img src="/file/thumbnail/' + previewSrc + '" />';
+                if(options.enlargeImage == true){
+                    html += '<div class="extra"><a href="#" class="overlay-trigger" rel="#overlay" id="'+ fileSrc +'">'+jsLabels.enlargeImage+'</a></div>';
+                }
             }
             else if (mimeType.match(regexAudio)) {
-                html = '<audio controls="controls" type="audio/mp3" src="' + fileSrc + '"></audio>';
+                html = '<audio controls="controls" type="audio/mp3" src="/file/image/' + fileSrc + '"></audio>';
             }
             else if (mimeType.match(regexVideo)) {
-                html = '<video controls="controls" preload="none"><source type="' + mimeType + '" src="' + fileSrc + '"/></video>';
+                html = '<video controls="controls" preload="none"><source type="/file/image/' + mimeType + '" src="' + fileSrc + '"/></video>';
             }
 
             $("div#" + targetId).fadeIn('slow').html(html);
@@ -67,6 +71,30 @@ function mediaSwitch(options) {
                 plugins: ['flash','silverlight'],
                 features: ['playpause','progress','current','duration','volume','fullscreen']
             });
+
+            $(".img").find("a.overlay-trigger").each(function(index) {
+                var showMe = "/file/image/" + $(this).attr("id");
+                $(this).overlay({
+                    closeOnClick: true,
+                    left: "centered",
+                    target: '#overlay',
+                    mask: {
+                        color: "#ddddd0",
+                        loadSpeed: 200,
+                        opacity: 0.5
+                    },
+                    onBeforeLoad: function() {
+                        var wrap = $("#overlay .contentWrap");
+                        var image = new Image();
+                        image.src = showMe;
+                        wrap.append(image);
+                    },
+                    onClose: function() {
+                        $('.contentWrap').empty();
+                    }
+                });
+            });
+
         });
     })
 }
