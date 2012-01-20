@@ -46,6 +46,7 @@ ui.label.labelwho=Who
 ui.label.labelwhat=What
 ui.label.labelwhere=Where
 ui.label.labelwhen=When
+ui.label.language=Language
 ui.label.languageSelect=Choose a language
 ui.label.last=Last
 ui.label.lastname=Last name

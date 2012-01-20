@@ -46,6 +46,7 @@ ui.label.labelwho=Wie
 ui.label.labelwhat=Wat
 ui.label.labelwhere=Waar
 ui.label.labelwhen=Wanneer
+ui.label.language=Taal
 ui.label.languageSelect=Kies een taal
 ui.label.last=Laatste
 ui.label.lastname=Achternaam

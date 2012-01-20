@@ -17,47 +17,44 @@
         </div>
 
         <div class="grid_9" id="user-nav">
+
+
+
             #{if !userName}
-            <div class="buttons">
-                #{btnHref label: viewUtils.getKey('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
-                #{btnHref label: viewUtils.getKey('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
-                #{languageSelect /}
-            </div>
+            <a href="/login" tabindex="1" rel="nofollow" class="${'Authentication.login'.isCurrent()}"><span class="label">${messages.get('ui.label.login')}</span></a>
+            <span class="pipe">|</span>
+            <a href="/registration" tabindex="2" rel="nofollow" class="${'Registration.login'.isCurrent()}"><span class="label">${messages.get('ui.label.register')}</span></a>
             #{/if}
             #{else}
-            <div class="buttons">
-                <div class="user-name">
-                    Hi ${fullName}
-                </div>
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('user.nav.goto'), iconClass:"icon9", toggle:true/}
-                    <div class="dropdown-slider">
-                        *{<a class="ddm heading places"><span class="label">&{'ui.label.places'}</span></a>}*
-                        <a href="/${userName}" class="ddm user"><span class="label">&{'user.nav.yourprofile'}</span></a>
-                        <a href="/${userName}/object" class="ddm"></span>
-                            <span class="label">&{'user.nav.yourobjects'}</span></a>
-                        <a href="/${userName}/collection" class="ddm"></span>
-                            <span class="label">&{'user.nav.yourcollections'} </span></a>
-                        <a href="/${userName}/story" class="ddm"></span>
-                            <span class="label">&{'user.nav.yourstories'}</span></a>
-                        #{if organizations.length() > 0}
-                        <a class="ddm heading orgs"><span class="label">&{'thing.organizations'}</span></a>
+            <div class="user-panel">
+                <span class="user-name">
+                    #{gravatar.img email, size:26 /}
+                    <span class="label">Hi ${userName}</span>
+                </span>
+                <a href="/${userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a><span class="pipe">|</span>
+                <a href="/${userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a><span class="pipe">|</span>
+                <a href="/${userName}/collection"><span class="label">${messages.get('user.nav.yourcollections')}</span></a><span class="pipe">|</span>
+                <a href="/${userName}/story"><span class="label">${messages.get('user.nav.yourstories')}</span></a><span class="pipe">|</span>
+                <a href="/logout"><span class="label">${messages.get('ui.label.logout')}</span></a>
+                <div class="actions">
+                    <select name="actions" class="dk link">
+                        <option value="">&{'ui.label.create'}</option>
+                        <option value="${userName}/object/add">&{'user.nav.newobject'}</option>
+                        <option value="/${userName}/collection/add">&{'user.nav.newcollection'}</option>
+                        <option value="/${userName}/story/add">&{'user.nav.newstory'}</option>
+                    </select>
+                #{if organizations.length() > 0}
+                    <select name="organizations" class="dk link">
+                        <option value="">&{'thing.organizations'}</option>
                         #{list organizations, as: 'org'}
-                        <a href="/organizations/${org}" class="ddm org">${org}</a>
+                        <option value="/organizations/${org}">${org}</option>
                         #{/list}
-                        #{/if}
-                    </div>
+                    </select>
+                #{/}
                 </div>
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('user.nav.create'), iconClass:"icon144", toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="/${userName}/object/add" class="ddm"><span class="label">&{'user.nav.newobject'}</span></a>
-                        <a href="/${userName}/collection/add" class="ddm"><span class="label">&{'user.nav.newcollection'}</span></a>
-                        <a href="/${userName}/story/add" class="ddm"><span class="label">&{'user.nav.newstory'}</span></a>
-                    </div>
-                </div>
-                #{languageSelect /}
-                #{btnHref label: viewUtils.getKey('ui.label.logout'), href:"/logout" /}
+
+
+
             </div>
 
             #{/else}

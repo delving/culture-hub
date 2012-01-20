@@ -586,6 +586,9 @@ $(document).ready(function() {
     // Launch TipTip tooltip
     $('.tiptip a.button, .tiptip button').tipTip();
 
+    $('select.link').change(function(){
+       window.location.href=$(this).attr('value');
+    });
 });
 
 // Close open dropdown slider by clicking elsewhwere on page
