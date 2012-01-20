@@ -85,8 +85,8 @@ package object salatContext {
   cmsPages.ensureIndex(MongoDBObject("_id" -> 1, "language" -> 1))
   
   lazy val cmsMenuEntries = connection("CMSMenuEntries")
-  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "menuKey" -> 1))
-  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "menuKey" -> 1, "parentKey" -> 1))
+  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1))
+  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1))
 
   lazy val harvestStepsCollection = connection("HarvestSteps")
 

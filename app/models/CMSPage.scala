@@ -73,7 +73,7 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
 
 object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
 
-  def findByPageAndMenu(orgId: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> key))
+  def findByPageAndMenu(orgId: String, theme: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "targetPageKey" -> key))
   
   def findEntries(orgId: String, theme: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
 
@@ -84,7 +84,7 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
    */
   def addPage(orgId: String, theme: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String) {
-    findByPageAndMenu(orgId, menuKey, targetPageKey) match {
+    findByPageAndMenu(orgId, theme, menuKey, targetPageKey) match {
       case Some(existing) =>
         val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title))
         save(updatedEntry)
@@ -94,6 +94,19 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
         val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title))
         insert(newEntry)
     }
+  }
+
+  def removePage(orgId: String, theme: String, menuKey: String, targetPageKey: String, lang: String) {
+    MenuEntry.findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "targetPageKey" -> targetPageKey)) match {
+          case Some(entry) =>
+            val updated = entry.copy(title = entry.title - (lang))
+            if(updated.title.isEmpty) {
+              MenuEntry.remove(MongoDBObject("_id" -> updated._id))
+            } else {
+              MenuEntry.save(updated)
+            }
+          case None => // nothing
+        }
   }
 
   def updatePosition(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None, position: Int) {

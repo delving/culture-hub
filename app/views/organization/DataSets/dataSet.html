@@ -4,15 +4,9 @@
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
-#{organizationNavBar
-orgId: orgId,
-active:"datasets",
-extraButtons: [
-[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-[label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
-[label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit]
-],
-isOwner: isOwner /}
+#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+                                                                      [label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
+                                                                      [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 <div class="row">
     <div class="grid_12 dashboard">
         <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
