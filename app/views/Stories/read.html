@@ -7,10 +7,13 @@
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable.css'}"/>
 <link rel="stylesheet" type="text/css" href="@{'/public/common/stylesheets/scrollable-nav.css'}"/>
+<link rel="stylesheet" type="text/css" href="@{'/public/common/javascripts/mediaelement/build/mediaelementplayer.css'}"/>
 #{/set}
 
 #{set 'moreScripts'}
+<script src="@{'/public/common/javascripts/mediaelement/build/mediaelement-and-player.js'}"></script>
 <script src="@{'/public/common/javascripts/story.js'}" language="javascript"></script>
+<script src="@{'/public/common/javascripts/culturehub.media.switch.js'}"></script>
 #{/set}
 
 #{breadcrumbs /}
@@ -53,7 +56,7 @@
                     </div>
 
                 </div>
-                <div class="scrollable">
+                <div class="scrollable" id="story">
 
                     <!-- root element for the items -->
                     <div class="items">
@@ -84,7 +87,8 @@
                             <div class="page-right g-1of2 images">
                                 *{#{list page.objects.headOption(), as: 'o'}}*
                                 #{list page.getPageObjects(), as: 'o'}
-                                <img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">
+                                *{<img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">}*
+                                #{displayFiles files: o.files(), fileWidth:325, thumbWidth: 350, objectName: "test", targetId: o.id() /}
                                 #{/list}
                             </div>
 
@@ -105,28 +109,45 @@
 </div>
 <script>
     $(function () {
-        $(".images").find("img").each(function(index) {
-            var showMe = $(this).attr("src");
-            $(this).overlay({
-                closeOnClick: true,
-                left: "centered",
-                target: '#overlay',
-                mask: {
-                    color: "#ddddd0",
-                    loadSpeed: 200,
-                    opacity: 0.5
-                },
-                onBeforeLoad: function() {
-                    var wrap = $("#overlay .contentWrap");
-                    var image = new Image();
-                    image.src = showMe;
-                    wrap.append(image);
-                },
-                onClose: function() {
-                    $('.contentWrap').empty();
-                }
-            });
+        mediaSwitch({
+            'triggerElement' : '.thumbNav',
+            'mediaWidth'     : '325'
         });
+//        $(".images").find("img").each(function(index) {
+//            var showMe = $(this).attr("src");
+//            $(this).overlay({
+//                closeOnClick: true,
+//                left: "centered",
+//                target: '#overlay',
+//                mask: {
+//                    color: "#ddddd0",
+//                    loadSpeed: 200,
+//                    opacity: 0.5
+//                },
+//                onBeforeLoad: function() {
+//                    var wrap = $("#overlay .contentWrap");
+//                    var image = new Image();
+//                    image.src = showMe;
+//                    wrap.append(image);
+//                },
+//                onClose: function() {
+//                    $('.contentWrap').empty();
+//                }
+//            });
+//        });
+        // set media elements
+        var player = $('audio, video').mediaelementplayer({
+            enableAutosize: true,
+            defaultVideoWidth: 325,
+            defaultVideoHeight: 240,
+            videoWidth: 325,
+            videoHeight: -1,
+            audioWidth: 325,
+            audioHeight: 30,
+            plugins: ['flash','silverlight'],
+            features: ['playpause','progress','current','duration','volume','fullscreen']
+        });
+
     });
 
 </script>

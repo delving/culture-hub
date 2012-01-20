@@ -748,3 +748,11 @@ $(document).bind('click', function (e) {
     };
 
 })(jQuery);
+
+function setScrollablePageHeight(target, index){
+    $(target +  " #page_" + index).each(function(i) {
+        viewAreaHeight = $(this).outerHeight();
+        $(target).css("height", viewAreaHeight);
+        viewAreaHeight = 0;
+    });
+}
