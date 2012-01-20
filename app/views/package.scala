@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat
 import controllers.dos.ImageDisplay
 import play.mvc.Http
 import controllers.{ViewUtils, Internationalization, ViewModel}
+import play.i18n.Lang
 
 package object context extends Internationalization {
 
@@ -129,7 +130,10 @@ package object context extends Internationalization {
       case "organizations" :: orgName :: "groups" ::  "create" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("NOLINK", &("ui.label.create")))
       case "organizations" :: orgName :: "groups" ::  "update" :: id :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", &("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, &("ui.label.edit")))
       case "organizations" :: orgName :: "sip-creator" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/sip-creator", &("ui.label.sipcreator")))
-      case "organizations" :: orgName :: "site" :: Nil =>  List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", &("org.cms")))
+      case "organizations" :: orgName :: "site" :: Nil =>  List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", &("org.cms")), ("NOLINK", &("locale." + Lang.get())))
+      case "organizations" :: orgName :: "site" :: lang :: Nil =>  List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", &("org.cms")), ("NOLINK", &("locale." + lang)))
+      case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", &("org.cms")), ("/organizations/" + orgName + "/site/" + lang, &("locale." + lang)), ("NOLINK", &("org.cms.page.create")))
+      case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", &("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", &("org.cms")), ("/organizations/" + orgName + "/site/" + lang, &("locale." + lang)), ("NOLINK", &("org.cms.page.update") + " \"" + page + "\""))
 
       case user :: Nil => List(("/" + user, user))
       case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", &("thing.collections")))

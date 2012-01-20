@@ -8,6 +8,8 @@
 
 #{breadcrumbs /}
 
+#{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+
 <div class="row">
     <div class="grid_12">
         <form id="pageForm" method="post" action="">
@@ -23,7 +25,7 @@
                 <label class="label">&{'org.cms.page.menu.add'}</label>
 
                 <div class="inputs">
-                    <select name="menu" id="menu">
+                    <select name="menu" id="menu" data-bind="value: menu">
                         <option value="none">None</option>
                         <option value="mainMenu">Main menu</option>
                     </select>

@@ -35,14 +35,18 @@ import play.i18n.Lang
 object CMS extends DelvingController with OrganizationSecured {
 
   val MAIN_MENU = "mainMenu"
+  val NO_MENU = "none"
   
   implicit def cmsPageToViewModel(p: CMSPage) = {
     // for the moment we have one main menu so we can do it like this
-    val menuEntryPosition = MenuEntry.findByPageAndMenu(p.orgId, MAIN_MENU, p.key) match {
+    val menuEntryPosition = MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key) match {
       case Some(e) => e.position
       case None => MenuEntry.findEntries(p.orgId, p.theme, MAIN_MENU).length + 1
     }
-    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, menuEntryPosition)
+
+    val menu = if(MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key).isDefined) MAIN_MENU else NO_MENU
+
+    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, menuEntryPosition, menu)
   }
   implicit def cmsPageListToViewModelList(l: List[CMSPage]) = l.map(cmsPageToViewModel(_))
 
@@ -65,7 +69,7 @@ object CMS extends DelvingController with OrganizationSecured {
     def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
 
     val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
-      case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, menuEntries.length + 1), List.empty)
+      case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, menuEntries.length + 1, NO_MENU), List.empty)
       case Some(key) =>
         val versions = CMSPage.findByKey(orgId, key)
         if(versions.length == 0) return NotFound
@@ -85,7 +89,11 @@ object CMS extends DelvingController with OrganizationSecured {
 
     // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
 
-    MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang)
+    if(pageModel.menu == MAIN_MENU) {
+      MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang)
+    } else if(pageModel.menu == NO_MENU) {
+      MenuEntry.removePage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.lang)
+    }
     val page: CMSPageViewModel = CMSPage.create(orgId, theme.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content)
     
     Json(page)
@@ -94,17 +102,8 @@ object CMS extends DelvingController with OrganizationSecured {
   def pageDelete(orgId: String, key: String, language: String): Result = {
     CMSPage.delete(orgId, key, language)
 
-    // also delete menu entries that refer to that page
-    MenuEntry.findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme.name, "targetPageKey" -> key)) match {
-      case Some(entry) =>
-        val updated = entry.copy(title = entry.title - (language))
-        if(updated.title.isEmpty) {
-          MenuEntry.remove(updated)
-        } else {
-          MenuEntry.save(updated)
-        }
-      case None => // nothing
-    }
+    // also delete menu entries that refer to that page, for now only from the main menu
+    MenuEntry.removePage(orgId, theme.name, MAIN_MENU, key, language)
 
     Ok
   }
@@ -129,4 +128,5 @@ case class CMSPageViewModel(dateCreated: Long,
                             content: String, // actual page content (text)
                             isSnippet: Boolean = false, // is this a snippet in the welcome page or not
                             position: Int,
+                            menu: String,
                             errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
