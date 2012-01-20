@@ -16,9 +16,11 @@
 
 package controllers
 
-import models.{DObject, Story, UserCollection}
 import play.mvc.results.Result
 import util.Constants._
+import models.{CMSPage, DObject, Story, UserCollection}
+import play.i18n.Lang
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * 
@@ -35,6 +37,14 @@ object Application extends DelvingController {
     val recentMdrs: List[ListItem] = Search.search(None, request, theme, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, viewUtils.themeProperty("recentMdrsCount", classOf[Int]))
 
     Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs)
+  }
+  
+  def page(key: String): Result = {
+    // TODO link the themes to the organization so this also works on multi-org hubs
+    CMSPage.find(MongoDBObject("key" -> key, "lang" -> Lang.get(), "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+      case None => NotFound
+      case Some(page) => Template('page -> page)
+    }
   }
 
 }

@@ -339,16 +339,20 @@ ko.bindingHandlers.tinymce = {
         var options = allBindingsAccessor().tinymceOptions || {};
         var modelValue = valueAccessor();
 
-        //handle edits made in the editor
-        options.setup = function (ed) {
-            ed.onChange.add(function (ed, l) {
+        var handleChange = function (ed, l) {
+            if(!$(element).data("writeLock")) {
                 if (ko.isWriteableObservable(modelValue)) {
-                    $(element).data("writeLock")
                     $(element).data("writeLock", true);
                     modelValue(l.content);
                     $(element).data("writeLock", false);
                 }
-            });
+            }
+        };
+
+        //handle edits made in the editor
+        options.setup = function (ed) {
+            ed.onChange.add(handleChange);
+            ed.onSetContent.add(handleChange);
         };
 
         //handle destroying an editor (based on what jQuery plugin does)
@@ -362,8 +366,15 @@ ko.bindingHandlers.tinymce = {
         });
 
         setTimeout(function() {
-            //$(element).tinymce(options);
-            Delving.wysiwyg(options);
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            Delving.wysiwyg($.extend(options, {
+                oninit: function() {
+                    var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
+                    $(element).data("setContentLock", true);
+                    ed.setContent(value);
+                    $(element).data("setContentLock", false);
+                }
+            }));
         }, 0);
 
     },
@@ -372,7 +383,11 @@ ko.bindingHandlers.tinymce = {
         var value = ko.utils.unwrapObservable(valueAccessor());
         var ed = tinyMCE.get(element.id.replace(/_parent$/, ""));
         if(!$(element).data("writeLock")) {
-            if (typeof ed !== 'undefined') ed.setContent(value);
+            if (typeof ed !== 'undefined') {
+                $(element).data("setContentLock", true);
+                ed.setContent(value);
+                $(element).data("setContentLock", false);
+            }
         }
     }
 };
@@ -571,6 +586,9 @@ $(document).ready(function() {
     // Launch TipTip tooltip
     $('.tiptip a.button, .tiptip button').tipTip();
 
+    $('select.link').change(function(){
+       window.location.href=$(this).attr('value');
+    });
 });
 
 // Close open dropdown slider by clicking elsewhwere on page

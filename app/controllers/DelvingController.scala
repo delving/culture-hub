@@ -17,6 +17,7 @@
 package controllers
 
 import dos.StoredFile
+import organization.CMS
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
 import scala.collection.JavaConversions._
@@ -59,6 +60,14 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("organizations", u.organizations)
         renderArgs += ("email", u.email)
         renderArgs += ("isNodeAdmin", u.nodesAdmin.contains(getNode))
+
+        val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
+            "title" -> e.title(Lang.get()),
+            "page" -> e.targetPageKey.getOrElse("")))
+        ).toList
+
+        // TODO move someplace else
+        renderArgs += ("menu", mainMenuEntries)
 
 
         // refresh session parameters

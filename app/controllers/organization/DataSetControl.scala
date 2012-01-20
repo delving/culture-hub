@@ -59,7 +59,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
       }
     }
 
-    Template('spec -> Option(spec), 'isOwner -> Organization.isOwner(orgId, connectedUser), 'data -> data, 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+    Template('spec -> Option(spec), 'data -> data, 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
   }
 
   def dataSetSubmit(orgId: String, data: String): Result = {
@@ -114,7 +114,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
         }
       case None =>
         // TODO for now only owners can do
-        if(!Organization.isOwner(orgId, connectedUser)) return Forbidden("You are not allowed to create a DataSet.")
+        if(!isOwner) return Forbidden("You are not allowed to create a DataSet.")
 
         DataSet.insert(
         DataSet(
@@ -254,7 +254,7 @@ object DataSetControl extends DelvingController with OrganizationSecured {
   def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
     // TODO for now only owners can do
-    if(!Organization.isOwner(orgId, connectedUser)) return Forbidden
+    if(!isOwner) return Forbidden
     operation(dataSet)
   }
 }

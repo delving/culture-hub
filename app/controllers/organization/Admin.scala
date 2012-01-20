@@ -30,9 +30,7 @@ import models.{User, Organization}
 object Admin extends DelvingController with OrganizationSecured {
 
   @Before(priority = 2) def checkOwner(): Result = {
-    val orgId = params.get("orgId")
-    if (orgId == null || orgId.isEmpty) Error("How did you even get here?")
-    if (!Organization.isOwner(orgId, connectedUser)) return Forbidden(&("user.secured.noAccess"))
+    if (!isOwner) return Forbidden(&("user.secured.noAccess"))
     Continue
   }
 
@@ -40,7 +38,7 @@ object Admin extends DelvingController with OrganizationSecured {
     val org = Organization.findByOrgId(orgId).getOrElse(return NotFound(&("organizations.organization.orgNotFound", orgId)))
     val membersAsTokens = JJson.generate(org.users.map(m => Map("id" -> m, "name" -> m)))
     val idAndOwners = Organization.listOwnersAndId(orgId)
-    Template('members -> membersAsTokens, 'owners -> idAndOwners._2, 'ownerGroupId -> idAndOwners._1.getOrElse(""), 'isOwner -> Organization.isOwner(orgId, connectedUser))
+    Template('members -> membersAsTokens, 'owners -> idAndOwners._2, 'ownerGroupId -> idAndOwners._1.getOrElse(""))
   }
 
   /**

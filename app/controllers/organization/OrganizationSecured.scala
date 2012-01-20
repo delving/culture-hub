@@ -19,7 +19,8 @@ package controllers.organization
 import play.mvc.Before
 import play.mvc.results.Result
 import controllers.{AccessControl, DelvingController, Secure}
-import models.Organization
+import com.mongodb.casbah.commons.MongoDBObject
+import models.{Group, GrantType, Organization}
 
 /**
  *
@@ -28,14 +29,18 @@ import models.Organization
 
 trait OrganizationSecured extends Secure { self: DelvingController =>
 
-  @Before(priority = 1) def checkUser(): Result = {
+  @Before(priority = 0) def checkUser(): Result = {
     val orgId = params.get("orgId")
     if(orgId == null || orgId.isEmpty) return Error("How did you even get here?")
     val organizations = session.get(AccessControl.ORGANIZATIONS)
     if(organizations == null || organizations.isEmpty) return Forbidden(&("user.secured.noAccess"))
     if(!organizations.split(",").contains(orgId)) return Forbidden(&("user.secured.noAccess"))
     renderArgs += ("orgId" -> orgId)
+    renderArgs += ("isOwner" -> Organization.isOwner(orgId, connectedUser))
+    renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, connectedUser) || (Group.count(MongoDBObject("users" -> connectedUser, "grantType.value" -> GrantType.CMS.value)) == 0)))
     Continue
   }
+
+  def isOwner: Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
 
 }

@@ -135,8 +135,9 @@ object GrantType {
   def illegal(value: Int) = throw new IllegalArgumentException("Illegal value %s for GrantType".format(value))
   val VIEW = GrantType(0)
   val MODIFY = GrantType(10)
+  val CMS = GrantType(30)
   val OWN = GrantType(42)
-  val values: Map[Int, String] = Map(VIEW.value -> "view", MODIFY.value -> "modify", OWN.value -> "own")
+  val values: Map[Int, String] = Map(VIEW.value -> "view", MODIFY.value -> "modify", CMS.value -> "cms", OWN.value -> "own")
   def name(value: Int): String = values.get(value).getOrElse(illegal(value))
   def name(gt: GrantType): String = values.get(gt.value).getOrElse(illegal(gt.value))
   def get(value: Int) = {

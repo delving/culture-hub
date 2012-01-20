@@ -35,7 +35,7 @@ object Groups extends DelvingController with OrganizationSecured {
 
   def list(orgId: String): Result = {
     val groups = Group.list(connectedUser, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
-    Template('groups -> groups, 'isOwner -> Organization.isOwner(orgId, connectedUser))
+    Template('groups -> groups)
   }
 
   private def load(orgId: String, groupId: ObjectId): String = {
@@ -57,7 +57,7 @@ object Groups extends DelvingController with OrganizationSecured {
         (JJson.generate(group.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
-    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens, 'isOwner -> Organization.isOwner(orgId, connectedUser))
+    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
   }
 
   def addUser(orgId: String, id: String, groupId: ObjectId): Result = {
