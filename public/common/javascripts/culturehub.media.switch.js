@@ -37,7 +37,7 @@ function mediaSwitch(options) {
 
         $(this).click(function() {
 
-            $("div#" + targetId).html('').fadeOut('fast');
+            //$("div#" + targetId).fadeOut('fast');
 
             $(options.triggerElement).removeClass("active");
 
@@ -53,7 +53,8 @@ function mediaSwitch(options) {
                 html = '<video controls="controls" preload="none"><source type="' + mimeType + '" src="' + fileSrc + '"/></video>';
             }
 
-            $("div#" + targetId).html(html).fadeIn('slow');
+            $("div#" + targetId).fadeIn('slow').html(html);
+
 
             $('video, audio').mediaelementplayer({
                 enableAutosize: true,

@@ -1,5 +1,21 @@
+<!--
+  ~ Copyright 2012 Delving B.V.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <div class="fileContainer">
-    <div id="${_targetId}">
+    <div id="${_targetId}" class="file">
         #{list items: _files.headOption(), as:'file'}
         #{if file.contentType().contains('image/')}
         <img src='/file/thumbnail/${file.id()}/${_thumbWidth}' width="${_fileWidth}" alt="${_objectName}"/>
@@ -21,8 +37,8 @@
     <div id="fileNavi" class="extra">
         #{list _files, as: 'file'}
         #{if file.contentType().contains('image/') }
-        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-            <img src="/file/thumbnail/${file.id()}/80" width="80" alt=""/>
+        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+            <img src="/file/thumbnail/${file.id()}/80" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
             <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
@@ -30,8 +46,8 @@
         </a>
         #{/if}
         #{elseif file.contentType().contains('audio/') }
-        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-            <img src="@{'/public/common/images/icon_audio.png'}" width="80" alt=""/>
+        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+            <img src="@{'/public/common/images/icon_audio.png'}" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
             <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
@@ -39,8 +55,8 @@
         </a>
         #{/elseif}
         #{elseif file.contentType().contains('video/') }
-        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-            <img src="@{'/public/common/images/icon_video.png'}" width="80" alt=""/>
+        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+            <img src="@{'/public/common/images/icon_video.png'}" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="/file/image/${file.id()}"/>
             <input type="hidden" name="previewSrc" value="/file/thumbnail/${file.id()}/${_thumbWidth}"/>
