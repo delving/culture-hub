@@ -43,7 +43,7 @@ strong {
     background: none repeat scroll 0 0 #F1F1F1;
     border: 1px solid #D2D2D2;
     padding: 0px;
-    width: 100%;
+    /*width: 100%;*/
     font-size: 85%;
 
 }
