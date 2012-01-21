@@ -1,21 +1,37 @@
+
 #{if _navStyle == 'plain'}
     #{if !_userName}
-    <a href="/login" rel="nofollow" class="${'Authentication.login'.isCurrent()}"><span class="label">${messages.get('ui.label.login')}</span></a>
-    <a href="/registration" rel="nofollow" class="${'Registration.login'.isCurrent()}"><span class="label">${messages.get('ui.label.register')}</span></a>
+    <a href="/login" rel="nofollow" class="${'Authentication.login'.isCurrent()}" tabindex="1"><span class="label">${messages.get('ui.label.login')}</span></a>
+    <span class="pipe">|</span>
+    <a href="/registration" rel="nofollow" class="${'Registration.login'.isCurrent()}" tabindex="2"><span class="label">${messages.get('ui.label.register')}</span></a>
     #{/if}
     #{else}
-        <span class="user-name">
-            #{gravatar.img _email, size:26 /}
-            <span class="label">Hi ${_userName}</span>
+    <div class="user-panel">
+        <span class="user-name">#{gravatar.img _email, size:26 /}<span class="label">Hi ${_userName}</span>
         </span>
-        <a href="/${_userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a>
-        <a href="/${_userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a>
-        <a href="/${_userName}/collection"><span class="label">${messages.get('user.nav.yourcollections')}</span></a>
-        <a href="/${_userName}/story"><span class="label">${messages.get('user.nav.yourstories')}</span></a>
+        <a href="/${_userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a><span class="pipe">|</span>
+        <a href="/${_userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a><span class="pipe">|</span>
+        <a href="/${_userName}/collection"><span class="label">${messages.get('user.nav.yourcollections')}</span></a><span class="pipe">|</span>
+        <a href="/${_userName}/story"><span class="label">${messages.get('user.nav.yourstories')}</span></a><span class="pipe">|</span>
+        <a href="/logout"><span class="label">${messages.get('ui.label.logout')}</span></a>
 
-        <a href="/${_userName}/object/add"><span class="label">${messages.get('user.nav.newobject')}</span></a>
-        <a href="/${_userName}/collection/add"><span class="label">${messages.get('user.nav.newcollection')}</span></a>
-        <a href="/${_userName}/story/add"><span class="label">${messages.get('user.nav.newstory')}</span></a>
+        <div class="actions">
+            <select name="actions" class="dk link">
+                <option value="">&{'ui.label.create'}</option>
+                <option value="/${_userName}/object/add">${messages.get('user.nav.newobject')}</option>
+                <option value="/${_userName}/collection/add">${messages.get('user.nav.newcollection')}</option>
+                <option value="/${_userName}/story/add">${messages.get('user.nav.newstory')}</option>
+            </select>
+            #{if _organizations.length() > 0}
+            <select name="organizations" class="dk link">
+                <option value="">${messages.get('thing.organizations')}</option>
+                #{list _organizations, as: 'org'}
+                <option value="/organizations/${org}">${org}</option>
+                #{/list}
+            </select>
+            #{/}
+        </div>
+    </div>
     #{/else}
 #{/if}
 #{else}
