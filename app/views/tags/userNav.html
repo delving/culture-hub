@@ -1,4 +1,3 @@
-
 #{if _navStyle == 'plain'}
     #{if !_userName}
     <a href="/login" rel="nofollow" class="${'Authentication.login'.isCurrent()}" tabindex="1"><span class="label">${messages.get('ui.label.login')}</span></a>
@@ -39,7 +38,9 @@
     <div class="buttons">
         #{btnHref label: messages.get('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
         #{btnHref label: messages.get('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+        #{ifnot _showLang==false}
         #{languageSelect /}
+        #{/ifnot}
     </div>
     #{/if}
     #{else}
@@ -75,7 +76,9 @@
                 <a href="/${_userName}/story/add" class="ddm"><span class="label">${messages.get('user.nav.newstory')}</span></a>
             </div>
         </div>
+        #{ifnot _showLang==false}
         #{languageSelect /}
+        #{/ifnot}
         #{btnHref label: messages.get('ui.label.logout'), href:"/logout" /}
     </div>
     #{/else}

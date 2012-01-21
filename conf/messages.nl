@@ -518,6 +518,7 @@ org.group.grantType.modify=Modification rights
 org.group.save=Save group
 org.group.create=Create group
 
+org.cms.site.pages=Website paginas
 org.cms.page.key=Pagina sleutel
 org.cms.page.new=Nieuwe pagina
 org.cms.page.save=Bewaar pagina

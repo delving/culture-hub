@@ -537,7 +537,7 @@ org.group.grantType.cms=Site content administration rights
 org.group.save=Save group
 org.group.create=Create group
 
-org.cms=Site
+org.cms.pages=Website pages
 org.cms.page.update=Update page
 org.cms.page.create=Create new page
 org.cms.page.key=Page key
