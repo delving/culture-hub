@@ -45,7 +45,7 @@ function mediaSwitch(options) {
             $(this).addClass("active");
             var html;
             if (mimeType.match(regexImage)) {
-                html =  '<img src="/file/thumbnail/' + previewSrc + '" />';
+                html =  '<img src="/file/thumbnail/' + previewSrc + '" width="'+options.mediaWidth+'" />';
                 if(options.enlargeImage == true){
                     html += '<div class="extra"><a href="#" class="overlay-trigger" rel="#overlay" id="'+ fileSrc +'">'+jsLabels.enlargeImage+'</a></div>';
                 }

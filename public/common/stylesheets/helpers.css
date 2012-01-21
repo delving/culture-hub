@@ -150,7 +150,8 @@ button[disabled],
 
 .clip-60 {
     display: block;
-    height: 60px;
+    /*height: 60px;*/
+    height: auto;
 }
 
 .clip-80 {
@@ -661,7 +662,7 @@ div.wait {
     margin-right: 4px;
 }
 
-#fileNavi a.active {
+#fileNavi a.active img {
 		box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 		-webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 		-moz-box-shadow: 0 2px 5px rgba(0,0,0,0.75);
