@@ -1,6 +1,6 @@
-# Delving CultureHub
+# CultureHub
 
-This is the Delving CultureHub. More information at http://delving.eu
+The CultureHub is a platform that aims at making cultural objects accessible online. More information at http://delving.eu
 
 ## Getting started
 
