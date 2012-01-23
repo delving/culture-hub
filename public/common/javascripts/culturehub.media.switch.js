@@ -36,8 +36,8 @@ function mediaSwitch(options) {
         var regexVideo = /^video/;
         var regexImage = /^image/;
 
-        $(this).click(function() {
-
+        $(this).click(function(event) {
+            event.preventDefault();
             //$("div#" + targetId).fadeOut('fast');
 
             $(options.triggerElement).removeClass("active");
@@ -94,6 +94,8 @@ function mediaSwitch(options) {
                     }
                 });
             });
+
+
 
         });
     })
