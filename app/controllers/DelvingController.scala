@@ -61,21 +61,21 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         renderArgs += ("email", u.email)
         renderArgs += ("isNodeAdmin", u.nodesAdmin.contains(getNode))
 
-        val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
-            "title" -> e.title(Lang.get()),
-            "page" -> e.targetPageKey.getOrElse("")))
-        ).toList
-
-        // TODO move someplace else
-        renderArgs += ("menu", mainMenuEntries)
-
-
         // refresh session parameters
         session.put(AccessControl.ORGANIZATIONS, u.organizations.mkString(","))
         session.put(AccessControl.GROUPS, u.groups.mkString(","))
       }
       case None =>
     }
+  }
+
+  @Before(priority = 2) def setMenu() {
+    val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
+        "title" -> e.title(Lang.get()),
+        "page" -> e.targetPageKey.getOrElse("")))
+    ).toList
+
+    renderArgs += ("menu", mainMenuEntries)
   }
 
   @Before(priority = 2) def setBrowsed() {
