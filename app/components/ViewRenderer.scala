@@ -17,159 +17,183 @@
 package components
 
 import java.io.File
-import scala.collection.JavaConverters._
-import groovy.util.{Node, XmlParser}
+import groovy.util.Node
 import xml.XML
 import collection.mutable.{HashMap, ArrayBuffer}
+import groovy.xml.QName
+import collection.mutable.Stack
 
 /**
+ * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
+ *
+ * TODO: separate definition parsing and output generation
+ * TODO: complex list-s
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object ViewRenderer {
 
-  def renderView(recordDefinition: File, view: String, record: Node): List[Node] = {
+  def renderView(recordDefinition: File, view: String, record: Node): RenderNode = {
 
-    def throwUnknownElement(e: String) {
+    def throwUnknownElement(e: scala.xml.Node) {
       throw new RuntimeException("Unknown element '%s'".format(e))
     }
 
     val result = RenderNode("root")
-    
-    var current: RenderNode = result
-    
+
+    val treeStack = Stack(result)
+
     def enter(node: scala.xml.Node, nodeType: String, attr: (String, Any)*)(block: scala.xml.Node => Unit) {
+      println("Entered " + node.label)
       val entered = RenderNode(nodeType)
-      attr foreach { entered addAttr _ }
-      val previous = current
-      current += entered
-      current = entered
-      node foreach { block }
-      current = previous
+      attr foreach {
+        entered addAttr _
+      }
+      treeStack.head += entered
+      treeStack.push(entered)
+      node.child foreach {
+        n =>
+          println("Node " + n)
+          if (n.label != "#PCDATA") block(n)
+      }
+      treeStack.pop()
     }
 
-    def append(nodeType: String, attr: (String, Any)*) {
+    def append(nodeType: String, attr: (String, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType)
-      attr foreach { newNode addAttr _}
-      current += newNode
+      attr foreach {
+        newNode addAttr _
+      }
+      treeStack.head += newNode
+      treeStack.push(newNode)
+      block(newNode)
+      treeStack.pop()
     }
 
     val xml = XML.loadFile(recordDefinition)
-    (xml \ "views" \ "view").filter(_ \ "@id" == view).headOption match {
+    (xml \ "views" \ "view").filter(v => (v \ "@name").text == view).headOption match {
       case Some(viewDefinition) =>
 
-        viewDefinition foreach {
-          r => r.label match {
-            case "row" =>
-              enter(r, "row") { c =>
-                  c.label match {
-                    case "column" =>
-                      enter(c, "column", ("id" -> (c \ "@id").text)) { e => e.label match {
-                        case "field" =>
-                          // initialize field and its meta-data
-                          append("field", ("label", (c \ "@label").text), ("label", (c \ "@queryLink").text.toBoolean))
+        viewDefinition.child.iterator.filterNot(_.label == "#PCDATA") foreach {
+          r =>
+            r.label match {
+              case "row" =>
+                enter(r, "row") {
+                  c =>
+                    c.label match {
+                      case "column" =>
+                        enter(c, "column", ("id" -> (c \ "@id").text)) {
+                          e => e.label match {
+                            case "field" =>
 
-                          // fetch the field data based on the path(s)
-                          val data = fetchPaths(record, (c \ "@path").text.split(",").map(_.trim).toList)
-                          println(data)
+                              // initialize the field and its meta-data
+                              append("field",
+                                ("label", (e \ "@label").text),
+                                ("queryLink", {
+                                  val l = (e \ "@queryLink").text
+                                  if (l.isEmpty) false else l.toBoolean
+                                })) {
+                                field =>
+                                // fetch the unique field value
+                                  val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                  field += RenderNode("text", values.headOption)
+                              }
+
+                            case "list" =>
+                              append("list",
+                                ("label", (e \ "@label").text),
+                                ("queryLink", {
+                                  val l = (e \ "@queryLink").text
+                                  if (l.isEmpty) false else l.toBoolean
+                                }),
+                                ("type", (e \ "@type").text),
+                                ("separator", (e \ "@separator").text)
+                              ) {
+                                list =>
+
+                                  if (e.child.isEmpty) {
+
+                                    // first case: we have a closed list, thus assuming we only want to loop over the elements given in the list
+                                    // e.g.
+                                    //       <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
+
+                                    val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                    values foreach {
+                                      v => list += RenderNode("text", Some(v))
+                                    }
+                                  } else {
+                                    throw new RuntimeException("Complex <list> not yet implemented.")
+                                  }
 
 
-                        case "list" =>
-                        case u => throwUnknownElement(u)
-                      }
-                      
-                      }
-                      
-  
-                    case u => throwUnknownElement(u)
-                  }
-                
-              }
-            case u => throwUnknownElement(u)
-
-          }
+                              }
+                            case u => throwUnknownElement(e)
+                          }
+                        }
+                      case u => throwUnknownElement(c)
+                    }
+                }
+              case u => throwUnknownElement(r)
+            }
         }
 
       case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, recordDefinition.getAbsolutePath))
     }
 
-
-
-    List()
-
+    result
   }
 
   private def fetchPaths(rootNode: Node, paths: Seq[String]): Seq[String] = {
-    (for(path <- paths) yield {
-      // basic traversal assuming we only have single elements, or something like that
+    (for (path <- paths) yield {
+      // basic traversal assuming we only have single elements all the way, until the last element which may be multiple
       fetch(rootNode, path.split("/"), 0)
     }).flatten
   }
-  
-  private def fetch(n: Node, p: Array[String], level: Int): Option[String] = {
+
+  private def fetch(n: Node, p: Array[String], level: Int): List[String] = {
     import scala.collection.JavaConversions._
-    val t = n.children().map(_.asInstanceOf[Node]).find(_.name() == p(level)).getOrElse(return None)
-    if(level == p.length) Some(t.text()) else fetch(t, p, level + 1)
+
+    // don't we all love type-unsafe APIs?
+    val children = n.children().filter(_.isInstanceOf[Node]).map(_.asInstanceOf[Node])
+
+    if (level + 1 < p.length) {
+      val t = children.find(_.name().asInstanceOf[QName].getQualifiedName == p(level)).getOrElse(return List.empty)
+      fetch(t, p, level + 1)
+    } else {
+      children.filter(_.name().asInstanceOf[QName].getQualifiedName == p(level)).map(_.text()).toList
+    }
   }
-
-  private def testData(): Node = {
-
-    // test record, hierarchical
-    val testRecord =
-      <record>
-        <delving:summaryFields>
-          <delving:title>A test hierarchical record</delving:title>
-          <delving:description>This is a test record</delving:description>
-          <delving:creator>John Lennon</delving:creator>
-          <delving:owner>Museum of Music</delving:owner>
-        </delving:summaryFields>
-        <dc:data>
-          <dc:type>picture</dc:type>
-        </dc:data>
-        <icn:data>
-          <icn:general>
-            <icn:material>Wood</icn:material>
-            <icn:technique>Carving</icn:technique>
-          </icn:general>
-        </icn:data>
-      </record>
-
-    new XmlParser().parseText(testRecord.toString())
-  }
-  
-  
-  def main(args: String*) {
-    renderView(play.Play.getFile("conf/icn-record-definition.xml").getAbsoluteFile, "full", testData())
-  }
-  
-
 }
 
-class RenderNode(nodeType: String) {
-  
-  val contentBuffer = new ArrayBuffer[RenderNode]
-  
-  val attributes = new HashMap[String, AnyRef]
-  
+/**
+ * A node used to hold the structure to be rendered
+ */
+case class RenderNode(nodeType: String, value: Option[String] = None) {
+
+  private val contentBuffer = new ArrayBuffer[RenderNode]
+  private val attributes = new HashMap[String, Any]
+
   def content: List[RenderNode] = contentBuffer.toList
-  
-  def += (node: RenderNode) {
+
+  def +=(node: RenderNode) {
     contentBuffer += node
   }
-  
+
   def attr(key: String) = attributes(key)
+
   def addAttr(key: String, value: AnyRef) = attributes + (key -> value)
-  def addAttr(element: (String, Any)) = attributes + element
-  
-  
-  
+
+  def addAttr(element: (String, Any)) {
+    attributes += element
+  }
+
+  def text: String = value.getOrElse("")
+
+  override def toString = """
+  NodeType: %s
+  Value: %s
+  Attributes: %s
+  Content: %s
+  """.format(nodeType, value, attributes.toString(), content.map(_.nodeType))
 }
-
-object RenderNode {
-  
-  def apply(nodeType: String) = new RenderNode(nodeType)
-
-}
-
-

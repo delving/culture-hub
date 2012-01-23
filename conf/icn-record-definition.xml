@@ -151,7 +151,10 @@
         <view name="full">
             <row>
                 <column id="description">
-                    <field path="summaryFields/title" label="metadata.dc.description"/>
+                    <field path="delving:summaryFields/delving:description" label="metadata.dc.desription"/>
+                </column>
+                <column id="fields">
+                    <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
                 </column>
             </row>
         </view>
@@ -162,7 +165,7 @@
                 </column>
             </row>
             <row>
-                <column name="1">
+                <column id="1">
                     <field path="title" label="metadata.dc.title" />
                     <field label="metadata.dc.type" path="dc_type" queryLink= "true" />
                     <list label="metadata.dcterms.alternative" path="dcterms_alternative, _metadata.dcterms.alternative" listType="concatenated" separator=", " />
@@ -171,7 +174,7 @@
                     <list label="metadata.dc.subject" path="dc_subject, dcterms_temporal, dcterms_spatial, dc_coverage" listType="concatenated" separator=", " queryLink="true"  />
                     <field label="metadata.dc.source" path="dc_source" />
                 </column>
-                <column name="2">
+                <column id="2">
                    <field label="metadata.dc.creator" path="creator" queryLink="true" />
                    <field label="metadata.dc.date" path="year" queryLink="true" />
                    <field label="metadata.dc.language" path="language" />
