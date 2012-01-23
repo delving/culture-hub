@@ -19,7 +19,7 @@
         #{/if}
         #{/list}
     </div>
-    #{if _files.size() > 0}
+    #{if _files.size() > 1}
     <div id="fileNavi" class="extra">
         #{list _files, as: 'file'}
         #{if file.contentType().contains('image/') }

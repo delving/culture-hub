@@ -653,7 +653,7 @@ div.wait {
 		/*-moz-box-shadow: 0 2px 5px rgba(0,0,0,0.75);*/
 /*}*/
 .fileContainer #fileNavi {
-    margin-top: 20px;
+    margin: 20px 0;
     display: block;
 }
 
