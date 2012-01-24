@@ -4,7 +4,7 @@
 <div id="page-top">
     <div class="container container_12">
 
-        <div class="grid_3" id="primary-branding">
+        <div class="grid_4" id="primary-branding">
             <a href="@{Application.index()}">
                 <img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/>
             </a>
@@ -16,48 +16,14 @@
             </a>
         </div>
 
-        <div class="grid_9 user-nav" id="user-nav">
-
-
-
-            #{if !userName}
-            <a href="/login" tabindex="1" rel="nofollow" class="${'Authentication.login'.isCurrent()}"><span class="label">${messages.get('ui.label.login')}</span></a>
-            <span class="pipe">|</span>
-            <a href="/registration" tabindex="2" rel="nofollow" class="${'Registration.login'.isCurrent()}"><span class="label">${messages.get('ui.label.register')}</span></a>
-            #{/if}
-            #{else}
-            <div class="user-panel">
-                <span class="user-name">
-                    #{gravatar.img email, size:26 /}
-                    <span class="label">Hi ${userName}</span>
-                </span>
-                <a href="/${userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a><span class="pipe">|</span>
-                <a href="/${userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a><span class="pipe">|</span>
-                <a href="/${userName}/collection"><span class="label">${messages.get('user.nav.yourcollections')}</span></a><span class="pipe">|</span>
-                <a href="/${userName}/story"><span class="label">${messages.get('user.nav.yourstories')}</span></a><span class="pipe">|</span>
-                <a href="/logout"><span class="label">${messages.get('ui.label.logout')}</span></a>
-                <div class="actions">
-                    <select name="actions" class="dk link">
-                        <option value="">&{'ui.label.create'}</option>
-                        <option value="/${userName}/object/add">&{'user.nav.newobject'}</option>
-                        <option value="/${userName}/collection/add">&{'user.nav.newcollection'}</option>
-                        <option value="/${userName}/story/add">&{'user.nav.newstory'}</option>
-                    </select>
-                #{if organizations.length() > 0}
-                    <select name="organizations" class="dk link">
-                        <option value="">&{'thing.organizations'}</option>
-                        #{list organizations, as: 'org'}
-                        <option value="/organizations/${org}">${org}</option>
-                        #{/list}
-                    </select>
-                #{/}
-                </div>
-
-
-
-            </div>
-
-            #{/else}
+        <div class="grid_8 user-nav" id="user-nav">
+            #{userNav
+                userName: userName,
+                email:email,
+                organizations:organizations,
+                navStyle:viewUtils.themeProperty('userNavStyle'),
+                showLang:viewUtils.themeProperty('userNavLangSelect')
+            /}
         </div>
 
         <div class="grid_12" id="site-nav">

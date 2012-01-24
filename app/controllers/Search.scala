@@ -36,6 +36,7 @@ object Search extends DelvingController {
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
+  val IN_ORGANIZATION = "inOrg"
 
   def index(query: String = "*:*", page: Int = 1) = search(theme, query, page)
 
@@ -69,12 +70,18 @@ object Search extends DelvingController {
     if (response.response.getResults.size() == 0)
       return NotFound(id)
 
+    // this is a hack to be able to distinguish between userName/object/... and orgId/object/...
+    request.args.put(IN_ORGANIZATION, "yes")
+
+    if(request.headers.get("referer") != null && !request.headers.get("referer").value().contains("search")) {
+      // we're coming from someplace else then a search, remove the return to results cookie
+      session.remove(RETURN_TO_RESULTS)
+    }
+
     val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
     if (overlay) {
       Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
     } else {
-      // TODO check the request referrer header and only do perform the session lookup when coming from the result list page
-      // otherwise, clear the session cache
       val returnToUrl = if (session.contains(RETURN_TO_RESULTS)) session.get(RETURN_TO_RESULTS) else ""
       Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
     }
