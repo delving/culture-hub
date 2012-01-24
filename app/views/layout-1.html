@@ -4,7 +4,13 @@
 
 <div class="user-nav">
     <div class="container_12">
-       #{userNav userName: userName, email:email, organizations:organizations/}
+       #{userNav
+            userName: userName,
+            email:email,
+            organizations:organizations,
+            navStyle:viewUtils.themeProperty('userNavStyle'),
+            showLang:viewUtils.themeProperty('userNavLangSelect')
+        /}
     </div>
 </div>
 

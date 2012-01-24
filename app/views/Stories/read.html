@@ -19,7 +19,6 @@
 #{breadcrumbs /}
 
 <div class="row">
-
     <div class="story-wrapper">
         <div class="grid_3">
             <div class="widget">
@@ -37,104 +36,60 @@
             #{btnHref label: viewUtils.getKey('ui.label.edit'), href: "/"+story.userName+"/story/"+story._id+"/update", iconClass:"icon145", extraClass: "fright" /}
             #{/if}
         </div>
-
-        <!--<div class="grid_9">-->
-
-            <div class="story-container grid_9">
-
-                <div class="scroll-nav">
-                    <div class="pagination">
-                        <a class="prev browse">&{'story.previouspage'}</a>
-
-                        <div id="pnav">
-                            <a class="browse active">1</a>
-                            #{list story.pages, as: 'page'}
-                            <a class="browse" title="${page.title}">${page_index + 1}</a>
-                            #{/list}
-                        </div>
-                        <a class="next browse">&{'story.nextpage'}</a>
-                    </div>
-
-                </div>
-                <div class="scrollable" id="story">
-
-                    <!-- root element for the items -->
-                    <div class="items">
-
-                        <div class="page title-page" id="page_0">
-
-                            <div class="g-1of1">
-
-                                <div class="centered pam">
-                                    <h1>${story.name}</h1>
-                                    <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 220)}" width="220" alt=""/>
-
-                                    <h2>${story.userName}</h2>
-                                    <p>${story.description}</p>
-                                </div>
-
-                            </div>
-
-                        </div>
-
+        <div class="story-container grid_9">
+            <div class="scroll-nav">
+                <div class="pagination">
+                    <a class="prev browse">&{'story.previouspage'}</a>
+                    <div id="pnav">
+                        <a class="browse active">1</a>
                         #{list story.pages, as: 'page'}
-                        <div class="page pam" id="page_${page_index}">
-                            <h2>${page.title}</h2>
-
-                            <div class="page-left g-1of2">
-                                ${page.text.raw()}
-                            </div>
-                            <div class="page-right g-1of2 images">
-                                *{#{list page.objects.headOption(), as: 'o'}}*
-                                #{list page.getPageObjects(), as: 'o'}
-                                *{<img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">}*
-                                #{displayFiles files: o.files(), fileWidth:325, thumbWidth: 350, objectName: "test", targetId: o.id() /}
-                                #{/list}
-                            </div>
-
-                        </div>
+                        <a class="browse" title="${page.title}">${page_index + 1}</a>
                         #{/list}
                     </div>
-
+                    <a class="next browse">&{'story.nextpage'}</a>
                 </div>
-
             </div>
-        <!--</div>-->
+            <div class="scrollable" id="story">
+                <div class="items">
+                    <div class="page title-page" id="page_0">
+                        <div class="g-1of1">
+                            <div class="centered pam">
+                                <h1>${story.name}</h1>
+                                <img src="${views.context.package.thumbnailUrl(story.thumbnail_id, 220)}" width="220" alt=""/>
+                                <h2>${story.userName}</h2>
+                                <p>${story.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    #{list story.pages, as: 'page'}
+                    <div class="page pam" id="page_${page_index}">
+                        <h2>${page.title}</h2>
+                        <div class="page-left g-1of2">
+                            ${page.text.raw()}
+                        </div>
+                        <div class="page-right g-1of2 images">
+                            *{#{list page.objects.headOption(), as: 'o'}}*
+                            #{list page.getPageObjects(), as: 'o'}
+                            *{<img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">}*
+                            #{displayFiles files: o.files(), fileWidth:325, thumbWidth: 350, objectName: "test", targetId: o.id() /}
+                            #{/list}
+                        </div>
+                    </div>
+                    #{/list}
+                </div>
+            </div>
+        </div>
     </div>
-
 </div>
-<!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
     <div class="contentWrap"></div>
 </div>
-<script>
+<script type="text/javascript" language="javascript">
     $(function () {
         mediaSwitch({
             'triggerElement' : '.thumbNav',
             'mediaWidth'     : '325'
         });
-//        $(".images").find("img").each(function(index) {
-//            var showMe = $(this).attr("src");
-//            $(this).overlay({
-//                closeOnClick: true,
-//                left: "centered",
-//                target: '#overlay',
-//                mask: {
-//                    color: "#ddddd0",
-//                    loadSpeed: 200,
-//                    opacity: 0.5
-//                },
-//                onBeforeLoad: function() {
-//                    var wrap = $("#overlay .contentWrap");
-//                    var image = new Image();
-//                    image.src = showMe;
-//                    wrap.append(image);
-//                },
-//                onClose: function() {
-//                    $('.contentWrap').empty();
-//                }
-//            });
-//        });
         // set media elements
         var player = $('audio, video').mediaelementplayer({
             enableAutosize: true,
@@ -147,7 +102,5 @@
             plugins: ['flash','silverlight'],
             features: ['playpause','progress','current','duration','volume','fullscreen']
         });
-
     });
-
 </script>

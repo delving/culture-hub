@@ -154,10 +154,17 @@ object DObjects extends DelvingController with UserSecured {
           controllers.dos.FileUpload.markFilesAttached(uid, id)
 
           // activate thumbnails
-          val thumbnailId = activateThumbnail(id, objectModel.selectedFile) match {
-            case Some(thumb) => DObject.updateThumbnail(id, thumb); Some(id)
+          val thumbnailFileId = activateThumbnail(id, objectModel.selectedFile) match {
+            case Some(fid) => DObject.updateThumbnail(id, fid); Some(fid)
             case None => None
           }
+          if(thumbnailFileId.isDefined) {
+            // re-order the files so that the selected thumbnail is the first one
+            val updatedUpdatedObject = DObject.findOneByID(updatedObject._id).get
+            val last = updatedUpdatedObject.copy(files = updatedUpdatedObject.files.sortWith((a, b) => a.id == thumbnailFileId.get))
+            DObject.save(last)
+          }
+
 
           // re-query that damn thing
           val updatedUpdatedObject = DObject.findOneByID(updatedObject._id).get

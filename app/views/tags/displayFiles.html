@@ -19,11 +19,11 @@
         #{/if}
         #{/list}
     </div>
-    #{if _files.size() > 0}
+    #{if _files.size() > 1}
     <div id="fileNavi" class="extra">
         #{list _files, as: 'file'}
         #{if file.contentType().contains('image/') }
-        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
             <img src="/file/thumbnail/${file.id()}/80" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="${file.id()}"/>
@@ -32,7 +32,7 @@
         </a>
         #{/if}
         #{elseif file.contentType().contains('audio/') }
-        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
             <img src="@{'/public/common/images/icon_audio.png'}" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="${file.id()}"/>
@@ -41,7 +41,7 @@
         </a>
         #{/elseif}
         #{elseif file.contentType().contains('video/') }
-        <a class="thumbNav clip clip-60 #{if file_isFirst}active #{/if}" href="#">
+        <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
             <img src="@{'/public/common/images/icon_video.png'}" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="${file.id()}"/>
