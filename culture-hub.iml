@@ -17,6 +17,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/modules/common-1.1/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/modules/dos-1.4.1/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/dos-1.4.2/app" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />

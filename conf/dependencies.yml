@@ -3,7 +3,7 @@
 require:
     - play
     - delving -> common 1.1
-    - delving -> dos 1.4.1
+    - delving -> dos 1.4.2
     - delving -> scala 0.9.1_20111028
     - delving -> press 1.0.24.P1
     - play -> gravatar 1.0.2

@@ -56,7 +56,7 @@ object DObjects extends DelvingController with UserSecured {
           anObject.visibility.value,
           anObject.flattenLinksWithIds(Link.LinkType.PARTOF, USERCOLLECTION_ID).map(_._2),
           availableCollections,
-          anObject.files map {f => FileUploadResponse(name = f.name, size = f.length, url = "/file/" + f.id, thumbnail_url = f.thumbnailUrl, delete_url = "/file/" + f.id, selected = Some(f.id) == anObject.thumbnail_file_id, id = f.id.toString)},
+          anObject.files map { f => f.asFileUploadResponse(Some(_) == anObject.thumbnail_file_id) },
           anObject.thumbnail_file_id.toString)
           val generated: String = JJson.generate[ObjectModel](model)
           generated

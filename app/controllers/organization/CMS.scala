@@ -26,6 +26,7 @@ import controllers.{ViewModel, DelvingController}
 import models._
 import play.data.validation.Validation
 import play.i18n.Lang
+import play.libs.Codec
 
 /**
  *
@@ -63,6 +64,42 @@ object CMS extends DelvingController with OrganizationSecured {
     val pages = CMSPage.list(orgId, lang)
     Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang)
   }
+
+  def upload(orgId: String): Result = {
+
+    Organization.findByOrgId(orgId).map {
+      o =>
+        def notSelected(id: ObjectId) = false
+        val files = controllers.dos.FileStore.getFilesForItemId(o._id).map(_.asFileUploadResponse(notSelected))
+        return Template('uid -> Codec.UUID(), 'files -> JJson.generate(files))
+    }
+    NotFound
+  }
+
+  def uploadSubmit(orgId: String, uid: String): Result = {
+
+    // use the organization object ID to link the files. we later maybe more lax in the DoS and allow the orgId to be used
+    Organization.findByOrgId(orgId).map {
+      o => controllers.dos.FileUpload.markFilesAttached(uid, o._id)
+    }
+
+    Redirect("/organizations/%s/site/upload".format(orgId))
+  }
+
+  def listImages(orgId: String): Result = {
+    Organization.findByOrgId(orgId).map {
+      o =>
+        val images = controllers.dos.FileStore.getFilesForItemId(o._id).filter(_.contentType.contains("image"))
+
+        // tinyMCE stoopidity
+        val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
+
+        response.contentType = "text/html"
+        return Text(javascript)
+    }
+    Text()
+  }
+
   
   def page(orgId: String, language: String, page: Option[String]): Result = {
 

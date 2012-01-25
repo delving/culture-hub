@@ -19,7 +19,7 @@
             #{populatedSelectField options: themes, name:"theme", label:viewUtils.getKey('ui.label.theme'), dataBind:"value: theme", required: true /}
             #{populatedSelectField options: languages, name:"lang", label:viewUtils.getKey('ui.label.language'), dataBind:"value: lang", required: true /}
             #{textField name:"title", label:viewUtils.getKey('thing.title'), dataBind:"value: title", required: true /}
-            #{textArea name:"pageContent", extraClass:"mceEditor", label:viewUtils.getKey('thing.content'), dataBind:"tinymce: content", required: true /}
+            #{textArea name:"pageContent", extraClass:"mceEditor", label:viewUtils.getKey('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
 
             <div class="field">
                 <label class="label">&{'org.cms.page.menu.add'}</label>

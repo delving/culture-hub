@@ -106,7 +106,7 @@
       });
 
       $.tmpl($('#simpleUploadFileTemplate')).appendTo('#fileupload');
-      initUploadWidget();
+      initUploadWidget(true);
       $('#fileupload').fileupload({
           url: '@{user.FileUpload.uploadFile(uid)}',
           autoUpload: true
