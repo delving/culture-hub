@@ -23,9 +23,9 @@
 
                     <div class="inputs">
                         <select id="grantType" name="grantType" data-bind="value: grantType">
-                            <option value="${models.GrantType.VIEW().key}">&{'org.group.grantType.view'}</option>
-                            <option value="${models.GrantType.MODIFY().key}">&{'org.group.grantType.modify'}</option>
-                            <option value="${models.GrantType.CMS().key}">&{'org.group.grantType.cms'}</option>
+                            #{list grantTypes, as: 'gt'}
+                            <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
+                            #{/list}
                         </select>
                         <span class="error">${views.context.package.showError('grantType')}</span>
                         <span class="help"><strong>&{'ui.label.required'}</strong></span>

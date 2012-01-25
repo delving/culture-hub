@@ -130,14 +130,30 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
 
 }
 
-case class GrantType(key: String)
+case class GrantType(key: String, description: String, origin: String = "System")
 object GrantType {
+
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))
-  val VIEW = GrantType("view")
-  val MODIFY = GrantType("modify")
-  val CMS = GrantType("cms")
-  val OWN = GrantType("own")
+
+  def description(key: String) = play.i18n.Messages.get("org.group.grantType." + key)
+
+  val VIEW = GrantType("view", description("view"))
+  val MODIFY = GrantType("modify", description("modify"))
+  val CMS = GrantType("cms", description("cms"))
+  val OWN = GrantType("own", description("own"))
   
-  def get(grantType: String) = List(VIEW, MODIFY, CMS, OWN).find(_.key == grantType).getOrElse(illegal(grantType))
+  val systemGrantTypes = List(VIEW, MODIFY, CMS, OWN)
+
+  def dynamicGrantTypes = RecordDefinition.recordDefinitions.map(_.roles).flatten
+
+  val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
+
+  def allGrantTypes = if(play.Play.mode == play.Play.Mode.DEV) {
+    (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
+  } else {
+    cachedGrantTypes
+  }
+  
+  def get(grantType: String) = allGrantTypes.find(_.key == grantType).getOrElse(illegal(grantType))
   
 }

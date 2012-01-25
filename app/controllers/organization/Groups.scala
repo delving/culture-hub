@@ -57,7 +57,7 @@ object Groups extends DelvingController with OrganizationSecured {
         (JJson.generate(group.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
     }
     renderArgs += ("viewModel", classOf[GroupViewModel])
-    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens)
+    Template('id -> Option(groupId), 'data -> load(orgId, groupId), 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens, 'grantTypes -> GrantType.allGrantTypes.filterNot(_ == GrantType.OWN))
   }
 
   def addUser(orgId: String, id: String, groupId: ObjectId): Result = {

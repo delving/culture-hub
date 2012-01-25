@@ -28,7 +28,7 @@ isOwner: isOwner/}
             #{/if}
             #{else}
             <li>
-                <strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.' + group.grantType} &{'org.list.dataSetCount', group.dataSets.size()}#{if isOwner}
+                <strong>${group.name}</strong> - &{'org.list.memberCount', group.users.size()}#{if isOwner}
                 <a href="/organizations/${orgId}/groups/update/${group._id}">Edit</a>#{/if}
             </li>
             #{/else}

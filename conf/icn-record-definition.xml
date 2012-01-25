@@ -147,6 +147,12 @@
         <field prefix="delving" localName="fullTextObjectUrl" fieldType="string"/>
         <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
     </root>
+
+    <roles>
+        <role key="administrator" description="Administrator rights" />
+        <role key="blabla" description="Blabla rights" />
+    </roles>
+
     <views>
         <view name="full">
             <row>
@@ -155,6 +161,7 @@
                 </column>
                 <column id="fields">
                     <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
+                    <field path="icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
                 </column>
             </row>
         </view>
