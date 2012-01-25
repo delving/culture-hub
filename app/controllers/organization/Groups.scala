@@ -43,7 +43,7 @@ object Groups extends DelvingController with OrganizationSecured {
       case null => JJson.generate(GroupViewModel())
       case id: ObjectId => Group.findOneByID(id) match {
         case None => ""
-        case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType.value, canChangeGrantType = group.grantType.value != 42))
+        case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != GrantType.OWN.key))
       }
     }
   }
@@ -117,7 +117,7 @@ object Groups extends DelvingController with OrganizationSecured {
 
     val persisted = groupModel.id match {
       case None =>
-        Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType)) match {
+        Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType.key)) match {
           case None => None
           case Some(id) =>
             groupModel.users.foreach(u => Group.addUser(u.id, id))
@@ -129,7 +129,7 @@ object Groups extends DelvingController with OrganizationSecured {
           case None => return NotFound("Group with ID %s was not found".format(id))
           case Some(g) =>
             g.grantType match {
-              case GrantType.OWN => // do nothing
+              case GrantType.OWN.key => // do nothing
               case _ => Group.updateGroupInfo(id, groupModel.name, grantType)
             }
             Some(groupModel)
@@ -154,7 +154,7 @@ object Groups extends DelvingController with OrganizationSecured {
 
 case class GroupViewModel(id: Option[ObjectId] = None,
                           @Required name: String = "",
-                          grantType: Int = GrantType.VIEW.value,
+                          grantType: String = GrantType.VIEW.key,
                           canChangeGrantType: Boolean = true,
                           users: List[Token] = List.empty[Token],
                           dataSets: List[Token] = List.empty[Token],

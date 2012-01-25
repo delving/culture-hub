@@ -23,9 +23,9 @@
 
                     <div class="inputs">
                         <select id="grantType" name="grantType" data-bind="value: grantType">
-                            <option value="${models.GrantType.VIEW().value}">&{'org.group.grantType.view'}</option>
-                            <option value="${models.GrantType.MODIFY().value}">&{'org.group.grantType.modify'}</option>
-                            <option value="${models.GrantType.CMS().value}">&{'org.group.grantType.cms'}</option>
+                            <option value="${models.GrantType.VIEW().key}">&{'org.group.grantType.view'}</option>
+                            <option value="${models.GrantType.MODIFY().key}">&{'org.group.grantType.modify'}</option>
+                            <option value="${models.GrantType.CMS().key}">&{'org.group.grantType.cms'}</option>
                         </select>
                         <span class="error">${views.context.package.showError('grantType')}</span>
                         <span class="help"><strong>&{'ui.label.required'}</strong></span>
@@ -47,7 +47,7 @@
 
                 </div>
 
-                <div class="field" data-bind="visible: canChangeGrantType && grantType() <= 10">
+                <div class="field" data-bind="visible: canChangeGrantType && (grantType() == 'view' || grantType() == 'modify')">
                     <label class="label" for="datasets">&{'thing.datasets'}</label>
 
                     <div class="inputs">

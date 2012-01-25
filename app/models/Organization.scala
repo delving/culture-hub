@@ -43,9 +43,9 @@ object Organization extends SalatDAO[Organization, ObjectId](organizationCollect
   }
 
   def findByOrgId(orgId: String) = Organization.findOne(MongoDBObject("orgId" -> orgId))
-  def isOwner(orgId: String, userName: String) = Group.count(MongoDBObject("orgId" -> orgId, "users" -> userName, "grantType.value" -> GrantType.OWN.value)) > 0
+  def isOwner(orgId: String, userName: String) = Group.count(MongoDBObject("orgId" -> orgId, "users" -> userName, "grantType" -> GrantType.OWN.key)) > 0
 
-  def listOwnersAndId(orgId: String) = Group.findOne(MongoDBObject("orgId" -> orgId, "grantType.value" -> GrantType.OWN.value)) match {
+  def listOwnersAndId(orgId: String) = Group.findOne(MongoDBObject("orgId" -> orgId, "grantType" -> GrantType.OWN.key)) match {
     case Some(g) => (Some(g._id), g.users)
     case None => (None, List())
   }
@@ -80,7 +80,7 @@ case class Group(_id: ObjectId = new ObjectId,
                  node: String,
                  name: String,
                  orgId: String,
-                 grantType: GrantType,
+                 grantType: String,
                  dataSets: List[ObjectId] = List.empty[ObjectId],
                  users: List[String] = List.empty[String])
 
@@ -124,25 +124,20 @@ object Group extends SalatDAO[Group, ObjectId](groupCollection) {
   }
 
   def updateGroupInfo(groupId: ObjectId, name: String, grantType: GrantType): Boolean = {
-    Group.update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType.value" -> grantType.value))
+    Group.update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType" -> grantType.key))
     true
   }
 
 }
 
-case class GrantType(value: Int)
+case class GrantType(key: String)
 object GrantType {
-  def illegal(value: Int) = throw new IllegalArgumentException("Illegal value %s for GrantType".format(value))
-  val VIEW = GrantType(0)
-  val MODIFY = GrantType(10)
-  val CMS = GrantType(30)
-  val OWN = GrantType(42)
-  val values: Map[Int, String] = Map(VIEW.value -> "view", MODIFY.value -> "modify", CMS.value -> "cms", OWN.value -> "own")
-  def name(value: Int): String = values.get(value).getOrElse(illegal(value))
-  def name(gt: GrantType): String = values.get(gt.value).getOrElse(illegal(gt.value))
-  def get(value: Int) = {
-    if(!values.contains(value)) illegal(value)
-    GrantType(value)
-  }
-
+  def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))
+  val VIEW = GrantType("view")
+  val MODIFY = GrantType("modify")
+  val CMS = GrantType("cms")
+  val OWN = GrantType("own")
+  
+  def get(grantType: String) = List(VIEW, MODIFY, CMS, OWN).find(_.key == grantType).getOrElse(illegal(grantType))
+  
 }
