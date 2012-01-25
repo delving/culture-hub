@@ -22,6 +22,7 @@ import xml.XML
 import collection.mutable.{HashMap, ArrayBuffer}
 import groovy.xml.QName
 import collection.mutable.Stack
+import models.GrantType
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -34,11 +35,13 @@ import collection.mutable.Stack
 
 object ViewRenderer {
 
-  def renderView(recordDefinition: File, view: String, record: Node): RenderNode = {
+  def renderView(recordDefinition: File, view: String, record: Node, userGrantTypes: List[GrantType]): RenderNode = {
 
     def throwUnknownElement(e: scala.xml.Node) {
       throw new RuntimeException("Unknown element '%s'".format(e))
     }
+
+    val prefix = recordDefinition.getName.substring(0, recordDefinition.getName.indexOf("-"))
 
     val result = RenderNode("root")
 
@@ -70,6 +73,8 @@ object ViewRenderer {
       block(newNode)
       treeStack.pop()
     }
+    
+    def hasAccess(roles: Array[String]) = roles.isEmpty || userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")
 
     val xml = XML.loadFile(recordDefinition)
     (xml \ "views" \ "view").filter(v => (v \ "@name").text == view).headOption match {
@@ -87,46 +92,53 @@ object ViewRenderer {
                           e => e.label match {
                             case "field" =>
 
-                              // initialize the field and its meta-data
-                              append("field",
-                                ("label", (e \ "@label").text),
-                                ("queryLink", {
-                                  val l = (e \ "@queryLink").text
-                                  if (l.isEmpty) false else l.toBoolean
-                                })) {
-                                field =>
-                                // fetch the unique field value
-                                  val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
-                                  field += RenderNode("text", values.headOption)
+                              if(hasAccess((e \ "@role").text.split(",").map(_.trim).filterNot(_.isEmpty))) {
+
+                                // initialize the field and its meta-data
+                                append("field",
+                                  ("label", (e \ "@label").text),
+                                  ("queryLink", {
+                                    val l = (e \ "@queryLink").text
+                                    if (l.isEmpty) false else l.toBoolean
+                                  })) {
+                                  field =>
+                                  // fetch the unique field value
+                                    val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                    field += RenderNode("text", values.headOption)
+                                }
                               }
 
                             case "list" =>
-                              append("list",
-                                ("label", (e \ "@label").text),
-                                ("queryLink", {
-                                  val l = (e \ "@queryLink").text
-                                  if (l.isEmpty) false else l.toBoolean
-                                }),
-                                ("type", (e \ "@type").text),
-                                ("separator", (e \ "@separator").text)
-                              ) {
-                                list =>
 
-                                  if (e.child.isEmpty) {
+                              if(hasAccess((e \ "@role").text.split(",").map(_.trim).filterNot(_.isEmpty))) {
 
-                                    // first case: we have a closed list, thus assuming we only want to loop over the elements given in the list
-                                    // e.g.
-                                    //       <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
+                                append("list",
+                                  ("label", (e \ "@label").text),
+                                  ("queryLink", {
+                                    val l = (e \ "@queryLink").text
+                                    if (l.isEmpty) false else l.toBoolean
+                                  }),
+                                  ("type", (e \ "@type").text),
+                                  ("separator", (e \ "@separator").text)
+                                ) {
+                                  list =>
 
-                                    val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
-                                    values foreach {
-                                      v => list += RenderNode("text", Some(v))
+                                    if (e.child.isEmpty) {
+
+                                      // first case: we have a closed list, thus assuming we only want to loop over the elements given in the list
+                                      // e.g.
+                                      //       <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
+
+                                      val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                      values foreach {
+                                        v => list += RenderNode("text", Some(v))
+                                      }
+                                    } else {
+                                      throw new RuntimeException("Complex <list> not yet implemented.")
                                     }
-                                  } else {
-                                    throw new RuntimeException("Complex <list> not yet implemented.")
-                                  }
 
 
+                                }
                               }
                             case u => throwUnknownElement(e)
                           }

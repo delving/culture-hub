@@ -157,7 +157,7 @@
         <view name="full">
             <row>
                 <column id="description">
-                    <field path="delving:summaryFields/delving:description" label="metadata.dc.desription"/>
+                    <field path="delving:summaryFields/delving:description" label="metadata.dc.description"/>
                 </column>
                 <column id="fields">
                     <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
