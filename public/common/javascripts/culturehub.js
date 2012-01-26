@@ -525,7 +525,7 @@ Delving.wysiwyg = function (params) {
         theme_advanced_toolbar_align: "left",
         height : "320",
         plugins: "advimage,autoresize",
-        external_image_list_url: 'http://localhost:9000/organizations/' + params.orgId + '/site/listImages',
+        external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]"
     };
 
