@@ -65,7 +65,7 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   override def getMimeType = files.headOption match {
     case Some(o) => o.contentType
-    case None => "unknown/unknown"
+    case None => super.getMimeType
   }
 }
 
