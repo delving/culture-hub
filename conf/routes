@@ -167,11 +167,15 @@ DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                org
 POST       /organizations/{orgId}/groups/{groupId}/addDataset                organization.Groups.addDataset
 DELETE     /organizations/{orgId}/groups/{groupId}/removeDataset             organization.Groups.removeDataset
 
-GET         /organizations/{orgId}/site/?{language}?                          organization.CMS.list
+GET         /organizations/{orgId}/site/upload                               organization.CMS.upload
+POST        /organizations/{orgId}/site/upload/{uid}                         organization.CMS.uploadSubmit
+GET         /organizations/{orgId}/site/listImages                           organization.CMS.listImages
+GET         /organizations/{orgId}/site/?{language}?                         organization.CMS.list
 GET         /organizations/{orgId}/site/{language}/page/add                  organization.CMS.page
 GET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
 POST        /organizations/{orgId}/site/page                                 organization.CMS.pageSubmit
 DELETE      /organizations/{orgId}/site/{language}/page/{key}                organization.CMS.pageDelete
+
 
 GET         /organizations/{orgId}/dataset/?                                 organization.DataSets.list
 GET         /organizations/{orgId}/dataset/add                               organization.DataSetControl.dataSet

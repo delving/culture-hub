@@ -519,11 +519,14 @@ Delving.wysiwyg = function (params) {
         fix_content_duplication: false,
         fix_list_elements: true,
         valid_child_elements: "ul[li],ol[li]",
-        theme_advanced_buttons1: "bold,italic,underline,justifyleft,justifycenter,justifyright,bullist,numlist,link,formatselect,code",
+        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source",
         theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
         theme_advanced_toolbar_align: "left",
-        height : "320"
+        height : "320",
+        plugins: "advimage,autoresize",
+        external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
+        extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]"
     };
 
     // Overwrite default params with user-passed ones.

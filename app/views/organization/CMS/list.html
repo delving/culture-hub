@@ -19,6 +19,7 @@
                     <option value="${option._1}" #{if currentLanguage == option._1} selected#{/}>${option._2}</option>
                     #{/list}
                 </select>
+                #{btnHref label: messages.get('org.cms.upload'), iconClass:"icon3", extraClass:"fright", href:"/organizations/"+orgId+"/site/upload" /}
                 #{btnHref label: messages.get('org.cms.page.new'), iconClass:"icon3", extraClass:"fright", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
         </div>
 
