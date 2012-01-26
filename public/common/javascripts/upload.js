@@ -1,7 +1,7 @@
 /**
  * Initialize the jQuery File Upload widget:
  */
-function initUploadWidget() {
+function initUploadWidget(selectableItems) {
     $.widget('blueimpUIX.fileupload', $.blueimpUI.fileupload, {
 
         options: {
@@ -21,7 +21,7 @@ function initUploadWidget() {
                 file = that._uploadTemplateHelper(file);
                 var row = $('<tr class="template-upload">' +
                         '<td class="preview"></td>' +
-                        '<td class="selected"></td>' +
+                        (selectableItems ? '<td class="selected"></td>' : '') +
                         '<td class="name"></td>' +
                         '<td class="size"></td>' +
                         (file.error ?
@@ -33,12 +33,14 @@ function initUploadWidget() {
                         '<td class="cancel"><button>Cancel</button></td>' +
                         '</tr>');
                 row.find('.name').text(file.name);
-                row.find('selected').append('<input type="radio">');
+                if(selectableItems) {
+                    row.find('selected').append('<input type="radio">');
+                }
                 row.find('.size').text(file.sizef);
                 if (file.error) {
                     row.addClass('ui-state-error');
                     row.find('.error').text(
-                            that.options.errorMessages[file.error] || file.error
+                        that.options.errorMessages[file.error] || file.error
                     );
                 }
                 rows = rows.add(row);
@@ -53,13 +55,13 @@ function initUploadWidget() {
                 file = that._downloadTemplateHelper(file);
                 var row = $('<tr class="template-download">' +
                         (file.error ?
-                                '<td></td>' +
+                                        '<td></td>' +
                                         '<td class="name"></td>' +
                                         '<td class="size"></td>' +
                                         '<td class="error" colspan="2"></td>'
                                 :
                                 '<td class="id" style="display: none;"></td>' +
-                                '<td class="selected"></td>' +
+                                (selectableItems ? '<td class="selected"></td>' : '') +
                                 '<td class="preview"></td>' +
                                 '<td class="name"><a></a></td>' +
                                 '<td class="size"></td>' +
@@ -72,7 +74,7 @@ function initUploadWidget() {
                     row.find('.name').text(file.name);
                     row.addClass('ui-state-error');
                     row.find('.error').text(
-                            that.options.errorMessages[file.error] || file.error
+                        that.options.errorMessages[file.error] || file.error
                     );
                 } else {
                     row.find('.name a').text(file.name);
@@ -83,7 +85,9 @@ function initUploadWidget() {
                     }
                     var selected = file.selected || files.length == 1;
                     row.find('.id').html(file.id);
-                    row.find('.selected').append('<input type="radio" />').find('input').prop('checked', selected).attr('name', 'files');
+                    if(selectableItems) {
+                        row.find('.selected').append('<input type="radio" />').find('input').prop('checked', selected).attr('name', 'files');
+                    }
                     row.find('a').prop('href', file.url);
                     row.find('.delete button')
                             .attr('data-type', file.delete_type)
