@@ -148,11 +148,13 @@
         <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
     </root>
 
+    <!-- Role definitions that can be used in view definitions -->
     <roles>
         <role key="administrator" description="Administrator rights" />
-        <role key="blabla" description="Blabla rights" />
+        <role key="testRole" description="Test rights" />
     </roles>
 
+    <!-- View definitions-->
     <views>
         <view name="full">
             <row>
