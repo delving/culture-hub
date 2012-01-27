@@ -518,16 +518,20 @@ org.group.grantType.modify=Modification rights
 org.group.save=Save group
 org.group.create=Create group
 
-org.cms.site.pages=Website paginas
+org.cms=Website paginas
 org.cms.page.key=Pagina sleutel
 org.cms.page.new=Nieuwe pagina
 org.cms.page.save=Bewaar pagina
 org.cms.page.menu.add=Voeg toe aan menu
 org.cms.page.menu.position=Positie in menu
 org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 3 tot 15 characters lang.
+org.cms.page.list=Pagina lijst
 org.cms.list.languageSwitch=Bekijk paginas in
 org.cms.list.deletePage=Verwijder pagina
 org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+org.cms.upload=Bestand uploaden
+org.cms.upload.image=Plaatje uploaden
+org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
 
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?

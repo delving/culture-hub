@@ -47,6 +47,7 @@ object Constants {
 
   // ~~~ special indexing fields
   val COLLECTIONS = "delving_userCollections"
+  val MIMETYPE = "delving_mimeType"
 
   // ~~~ "the guys" for access
   val TITLE = SummaryField.TITLE.tag

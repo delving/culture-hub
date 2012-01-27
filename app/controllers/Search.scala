@@ -111,7 +111,8 @@ object Search extends DelvingController {
         thumbnailUrl = Some(bd.getThumbnailUri(220)),
         userName = bd.getOwnerId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri))
+        url = bd.getUri,
+        mimeType = bd.getMimeType))
 
     (items, briefItemView.pagination.getNumFound)
   }

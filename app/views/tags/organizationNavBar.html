@@ -6,7 +6,7 @@
         #{/if}
         #{btnHref label: messages.get('thing.groups'), extraClass: (_active == 'groups' ? "on" : ""), iconClass:"icon204", href:"/organizations/" + _orgId + "/groups" /}
         #{btnHref label: messages.get('thing.datasets'), extraClass: (_active == 'datasets' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/dataset" /}
-        #{btnHref label: messages.get('org.cms.pages'), extraClass: (_active == 'site' ? "on" : "") , iconClass:"icon96", href:"/organizations/" + _orgId + "/site" /}
+        #{btnHref label: messages.get('org.cms'), extraClass: (_active == 'site' ? "on" : "") , iconClass:"icon96", href:"/organizations/" + _orgId + "/site" /}
 
         #{if _extraButtons}
            #{list _extraButtons, as:'button'}

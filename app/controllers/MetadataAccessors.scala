@@ -76,7 +76,10 @@ abstract class MetadataAccessors extends Universal {
       case _ => thumbnailUrl(None, size)
     }
   }
-  def getMimeType: String = "unknown/unknown"
+  def getMimeType: String = assign(MIMETYPE) match {
+    case t if t.trim().length() > 0 => t
+    case _ => "unknown/unknown"
+  }
 
   def hasDigitalObject = assign(THUMBNAIL) match {
     case url if url.trim().length() > 0 => true

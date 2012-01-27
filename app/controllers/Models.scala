@@ -47,6 +47,7 @@ case class ListItem(id: String,
                     description: String = "",
                     thumbnailId: Option[ObjectId] = None,
                     thumbnailUrl: Option[String] = None,
+                    mimeType: String = "unknown/unknown",
                     userName: String,
                     isPrivate: Boolean,
                     url: String) extends Universal {
@@ -70,11 +71,11 @@ case class ListItem(id: String,
   def getLandingPage = url
   def getThumbnailUri = thumbnail(100)
   def getThumbnailUri(size: Int) = thumbnail(size)
-  def getMimeType = "unknown/unknown"
+  def getMimeType = mimeType
   def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }
 
-case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String, files: Seq[StoredFile] = Seq.empty[StoredFile])
+case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String, files: Seq[StoredFile] = Seq.empty[StoredFile], mimeType: String = "unknown/unknown")
 
 // ~~ reference objects
 

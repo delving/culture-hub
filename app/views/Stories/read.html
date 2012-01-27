@@ -70,8 +70,12 @@
                         <div class="page-right g-1of2 images">
                             *{#{list page.objects.headOption(), as: 'o'}}*
                             #{list page.getPageObjects(), as: 'o'}
-                            *{<img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">}*
-                            #{displayFiles files: o.files(), fileWidth:325, thumbWidth: 350, objectName: "test", targetId: o.id() /}
+                            #{if o.hubType == 'mdr'}
+                                <img src="${o.thumbnail()}" id="img_${o_index}" width="325" alt="${page.title}">
+                            #{/}
+                            #{else}
+                                #{displayFiles files: o.files(), fileWidth:325, thumbWidth: 350, objectName: "test", targetId: o.id() /}
+                            #{/}
                             #{/list}
                         </div>
                     </div>

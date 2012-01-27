@@ -106,6 +106,7 @@ trait Thing extends Base with Universal {
     doc addField (OWNER, userName)
     doc addField (CREATOR, userName)
     doc addField ("europeana_provider_single", userName) // TODO remove?
+    doc addField (MIMETYPE, getMimeType)
     doc addField (DESCRIPTION, description)
     doc addField (TITLE, name)
     if (thumbnail_id != None) {

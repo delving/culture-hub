@@ -432,7 +432,7 @@ div.dropdown-slider .ddm.heading {
 
 /* RESULT / BROWSE LIST CAPTIONS / THING-CONTAINER ************************************************************************/
 .thing-container {
-    background: #222;
+    /*background: #222;*/
     margin-bottom: 10px;
 }
 .thing-container.no-image {
@@ -447,17 +447,24 @@ div.dropdown-slider .ddm.heading {
 .ic_container {
     vertical-align: baseline;
     position: relative;
+    text-align: center;
     /*min-height: 200px !important;*/
     /*margin-bottom: 10px;*/
 }
 
 .ic_container img {
     height: auto;
+
 }
 
 .ic_container bd {
     margin: 0;
     padding: 0;
+    text-align: left;
+}
+
+.ic_caption {
+    text-align: left;
 }
 
 .overlay {
