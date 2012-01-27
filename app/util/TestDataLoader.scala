@@ -69,7 +69,7 @@ trait TestDataGeneric extends TestData {
   // all users are in delving
   User.find(MongoDBObject()).foreach(u => Organization.addUser("delving", u.userName))
 
-  val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN)
+  val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN.key)
   val delvingOwnersId = Group.insert(delvingOwners)
 
   // bob is an owner

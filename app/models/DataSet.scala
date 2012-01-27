@@ -200,7 +200,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     Organization.isOwner(ds.orgId, userName) || Group.count(MongoDBObject(
       "dataSets" -> ds._id,
       "users" -> userName,
-      "grantType.value" -> GrantType.MODIFY.value)
+      "grantType" -> GrantType.MODIFY.key)
     ) > 0
   }
 

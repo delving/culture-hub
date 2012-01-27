@@ -37,7 +37,7 @@ trait OrganizationSecured extends Secure { self: DelvingController =>
     if(!organizations.split(",").contains(orgId)) return Forbidden(&("user.secured.noAccess"))
     renderArgs += ("orgId" -> orgId)
     renderArgs += ("isOwner" -> Organization.isOwner(orgId, connectedUser))
-    renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, connectedUser) || (Group.count(MongoDBObject("users" -> connectedUser, "grantType.value" -> GrantType.CMS.value)) == 0)))
+    renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, connectedUser) || (Group.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) == 0)))
     Continue
   }
 

@@ -18,6 +18,7 @@ package models
 
 import java.io.File
 import xml.{Node, XML}
+import play.Play
 
 /**
  *
@@ -27,17 +28,24 @@ import xml.{Node, XML}
 case class RecordDefinition(prefix: String,
                             schema: String,
                             namespace: String,
-                            accessKeyRequired: Boolean = false)
+                            accessKeyRequired: Boolean = false,
+                            roles: List[Role] = List.empty)
+
+case class Role(key: String, description: String, prefix: String)
 
 object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
 
+  val enabledDefinitions = Play.configuration.getProperty("culturehub.recordDefinitions", "").split(",").map(_.trim())
+
   def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinitionFiles: Seq[File] = {
     val conf = new File("conf/")
-    conf.listFiles().filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
+    conf.listFiles()
+      .filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
+      .filter(f => enabledDefinitions.contains(f.getName.substring(0, f.getName.indexOf(RECORD_DEFINITION_SUFFIX))))
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {
@@ -46,9 +54,18 @@ object RecordDefinition {
   }
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
-    val prefix = node \ "@prefix" text
-    val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find {_.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
-    Some(RecordDefinition(recordDefinitionNamespace \ "@prefix" text, recordDefinitionNamespace \ "@schema" text, recordDefinitionNamespace \ "@uri" text))
+    val prefix = (node \ "@prefix" ).text
+    val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
+    val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
+    Some(
+      RecordDefinition(
+        recordDefinitionNamespace \ "@prefix" text,
+        recordDefinitionNamespace \ "@schema" text,
+        recordDefinitionNamespace \ "@uri" text,
+        false,
+        roles
+      )
+    )
   }
 
 }
