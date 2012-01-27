@@ -25,7 +25,7 @@ import controllers.{ServicesSecurity, InactiveUserException}
 import _root_.util.Constants._
 import components.IndexingService
 
-case class User(_id: ObjectId = new ObjectId,
+case class User(_id: ObjectId = new ObjectId,                     // mongoDB ID of the user, deprectated as identifier
                 userName: String,                                 // userName, unique in the world
                 firstName: String,
                 lastName: String,

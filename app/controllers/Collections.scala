@@ -38,7 +38,7 @@ object Collections extends DelvingController with ThumbnailLinking {
 
   def collection(user: String, id: String): Result = {
     UserCollection.findByIdUnsecured(id) match {
-      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.userName == connectedUser) => {
         val objects: List[ListItem] = Search.search(None, request, theme, List("%s:%s OR %s:%s %s:%s".format(RECORD_TYPE, OBJECT, RECORD_TYPE, MDR, COLLECTIONS, id)))._1
         val labels: List[Token] = thing.freeTextLinks
         val places: List[Token] = thing.placeLinks

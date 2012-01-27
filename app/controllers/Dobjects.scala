@@ -39,7 +39,7 @@ object DObjects extends DelvingController {
 
   def dobject(user: String, id: String): Result = {
     DObject.findByIdUnsecured(id) match {
-        case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) => {
+        case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.userName == connectedUser) => {
           val labels: List[Token] = thing.freeTextLinks
           val places: List[Token] = thing.placeLinks
           val userLabels: List[Token] = if(thing.userName == connectedUser) labels else thing.freeTextLinks.filter(_.userName == connectedUser)

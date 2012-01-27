@@ -36,7 +36,7 @@ object Stories extends DelvingController {
 
   def story(user: String, id: String): Result = {
     Story.findByIdUnsecured(id) match {
-      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.userName == connectedUser) =>
         val labels: List[Token] = thing.freeTextLinks
         val places: List[Token] = thing.placeLinks
         val userLabels: List[Token] = if(thing.userName == connectedUser) labels else thing.freeTextLinks.filter(_.userName == connectedUser)
@@ -48,7 +48,7 @@ object Stories extends DelvingController {
 
   def read(user: String, id: String): Result = {
     Story.findByIdUnsecured(id) match {
-      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.user_id == connectedUserId) =>
+      case Some(thing) if (thing.visibility == Visibility.PUBLIC || thing.visibility == Visibility.PRIVATE && thing.userName == connectedUser) =>
         Template('story -> thing)
       case _ => NotFound(&("user.stories.storyNotFound", id))
     }

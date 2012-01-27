@@ -52,7 +52,6 @@ object DObjects extends DelvingController with UserSecured {
           Some(anObject._id),
           anObject.name,
           anObject.description,
-          anObject.user_id,
           anObject.visibility.value,
           anObject.flattenLinksWithIds(Link.LinkType.PARTOF, USERCOLLECTION_ID).map(_._2),
           availableCollections,
@@ -101,7 +100,6 @@ object DObjects extends DelvingController with UserSecured {
           TS_update = new Date(),
           name = objectModel.name,
           description = objectModel.description,
-          user_id = connectedUserId,
           userName = connectedUser,
           visibility = Visibility.get(objectModel.visibility),
           thumbnail_id = None,
@@ -132,7 +130,7 @@ object DObjects extends DelvingController with UserSecured {
       case Some(id) =>
         val existingObject = DObject.findOneByID(id)
         if(existingObject == None) Error(&("user.dobjects.objectNotFound", id))
-        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), user_id = connectedUserId, files = existingObject.get.files ++ files)
+        val updatedObject = existingObject.get.copy(TS_update = new Date(), name = objectModel.name, description = objectModel.description, visibility = Visibility.get(objectModel.visibility), files = existingObject.get.files ++ files)
         try {
           DObject.update(MongoDBObject("_id" -> id), updatedObject, false, false, WriteConcern.SAFE)
 
@@ -194,7 +192,7 @@ object DObjects extends DelvingController with UserSecured {
   }
 
   def remove(id: ObjectId) = {
-    if(DObject.owns(connectedUserId, id)) {
+    if(DObject.owns(connectedUser, id)) {
       DObject.delete(id)
       IndexingService.deleteById(id)
     } else {
@@ -237,7 +235,6 @@ object DObjects extends DelvingController with UserSecured {
 case class ObjectModel(id: Option[ObjectId] = None,
                        @Required name: String = "",
                        @Required description: String = "",
-                       owner: ObjectId = new ObjectId(),
                        visibility: Int = Visibility.PRIVATE.value,
                        collections: List[ObjectId] = List.empty[ObjectId],
                        availableCollections: List[CollectionReference] = List.empty[CollectionReference],
