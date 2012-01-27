@@ -150,50 +150,14 @@ a:visited {
 
 /* page layout container ***************************************************************************************/
 
-.container {
-    height: inherit;
-    margin: 0 auto;
-    width: @pageWidth;
-    min-width: 960px;
-    position: relative;
-}
+//.container {
+//    height: inherit;
+//    margin: 0 auto;
+//    width: @pageWidth;
+//    min-width: 960px;
+//    position: relative;
+//}
 
-/* header *****************************************************************************************************/
-
-div.header {
-    background: @color7;
-    height: 233px;
-    position: relative;
-    z-index: 10;
-}
-
-/* branding ***************************************************************************************************/
-
-.site-name {
-    color: @color1;
-    display: block;
-    font-size: @fsize4;
-    font-weight: bold;
-    position: absolute;
-    top: 20px;
-}
-
-.site-slogan {
-    color: @color6;
-    font-size: @fsize2;
-    font-weight: bold;
-    position: absolute;
-    left: 265px;
-    top: 80px;
-}
-
-.secondary-branding {
-    display: none;
-}
-
-.primary-branding {
-    display: none;
-}
 
 /* user-nav ****************************************************************************************************/
 
@@ -214,6 +178,49 @@ div.header {
     background: #fff;
     margin-right: 0px;
 }
+
+/* header *****************************************************************************************************/
+
+div.header {
+    background: @color7;
+
+}
+
+div.header .container_12 .grid_12 {
+    height: 144px;
+    position: relative;
+    z-index: 10;
+}
+
+
+/* branding ***************************************************************************************************/
+
+.site-name {
+    color: @color1;
+    display: block;
+    font-size: @fsize3;
+    font-weight: bold;
+    position: absolute;
+    top: 34px;
+}
+
+.site-slogan {
+    color: @color6;
+    font-size: @fsize2;
+    font-weight: bold;
+    position: absolute;
+    left: 135px;
+    top: 70px;
+}
+
+.secondary-branding {
+    display: none;
+}
+
+.primary-branding {
+    display: none;
+}
+
 
 /* site-nav ***************************************************************************************************/
 
@@ -277,7 +284,7 @@ div.header {
 
 .search {
     position: absolute;
-    top: 45px;
+    top: 44px;
     right: 0px;
 }
 
@@ -291,7 +298,7 @@ div.header {
     border:  0px solid  @color1;
     .border-all(@radius);
     padding: 8px;
-    width: 280px;
+    width: 233px;
 }
 
 .search input[type="submit"]  {
@@ -545,8 +552,9 @@ div.dropdown-slider .ddm.heading.orgs {
     margin-left: 0px;
 }
 
-.toolbar {
-    margin: 0px 0px 20px 0;
+.toolbar,
+#organization .toolbar {
+    margin: 0px 0px 10px 0;
 }
 
 

@@ -1,7 +1,8 @@
 #{include 'commonHeader.html' /}
 
     <div class="user-nav">
-        <div class="container container_12">
+        <div class="container_12">
+            <div class="grid_12">
        #{userNav
             userName: userName,
             email:email,
@@ -9,11 +10,15 @@
             navStyle:viewUtils.themeProperty('userNavStyle'),
             showLang:viewUtils.themeProperty('userNavLangSelect')
         /}
+            </div>
+
         </div>
     </div>
 
 <div class="header">
-    <div class="container container_12">
+    <div class="container_12">
+        <div class="row">
+        <div class="grid_12">
         <div class="branding">
             <h1 class="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
 
@@ -46,6 +51,10 @@
                 <input type="submit" value="&{'ui.label.search'}">
             </form>
         </div>
+        </div>
+        </div>
+
+
     </div>
 </div>
 
