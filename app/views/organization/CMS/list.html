@@ -12,21 +12,15 @@
 <div class="row">
     <div class="grid_12">
         <div class="sub-panel clearfix">
-                <label for="language">&{'org.cms.list.languageSwitch'}</label>
-                <select id="language" name="language">
-                    #{list languages, as: 'option'}
-                    <option  #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
-                    #{/list}
-                </select>
-                *{
-                #{btnHref label: messages.get('org.cms.upload.image'), iconClass:"icon189", extraClass:"fright", href:"/organizations/"+orgId+"/site/upload" /}
-                #{btnHref label: messages.get('org.cms.page.new'), iconClass:"icon68", extraClass:"fright", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
-                #{btnHref label: messages.get('org.cms.page.list'), iconClass:"icon140", extraClass:"fright on", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
-                }*
-                #{cmsNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
+            #{cmsNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
         </div>
+            <label for="language">&{'org.cms.list.languageSwitch'}</label>
+            <select id="language" name="language">
+                #{list languages, as: 'option'}
+                <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
+                #{/list}
+            </select>
     </div>
-
 </div>
 
 <div class="row">
