@@ -26,6 +26,9 @@
 ### Solr configuration
 %prod.solr.baseUrl =
 
+### DeepZoom
+%prod.iipsrv.url=
+
 ### DoS configuration
 %prod.dos.graphicsmagic.cmd=/usr/bin/gm
 %prod.dos.tilesOutputBaseDir=
