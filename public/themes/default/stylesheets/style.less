@@ -16,10 +16,10 @@
 @font1: arial, helvetica, sans;
 @font2: arial, helvetica, sans;
 
-@fsize1: 14px;
-@fsize2: 18px;
-@fsize3: 24px;
-@fsize4: 44px;
+@fsize1: 13px;
+@fsize2: 21px;
+@fsize3: 34px;
+@fsize4: 55px;
 
 @pageWidth: 960px;
 
@@ -62,7 +62,7 @@ h3, .h3 {
 }
 h1, .h1 {
     color: @color10;
-    font-size: 196%;
+    font-size: 200%;
     font-weight: normal;
     font-style: normal;
     margin-bottom: 21px;
@@ -70,7 +70,7 @@ h1, .h1 {
 
 h2, .h2 {
     color: @color10;
-    font-size: 167%;
+    font-size: 161.8%;
     font-weight: normal;
     font-style: normal;
     margin-bottom: 11px;
@@ -78,7 +78,7 @@ h2, .h2 {
 
 h3, .h3 {
     color: @color10;
-    font-size: 146.5%;
+    font-size: 138.2%;
     font-weight: normal;
     font-style: normal;
     margin-bottom: 11px;
@@ -162,7 +162,7 @@ a:visited {
 
 div.header {
     background: @color7;
-    height: 180px;
+    height: 233px;
     position: relative;
     z-index: 10;
 }
@@ -183,8 +183,8 @@ div.header {
     font-size: @fsize2;
     font-weight: bold;
     position: absolute;
-    left: 205px;
-    top: 68px;
+    left: 265px;
+    top: 80px;
 }
 
 .secondary-branding {
@@ -199,17 +199,19 @@ div.header {
 
 .user-nav {
     background: @color2;
-    height: 40px;
-    line-height: 40px;
+    height: 44px;
+    line-height: 44px;
     position: relative;
     z-index: 11;
 }
 
 .user-nav .buttons {
     float: right;
+    margin-top: 2px;
 }
 
 .user-nav .button {
+    background: #fff;
     margin-right: 0px;
 }
 
@@ -219,13 +221,14 @@ div.header {
     background: @color6;
     position: absolute;
     bottom: 0px;
-    width: 100%;
+    /*width: 100%;*/
+    right: 0px;
 }
 
 .site-nav ul {
-    background: @color6;
-    .border-top(4px);
-    display: table;
+//    background: @color6;
+//    .border-top(4px);
+    /*display: table;*/
     margin: 0;
     padding: 0;
     /*width: 100%;*/
@@ -235,15 +238,21 @@ div.header {
     border: none;
     display:table-cell;
     list-style: none;
-    margin: 0 20px 0 0;
-    padding: 0 20px;
+    border-right: 1px solid @color7;
+    /*margin: 0 20px 0 0;*/
+    /*padding: 0 20px;*/
+}
+
+.site-nav li:last-of-type {
+    border-right: none;
 }
 
 .site-nav a {
     color: @color1;
     display: block;
-    height: 60px;
-    line-height: 60px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 13px;
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
@@ -253,12 +262,12 @@ div.header {
     background: @color8;
 }
 
-.site-nav li.first {
-    .border-tl(4px);
-}
-.site-nav li.last {
-    .border-tr(4px);
-}
+//.site-nav li.first {
+//    .border-tl(4px);
+//}
+//.site-nav li.last {
+//    .border-tr(4px);
+//}
 
 .site-nav li.current {
     background: @color5;
@@ -309,7 +318,7 @@ div.header {
 
 /* main***************************************************************************************************/
 
-.main .container {
+.main {
     background: @color1;
     min-height: 400px;
     padding-top: 20px;
@@ -318,7 +327,7 @@ div.header {
 /* footer ************************************************************************************************/
 
 .footer .container {
-    background: @color1;
+//    background: @color1;
     .border-bot(4px);
     padding-top: 20px;
     margin-bottom: 20px;
