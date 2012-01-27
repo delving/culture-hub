@@ -52,9 +52,8 @@ object CMS extends DelvingController with OrganizationSecured {
   implicit def cmsPageListToViewModelList(l: List[CMSPage]) = l.map(cmsPageToViewModel(_))
 
   @Before
-  def checkAccess(): Result = {
-    val orgId = params.get("orgId")
-    if(!Organization.isOwner(orgId, connectedUser) && Group.count(MongoDBObject("users" -> connectedUser, "grantType.value" -> GrantType.CMS.value)) == 0) {
+  def checkAccess(orgId: String): Result = {
+    if(!Organization.isOwner(orgId, connectedUser) && Group.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) == 0) {
       return Forbidden(&("user.secured.noAccess"))
     }
     Continue

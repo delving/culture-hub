@@ -147,8 +147,55 @@
         <field prefix="delving" localName="fullTextObjectUrl" fieldType="string"/>
         <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
     </root>
+
+    <!-- Role definitions that can be used in view definitions -->
+    <roles>
+        <role key="administrator" description="Administrator rights" />
+        <role key="testRole" description="Test rights" />
+    </roles>
+
+    <!-- View definitions-->
     <views>
         <view name="full">
+            <row>
+                <column id="description">
+                    <field path="delving:summaryFields/delving:description" label="metadata.dc.description"/>
+                </column>
+                <column id="fields">
+                    <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
+                    <field path="icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+                </column>
+            </row>
+        </view>
+        <view name="fullTakeOne">
+            <row>
+                <column id="description">
+                    <field path="description" label="metadata.dc.description"/>
+                </column>
+            </row>
+            <row>
+                <column id="1">
+                    <field path="title" label="metadata.dc.title" />
+                    <field label="metadata.dc.type" path="dc_type" queryLink= "true" />
+                    <list label="metadata.dcterms.alternative" path="dcterms_alternative, _metadata.dcterms.alternative" listType="concatenated" separator=", " />
+                    <field label="metadata.icn.material" path="icn_material" queryLink="true" />
+                    <list label="metadata.icn.creatorYearOfBirth" path="icn_creatorYearOfBirth" listType="concatenated" separator=", "  />
+                    <list label="metadata.dc.subject" path="dc_subject, dcterms_temporal, dcterms_spatial, dc_coverage" listType="concatenated" separator=", " queryLink="true"  />
+                    <field label="metadata.dc.source" path="dc_source" />
+                </column>
+                <column id="2">
+                   <field label="metadata.dc.creator" path="creator" queryLink="true" />
+                   <field label="metadata.dc.date" path="year" queryLink="true" />
+                   <field label="metadata.dc.language" path="language" />
+                   <field label="metadata.europeana.dataProvider" path="dataProvider" />
+                   <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
+                   <list type="concatenated" label="metadata.dc.relation" path="dc_relation, dcterms_references, dcterms_isReferencedBy, dcterms_isReplacedBy, dcterms_isRequiredBy, dcterms_isPartOf, dcterms_hasPart, dcterms_replaces, dcterms_requires, dcterms_isVersionOf, dcterms_hasVersion, dcterms_conformsTo, dcterms_hasFormat" separator=", " />
+                   <field label="metadata.dcterms.provenance" path="dcterms_provenance" />
+                   <field label="metadata.icn.technique" path="icn_technique" queryLink="true" />
+                </column>
+            </row>
+        </view>
+        <disabledView>
             <view-field name="dc_title" prefix="dc" localName="title"/>
             <view-field name="dc_creator" prefix="dc" localName="creator"/>
             <view-field name="icn_creatorYearOfBirth" prefix="icn" localName="creatorYearOfBirth"/>
@@ -204,9 +251,7 @@
             <view-field name="icn_purchasePrice" prefix="icn" localName="purchasePrice"/>
             <view-field name="icn_physicalState" prefix="icn" localName="physicalState"/>
             <!--</#if>-->
-        </view>
-        <view name="brief">
-        </view>
+        </disabledView>
     </views>
     <validation>
         assert record.'europeana:collectionTitle'
