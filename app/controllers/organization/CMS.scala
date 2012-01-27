@@ -114,7 +114,7 @@ object CMS extends DelvingController with OrganizationSecured {
 
     }
 
-    Template('page -> JJson.generate(p._1), 'versions -> JJson.generate(Map("versions" -> p._2)), 'languages -> getLanguages, 'themes -> getThemes, 'isNew -> (p._2.size == 0))
+    Template('page -> JJson.generate(p._1), 'versions -> JJson.generate(Map("versions" -> p._2)), 'languages -> getLanguages, 'currentLanguage -> language, 'themes -> getThemes, 'isNew -> (p._2.size == 0))
   }
   
   def pageSubmit(orgId: String): Result = {

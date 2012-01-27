@@ -525,9 +525,11 @@ org.cms.page.save=Bewaar pagina
 org.cms.page.menu.add=Voeg toe aan menu
 org.cms.page.menu.position=Positie in menu
 org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 3 tot 15 characters lang.
+org.cms.page.list=Pagina lijst
 org.cms.list.languageSwitch=Bekijk paginas in
 org.cms.list.deletePage=Verwijder pagina
 org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+org.cms.upload.image=Upload image
 
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?

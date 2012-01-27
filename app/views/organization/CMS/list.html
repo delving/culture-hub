@@ -6,7 +6,6 @@
 
 #{breadcrumbs /}
 <div class="row">
-
     #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 </div>
 
@@ -16,15 +15,18 @@
                 <label for="language">&{'org.cms.list.languageSwitch'}</label>
                 <select id="language" name="language">
                     #{list languages, as: 'option'}
-                    <option value="${option._1}" #{if currentLanguage == option._1} selected#{/}>${option._2}</option>
+                    <option  #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
                     #{/list}
                 </select>
-                #{btnHref label: messages.get('org.cms.upload'), iconClass:"icon3", extraClass:"fright", href:"/organizations/"+orgId+"/site/upload" /}
-                #{btnHref label: messages.get('org.cms.page.new'), iconClass:"icon3", extraClass:"fright", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
+                *{
+                #{btnHref label: messages.get('org.cms.upload.image'), iconClass:"icon189", extraClass:"fright", href:"/organizations/"+orgId+"/site/upload" /}
+                #{btnHref label: messages.get('org.cms.page.new'), iconClass:"icon68", extraClass:"fright", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
+                #{btnHref label: messages.get('org.cms.page.list'), iconClass:"icon140", extraClass:"fright on", href:"/organizations/"+orgId+"/site/"+currentLanguage+"/page/add" /}
+                }*
+                #{cmsNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
         </div>
-
     </div>
-    <hr/>
+
 </div>
 
 <div class="row">

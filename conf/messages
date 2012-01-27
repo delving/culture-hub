@@ -546,10 +546,12 @@ org.cms.page.save=Save page
 org.cms.page.menu.add=Add page to a menu
 org.cms.page.menu.position=Position in the menu
 org.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 15 characters long.
+org.cms.page.list=Page list
 org.cms.list.languageSwitch=List pages in
 org.cms.list.deletePage=Delete page
 org.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
-org.cms.upload=Upload file
+org.csm.upload=Upload file
+org.cms.upload.image=Upload image
 org.cms.upload.save=Save files
 
 org.admin.index.title=Organization administration
