@@ -412,7 +412,7 @@ metadata.tib.location=Geolocatie
 metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
 metadata.tib.pages=Paginering
 metadata.tib.formatted=Geformateerde tekst
-metadata.tib.inventarisnummer=Inventarisnummer
+metadata.tib.vindplaats=Vindplaats
 
 
 #Users

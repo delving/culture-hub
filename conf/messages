@@ -427,7 +427,7 @@ metadata.tib.pageStart=Start page
 metadata.tib.pageEnd=End page
 metadata.tib.pages=Pages
 metadata.tib.formatted=Formatted
-metadata.tib.inventarisnummer=Inventorynumber
+metadata.tib.vindplaats=Physical Location
 
 
 
