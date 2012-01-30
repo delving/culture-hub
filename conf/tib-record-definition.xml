@@ -53,7 +53,6 @@
         <field prefix="tib" localName="citOldId" fieldType="string"/>
         <field prefix="tib" localName="thumbLarge" fieldType="string" summaryField="THUMBNAIL"/>
         <field prefix="tib" localName="thumbSmall" fieldType="string"/>
-        <field prefix="tib" localName="deepZoomUrl" fieldType="string"/>
         <field prefix="tib" localName="collection" fieldType="string"/>
         <field prefix="tib" localName="creatorRole" fieldType="string"/>
         <field prefix="tib" localName="productionPeriod" fieldType="string"/>
@@ -61,6 +60,7 @@
         <field prefix="tib" localName="productionEnd" fieldType="string"/>
         <field prefix="tib" localName="creatorBirthYear" fieldType="string"/>
         <field prefix="tib" localName="creatorDeathYear" fieldType="string"/>
+        <field prefix="tib" localName="formatted" fieldType="string"/> <!-- this field contains pre-formatted html that needs to be rendered unmodified -->
         <field prefix="tib" localName="year" fieldType="date">
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
