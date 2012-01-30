@@ -9,7 +9,7 @@
 #{/if}
 <div class="grid_12 dashboard">
 
-    <div class="g-1of3">
+    <div class="grid_4 alpha">
 
         <div class="info-box">
             <h3>&{'org.info'}</h3>
@@ -19,7 +19,7 @@
             #{/if}
         </div>
     </div>
-    <div class="g-1of3">
+    <div class="grid_4">
         <h3>&{'thing.datasets'}</h3>
         <ol>
             #{list dataSets, as: 'ds'}
@@ -27,7 +27,7 @@
             #{/list}
         </ol>
     </div>
-    <div class="g-1of3">
+    <div class="grid_4 omega">
         <h3>&{'organization.members'}</h3>
         <ol>
             #{list members, as: 'm'}

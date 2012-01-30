@@ -63,6 +63,10 @@ case class DObject(_id: ObjectId = new ObjectId,
 
   def linkedStories: List[Story] = Story.find(FilteredMDO("pages.objects.objectId" -> _id)).toList
 
+  override def getMimeType = files.headOption match {
+    case Some(o) => o.contentType
+    case None => super.getMimeType
+  }
 }
 
 object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commons[DObject] with Resolver[DObject] with Pager[DObject] {
