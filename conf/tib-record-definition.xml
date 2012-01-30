@@ -92,6 +92,7 @@
         <field prefix="tib" localName="pageStart" fieldType="string"/>
         <field prefix="tib" localName="pageEnd" fieldType="string"/>
         <field prefix="tib" localName="pages" fieldType="string"/>
+        <field prefix="tib" localName="inventarisnummer" fieldType="string"/>
         <field prefix="tib" localName="location" fieldType="location"/>
         <field prefix="delving" localName="fullTextObjectUrl" fieldType="string"/>
         <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
