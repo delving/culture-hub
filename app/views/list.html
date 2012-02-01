@@ -1,4 +1,5 @@
 #{extends viewUtils.themeProperty('themeLayout') /}
+#{set bodyId: 'list' /}
 #{if count > views.context.package.PAGE_SIZE()}
 #{set 'moreScripts'}
     <script>
@@ -38,6 +39,7 @@
         </div>
     </div>
 
+<div class="dashboard">
 %{ def counter = 1 }%
 #{list items, as: 'i'}
     #{if counter == 1}
@@ -52,6 +54,7 @@
     %{ counter = 1 }%
     #{/if}
 #{/list}
+</div>
 
 #{if count > views.context.package.PAGE_SIZE()}
 <div class="row">

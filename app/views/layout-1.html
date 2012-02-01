@@ -9,7 +9,8 @@
             email:email,
             organizations:organizations,
             navStyle:viewUtils.themeProperty('userNavStyle'),
-            showLang:viewUtils.themeProperty('userNavLangSelect')
+            showLang:viewUtils.themeProperty('userNavLangSelect'),
+            navStyle: 'styled'
         /}
     </div>
 </div>
@@ -30,7 +31,7 @@
         </div>
 
         <div class="header-main">
-            <div class="grid_8">
+            <div class="grid_12">
                 <div id="site-nav">
                     <ul>
                         <li class='${"Application".isCurrent()}'>
@@ -48,14 +49,6 @@
                     </ul>
                 </div>
             </div>
-            <div class="grid_4">
-                <div id="search" role="search">
-                    <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                        <input type="text" id="query" name="query" value='${params.query}'/>
-                        <input type="submit" value="&{'ui.label.search'}">
-                    </form>
-                </div>
-            </div>
         </div>
         <div class="header-bg row">
             <div id="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
@@ -65,6 +58,20 @@
 
 <div class="main">
     <div class="container_12">
+    <div id="search" role="search">
+        <div class="row">
+            <!--<div class="grid_12 clearfix">-->
+                <div class="panel">
+        <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+            <input type="text" id="query" name="query" value='${params.query}'/>
+            <input type="submit" value="&{'ui.label.search'}">
+        </form>
+                <!--</div>-->
+
+                </div>
+        </div>
+
+    </div>
         <div class="content">
             #{doLayout /}
         </div>
