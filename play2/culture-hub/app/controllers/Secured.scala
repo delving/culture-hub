@@ -1,18 +1,36 @@
 package controllers
 
 import play.api.mvc._
+import Results._
+import play.api.libs.Crypto
 
 /**
  * Secured trait, based on the example in ZenTasks
  */
 trait Secured {
 
-  private def username(request: RequestHeader) = request.session.get("userName")
+  val USERNAME = "userName"
 
-  /**
-   * Redirect to login if the user in not authorized.
-   */
-  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Authentication.login)
+  private def username(request: RequestHeader) = request.session.get(USERNAME)
+
+  private def onUnauthorized(request: RequestHeader): Result = {
+    request.session - USERNAME
+    request.session +("uri", if (("GET" == request.method)) request.uri else "/")
+
+    request.cookies.get("rememberme") map {
+      remember =>
+        val sign = remember.value.substring(0, remember.value.indexOf("-"))
+        val username = remember.value.substring(remember.value.indexOf("-") + 1)
+        if (Crypto.sign(username) == sign) {
+          request.session +(USERNAME, username)
+          return request.session.get("uri") match {
+            case Some(uri) => Redirect(uri)
+            case None => Redirect(controllers.routes.Application.index)
+          }
+        }
+    }
+    Redirect(routes.Authentication.login)
+  }
 
   /**
    * Action for authenticated users.

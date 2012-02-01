@@ -7,8 +7,8 @@
                 userName: userName,
                 email:email,
                 organizations:organizations,
-                navStyle:themeInfo.themeProperty('userNavStyle'),
-                showLang:themeInfo.themeProperty('userNavLangSelect') /}
+                navStyle:themeInfo.get('userNavStyle'),
+                showLang:themeInfo.get('userNavLangSelect') /}
             </div>
         </div>
     </div>
@@ -18,16 +18,16 @@
         <div class="row">
         <div class="grid_12">
         <div class="branding">
-            <h1 class="site-name"><span>${themeInfo.themeDisplayName}</span></h1>
+            <h1 class="site-name"><span>${themeInfo.displayName}</span></h1>
 
-            <div class="site-slogan">${themeInfo.themeProperty('siteSlogan').raw()}</div>
+            <div class="site-slogan">${themeInfo.get('siteSlogan').raw()}</div>
 
             <div class="primary-branding">
-                <a href="/"><img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.themeDisplayName}" title="${themeInfo.themeDisplayName}"/></a>
+                <a href="/"><img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/></a>
             </div>
 
             <div class="secondary-branding" role="banner">
-                <a href="${themeInfo.themeProperty('secondaryBrandingURL')}" target="_blank" title="${themeInfo.themeProperty('secondaryBrandingName')}"><img src='${themeInfo.path("images/logo-secondary.png")}' alt="" title=""/></a>
+                <a href="${themeInfo.get('secondaryBrandingURL')}" target="_blank" title="${themeInfo.get('secondaryBrandingName')}"><img src='${themeInfo.path("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
         <div class="site-nav">

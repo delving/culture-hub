@@ -16,6 +16,6 @@
 
 
 #{list _menu, as:'m'}
-<li class="#{if params.get('key') == m.apply('page')}current#{/if}"><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>
+<li class="#{if params.key == m.apply('page')}current#{/if}"><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>
 #{/list}
 

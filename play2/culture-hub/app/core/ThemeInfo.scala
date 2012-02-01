@@ -9,7 +9,7 @@ import play.api.PlayException
  */
 class ThemeInfo(theme: PortalTheme) {
 
-  def themeProperty(property: String) = {
+  def get(property: String) = {
     themeProperty[String](property, classOf[String])
   }
 
@@ -34,6 +34,6 @@ class ThemeInfo(theme: PortalTheme) {
 
   def path(path: String) = "/assets/themes/%s/%s".format(theme.name, path)
 
-  val themeDisplayName = themeProperty("displayName")
+  val displayName = themeProperty("displayName")
 
 }

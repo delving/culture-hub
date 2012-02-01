@@ -4,7 +4,10 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.templates.groovy.GroovyTemplates
-import core.{ThemeInfo, ThemeAware}
+import core.ThemeAware
+import play.api.libs.Crypto
+import play.libs.Time
+import play.api.i18n.Messages
 
 /**
  *
@@ -17,18 +20,28 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
 
   val loginForm = Form(
     tuple(
-      "userName" -> text,
-      "password" -> text
-    ) verifying("Invalid username or password", result => result match {
-      case (u, p) => true
+      "userName" -> nonEmptyText,
+      "password" -> nonEmptyText,
+      "remember" -> boolean
+    ) verifying(Messages("authentication.error"), result => result match {
+      case (u, p, r) => true //User.connect(username, password)
     }))
 
   def login = Themed {
     Action {
       implicit request =>
-        renderArgs += ("themeInfo" -> new ThemeInfo(theme))
-        Ok(Template)
+        if(session.get("userName").isDefined) {
+          Redirect(controllers.routes.Application.index)
+        } else {
+          Ok(Template('loginForm -> loginForm))
+        }
     }
+  }
+
+  def logout = Action {
+    Redirect(routes.Authentication.login).withNewSession.flashing(
+      "success" -> Messages("authentication.logout")
+    )
   }
 
   /**
@@ -37,10 +50,22 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
   def authenticate = Action {
     implicit request =>
       loginForm.bindFromRequest.fold(
-        errors => Results.Redirect(routes.Authentication.login), // TODO re-redirect to login
+        formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
         user => {
-          Ok
-          //          Redirect(routes.Projects.index).withSession("email" -> user._1)
+          val action = (request.session.get("uri") match {
+            case Some(uri) => Redirect(uri)
+            case None => Redirect(controllers.routes.Application.index)
+          }).withSession("userName" -> user._1)
+
+          if (user._3) {
+            action.withCookies(Cookie(
+              name = "rememberme",
+              value = Crypto.sign(user._1) + "-" + user._1,
+              maxAge = Time.parseDuration("30d")
+            ))
+          } else {
+            action
+          }
         }
       )
   }
