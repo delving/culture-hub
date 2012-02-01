@@ -16,7 +16,7 @@
 
 import groovy.util.XmlParser
 import models.GrantType
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import org.scalatest.matchers.ShouldMatchers
 import play.Play
 import play.templates.TemplateLoader
@@ -32,10 +32,11 @@ import groovy.util.Node
 
 class ViewRenderSpec extends UnitTest with ShouldMatchers with TestDataGeneric {
 
+  @Ignore
   @Test
   def testRender() {
     val view = components.ViewRenderer.renderView(play.Play.getFile("conf/icn-record-definition.xml").getAbsoluteFile, "full", testData(), List(GrantType("administrator", "blabla", "icn")))
-    val template = TemplateLoader.load(VirtualFile.open(Play.getFile("test/view.test.html")))
+    val template = TemplateLoader.load(VirtualFile.open(Play.getFile("test/view.html")))
     val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
     args.put("view", view)
     val rendered = template.render(args)
