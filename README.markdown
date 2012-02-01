@@ -17,7 +17,6 @@ The CultureHub is a platform that aims at making cultural objects accessible onl
 - later, you may need to run `play deps --sync` by hand in order to download and install additional dependencies.
 - copy `conf/production.conf.template` to `conf/production.conf`. You can ignore this file as long as you do not want to deploy the hub.
 - copy `conf/additional.conf.template` to `conf/additional.conf`. This is where you can put additional configuration you don't want to check in.
-- configure the settings in `conf/application.conf`, i.e. create custom entries when you need them (e.g. `%manu.image.graphicsmagic.cmd=/opt/local/bin/gm`)
 - configure the subdomains for testing in your `/etc/hosts` file by adding e.g.:
 
     127.0.0.1       default.localhost
@@ -36,7 +35,7 @@ An example user is `bob@gmail.com` with password `secret`
 
 Run the test mode via
 
-    play test -Duser=youruser
+    play test
 
 Then you can access the test dashboard on `http://localhost:9000/@tests`
 
