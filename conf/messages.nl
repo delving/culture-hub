@@ -357,6 +357,7 @@ metadata.europeana.language=Taal
 metadata.europeana.collectionTitle=Collectie titel
 metadata.europeana.collectionName=Collectie naam
 metadata.europeana.rights=Rechten
+metadata.europeana.uri=Europeana url
 
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
@@ -410,6 +411,8 @@ metadata.tib.event=Gebeurtenis
 metadata.tib.location=Geolocatie
 metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
 metadata.tib.pages=Paginering
+metadata.tib.formatted=Geformateerde tekst
+metadata.tib.vindplaats=Vindplaats
 
 
 #Users

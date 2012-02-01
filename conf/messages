@@ -378,6 +378,7 @@ metadata.europeana.language=Language
 metadata.europeana.collectionTitle=Collection Title
 metadata.europeana.collectionName=Collection Name
 metadata.europeana.rights=Rights
+metadata.europeana.uri=Europeana Url
 
 metadata.icn.material=Material
 metadata.icn.collection=Collection
@@ -425,6 +426,8 @@ metadata.tib.fullTextObjectUrl=URL to full-text search-able object
 metadata.tib.pageStart=Start page
 metadata.tib.pageEnd=End page
 metadata.tib.pages=Pages
+metadata.tib.formatted=Formatted
+metadata.tib.vindplaats=Physical Location
 
 
 
