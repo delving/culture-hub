@@ -1,0 +1,133 @@
+<div class="toolbar">
+    <div class="buttons">
+
+        *{<!-- LABEL BUTTON:  only an authenticated user can label -->}*
+        #{ifnot _isSearch}
+            #{if _authUser}
+                #{btnHref label: messages.get('thing.label'), iconClass:"icon202", id:"addLabel" /}
+            #{/if}
+        #{/ifnot}
+
+        *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
+        #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
+        }*
+
+        *{<!-- ADDTHIS BUTTONS: any user can share --> }*
+        <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
+            #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
+            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
+            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
+            <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
+        </div>
+        *{<!--TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not the 'owner of the object? ...-->}*
+        *{<!-- OWNER ACTIONS: only the owner of this thing can see these --> }*
+        #{if _owner == _authUser}
+           #{if _owner && _id}
+            #{if !_cannotDelete}
+            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
+            #{/if}
+            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
+            <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    remove('#remove', '#removeConfirmation', '/${_owner}/${_type}/${_id}/remove', '/${_owner}/${_type}');
+                });
+            </script>
+            #{/if}
+        #{/if}
+
+        *{<!-- EXTRA BUTTONS: added via the tag call -->}*
+        #{if _extraButtons}
+           #{list _extraButtons, as:'button'}
+               #{btnHref label: button.get('label'), href: button.get('url'), extraClass:"fright " + (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}
+            #{/list}
+        #{/if}
+    </div>
+</div>
+<div id="add-label-dialog" title="${messages.get('ui.label.labeladd')}">
+    <p>&{'thing.label.explain'}</p>
+    <div class="field">
+        <label class="label">${messages.get('thing.label.freeText')}</label>
+        <div class="inputs">
+          <input type="text" class="textinput" id="labelInput"/>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">
+            ${messages.get('thing.label.placeName')}
+        </label>
+        <div class="inputs">
+             <input type="text" class="textinput" id="placesInput"/>
+        </div>
+    </div>
+</div>
+
+*{  <!-- leave out until functional -->
+<div id="add-comment-dialog" title="${messages.get('ui.label.addcomment')}">
+    <form action="#" method="GET" class="box">
+    <div class="field">
+        <label class="label">${messages.get('thing.comment')}</label>
+
+        <div class="inputs">
+            <textarea name="comment" id="comment"></textarea>
+            #{btnButton label: messages.get('labels.add'), id:"addCommentSubmit"/}
+        </div>
+    </div>
+    </form>
+</div>
+}*
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4eba66af675dc720"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    var addthis_config = {
+        ui_use_css: true,
+        ui_language: "${play.i18n.Lang.get()}",
+        ui_header_background: "#000",
+        ui_header_color: "#f1f1f1"
+    }
+  });
+#{if _authUser}
+    $("#addLabel").click(function () {
+      if ($("#add-comment.dialog")) {
+        $("#addComment").removeClass("on");
+        $("#add-comment-dialog").hide("slow");
+      }
+      $("#add-label-dialog").toggle("slow");
+      $(this).toggleClass("on");
+    });
+
+    tokenInput('#labelInput', '/${_authUser}/label/search', ${_labels ? _labels.raw() : []}, {
+      theme: 'facebook',
+      hintText: "&{'labels.searchLabelHint'}",
+      searchingText: "&{'labels.tokenSearching'}",
+      allowCreation: true,
+      createTokenText: "(&{'labels.createLabel'})"
+    }, '/${_authUser}/link/freeText/${_type}/${_id}', function(item) {
+      return {label: item.name}
+    }, '/${_authUser}/link/freeText/', function(item) {
+      $('#labels ul').append('<li id="' + item.id + '">' + item.name + '</li>');
+    }, function(item) {
+      $('li[id=' + item.id + ']').remove();
+    });
+
+    tokenInput('#placesInput', '/enrichment/place/search', ${_places ? _places.raw() : []}, {
+      theme: 'facebook',
+      hintText: "&{'labels.searchPlaceHint'}",
+      searchingText: "&{'labels.tokenSearching'}",
+      resultsFormatter: function(item) {
+        return "<li><div style='display: inline-block;'><div class='place_name'>" + item.name + "</div><div class='country_name' style='font-style: italic;'>" + item.countryName + "</div></div></li>"
+      },
+      allowCreation: false
+    }, function(item) {
+        return '/${_authUser}/${_type}/${_id}/link/place/place/' + item.geonameID;
+    }, function(item) {
+      item.label = item.name;
+      return item;
+    }, '/${_authUser}/${_type}/${_id}/link/place/', function(it) {
+      $('#places ul').append('<li id="'+ it.id + '"><a href="http://sws.geonames.org/' + it.geonameID + '/">' + it.name + ' (<em>' + it.countryName + '</em>)</a></li>');
+    }, function(item) {
+      $('li[id=' + item.id + ']').remove();
+    });
+  });
+#{/if}
+</script>

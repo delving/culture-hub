@@ -1,0 +1,20 @@
+<div class="field">
+    <label class="label" for="${_name}">${_label}</label>
+    <div class="inputs">
+        <select id="annotationType" data-bind="${_selectDataBind}">
+            <option value="Who">Who</option>
+            <option value="Where">Where</option>
+            <option value="What">What</option>
+            <option value="When">When</option>
+        </select>
+
+        <input type="text" class="textinput" id="${_name}" name="${_name}" maxlength="40" data-bind="${_valueDataBind}"/>
+
+        <a class="button" name="add-annotations-button" id="add-annotation-button">
+            <span class="icon icon3"></span>
+            <span class="label">Add Label</span>
+        </a>
+
+        <span class="error">${views.Helpers.showError(_name)}</span>
+    </div>
+</div>

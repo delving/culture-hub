@@ -1,0 +1,125 @@
+/* TABLE STYLES */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 10px 0 10px 0;
+}
+
+thead th {
+    /*border-bottom: 4px solid #000;*/
+    /*font-size: 1em;*/
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0;
+    padding: 0 5px;
+}
+
+thead th span {
+    color: #888;
+}
+
+tbody th {
+    text-align: right;
+    min-width: 120px;
+    font-size: 1.1em;
+}
+
+tbody th,
+tbody td {
+    padding: 4px 6px;
+    vertical-align: top;
+    line-height: 1.5em;
+}
+
+
+table.mceLayout {
+    width: 100% !important;
+}
+
+table.list,
+table.files{
+    width: 100%;
+    font-size: 12px;
+}
+
+/* DATAGRID TABLE */
+
+.data-grid table {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+    margin: 0;
+}
+
+.data-grid {
+    /*font: normal 12px/150% Arial, Helvetica, sans-serif;*/
+    background: #fff;
+    overflow: hidden;
+    border: 1px solid #F1F1F1;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+
+.data-grid table caption {
+    background-color: #555;
+    color: #fff;
+    font-weight: bold;
+    text-align: left;
+}
+
+.data-grid table caption, .data-grid table td, .data-grid table th {
+    padding: 3px 10px;
+}
+
+.data-grid table thead th {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #E1E1E1), color-stop(1, #E1E1E1));
+    background: -moz-linear-gradient(center top, #E1E1E1 5%, #E1E1E1 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#E1E1E1', endColorstr = '#E1E1E1');
+    background-color: #E1E1E1;
+    color: #555555;
+    /*font-size: 12px;*/
+    font-weight: bold;
+    border-left: 1px solid #F1F1F1;
+}
+
+.data-grid table thead th:first-child {
+    border: none;
+}
+
+.data-grid table tbody td {
+    color: #000000;
+    border-left: 1px solid #F1F1F1;
+    /*font-size: 12px;*/
+    font-weight: normal;
+}
+
+
+.data-grid table tbody tr:nth-child(even) td {
+    background: #F1F1F1;
+    color: #00496B;
+}
+
+.data-grid table tbody td:first-child {
+    border: none;
+}
+
+.data-grid table tbody tr:hover td {
+    background: #fffff0;
+}
+
+
+.data-grid #pager {
+    background-color: transparent;
+    margin:  0;
+    text-align: right;
+    width: auto;
+
+}
+
+/*Sortable */
+
+table.sortable th {
+    cursor: pointer;
+}

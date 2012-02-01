@@ -1,0 +1,33 @@
+#{list items: _view.content(), as: 'row'}
+<div class="row">
+#{list items: row.content(), as: 'col'}
+%{System.out.println(col)}%
+  <div class="column" id="${col.attr("id")}">
+#{list items: col.content(), as: 'item'}
+#{if item.nodeType == 'field'}
+    <div class="field">${item.attr("label")}: ${item.content().head().text()}</div>
+#{/if}
+#{if item.nodeType == 'list'}
+#{if item.attr("type") == "ul"}
+    <ul>
+#{list item.content(), as: 'e'}
+      <li>${e.text()}</li>
+#{/list}
+    </ul>
+#{/if}
+#{if item.attr("type") == "ol"}
+    <ol>
+#{list item.content(), as: 'e'}
+      <li>${e.text()}</li>
+#{/list}
+    </ol>
+#{/if}
+#{if item.attr("type") == "concatenated"}
+    #{list item.content(), as: 'e'}${e.text()}#{if !e_isLast}${item.attr("separator")}#{/if}#{/list}
+#{/if}
+#{/if}
+#{/list}
+  </div>
+#{/list}
+</div>
+#{/list}

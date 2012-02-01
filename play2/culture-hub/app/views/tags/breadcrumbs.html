@@ -1,0 +1,40 @@
+#{if context.crumble(_params).size() > 1}
+<div class="breadcrumb">
+    <ul>
+    #{list context.crumble(_params), as: 'c'}
+        <li>
+        #{if c._2 == context.crumble(_params).length() -1 && context.crumble(_params).length() > 1}
+            ${c._1._2.shorten(50)}
+        #{/if}
+        #{if c._2 < context.crumble(_params).length() -1 && context.crumble(_params).length() > 1}
+            #{if c._1._1 == "NOLINK"}
+            ${c._1._2.shorten(50)}
+            #{/}
+            #{else}
+            <a href="${c._1._1}"><span>${c._1._2.shorten(50)}</span></a>
+            #{/else}
+        #{/if}
+        #{if c._2 < context.crumble(_params).length() - 1 && context.crumble(_params).length() == 1}
+          #{if c._1._1 == "NOLINK"}
+            ${c._1._2.shorten(50)}
+            #{/}
+            #{else}
+            <a href="${c._1._1}"><span>${c._1._2.shorten(50)}</span></a>
+            #{/else}
+          #{/if}
+        </li>
+    #{/list}
+    #{if _queryCrumbs}
+        #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
+            #{ifnot crumb_isLast}
+                <li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>
+           #{/ifnot}
+            #{else}
+                <li><span>${crumb.value()}</span></li>
+            #{/else}
+        #{/list}
+    #{/if}
+    </ul>
+</div>
+#{/if}
+

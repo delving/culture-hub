@@ -32,3 +32,17 @@ legacyServices/lib/*.jar
 /module-extra/
 /public/javascripts/press
 /public/stylesheets/press
+
+/play2/culture-hub/public/themes
+!/play2/culture-hub/public/themes/default
+/play2/culture-hub/public/sip-creator/*.jar
+/play2/culture-hub/public/sip-creator/*.zip
+/play2/culture-hub/public/sip-creator/*.jnlp
+
+logs
+project/project
+project/target
+target
+tmp
+
+.idea_modules

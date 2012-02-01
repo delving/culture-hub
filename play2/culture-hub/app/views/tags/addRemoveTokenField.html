@@ -1,0 +1,62 @@
+<input type="text" id="${_id}" name="${_name}">
+#{if _removeConfirmation}
+<div id="removeConfirmation${_id}" title="&{'thing.confirmation'}" style="display: none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${_removeConfirmation}
+  </p>
+</div>
+#{/}
+
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    addRemoveTokenInput('#${_id}', '${_searchUrl}', ${_prePopulate ? _prePopulate.raw() : "[]"}, '${_addUrl}', '${_removeUrl}', '${_removeConfirmation ? '#removeConfirmation'+_id : null }');
+
+    function addRemoveTokenInput(id, searchUrl, prePopulate, addUrl, removeUrl, removeConfirmationDialog) {
+
+    $(id).tokenInput(searchUrl, {
+      prePopulate: typeof prePopulate !== 'undefined' ? prePopulate : [],
+      preventDuplicates: true,
+      onAdd: function(item) {
+        $.ajax({
+          type: 'POST',
+          url: addUrl,
+          data: {id: item.id},
+          error: function(jqXHR, textStatus, errorThrown) {
+            // TODO prompt the user that something went wrong
+            $(id).tokenInput('remove', {id: item.id})
+          }
+        });
+      },
+      onDelete: function(item) {
+        if(removeConfirmationDialog) {
+          confirmDeletion(removeConfirmationDialog, function() {
+            $.ajax({
+              type: 'DELETE',
+              url: removeUrl,
+              data: {id: item.id},
+              error: function(jqXHR, textStatus, errorThrown) {
+                // TODO prompt the user that something went wrong
+              $(id).tokenInput('add', {id: item.id, name: item.name});
+              }
+            });
+          }, function() {
+              $(id).tokenInput('add', {id: item.id, name: item.name});
+          });
+        } else {
+          $.ajax({
+            type: 'DELETE',
+            url: removeUrl,
+            data: {id: item.id},
+            error: function(jqXHR, textStatus, errorThrown) {
+              // TODO prompt the user that something went wrong
+              $(id).tokenInput('add', {id: item.id, name: item.name});
+            }
+          });
+        }
+      }
+    });
+    $(id).blur();
+    }
+  });
+</script>

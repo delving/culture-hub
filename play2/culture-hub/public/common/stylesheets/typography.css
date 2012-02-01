@@ -1,0 +1,135 @@
+/*
+TEXT DEFAULTS
+*/
+
+/* =Basic HTML
+--------------------------------------------------------------------------------*/
+
+body
+{
+	font: 13px/1.5 Helvetica, Arial, 'Liberation Sans', FreeSans, sans-serif;
+}
+
+a:focus
+{
+	outline: 1px dotted invert;
+}
+
+hr
+{
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0 0;
+	clear: both;
+	height: 0;
+}
+
+/* =Headings
+--------------------------------------------------------------------------------*/
+
+h1
+{
+	font-size: 40px;
+}
+
+h2
+{
+	font-size: 25px;
+}
+
+h3
+{
+	font-size: 20px;
+}
+
+h4
+{
+	font-size: 15px;
+}
+
+h5
+{
+	font-size: 12px;
+}
+
+h6
+{
+	font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+}
+
+h1, .h1 {
+    font-size: 196%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h2, .h2 {
+    font-size: 167%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h3, .h3 {
+    font-size: 146.5%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h4, .h4 {
+    font-size: 123.1%;
+    font-weight: normal;
+    font-style: normal;
+}
+
+h5, .h5 {
+    font-size: 108%;
+    font-weight: bold;
+    font-style: normal;
+}
+
+h6, .h6 {
+    font-size: 108%;
+    font-weight: normal;
+    font-style: italic;
+    padding:  0 0 10px 10px;
+}
+
+ul
+{
+	list-style: square;
+    margin:  0;
+    padding:  0 0 10px 10px;
+}
+
+li
+{
+	margin-left: 20px;
+}
+
+
+ol {
+    list-style-type: decimal;
+}
+
+p,
+dl,
+hr,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ol,
+ul,
+pre,
+table,
+address,
+fieldset
+{
+	margin-bottom: 20px;
+}
