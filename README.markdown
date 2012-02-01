@@ -26,7 +26,7 @@ The CultureHub is a platform that aims at making cultural objects accessible onl
 
 Run the application via
 
-    play run --%youruser
+    play run
 
 where `youruser` is the key you used for your custom properties in `conf/application.conf`
 
