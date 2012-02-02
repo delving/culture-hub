@@ -3,6 +3,7 @@
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
+import core.mapping.MappingService
 import play.api._
 import util.ThemeHandler
 
@@ -25,6 +26,11 @@ object Global extends GlobalSettings {
 
     // load themes
     ThemeHandler.startup()
+
+
+    // initialize various components, this should be done the cake way now that we can
+
+    MappingService.init()
 
   }
 

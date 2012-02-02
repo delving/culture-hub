@@ -7,6 +7,8 @@ object ApplicationBuild extends Build {
   val appName = "culture-hub"
   val appVersion = "1.0"
 
+  val dosVersion = "1.5"
+
   val appDependencies = Seq(
     "play"                      %% "groovy-templates"                % "0.1-SNAPSHOT",
     "com.jamonapi"              %  "jamon"                           % "2.7",
@@ -24,12 +26,14 @@ object ApplicationBuild extends Build {
 
   val frameworkExtensions = Project("framework-extensions", file("modules/framework-extensions"))
 
+  val dos = PlayProject("dos", dosVersion, path = file("modules/dos")).dependsOn(frameworkExtensions)
+
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers += "jahia" at "http://maven.jahia.org/maven2",
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
     resolvers += "delving-snapshots" at "http://development.delving.org:8081/nexus/content/repositories/snapshots",
     resolvers += "delving-releases" at "http://development.delving.org:8081/nexus/content/repositories/releases"
-  ).dependsOn(frameworkExtensions)
+  ).dependsOn(frameworkExtensions, dos)
 
 }
