@@ -1,0 +1,9 @@
+Master,
+
+an error has happened:
+
+${report}
+
+
+----
+${quote}

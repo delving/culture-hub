@@ -16,6 +16,9 @@ import play.api.i18n.Messages
 
 object Authentication extends Controller with GroovyTemplates with ThemeAware {
 
+  val USERNAME = "userName"
+  val REMEMBER_COOKIE = "rememberme"
+
   case class Auth(userName: String, password: String)
 
   val loginForm = Form(
@@ -41,7 +44,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
   def logout = Action {
     Redirect(routes.Authentication.login).withNewSession.flashing(
       "success" -> Messages("authentication.logout")
-    )
+    ).discardingCookies(REMEMBER_COOKIE)
   }
 
   /**
@@ -59,7 +62,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
 
           if (user._3) {
             action.withCookies(Cookie(
-              name = "rememberme",
+              name = REMEMBER_COOKIE,
               value = Crypto.sign(user._1) + "-" + user._1,
               maxAge = Time.parseDuration("30d")
             ))

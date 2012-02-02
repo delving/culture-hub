@@ -1,0 +1,5 @@
+Hi ${user.fullname} !
+
+${play.i18n.Messages.get('mail.message.activateaccount', views.context.package.themeDisplayName())}:
+
+@@{application.index}registration/activate/${activationToken}

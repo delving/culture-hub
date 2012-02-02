@@ -3,13 +3,12 @@ package controllers
 import play.api.mvc._
 import Results._
 import play.api.libs.Crypto
+import Authentication.USERNAME
 
 /**
  * Secured trait, based on the example in ZenTasks
  */
 trait Secured {
-
-  val USERNAME = "userName"
 
   private def username(request: RequestHeader) = request.session.get(USERNAME)
 
@@ -17,16 +16,17 @@ trait Secured {
     request.session - USERNAME
     request.session +("uri", if (("GET" == request.method)) request.uri else "/")
 
-    request.cookies.get("rememberme") map {
+    request.cookies.get(Authentication.REMEMBER_COOKIE) map {
       remember =>
         val sign = remember.value.substring(0, remember.value.indexOf("-"))
         val username = remember.value.substring(remember.value.indexOf("-") + 1)
         if (Crypto.sign(username) == sign) {
-          request.session +(USERNAME, username)
-          return request.session.get("uri") match {
+          val authenticated = request.session + (USERNAME, username)
+          val action = request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
             case None => Redirect(controllers.routes.Application.index)
           }
+          return action.withSession(authenticated)
         }
     }
     Redirect(routes.Authentication.login)

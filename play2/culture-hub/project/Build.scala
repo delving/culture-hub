@@ -10,9 +10,6 @@ object ApplicationBuild extends Build {
   val dosVersion = "1.5"
 
   val appDependencies = Seq(
-    "play"                      %% "groovy-templates"                % "0.1-SNAPSHOT",
-    "com.jamonapi"              %  "jamon"                           % "2.7",
-
     "org.apache.amber"          % "oauth2-authzserver"               % "0.2-SNAPSHOT",
     "org.apache.amber"          % "oauth2-client"                    % "0.2-SNAPSHOT",
     "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
