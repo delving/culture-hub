@@ -45,7 +45,7 @@ import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingN
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-                   user_id: ObjectId, // who created this
+                   user_id: ObjectId, // who created this, TODO: replace with userName
                    orgId: Predef.String,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),

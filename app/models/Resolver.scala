@@ -23,7 +23,7 @@ import com.mongodb.casbah.Imports._
 import models.Commons.FilteredMDO
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
@@ -37,11 +37,11 @@ trait Resolver[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =
     }
   }
 
-  def findById(id: String, user: ObjectId): Option[A] = {
+  def findById(id: String, userName: String): Option[A] = {
     id match {
       case null => None
       case objectId if !ObjectId.isValid(objectId) => None
-      case objectId => findOne(FilteredMDO("_id" -> new ObjectId(id)) ++ $or("user_id" -> user, "contributors" -> user))
+      case objectId => findOne(FilteredMDO("_id" -> new ObjectId(id)) ++ $or("userName" -> userName))
     }
   }
 
