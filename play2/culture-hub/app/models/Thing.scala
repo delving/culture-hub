@@ -28,7 +28,6 @@ trait Base extends AnyRef with Product {
 
   val _id: ObjectId
   val TS_update: Date
-  val user_id: ObjectId
   val userName: String
 
 }

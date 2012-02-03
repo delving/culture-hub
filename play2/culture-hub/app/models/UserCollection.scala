@@ -31,7 +31,6 @@ import core.indexing.IndexingService
 
 case class UserCollection(_id: ObjectId = new ObjectId,
                           TS_update: Date,
-                          user_id: ObjectId,
                           userName: String,
                           name: String,
                           description: String,

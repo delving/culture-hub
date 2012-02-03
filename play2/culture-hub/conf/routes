@@ -161,7 +161,7 @@ POST       /registration/newPassword/:resetPasswordToken                        
 #GET         /organizations/{orgId}/site/listImages                           organization.CMS.listImages
 #GET         /organizations/{orgId}/site/?{language}?                         organization.CMS.list
 #GET         /organizations/{orgId}/site/{language}/page/add                  organization.CMS.page
-vGET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
+#GET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
 #POST        /organizations/{orgId}/site/page                                 organization.CMS.pageSubmit
 #DELETE      /organizations/{orgId}/site/{language}/page/{key}                organization.CMS.pageDelete
 

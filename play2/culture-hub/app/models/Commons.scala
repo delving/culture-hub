@@ -29,21 +29,19 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
   def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false, "blocked" -> false)
 
-  def idVisibilityQuery(who: ObjectId) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "user_id" -> who)))
   def visibilityQuery(userName: String) = MongoDBObject("$or" -> List(MongoDBObject("visibility.value" -> Visibility.PUBLIC.value), MongoDBObject("visibility.value" -> Visibility.PRIVATE.value, "userName" -> userName)))
 
   def browseByUser(userName: String, whoBrowses: String) = find(FilteredMDO("userName" -> userName) ++ visibilityQuery(whoBrowses))
-  def browseAll(whoBrowses: ObjectId) = find(FilteredMDO() ++ idVisibilityQuery(whoBrowses))
 
   def findAllWithIds(ids: List[ObjectId]) = find(("_id" $in ids) ++ FilteredMDO() )
   def findRecent(howMany: Int) = find(FilteredMDO("visibility.value" -> Visibility.PUBLIC.value)).sort(MongoDBObject("TS_update" -> -1)).limit(howMany)
   def findByUser(userName: String) = find(FilteredMDO("userName" -> userName))
 
-  def findVisibleByUser(userName: String, whoBrowses: ObjectId) = find(FilteredMDO("userName" -> userName) ++ idVisibilityQuery(whoBrowses))
+  def findVisibleByUser(userName: String, whoBrowses: String) = find(FilteredMDO("userName" -> userName) ++ visibilityQuery(whoBrowses))
 
   def findByIdSecured(id: ObjectId, userName: String) = findOne(FilteredMDO("_id" -> id) ++ visibilityQuery(userName))
 
-  def owns(user: ObjectId, id: ObjectId) = count(MongoDBObject("_id" -> id, "user_id" -> user)) > 0
+  def owns(userName: String, id: ObjectId) = count(MongoDBObject("_id" -> id, "userName" -> userName)) > 0
 
   def delete(id: ObjectId) {
     update(MongoDBObject("_id" -> id), $set ("deleted" -> true), false, false)
