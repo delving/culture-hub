@@ -2,13 +2,57 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+#GET         /public/themes/{theme}/info.conf                                 404
+#GET         /public/themes/{theme}/{<.*>relativePath}                        Asset.serveTheme
+
+#GET         /robots.txt                                                      staticFile:public/robots.txt
+
+#GET         /asset                                                           Asset.get
+
 # Home page
 GET     /                                                                           controllers.Application.index
+
+# Site page
+#GET         /page/{key}                                                      Application.page
+
 
 # Form-based authentication
 GET        /login                                                                  controllers.Authentication.login
 POST       /login                                                                  controllers.Authentication.authenticate
 GET        /logout                                                                 controllers.Authentication.logout
+
+# OAuth2
+#GET         /authorize                                                       OAuth2Authenticator.authenticate
+#GET         /token                                                           OAuth2TokenEndpoint.token
+
+# Image viewer for high-resolution images
+#GET        /image/viewer                                                     Images.view
+#GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
+#GET        /deepzoom/?                                                       Images.iipsrv
+
+# Image Upload - with authentication
+#POST       /file/upload/{uid}                                                user.FileUpload.uploadFile
+#DELETE     /file/{id}                                                        user.FileUpload.deleteFile
+
+
+# Delving object Server module
+#*          /                                                                 module:dos
+#*          /                                                                 module:press
+
+# Backwards compatibility with the old services module
+#GET         /services/                                                       Services.index
+#GET         /services/api/solr/select                                        Services.solrSearchProxy
+#GET         /services/api/search                                             Services.searchApi
+#GET         /services/api/{spec}:{id}                                        Services.retrieveRecord
+#GET         /services/api/open-search                                        Services.index
+#GET         /services/api/open-search.xml                                    Services.index
+#GET         /services/oai-pmh                                                Services.oaipmh
+#GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
+
+# Custom Controllers and Functionality for customers
+# TODO maybe later change this to an action based mechanism
+#GET         /services/api/itin                                               custom.ItinEndPoint.search
+#POST        /services/api/itin                                               custom.ItinEndPoint.store
 
 
 # User registration
@@ -21,6 +65,145 @@ POST       /registration/resetPasswordEmail                                     
 GET        /registration/resetPassword/:resetPasswordToken                         controllers.Registration.resetPassword(resetPasswordToken)
 POST       /registration/newPassword/:resetPasswordToken                           controllers.Registration.newPassword(resetPasswordToken)
 
+
+
+# Enrichment lookups
+
+#GET         /enrichment/place/search                                         ws.Places.find
+
+# Delving URL scheme
+
+#GET         /users/?                                                         Users.list
+#GET         /users/search                                                    Users.listAsTokens
+#GET         /collections/?                                                   Collections.list
+#GET         /objects/?                                                       DObjects.list
+#GET         /heritageObjects/?                                               HeritageObjects.list
+#GET         /stories/?                                                       Stories.list
+
+#GET         /search                                                          Search.index
+
+#GET         /{user}/?                                                        Profile.profile
+
+#POST        /{user}/block                                                    admin.NodeAdmin.blockUser
+
+#GET         /{user}/label/search                                             Links.listFreeTextAsTokens
+
+#POST        /{user}/link/{linkType}/{toType}/{toId}                          user.Links.add(fromType:'user')
+#DELETE      /{user}/link/{linkType}/{link}                                   user.Links.removeById(fromType:'user')
+
+#GET         /{user}/object                                                   DObjects.list
+#GET         /{user}/object/add                                               user.DObjects.dobject
+#GET         /{user}/object/{id}/update                                       user.DObjects.dobject
+#POST        /{user}/object/{fromId}/link/{linkType}/{toType}/{toId}          user.Links.add(fromType:'object')
+#DELETE      /{user}/object/{fromId}/link/{linkType}/{link}                   user.Links.removeById(fromType:'object')
+#POST        /{user}/object/submit                                            user.DObjects.objectSubmit
+#DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
+#POST        /{user}/object/{id}/block                                        admin.NodeAdmin.blockDObject
+#GET         /{user}/object/{id}                                              DObjects.dobject
+
+#GET         /{orgId}/object/{spec}/{recordId}/overlay                          Search.record(overlay:'true')
+#POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.add(fromType:'mdr')
+#DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.remove(fromType:'mdr')
+#GET         /{orgId}/object/{spec}/{recordId}                                  Search.record
+
+#GET         /{user}/sip-creator.jnlp                                         organization.SipCreator.jnlp
+
+#GET         /{user}/collection                                               Collections.list
+#GET         /{user}/collection/{id}/objects                                  Collections.listObjects
+#GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
+#GET         /{user}/collection/add                                           user.Collections.collection
+#GET         /{user}/collection/{id}/update                                   user.Collections.collection
+#POST        /{user}/collection/{fromId}/link/{linkType}/{toType}/{toId}      user.Links.add(fromType:'collection')
+#DELETE      /{user}/collection/{fromId}/link/{linkType}/{link}               user.Links.removeById(fromType:'collection')
+#POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
+#DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
+#POST        /{user}/collection/{id}/block                                    admin.NodeAdmin.blockUserCollection
+#GET         /{user}/collection/{id}                                          Collections.collection
+
+#GET         /{user}/story                                                    Stories.list
+#GET         /{user}/story/add                                                user.Stories.story
+#GET         /{user}/story/{id}/update                                        user.Stories.story
+#POST        /{user}/story/{fromId}/link/{linkType}/{toType}/{toId}           user.Links.add(fromType:'story')
+#DELETE      /{user}/story/{fromId}/link/{linkType}/{link}                    user.Links.removeById(fromType:'story')
+#POST        /{user}/story/submit                                             user.Stories.storySubmit
+#DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
+#POST        /{user}/story/{id}/block                                         admin.NodeAdmin.blockStory
+#GET         /{user}/story/{id}                                               Stories.story
+#GET         /{user}/story/{id}/read                                          Stories.read
+
+
+#GET         /{user}/admin/?                                                  user.Admin.index
+#GET         /{user}/admin/profile/update                                     user.Admin.profile
+#POST        /{user}/admin/profile                                            user.Admin.profileSubmit
+
+# Organizations
+#GET        /organizations/{orgId}/?                                          organization.Organizations.index
+#GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
+#GET        /organizations/{orgId}/search/?                                   Services.searchApi
+#GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
+#POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
+#DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
+
+#GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
+#GET        /organizations/{orgId}/users/search                               Users.listAsTokens
+
+#GET        /organizations/{orgId}/groups/create                              organization.Groups.groups
+#GET        /organizations/{orgId}/groups/update/{groupId}                    organization.Groups.groups
+#GET        /organizations/{orgId}/groups/load/{groupId}?                     organization.Groups.load
+#POST       /organizations/{orgId}/groups/update                              organization.Groups.update
+#POST       /organizations/{orgId}/groups/{groupId}/addUser                   organization.Groups.addUser
+##DELETE     /organizations/{orgId}/groups/{groupId}/removeUser                organization.Groups.removeUser
+#POST       /organizations/{orgId}/groups/{groupId}/addDataset                organization.Groups.addDataset
+#DELETE     /organizations/{orgId}/groups/{groupId}/removeDataset             organization.Groups.removeDataset
+
+#GET         /organizations/{orgId}/site/upload                               organization.CMS.upload
+#POST        /organizations/{orgId}/site/upload/{uid}                         organization.CMS.uploadSubmit
+#GET         /organizations/{orgId}/site/listImages                           organization.CMS.listImages
+#GET         /organizations/{orgId}/site/?{language}?                         organization.CMS.list
+#GET         /organizations/{orgId}/site/{language}/page/add                  organization.CMS.page
+vGET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
+#POST        /organizations/{orgId}/site/page                                 organization.CMS.pageSubmit
+#DELETE      /organizations/{orgId}/site/{language}/page/{key}                organization.CMS.pageDelete
+
+
+#GET         /organizations/{orgId}/dataset/?                                 organization.DataSets.list
+#GET         /organizations/{orgId}/dataset/add                               organization.DataSetControl.dataSet
+#GET         /organizations/{orgId}/dataset/{spec}/update                     organization.DataSetControl.dataSet
+#POST        /organizations/{orgId}/dataset/submit                            organization.DataSetControl.dataSetSubmit
+#GET         /organizations/{orgId}/dataset/{spec}                            organization.DataSets.dataSet
+#GET         /organizations/{orgId}/dataset/load/{spec}?                      organization.DataSets.dataSet
+#POST        /organizations/{orgId}/dataset/{spec}/index                      organization.DataSetControl.index
+#POST        /organizations/{orgId}/dataset/{spec}/reindex                    organization.DataSetControl.reIndex
+#POST        /organizations/{orgId}/dataset/{spec}/cancel                     organization.DataSetControl.cancel
+#GET         /organizations/{orgId}/dataset/{spec}/indexingStatus             organization.DataSetControl.indexingStatus
+#GET         /organizations/{orgId}/dataset/{spec}/state                      organization.DataSetControl.state
+#POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
+#POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
+#DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.delete
+#POST        /organizations/{orgId}/dataset/{spec}/invalidate                 organization.DataSetControl.invalidate
+#POST        /organizations/{orgId}/dataset/{spec}/forceUnlock                organization.DataSetControl.forceUnlock
+
+#GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
+
+#GET         /api/sip-creator/list                                            SipCreatorEndPoint.listAll
+#GET         /api/sip-creator/unlock/{orgId}/{spec}                           SipCreatorEndPoint.unlock
+#POST        /api/sip-creator/submit/{orgId}/{spec}                           SipCreatorEndPoint.acceptFileList
+#POST        /api/sip-creator/submit/{orgId}/{spec}/{fileName}                SipCreatorEndPoint.acceptFile
+#GET         /api/sip-creator/fetch/{orgId}/{spec}-sip.zip                    SipCreatorEndPoint.fetchSIP
+
+# Hub Administration
+#GET        /admin/themes                                                     admin.Themes.index
+#GET        /admin/themes/load/{id}?                                          admin.Themes.load
+#GET        /admin/themes/list                                                admin.Themes.list
+#GET        /admin/themes/new                                                 admin.Themes.themeUpdate
+#GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
+#POST       /admin/themes/submit                                              admin.Themes.themeSubmit
+#GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
+#GET        /admin/indexUGC                                                   admin.Admin.indexUGC
+#GET        /admin/indexDataSets                                              admin.Admin.indexDataSets
+
+#GET        /image/upload                                                     ImageUpload.upload
+#POST       /image/upload                                                     ImageUpload.uploadFile
 
 
 # Map static resources from the /public folder to the /assets URL path
