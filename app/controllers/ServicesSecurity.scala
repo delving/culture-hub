@@ -38,7 +38,6 @@ class ServicesSecurity extends Security with Internationalization {
         // create default bookmarks collection
         val bookmarksCollection = UserCollection(
           TS_update = new Date(),
-          user_id = user.get._id,
           userName = userName,
           name = "Bookmarks",
           description = "Bookmarks",
