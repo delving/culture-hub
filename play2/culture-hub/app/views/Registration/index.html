@@ -1,0 +1,54 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('register') /}
+
+<div id="register" class="row">
+
+    ${registrationForm}
+
+    <div class="grid_12">
+    <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="register">
+        #{authenticityToken /}
+        <h3>${messages.get('registration.registerFor', themeInfo.displayName())}</h3>
+        #{if views.Helpers.hasErrors(registrationForm)}
+        <p class="error pam">
+            Error creating your account, please correct the errors
+        </p>
+            <ul>
+            #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
+                <li>${e}</li>
+            #{/list}
+            </ul>
+        #{/if}
+
+        #{textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
+        #{textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
+        #{textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
+        <hr>
+        #{textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
+        #{passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
+        #{passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
+
+        <hr>
+            <div class="field">
+                <label class="label" for="code">&{'ui.label.captcha'}</label>
+                   <div class="inputs">
+                            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.Helpers.showError('code', registrationForm)}required #{/if}">
+
+                            <input type="hidden" name="randomId" value="${randomId}">
+                            <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
+                            <span class="help"><strong>&{'ui.label.required'}</strong></span>
+
+                       <div class="extra">
+                           <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
+                       </div>
+                </div>
+            </div>
+
+        <div class="buttons">
+            #{btnButton label: messages.get('ui.label.register'), id:"submit", extraClass:"action complete"/}
+            #{btnButton label: messages.get('ui.label.cancel'), extraClass:"action cancelButton"/}
+        </div>
+
+    </form>
+    </div>
+</div>

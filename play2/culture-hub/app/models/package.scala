@@ -21,12 +21,12 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoCollection}
 import com.mongodb.DBObject
 import play.api.Play.current
+import extensions.ConfigurationException
 
 // TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
 
-  // TODO MIGRATION
-  def getNode = "cultureHub" //play.Play.configuration.getProperty("culturehub.nodeName")
+  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
   // ~~~ mongo connections
   val connectionName = current.configuration.getString("cultureHub.db.name").getOrElse(if(Play.isDev) "culturehub" else null)

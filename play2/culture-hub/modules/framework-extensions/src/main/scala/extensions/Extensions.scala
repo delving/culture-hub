@@ -1,3 +1,5 @@
+package extensions
+
 /*
  * Copyright 2011 Delving B.V.
  *
@@ -13,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package extensions {
 
 import org.bson.types.ObjectId
 import org.codehaus.jackson.map.annotate.JsonCachable
@@ -78,6 +79,4 @@ object ProgrammerException {
 
 object ConfigurationException {
   def apply(message: String) = PlayException("Configuration Exception", message)
-}
-
 }

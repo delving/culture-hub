@@ -28,13 +28,13 @@ switch (recordType) {
                     <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('video/') }
-                     <img src="@{'/public/common/images/icon_video.png'}" width="80" alt="${_data.getTitle()}"/>
+                     <img src="@{routes.Assets.at('/public/common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('audio/') }
-                    <img src="@{'/public/common/images/icon_audio.png'}" width="80" alt="${_data.getTitle()}"/>
+                    <img src="@{routes.Assets.at('/public/common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('unknown/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
+                    <img src='${_data.getThumbnailUri(_iSize)})' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
                 #{/}
 
                 <div class="overlay" style="display:none"></div>
@@ -46,10 +46,10 @@ switch (recordType) {
                 #{/if}
             <div class="ic_caption">
                 <p class="ic_category">${recordType}</p>
-                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
+                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
                 <p class="ic_text info-box small">
                     <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-                    #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
+                    #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
                 </p>
             </div>
         </div>
@@ -61,14 +61,14 @@ switch (recordType) {
         <div class="media" style="margin:0; height:inherit">
             <div class="bd">
                 <a href="${_data.getUri()}">
-                    <img src='/public/images/dummy-object.png' width="" class="img" alt="${_data.getTitle()}"/>
+                    <img src='@{routes.Assets.at('/images/dummy-object.png')}' width="" class="img" alt="${_data.getTitle()}"/>
                 </a>
                 <div class="metadata">
                     <p class="ic_category">${recordType}</p>
-                    <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
+                    <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
                     <div class="info-box small smaller">
                         <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-                        #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
+                        #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
                     </div>
                 </div>
             </div>
@@ -83,10 +83,10 @@ switch (recordType) {
         <a href="${_data.getUri()}" class="clip clip-${_iSize}"><img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/></a>
         <div class="bd">
             <div class="metadata">
-                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${_data.getTitle().shorten(50)}</a></span>
+                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
                 <div class="info-box small smaller">
                     <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-                    #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${_data.getDescription().shorten(80)}</span>#{/if}
+                    #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
                 </div>
             </div>
         </div>

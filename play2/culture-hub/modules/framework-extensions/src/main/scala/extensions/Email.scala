@@ -15,18 +15,18 @@ case class Email(subject: String, content: String = "", from: String, to: Seq[St
 
   val hostName = current.configuration.getString("mail.smtp.host").getOrElse("")
   val smtpPort = current.configuration.getInt("mail.smtp.port").getOrElse(587)
-  val mockMail = current.configuration.getString("mail.smtp").getOrElse("default") == "mock"
+  val mailerType = current.configuration.getString("mail.smtp.type").getOrElse("mock")
 
 
   def to(to: String*): Email = this.copy(to = this.to ++ to)
   def bcc(bcc: String*): Email = this.copy(bcc = this.bcc ++ bcc)
 
   def withContent(content: String) = this.copy(content = content)
-  def withTemplate(name: String, args: (Symbol, AnyRef)*) = this.copy(content = renderMailTemplate(name, args.map(e => (e._1.toString(), e._2)).toMap))
+  def withTemplate(name: String, args: (Symbol, AnyRef)*) = this.copy(content = renderMailTemplate(name, args.map(e => (e._1.name, e._2)).toMap))
 
   def send() {
 
-    if(mockMail) {
+    if(mailerType == "mock") {
 
       val mail = """
 
@@ -38,12 +38,11 @@ case class Email(subject: String, content: String = "", from: String, to: Seq[St
       Subject:   %s
 
       %s
-
       ~~~~~~~~~~~~~~~~~~~~~~
 
       """.format(from, to.mkString(", "), bcc.mkString(", "), subject, content)
 
-      Logger("MockMailer").info(mail)
+      Logger("play").info(mail)
 
     } else {
 
@@ -63,12 +62,15 @@ case class Email(subject: String, content: String = "", from: String, to: Seq[St
   }
 
   private def renderMailTemplate(name: String, args: Map[String, AnyRef]) = {
-    current.plugin[GroovyTemplatesPlugin].map(_.renderTemplate(name, args)).getOrElse("")
+    current.plugin[GroovyTemplatesPlugin].map(_.renderTemplate(name, args)).getOrElse(Right("")).fold(
+      left => throw(left),
+      right => right
+    )
   }
 
 }
 
 object Email {
 
-  def apply(from: String, subject: String): Email = Email(from = from, subject = subject)
+  def apply(from: String, subject: String): Email = new Email(from = from, subject = subject)
 }

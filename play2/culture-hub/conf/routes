@@ -6,9 +6,22 @@
 GET     /                                                                           controllers.Application.index
 
 # Form-based authentication
-GET         /login                                                                  controllers.Authentication.login
-POST        /login                                                                  controllers.Authentication.authenticate
-GET         /logout                                                                 controllers.Authentication.logout
+GET        /login                                                                  controllers.Authentication.login
+POST       /login                                                                  controllers.Authentication.authenticate
+GET        /logout                                                                 controllers.Authentication.logout
+
+
+# User registration
+GET        /registration                                                           controllers.Registration.index
+POST       /registration/register                                                  controllers.Registration.register
+GET        /registration/captcha/:id                                               controllers.Registration.captcha(id)
+GET        /registration/activate/:activationToken                                 controllers.Registration.activate(activationToken)
+GET        /registration/lostPassword                                              controllers.Registration.lostPassword
+POST       /registration/resetPasswordEmail                                        controllers.Registration.resetPasswordEmail
+GET        /registration/resetPassword/:resetPasswordToken                         controllers.Registration.resetPassword(resetPasswordToken)
+POST       /registration/newPassword/:resetPasswordToken                           controllers.Registration.newPassword(resetPasswordToken)
+
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)

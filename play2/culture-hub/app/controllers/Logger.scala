@@ -31,7 +31,7 @@ import core.ThemeAware
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logging extends Secured { self: Controller with ThemeAware =>
+trait Logging extends Secured { self: ApplicationController =>
 
   import ErrorReporter._
 
@@ -101,12 +101,12 @@ trait Logging extends Secured { self: Controller with ThemeAware =>
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
     Logger(CH).error(withContext(message).format(args : _ *))
-    reportError(request, message.format(args), theme)
+    reportError(request, if(message != null) message.format(args) else "", theme)
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
     Logger(CH).error(withContext(message).format(args : _ *), e)
-    reportError(request, message.format(args), theme)
+    reportError(request, if(message != null) message.format(args) else "", theme)
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
