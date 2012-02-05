@@ -8,6 +8,7 @@ import core.ThemeAware
 import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
+import models.User
 
 /**
  *
@@ -27,13 +28,16 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => true //User.connect(username, password)
+      case (u, p, r) => User.connect(u, p)
     }))
 
   def login = Themed {
     Action {
       implicit request =>
         if(session.get("userName").isDefined) {
+
+          // TODO MIGRATION onAuthenticated
+
           Redirect(controllers.routes.Application.index)
         } else {
           Ok(Template('loginForm -> loginForm))
