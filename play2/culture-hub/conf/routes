@@ -22,8 +22,8 @@ POST       /login                                                               
 GET        /logout                                                                 controllers.Authentication.logout
 
 # OAuth2
-#GET         /authorize                                                       OAuth2Authenticator.authenticate
-#GET         /token                                                           OAuth2TokenEndpoint.token
+GET        /authorize                                                              controllers.OAuth2Authenticator.authenticate
+GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
 
 # Image viewer for high-resolution images
 #GET        /image/viewer                                                     Images.view

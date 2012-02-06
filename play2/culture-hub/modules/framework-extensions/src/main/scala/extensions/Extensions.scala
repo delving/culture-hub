@@ -22,7 +22,7 @@ import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.map.{JsonSerializer, SerializerProvider, JsonDeserializer, DeserializationContext}
 import org.codehaus.jackson.{Version, JsonGenerator, JsonParser}
 import play.api.mvc.PathBindable
-import play.api.mvc.Results.Ok
+import play.api.mvc.Results.Status
 import com.codahale.jerkson.Json._
 import play.api.PlayException
 
@@ -32,7 +32,7 @@ import play.api.PlayException
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class Extensions {
+trait Extensions {
 
   implicit def bindableObjectId = new PathBindable[ObjectId] {
     def bind(key: String, value: String) = {
@@ -46,7 +46,7 @@ class Extensions {
     def unbind(key: String, value: ObjectId) = value.toString
   }
 
-  def Json(data: AnyRef) = Ok(generate(data)).as("application/json")
+  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
 
 }
 

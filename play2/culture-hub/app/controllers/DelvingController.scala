@@ -28,10 +28,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
-  /**
-   * The bird action, setting up the appropriate context for all requests
-   */
-  def `?`[A](action: Action[A]): Action[A] = {
+  def ><>[A](action: Action[A]): Action[A] = {
     Themed {
       Action(action.parser) {
         implicit request: Request[A] => {
