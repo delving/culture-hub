@@ -3,7 +3,7 @@
 #{set bodyId: 'authenticate' /}
 <div class="row">
     <div id="login" class="grid_6 prefix_3">
-        <form method="POST" class="login" action="@{controllers.routes.Authentication.authenticate()}"
+        <form method="POST" class="login" action="@{controllers.routes.Authentication.authenticate()}">
             <h3>Login</h3>
             #{if flash.error}
             <p class="panel error pam">
@@ -16,8 +16,8 @@
             </p>
             #{/if}
 
-            #{textField name:"userName", label: "ui.label.username", form: loginForm /}
-            #{passwordField name:"password", label: "ui.label.password", form: loginForm /}
+            #{textField name:"userName", label: messages.get("ui.label.username"), form: loginForm /}
+            #{passwordField name:"password", label: messages.get("ui.label.password"), form: loginForm /}
 
             <div class="field">
                 <label for="remember" class="label">&{'authentication.label.rememberme'}</label>

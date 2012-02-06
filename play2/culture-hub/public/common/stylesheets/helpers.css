@@ -21,7 +21,7 @@ hr {
 }
 
 .extHelp {
-    background-image: url(buttons/button-icons-color.png) !important;
+    background-image: url(/assets/common/stylesheets/buttons/button-icons-color.png) !important;
     background-position: -72px -90px;
     background-repeat: no-repeat;
     display: inline-block;
