@@ -4,9 +4,9 @@ import play.api.mvc._
 import models.{DObject, Story, UserCollection}
 import core.ThemeInfo
 
-object Application extends ApplicationController with ModelImplicits {
+object Application extends DelvingController {
 
-  def index = Themed {
+  def index = `?` {
     Action {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
