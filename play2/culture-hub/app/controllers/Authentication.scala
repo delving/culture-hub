@@ -9,6 +9,7 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import models.User
+import util.MissingLibs
 
 /**
  *
@@ -19,6 +20,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
 
   val USERNAME = "userName"
   val REMEMBER_COOKIE = "rememberme"
+  val AT_KEY = "___AT" // authenticity token
 
   case class Auth(userName: String, password: String)
 
@@ -62,7 +64,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
           val action = (request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
             case None => Redirect(controllers.routes.Application.index)
-          }).withSession("userName" -> user._1)
+          }).withSession("userName" -> user._1, AT_KEY -> authenticityToken)
 
           if (user._3) {
             action.withCookies(Cookie(
@@ -76,5 +78,15 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
         }
       )
   }
+
+  private def authenticityToken = Crypto.sign(MissingLibs.UUID)
+
+}
+
+
+object AccessControl {
+
+  val ORGANIZATIONS = "organizations"
+  val GROUPS = "groups"
 
 }
