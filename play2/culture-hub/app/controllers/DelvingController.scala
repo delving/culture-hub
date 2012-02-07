@@ -25,6 +25,20 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
 
+
+  // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
+
+  implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
+
+}
+
+
+case class RichBody[A <: AnyContent](body: A) {
+
+  def getFirst(key: String): Option[String] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).get.headOption
+    case None => None
+  }
 }
 
 /**
@@ -34,8 +48,8 @@ trait OrganizationController extends DelvingController with Secured {
 
   def isOwner: Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
 
-  def OrgOwnerAction[A](action: Action[A])(implicit orgId: String): Action[A] = {
-    OrgMemberAction {
+  def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
           if (isOwner) {
@@ -48,9 +62,9 @@ trait OrganizationController extends DelvingController with Secured {
     }
   }
 
-  def OrgMemberAction[A](action: Action[A])(implicit orgId: String): Action[A] = {
+  def OrgMemberAction[A](orgId: String)(action: Action[A]): Action[A] = {
     Themed {
-      OrgAction {
+      OrgBrowsingAction(orgId) {
         Authenticated {
           Action(action.parser) {
             implicit request => {
@@ -178,7 +192,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     }
   }
 
-  def OrgAction[A](action: Action[A])(implicit orgId: String): Action[A] = {
+  def OrgBrowsingAction[A](orgId: String)(action: Action[A]): Action[A] = {
     Root {
       Action(action.parser) {
         implicit request =>

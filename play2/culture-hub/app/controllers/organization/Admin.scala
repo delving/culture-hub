@@ -2,10 +2,10 @@ package controllers.organization
 
 import controllers.OrganizationController
 import play.api.mvc.Results._
-import models.Organization
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
+import models.{User, Organization}
 
 /**
  *
@@ -14,7 +14,7 @@ import play.api.mvc.Action
 
 object Admin extends OrganizationController {
 
-  def index(implicit orgId: String) = OrgOwnerAction {
+  def index(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
         val org = Organization.findByOrgId(orgId)
@@ -26,7 +26,33 @@ object Admin extends OrganizationController {
           Ok(Template('members -> membersAsTokens, 'owners -> idAndOwners._2, 'ownerGroupId -> idAndOwners._1.getOrElse("")))
         }
     }
-
   }
 
+  /**
+   * Add to organization
+   */
+  def addUser(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val id = request.body.getFirst("id").get
+        User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
+        val success = Organization.addUser(orgId, id)
+        // TODO logging
+        if (success) Ok else Error
+        }
+    }
+
+  /**
+   * Remove from organization
+   */
+  def removeUser(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val id = request.body.getFirst("id").get
+        User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
+        val success = Organization.removeUser(orgId, id)
+        // TODO logging
+        if (success) Ok else Error
+  }
+  }
 }

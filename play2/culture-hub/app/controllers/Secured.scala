@@ -52,13 +52,4 @@ trait Secured {
       }
     }
   }
-
-  /**
-   * Check if the connected user is a member of this project.
-  def IsMemberOf(project: Long)(f: => String => Request[AnyContent] => Result) = IsAuthenticated {
-    user => request =>
-      Results.Forbidden
-  }
-   */
-
 }

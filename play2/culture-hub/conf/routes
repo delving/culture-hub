@@ -140,8 +140,8 @@ GET         /organizations/:orgId                                             co
 #GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
 #GET        /organizations/{orgId}/search/?                                   Services.searchApi
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
-#POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
-#DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
+POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
+DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 
 #GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
 #GET        /organizations/{orgId}/users/search                               Users.listAsTokens
