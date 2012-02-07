@@ -72,7 +72,7 @@ GET         /enrichment/place/search                                            
 
 # Delving URL scheme
 
-#GET         /users/?                                                         Users.list
+GET          /users                                                           controllers.Users.list(query: String ?= "", page: Int ?= 1)
 #GET         /users/search                                                    Users.listAsTokens
 #GET         /collections/?                                                   Collections.list
 #GET         /objects/?                                                       DObjects.list

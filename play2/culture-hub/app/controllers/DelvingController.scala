@@ -7,6 +7,9 @@ import play.templates.groovy.GroovyTemplates
 import play.api.mvc._
 import models.{Organization, MenuEntry, User}
 import extensions.{Extensions, ConfigurationException}
+import com.mongodb.casbah.commons.MongoDBObject
+import play.api.i18n.Messages
+import org.bson.types.ObjectId
 
 /**
  *
@@ -136,6 +139,26 @@ trait DelvingController extends ApplicationController with ModelImplicits {
       }
     }
   }
+
+  def connectedUserId = renderArgs("userId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
+
+  def browsedUserName: String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)
+
+  def browsedUserId: ObjectId = renderArgs("browsedUserId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
+
+  def browsedFullName: String = renderArgs("browsedFullName").map(_.asInstanceOf[String]).getOrElse(null)
+
+  def browsedUserExists: Boolean = renderArgs("browsedUserNotFound") == null
+
+  def browsedIsConnected(implicit request:RequestHeader): Boolean = browsedUserName == request.session.get(Authentication.USERNAME)
+
+  def browsingUser: Boolean = browsedUserName != null
+
+  def isNodeAdmin: Boolean = renderArgs("isNodeAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)
+
+  // ~~~ convenience methods
+
+  def listPageTitle(itemName: String) = if(browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
 
 
 }
