@@ -139,7 +139,7 @@ GET          /users/search                                                    co
 GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
 #GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
 #GET        /organizations/{orgId}/search/?                                   Services.searchApi
-#GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
+GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 #POST       /organizations/{orgId}/admin/users/add                            organization.Admin.addUser
 #DELETE     /organizations/{orgId}/admin/users/remove                         organization.Admin.removeUser
 

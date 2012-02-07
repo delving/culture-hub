@@ -20,7 +20,7 @@ trait Secured {
         val sign = remember.value.substring(0, remember.value.indexOf("-"))
         val username = remember.value.substring(remember.value.indexOf("-") + 1)
         if (Crypto.sign(username) == sign) {
-          val authenticateSession = request.session + (USERNAME, username)
+          val authenticateSession = request.session +(USERNAME, username)
           val action = request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
             case None => Redirect(controllers.routes.Application.index)
@@ -29,24 +29,36 @@ trait Secured {
         }
     }
 
-    val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
+    val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
     Redirect(routes.Authentication.login).withSession(session).flashing(("error" -> Messages("authentication.error")))
   }
 
   /**
    * Action for authenticated users.
    */
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result) = Security.Authenticated(username, onUnauthorized) {
+  def IsAuthenticated[A](f: => String => Request[A] => Result) = Security.Authenticated(username, onUnauthorized) {
     user =>
-      Action(request => f(user)(request))
+      Action(request => f(user)(request.asInstanceOf[Request[A]]))
+  }
+
+  def Authenticated[A](action: Action[A]): Action[A] = {
+    Action(action.parser) {
+      implicit request => {
+        if(username(request) == null) {
+          onUnauthorized(request)
+        } else {
+          action(request)
+        }
+      }
+    }
   }
 
   /**
    * Check if the connected user is a member of this project.
-   */
   def IsMemberOf(project: Long)(f: => String => Request[AnyContent] => Result) = IsAuthenticated {
     user => request =>
       Results.Forbidden
   }
+   */
 
 }

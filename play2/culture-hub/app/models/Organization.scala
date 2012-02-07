@@ -137,7 +137,7 @@ object GrantType {
 
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))
 
-  def description(key: String) = play.i18n.Messages.get("org.group.grantType." + key)
+  def description(key: String) = play.api.i18n.Messages("org.group.grantType." + key)
 
   val VIEW = GrantType("view", description("view"))
   val MODIFY = GrantType("modify", description("modify"))
