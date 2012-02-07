@@ -34,6 +34,12 @@ import play.api.PlayException
 
 trait Extensions {
 
+  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
+
+}
+
+object Binders {
+
   implicit def bindableObjectId = new PathBindable[ObjectId] {
     def bind(key: String, value: String) = {
       if (ObjectId.isValid(value)) {
@@ -45,8 +51,6 @@ trait Extensions {
 
     def unbind(key: String, value: ObjectId) = value.toString
   }
-
-  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
 
 }
 
