@@ -23,7 +23,9 @@ case class EmailTarget(adminTo: String = "test-user@delving.eu",
                        feedbackTo: String = "test-user@delving.eu",
                        registerTo: String = "test-user@delving.eu",
                        systemFrom: String = "noreply@delving.eu",
-                       feedbackFrom: String = "noreply@delving.eu")
+                       feedbackFrom: String = "noreply@delving.eu") {
+
+ }
 
 
 case class PortalTheme(_id:                                 ObjectId = new ObjectId,

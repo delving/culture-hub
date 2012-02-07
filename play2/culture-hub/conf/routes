@@ -136,7 +136,7 @@ GET          /users                                                           co
 #POST        /{user}/admin/profile                                            user.Admin.profileSubmit
 
 # Organizations
-#GET        /organizations/{orgId}/?                                          organization.Organizations.index
+GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
 #GET        /organizations/{orgId}/groups/?                                   organization.Groups.list
 #GET        /organizations/{orgId}/search/?                                   Services.searchApi
 #GET        /organizations/{orgId}/admin/?                                    organization.Admin.index
