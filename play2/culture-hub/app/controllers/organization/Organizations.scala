@@ -20,8 +20,24 @@ object Organizations extends DelvingController {
         Organization.findByOrgId(orgId) match {
           case Some(o) =>
             val members: List[ListItem] = User.find("userName" $in o.users).toList
-            val dataSets: List[ShortDataSet] = DataSet.findAllCanSee(orgId, connectedUserId).filter(ds => ds.visibility == Visibility.PUBLIC || (ds.visibility == Visibility.PRIVATE && session.get(AccessControl.ORGANIZATIONS) != null && request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId))).toList
-            Ok(Template('orgId -> o.orgId, 'orgName -> o.name.get(getLang).getOrElse(o.name("en")), 'memberSince -> o.userMembership.get(connectedUserId), 'members -> members, 'dataSets -> dataSets, 'isOwner -> Organization.isOwner(o.orgId, connectedUserId)))
+            val dataSets: List[ShortDataSet] =
+              DataSet.findAllCanSee(orgId, connectedUserId).
+                filter(ds =>
+                  ds.visibility == Visibility.PUBLIC ||
+                  (
+                    ds.visibility == Visibility.PRIVATE &&
+                    session.get(AccessControl.ORGANIZATIONS) != null &&
+                    request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId)
+                  )
+            ).toList
+            Ok(Template(
+              'orgId -> o.orgId,
+              'orgName -> o.name.get(getLang).getOrElse(o.name("en")),
+              'memberSince -> o.userMembership.get(connectedUserId),
+              'members -> members,
+              'dataSets -> dataSets,
+              'isOwner -> Organization.isOwner(o.orgId, connectedUserId)
+            ))
           case None => NotFound(Messages("organizations.organization.orgNotFound", orgId))
         }
     }
