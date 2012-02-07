@@ -37,7 +37,6 @@ GET        /token                                                               
 
 # Delving object Server module
 #*          /                                                                 module:dos
-#*          /                                                                 module:press
 
 # Backwards compatibility with the old services module
 #GET         /services/                                                       Services.index
@@ -69,7 +68,7 @@ POST       /registration/newPassword/:resetPasswordToken                        
 
 # Enrichment lookups
 
-#GET         /enrichment/place/search                                         ws.Places.find
+GET         /enrichment/place/search                                               controllers.ws.Places.find
 
 # Delving URL scheme
 
