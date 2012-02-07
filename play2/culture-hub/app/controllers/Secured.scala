@@ -4,6 +4,7 @@ import play.api.mvc._
 import Results._
 import play.api.libs.Crypto
 import Authentication.USERNAME
+import play.api.i18n.Messages
 
 /**
  * Secured trait, based on the example in ZenTasks
@@ -13,23 +14,23 @@ trait Secured {
   private def username(request: RequestHeader) = request.session.get(USERNAME)
 
   private def onUnauthorized(request: RequestHeader): Result = {
-    request.session - USERNAME
-    request.session +("uri", if (("GET" == request.method)) request.uri else "/")
 
     request.cookies.get(Authentication.REMEMBER_COOKIE) map {
       remember =>
         val sign = remember.value.substring(0, remember.value.indexOf("-"))
         val username = remember.value.substring(remember.value.indexOf("-") + 1)
         if (Crypto.sign(username) == sign) {
-          val authenticated = request.session + (USERNAME, username)
+          val authenticateSession = request.session + (USERNAME, username)
           val action = request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
             case None => Redirect(controllers.routes.Application.index)
           }
-          return action.withSession(authenticated)
+          return action.withSession(authenticateSession)
         }
     }
-    Redirect(routes.Authentication.login)
+
+    val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
+    Redirect(routes.Authentication.login).withSession(session).flashing(("error" -> Messages("authentication.error")))
   }
 
   /**

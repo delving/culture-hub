@@ -1,4 +1,4 @@
-#{if context.crumble(_params).size() > 1}
+#{if views.Helpers.crumble(_params).size() > 1}
 <div class="breadcrumb">
     <ul>
     #{list context.crumble(_params), as: 'c'}
@@ -27,7 +27,7 @@
     #{if _queryCrumbs}
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
             #{ifnot crumb_isLast}
-                <li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>
+                *{<li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>}*
            #{/ifnot}
             #{else}
                 <li><span>${crumb.value()}</span></li>

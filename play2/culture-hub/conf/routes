@@ -22,8 +22,8 @@ POST       /login                                                               
 GET        /logout                                                                 controllers.Authentication.logout
 
 # OAuth2
-#GET         /authorize                                                       OAuth2Authenticator.authenticate
-#GET         /token                                                           OAuth2TokenEndpoint.token
+GET        /authorize                                                              controllers.OAuth2Authenticator.authenticate
+GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
 
 # Image viewer for high-resolution images
 #GET        /image/viewer                                                     Images.view
@@ -37,7 +37,6 @@ GET        /logout                                                              
 
 # Delving object Server module
 #*          /                                                                 module:dos
-#*          /                                                                 module:press
 
 # Backwards compatibility with the old services module
 #GET         /services/                                                       Services.index
@@ -69,11 +68,11 @@ POST       /registration/newPassword/:resetPasswordToken                        
 
 # Enrichment lookups
 
-#GET         /enrichment/place/search                                         ws.Places.find
+GET         /enrichment/place/search                                               controllers.ws.Places.find
 
 # Delving URL scheme
 
-#GET         /users/?                                                         Users.list
+GET          /users                                                           controllers.Users.list(query: String ?= "", page: Int ?= 1)
 #GET         /users/search                                                    Users.listAsTokens
 #GET         /collections/?                                                   Collections.list
 #GET         /objects/?                                                       DObjects.list
