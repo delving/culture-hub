@@ -6,7 +6,7 @@ import core.ThemeInfo
 
 object Application extends DelvingController {
 
-  def index = ><> {
+  def index  = Root {
     Action {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]

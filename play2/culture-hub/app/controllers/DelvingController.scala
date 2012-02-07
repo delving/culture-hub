@@ -4,9 +4,9 @@ import core.ThemeAware
 import play.api.Play
 import play.api.Play.current
 import play.templates.groovy.GroovyTemplates
-import extensions.ConfigurationException
-import models.{MenuEntry, User}
 import play.api.mvc._
+import models.{Organization, MenuEntry, User}
+import extensions.{Extensions, ConfigurationException}
 
 /**
  *
@@ -14,7 +14,7 @@ import play.api.mvc._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging {
+trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging with Extensions {
 
   val LANG = "lang"
 
@@ -28,7 +28,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
-  def ><>[A](action: Action[A]): Action[A] = {
+  def Root[A](action: Action[A]): Action[A] = {
     Themed {
       Action(action.parser) {
         implicit request: Request[A] => {
@@ -87,21 +87,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           ).toList
           renderArgs +=("menu", mainMenuEntries)
 
-
-          // Browsed user
-          request.queryString.get("user").map {
-            userName =>
-              val user = User.findByUsername(userName(0))
-              user match {
-                case Some(u) =>
-                  renderArgs +=("browsedFullName", u.fullname)
-                  renderArgs +=("browsedUserId", u._id)
-                  renderArgs +=("browsedUserName", u.userName)
-                case None =>
-                  renderArgs +=("browsedUserNotFound", userName)
-              }
-          }
-
           // TODO
           //        Option(params.get("orgId")).map {
           //              orgId =>
@@ -119,7 +104,47 @@ trait DelvingController extends ApplicationController with ModelImplicits {
       }
     }
   }
+
+  /**
+   * Action in the user space (/bob/object)
+   */
+  def UserAction[A](action: Action[A])(implicit user: String): Action[A] = {
+    Root {
+      Action(action.parser) {
+        implicit request =>
+          val maybeUser = User.findByUsername(user)
+          maybeUser match {
+            case Some(u) =>
+              renderArgs +=("browsedFullName", u.fullname)
+              renderArgs +=("browsedUserId", u._id)
+              renderArgs +=("browsedUserName", u.userName)
+            case None =>
+              renderArgs +=("browsedUserNotFound", user)
+          }
+          action(request)
+      }
+    }
+  }
+
+  def OrgAction[A](action: Action[A])(implicit orgId: String): Action[A] = {
+    Root {
+      Action(action.parser) {
+        implicit request =>
+          val orgName = Organization.fetchName(orgId)
+          renderArgs +=("browsedOrgName", orgName)
+          action(request)
+      }
+    }
+  }
+
+
 }
+
+
+/*
+         // Browsed user
+
+*/
 
 /*
 
