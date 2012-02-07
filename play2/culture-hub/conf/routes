@@ -143,8 +143,8 @@ GET         /organizations/:orgId/admin                                       co
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 
-#GET        /organizations/{orgId}/datasets/search                            organization.DataSets.listAsTokens
-#GET        /organizations/{orgId}/users/search                               Users.listAsTokens
+GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId, q: String ?= "")
+GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId, q: String ?= "")
 
 #GET        /organizations/{orgId}/groups/create                              organization.Groups.groups
 #GET        /organizations/{orgId}/groups/update/{groupId}                    organization.Groups.groups
