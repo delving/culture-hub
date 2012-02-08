@@ -34,7 +34,7 @@ import play.api.mvc.{JavascriptLitteral, PathBindable}
 
 trait Extensions {
 
-  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
+  def Json(data: AnyRef, status: Int = 200) = Status(status)(JJson.generate(data)).as("application/json")
 
 }
 
