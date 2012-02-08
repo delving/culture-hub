@@ -29,7 +29,15 @@ package object mongoContext extends models.MongoContext {
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
   // ~~~ mongo connections
-  val connectionName = current.configuration.getString("cultureHub.db.name").getOrElse(if(Play.isDev) "culturehub" else null)
+  val connectionName = if(Play.isProd) {
+    current.configuration.getString("cultureHub.db.name").getOrElse(null)
+  } else if(Play.isDev) {
+    "culturehub"
+  } else if(Play.isTest) {
+    "culturehub-TEST"
+  } else {
+    null
+  }
 
   val cloudConnectionName = if(Play.isTest) "culturecloud-TEST" else "culturecloud"
 

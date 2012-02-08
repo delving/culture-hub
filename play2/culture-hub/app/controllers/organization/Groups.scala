@@ -106,8 +106,6 @@ object Groups extends OrganizationController {
       implicit request =>
         val groupId = request.body.getFirstAsObjectId("groupId")
         val data = request.body.getFirstAsString("data").getOrElse("")
-        println("datadata")
-        println(data)
 
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
           Forbidden(Messages("user.secured.noAccess"))
