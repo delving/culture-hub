@@ -1,0 +1,18 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title:'Search results' /}
+
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/facets/facets.css')}"/>
+#{/set}
+
+#{set 'moreScripts'}
+<script src="@{routes.Assets.at('/public/common/javascripts/results.js')}" type='text/javascript'></script>
+#{/set}
+
+#{breadcrumbs /}
+
+<div class="g-12of12 grid_12 centered pam">
+    &{'search.invalidQuery', query}
+</div>
+

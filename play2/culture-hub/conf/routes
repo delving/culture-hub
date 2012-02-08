@@ -79,7 +79,7 @@ GET          /users/search                                                    co
 #GET         /heritageObjects/?                                               HeritageObjects.list
 #GET         /stories/?                                                       Stories.list
 
-#GET         /search                                                          Search.index
+GET          /search                                                          controllers.Search.index(query: String ?=  "*:*", page: Int ?= 1)
 
 #GET         /{user}/?                                                        Profile.profile
 

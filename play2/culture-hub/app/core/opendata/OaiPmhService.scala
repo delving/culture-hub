@@ -56,7 +56,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
-  val params = Params(request)
+  val params = Params(request.queryString)
 
   /**
    * receive an HttpServletRequest with the OAI-PMH parameters and return the correctly formatted xml as a string.
