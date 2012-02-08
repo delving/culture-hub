@@ -42,7 +42,7 @@ case class Email(subject: String, content: String = "", from: String, to: Seq[St
 
       """.format(from, to.mkString(", "), bcc.mkString(", "), subject, content)
 
-      Logger("play").info(mail)
+      Logger("CultureHub").info(mail)
 
     } else {
 

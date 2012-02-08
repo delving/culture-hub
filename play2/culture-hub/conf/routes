@@ -40,13 +40,13 @@ GET        /token                                                               
 
 # Backwards compatibility with the old services module
 #GET         /services/                                                       Services.index
-#GET         /services/api/solr/select                                        Services.solrSearchProxy
-#GET         /services/api/search                                             Services.searchApi
-#GET         /services/api/{spec}:{id}                                        Services.retrieveRecord
-#GET         /services/api/open-search                                        Services.index
-#GET         /services/api/open-search.xml                                    Services.index
-GET          /services/oai-pmh                                                controllers.Services.oaipmh
-#GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
+#GET          /services/api/solr/select                                        controllers.Services.solrSearchProxy
+#GET          /services/api/search                                             controllers.Services.searchApi
+#GET         /services/api/{spec}:{id}                                        controllers.Services.retrieveRecord
+#GET         /services/api/open-search                                        controllers.Services.index
+#GET         /services/api/open-search.xml                                    controllers.Services.index
+#GET          /services/oai-pmh                                                controllers.Services.oaipmh
+#GET         /services/oai-pmh/{accessKey}                                    controllers.Services.oaipmhSecured
 
 # Custom Controllers and Functionality for customers
 # TODO maybe later change this to an action based mechanism
@@ -137,7 +137,8 @@ GET          /users/search                                                    co
 
 # Organizations
 GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
-#GET        /organizations/{orgId}/search/?                                   Services.searchApi
+GET         /organizations/:orgId/search                                      controllers.Services.searchApi(orgId: String)
+GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String)
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)

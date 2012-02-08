@@ -52,7 +52,7 @@ object OaiPmhService {
 
 class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: String = "delving") extends MetaConfig {
 
-  private val log = Logger(this.getClass)
+  private val log = Logger("CultureHub")
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
@@ -69,11 +69,8 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
     def pmhRequest(verb: PmhVerb) : PmhRequestEntry = createPmhRequest(params, verb)
 
-    println(params.getValue(VERB))
-    println(params.allSingle.getOrElse(VERB, "error"))
-
     val response = try {
-      params.allSingle.getOrElse(VERB, "error").toString match {
+      params.getValueOrElse(VERB, "error") match {
         case "Identify" => processIdentify( pmhRequest(PmhVerbType.IDENTIFY) )
         case "ListMetadataFormats" => processListMetadataFormats( pmhRequest(PmhVerbType.List_METADATA_FORMATS) )
         case "ListSets" => processListSets( pmhRequest(PmhVerbType.LIST_SETS) )
@@ -224,9 +221,9 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val setName = pmhRequestEntry.getSet
     val metadataFormat = pmhRequestEntry.getMetadataFormat
     val dataSet: DataSet = DataSet.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((metadataFormat $in "validOutputFormats") ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx)).limit(pmhRequestEntry.recordsReturned)
+    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).limit(pmhRequestEntry.recordsReturned)
 
-    val totalValidRecords = 100 // records.length
+    val totalValidRecords = records.length
     val recordList = records.toList
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)

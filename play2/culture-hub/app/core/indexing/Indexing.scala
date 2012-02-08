@@ -99,10 +99,10 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         getStreamingUpdateServer.commit()
       case _ =>
         //        getStreamingUpdateServer.rollback() // todo find out what this does
-        Logger("culture-hub").info("Deleting DataSet %s from SOLR".format(dataSet.spec))
+        Logger("CultureHub").info("Deleting DataSet %s from SOLR".format(dataSet.spec))
         deleteFromSolr(dataSet)
     }
-    Logger("culture-hub").info(engine.toString)
+    Logger("CultureHub").info(engine.toString)
     (1, 0)
   }
 
@@ -130,7 +130,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         val mapped = Option(engine.executeMapping(mdr.getXmlString()))
         indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))
       case None =>
-        Logger("culture-hub").warn("Could not index MDR")
+        Logger("CultureHub").warn("Could not index MDR")
     }
 
   }
@@ -187,21 +187,21 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
           val imageIdx = tileSetPath.lastIndexOf(File.separator)
           val image = tileSetPath.substring(imageIdx + 1, extensionIdx)
           if(!(parent.exists() && parent.isDirectory)) {
-            Logger("culture-hub").debug("No tile path %s for deepZoomUrl %s".format(tileSetParentPath, url))
+            Logger("CultureHub").debug("No tile path %s for deepZoomUrl %s".format(tileSetParentPath, url))
             inputDoc.remove(DEEPZOOMURL)
           } else {
             val files = parent.listFiles(new FilenameFilter() {
               def accept(dir: File, name: String) = name.startsWith(image)
             })
             if(files.length == 0) {
-              Logger("culture-hub").debug("No image in directory %s starting with %s for deepZoomUrl %s".format(tileSetParentPath, image, url))
+              Logger("CultureHub").debug("No image in directory %s starting with %s for deepZoomUrl %s".format(tileSetParentPath, image, url))
               inputDoc.remove(DEEPZOOMURL)
             }
           }
         }
       } catch {
         case t =>
-          Logger("culture-hub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue, t)
+          Logger("CultureHub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue, t)
           // in doubt, remove
           inputDoc.remove(DEEPZOOMURL)
       }

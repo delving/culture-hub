@@ -30,12 +30,12 @@ import core.opendata.OaiPmhService
 
 object Services extends DelvingController with HTTPClient {
 
-  def searchApi(orgId: Option[String]) = Root {
+  def searchApi(orgId: String) = Root {
     Action {
       implicit request =>
-        orgId match {
-          case Some(id) => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, id)))
-          case None => SearchService.getApiResult(request, theme)
+        orgId.isEmpty match {
+          case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
+          case true => SearchService.getApiResult(request, theme)
         }
     }
   }
@@ -72,19 +72,19 @@ object Services extends DelvingController with HTTPClient {
     
   }
 
-  def oaipmh = Root {
+  def oaipmh(orgId: String = "delving") = Root {
       Action {
         implicit request =>
-          val oaiPmhService = new OaiPmhService(request)
+          val oaiPmhService = new OaiPmhService(request = request, orgId = orgId)
           Ok(oaiPmhService.parseRequest).as(XML)
       }
   }
 
-  def oaipmhSecured(accessKey: String)  = Root {
-      Action {
-        implicit request =>
-          val oaiPmhService = new OaiPmhService(request, accessKey)
-          Ok(oaiPmhService.parseRequest).as(XML)
-      }
-  }
+//  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
+//      Action {
+//        implicit request =>
+//          val oaiPmhService = new OaiPmhService(request, accessKey)
+//          Ok(oaiPmhService.parseRequest).as(XML)
+//      }
+//  }
 }

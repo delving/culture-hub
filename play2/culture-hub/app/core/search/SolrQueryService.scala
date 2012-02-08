@@ -17,17 +17,15 @@ package core.search
  */
 
 import models.PortalTheme
-import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import util.Constants._
-import util.Constants
-import java.lang.String
-import java.util.{Map => JMap}
+import collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.{RequestHeader, AnyContent, Request}
 import collection.immutable.List
+import util.Constants
 
 /**
  *
@@ -194,7 +192,7 @@ object SolrQueryService extends SolrServer {
         }
         catch {
           case ex: Exception =>
-            Logger(this.getClass) error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
+            Logger("CultureHub") error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
         }
     }
     queryParams
@@ -359,7 +357,7 @@ object SolrQueryService extends SolrServer {
   }
 
   def createFacetQueryLinks(chResponse: CHResponse): List[FacetQueryLinks] = {
-    chResponse.response.getFacetFields.map{
+    chResponse.response.getFacetFields.asScala.map{
       facetField =>
         FacetQueryLinks(
           facetName = facetField.getName,
@@ -373,7 +371,7 @@ object SolrQueryService extends SolrServer {
     if (facetField.getValues == null)
       List.empty
     else
-      facetField.getValues.map{
+      facetField.getValues.asScala.map{
         facetCount =>
           val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
           FacetCountLink(
@@ -496,28 +494,28 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 case class Params(request: RequestHeader) {
 
-  private val params = request.queryString.map(param => (param._1, param._2.toList))
-  
-  def put(key: String, values: List[String]) = params add (key, values)
+  private val params: Map[String, Seq[String]] = request.queryString.filter(!_._2.isEmpty)
+
+  def put(key: String, values: Seq[String]) = params + (key -> values)
   
   def all = params
 
-  def allNonEmpty = all.filter(!_._2.isEmpty)
+  def allNonEmpty = params
   
   val allSingle = params.map(params => (params._1, params._2.head)).toMap
 
-  def _contains(key: String) = params.containsKey(key)
+  def _contains(key: String) = params.contains(key)
 
   def valueIsNonEmpty(key: String) = _contains(key) && !getValue(key).isEmpty
 
-  def getValue(key: String) = params.get(key).head.toString()
+  def getValue(key: String) = getValues(key).head
 
-  def getValues(key: String): Seq[String] = params.get(key).get
+  def getValues(key: String): Seq[String] = params.get(key).getOrElse(Seq[String]())
 
   def hasKeyAndValue(key: String, value: String) = _contains(key) && getValue(key).equalsIgnoreCase(value)
 
-  def getValueOrElse(key: String,  default: String): String = allSingle.get(key).headOption.getOrElse(default).toString
-  
+  def getValueOrElse(key: String,  default: String): String = params.get(key).getOrElse(return default).headOption.getOrElse(default).toString
+
   def keys = params.keys.toList
 
 

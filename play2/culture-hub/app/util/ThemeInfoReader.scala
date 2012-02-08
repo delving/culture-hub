@@ -49,7 +49,7 @@ object ThemeInfoReader {
     if (info.isDefined) Right(MissingLibs.readUtf8Properties(info.get))
     else {
       val message = "Could not file info.conf files for theme %s at %s".format(theme, infoPath)
-      Logger("culture-hub").error(message)
+      Logger("CultureHub").error(message)
       Left(message)
     }
   }
