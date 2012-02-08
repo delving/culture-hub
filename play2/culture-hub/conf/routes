@@ -184,11 +184,11 @@ DELETE      /organizations/:orgId/groups/:groupId/removeDataset               co
 
 #GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
 
-#GET         /api/sip-creator/list                                            SipCreatorEndPoint.listAll
-#GET         /api/sip-creator/unlock/{orgId}/{spec}                           SipCreatorEndPoint.unlock
-#POST        /api/sip-creator/submit/{orgId}/{spec}                           SipCreatorEndPoint.acceptFileList
-#POST        /api/sip-creator/submit/{orgId}/{spec}/{fileName}                SipCreatorEndPoint.acceptFile
-#GET         /api/sip-creator/fetch/{orgId}/{spec}-sip.zip                    SipCreatorEndPoint.fetchSIP
+GET          /api/sip-creator/list                                            controllers.SipCreatorEndPoint.listAll(accessToken: Option[String] ?= None)
+GET          /api/sip-creator/unlock/:orgId/:spec                             controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
+POST         /api/sip-creator/submit/:orgId/:spec                             controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
+#POST        /api/sip-creator/submit/:orgId/{spec}/{fileName}                 controllers.SipCreatorEndPoint.acceptFile(orgId, accessKey: Option[String] ?= None)
+#GET         /api/sip-creator/fetch/:orgId}/{spec}-sip.zip                    controllers.SipCreatorEndPoint.fetchSIP(orgId, accessKey: Option[String] ?= None)
 
 # Hub Administration
 #GET        /admin/themes                                                     admin.Themes.index
