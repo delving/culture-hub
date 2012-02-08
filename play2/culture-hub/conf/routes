@@ -156,32 +156,32 @@ GET         /organizations/:orgId/groups/update/:groupId                      co
 #POST       /organizations/{orgId}/groups/{groupId}/addDataset                organization.Groups.addDataset
 #DELETE     /organizations/{orgId}/groups/{groupId}/removeDataset             organization.Groups.removeDataset
 
-#GET         /organizations/{orgId}/site/upload                               organization.CMS.upload
-#POST        /organizations/{orgId}/site/upload/{uid}                         organization.CMS.uploadSubmit
-#GET         /organizations/{orgId}/site/listImages                           organization.CMS.listImages
-#GET         /organizations/{orgId}/site/?{language}?                         organization.CMS.list
-#GET         /organizations/{orgId}/site/{language}/page/add                  organization.CMS.page
-#GET         /organizations/{orgId}/site/{language}/page/{page}/update        organization.CMS.page
-#POST        /organizations/{orgId}/site/page                                 organization.CMS.pageSubmit
-#DELETE      /organizations/{orgId}/site/{language}/page/{key}                organization.CMS.pageDelete
+#GET         /organizations/{orgId}/site/upload                               controllers.organization.CMS.upload
+#POST        /organizations/{orgId}/site/upload/{uid}                         controllers.organization.CMS.uploadSubmit
+#GET         /organizations/{orgId}/site/listImages                           controllers.organization.CMS.listImages
+#GET         /organizations/{orgId}/site/?{language}?                         controllers.organization.CMS.list
+#GET         /organizations/{orgId}/site/{language}/page/add                  controllers.organization.CMS.page
+#GET         /organizations/{orgId}/site/{language}/page/{page}/update        controllers.organization.CMS.page
+#POST        /organizations/{orgId}/site/page                                 controllers.organization.CMS.pageSubmit
+#DELETE      /organizations/{orgId}/site/{language}/page/{key}                controllers.organization.CMS.pageDelete
 
 
-#GET         /organizations/{orgId}/dataset/?                                 organization.DataSets.list
-#GET         /organizations/{orgId}/dataset/add                               organization.DataSetControl.dataSet
-#GET         /organizations/{orgId}/dataset/{spec}/update                     organization.DataSetControl.dataSet
-#POST        /organizations/{orgId}/dataset/submit                            organization.DataSetControl.dataSetSubmit
-#GET         /organizations/{orgId}/dataset/{spec}                            organization.DataSets.dataSet
-#GET         /organizations/{orgId}/dataset/load/{spec}?                      organization.DataSets.dataSet
-#POST        /organizations/{orgId}/dataset/{spec}/index                      organization.DataSetControl.index
-#POST        /organizations/{orgId}/dataset/{spec}/reindex                    organization.DataSetControl.reIndex
-#POST        /organizations/{orgId}/dataset/{spec}/cancel                     organization.DataSetControl.cancel
-#GET         /organizations/{orgId}/dataset/{spec}/indexingStatus             organization.DataSetControl.indexingStatus
-#GET         /organizations/{orgId}/dataset/{spec}/state                      organization.DataSetControl.state
-#POST        /organizations/{orgId}/dataset/{spec}/disable                    organization.DataSetControl.disable
-#POST        /organizations/{orgId}/dataset/{spec}/enable                     organization.DataSetControl.enable
-#DELETE      /organizations/{orgId}/dataset/{spec}/remove                     organization.DataSetControl.delete
-#POST        /organizations/{orgId}/dataset/{spec}/invalidate                 organization.DataSetControl.invalidate
-#POST        /organizations/{orgId}/dataset/{spec}/forceUnlock                organization.DataSetControl.forceUnlock
+GET          /organizations/:orgId/dataset                                   controllers.organization.DataSets.list(orgId)
+#GET         /organizations/:orgId/dataset/add                               controllers.organization.DataSetControl.dataSet
+#GET         /organizations/:orgId/dataset/{spec}/update                     controllers.organization.DataSetControl.dataSet
+#POST        /organizations/:orgId/dataset/submit                            controllers.organization.DataSetControl.dataSetSubmit
+GET          /organizations/:orgId/dataset/:spec                             controllers.organization.DataSets.dataset(orgId, spec)
+#GET         /organizations/:orgId/dataset/load/:spec                        controllers.organization.DataSets.dataset(orgId, spec)
+#POST        /organizations/:orgId/dataset/{spec}/index                      controllers.organization.DataSetControl.index
+#POST        /organizations/:orgId/dataset/{spec}/reindex                    controllers.organization.DataSetControl.reIndex
+#POST        /organizations/:orgId/dataset/{spec}/cancel                     controllers.organization.DataSetControl.cancel
+#GET         /organizations/:orgId/dataset/{spec}/indexingStatus             controllers.organization.DataSetControl.indexingStatus
+#GET         /organizations/:orgId/dataset/{spec}/state                      controllers.organization.DataSetControl.state
+#POST        /organizations/:orgId/dataset/{spec}/disable                    controllers.organization.DataSetControl.disable
+#POST        /organizations/:orgId/dataset/{spec}/enable                     controllers.organization.DataSetControl.enable
+#DELETE      /organizations/:orgId/dataset/{spec}/remove                     controllers.organization.DataSetControl.delete
+#POST        /organizations/:orgId/dataset/{spec}/invalidate                 controllers.organization.DataSetControl.invalidate
+#POST        /organizations/:orgId/dataset/{spec}/forceUnlock                controllers.organization.DataSetControl.forceUnlock
 
 #GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
 

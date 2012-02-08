@@ -27,7 +27,7 @@ import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
 import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
-import play.i18n.Messages
+import play.api.i18n.Messages
 import scala.collection.JavaConverters._
 import eu.delving.sip.IndexDocument
 import eu.delving.sip.MappingEngine
@@ -370,7 +370,7 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 }
 
 case class DataSetState(name: String) {
-  def description = Messages.get("dataSetState." + name.toLowerCase)
+  def description = Messages("dataSetState." + name.toLowerCase)
 }
 
 object DataSetState {
