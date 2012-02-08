@@ -21,10 +21,10 @@ import org.codehaus.jackson.map.annotate.JsonCachable
 import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.map.{JsonSerializer, SerializerProvider, JsonDeserializer, DeserializationContext}
 import org.codehaus.jackson.{Version, JsonGenerator, JsonParser}
-import play.api.mvc.PathBindable
 import play.api.mvc.Results.Status
 import com.codahale.jerkson.Json._
 import play.api.PlayException
+import play.api.mvc.{JavascriptLitteral, PathBindable}
 
 /**
  * Framework extensions
@@ -33,6 +33,12 @@ import play.api.PlayException
  */
 
 trait Extensions {
+
+  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
+
+}
+
+object Binders {
 
   implicit def bindableObjectId = new PathBindable[ObjectId] {
     def bind(key: String, value: String) = {
@@ -45,8 +51,10 @@ trait Extensions {
 
     def unbind(key: String, value: ObjectId) = value.toString
   }
-
-  def Json(data: AnyRef, status: Int = 200) = Status(status)(generate(data)).as("application/json")
+  
+  implicit def bindableJavascriptLitteral = new JavascriptLitteral[ObjectId] {
+    def to(value: ObjectId) = value.toString
+  }
 
 }
 

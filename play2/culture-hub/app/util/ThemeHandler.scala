@@ -20,11 +20,11 @@ import extensions.ConfigurationException
 import java.lang.String
 import play.api.Play.current
 import scala.collection.JavaConversions._
-import models.PortalTheme
 import com.mongodb.casbah.commons.MongoDBObject
 import play.Play
 import java.io.File
 import play.api.Logger
+import models.{EmailTarget, PortalTheme}
 
 /**
  * ThemHandler taking care of loading themes (initially from YML, then from mongo)
@@ -124,21 +124,46 @@ object ThemeHandler {
     }
   }
 
+  // todo: no longer YAML, so rebuild
   private[util] def loadThemesYaml(): Seq[PortalTheme] = {
 
     val themeFiles = new File(current.path + "/conf").list().filter(_.endsWith("_themes.yml"))
 
     if (themeFiles.length == 0) {
-      Logger("cultureHub").error("No themes configuration YML file could be found in conf/");
+      Logger("CultureHub").error("No themes configuration YML file could be found in conf/");
       // this probably won't work, but you get the idea...
-      System.exit(1);
+      System.exit(1)
     }
 
     PortalTheme.removeAll()
 
-    val themes = for (theme: PortalTheme <- themeFiles.flatMap(f => YamlLoader.load[List[PortalTheme]](f))) yield {
-      theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
-    }
+    //    val themes = for (theme: PortalTheme <- themeFiles.flatMap(f => YamlLoader.load[List[PortalTheme]](f))) yield {
+    //      theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
+    //    }
+
+    val themes = List(PortalTheme(
+      name = "default",
+      subdomain = Some("default"),
+      defaultLanguage = "en",
+      solrSelectUrl = "http://localhost:8983/solr",
+      cacheUrl = "http://localhost:8983/services/image?",
+      emailTarget = EmailTarget(
+        adminTo = "servers@delving.eu",
+        exceptionTo = "servers@delving.eu",
+        feedbackTo = "servers@delving.eu",
+        registerTo = "servers@delving.eu",
+        systemFrom = "noreply@delving.eu",
+        feedbackFrom = "noreply@delving.eu"
+      ),
+      localiseQueryKeys = List("dc.title", "dc.creator"),
+      hiddenQueryFilter = Some(""),
+      homePage = None,
+      facets = Some("delving_recordType:metadata.searchfield.recordType,europeana_provider:metadata.searchfield.dataprovider,delving_creator:metadata.searchfield.creator,delving_hasDigitalObject:metadata.searchfield.hasDigitalObject"),
+      sortFields = Some("delving_hasDigitalObject"),
+      apiWsKey = false
+
+    ))
+
     themes
   }
 }

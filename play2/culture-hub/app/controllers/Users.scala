@@ -14,18 +14,6 @@ import java.util.regex.Pattern
 
 object Users extends DelvingController {
 
-  //  def index(user :String) = Root{
-  //    Action {
-  //      implicit request =>
-  //      val u = getUser(user) match {
-  //        case Right(aUser) => aUser
-  //        case Left(error) => return error
-  //      }
-  //      Template
-  //    }
-  //  }
-
-
   def list(query: String, page:Int) = Root {
     Action {
       implicit request =>
@@ -42,4 +30,15 @@ object Users extends DelvingController {
         Ok(Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length))
     }
   }
+
+  def listAsTokens(q: String, orgId: String) = Root {
+    Action {
+      implicit request =>
+        val query = MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
+        val users = if(orgId != null) User.find(query ++ MongoDBObject("organizations" -> orgId)) else User.find(query)
+        val asTokens = users.map(u => Token(u.userName, u.userName))
+        Json(asTokens)
+    }
+  }
+
 }

@@ -30,7 +30,8 @@ object ApplicationBuild extends Build {
     resolvers += "jahia" at "http://maven.jahia.org/maven2",
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
     resolvers += "delving-snapshots" at "http://development.delving.org:8081/nexus/content/repositories/snapshots",
-    resolvers += "delving-releases" at "http://development.delving.org:8081/nexus/content/repositories/releases"
+    resolvers += "delving-releases" at "http://development.delving.org:8081/nexus/content/repositories/releases",
+    routesImport += "extensions.Binders._"
   ).dependsOn(frameworkExtensions, dos)
 
 }

@@ -5,11 +5,11 @@ import play.api.Play
 import play.api.Play.current
 import play.templates.groovy.GroovyTemplates
 import play.api.mvc._
-import models.{Organization, MenuEntry, User}
 import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.i18n.Messages
 import org.bson.types.ObjectId
+import models._
 
 /**
  *
@@ -25,18 +25,81 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
 
+
+  // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
+
+  implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
+
+}
+
+
+case class RichBody[A <: AnyContent](body: A) {
+
+  def getFirst(key: String): Option[String] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).get.headOption
+    case None => None
+  }
+}
+
+/**
+ * Organization controller making sure you're an owner
+ */
+trait OrganizationController extends DelvingController with Secured {
+
+  def isOwner: Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
+
+  def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    OrgMemberAction(orgId) {
+      Action(action.parser) {
+        implicit request => {
+          if (isOwner) {
+            action(request)
+          } else {
+            Forbidden(Messages("user.secured.noAccess"))
+          }
+        }
+      }
+    }
+  }
+
+  def OrgMemberAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    Themed {
+      OrgBrowsingAction(orgId) {
+        Authenticated {
+          Action(action.parser) {
+            implicit request => {
+              if (orgId == null || orgId.isEmpty) {
+                Error("How did you even get here?")
+              }
+              val organizations = request.session.get(AccessControl.ORGANIZATIONS).getOrElse("")
+              if (organizations == null || organizations.isEmpty) {
+                Forbidden(Messages("user.secured.noAccess"))
+              } else if (!organizations.split(",").contains(orgId)) {
+                Forbidden(Messages("user.secured.noAccess"))
+              }
+              renderArgs += ("orgId" -> orgId)
+              renderArgs += ("isOwner" -> Organization.isOwner(orgId, userName))
+              renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
+              action(request)
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 trait DelvingController extends ApplicationController with ModelImplicits {
 
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
+  def userName(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).getOrElse(null)
+
   def Root[A](action: Action[A]): Action[A] = {
     Themed {
       Action(action.parser) {
         implicit request: Request[A] => {
 
-          val connectedUser = request.session.get(Authentication.USERNAME).getOrElse("")
           val additionalSessionParams = new collection.mutable.HashMap[String, String]
 
           // CSRF check
@@ -53,7 +116,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
 
           // Connected user
-          User.findByUsername(connectedUser).map {
+          User.findByUsername(userName).map {
             u => {
               renderArgs +=("fullName", u.fullname)
               renderArgs +=("userName", u.userName)
@@ -129,7 +192,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     }
   }
 
-  def OrgAction[A](action: Action[A])(implicit orgId: String): Action[A] = {
+  def OrgBrowsingAction[A](orgId: String)(action: Action[A]): Action[A] = {
     Root {
       Action(action.parser) {
         implicit request =>
@@ -150,7 +213,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
   def browsedUserExists: Boolean = renderArgs("browsedUserNotFound") == null
 
-  def browsedIsConnected(implicit request:RequestHeader): Boolean = browsedUserName == request.session.get(Authentication.USERNAME)
+  def browsedIsConnected(implicit request: RequestHeader): Boolean = browsedUserName == request.session.get(Authentication.USERNAME)
 
   def browsingUser: Boolean = browsedUserName != null
 
@@ -158,7 +221,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
   // ~~~ convenience methods
 
-  def listPageTitle(itemName: String) = if(browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
+  def listPageTitle(itemName: String) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
 
 
 }
