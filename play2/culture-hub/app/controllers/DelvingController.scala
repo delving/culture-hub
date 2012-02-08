@@ -203,6 +203,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     }
   }
 
+  def connectedUser = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
+
   def connectedUserId = renderArgs("userId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
 
   def browsedUserName: String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)

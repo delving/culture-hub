@@ -44,8 +44,9 @@ trait Secured {
   def Authenticated[A](action: Action[A]): Action[A] = {
     Action(action.parser) {
       implicit request => {
-        if(username(request) == null) {
-          onUnauthorized(request)
+        if(username(request).isEmpty) {
+          val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
+          Redirect(routes.Authentication.login).withSession(session)
         } else {
           action(request)
         }

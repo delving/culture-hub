@@ -3,12 +3,12 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import controllers.{ViewModel, Token, DelvingController}
 import play.data.validation.Constraints.Required
 import models.{Organization, GrantType, Group}
 import models.mongoContext._
 import play.api.i18n.Messages
 import play.api.mvc.{RequestHeader, Action}
+import controllers.{OrganizationController, ViewModel, Token, DelvingController}
 
 /**
  * todo: javadoc
@@ -17,17 +17,17 @@ import play.api.mvc.{RequestHeader, Action}
  */
 
 
-object Groups extends DelvingController {
+object Groups extends OrganizationController  {
 
-  def list(orgId: String) = Root {
+  def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val groups = Group.list(connectedUserId, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
+        val groups = Group.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
         Ok(Template('groups -> groups))
     }
   }
 
-  def groups(orgId: String, groupId: ObjectId) = Root {
+  def groups(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
         if (groupId != null && !canUpdateGroup(orgId, groupId) || groupId == null && !canCreateGroup(orgId)) {
@@ -46,7 +46,7 @@ object Groups extends DelvingController {
     }
   }
 
-  def update(orgId: String, groupId: ObjectId, data: String) = Root {
+  def update(orgId: String, groupId: ObjectId, data: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
       if(groupId != null && !canUpdateGroup(orgId, groupId) || groupId == null && !canCreateGroup(orgId)) {

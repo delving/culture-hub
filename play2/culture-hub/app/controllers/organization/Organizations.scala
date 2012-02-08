@@ -4,7 +4,7 @@ import play.api.mvc.Action
 import com.mongodb.casbah.Imports._
 import models.{Visibility, DataSet, User, Organization}
 import play.api.i18n.Messages
-import controllers.{AccessControl, ShortDataSet, ListItem, DelvingController}
+import controllers._
 
 /**
  * todo: javadoc
@@ -19,9 +19,9 @@ object Organizations extends DelvingController {
       implicit request =>
         Organization.findByOrgId(orgId) match {
           case Some(o) =>
-            val members: List[ListItem] = User.find("userName" $in o.users).toList
+            val members: List[ListItem] = User.find(Authentication.USERNAME $in o.users).toList
             val dataSets: List[ShortDataSet] =
-              DataSet.findAllCanSee(orgId, connectedUserId).
+              DataSet.findAllCanSee(orgId, connectedUser).
                 filter(ds =>
                   ds.visibility == Visibility.PUBLIC ||
                   (
@@ -33,10 +33,10 @@ object Organizations extends DelvingController {
             Ok(Template(
               'orgId -> o.orgId,
               'orgName -> o.name.get(getLang).getOrElse(o.name("en")),
-              'memberSince -> o.userMembership.get(connectedUserId),
+              'memberSince -> o.userMembership.get(connectedUser),
               'members -> members,
               'dataSets -> dataSets,
-              'isOwner -> Organization.isOwner(o.orgId, connectedUserId)
+              'isOwner -> Organization.isOwner(o.orgId, connectedUser)
             ))
           case None => NotFound(Messages("organizations.organization.orgNotFound", orgId))
         }
