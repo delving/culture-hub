@@ -31,7 +31,7 @@ object Users extends DelvingController {
     }
   }
 
-  def listAsTokens(q: String, orgId: String) = Root {
+  def listAsTokens(orgId: String, q: String) = Root {
     Action {
       implicit request =>
         val query = MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))

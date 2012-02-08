@@ -35,8 +35,13 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
 case class RichBody[A <: AnyContent](body: A) {
 
-  def getFirst(key: String): Option[String] = body.asFormUrlEncoded match {
+  def getFirstAsString(key: String): Option[String] = body.asFormUrlEncoded match {
     case Some(b) => b.get(key).get.headOption
+    case None => None
+  }
+  
+  def getFirstAsObjectId(key: String): Option[ObjectId] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).getOrElse(return None).headOption.map(id => if(ObjectId.isValid(id)) new ObjectId(id) else null)
     case None => None
   }
 }
