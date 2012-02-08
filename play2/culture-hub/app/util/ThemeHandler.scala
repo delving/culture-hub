@@ -19,10 +19,9 @@ package util
 import extensions.ConfigurationException
 import java.lang.String
 import play.api.Play.current
-import scala.collection.JavaConversions._
+//import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
 import play.Play
-import java.io.File
 import play.api.Logger
 import models.{EmailTarget, PortalTheme}
 
@@ -37,7 +36,7 @@ object ThemeHandler {
 
   private var themeList: Seq[PortalTheme] = List()
 
-  private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
+//  private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
 
   def getThemeNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
@@ -50,7 +49,7 @@ object ThemeHandler {
    */
   def startup() {
     if (PortalTheme.count() == 0) {
-      themeList = readThemesFromDisk()
+      themeList = createDefaultTheme()
       themeList foreach {
         PortalTheme.insert(_)
       }
@@ -77,17 +76,6 @@ object ThemeHandler {
   }
 
   def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
-
-  def readThemesFromDisk(): Seq[PortalTheme] = {
-    try {
-      loadThemesYaml()
-    } catch {
-      case ex: Throwable => {
-        Logger.error("Error updating themes from YAML descriptor")
-        throw new RuntimeException("Error updating themes from YAML descriptor", ex)
-      }
-    }
-  }
 
   def hasSingleTheme: Boolean = themeList.length == 1
 
@@ -124,24 +112,8 @@ object ThemeHandler {
     }
   }
 
-  // todo: no longer YAML, so rebuild
-  private[util] def loadThemesYaml(): Seq[PortalTheme] = {
-
-    val themeFiles = new File(current.path + "/conf").list().filter(_.endsWith("_themes.yml"))
-
-    if (themeFiles.length == 0) {
-      Logger("CultureHub").error("No themes configuration YML file could be found in conf/");
-      // this probably won't work, but you get the idea...
-      System.exit(1)
-    }
-
-    PortalTheme.removeAll()
-
-    //    val themes = for (theme: PortalTheme <- themeFiles.flatMap(f => YamlLoader.load[List[PortalTheme]](f))) yield {
-    //      theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
-    //    }
-
-    val themes = List(PortalTheme(
+  private def createDefaultTheme(): Seq[PortalTheme] = {
+    List(PortalTheme(
       name = "default",
       subdomain = Some("default"),
       defaultLanguage = "en",
@@ -161,11 +133,10 @@ object ThemeHandler {
       facets = Some("delving_recordType:metadata.searchfield.recordType,europeana_provider:metadata.searchfield.dataprovider,delving_creator:metadata.searchfield.creator,delving_hasDigitalObject:metadata.searchfield.hasDigitalObject"),
       sortFields = Some("delving_hasDigitalObject"),
       apiWsKey = false
-
     ))
-
-    themes
   }
+
+
 }
 
 
