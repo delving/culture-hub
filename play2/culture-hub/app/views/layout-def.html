@@ -46,7 +46,7 @@
 
         <div class="search" role="search">
             <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                <input type="text" id="query" name="query" value='${params.get("query").apply(0)}'/>
+                <input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                 <input type="submit" value="&{'ui.label.search'}">
             </form>
         </div>
