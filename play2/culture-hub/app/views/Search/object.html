@@ -1,0 +1,81 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title:'Search results' /}
+
+#{breadcrumbs params:["title":["url":"", "label": fullDoc.getTitle()]] /}
+
+<div class="row dashboard">
+
+<h1 class="sep">${views.Helpers.shorten(fullDoc.getTitle(), 100)}</h1>
+    <div class="g-12of12 grid_12">
+        <div class="media record">
+            <img src="${fullDoc.getThumbnailUri(350)}" class="img" width="350" alt="${fullDoc.getTitle()}"/>
+            <div class="extra">
+                #{ifnot fullDoc.getThumbnailUri(350).contains('dummy-object.png')}
+                <a href="#" class="overlay-trigger" rel="#overlay" title="&{'ui.label.enlargeImage'}">&{'ui.label.enlargeImage'}</a>
+                #{/ifnot}
+                #{if fullDoc.getLandingPage()}
+                     <br/><a href="${fullDoc.getLandingPage()}" target="_blank">&{'search.viewInOriginalContext'}</a>
+                #{/if}
+            </div>
+            <div class="bd">
+                #{if returnToResults}
+                 #{thingToolbar extraButtons:[[label:messages.get('ui.label.returnToResults'), url:"/search?"+returnToResults, iconClass:"icon205"]], isSearch: true, authUser: userName /}
+                #{/if}
+                #{else}
+                 #{thingToolbar isSearch: true, authUser: userName/}
+                #{/else}
+                <div class="metadata">
+                    <h5>&{'metadata.dc.description'}:</h5>
+                    <!--<p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>-->
+                    #{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /}
+                    <hr/>
+                    <div class="row">
+                        <div class="g-1of2 alpha">
+                            #{metadataField label: messages.get('metadata.dc.title'), data: fullDoc.getTitle() /}
+                            #{metadataField label: messages.get('metadata.dc.type'), data: fullDoc.getAsString("dc_type"), queryLink: true /}
+                            #{metadataField label: messages.get('metadata.dcterms.alternative'), data: fullDoc.getConcatenatedList("dcterms_alternative", ["_metadata.dcterms.alternative"]), separator:", "  /}
+                            #{metadataField label: messages.get('metadata.icn.material'), data: fullDoc.getAsString("icn_material"), queryLink:true /}
+                            #{metadataField label: messages.get('metadata.icn.creatorYearOfBirth'), data: fullDoc.getConcatenatedList("icn_creatorYearOfBirth", ["icn_creatorYearOfBirth"]), separator:", "  /}
+                            #{metadataField label: messages.get('metadata.dc.subject'), data: fullDoc.getConcatenatedList("dc_subject", ["dc_subject","dcterms_temporal","dcterms_spatial","dc_coverage"]), separator:", ", queryLink:true  /}
+                            #{metadataField label: messages.get('metadata.dc.source'), data: fullDoc.getAsString("dc_source") /}
+                        </div>
+                        <div class="g-1of2 omega">
+                            #{metadataField label: messages.get('metadata.dc.creator'), data: fullDoc.getCreator(), queryLink:true /}
+                            #{metadataField label: messages.get('metadata.dc.date'), data: fullDoc.getYear(), queryLink:true /}
+                            #{metadataField label: messages.get('metadata.dc.language'), data: fullDoc.getLanguage() /}
+                            #{metadataField label: messages.get('metadata.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
+                            #{metadataField label: messages.get('metadata.dc.format'), data: fullDoc.getConcatenatedList("dc_format", ["dc_format", "dcterms_extent"]), separator:", "  /}
+                            #{metadataField label: messages.get('metadata.dc.relation'), data: fullDoc.getConcatenatedList("dc_relation", [
+                                "dc_relation", "dcterms_references", "dcterms_isReferencedBy", "dcterms_isReplacedBy", "dcterms_isRequiredBy", "dcterms_isPartOf", "dcterms_hasPart",
+                                "dcterms_replaces", "dcterms_requires", "dcterms_isVersionOf", "dcterms_hasVersion", "dcterms_conformsTo", "dcterms_hasFormat"]), separator:", "  /}
+                            #{metadataField label: messages.get('metadata.dcterms.provenance'), data: fullDoc.getAsString("dcterms_provenance") /}
+                            #{metadataField label: messages.get('metadata.icn.technique'), data: fullDoc.getAsString("icn_technique"), queryLink:true /}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- overlayed element -->
+<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
+<div class="contentWrap">
+    <img src="${fullDoc.getThumbnailUri(500)}" alt="${fullDoc.getTitle()}" style="max-width:900px" />
+    <div class="title"> ${fullDoc.getTitle()}</div>
+</div>
+</div>
+
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("a.overlay-trigger").overlay({
+            closeOnClick: true,
+            mask: {
+                color: "#ddddd0",
+                loadSpeed: 200,
+                opacity: 0.5
+            }
+        });
+    });
+</script>
