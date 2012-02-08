@@ -1,0 +1,666 @@
+#
+# Copyright 2011 Delving B.V.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+# Validation rules
+validation.url=Not a valid URL
+validation.required=Required
+validation.range=Value out of range
+
+
+# Global  ##########################################
+ui.label.add=Add
+ui.label.addcomment=Add comment
+ui.label.administration=Administration
+ui.label.administratorOptions=Administrator options
+ui.label.block=Block
+ui.label.browse=Browse
+ui.label.cancel=Cancel
+ui.label.disable=Disable
+ui.label.captcha=Enter the code you see here
+ui.label.collectionSelect=Select a collection
+ui.label.create=Create
+ui.label.delete=Delete
+ui.label.edit=Edit
+ui.label.email=Email
+ui.label.enlargeImage=Enlarge image
+ui.label.filesadd=Add files...
+ui.label.filesdelete=Delete files
+ui.label.first=First
+ui.label.firstname=First name
+ui.label.fullname=Full name
+ui.label.funFact=Fun fact
+ui.label.hi=Hi
+ui.label.hello=Hello
+ui.label.labeladd=Add label
+ui.label.labelwho=Who
+ui.label.labelwhat=What
+ui.label.labelwhere=Where
+ui.label.labelwhen=When
+ui.label.language=Language
+ui.label.languageSelect=Choose a language
+ui.label.last=Last
+ui.label.lastname=Last name
+ui.label.location=Location
+ui.label.login=Login
+ui.label.logout=Logout
+ui.label.memberSince=Member since
+ui.label.more=More
+ui.label.next=Next
+ui.label.nritems=Nr. of items
+ui.label.options=Options
+ui.label.password=Password
+ui.label.passwordrepeat=Password (repeat)
+ui.label.places=Places
+ui.label.poweredby=Powered by DELVING.EU
+ui.label.previous=Previous
+ui.label.print=Print
+ui.label.register=Register
+ui.label.remove=Remove
+ui.label.required=Required
+ui.label.reset=Reset
+ui.label.returnToResults=Return to results
+ui.label.scope=Scope
+ui.label.scope.public=Public
+ui.label.scope.notpublic=Not public
+ui.label.search=Search
+ui.label.share=Share
+ui.label.sipcreator=Sip-Creator
+ui.label.startupload=Start upload
+ui.label.status=Status
+ui.label.unlock=Unlock
+ui.label.uploadcancel=Cancel upload
+ui.label.username=Username
+ui.label.visibility=Visibility
+ui.label.visibility.public=Public
+ui.label.visibility.notpublic=Private
+ui.label.website=Website
+ui.label.welcome=Welcome
+ui.label.language=Language
+ui.label.load=Load
+ui.label.theme=Site theme
+
+# General 'thing' like object, collection or story
+thing.label=Label
+thing.labels=Labels
+thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
+thing.label.freeText=Free-text label
+thing.label.placeName=Place-name label
+thing.comment=Comment
+thing.comments=Comments
+thing.dataset=DataSet
+thing.datasets=DataSets
+thing.object=Object
+thing.objects=Objects
+thing.object.user=User object
+thing.objects.user=User objects
+thing.objects.user.info=User Objects are the things that we have, but the cultural institutions don't yet know about. These may be old photographs from a box in the attic, or new pictures of artifacts that we think the world should see. We can put these things online and create collections with a mix of our objects and theirs, and then build stories to give them all context.
+
+# TODO unify - thing.XXX convention is used in e.g. list.html
+thing.object.heritage=Heritage object
+thing.objects.heritage=Heritage objects
+thing.mdr=Heritage object
+thing.mdrs=Heritage objects
+
+thing.objects.heritage.info=Heritage Objects are the rich collections of things for which various cultural institutions are responsible, and the information about these objects is something that they maintain for us.  On this site we have these existing collections as a starting point, and sometimes as inspiration, and we can select from them to build our own collections and stories.
+thing.collection=Collection
+thing.collections=Collections
+thing.collections.info=Everyone has their own favorite subjects of interest, and this site allows us to find objects using search and facet navigation, but we can also drag and drop the treasures we find into our own collections. A collection that we decide to create and make public is made available here under a unique URL which we can tell people about and link to.
+thing.bookmarksCollection=My bookmarks
+thing.bookmarksCollectionDescription=This is your bookmarks collection, visible only to you.
+thing.story=Story
+thing.stories=Stories
+thing.stories.info=Creating a captivating narrative is sometimes the only way to give cultural objects the context they deserve. Often their descriptions do not do them justice, and using them in a story with maybe a few of your own cultural treasures would be much better. This website makes it easy for us to build these stories and make them available for everyone to read.
+thing.user=User
+thing.users=Users
+thing.organization=Organization
+thing.organizations=Organizations
+thing.group=Group
+thing.groups=Groups
+thing.page=Site page
+thing.pages=Site pages
+thing.notavailable.single=There is currently no %s available
+thing.notavailable.plural=There are currently no %s available
+thing.owner=Owner
+thing.datecreated=Date created
+thing.datemodified=Date modified
+thing.description=Description
+thing.content=Content
+thing.name=Name
+thing.title=Title
+thing.action=Action
+thing.actions=Actions
+thing.objectcount=Number of objects
+thing.collectioncount=Number of collections
+thing.storycount=Number of stories
+thing.datasetcount=Number of DataSets
+thing.objects=Objects
+thing.addlabel=Add label
+thing.comments=Comments
+thing.addcomment=Add comment
+thing.collaborators=Collaborators
+thing.createnew=Create a new %s
+thing.browse=Browse %s
+thing.browse.of=Browse %s of
+thing.browse.ownedby=Browse %s owned by
+thing.grantType=This group grants
+thing.confirmation=Are you sure?
+
+# Account registration and activation messages
+ui.message.registration.success=Your account was successfully created! An email has been sent to %s for activation
+ui.message.registration.error=Error creating your account, please try again. The cause of the error is: %s
+ui.message.activation.success=Your account is now active!
+ui.message.activation.error=Error activating your account.
+ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
+ui.message.resetpassword.success=Your password has been successfully changed
+ui.message.resetpassword.error=Error resetting your password: %s
+ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
+ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="%s"><strong>visibility status</strong></a> to "Public".
+ui.message.charsLeft=characters left
+
+
+# User navigation
+
+user.nav.goto=Go to
+user.nav.create=Create
+user.nav.yourprofile=Your profile
+user.nav.yourobjects=Your objects
+user.nav.yourcollections=Your collections
+user.nav.yourstories=Your stories
+user.nav.yourdatasets=Your DataSets
+user.nav.newobject=New object
+user.nav.newcollection=New collection
+user.nav.newstory=New story
+user.nav.newdataset=New DataSet
+
+# Site navigation
+site.nav.home=Home
+
+
+# jQuery templates
+tmpl.selectedObjects.useAsDefault=Thumbnail
+tmpl.selectedObjects.defaultImage=This will set the image as the thumbnail image to represent your collection or story
+
+# labels
+labels.searchLabelHint=Type in a label name
+labels.searchPlaceHint=Type in a place name
+labels.tokenSearching=Searching...
+labels.createLabel=Create new label
+
+
+# Views
+
+## Admin toolbar
+
+thing.admin.disable.explain=This action prevent other users from viewing or using this %s
+thing.admin.disable.user.explain=This action disables this user and all associated objects, collections, and stories.
+thing.admin.disable.confirm=Are you sure you want to disable this %s?
+thing.admin.disable.goProfile=This action takes you to the user's profile page where you can proceed to disable this user. Disabling a user also blocks all their objects, collections and stories.
+thing.admin.disable.object=object
+thing.admin.disable.collection=collection
+thing.admin.disable.story=story
+thing.admin.disable.user=user
+
+## Admin.Themes view
+admin.themes.title=Themes administration
+admin.themes.title.new=Add a new theme
+admin.themes.title.update=Update a theme
+admin.themes.section.systeminfo=System information
+admin.themes.section.displayinfo=Display information
+admin.themes.section.searchconfig=Search configuration
+admin.themes.section.mailconfig=Email configuration
+admin.themes.section.extras=Extras
+admin.themes.label.themename=Theme name
+admin.themes.help.themename=The name of the theme used by the system
+admin.themes.label.isdefault=Is default
+admin.themes.label.templatedir=Template directory
+admin.themes.label.displayname=Display name
+admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
+admin.themes.label.homepage=Homepage
+admin.themes.label.defaultlanguage=Default language
+admin.themes.label.colorscheme=Color scheme
+admin.themes.label.solrurl=Solr select URL
+admin.themes.label.cacheurl=Cache URL
+admin.themes.label.localizedquerykeys=Localized query keys
+admin.themes.label.metadataprefix=Metadata prefix
+admin.themes.label.hiddenqf=Hidden query filter
+admin.themes.label.adminto=Admin to
+admin.themes.label.exceptionto=Exception to
+admin.themes.label.feedbackto=Feedback to
+admin.themes.label.registerto=Register to
+admin.themes.label.systemfrom=System from
+admin.themes.label.feedbackfrom=Feedback from
+admin.themes.label.ga=Google Analytics code
+admin.themes.label.addthis=AddThis code
+admin.themes.label.savetheme=Save theme
+
+##Application (homepage)
+home.recentobject=Recent object
+home.recentobjects=Recent objects
+home.recentcollection=Recent collection
+home.recentcollections=Recent collections
+home.recentstory=Recent story
+home.recentstories=Recent stories
+
+##Authentication login
+authentication.label.forgotpassword=I forgot my password
+authentication.label.rememberme=Remember me
+
+##DObjects
+object.confirmDeletion=Are you sure you want to remove this object?
+
+##Collections
+collection.confirmDeletion=Are you sure you want to remove this collection?
+
+
+##DataSets
+dataset.index=Index
+dataset.reindex=Re-index
+dataset.cancelindex=Cancel indexing
+dataset.disable=Disable
+dataset.enable=Enable
+dataset.confirmDeletion=Are you sure you want to remove this DataSet?
+dataset.find=Find a DataSet
+dataset.invalidate=Reset hashes
+
+##Mails
+mail.message.activateaccount=Your account for %s has been created. In order to activate it, please click the link below
+mail.message.resetpassword=In order to reset your password for %s, please follow the link below
+mail.subject.accountblocked=Your account has been blocked
+mail.message.accountblocked=Your account has been blocked given the content you have posted is not deemed appropriate for this site. If you think this is an error, please contact %s.
+
+##Profiles
+profile.title=Profile page for
+profile.activesince=Active since
+
+##Registration
+registration.lostpassword=Lost password
+registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
+registration.resetpassword=Reset password
+registration.newpassword=Enter a new password below
+registration.registerFor=Register for %s
+
+##Search
+search.addItemsToCollection=Add items to a collection
+search.addToCollection=Add to collection
+search.dragItems=Drag items from the result list to here to add them to a collection
+search.facets=Facets
+search.nrfound= Found %s results
+search.resultsfor=Search results for
+search.sortby= Sort by
+search.refineYourSearchBy=Refine your search by
+search.facet.byYear=Year
+search.facet.byProvider=Provider
+search.facet.byObjectType=Object type
+search.facet.byCollection=Collection
+search.trail=You are looking at <strong>%s - %s</strong> of <strong>%s</strong> results for:
+search.viewInOriginalContext=View in original context
+search.invalidQuery=Query "%s" is not a valid query. Please try something else.
+
+##Story
+story.pages=Pages
+story.nextpage=Next page
+story.read=Read story
+story.previouspage=Previous page
+story.confirmDeletion=Are you sure you want to remove this story?
+story.titlePage=Title page
+
+#metadata
+metadata.abm.contentProvider=Content Provider
+metadata.abm.county=County
+metadata.abm.data.provider=Data Provider
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.abm.aboutPerson=About Person
+
+metadata.dc.contributor=Contributor
+metadata.dc.coverage=Coverage
+metadata.dc.creator=Author
+metadata.dc.date=Date
+metadata.dc.description=Description
+metadata.dc.format=Format
+metadata.dc.identifier=Identifier
+metadata.dc.language=Language
+metadata.dc.publisher=Publisher
+metadata.dc.relation=Relation
+metadata.dc.rights=Rights
+metadata.dc.source=Source
+metadata.dc.subject=Subject
+metadata.dc.title=Title
+metadata.dc.type=Type
+
+metadata.dcterms.alternative=Alternative Title
+metadata.dcterms.conformsTo=Conforms to
+metadata.dcterms.created=Date
+metadata.dcterms.hasFormat=Has format
+metadata.dcterms.hasPart=Has part
+metadata.dcterms.hasVersion=Has version
+metadata.dcterms.isFormatOf=Is format of
+metadata.dcterms.isPartOf=Is Part of
+metadata.dcterms.isReferencedBy=Is referenced by
+metadata.dcterms.isReplacedBy=Is replaced by
+metadata.dcterms.provenance=Provenance
+metadata.dcterms.references=References
+metadata.dcterms.replaces=Replaces
+metadata.dcterms.requires=Requires
+metadata.dcterms.spatial=Spatial coverage
+metadata.dcterms.temporal=Temporal coverage
+
+metadata.delving.dimensions=Dimensions
+metadata.delving.owner=Owner
+metadata.delving.creator=Creator
+metadata.delving.recordType=Record type
+metadata.delving.hasDigitalObject=Record has a digital object
+
+metadata.europeana.country=Country
+metadata.europeana.dataProvider=Data Provider
+metadata.europeana.provider=Provider
+metadata.europeana.isShownAt=Remote Landing Page
+metadata.europeana.isShownBy=Remote url to digital object
+metadata.europeana.type=Type
+metadata.europeana.year=Year
+metadata.europeana.language=Language
+metadata.europeana.collectionTitle=Collection Title
+metadata.europeana.collectionName=Collection Name
+metadata.europeana.rights=Rights
+metadata.europeana.uri=Europeana Url
+
+metadata.icn.material=Material
+metadata.icn.collection=Collection
+metadata.icn.technique=Technique
+metadata.icn.creatorYearOfBirth=Creator Birth
+metadata.icn.acquisitionMeans=Means of Aquisition
+metadata.icn.acquisitionYear=Year Acquired
+metadata.icn.acquiredWithHelpFrom=Acquired with help from
+metadata.icn.collectionPart=Part
+metadata.icn.location=Location
+metadata.icn.physicalState=Physical State
+metadata.icn.province=Province
+metadata.icn.purchasePrice=Purchase Price
+metadata.icn.collectionType=Collection type
+
+# Tib
+metadata.tib.period=Period
+metadata.tib.citName= Cit collection name
+metadata.tib.citOldId= Cit record identifier
+metadata.tib.thumbLarge= Large thumbnail
+metadata.tib.thumbSmall= Small thumbnail
+metadata.tib.deepZoomUrl= URL for DeepZoom Image
+metadata.tib.collection=Collection
+metadata.tib.creatorRole= Creator Role
+metadata.tib.productionPeriod= Production period
+metadata.tib.productionStart= Pruduction start date
+metadata.tib.productionEnd= Production end date
+metadata.tib.creatorBirthYear= Year of birth
+metadata.tib.creatorDeathYear= Year of death
+metadata.tib.year=Year
+metadata.tib.dimension=Dimension
+metadata.tib.objectSoort=Object type
+metadata.tib.objectNumber=Inventory number
+metadata.tib.material=Material
+metadata.tib.place=Place
+metadata.tib.technique=Technique
+metadata.tib.date=Date
+metadata.tib.collectionPart=Sub-collection name
+metadata.tib.person=Person
+metadata.tib.region=Region
+metadata.tib.theme=Theme
+metadata.tib.event=Event
+metadata.tib.location=Geo-location
+metadata.tib.fullTextObjectUrl=URL to full-text search-able object
+metadata.tib.pageStart=Start page
+metadata.tib.pageEnd=End page
+metadata.tib.pages=Pages
+metadata.tib.formatted=Formatted
+metadata.tib.vindplaats=Physical Location
+
+
+
+metadata.is.about=Is about
+metadata.searchfield.recordType=Object type
+metadata.searchfield.contributor=Contributor
+metadata.searchfield.dataprovider=Provider
+metadata.searchfield.creator=Creator
+metadata.searchfield.hasDigitalObject=Has digital object
+metadata.type.all=All
+metadata.type.images=Images
+metadata.type.sounds=Sounds
+metadata.type.texts=Texts
+metadata.type.video=Video
+metadata.type.videos=Videos
+
+#Users
+
+##Index
+user.index.title=User %s
+
+##List
+user.list.browse=Browse users
+user.list.noUsers=There are currently no users in the system (how did you even get here?)
+user.list.editProfile=Edit your profile
+
+##Admin
+user.admin.index.title=Account space
+user.admin.profile.title=Your profile
+user.admin.profile.help.aboutYou=A few words about yourself
+user.admin.profile.save=Save profile
+user.admin.profile.help.twitter=Your twitter username, e.g. johndoe
+user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
+user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
+user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
+
+##Collections
+user.collection.title.create=Create new collection for user %s
+user.collection.title.update=Update collection for user %s
+user.collection.create=Create a collection
+user.collection.update=Update a collection
+user.collection.updateCollection=Update collection %s
+user.collection.info=Collection information
+user.collection.objects=Collection objects
+user.collection.status=Collection status
+user.collection.label.description=Description
+user.collection.help.description=A short description of your collection
+user.collection.label.addObjects=Add object(s)
+user.collection.title.objectsList=Objects in your collection
+user.collection.title.selectObjects=Select Object(s)
+user.collection.save=Save collection
+
+##DObjects
+user.object.title.create=Create new object for user %s
+user.object.title.update=Update object for user %s
+user.object.create=Create an object
+user.object.update=Update an object
+user.object.updateObject=Update object %s
+user.object.label.addToCollection=Add to collection
+user.object.label.file=File
+user.object.save=Save object
+
+##Stories
+user.story.title.create=Create new story for user %s
+user.story.title.update=Update story for user %s
+user.story.create=Create a story
+user.story.update=Update a story
+user.story.updateStory=Update story %s
+user.story.storyInformationStep1=Step 1
+user.story.storyInformation=Story Information
+user.story.bulletPoint1=Enter the basic story information: a titel and short description. This information will form part of the title-page for your story.
+user.story.bulletPoint2=You should initially keep the story visibility status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
+user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
+user.story.label.addPages=Add pages
+user.story.storyPagesStep2=Step 2
+user.story.storyPages=Story Pages
+user.story.storyDescription=A <strong>story</strong> can be created from objects in a <strong>collection</strong>. So before you can compose a story, you must have a collection with objects in it.
+user.story.noPagesFound=No pages found
+user.story.label.viewStory=View story
+user.story.label.addPage=Add a new page
+user.story.label.addObjects=Add object(s)
+user.story.label.freeText=Free Text
+user.story.label.selectCollection=Select a collection
+user.story.label.addImageFromCollection=Add an image from this collection
+user.story.title.selectObjects=Select Object(s)
+user.story.noCollection=Objects without collection
+user.story.existingPage=Existing pages
+user.story.pageTitle=Page title
+user.story.saveStory=Save story
+user.story.savePage=Save page
+user.story.tellStory=Tell your story
+user.story.title.deletePage=Delete the page?
+user.story.title.deletePageConfirm=Are you sure you want to delete this page?
+
+user.profile.aboutYou=About you
+user.profile.funFact=Fun fact
+
+# Organizations
+org.info=Organization information
+### This gets concatenated to a sentence
+org.list.memberCount=%s member(s)
+org.list.grantType.view=with rights to view
+org.list.grantType.modify=with rights to modify
+org.list.grantType.own=with full access to everything
+org.list.dataSetCount=%s DataSet(s)
+
+org.group.grantType.view=DataSet view rights
+org.group.grantType.modify=DataSet modification rights
+org.group.grantType.cms=Site content administration rights
+org.group.save=Save group
+org.group.create=Create group
+
+org.cms=Website pages
+org.cms.page.update=Update page
+org.cms.page.create=Create new page
+org.cms.page.key=Page key
+org.cms.page.new=New page
+org.cms.page.save=Save page
+org.cms.page.menu.add=Add page to a menu
+org.cms.page.menu.position=Position in the menu
+org.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 15 characters long.
+org.cms.page.list=Page list
+org.cms.list.languageSwitch=List pages in
+org.cms.list.deletePage=Delete page
+org.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
+org.cms.upload=Upload file
+org.cms.upload.image=Upload image
+org.cms.upload.image.explain=Here you can upload images from your own computer and afterwards add them to a CMS page. These images will be added to list which is made available when you create a new page or edit an existing page.
+org.cms.upload.save=Save files
+
+org.admin.index.title=Organization administration
+org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
+org.admin.index.editOwners=You can edit the owners of the organization at the
+org.admin.index.editOwnersLink=owners group page
+org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
+org.admin.index.members=Members
+org.admin.index.owners=Owners
+
+organization.dataset.title.create=Create new dataset for user %s
+organization.dataset.title.update=Update dataset for user %s
+organization.dataset.create=Create a dataset
+organization.dataset.update=Update a dataset
+organization.dataset.info=Data Set Information
+organization.dataset.label.identifier=Identifier
+organization.dataset.help.identifier=The unique identifier of this DataSet
+organization.dataset.save=Save DataSet
+organization.members=Members
+
+organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+
+
+# Controllers
+
+user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
+
+dataSetState.incomplete=Incomplete
+dataSetState.uploaded=Uploaded and ready for indexing
+dataSetState.queued=queued for indexing
+dataSetState.indexing=Indexing
+dataSetState.enabled=Enabled
+dataSetState.disabled=Disabled
+dataSetState.error=Error occured while indexing
+
+admin.themes.themeNotFound=Theme with id %s was not found
+admin.themes.saveError=Error saving theme %s
+user.admin.userNotFound=Could not find user %s
+user.admin.profile.saveError=Error saving your profile, please try again
+user.collections.objectNotFound=Object with id %s was not found
+user.collections.saveError=Error saving collection %s
+user.dobjects.objectNotFound=Object with id %s was not found
+user.dobjects.saveError=Error saving object %s
+user.fileupload.removeError=Error removing file, invalid id %s
+user.stories.storyNotFound=Story with id %s was not found
+collections.invalidCollectionId=Invalid collection id %s
+datasets.dataSetNotFound=DataSet %s was not found
+delvingcontroller.userNotFound=User %s was not found
+
+listPageTitle.object.user=List of objects for user %s
+listPageTitle.object.all=List of objects
+listPageTitle.mdr.user=List of heritage object for %s
+listPageTitle.mdr.all=List of heritage objects
+listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.all=List of collections
+listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.all=List of datasets
+listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.all=List of stories
+listPageTitle.user.all=List of users
+
+registration.invalidCode=Invalid code. Please type it again
+registration.duplicateEmail=There is already a user with this email address
+registration.duplicateDisplayName=There is already a user with this user name
+registration.errorCreating=Error creating your account, please try again
+registration.accountNotFoundWithEmail=No account could be found with this email address
+registration.accountNotActive=This account is not active yet. Please activate your account with the link sent in the registration e-mail
+registration.resetTokenNotFound=Reset password token not found
+registration.errorPasswordChange=Error changing your password. Try resetting it again.
+registration.passwordsDiffer=Passwords are not the same
+registration.userNameInvalid=This username is not valid. A username can only contain lower-case letters, numbers, and has to be between 3 and 15 characters long.
+
+authentication.usernameRequired=Username is required
+authentication.passwordRequired=Password is required
+authentication.error=Login incorrect
+authentication.logout=You were logged out successfully
+authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
+servicessecurity.userNotFound=User %s was not found
+
+stories.storyNotFound=Story with id %s was not found
+
+profile.profileNotFound=No profile was found for user %s
+
+organizations.organization.orgNotFound=Could not find organization %s
+
+organizations.admin.userNotFound=Could not find user with userName %s
+
+organizations.group.cannotAddUser=Could not add user with userName %s to group %s
+organizations.group.cannotRemoveUser=Could not remove user with userName %s to group %s
+organizations.group.cannotAddDataset=Could not add DataSet with ID %s to group %s
+organizations.group.cannotRemoveDataset=Could not remove DataSet with ID %s from group %s
+organizations.group.groupNotFound=Could not find group with ID %s
+organizations.group.cannotSaveGroup=Could not save group, please try again
+
+organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+organization.datasets.cannotBeInvalidated=DataSet hashes cannot be reset in the current state
+
+search.backendConnectionError=Cannot connect to the search backend
+
+
+
+locale.en=English (en)
+locale.nl=Dutch (nl)

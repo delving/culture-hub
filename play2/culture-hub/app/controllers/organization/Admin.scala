@@ -34,7 +34,7 @@ object Admin extends OrganizationController {
   def addUser(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        val id = request.body.getFirst("id").get
+        val id = request.body.getFirstAsString("id").get
         User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
         val success = Organization.addUser(orgId, id)
         // TODO logging
@@ -48,7 +48,7 @@ object Admin extends OrganizationController {
   def removeUser(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        val id = request.body.getFirst("id").get
+        val id = request.body.getFirstAsString("id").get
         User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
         val success = Organization.removeUser(orgId, id)
         // TODO logging
