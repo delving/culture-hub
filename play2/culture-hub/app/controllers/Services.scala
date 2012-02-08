@@ -63,7 +63,7 @@ object Services extends DelvingController with HTTPClient {
         val responseString: String = method.getResponseBodyAsString
 
         solrResponseType match {
-          case "javabin" => Ok(method.getResponseBodyAsStream) // , "solrResult", responseContentType, false todo test if this still works
+          // case "javabin" => Ok(method.getResponseBodyAsStream).as(BINARY) todo enable this again , "solrResult", responseContentType, false todo test if this still works
           case "json" => Ok(responseString).as(JSON)
           case "xml" => Ok(responseString).as(XML)
           case _ => Ok(responseString).as(XML)

@@ -27,6 +27,7 @@ import java.util.{Map => JMap}
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.{RequestHeader, AnyContent, Request}
+import collection.immutable.List
 
 /**
  *
@@ -76,7 +77,7 @@ object SolrQueryService extends SolrServer {
 
   def encode(text: String): String = URLEncoder.encode(text, "utf-8")
 
-  def encodeUrl(field: FieldValue, request: Request, response: CHResponse): String = {
+  def encodeUrl(field: FieldValue, request: RequestHeader, response: CHResponse): String = {
     import java.net.URLEncoder
     if (response.useCacheUrl && field.getKey == "europeana_object")
       response.theme.cacheUrl + URLEncoder.encode(field.getFirst, "utf-8")
@@ -129,11 +130,11 @@ object SolrQueryService extends SolrServer {
 
     val queryParams = getSolrQueryWithDefaults
     val params = Params(request)
-    val facetsFromTheme = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
-    val facetFields = if (params._contains("facet.field")) facetsFromTheme ::: params.getValues("facet.field").toList
+    val facetsFromTheme: List[String] = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
+    val facetFields: List[String] = if (params._contains("facet.field")) facetsFromTheme ::: params.getValues("facet.field").toList
     else facetsFromTheme
 
-    params.put("facet.field", facetFields.toArray[String])
+    params.put("facet.field", facetFields)
 
     def addGeoParams(hasGeoType: Boolean)  {
       if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
@@ -193,7 +194,7 @@ object SolrQueryService extends SolrServer {
         }
         catch {
           case ex: Exception =>
-            Logger(getClass) error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
+            Logger(this.getClass) error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
         }
     }
     queryParams
@@ -495,27 +496,27 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 case class Params(request: RequestHeader) {
 
-  private val params = request.queryString
+  private val params = request.queryString.map(param => (param._1, param._2.toList))
   
-  def put(key: String, values: Seq[String]) = params add (key, values)
+  def put(key: String, values: List[String]) = params add (key, values)
   
   def all = params
 
   def allNonEmpty = all.filter(!_._2.isEmpty)
   
-  def allSingle = params.map(params => (params._1, params._2.head)).toMap
+  val allSingle = params.map(params => (params._1, params._2.head)).toMap
 
-  def _contains(key: String) = params.containsKey()
+  def _contains(key: String) = params.containsKey(key)
 
   def valueIsNonEmpty(key: String) = _contains(key) && !getValue(key).isEmpty
 
   def getValue(key: String) = params.get(key).head.toString()
 
-  def getValues(key: String) = params.get(key)
+  def getValues(key: String): Seq[String] = params.get(key).get
 
   def hasKeyAndValue(key: String, value: String) = _contains(key) && getValue(key).equalsIgnoreCase(value)
 
-  def getValueOrElse(key: String,  default: String): String = params.get(key).headOption.getOrElse(default).toString
+  def getValueOrElse(key: String,  default: String): String = allSingle.get(key).headOption.getOrElse(default).toString
   
   def keys = params.keys.toList
 

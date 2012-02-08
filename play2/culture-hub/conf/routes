@@ -45,7 +45,7 @@ GET        /token                                                               
 #GET         /services/api/{spec}:{id}                                        Services.retrieveRecord
 #GET         /services/api/open-search                                        Services.index
 #GET         /services/api/open-search.xml                                    Services.index
-#GET         /services/oai-pmh                                                Services.oaipmh
+GET          /services/oai-pmh                                                controllers.Services.oaipmh
 #GET         /services/oai-pmh/{accessKey}                                    Services.oaipmhSecured
 
 # Custom Controllers and Functionality for customers
