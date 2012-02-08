@@ -1,19 +1,3 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package core.search
 
 /*
@@ -27,7 +11,6 @@ package core.search
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -405,19 +388,19 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
 
 /////////// TODO MIGRATION
 
-case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
-
-  def value = facetCount.getName
-  def count = facetCount.getCount
-
-  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
-}
-
-case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false) {
-
-  def getType: String = facetName
-  def getLinks: List[FacetCountLink] = links
-  def isFacetSelected: Boolean =facetSelected
-
-}
+//case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
+//
+//  def value = facetCount.getName
+//  def count = facetCount.getCount
+//
+//  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
+//}
+//
+//case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false) {
+//
+//  def getType: String = facetName
+//  def getLinks: List[FacetCountLink] = links
+//  def isFacetSelected: Boolean =facetSelected
+//
+//}
 

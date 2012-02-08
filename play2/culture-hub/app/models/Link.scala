@@ -172,7 +172,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
           if (hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
             connection(hubCollection.get).update(MongoDBObject(MDR_HUB_ID -> hubAlternativeId.get), pull)
           } else {
-            Logger("culture-hub").warn("Could not delete embedded Link %s %s %s".format(hubType, id, hubCollection))
+            Logger("CultureHub").warn("Could not delete embedded Link %s %s %s".format(hubType, id, hubCollection))
           }
       }
 

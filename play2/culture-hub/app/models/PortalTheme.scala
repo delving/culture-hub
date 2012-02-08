@@ -54,7 +54,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
               SolrFacetElement(k(0), k(1), k(2).toInt)
             } catch {
               case  _ : java.lang.NumberFormatException =>
-                Logger("culture-hub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), name))
+                Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), name))
                 SolrFacetElement(k(0), k(1))
             }
         }
