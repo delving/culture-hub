@@ -127,7 +127,7 @@ object SolrQueryService extends SolrServer {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
-    val params = Params(request)
+    val params = Params(request.queryString)
     val facetsFromTheme: List[String] = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
     val facetFields: List[String] = if (params._contains("facet.field")) facetsFromTheme ::: params.getValues("facet.field").toList
     else facetsFromTheme
@@ -212,7 +212,7 @@ object SolrQueryService extends SolrServer {
 
   def createCHQuery(request: RequestHeader, theme: PortalTheme, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
 
-    val params = Params(request)
+    val params = Params(request.queryString)
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -492,9 +492,9 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 }
 
-case class Params(request: RequestHeader) {
+case class Params(queryString: Map[String, Seq[String]]) {
 
-  private val params: Map[String, Seq[String]] = request.queryString.filter(!_._2.isEmpty)
+  private val params: Map[String, Seq[String]] = queryString.filter(!_._2.isEmpty)
 
   def put(key: String, values: Seq[String]) = params + (key -> values)
   

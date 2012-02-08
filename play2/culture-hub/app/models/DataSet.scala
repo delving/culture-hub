@@ -27,7 +27,6 @@ import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
 import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
-import play.api.i18n.Messages
 import scala.collection.JavaConverters._
 import eu.delving.sip.IndexDocument
 import eu.delving.sip.MappingEngine
@@ -37,6 +36,7 @@ import controllers.ModelImplicits
 import core.mapping.MappingService
 import play.api.Play
 import play.api.Play.current
+import play.api.i18n.{Lang, Messages}
 
 /**
  * DataSet model
@@ -370,11 +370,11 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 }
 
 case class DataSetState(name: String) {
+
   def description = Messages("dataSetState." + name.toLowerCase)
 }
 
 object DataSetState {
-  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
   val INCOMPLETE = DataSetState("incomplete")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
@@ -384,6 +384,7 @@ object DataSetState {
   val ERROR = DataSetState("error")
   def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
   def valid(name: String) = values.contains(DataSetState(name))
+  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
 }
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())

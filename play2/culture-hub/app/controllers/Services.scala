@@ -49,7 +49,7 @@ object Services extends DelvingController with HTTPClient {
         import play.api.Play.current
 
         val solrQueryString: String = request.rawQueryString
-        val params = Params(request)
+        val params = Params(request.queryString)
 
         val solrServerUrl: String = String.format("%s/select?%s", Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2"), solrQueryString)
         val method: HttpMethod = new GetMethod(solrServerUrl)

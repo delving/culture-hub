@@ -29,6 +29,12 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
 
   implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
+  
+  implicit def withRichQueryString(queryString: Map[String, Seq[String]]) = new {
+    
+    def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
+    
+  }
 
 }
 
@@ -207,6 +213,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
       }
     }
   }
+
+  def isConnected(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).isDefined
 
   def connectedUser = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
 

@@ -22,7 +22,6 @@ import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.map.{JsonSerializer, SerializerProvider, JsonDeserializer, DeserializationContext}
 import org.codehaus.jackson.{Version, JsonGenerator, JsonParser}
 import play.api.mvc.Results.Status
-import com.codahale.jerkson.Json._
 import play.api.PlayException
 import play.api.mvc.{JavascriptLitteral, PathBindable}
 
