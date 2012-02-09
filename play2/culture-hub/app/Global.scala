@@ -148,7 +148,8 @@ object Global extends GlobalSettings {
         errorMessage = Some("")
       ),
       lastUploaded = new Date(0),
-      idxMappings = List("icn")
+      idxMappings = List("icn"),
+      mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head))
     ))
   }
 }
