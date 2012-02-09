@@ -315,7 +315,7 @@ object SipCreatorEndPoint extends ApplicationController {
           val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
           DataSet.save(updatedDataSet)
 
-          val dataContent: Enumerator[Array[Byte]] = Enumerator.enumerateStream(getSipStream(dataSet))
+          val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(getSipStream(dataSet))
           Ok.stream(dataContent)
         }
     }

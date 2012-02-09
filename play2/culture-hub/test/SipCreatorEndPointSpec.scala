@@ -1,8 +1,9 @@
 import collection.mutable.Buffer
+import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecordMapping
 import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
-import java.util.zip.ZipInputStream
+import java.util.zip.{GZIPInputStream, ZipInputStream}
 import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import collection.JavaConverters._
@@ -187,6 +188,12 @@ class SipCreatorEndPointSpec extends Specification with Cleanup {
       case class ZipEntry(name: String)
 
       running(FakeApplication()) {
+
+        val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+
+        // first, ingest all sorts of things
+        SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+
         val result = controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
 
