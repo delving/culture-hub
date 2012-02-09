@@ -29,7 +29,7 @@ import extensions._
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object OAuth2TokenEndpoint extends Controller with Extensions {
+object OAuth2TokenEndpoint extends Controller {
 
   val TOKEN_TIMEOUT = 3600
 
@@ -90,7 +90,7 @@ object OAuth2TokenEndpoint extends Controller with Extensions {
             case e: OAuthProblemException => {
               val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
               val resp: OAuthResponse = builder.error(e).buildJSONMessage()
-              Json(resp.getBody, 400)
+              BadRequest(resp.getBody).as(JSON)
             }
           }
   }
@@ -99,12 +99,12 @@ object OAuth2TokenEndpoint extends Controller with Extensions {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
     val resp: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
     Action {
-      request => Json(resp.getBody, 400)
+      request => BadRequest(resp.getBody).as(JSON)
     }
   }
 
   /** ensure that some content is set, so that there will always be a Content-Length in the response **/
-  def WrappedJson(payload: String) = if(payload == null) Json("") else Json(payload)
+  def WrappedJson(payload: String) = if(payload == null) Ok("").as(JSON) else Ok(payload).as(JSON)
 
 
 

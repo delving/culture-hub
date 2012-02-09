@@ -104,7 +104,7 @@ object SipCreatorEndPoint extends ApplicationController {
                 <fullname>{lockedBy.get.fullname}</fullname>
                 <email>{lockedBy.get.email}</email>
               </lockedBy>}}
-              <state>{ds.state.toString}</state>
+              <state>{ds.state.name}</state>
               <recordCount>{ds.details.total_records}</recordCount>
             </data-set>
           }

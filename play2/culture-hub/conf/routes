@@ -184,7 +184,7 @@ GET          /organizations/:orgId/dataset/:spec                             con
 
 #GET         /organizations/{orgId}/sip-creator/?                             organization.SipCreator.index
 
-GET          /api/sip-creator/list                                            controllers.SipCreatorEndPoint.listAll(accessToken: Option[String] ?= None)
+GET          /api/sip-creator/list                                            controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
 GET          /api/sip-creator/unlock/:orgId/:spec                             controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
 POST         /api/sip-creator/submit/:orgId/:spec                             controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
 POST         /api/sip-creator/submit/:orgId/:spec/:fileName                   controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
