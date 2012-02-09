@@ -6,6 +6,7 @@ import java.security.{NoSuchAlgorithmException, MessageDigest}
 import org.apache.commons.codec.binary.Base64
 import play.api.UnexpectedException
 import io.Source
+import org.apache.commons.io.IOUtils
 
 /**
  *
@@ -25,6 +26,29 @@ object MissingLibs {
       case e => throw new RuntimeException(e)
     }
     properties
+  }
+
+  def readContentAsString(is: InputStream): String = {
+    readContentAsString(is, "utf-8")
+  }
+
+  /**
+   * Read the Stream content as a string
+   * @param is The stream to read
+   * @return The String content
+   */
+  def readContentAsString(is: InputStream, encoding: String) = {
+      try {
+          IOUtils.toString(is, encoding);
+      } catch {
+        case e => throw new RuntimeException(e);
+      } finally {
+          try {
+              is.close();
+          } catch {
+            case _ => //
+          }
+      }
   }
 
   // ~~~ play.libs.Codec

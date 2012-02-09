@@ -194,7 +194,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   def findByAccessToken(token: String): Option[User] = {
-    if(Play.isTest && token == "TEST" || Play.isTest) return User.findOne(MongoDBObject("userName" -> "bob"))
+    if((Play.isTest || Play.isDev) && token == "TEST") return User.findOne(MongoDBObject("userName" -> "bob"))
     User.findOne(MongoDBObject("accessToken.token" -> token))
   }
 

@@ -111,7 +111,7 @@ object OAuth2TokenEndpoint extends Controller with Extensions {
   // ~~~
 
   def isValidToken(token: String): Boolean = {
-    if(Play.isTest && token == "TEST") return true
+    if((Play.isTest || Play.isDev) && token == "TEST") return true
     User.isValidAccessToken(token, TOKEN_TIMEOUT)
   }
 
