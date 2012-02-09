@@ -237,7 +237,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
     val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
-    // remove First Harvest Step
     val updated = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, newMapping))
     DataSet.updateById(dataSet._id, updated)
     updated
