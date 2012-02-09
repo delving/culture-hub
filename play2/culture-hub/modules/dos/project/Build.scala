@@ -8,11 +8,11 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0"
 
     val appDependencies = Seq(
-      // Add your project dependencies here,
+      "com.thebuzzmedia"    %   "imgscalr-lib" % "3.2"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-      // Add your own project settings here      
+    repositories += ("buzzmedia" at "http://maven.thebuzzmedia.com")
     )
 
 }
