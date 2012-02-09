@@ -323,10 +323,8 @@ object SipCreatorEndPoint extends ApplicationController {
 
 
   def getSipStream(dataSet: DataSet) = {
-    val in = new PipedInputStream(1000000)
+    val in = new PipedInputStream(100000000) // 95 mb buffer... this should use the Iteratee/Enumeratee method instead.
     val zipOut = new ZipOutputStream(new PipedOutputStream(in))
-
-    println("Getting that stream baby")
 
     writeEntry("dataset_facts.txt", zipOut) {
       out =>
@@ -358,7 +356,6 @@ object SipCreatorEndPoint extends ApplicationController {
       writeEntry("source.xml", zipOut) {
         out =>
           val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
-
           val builder = new StringBuilder
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
@@ -373,6 +370,7 @@ object SipCreatorEndPoint extends ApplicationController {
             pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
             pw.print(record.getXmlString())
             pw.println("</input>")
+            println("foobar")
 
             if (count % 100 == 0) {
               pw.flush()
@@ -383,6 +381,7 @@ object SipCreatorEndPoint extends ApplicationController {
           write("</delving-sip-source>", pw, out)
       }
     }
+
 
     for (mapping <- dataSet.mappings) {
       if (mapping._2.recordMapping != None) {
