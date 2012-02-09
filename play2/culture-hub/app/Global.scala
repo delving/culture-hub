@@ -34,7 +34,7 @@ object Global extends GlobalSettings {
     // load themes
     ThemeHandler.startup()
 
-    if (Play.mode == Mode.Dev) {
+    if (Play.isDev || Play.isTest) {
       if (User.count() == 0) bootstrapUser()
       if (UserCollection.count() == 0) bootstrapUserCollection()
       if (DObject.count() == 0) bootstrapDObject()
