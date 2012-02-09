@@ -564,10 +564,10 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = views.Helpers.PAGE_S
   val hasPreviousPage = start > 1
   val previousPageNumber = start - rows
   var fromPage: Int = 1
-  var toPage: Int = scala.Math.min(totalPages, MARGIN * 2)
+  var toPage: Int = scala.math.min(totalPages, MARGIN * 2)
   if (currentPageNumber > PAGE_NUMBER_THRESHOLD) {
     fromPage = currentPageNumber - MARGIN
-    toPage = Math.min(currentPageNumber + MARGIN - 1, totalPages)
+    toPage = scala.math.min(currentPageNumber + MARGIN - 1, totalPages)
   }
   if (toPage - fromPage < MARGIN * 2 - 1) {
     fromPage = scala.math.max(1, toPage - MARGIN * 2 + 1)
