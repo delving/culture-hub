@@ -42,7 +42,7 @@ object Mails {
 
   lazy val quotes: List[String] = {
     // quotes.txt courtesy of Rudy Velthuis - http://blogs.teamb.com/rudyvelthuis/2006/07/29/26308
-    val f = new File(current.path, "/app/views/Mails/quotes.txt")
+    val f = new File(current.path, "/conf/quotes.txt")
     val lines = org.apache.commons.io.IOUtils.readLines(new FileInputStream(f), "utf-8").asScala
     val quotes = new ArrayBuffer[String]()
     val sb = new StringBuilder()
