@@ -36,23 +36,22 @@ import util.{ThemeInfoReader, ThemeHandler, LocalizedFieldNames, ProgrammerExcep
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with Logging with ParameterCheck with ThemeAware with UserAuthentication with Internationalization {
+trait DelvingController extends Controller with ModelImplicits with AdditionalActions with Logging with ThemeAware with UserAuthentication with Internationalization {
 
-  @Before(priority = 0) def checkCSRF(): Result = {
+  @Before(priority = 0) def baseAction(): Result = {
+
+    // CSRF check
     if(request.method == "POST" && Play.id != "test") {
-      return checkAuthenticity() match {
-        case Some(r) => r
-        case None => Continue
+      val authenticityTokenParam = params.get("authenticityToken")
+      val CSRFHeader = request.headers.get("x-csrf-token")
+      if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == session.getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.value() == session.getAuthenticityToken))) {
+        return Forbidden("Bad authenticity token")
       }
     }
-    Continue
-  }
 
-  // ~~~ user variables handling for view rendering (connected and browsed)
-
-  @Before(priority = 0) def setConnectedUser() {
-    User.findByUsername(connectedUser) match {
-      case Some(u) => {
+    // Connected user
+    User.findByUsername(connectedUser).map {
+      u => {
         renderArgs += ("fullName", u.fullname)
         renderArgs += ("userName", u.userName)
         renderArgs += ("userId", u._id)
@@ -65,71 +64,9 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         session.put(AccessControl.ORGANIZATIONS, u.organizations.mkString(","))
         session.put(AccessControl.GROUPS, u.groups.mkString(","))
       }
-      case None =>
     }
-  }
 
-  @Before(priority = 2) def setMenu() {
-    val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
-        "title" -> e.title(Lang.get()),
-        "page" -> e.targetPageKey.getOrElse("")))
-    ).toList
-
-    renderArgs += ("menu", mainMenuEntries)
-  }
-
-  @Before(priority = 2) def setBrowsed() {
-    Option(params.get("user")) match {
-      case Some(userName) =>
-        val user = User.findByUsername(userName)
-        user match {
-          case Some(u) =>
-            renderArgs += ("browsedFullName", u.fullname)
-            renderArgs += ("browsedUserId", u._id)
-            renderArgs += ("browsedUserName", u.userName)
-          case None =>
-            renderArgs += ("browsedUserNotFound", userName)
-        }
-      case None =>
-    }
-    Option(params.get("orgId")) match {
-      case Some(orgId) =>
-        val orgName = Organization.fetchName(orgId)
-        renderArgs += ("browsedOrgName", orgName)
-      case None =>
-    }
-    if(!browsedUserExists) return NotFound(&("delvingcontroller.userNotFound", renderArgs.get("browsedUserNotFound", classOf[String])))
-  }
-
-  // supported formats, based on the formats automatically inferred by Play and the ones we additionally support in the format parameter
-  val supportedFormats = List("html", "xml", "json", "kml", "token")
-
-  @Before(priority = 3)
-  def setFormat(): AnyRef = {
-    val accept = request.headers.get("accept")
-    if (accept != null && accept.value().equals("application/vnd.google-earth.kml+xml")) {
-      request.format = "kml";
-    }
-    val formatParam = Option(params.get("format"))
-    if (formatParam.isDefined && supportedFormats.contains(formatParam.get)) {
-      request.format = params.get("format")
-    } else if (formatParam.isDefined && !supportedFormats.contains(formatParam.get)) {
-      return Error(406, "Unsupported format %s" format (formatParam.get))
-    }
-    Continue
-  }
-
-/*
-  @Before def brokenPlayBindingWorkaround(page: Int = 1) {
-    val page = params.get("page", classOf[Int])
-    if(page == 0) {
-      params.remove("page")
-      params.put("page", "1")
-    }
-  }
-*/
-
-  @Before(priority = 1) def setLanguage() {
+    // Language
 
     // if a lang param is passed, this is a request to explicitly change the language
     // and will change it in the user's cookie
@@ -146,9 +83,38 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
         Lang.change(theme.defaultLanguage)
       }
     }
-  }
 
-  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
+    // Menu entries
+    val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
+        "title" -> e.title(Lang.get()),
+        "page" -> e.targetPageKey.getOrElse("")))
+    ).toList
+    renderArgs += ("menu", mainMenuEntries)
+
+    // Browsed user
+    Option(params.get("user")).map {
+      userName =>
+        val user = User.findByUsername(userName)
+        user match {
+          case Some(u) =>
+            renderArgs += ("browsedFullName", u.fullname)
+            renderArgs += ("browsedUserId", u._id)
+            renderArgs += ("browsedUserName", u.userName)
+          case None =>
+            renderArgs += ("browsedUserNotFound", userName)
+      }
+    }
+
+    Option(params.get("orgId")).map {
+      orgId =>
+        val orgName = Organization.fetchName(orgId)
+        renderArgs += ("browsedOrgName", orgName)
+    }
+
+    if(!browsedUserExists) return NotFound(&("delvingcontroller.userNotFound", renderArgs.get("browsedUserNotFound", classOf[String])))
+
+    Continue
+  }
 
   // ~~~ convenience methods to access user information
 
@@ -156,6 +122,8 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     case Some(user) => Right(user)
     case None => Left(NotFound(&("delvingcontroller.userNotFound", userName)))
   }
+
+  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
 
   @Util def browsedUserName: String = renderArgs.get("browsedUserName", classOf[String])
 
@@ -165,7 +133,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
   @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
 
-  @Util def browsedIsConnected: Boolean = browsedUserId == connectedUserId
+  @Util def browsedIsConnected: Boolean = browsedUserName == connectedUser
 
   @Util def browsingUser: Boolean = browsedUserName != null
 
@@ -174,11 +142,6 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
   // ~~~ convenience methods
 
   @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else &("listPageTitle.%s.all".format(itemName))
-
-  @Util def findThumbnailCandidate(files: Seq[StoredFile]): Option[StoredFile] = {
-    for(file <- files) if(file.contentType.contains("image")) return Some(file)
-    None
-  }
 
   @Util def validate(viewModel: AnyRef): Option[Map[String, String]] = {
     import scala.collection.JavaConversions.asScalaIterable
@@ -193,19 +156,7 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
     }
   }
 
-  @Util def checkAuthenticity(): Option[Result] = {
-    val authenticityTokenParam = params.get("authenticityToken")
-    val CSRFHeader = request.headers.get("x-csrf-token")
-    if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == session.getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.value() == session.getAuthenticityToken))) {
-      Some(Forbidden("Bad authenticity token"))
-    } else {
-      None
-    }
-  }
-
   @Util def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
-
-
 
 
   // ~~~ error handling
@@ -219,47 +170,6 @@ trait DelvingController extends Controller with ModelImplicits with AdditionalAc
 
 }
 
-/**
- * Checks the validity of parameters
- *
- * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
- * @author Gerald de Jong <geralddejong@gmail.com>
- */
-trait ParameterCheck {
-  self: Controller =>
-
-  @Before(priority = 0)
-  def checkParameters(): AnyRef = {
-    val parametersToCheck = List("user", "collection", "label", "dobject", "story")
-    parametersToCheck map {
-      paramName => Option(params.get(paramName)) map {
-        paramValue => Allowed(paramValue) match {
-          case None => return Error(400, """Forbidden value "%s" for parameter "%s"""" format (paramValue, paramName))
-          case _ => Continue
-        }
-      }
-    }
-    Continue
-  }
-
-@Util object Allowed {
-    def apply(string: String): Option[String] = {
-      FORBIDDEN map {
-        f => if (string.contains(f)) {
-          return None
-        }
-      }
-      Some(string)
-    }
-  }
-
-  val FORBIDDEN = Set(
-    "object", "profile", "map", "graph", "label", "collection",
-    "story", "user", "service", "services", "portal", "api", "index",
-    "add", "edit", "save", "delete", "update", "create", "search",
-    "image", "fcgi-bin", "upload", "admin", "registration", "users")
-
-}
 
 trait ThemeAware { self: Controller =>
 
@@ -297,7 +207,6 @@ trait ThemeAware { self: Controller =>
 trait Internationalization {
 
   import play.i18n.Messages
-  import play.i18n.Lang
 
   def &(msg: String, args: String*) = Messages.get(msg, args : _ *)
 
@@ -338,6 +247,5 @@ class ViewUtils(theme: PortalTheme) {
     Messages.get(msg, args)
   }
   def getKey(msg: String): String = Messages.get(msg)
-
 
 }

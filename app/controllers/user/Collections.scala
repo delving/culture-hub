@@ -41,7 +41,7 @@ object Collections extends DelvingController with UserSecured with ThumbnailLink
   private def load(id: String): String = {
     val allObjects: List[ShortObjectModel] = DObject.browseByUser(browsedUserName, connectedUser).toList
 
-    UserCollection.findById(id, connectedUserId) match {
+    UserCollection.findById(id, connectedUser) match {
       case None =>
         JJson.generate[CollectionViewModel](CollectionViewModel(allObjects = allObjects, availableObjects = allObjects))
       case Some(col) => {
@@ -87,7 +87,6 @@ object Collections extends DelvingController with UserSecured with ThumbnailLink
       case None =>
         val newCollection = UserCollection(TS_update = new Date(),
             name = collectionModel.name,
-            user_id = connectedUserId,
             userName = connectedUser,
             description = collectionModel.description,
             visibility = Visibility.get(collectionModel.visibility),
@@ -200,7 +199,7 @@ object Collections extends DelvingController with UserSecured with ThumbnailLink
   }
 
   def remove(id: ObjectId): Result = {
-    if(UserCollection.owns(connectedUserId, id)) {
+    if(UserCollection.owns(connectedUser, id)) {
       UserCollection.findOneByID(id) match {
         case Some(col) =>
           if(col.getBookmarksCollection) return Error("Cannot delete bookmarks collection!")

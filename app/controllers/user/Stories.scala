@@ -40,7 +40,7 @@ object Stories extends DelvingController with UserSecured with ThumbnailLinking 
     val collections = UserCollection.browseByUser(connectedUser, connectedUser)
     val collectionVMs = (collections map { c => CollectionReference(c._id, c.name) }).toList ++ List(CollectionReference(controllers.Collections.NO_COLLECTION, &("user.story.noCollection")))
 
-    Story.findById(id, connectedUserId) match {
+    Story.findById(id, connectedUser) match {
       case None => JJson.generate(StoryViewModel(collections = collectionVMs))
       case Some(story) =>
         
@@ -96,7 +96,6 @@ object Stories extends DelvingController with UserSecured with ThumbnailLinking 
           name = storyVM.name,
           TS_update = new Date(),
           description = storyVM.description,
-          user_id = connectedUserId,
           userName = connectedUser,
           visibility = Visibility.get(storyVM.visibility.intValue()),
           thumbnail_id = None,
@@ -137,7 +136,7 @@ object Stories extends DelvingController with UserSecured with ThumbnailLinking 
   }
 
   def remove(id: ObjectId) = {
-    if(Story.owns(connectedUserId, id)) {
+    if(Story.owns(connectedUser, id)) {
       Story.delete(id)
       IndexingService.deleteById(id)
     } else Forbidden("Big brother is watching you")

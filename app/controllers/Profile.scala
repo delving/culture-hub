@@ -31,9 +31,9 @@ object Profile extends DelvingController {
       case Left(error) => return error
     }
 
-    val objectsPage: (List[DObject], Int) = DObject.findVisibleByUser(u.userName, connectedUserId).page(1, viewUtils.themeProperty("profileObjectsCount", classOf[Int]))
-    val collectionsPage: (List[UserCollection], Int) = UserCollection.findVisibleByUser(u.userName, connectedUserId).page(1, viewUtils.themeProperty("profileCollectionsCount", classOf[Int]))
-    val storyPage: (List[Story], Int) = Story.findVisibleByUser(u.userName, connectedUserId).page(1, viewUtils.themeProperty("profileStoriesCount", classOf[Int]))
+    val objectsPage: (List[DObject], Int) = DObject.findVisibleByUser(u.userName, connectedUser).page(1, viewUtils.themeProperty("profileObjectsCount", classOf[Int]))
+    val collectionsPage: (List[UserCollection], Int) = UserCollection.findVisibleByUser(u.userName, connectedUser).page(1, viewUtils.themeProperty("profileCollectionsCount", classOf[Int]))
+    val storyPage: (List[Story], Int) = Story.findVisibleByUser(u.userName, connectedUser).page(1, viewUtils.themeProperty("profileStoriesCount", classOf[Int]))
 
     val objects: List[ListItem] = objectsPage._1
     val collections: List[ListItem] = collectionsPage._1

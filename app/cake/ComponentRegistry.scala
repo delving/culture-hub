@@ -16,7 +16,6 @@
 
 package cake
 
-import scala.collection.JavaConversions._
 import eu.delving.metadata.MetadataModel
 import eu.delving.metadata.MetadataModelImpl
 import models.{DataSet, RecordDefinition}
@@ -25,6 +24,8 @@ import models.{DataSet, RecordDefinition}
  * This object uses the Cake pattern to manage Dependency Injection, see also
  * http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di.html
  *
+ * TODO due to the bytecode enhancements of Play that did not work well with nested classes, we moved most things out of there.
+ * Re- think this after migration to Play2
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 7/6/11 4:36 PM  

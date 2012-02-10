@@ -39,7 +39,6 @@ package object salatContext {
   // ~~~ mongo collections
 
   val thingIndexes = Seq(
-    MongoDBObject("user_id" -> 1, "visibility.value" -> 1, "deleted" -> 1),
     MongoDBObject("userName" -> 1, "visibility.value" -> 1, "deleted" -> 1),
     MongoDBObject("links.linkType" -> 1)
   )
