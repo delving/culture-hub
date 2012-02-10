@@ -4,13 +4,13 @@
  */
 
 import com.mongodb.BasicDBObject
+import com.mongodb.casbah.commons.MongoDBObject
 import core.mapping.MappingService
 import java.util.Date
 import models._
 import org.bson.types.ObjectId
 import org.joda.time.DateTime
 import play.api._
-import libs.Crypto
 import play.api.Play.current
 import util.{MissingLibs, ThemeHandler}
 
@@ -36,6 +36,7 @@ object Global extends GlobalSettings {
 
     if (Play.isDev || Play.isTest) {
       if (User.count() == 0) bootstrapUser()
+      if (Group.count() == 0) bootstrapAccessControl()
       if (UserCollection.count() == 0) bootstrapUserCollection()
       if (DObject.count() == 0) bootstrapDObject()
       if (DataSet.count() == 0) bootstrapDatasets()
@@ -79,6 +80,25 @@ object Global extends GlobalSettings {
       userProfile = profile,
       isActive = true
     ))
+  }
+
+  private def bootstrapAccessControl() {
+
+    val delving = Organization(node = "cultureHub", orgId = "delving", name = Map("en" -> "Delving"))
+    val bnf = Organization(node = "cultureHub", orgId = "bnf", name = Map("en" -> "National Library of France", "fr" -> "Bibliotheque nationale de France"))
+
+    val delvingId = Organization.insert(delving)
+    val bnfId = Organization.insert(bnf)
+
+    // all users are in delving
+    User.find(MongoDBObject()).foreach(u => Organization.addUser("delving", u.userName))
+
+    val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN.key)
+    val delvingOwnersId = Group.insert(delvingOwners)
+
+    // bob is an owner
+    Group.addUser("bob", delvingOwnersId.get)
+
   }
 
   private def bootstrapUserCollection() {
