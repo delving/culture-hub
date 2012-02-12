@@ -6,7 +6,7 @@
     #{/if}
     #{else}
     <div class="user-panel">
-        <span class="user-name">*{#{gravatar.img _email, size:26 /}}*<span class="label">Hi ${_userName}</span>
+        <span class="user-name">#{gravatar.img _email, size:26 /}<span class="label">Hi ${_userName}</span>
         </span>
         <a href="/${_userName}"><span class="label">${messages.get('user.nav.yourprofile')}</span></a><span class="pipe">|</span>
         <a href="/${_userName}/object"><span class="label">${messages.get('user.nav.yourobjects')}</span></a><span class="pipe">|</span>
@@ -46,7 +46,7 @@
     #{else}
     <div class="buttons">
         <span class="user-name">
-            *{#{gravatar.img _email, size:26 /}}*
+            #{gravatar.img _email, size:26 /}
             <span class="label">Hi ${_userName}</span>
 
         </span>

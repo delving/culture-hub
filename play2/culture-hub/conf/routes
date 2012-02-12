@@ -81,7 +81,7 @@ GET          /users/search                                                    co
 
 #GET         /search                                                          Search.index
 
-#GET         /{user}/?                                                        Profile.profile
+GET          /:user                                                           controllers.Profile.profile(user)
 
 #POST        /{user}/block                                                    admin.NodeAdmin.blockUser
 

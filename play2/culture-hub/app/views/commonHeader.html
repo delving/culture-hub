@@ -27,12 +27,10 @@
     <script>
         var themePath = "${themeInfo.path('')}";
         jsLabels = new Object();
-*{ TODO MIGRATION
-        jsLabels.add = "${viewUtils.getKey('ui.label.add')}";
-        jsLabels.cancel = "${viewUtils.getKey('ui.label.cancel')}";
-        jsLabels.remove = "${viewUtils.getKey('ui.label.delete')}";
-        jsLabels.enlargeImage = "${viewUtils.getKey('ui.label.enlargeImage')}";
-}*
+        jsLabels.add = "${messages.get('ui.label.add')}";
+        jsLabels.cancel = "${messages.get('ui.label.cancel')}";
+        jsLabels.remove = "${messages.get('ui.label.delete')}";
+        jsLabels.enlargeImage = "${messages.get('ui.label.enlargeImage')}";
     </script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>

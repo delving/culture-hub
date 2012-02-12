@@ -3,14 +3,13 @@ package util
 import java.io.InputStream
 import java.util.Properties
 import java.security.{NoSuchAlgorithmException, MessageDigest}
-import org.apache.commons.codec.binary.Base64
 import play.api.UnexpectedException
 import io.Source
 import org.apache.commons.io.IOUtils
+import org.apache.commons.codec.binary.{Hex, Base64}
 
 /**
- *
- * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ * Libs copy-pasted from Play 1
  */
 
 object MissingLibs {
@@ -64,6 +63,28 @@ object MissingLibs {
       case e => throw UnexpectedException(unexpected = Some(e))
     }
   }
+
+  /**
+   * Build an hexadecimal MD5 hash for a String
+   * @param value The String to hash
+   * @return An hexadecimal Hash
+   */
+  def hexMD5(value: String) = {
+      try {
+          val messageDigest = MessageDigest.getInstance("MD5");
+          messageDigest.reset();
+          messageDigest.update(value.getBytes("utf-8"));
+          val digest = messageDigest.digest();
+          byteToHexString(digest);
+      } catch {
+        case ex => throw new UnexpectedException(Some(ex.getMessage));
+      }
+  }
+
+  /**
+   * Write a byte array as hexadecimal String.
+   */
+  def byteToHexString(bytes: Array[Byte]) = String.valueOf(Hex.encodeHex(bytes))
 
 
   // ~~~ play.libs.Crypto

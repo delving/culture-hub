@@ -29,9 +29,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
 
   implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
-  
+
   implicit def withRichQueryString(queryString: Map[String, Seq[String]]) = new {
-    
+
     def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
     
   }
@@ -42,7 +42,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 case class RichBody[A <: AnyContent](body: A) {
 
   def getFirstAsString(key: String): Option[String] = body.asFormUrlEncoded match {
-    case Some(b) => b.get(key).get.headOption
+    case Some(b) => b.get(key).getOrElse(Seq()).headOption
     case None => None
   }
   
