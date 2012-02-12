@@ -9,7 +9,7 @@ function initializeElements() {
       document.location = document.referrer;
     });
     $.preloadImages (
-        "/public/common/images/spinner.gif"
+        "/assets/common/images/spinner.gif"
     );
 }
 

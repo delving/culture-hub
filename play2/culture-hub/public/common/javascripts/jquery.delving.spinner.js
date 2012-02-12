@@ -9,7 +9,7 @@
     var methods = {
         init : function(options) {
             var defaults = {
-                imgSrc: "/public/common/images/spinner.gif",
+                imgSrc: "/assets/common/images/spinner.gif",
                 title: "Please wait...",
                 alt: "Please wait..."
             };

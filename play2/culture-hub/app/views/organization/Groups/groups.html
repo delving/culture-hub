@@ -47,7 +47,7 @@
 
             </div>
 
-            <div class="field" data-bind="visible: canChangeGrantType && (grantType() == 'view' || grantType() == 'modify')">
+            <div class="field" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
                 <label class="label" for="datasets">&{'thing.datasets'}</label>
 
                 <div class="inputs">
