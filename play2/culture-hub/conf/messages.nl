@@ -118,8 +118,8 @@ thing.organization=Organisatie
 thing.organizations=Organisaties
 thing.group=Groep
 thing.groups=Groepen
-thing.notavailable.single=Er is momenteel geen %s beschikbaar
-thing.notavailable.plural=Er zijn momenteel geen %s beschikbaar
+thing.notavailable.single=Er is momenteel geen {0} beschikbaar
+thing.notavailable.plural=Er zijn momenteel geen {0} beschikbaar
 thing.owner=Eigenaar
 thing.datecreated=Datum aangemaakt
 thing.datemodified=Datum aangepast
@@ -138,22 +138,22 @@ thing.addlabel=Label toevoegen
 thing.comments=Comments
 thing.addcomment=Comment toevoegen
 thing.collaborators=Collaborators
-thing.createnew=Maak een nieuw %s aan
-thing.browse=Ontdek %s
-thing.browse.of=Ontdek %s van
-thing.browse.ownedby=Ontdek %s van gebruiker
+thing.createnew=Maak een nieuw {0} aan
+thing.browse=Ontdek {0}
+thing.browse.of=Ontdek {0} van
+thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation:Zeker weten?
 
 # Account registration and activation messages
-ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar %s om het account te activeren
-ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: %
+ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
+ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: {0}
 ui.message.activation.success=Uw account is nu actief!
 ui.message.activation.error=Er is een fout opgetreded met het activeren van uw account.
 ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met een link om uw wachtwoord opnieuw aan te maken
 ui.message.resetpassword.success=Uw wachtwoord is aangepast
-ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
+ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: {0}
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
-ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="%s"><strong>zichtbaarheid status</strong></a> naar "Publiek".
+ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="{0}"><strong>zichtbaarheid status</strong></a> naar "Publiek".
 ui.message.charsLeft=characters mogelijk
 # User navigation
 
@@ -186,9 +186,9 @@ labels.createLabel=Nieuwe label
 
 ## Admin toolbar
 
-thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers %s kunnen zien of gebruiken.
+thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers {0} kunnen zien of gebruiken.
 thing.admin.disable.user.explain=Deze actie blokkeert de gebruiker en alle objecten, collecties en verhalen van deze gebruiker.
-thing.admin.disable.confirm=Weet u zeker dat u %s wil blokkeren?
+thing.admin.disable.confirm=Weet u zeker dat u {0} wil blokkeren?
 thing.admin.disable.goProfile=Ga naar de profielpagina van deze gebruiker om die te blokkeren. Deze actie blokkeert de gebruiker en ook alle objecten, collecties en verhalen van de gebruiker.
 thing.admin.disable.goProfile=Deze actie neemt u naar de profiel pagina van deze gebruiker waar u vervolgens de gebruiker kunt blokkeren. Tevens worden alle objecten, collecties en verhalen van deze gebruiker geblokkeert.
 thing.admin.disable.object=dit object
@@ -260,8 +260,8 @@ dataset.confirmDeletion=Verwijder deze DataSet?
 dataset.find=Vind een DataSet
 
 ##Mails
-mail.message.activateaccount=uw account voor %s is aangemaakt. Om uw account te activeren, klik op de onderstaande link
-mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor %s opnieuw in te stellen
+mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
+mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor {0} opnieuw in te stellen
 
 ##Profiles
 profile.title=Profiel pagina voor
@@ -272,14 +272,14 @@ registration.lostpassword=Wachtwoord vergeten
 registration.lostpassword.message=Wachtwoord vergeten? Vul het e-mail adres van uw account hieronder in
 registration.resetpassword=Wachtwoord herstellen
 registration.newpassword=Voer een nieuw wachtwoord in
-registration.registerFor=Registreer voor %s
+registration.registerFor=Registreer voor {0}
 
 ##Search
 search.addItemsToCollection=Voeg toe aan een collectie
 search.addToCollection=Toevoegen
 search.dragItems=Sleep een resultaat object hier in om aan een collectie toe te voegen
 search.facets=Facetten
-search.nrfound= %s resultaten gevonden
+search.nrfound= {0} resultaten gevonden
 search.resultsfor=Zoekresultate voor
 search.sortby= Sorteer op
 search.refineYourSearchBy=Zoekopdracht verfijnen per
@@ -287,7 +287,7 @@ search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
-search.trail=U bekijkt resultaten <strong>%s - %s</strong> van <strong>%s</strong> voor:
+search.trail=U bekijkt resultaten <strong>{0} - {0}</strong> van <strong>{0}</strong> voor:
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 ##Story
 story.pages=Pagina's
@@ -416,7 +416,7 @@ metadata.tib.vindplaats=Vindplaats
 #Users
 
 ##Index
-user.index.title=Gebruiker %s
+user.index.title=Gebruiker {0}
 
 ##List
 user.list.browse=Ontdek gebruikers
@@ -432,8 +432,8 @@ user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
 user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
 ##Collections
-user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
-user.collection.title.update=Collectie aanpassen voor gebruiker %s
+user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker {0}
+user.collection.title.update=Collectie aanpassen voor gebruiker {0}
 user.collection.create=Collectie aanmaken
 user.collection.update=Collectie aanpassen
 user.collection.info=Collectie informatie
@@ -447,8 +447,8 @@ user.collection.title.selectObjects=Object(en) selecteren
 user.collection.save=Bewaar collectie
 
 ##DataSets
-user.dataset.title.create=Dataset aanmaken voor gebruiker %s
-user.dataset.title.update=Dataset bewerken voor gebruiker %s
+user.dataset.title.create=Dataset aanmaken voor gebruiker {0}
+user.dataset.title.update=Dataset bewerken voor gebruiker {0}
 user.dataset.create=Dataset aanmaken
 user.dataset.update=Dataset bewerken
 user.dataset.info=Dataset informatie
@@ -457,8 +457,8 @@ user.dataset.help.identifier=De unieke identifier voor deze dataset
 user.dataset.save=Dataset bewaren
 
 ##DObjects
-user.object.title.create=Nieuw object aanmaken voor gebruiker %s
-user.object.title.update=Object aanpassen voor gebruiker %s
+user.object.title.create=Nieuw object aanmaken voor gebruiker {0}
+user.object.title.update=Object aanpassen voor gebruiker {0}
 user.object.create=Object aanmaken
 user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
@@ -471,11 +471,11 @@ user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. T
 
 ##Stories
 
-user.story.title.create=Nieuw verhaal aanmaken voor gebruiker %s
-user.story.title.update=Verhaal aanpassen voor gebruiker %s
+user.story.title.create=Nieuw verhaal aanmaken voor gebruiker {0}
+user.story.title.update=Verhaal aanpassen voor gebruiker {0}
 user.story.create=Verhaal aanmaken
 user.story.update=Verhaal aanpassen
-user.story.updateStory=Aanpassen: %s
+user.story.updateStory=Aanpassen: {0}
 user.story.storyInformationStep1=Stap 1
 user.story.storyInformation=Verhaal informatie
 user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een titel en een korte beschrijving. Deze informatie komt tevens op de titelpagina van uw verhaal.
@@ -508,11 +508,11 @@ user.profile.funFact=Grappig weetje
 # Organizations
 
 ### This gets concatenated to a sentence
-org.list.memberCount=%s member(s)
+org.list.memberCount={0} member(s)
 org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
-org.list.dataSetCount=%s DataSet(s)
+org.list.dataSetCount={0} DataSet(s)
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -542,8 +542,8 @@ org.admin.index.addMembers=Voeg een nieuw lid toe door de gebruikersnaam hierbov
 org.admin.index.members=Leden
 org.admin.index.owners=Eigenaren
 
-organization.dataset.title.create=Create new dataset for user %s
-organization.dataset.title.update=Update dataset for user %s
+organization.dataset.title.create=Create new dataset for user {0}
+organization.dataset.title.update=Update dataset for user {0}
 organization.dataset.create=DataSet aanmaken
 organization.dataset.update=DataSet aanpassen
 organization.dataset.info=DataSet informatie
@@ -569,27 +569,27 @@ dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
 dataSetState.error=Error occured while indexing
 
-admin.themes.themeNotFound=Theme with id %s was not found
-admin.themes.saveError=Error saving theme %s
-user.admin.userNotFound=Could not find user %s
+admin.themes.themeNotFound=Theme with id {0} was not found
+admin.themes.saveError=Error saving theme {0}
+user.admin.userNotFound=Could not find user {0}
 user.admin.profile.saveError=Error saving your profile, please try again
-user.collections.objectNotFound=Object with id %s was not found
-user.collections.saveError=Error saving collection %s
-user.dobjects.objectNotFound=Object with id %s was not found
-user.dobjects.saveError=Error saving object %s
-user.fileupload.removeError=Error removing file, invalid id %s
-user.stories.storyNotFound=Story with id %s was not found
-collections.invalidCollectionId=Invalid collection id %s
-datasets.dataSetNotFound=DataSet %s was not found
-delvingcontroller.userNotFound=User %s was not found
+user.collections.objectNotFound=Object with id {0} was not found
+user.collections.saveError=Error saving collection {0}
+user.dobjects.objectNotFound=Object with id {0} was not found
+user.dobjects.saveError=Error saving object {0}
+user.fileupload.removeError=Error removing file, invalid id {0}
+user.stories.storyNotFound=Story with id {0} was not found
+collections.invalidCollectionId=Invalid collection id {0}
+datasets.dataSetNotFound=DataSet {0} was not found
+delvingcontroller.userNotFound=User {0} was not found
 
-listPageTitle.object.user=List of object for user %s
+listPageTitle.object.user=List of object for user {0}
 listPageTitle.object.all=List of objects
-listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.user=List of collections for user {0}
 listPageTitle.collection.all=List of collections
-listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.user=List of datasets for user {0}
 listPageTitle.dataset.all=List of datasets
-listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.user=List of stories for user {0}
 listPageTitle.story.all=List of stories
 listPageTitle.user.all=List of users
 
@@ -609,24 +609,24 @@ authentication.passwordRequired=Wachtwoord is verplicht
 authentication.error=Login niet juist
 authentication.logout=U bent uitgelogd
 authentication.notactive.error=Uw account is nog niet actief. Activeer uw account door op de link in de verzonden email te klikken.
-servicessecurity.userNotFound=De gebruiker %s was niet gevonden
+servicessecurity.userNotFound=De gebruiker {0} was niet gevonden
 
-stories.storyNotFound=Story with id %s was not found
+stories.storyNotFound=Story with id {0} was not found
 
-profile.profileNotFound=Geen profiel gevonden voor: %s
+profile.profileNotFound=Geen profiel gevonden voor: {0}
 
-organizations.organization.orgNotFound=%s niet gevonden
+organizations.organization.orgNotFound={0} niet gevonden
 
-organizations.admin.userNotFound=Gebruiker met gebruikersnaam %s niet gevonden
+organizations.admin.userNotFound=Gebruiker met gebruikersnaam {0} niet gevonden
 
-organizations.group.cannotAddUser=Gebruiker met gebruikersnaam %s kon niet toegevoegd worden aan %s
-organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam %s kon niet verwijderd worden van %s
-organizations.group.cannotAddDataset=Dataset met ID %s kon niet toegevoegd worden aan %s
-organizations.group.cannotRemoveDataset=Dataset met %s kon niet verwijderd worden van %s
-organizations.group.groupNotFound=Group met ID %s kon niet gevonden worden
+organizations.group.cannotAddUser=Gebruiker met gebruikersnaam {0} kon niet toegevoegd worden aan {1}
+organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam {0} kon niet verwijderd worden van {1}
+organizations.group.cannotAddDataset=Dataset met ID {0} kon niet toegevoegd worden aan {1}
+organizations.group.cannotRemoveDataset=Dataset met {0} kon niet verwijderd worden van {1}
+organizations.group.groupNotFound=Group met ID {0} kon niet gevonden worden
 organizations.group.cannotSaveGroup=Groep kon niet bewaard worden, probeer opnnieuw
 
-organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.dataSetNotFound=DataSet {0} was not found
 organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
 organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
 organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
