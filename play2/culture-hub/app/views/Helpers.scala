@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import play.templates.JavaExtensions
 import collection.JavaConverters._
+import util.Validation
 
 /**
  * Helper methods for the view layer
@@ -36,6 +37,10 @@ object Helpers {
 
   def niceText(text: String) = JavaExtensions.nl2br(text)
 
+  // ~~~ silly stuff
+
+  def getOrElse(option: Option[String], alternative: String) = option.getOrElse(alternative)
+
   // ~~~ Form helpers, for non-dynamic forms
   
   def hasErrors(form: Form[AnyRef]) = if(form != null) !form.globalErrors.isEmpty else false
@@ -48,7 +53,7 @@ object Helpers {
 
   // ~~~ automatically generated validation rules
   
-  def printValidationRules(field: String) = ""
+  def printValidationRules(form: Form[AnyRef], field: String) = if(form != null) Validation.getClientSideValidationRules(form).get(field).getOrElse("") else ""
 
   def crumble(params: Any) = ""
 

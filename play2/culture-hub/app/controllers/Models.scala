@@ -33,7 +33,8 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         orgId: String,
                         userName: String,
                         lockedBy: Option[ObjectId],
-                        errors: Map[String, String] = Map.empty[String, String], visibility: Int = 0)
+                        errors: Map[String, String] = Map.empty[String, String],
+                        visibility: Int = 0)
 
 case class Fact(name: String, prompt: String, value: String)
 
@@ -82,7 +83,8 @@ case class ShortObjectModel(id: String, url: String, thumbnail: String, title: S
 case class CollectionReference(id: String, name: String)
 
 abstract class ViewModel {
-  val errors: Map[String, String]
-  // TODO MIGRATION
-  lazy val validationRules: Map[String, String] = Map.empty //util.Validation.getClientSideValidationRules(this.getClass)
+  // TODO migration: helper for ViewModel validation
+//  val errors: Map[String, String]
+//  val form: Form
+//  lazy val validationRules: Map[String, String] = util.Validation.getClientSideValidationRules(form)
 }

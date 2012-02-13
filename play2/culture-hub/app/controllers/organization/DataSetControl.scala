@@ -18,43 +18,111 @@ package controllers.organization
 
 import extensions.JJson
 import com.mongodb.casbah.Imports._
+import org.bson.types.ObjectId
 import models._
-//import collection.JavaConversions.mapAsJavaMap
 import models.DataSetState._
 import java.util.Date
-import controllers.{OrganizationController, ShortDataSet}
 import play.api.i18n.Messages
 import core.indexing.Indexing
 import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
+import controllers.OrganizationController
+import play.api.data.Forms._
+import collection.JavaConverters._
+import extensions.Formatters._
+import play.api.data.{Form}
+import play.api.data.validation.Constraints
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
+case class DataSetViewModel(id:                     Option[ObjectId] = None,
+                            spec:                   String = "",
+                            facts:                  HardcodedFacts = HardcodedFacts(),
+//                            facts:                  Map[String, String] = Map.empty,
+                            recordDefinitions:      Seq[String] = Seq.empty,
+                            indexingMappingPrefix:  String = "",
+                            visibility:             Int = 0,
+                            errors:                 Map[String, String] = Map.empty)
+
+case class HardcodedFacts(name: String = "",
+                          language: String = "",
+                          country: String = "",
+                          provider: String = "",
+                          dataProvider: String = "",
+                          rights: String = "",
+                          `type`: String = "") {
+  def asMap = Map(
+    "name" -> name,
+    "language" -> language,
+    "country" -> country,
+    "provider" -> provider,
+    "dataProvider" -> dataProvider,
+    "rights" -> rights,
+    "type" -> `type`
+  )
+}
+
+object HardcodedFacts {
+  
+  def fromMap(map: Map[String, String]) = HardcodedFacts(
+    name = map.get("name").getOrElse(""),
+    language = map.get("language").getOrElse(""),
+    country = map.get("country").getOrElse(""),
+    provider = map.get("provider").getOrElse(""),
+    dataProvider = map.get("dataProvider").getOrElse(""),
+    rights = map.get("rights").getOrElse(""),
+    `type` = map.get("type").getOrElse("")
+  )
+}
+
+object DataSetViewModel {
+
+  val dataSetForm = Form(
+    mapping(
+      "id" -> optional(of[ObjectId]),
+      "spec" -> nonEmptyText.verifying(Constraints.pattern ("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
+//      "facts" -> of[Map[String, String]],
+      "facts" -> mapping (
+        "name" -> nonEmptyText,
+        "language" -> nonEmptyText,
+        "country" -> nonEmptyText,
+        "provider" -> nonEmptyText,
+        "dataProvider" -> nonEmptyText,
+        "rights" -> nonEmptyText,
+        "type" -> nonEmptyText
+      )(HardcodedFacts.apply)(HardcodedFacts.unapply),
+      "recordDefinitions" -> seq(text),
+      "indexingMappingPrefix" -> nonEmptyText,
+      "visibility" -> number,
+      "errors" -> of[Map[String, String]]
+    )(DataSetViewModel.apply)(DataSetViewModel.unapply)
+  )
+
+
+}
+
 object DataSetControl extends OrganizationController {
 
-  def dataSet(orgId: String, spec: String): Action[AnyContent] = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        val dataSet = if(spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
 
-        val data = if (dataSet == None)
-          JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = "", lockedBy = None))
-        else {
+        val data = if (dataSet == None) {
+          JJson.generate(DataSetViewModel())
+        } else {
           val dS = dataSet.get
           if (DataSet.canEdit(dS, connectedUser)) {
             JJson.generate(
-              ShortDataSet(
+              DataSetViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
-                facts = dS.getFacts,
-                userName = dS.getCreator.userName,
-                orgId = dS.orgId,
+                facts = HardcodedFacts.fromMap(dS.getFacts),
                 recordDefinitions = dS.recordDefinitions,
                 indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
-                visibility = dS.visibility.value,
-                lockedBy = dS.lockedBy)
+                visibility = dS.visibility.value)
             )
           } else {
             return Action {
@@ -62,89 +130,85 @@ object DataSetControl extends OrganizationController {
             }
           }
         }
-        Ok(Template('spec -> Option(spec), 'data -> data, 'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix)))
+        Ok(Template(
+          'spec -> Option(spec),
+          'data -> data,
+          'dataSetForm -> DataSetViewModel.dataSetForm,
+          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic).toList,
+          'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
+        )
     }
   }
 
-  def dataSetSubmit(orgId: String, data: String) = OrgMemberAction(orgId) {
+  def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSet = JJson.parse[ShortDataSet](data)
-        val spec: String = dataSet.spec
+        DataSetViewModel.dataSetForm.bindFromRequest.fold(
+          formWithErrors => handleValidationError(formWithErrors),
+          dataSetForm => {
+            val factsObject = new BasicDBObject()
+            factsObject.putAll(dataSetForm.facts.asMap)
 
-        def processRequest: Result = {
-          val factsObject = new BasicDBObject()
-          factsObject.putAll(dataSet.facts)
-
-          def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
-            val mappings = recordDefinitions.map {
-              recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
+            def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
+              val mappings = recordDefinitions.map {
+                recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
+              }
+              mappings.toMap[String, Mapping]
             }
-            mappings.toMap[String, Mapping]
-          }
 
-          def updateMappings(recordDefinitions: List[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
-            val existing = mappings.filter(m => recordDefinitions.contains(m._1))
-            val keyList = mappings.keys.toList
-            val added = recordDefinitions.filter(prefix => !keyList.contains(prefix))
-            existing ++ buildMappings(added)
-          }
-
-          // TODO handle all "automatic facts"
-          factsObject.append("spec", spec)
-          factsObject.append("orgId", orgId)
-
-          dataSet.id match {
-            // TODO for update, add the operator that appends key-value pairs rather than setting all
-            case Some(id) => {
-              val existing = DataSet.findOneByID(id).get
-              if (!DataSet.canEdit(existing, connectedUser)) Forbidden("You have no rights to edit this DataSet") // todo add return
-
-              val updatedDetails = existing.details.copy(facts = factsObject)
-              val updated = existing.copy(
-                spec = spec,
-                details = updatedDetails,
-                mappings = updateMappings(dataSet.recordDefinitions, existing.mappings),
-                idxMappings = List(dataSet.indexingMappingPrefix),
-                visibility = Visibility.get(dataSet.visibility))
-              DataSet.save(updated)
+            def updateMappings(recordDefinitions: Seq[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
+              val existing = mappings.filter(m => recordDefinitions.contains(m._1))
+              val keyList = mappings.keys.toList
+              val added = recordDefinitions.filter(prefix => !keyList.contains(prefix))
+              existing ++ buildMappings(added)
             }
-            case None =>
-              // TODO for now only owners can do
-              if (!isOwner) return Forbidden("You are not allowed to create a DataSet.")
 
-              DataSet.insert(
-                DataSet(
-                  spec = dataSet.spec,
-                  orgId = orgId,
-                  user_id = connectedUserId,
-                  state = DataSetState.INCOMPLETE,
-                  visibility = Visibility.get(dataSet.visibility),
-                  lastUploaded = new Date(),
-                  details = Details(
-                    name = dataSet.facts("name").toString,
-                    facts = factsObject,
-                    metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
-                  ),
-                  mappings = buildMappings(dataSet.recordDefinitions),
-                  idxMappings = List(dataSet.indexingMappingPrefix)
+            // TODO handle all "automatic facts"
+            factsObject.append("spec", dataSetForm.spec)
+            factsObject.append("orgId", orgId)
+
+            dataSetForm.id match {
+              // TODO for update, add the operator that appends key-value pairs rather than setting all
+              case Some(id) => {
+                val existing = DataSet.findOneByID(id).get
+                if (!DataSet.canEdit(existing, connectedUser)) {
+                  return Action { implicit request => Forbidden("You have no rights to edit this DataSet") }
+                }
+
+                val updatedDetails = existing.details.copy(facts = factsObject)
+                val updated = existing.copy(
+                  spec = dataSetForm.spec,
+                  details = updatedDetails,
+                  mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                  idxMappings = List(dataSetForm.indexingMappingPrefix),
+                  visibility = Visibility.get(dataSetForm.visibility))
+                DataSet.save(updated)
+              }
+              case None =>
+                // TODO for now only owners can do
+                if (!isOwner) return Action { implicit request => Forbidden("You are not allowed to create a DataSet.") }
+
+                DataSet.insert(
+                  DataSet(
+                    spec = dataSetForm.spec,
+                    orgId = orgId,
+                    user_id = connectedUserId,
+                    state = DataSetState.INCOMPLETE,
+                    visibility = Visibility.get(dataSetForm.visibility),
+                    lastUploaded = new Date(),
+                    details = Details(
+                      name = dataSetForm.facts.name,
+                      facts = factsObject,
+                      metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
+                    ),
+                    mappings = buildMappings(dataSetForm.recordDefinitions),
+                    idxMappings = List(dataSetForm.indexingMappingPrefix)
+                  )
                 )
-              )
+            }
+            Json(dataSetForm)
           }
-          Json(dataSet)
-        }
-
-        // TODO validation!
-
-        if ("^[A-Za-z0-9-]{3,40}$".r.findFirstIn(spec) == None) {
-          BadRequest(JJson.generate(dataSet.copy(errors = Map("ds.spec" -> "Invalid spec format!")))).as(JSON) // todo add return
-        }
-        else if (dataSet.indexingMappingPrefix.trim.isEmpty || !dataSet.recordDefinitions.contains(dataSet.indexingMappingPrefix)) {
-          BadRequest(JJson.generate(dataSet.copy(errors = Map("ds.indexingMappingPrefix" -> "Choose an indexing mapping prefix!")))).as(JSON) // todo add return
-        }
-        else {
-          processRequest
-        }
+        )
     }
   }
 
@@ -284,3 +348,4 @@ object DataSetControl extends OrganizationController {
     }
   }
 }
+

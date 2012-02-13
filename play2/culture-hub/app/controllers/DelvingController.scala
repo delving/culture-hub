@@ -10,6 +10,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import play.api.i18n.Messages
 import org.bson.types.ObjectId
 import models._
+import play.api.data.Form
 
 /**
  *
@@ -34,6 +35,15 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
     def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
     
+  }
+  
+  // ~~~ form handling when using knockout. This returns a map of error messages
+  
+  def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
+    val fieldErrors = form.errors.filterNot(_.key.isEmpty).map(error => (error.key.replaceAll("\\.", "_"), Messages(error.message, error.args))).toMap
+    val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
+
+    Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
 
 }

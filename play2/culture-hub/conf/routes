@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET         /favicon.ico                                                     controllers.Default.notFound
+
+
 #GET         /public/themes/{theme}/info.conf                                 404
 #GET         /public/themes/{theme}/{<.*>relativePath}                        Asset.serveTheme
 
@@ -166,11 +169,10 @@ DELETE      /organizations/:orgId/groups/:groupId/removeDataset               co
 
 
 GET          /organizations/:orgId/dataset                                   controllers.organization.DataSets.list(orgId)
-#GET         /organizations/:orgId/dataset/add                               controllers.organization.DataSetControl.dataSet
-#GET         /organizations/:orgId/dataset/{spec}/update                     controllers.organization.DataSetControl.dataSet
-#POST        /organizations/:orgId/dataset/submit                            controllers.organization.DataSetControl.dataSetSubmit
+GET          /organizations/:orgId/dataset/add                               controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
+GET          /organizations/:orgId/dataset/:spec/update                      controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
+POST         /organizations/:orgId/dataset/submit                            controllers.organization.DataSetControl.dataSetSubmit(orgId)
 GET          /organizations/:orgId/dataset/:spec                             controllers.organization.DataSets.dataset(orgId, spec)
-#GET         /organizations/:orgId/dataset/load/:spec                        controllers.organization.DataSets.dataset(orgId, spec)
 #POST        /organizations/:orgId/dataset/{spec}/index                      controllers.organization.DataSetControl.index
 #POST        /organizations/:orgId/dataset/{spec}/reindex                    controllers.organization.DataSetControl.reIndex
 #POST        /organizations/:orgId/dataset/{spec}/cancel                     controllers.organization.DataSetControl.cancel
