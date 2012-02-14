@@ -3,8 +3,7 @@
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-import jobs._
-import models._
+import actors._
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
@@ -49,6 +48,20 @@ object Global extends GlobalSettings {
       IndexDataSets
     )
 
+    // token expiration
+    val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      5 minutes,
+      tokenExpiration,
+      EvictPasswordResetTokens
+    )
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      5 minutes,
+      tokenExpiration,
+      EvictOAuth2Tokens
+    )
 
     // ~~~ load test data
 

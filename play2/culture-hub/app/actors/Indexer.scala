@@ -1,4 +1,4 @@
-package jobs
+package actors
 
 import akka.actor._
 import models._
