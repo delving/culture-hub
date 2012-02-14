@@ -110,7 +110,7 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
         }, function(jqXHR, textStatus, errorThrown) {
             $(".wait").spinner("hide");
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
-            if (typeof onError !== 'undefined') onError.call();
+            if (typeof onError !== 'undefined' && onError !== null) onError.call();
         }, additionalData);
     } else {
         $(".wait").spinner("hide");

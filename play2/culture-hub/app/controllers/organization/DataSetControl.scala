@@ -25,12 +25,12 @@ import java.util.Date
 import play.api.i18n.Messages
 import core.indexing.Indexing
 import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
-import controllers.OrganizationController
 import play.api.data.Forms._
 import collection.JavaConverters._
 import extensions.Formatters._
 import play.api.data.{Form}
 import play.api.data.validation.Constraints
+import controllers.{ViewModel, OrganizationController}
 
 /**
  *
@@ -44,7 +44,7 @@ case class DataSetViewModel(id:                     Option[ObjectId] = None,
                             recordDefinitions:      Seq[String] = Seq.empty,
                             indexingMappingPrefix:  String = "",
                             visibility:             Int = 0,
-                            errors:                 Map[String, String] = Map.empty)
+                            errors:                 Map[String, String] = Map.empty) extends ViewModel
 
 case class HardcodedFacts(name: String = "",
                           language: String = "",

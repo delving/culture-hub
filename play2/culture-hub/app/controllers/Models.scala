@@ -40,7 +40,10 @@ case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
 
-case class Token(id: String, name: String, tokenType: Option[String] = None, data: Option[Map[String, String]] = None)
+case class Token(id: String,
+                 name: String,
+                 tokenType: Option[String] = None,
+                 data: Option[Map[String, String]] = None)
 
 case class ListItem(id: String,
                     recordType: String,
@@ -83,8 +86,5 @@ case class ShortObjectModel(id: String, url: String, thumbnail: String, title: S
 case class CollectionReference(id: String, name: String)
 
 abstract class ViewModel {
-  // TODO migration: helper for ViewModel validation
-//  val errors: Map[String, String]
-//  val form: Form
-//  lazy val validationRules: Map[String, String] = util.Validation.getClientSideValidationRules(form)
+  val errors: Map[String, String]
 }

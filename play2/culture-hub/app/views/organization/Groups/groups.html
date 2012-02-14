@@ -17,7 +17,7 @@
 
     <div class="row">
         <form action="" id="groupForm">
-        #{textField name:"name", label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+        #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
             <div class="field" data-bind="visible: canChangeGrantType">
                 <label class="label" for="grantType">&{'thing.grantType'}</label>
 
@@ -80,7 +80,7 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/groups/update', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null, {uid: '${uid}'});
+            handleSubmit('/organizations/${orgId}/groups/update/${views.Helpers.getOrElse(id, "")}', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null);
         });
     });
 </script>

@@ -39,7 +39,7 @@ object Helpers {
 
   // ~~~ silly stuff
 
-  def getOrElse(option: Option[String], alternative: String) = option.getOrElse(alternative)
+  def getOrElse(option: Option[AnyRef], alternative: String) = option.getOrElse(alternative).toString
 
   // ~~~ Form helpers, for non-dynamic forms
   

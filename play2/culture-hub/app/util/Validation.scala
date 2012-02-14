@@ -31,7 +31,13 @@ import collection.Seq
 object Validation {
 
   def getClientSideValidationRules(form: Form[AnyRef]): Map[String, String] = {
-    val fieldConstraints = form.mapping.mappings.map(m => m.key -> m.constraints)
+
+    form.mapping.mappings.foreach {
+      m =>
+        println(m.key)
+    }
+
+    val fieldConstraints = form.mapping.mappings.map(m => (m.key -> m.constraints))
 
     val validationRules: Seq[(String, String)] = for (f <- fieldConstraints) yield {
       val rules = new ArrayBuffer[String]
