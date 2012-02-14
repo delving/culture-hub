@@ -79,7 +79,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
                 collection.get.update(MongoDBObject("_id" -> link.from.id.get), $set("thumbnail_url" -> thumbnailUrl))
               }))
               
-              val c: DBObject = mappedDocument
+              val c: Map[String, List[String]] = mappedDocument
               // cache the result of the mapping so that we can use it to present the record directly without re-running a mapping
               connection(DataSet.getRecordsCollectionName(dataSet)).update(MongoDBObject("_id" -> record._id), $set ("mappedMetadata.%s".format(metadataFormatForIndexing) -> c))
             case None => // do nothing

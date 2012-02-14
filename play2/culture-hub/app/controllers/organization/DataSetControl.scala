@@ -221,13 +221,13 @@ object DataSetControl extends OrganizationController {
             try {
               DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
               DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
+              Redirect("/organizations/%s/dataset".format(orgId))
             } catch {
               case rt if rt.getMessage.contains() =>
                 // TODO give the user some decent feedback in the interface
                 DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
                 Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
             }
-            Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeIndexed"))
         }
     }
@@ -263,16 +263,21 @@ object DataSetControl extends OrganizationController {
     }
   }
 
-  def state(orgId: String, spec: String): Result = {
-    Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
+  def state(orgId: String, spec: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request => Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
+    }
   }
 
-  def indexingStatus(orgId: String, spec: String): Result = {
-    val state = DataSet.getIndexingState(orgId, spec) match {
-      case (a, b) if a == b => "DONE"
-      case (a, b) => ((a.toDouble / b) * 100).round
+  def indexingStatus(orgId: String, spec: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val state = DataSet.getIndexingState(orgId, spec) match {
+          case (a, b) if a == b => "DONE"
+          case (a, b) => ((a.toDouble / b) * 100).round
+        }
+        Json(Map("status" -> state))
     }
-    Json(Map("status" -> state))
   }
 
   def disable(orgId: String, spec: String): Action[AnyContent] = {

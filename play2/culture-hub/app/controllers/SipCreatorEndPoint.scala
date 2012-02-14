@@ -268,7 +268,7 @@ object SipCreatorEndPoint extends ApplicationController {
       deleted_records = recordCount - dataSet.details.uploaded_records
     )
 
-    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the latest one, it may have been modified by the parser (namespaces)
+    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
     DataSet.save(updatedDataSet)
     Right("Goodbye and thanks for all the fish")
   }

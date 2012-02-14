@@ -86,7 +86,7 @@ trait ModelImplicits {
 
   // ~~~ Misc.
 
-  implicit def toDBObject(indexDocument: IndexDocument): DBObject = {
+  implicit def toDBObject(indexDocument: IndexDocument): Map[String, List[String]] = {
     val m = indexDocument.getMap
     import scala.collection.JavaConverters._
     val values: Map[String, List[String]] = (m.keySet().asScala.map { key =>
@@ -94,9 +94,6 @@ trait ModelImplicits {
       (key, value.asScala.map(_.toString).toList)
     }).toMap
     values
-    val builder = MongoDBObject.newBuilder
-    values.keys foreach { k => builder += (k -> values(k))}
-    builder.result()
   }
 
 }

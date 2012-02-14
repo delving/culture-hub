@@ -124,6 +124,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           val additionalSessionParams = new collection.mutable.HashMap[String, String]
 
           // CSRF check
+          // TODO FIXME
           if (request.method == "POST" && Play.isTest) {
             val params = request.body match {
               case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
@@ -132,6 +133,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             val authenticityTokenParam = params.get(key = "authenticityToken")
             val CSRFHeader = request.headers.get("x-csrf-token")
             if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.get == getAuthenticityToken)))
+              // TODO MIGRATION - PLAY 2 FIXME this does not work!!
               Forbidden("Bad authenticity token")
           }
 

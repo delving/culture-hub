@@ -10,7 +10,7 @@ import controllers.{OrganizationController, ViewModel, Token}
 import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
 import play.api.data.Forms._
 import extensions.Formatters._
-import play.api.data.{RepeatedMapping, Form}
+import play.api.data.Form
 
 /**
  *

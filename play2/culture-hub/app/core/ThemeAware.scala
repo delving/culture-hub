@@ -4,6 +4,7 @@ import models.PortalTheme
 import play.api.mvc._
 import util.ThemeHandler
 import play.templates.groovy.GroovyTemplates
+import play.api.Logger
 
 trait ThemeAware {
   self: Controller with GroovyTemplates =>
@@ -21,7 +22,9 @@ trait ThemeAware {
           renderArgs += ("themeInfo" -> new ThemeInfo(portalTheme))
           action(request)
         } catch {
-          case t => throw t
+          case t =>
+            Logger("CultureHub").error(t.getMessage, t)
+            throw t
         } finally {
           themeThreadLocal.remove()
 

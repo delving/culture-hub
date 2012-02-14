@@ -298,7 +298,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       record
     else {
       val mappedRecord = record.get
-      val transformedDoc: DBObject = transformXml(metadataFormat, ds.get, mappedRecord)
+      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
 
       Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
     }
