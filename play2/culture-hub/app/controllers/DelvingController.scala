@@ -200,7 +200,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
   /**
    * Action in the user space (/bob/object)
    */
-  def UserAction[A](action: Action[A])(implicit user: String): Action[A] = {
+  def UserAction[A](user: String)(action: Action[A]): Action[A] = {
     Root {
       Action(action.parser) {
         implicit request =>

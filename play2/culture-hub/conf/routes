@@ -133,9 +133,8 @@ GET          /:user/sip-creator.jnlp                                          co
 #GET         /{user}/story/{id}/read                                          Stories.read
 
 
-#GET         /{user}/admin/?                                                  user.Admin.index
-#GET         /{user}/admin/profile/update                                     user.Admin.profile
-#POST        /{user}/admin/profile                                            user.Admin.profileSubmit
+GET         /:user/admin/profile/update                                       controllers.user.Admin.profile(user)
+POST        /:user/admin/profile                                              controllers.user.Admin.profileSubmit(user)
 
 # Organizations
 GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)

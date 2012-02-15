@@ -12,7 +12,7 @@ import play.api.i18n.Messages
 
 object Profile extends DelvingController {
 
-  def profile(user: String): Action[AnyContent] = Root {
+  def profile(user: String): Action[AnyContent] = UserAction(user) {
     Action {
       implicit request =>
         val u: User = User.findByUsername(user) match {
