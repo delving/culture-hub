@@ -1,0 +1,9 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: page.title /}
+#{set bodyId:'page' /}
+
+<div class="row">
+    <div class="grid_12">
+        ${page.content.raw()}
+    </div>
+</div>

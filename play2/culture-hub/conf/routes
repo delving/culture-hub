@@ -13,11 +13,10 @@ GET         /favicon.ico                                                     con
 #GET         /asset                                                           Asset.get
 
 # Home page
-GET     /                                                                           controllers.Application.index
+GET     /                                                                          controllers.Application.index
 
 # Site page
-#GET         /page/{key}                                                      Application.page
-
+GET        /page/:key                                                              controllers.Application.page(key)
 
 # Form-based authentication
 GET        /login                                                                  controllers.Authentication.login
@@ -160,14 +159,15 @@ DELETE      /organizations/:orgId/groups/:groupId/removeUser                  co
 POST        /organizations/:orgId/groups/:groupId/addDataset                  controllers.organization.Groups.addDataset(orgId, groupId: org.bson.types.ObjectId)
 DELETE      /organizations/:orgId/groups/:groupId/removeDataset               controllers.organization.Groups.removeDataset(orgId, groupId: org.bson.types.ObjectId)
 
-#GET         /organizations/{orgId}/site/upload                               controllers.organization.CMS.upload
-#POST        /organizations/{orgId}/site/upload/{uid}                         controllers.organization.CMS.uploadSubmit
-#GET         /organizations/{orgId}/site/listImages                           controllers.organization.CMS.listImages
-#GET         /organizations/{orgId}/site/?{language}?                         controllers.organization.CMS.list
-#GET         /organizations/{orgId}/site/{language}/page/add                  controllers.organization.CMS.page
-#GET         /organizations/{orgId}/site/{language}/page/{page}/update        controllers.organization.CMS.page
-#POST        /organizations/{orgId}/site/page                                 controllers.organization.CMS.pageSubmit
-#DELETE      /organizations/{orgId}/site/{language}/page/{key}                controllers.organization.CMS.pageDelete
+GET         /organizations/:orgId/site/upload                               controllers.organization.CMS.upload(orgId)
+POST        /organizations/:orgId/site/upload/:uid                          controllers.organization.CMS.uploadSubmit(orgId, uid)
+GET         /organizations/:orgId/site/listImages                           controllers.organization.CMS.listImages(orgId)
+GET         /organizations/:orgId/site                                      controllers.organization.CMS.list(orgId, language: Option[String] = None)
+GET         /organizations/:orgId/site/:language                            controllers.organization.CMS.list(orgId, language: Option[String])
+GET         /organizations/:orgId/site/:language/page/add                   controllers.organization.CMS.page(orgId, language, page: Option[String] = None)
+GET         /organizations/:orgId/site/:language/page/:page/update          controllers.organization.CMS.page(orgId, language, page: Option[String])
+POST        /organizations/:orgId/site/page                                 controllers.organization.CMS.pageSubmit(orgId)
+DELETE      /organizations/:orgId/site/:language/page/:key                  controllers.organization.CMS.pageDelete(orgId, language, key)
 
 
 GET          /organizations/:orgId/dataset                                   controllers.organization.DataSets.list(orgId)

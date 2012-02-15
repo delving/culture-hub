@@ -1,16 +1,17 @@
 package controllers
 
 import core.ThemeAware
+import organization.CMS
 import play.api.Play
 import play.api.Play.current
 import play.templates.groovy.GroovyTemplates
 import play.api.mvc._
 import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject
-import play.api.i18n.Messages
 import org.bson.types.ObjectId
 import models._
 import play.api.data.Form
+import play.api.i18n.{Lang, Messages}
 
 /**
  *
@@ -23,6 +24,8 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   val LANG = "lang"
 
   def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+
+  def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
 
   def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
 

@@ -142,7 +142,7 @@ thing.createnew=Maak een nieuw {0} aan
 thing.browse=Ontdek {0}
 thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
-thing.confirmation:Zeker weten?
+thing.confirmation=Zeker weten?
 
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren

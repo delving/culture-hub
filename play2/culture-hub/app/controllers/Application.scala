@@ -1,12 +1,13 @@
 package controllers
 
 import play.api.mvc._
-import models.{DObject, Story, UserCollection}
+import models._
 import core.ThemeInfo
+import com.mongodb.casbah.Imports._
 
 object Application extends DelvingController {
 
-  def index  = Root {
+  def index = Root {
     Action {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
@@ -20,5 +21,17 @@ object Application extends DelvingController {
         Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs))
     }
   }
+
+  def page(key: String) = Root {
+    Action {
+      implicit request =>
+        // TODO link the themes to the organization so this also works on multi-org hubs
+        CMSPage.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+          case None => NotFound(key)
+          case Some(page) => Ok(Template('page -> page))
+        }
+    }
+  }
+
 
 }
