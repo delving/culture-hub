@@ -19,14 +19,15 @@ package util
 import extensions.ConfigurationException
 import java.lang.String
 import play.api.Play.current
+import play.api.{Play, Logger}
+import xml.{Node, XML}
+
 //import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
-import play.Play
-import play.api.Logger
 import models.{EmailTarget, PortalTheme}
 
 /**
- * ThemHandler taking care of loading themes (initially from YML, then from mongo)
+ * ThemHandler taking care of loading themes
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -35,8 +36,6 @@ import models.{EmailTarget, PortalTheme}
 object ThemeHandler {
 
   private var themeList: Seq[PortalTheme] = List()
-
-//  private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
 
   def getThemeNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
@@ -49,7 +48,7 @@ object ThemeHandler {
    */
   def startup() {
     if (PortalTheme.count() == 0) {
-      themeList = createDefaultTheme()
+      themeList = readThemesFromDisk
       themeList foreach {
         PortalTheme.insert(_)
       }
@@ -112,30 +111,33 @@ object ThemeHandler {
     }
   }
 
-  private def createDefaultTheme(): Seq[PortalTheme] = {
-    List(PortalTheme(
-      name = "default",
-      subdomain = Some("default"),
-      defaultLanguage = "en",
-      solrSelectUrl = "http://localhost:8983/solr",
-      cacheUrl = "http://localhost:8983/services/image?",
-      emailTarget = EmailTarget(
-        adminTo = "servers@delving.eu",
-        exceptionTo = "servers@delving.eu",
-        feedbackTo = "servers@delving.eu",
-        registerTo = "servers@delving.eu",
-        systemFrom = "noreply@delving.eu",
-        feedbackFrom = "noreply@delving.eu"
-      ),
-      localiseQueryKeys = List("dc.title", "dc.creator"),
-      hiddenQueryFilter = Some(""),
-      homePage = None,
-      facets = Some("delving_recordType:metadata.searchfield.recordType,europeana_provider:metadata.searchfield.dataprovider,delving_creator:metadata.searchfield.creator,delving_hasDigitalObject:metadata.searchfield.hasDigitalObject"),
-      sortFields = Some("delving_hasDigitalObject"),
-      apiWsKey = false
-    ))
+  def readThemesFromDisk: Seq[PortalTheme] = {
+    val THEME_CONFIG_SUFFIX = "_themes.xml"
+    val themeDefinitions = Play.getFile("conf/").listFiles().filter(f => f.isFile && f.getName.endsWith(THEME_CONFIG_SUFFIX))
+    themeDefinitions.flatMap(f => parseThemeDefinition(XML.loadFile(f)))
   }
 
+  private def parseThemeDefinition(root: Node): Seq[PortalTheme] = {
+    for( theme <- root \\ "theme") yield {
+      PortalTheme(
+        name             = (theme \ "@name").text,
+        subdomain        = Some((theme \ "subdomain").text),
+        defaultLanguage  = (theme \ "defaultLanguage").text,
+        solrSelectUrl    = (theme \ "solrSelectUrl").text,
+        facets           = Some((theme \ "facets").text),
+        sortFields       = Some((theme \ "sortFields").text),
+        apiWsKey         = (theme \ "apiWsKey").text.toBoolean,
+        emailTarget = EmailTarget(
+          (theme \ "emailTarget" \ "adminTo").text,
+          (theme \ "emailTarget" \ "exceptionTo").text,
+          (theme \ "emailTarget" \ "feedbackTo").text,
+          (theme \ "emailTarget" \ "registerTo").text,
+          (theme \ "emailTarget" \ "systemFrom").text,
+          (theme \ "emailTarget" \ "feedbackFrom").text
+        )
+      )
+    }
+  }
 
 }
 

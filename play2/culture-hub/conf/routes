@@ -158,50 +158,43 @@ DELETE      /organizations/:orgId/groups/:groupId/removeUser                  co
 POST        /organizations/:orgId/groups/:groupId/addDataset                  controllers.organization.Groups.addDataset(orgId, groupId: org.bson.types.ObjectId)
 DELETE      /organizations/:orgId/groups/:groupId/removeDataset               controllers.organization.Groups.removeDataset(orgId, groupId: org.bson.types.ObjectId)
 
-GET         /organizations/:orgId/site/upload                               controllers.organization.CMS.upload(orgId)
-POST        /organizations/:orgId/site/upload/:uid                          controllers.organization.CMS.uploadSubmit(orgId, uid)
-GET         /organizations/:orgId/site/listImages                           controllers.organization.CMS.listImages(orgId)
-GET         /organizations/:orgId/site                                      controllers.organization.CMS.list(orgId, language: Option[String] = None)
-GET         /organizations/:orgId/site/:language                            controllers.organization.CMS.list(orgId, language: Option[String])
-GET         /organizations/:orgId/site/:language/page/add                   controllers.organization.CMS.page(orgId, language, page: Option[String] = None)
-GET         /organizations/:orgId/site/:language/page/:page/update          controllers.organization.CMS.page(orgId, language, page: Option[String])
-POST        /organizations/:orgId/site/page                                 controllers.organization.CMS.pageSubmit(orgId)
-DELETE      /organizations/:orgId/site/:language/page/:key                  controllers.organization.CMS.pageDelete(orgId, language, key)
+GET         /organizations/:orgId/site/upload                                 controllers.organization.CMS.upload(orgId)
+POST        /organizations/:orgId/site/upload/:uid                            controllers.organization.CMS.uploadSubmit(orgId, uid)
+GET         /organizations/:orgId/site/listImages                             controllers.organization.CMS.listImages(orgId)
+GET         /organizations/:orgId/site                                        controllers.organization.CMS.list(orgId, language: Option[String] = None)
+GET         /organizations/:orgId/site/:language                              controllers.organization.CMS.list(orgId, language: Option[String])
+GET         /organizations/:orgId/site/:language/page/add                     controllers.organization.CMS.page(orgId, language, page: Option[String] = None)
+GET         /organizations/:orgId/site/:language/page/:page/update            controllers.organization.CMS.page(orgId, language, page: Option[String])
+POST        /organizations/:orgId/site/page                                   controllers.organization.CMS.pageSubmit(orgId)
+DELETE      /organizations/:orgId/site/:language/page/:key                    controllers.organization.CMS.pageDelete(orgId, language, key)
 
+GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
+GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
+POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
+GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataset(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/index                         controllers.organization.DataSetControl.index(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/reindex                       controllers.organization.DataSetControl.reIndex(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/cancel                        controllers.organization.DataSetControl.cancel(orgId, spec)
+GET         /organizations/:orgId/dataset/:spec/indexingStatus                controllers.organization.DataSetControl.indexingStatus(orgId, spec)
+GET         /organizations/:orgId/dataset/:spec/state                         controllers.organization.DataSetControl.state(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/disable                       controllers.organization.DataSetControl.disable(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/enable                        controllers.organization.DataSetControl.enable(orgId, spec)
+DELETE      /organizations/:orgId/dataset/:spec/remove                        controllers.organization.DataSetControl.delete(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/invalidate                    controllers.organization.DataSetControl.invalidate(orgId, spec)
+POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
 
-GET          /organizations/:orgId/dataset                                   controllers.organization.DataSets.list(orgId)
-GET          /organizations/:orgId/dataset/add                               controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-GET          /organizations/:orgId/dataset/:spec/update                      controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-POST         /organizations/:orgId/dataset/submit                            controllers.organization.DataSetControl.dataSetSubmit(orgId)
-GET          /organizations/:orgId/dataset/:spec                             controllers.organization.DataSets.dataset(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/index                       controllers.organization.DataSetControl.index(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/reindex                     controllers.organization.DataSetControl.reIndex(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/cancel                      controllers.organization.DataSetControl.cancel(orgId, spec)
-GET          /organizations/:orgId/dataset/:spec/indexingStatus              controllers.organization.DataSetControl.indexingStatus(orgId, spec)
-GET          /organizations/:orgId/dataset/:spec/state                       controllers.organization.DataSetControl.state(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/disable                     controllers.organization.DataSetControl.disable(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/enable                      controllers.organization.DataSetControl.enable(orgId, spec)
-DELETE       /organizations/:orgId/dataset/:spec/remove                      controllers.organization.DataSetControl.delete(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/invalidate                  controllers.organization.DataSetControl.invalidate(orgId, spec)
-POST         /organizations/:orgId/dataset/:spec/forceUnlock                 controllers.organization.DataSetControl.forceUnlock(orgId, spec)
+GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 
-GET          /organizations/:orgId/sip-creator                               controllers.organization.SipCreator.index(orgId)
+GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
 
-GET          /api/sip-creator/list                                           controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-GET          /api/sip-creator/unlock/:orgId/:spec                            controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-POST         /api/sip-creator/submit/:orgId/:spec                            controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-POST         /api/sip-creator/submit/:orgId/:spec/:fileName                  controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-GET          /api/sip-creator/fetch/:orgId/:spec-sip.zip                     controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
+GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
+GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
+POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
+POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
+GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
 
 # Hub Administration
-#GET        /admin/themes                                                     admin.Themes.index
-#GET        /admin/themes/load/{id}?                                          admin.Themes.load
-#GET        /admin/themes/list                                                admin.Themes.list
-#GET        /admin/themes/new                                                 admin.Themes.themeUpdate
-#GET        /admin/themes/{id}/update                                         admin.Themes.themeUpdate
-#POST       /admin/themes/submit                                              admin.Themes.themeSubmit
-#GET        /admin/themes/reloadFromDisk                                      admin.Themes.reload
-#GET        /admin/indexUGC                                                   admin.Admin.indexUGC
 #GET        /admin/indexDataSets                                              admin.Admin.indexDataSets
 
 #GET        /image/upload                                                     ImageUpload.upload

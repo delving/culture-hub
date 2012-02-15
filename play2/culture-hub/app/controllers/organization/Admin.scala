@@ -1,11 +1,11 @@
 package controllers.organization
 
 import controllers.OrganizationController
-import play.api.mvc.Results._
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
-import models.{User, Organization}
+import util.ThemeHandler
+import models.{PortalTheme, User, Organization}
 
 /**
  *
@@ -39,8 +39,8 @@ object Admin extends OrganizationController {
         val success = Organization.addUser(orgId, id)
         // TODO logging
         if (success) Ok else Error
-        }
     }
+  }
 
   /**
    * Remove from organization
@@ -53,6 +53,20 @@ object Admin extends OrganizationController {
         val success = Organization.removeUser(orgId, id)
         // TODO logging
         if (success) Ok else Error
+    }
   }
+
+  def reloadThemes(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        info("Reloading entire configuration from disk.")
+        val themeList = ThemeHandler.readThemesFromDisk
+        themeList foreach {
+          PortalTheme.insert(_)
+        }
+        ThemeHandler.update()
+        Ok("Themes reloaded")
+    }
   }
+
 }

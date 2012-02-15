@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<themes>
+    <theme name="default">
+        <subdomain>default</subdomain>
+        <defaultLanguage>en</defaultLanguage>
+        <solrSelectUrl>http://localhost:8989/solr</solrSelectUrl>
+        <emailTarget>
+            <adminTo>servers@delving.eu</adminTo>
+            <exceptionTo>servers@delving.eu</exceptionTo>
+            <feedbackTo>servers@delving.eu</feedbackTo>
+            <registerTo>servers@delving.eu</registerTo>
+            <systemFrom>noreply@delving.eu</systemFrom>
+            <feedbackFrom>noreply@delving.eu</feedbackFrom>
+        </emailTarget>
+        <facets>delving_recordType:metadata.searchfield.recordType,europeana_provider:metadata.searchfield.dataprovider,delving_creator:metadata.searchfield.creator,delving_hasDigitalObject:metadata.searchfield.hasDigitalObject</facets>
+        <sortFields>delving_hasDigitalObject</sortFields>
+        <apiWsKey>false</apiWsKey>
+    </theme>
+</themes>
