@@ -27,10 +27,10 @@ GET        /logout                                                              
 GET        /authorize                                                              controllers.OAuth2Authenticator.authenticate
 GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
 
-# Image viewer for high-resolution images
-#GET        /image/viewer                                                     Images.view
-#GET        /fcgi-bin/iipsrv.fcgi                                             Images.iipsrv
-#GET        /deepzoom/?                                                       Images.iipsrv
+# Demo space
+GET        /demo/viewer                                                            controllers.Demo.view(image: Option[String])
+GET        /fcgi-bin/iipsrv.fcgi                                                   controllers.Demo.iipsrv
+
 
 # Image Upload - with authentication
 #POST       /file/upload/{uid}                                                user.FileUpload.uploadFile
