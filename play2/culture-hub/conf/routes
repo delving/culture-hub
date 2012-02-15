@@ -187,6 +187,7 @@ POST        /organizations/:orgId/dataset/:spec/forceUnlock                   co
 GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 
 GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
+GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 
 GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
 GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)

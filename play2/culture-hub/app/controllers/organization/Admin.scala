@@ -5,7 +5,7 @@ import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import util.ThemeHandler
-import models.{PortalTheme, User, Organization}
+import models._
 
 /**
  *
@@ -66,6 +66,15 @@ object Admin extends OrganizationController {
         }
         ThemeHandler.update()
         Ok("Themes reloaded")
+    }
+  }
+
+  def indexDataSets(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val reIndexable = DataSet.findByState(DataSetState.ENABLED).toList
+        reIndexable foreach { r => DataSet.updateStateAndIndexingCount(r, DataSetState.QUEUED)}
+        Ok("Queued %s DataSets for indexing".format(reIndexable.size))
     }
   }
 
