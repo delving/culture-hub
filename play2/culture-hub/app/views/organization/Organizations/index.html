@@ -2,7 +2,7 @@
 
 #{set title: messages.get('thing.organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
-#{breadcrumbs /}
+#{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{if memberSince.isDefined()}
     #{organizationNavBar orgId: orgId, isOwner: isOwner, isCMSAdmin: isCMSAdmin /}

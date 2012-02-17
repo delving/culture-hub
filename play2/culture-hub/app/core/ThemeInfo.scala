@@ -9,6 +9,8 @@ import play.api.PlayException
  */
 class ThemeInfo(theme: PortalTheme) {
 
+  def getTheme = theme
+
   def get(property: String) = {
     themeProperty[String](property, classOf[String])
   }

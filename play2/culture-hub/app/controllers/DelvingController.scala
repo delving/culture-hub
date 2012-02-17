@@ -39,11 +39,11 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   implicit def withRichQueryString(queryString: Map[String, Seq[String]]) = new {
 
     def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
-    
+
   }
-  
+
   // ~~~ form handling when using knockout. This returns a map of error messages
-  
+
   def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
     val fieldErrors = form.errors.filterNot(_.key.isEmpty).map(error => (error.key.replaceAll("\\.", "_"), Messages(error.message, error.args))).toMap
     val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
@@ -60,9 +60,9 @@ case class RichBody[A <: AnyContent](body: A) {
     case Some(b) => b.get(key).getOrElse(Seq()).headOption
     case None => None
   }
-  
+
   def getFirstAsObjectId(key: String): Option[ObjectId] = body.asFormUrlEncoded match {
-    case Some(b) => b.get(key).getOrElse(return None).headOption.map(id => if(ObjectId.isValid(id)) new ObjectId(id) else null)
+    case Some(b) => b.get(key).getOrElse(return None).headOption.map(id => if (ObjectId.isValid(id)) new ObjectId(id) else null)
     case None => None
   }
 }
@@ -89,25 +89,23 @@ trait OrganizationController extends DelvingController with Secured {
   }
 
   def OrgMemberAction[A](orgId: String)(action: Action[A]): Action[A] = {
-    Themed {
-      OrgBrowsingAction(orgId) {
-        Authenticated {
-          Action(action.parser) {
-            implicit request => {
-              if (orgId == null || orgId.isEmpty) {
-                Error("How did you even get here?")
-              }
-              val organizations = request.session.get(AccessControl.ORGANIZATIONS).getOrElse("")
-              if (organizations == null || organizations.isEmpty) {
-                Forbidden(Messages("user.secured.noAccess"))
-              } else if (!organizations.split(",").contains(orgId)) {
-                Forbidden(Messages("user.secured.noAccess"))
-              }
-              renderArgs += ("orgId" -> orgId)
-              renderArgs += ("isOwner" -> Organization.isOwner(orgId, userName))
-              renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
-              action(request)
+    OrgBrowsingAction(orgId) {
+      Authenticated {
+        Action(action.parser) {
+          implicit request => {
+            if (orgId == null || orgId.isEmpty) {
+              Error("How did you even get here?")
             }
+            val organizations = request.session.get(AccessControl.ORGANIZATIONS).getOrElse("")
+            if (organizations == null || organizations.isEmpty) {
+              Forbidden(Messages("user.secured.noAccess"))
+            } else if (!organizations.split(",").contains(orgId)) {
+              Forbidden(Messages("user.secured.noAccess"))
+            }
+            renderArgs += ("orgId" -> orgId)
+            renderArgs += ("isOwner" -> Organization.isOwner(orgId, userName))
+            renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
+            action(request)
           }
         }
       }
@@ -138,7 +136,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             val authenticityTokenParam = params.get(key = "authenticityToken")
             val CSRFHeader = request.headers.get("x-csrf-token")
             if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.get == getAuthenticityToken)))
-              // TODO MIGRATION - PLAY 2 FIXME this does not work!!
+            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
               Forbidden("Bad authenticity token")
           }
 
@@ -185,7 +183,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           //                val orgName = Organization.fetchName(orgId)
           //                renderArgs += ("browsedOrgName", orgName)
           //            }
-
 
           val newSession = additionalSessionParams.foldLeft[Session](request.session) {
             _ + _
