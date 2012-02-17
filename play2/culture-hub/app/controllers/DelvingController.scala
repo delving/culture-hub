@@ -23,7 +23,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   val LANG = "lang"
 
-  def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+  implicit def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+
+  override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
   def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
 
@@ -165,10 +167,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           val lang = request.queryString.get("lang")
           if (lang.isDefined) {
             additionalSessionParams += (LANG -> lang.get(0))
-          }
-
-          // if there is no language for this cookie / user set, set the default one from the PortalTheme
-          if (request.session.get(LANG).isEmpty) {
+          } else if (request.session.get(LANG).isEmpty) {
+            // if there is no language for this cookie / user set, set the default one from the PortalTheme
             additionalSessionParams += (LANG -> theme.defaultLanguage)
           }
 
@@ -210,10 +210,10 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               renderArgs +=("browsedFullName", u.fullname)
               renderArgs +=("browsedUserId", u._id)
               renderArgs +=("browsedUserName", u.userName)
+              action(request)
             case None =>
-              renderArgs +=("browsedUserNotFound", user)
+              NotFound(Messages("delvingcontroller.userNotFound", user))
           }
-          action(request)
       }
     }
   }
@@ -255,19 +255,3 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
 
 }
-
-
-/*
-         // Browsed user
-
-*/
-
-/*
-
-if(!browsedUserExists) return NotFound(&("delvingcontroller.userNotFound", renderArgs.get("browsedUserNotFound", classOf[String])))
-
-*/
-
-
-
-
