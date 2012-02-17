@@ -23,10 +23,6 @@ object Breadcrumbs {
       request.path.split("/").drop(1).toList
     }
 
-    println()
-    println()
-    println(crumbList)
-    println()
     val crumbs = crumbList match {
 
       case "users" :: Nil => List(("/users", Messages("thing.users")))
