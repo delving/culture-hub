@@ -3,7 +3,7 @@
     <theme name="default">
         <subdomain>default</subdomain>
         <defaultLanguage>en</defaultLanguage>
-        <solrSelectUrl>http://localhost:8989/solr</solrSelectUrl>
+        <solrSelectUrl>http://localhost:8989/solr/core2</solrSelectUrl>
         <emailTarget>
             <adminTo>servers@delving.eu</adminTo>
             <exceptionTo>servers@delving.eu</exceptionTo>
