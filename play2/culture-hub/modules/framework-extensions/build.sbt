@@ -9,7 +9,7 @@ resolvers += "scala-tools" at "http://scala-tools.org/repo-releases/"
 resolvers += "novus" at "http://repo.novus.com/snapshots/"
 
 libraryDependencies ++= Seq(
-        "play"                 %%    "play"                   % "2.0-RC1-SNAPSHOT",
+        "play"                 %%    "play"                   % "2.0-RC3-SNAPSHOT",
         "play"                 %%    "groovy-templates"       % "0.1-SNAPSHOT",
         "com.jamonapi"         %     "jamon"                  % "2.7",
         "com.mongodb.casbah"   %%    "casbah"                 % "2.1.5-1",
