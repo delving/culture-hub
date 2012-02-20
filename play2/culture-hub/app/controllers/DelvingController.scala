@@ -25,16 +25,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   private val LANG = "lang"
 
-  private val languageThreadLocal = new ThreadLocal[String] {
-    override def initialValue() = theme.defaultLanguage
-  }
+  implicit def getLang(implicit request: RequestHeader) = request.session(LANG)
 
-  implicit def getLang(implicit request: RequestHeader) = languageThreadLocal.get()
-
-  override implicit def lang(implicit request: RequestHeader): Lang = {
-    println("Called lang " + getLang)
-    Lang(getLang)
-  }
+  override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
   def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
 
@@ -57,9 +50,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
             request.session(LANG)
           }
 
-          val languageChanged = languageThreadLocal.get != requestLanguage
-
-          languageThreadLocal.set(requestLanguage)
+          val languageChanged = request.session(LANG) != requestLanguage
 
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
