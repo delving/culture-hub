@@ -421,7 +421,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .result-overlay .close {
-    background-image: url("/public/common/images/close.png");
+    background-image: url("/assets/common/images/close.png");
     cursor: pointer;
     height: 35px;
     position: absolute;
