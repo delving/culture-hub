@@ -67,9 +67,7 @@ object SipCreator extends DelvingController {
               <jar href="asm-1.5.3.jar"/>
           </resources>
           <application-desc main-class="eu.delving.sip.Application">
-            <argument>
-              {user}
-            </argument>
+            <argument>{user}</argument>
           </application-desc>
         </jnlp>
 
