@@ -2,7 +2,7 @@
 
 #{set title:'Search results' /}
 
-#{breadcrumbs params:["title":["url":"", "label": fullDoc.getTitle()]] /}
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": fullDoc.getTitle()], "inOrg": ["inOrg": "yes"]] /}
 
 <div class="row dashboard">
 

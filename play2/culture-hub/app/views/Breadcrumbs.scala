@@ -13,10 +13,8 @@ import models.{PortalTheme, UserCollection, DObject}
 object Breadcrumbs {
   
   def crumble(p: java.util.Map[String, java.util.Map[String, String]], request: RequestHeader, theme: PortalTheme): List[((String, String), Int)] = {
-    val session = request.session
 
     // we can't make the difference between orgId/object and user/object
-    // TODO MIGRATE - adjust this in view so the key is there
     val crumbList = if(p != null && p.containsKey(controllers.Search.IN_ORGANIZATION)) {
       "org" :: request.path.split("/").drop(1).toList
     } else {
@@ -31,18 +29,16 @@ object Breadcrumbs {
       case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
       case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
-      case "org" :: "search" :: Nil =>
-        val queryString = session.get(controllers.Search.RETURN_TO_RESULTS)
-        val searchTerm = "[%s]".format(session.get(controllers.Search.SEARCH_TERM))
-        List(("NOLINK", Messages("ui.label.search")), ("/search?" + queryString , searchTerm))
+      case "search" :: Nil =>
+        val returnToResults = p.get("search").get("returnToResults")
+        val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
+        List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
 
       case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
-        Option(session.get(controllers.Search.RETURN_TO_RESULTS)) match {
-          case Some(r) =>
-            val searchTerm = "[%s]".format(session.get(controllers.Search.SEARCH_TERM))
-            List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, searchTerm), ("NOLINK", p.get("title").get("label")))
-          case None =>
-            List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
+        val returnToResults = Option(p.get("search").get("returnToResults"))
+        returnToResults match {
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
         }
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))

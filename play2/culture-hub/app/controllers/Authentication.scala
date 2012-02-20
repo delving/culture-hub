@@ -47,9 +47,9 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
   }
 
   def logout = Action {
-    Redirect(routes.Authentication.login).withNewSession.flashing(
+    Redirect(routes.Authentication.login).withNewSession.discardingCookies(REMEMBER_COOKIE).flashing(
       "success" -> Messages("authentication.logout")
-    ).discardingCookies(REMEMBER_COOKIE)
+    )
   }
 
   /**

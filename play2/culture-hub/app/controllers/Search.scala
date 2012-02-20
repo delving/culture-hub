@@ -7,7 +7,6 @@ import views.Helpers._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages
-import collection.JavaConverters._
 
 /**
  *
@@ -19,7 +18,6 @@ object Search extends DelvingController {
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
   val IN_ORGANIZATION = "inOrg"
-
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -37,16 +35,18 @@ object Search extends DelvingController {
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'collections -> userCollections,
-            'themeFacets -> theme.getFacets)).flashing((RETURN_TO_RESULTS, request.rawQueryString), (SEARCH_TERM, request.queryString.get("query").getOrElse(Seq(""))(0)))
+            'themeFacets -> theme.getFacets,
+            'searchTerm -> query,
+            'returnToResults -> request.rawQueryString)).withSession(
+            session +
+              (RETURN_TO_RESULTS -> request.rawQueryString) +
+              (SEARCH_TERM -> query))
         } catch {
-          case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> request.queryString.get("query").get))
-          case c: SolrConnectionException =>
-            Error(Messages("search.backendConnectionError"))
-
+          case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
+          case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
         }
     }
   }
-
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
@@ -61,23 +61,22 @@ object Search extends DelvingController {
         if (response.response.getResults.size() == 0) {
           NotFound(id)
         } else {
-          // this is a hack to be able to distinguish between userName/object/... and orgId/object/...
-          // TODO MIGRATION
-          //        request.args.put(IN_ORGANIZATION, "yes")
-
-          val updatedSession = if (request.headers.get("referer") != None && !request.headers.get("referer").get.contains("search")) {
+          val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
             // we're coming from someplace else then a search, remove the return to results cookie
             request.session - (RETURN_TO_RESULTS)
           } else {
             request.session
           }
 
+          println(updatedSession)
+
           val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
           if (overlay) {
             Ok(Template("Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc))
           } else {
-            val returnToUrl = if (session.get(RETURN_TO_RESULTS).isDefined) session.get(RETURN_TO_RESULTS) else ""
-            Ok(Template("Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl))
+            val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+            val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+            Ok(Template("Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
           }.withSession(updatedSession)
         }
 

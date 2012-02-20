@@ -102,10 +102,10 @@ GET          /:user                                                           co
 #POST        /{user}/object/{id}/block                                        admin.NodeAdmin.blockDObject
 #GET         /{user}/object/{id}                                              DObjects.dobject
 
-#GET         /{orgId}/object/{spec}/{recordId}/overlay                          Search.record(overlay:'true')
-#POST        /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.add(fromType:'mdr')
-#DELETE      /{orgId}/object/{spec}/{recordId}/link/{linkType}/{toType}/{toId}  user.Links.remove(fromType:'mdr')
-#GET         /{orgId}/object/{spec}/{recordId}                                  Search.record
+GET          /:orgId/object/:spec/:recordId/overlay                          controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
+#POST        /:orgId/object/:spec/:recordId/link/:linkType/:toType/:toId     controllers.user.Links.add(fromType:'mdr')
+#DELETE      /:orgId/object/:spec/:recordId/link/:linkType/:toType/:toId     controllers.user.Links.remove(fromType:'mdr')
+GET          /:orgId/object/:spec/:recordId                                  controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
 
 GET          /:user/sip-creator.jnlp                                          controllers.organization.SipCreator.jnlp(user)
 

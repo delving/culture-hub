@@ -184,11 +184,17 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           //                renderArgs += ("browsedOrgName", orgName)
           //            }
 
-          val newSession = additionalSessionParams.foldLeft[Session](request.session) {
-            _ + _
-          }
+          val newSession = additionalSessionParams.foldLeft[Session](request.session) { _ + _ }
           val r: PlainResult = action(request).asInstanceOf[PlainResult]
-          r.withSession(newSession)
+          // workaround since withSession calls aren't composable it seems
+          val innerSession = r.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
+          if(innerSession.isDefined) {
+            // there really should be an API method for adding sessions
+            val combined = innerSession.get.data.foldLeft(newSession) { _ + _ }
+            r.withSession(combined)
+          } else {
+            r.withSession(newSession)
+          }
         }
       }
     }
