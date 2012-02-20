@@ -2,7 +2,6 @@ package controllers
 
 import core.ThemeAware
 import organization.CMS
-import play.api.Play
 import play.api.Play.current
 import play.templates.groovy.GroovyTemplates
 import play.api.mvc._
@@ -12,6 +11,7 @@ import org.bson.types.ObjectId
 import models._
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
+import play.api.{Logger, Play}
 
 /**
  *
@@ -21,13 +21,60 @@ import play.api.i18n.{Lang, Messages}
 
 trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging with Extensions {
 
-  val LANG = "lang"
+  // ~~~ i18n
 
-  implicit def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+  private val LANG = "lang"
 
-  override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
+  private val languageThreadLocal = new ThreadLocal[String] {
+    override def initialValue() = theme.defaultLanguage
+  }
+
+  implicit def getLang(implicit request: RequestHeader) = languageThreadLocal.get()
+
+  override implicit def lang(implicit request: RequestHeader): Lang = {
+    println("Called lang " + getLang)
+    Lang(getLang)
+  }
 
   def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
+
+  def ApplicationAction[A](action: Action[A]): Action[A] = {
+    Themed {
+      Action(action.parser) {
+        implicit request: Request[A] => {
+
+          val langParam = request.queryString.get(LANG)
+
+          val requestLanguage = if (langParam.isDefined) {
+            Logger("CultureHub").debug("Setting language from parameter to " + langParam.get(0))
+            langParam.get(0)
+          } else if (request.session.get(LANG).isEmpty) {
+            // if there is no language for this cookie / user set, set the default one from the PortalTheme
+            Logger("CultureHub").debug("Setting language from theme to " + theme.defaultLanguage)
+            theme.defaultLanguage
+          } else {
+            Logger("CultureHub").debug("Setting language from session to " + request.session(LANG))
+            request.session(LANG)
+          }
+
+          val languageChanged = languageThreadLocal.get != requestLanguage
+
+          languageThreadLocal.set(requestLanguage)
+
+          // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
+          // action composition being applied after the template has been rendered, we need to pass it in this way
+          renderArgs += (__LANG, requestLanguage)
+
+          val r = action(request).asInstanceOf[PlainResult]
+          if(languageChanged) {
+            composeSession(r, Session(Map(LANG -> getLang)))
+          } else {
+            r
+          }
+        }
+      }
+    }
+  }
 
   def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
 
@@ -37,9 +84,24 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
 
   implicit def withRichQueryString(queryString: Map[String, Seq[String]]) = new {
-
     def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
+  }
 
+  implicit def withRichSession(session: Session) = new {
+
+    def +(another: Session) = another.data.foldLeft(session) { _ + _}
+  }
+  
+  protected def composeSession(actionResult: PlainResult, additionalSession: Session)(implicit request: RequestHeader) = {
+    // workaround since withSession calls aren't composable it seems
+    val innerSession = actionResult.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
+    if(innerSession.isDefined) {
+      // there really should be an API method for adding sessions
+      val combined = additionalSession.data.foldLeft(innerSession.get) { _ + _ }
+      actionResult.withSession(session + combined)
+    } else {
+      actionResult.withSession(session + additionalSession)
+    }
   }
 
   // ~~~ form handling when using knockout. This returns a map of error messages
@@ -120,7 +182,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
   def userName(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).getOrElse(null)
 
   def Root[A](action: Action[A]): Action[A] = {
-    Themed {
+    ApplicationAction {
       Action(action.parser) {
         implicit request: Request[A] => {
 
@@ -139,8 +201,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             // TODO MIGRATION - PLAY 2 FIXME this does not work!!
               Forbidden("Bad authenticity token")
           }
-
-
+          
           // Connected user
           User.findByUsername(userName).map {
             u => {
@@ -158,18 +219,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             }
           }
 
-          // Language
-
-          // if a lang param is passed, this is a request to explicitly change the language
-          // and will change it in the user's cookie
-          val lang = request.queryString.get("lang")
-          if (lang.isDefined) {
-            additionalSessionParams += (LANG -> lang.get(0))
-          } else if (request.session.get(LANG).isEmpty) {
-            // if there is no language for this cookie / user set, set the default one from the PortalTheme
-            additionalSessionParams += (LANG -> theme.defaultLanguage)
-          }
-
           // Menu entries
           val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
             "title" -> e.title(getLang),
@@ -184,17 +233,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           //                renderArgs += ("browsedOrgName", orgName)
           //            }
 
-          val newSession = additionalSessionParams.foldLeft[Session](request.session) { _ + _ }
           val r: PlainResult = action(request).asInstanceOf[PlainResult]
-          // workaround since withSession calls aren't composable it seems
-          val innerSession = r.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
-          if(innerSession.isDefined) {
-            // there really should be an API method for adding sessions
-            val combined = innerSession.get.data.foldLeft(newSession) { _ + _ }
-            r.withSession(combined)
-          } else {
-            r.withSession(newSession)
-          }
+          composeSession(r, Session(additionalSessionParams.toMap))
         }
       }
     }

@@ -24,7 +24,7 @@ import util.MissingLibs
 import play.api._
 import cache.Cache
 import data.Form._
-import http.{ContentTypeOf, ContentTypes, Writeable}
+import http.{ContentTypeOf, Writeable}
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -89,14 +89,14 @@ object Registration extends ApplicationController {
 
   )
 
-  def index() = Themed {
+  def index() = ApplicationAction {
     Action {
       implicit request =>
         Ok(Template('randomId -> MissingLibs.UUID, 'registrationForm -> registrationForm))
     }
   }
 
-  def register() = Themed {
+  def register() = ApplicationAction {
     Action {
       implicit request =>
         registrationForm.bindFromRequest.fold(
@@ -158,7 +158,7 @@ object Registration extends ApplicationController {
       Ok(captcha)
   }
   
-  def activate(activationToken: String) = Themed {
+  def activate(activationToken: String) = ApplicationAction {
     Action {
       implicit request =>
         val indexAction = Redirect(controllers.routes.Application.index)
@@ -182,7 +182,7 @@ object Registration extends ApplicationController {
     }
   }
   
-  def lostPassword = Themed {
+  def lostPassword = ApplicationAction {
     Action {
       implicit request => Ok(Template('resetPasswordForm -> resetPasswordForm))
     }
@@ -207,7 +207,7 @@ object Registration extends ApplicationController {
     )(ResetPassword.apply)(ResetPassword.unapply)
   )
 
-  def resetPasswordEmail = Themed {
+  def resetPasswordEmail = ApplicationAction {
     Action {
       implicit request =>
         resetPasswordForm.bindFromRequest().fold(
