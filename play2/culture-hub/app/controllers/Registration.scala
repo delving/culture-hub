@@ -20,7 +20,7 @@ import notifiers.Mails
 import play.api.Play.current
 import models.mongoContext._
 import models.{User, Organization}
-import util.MissingLibs
+import extensions.MissingLibs
 import play.api._
 import cache.Cache
 import data.Form._

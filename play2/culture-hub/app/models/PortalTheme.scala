@@ -6,17 +6,13 @@ import play.api.Logger
 import com.novus.salat.dao.SalatDAO
 import org.apache.solr.client.solrj.SolrQuery
 import mongoContext._
+import core.search.{SolrSortElement, SolrFacetElement}
+
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-
-// TODO MIGRATION --> copied from SolrQueryService
-case class SolrFacetElement(facetName: String, facetInternationalisationCode: String, nrDisplayColumns: Int = 1)
-case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
-
 
 case class EmailTarget(adminTo: String = "test-user@delving.eu",
                        exceptionTo: String = "test-user@delving.eu",

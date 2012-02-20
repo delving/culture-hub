@@ -16,7 +16,8 @@
 
 package models
 
-import util.MissingLibs
+import extensions.MissingLibs
+import extensions.MissingLibs
 import util.Constants._
 import com.novus.salat._
 import com.novus.salat.dao._

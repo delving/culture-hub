@@ -25,7 +25,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   private val LANG = "lang"
 
-  implicit def getLang(implicit request: RequestHeader) = request.session(LANG)
+  implicit def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
@@ -50,14 +50,14 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
             request.session(LANG)
           }
 
-          val languageChanged = request.session(LANG) != requestLanguage
+          val languageChanged = request.session.get(LANG) != Some(requestLanguage)
 
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
-          renderArgs += (__LANG, requestLanguage)
+          renderArgs +=(__LANG, requestLanguage)
 
           val r = action(request).asInstanceOf[PlainResult]
-          if(languageChanged) {
+          if (languageChanged) {
             composeSession(r, Session(Map(LANG -> getLang)))
           } else {
             r
@@ -80,15 +80,19 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   implicit def withRichSession(session: Session) = new {
 
-    def +(another: Session) = another.data.foldLeft(session) { _ + _}
+    def +(another: Session) = another.data.foldLeft(session) {
+      _ + _
+    }
   }
-  
+
   protected def composeSession(actionResult: PlainResult, additionalSession: Session)(implicit request: RequestHeader) = {
     // workaround since withSession calls aren't composable it seems
     val innerSession = actionResult.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
-    if(innerSession.isDefined) {
+    if (innerSession.isDefined) {
       // there really should be an API method for adding sessions
-      val combined = additionalSession.data.foldLeft(innerSession.get) { _ + _ }
+      val combined = additionalSession.data.foldLeft(innerSession.get) {
+        _ + _
+      }
       actionResult.withSession(session + combined)
     } else {
       actionResult.withSession(session + additionalSession)
@@ -192,7 +196,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             // TODO MIGRATION - PLAY 2 FIXME this does not work!!
               Forbidden("Bad authenticity token")
           }
-          
+
           // Connected user
           User.findByUsername(userName).map {
             u => {
@@ -248,6 +252,36 @@ trait DelvingController extends ApplicationController with ModelImplicits {
             case None =>
               NotFound(Messages("delvingcontroller.userNotFound", user))
           }
+      }
+    }
+  }
+
+  def ConnectedUserAction[A](action: Action[A]): Action[A] = {
+    Root {
+      Authenticated {
+        Action(action.parser) {
+          implicit request =>
+            action(request)
+        }
+      }
+    }
+  }
+
+  /**
+   * Action secured for the connected user
+   */
+  def SecuredUserAction[A](user: String)(action: Action[A]): Action[A] = {
+    UserAction(user) {
+      Authenticated {
+        Action(action.parser) {
+          implicit request => {
+            if (connectedUser != user) {
+              Forbidden(Messages("user.secured.noAccess"))
+            } else {
+              action(request)
+            }
+          }
+        }
       }
     }
   }

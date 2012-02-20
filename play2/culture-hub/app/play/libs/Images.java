@@ -18,6 +18,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+
+import extensions.MissingLibs;
 import jj.play.ns.nl.captcha.backgrounds.BackgroundProducer;
 import jj.play.ns.nl.captcha.backgrounds.FlatColorBackgroundProducer;
 import jj.play.ns.nl.captcha.backgrounds.GradiatedBackgroundProducer;
@@ -28,7 +30,6 @@ import jj.play.ns.nl.captcha.gimpy.RippleGimpyRenderer;
 import jj.play.ns.nl.captcha.noise.CurvedLineNoiseProducer;
 import jj.play.ns.nl.captcha.text.renderer.DefaultWordRenderer;
 import play.api.libs.MimeTypes;
-import util.MissingLibs;
 
 /**
  * Images utils

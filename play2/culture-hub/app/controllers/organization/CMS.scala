@@ -10,15 +10,10 @@ import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
 import controllers.{ViewModel, OrganizationController}
-
-//import dos.{StoredFile, FileUploadResponse}
-
+import extensions.{MissingLibs, JJson}
 import models._
 import com.mongodb.casbah.Imports._
 
-import extensions.JJson
-import util.MissingLibs
-import controllers.dos.{StoredFile, FileUploadResponse}
 
 /**
  *
@@ -74,9 +69,7 @@ object CMS extends OrganizationController {
         Organization.findByOrgId(orgId).map {
           o =>
             def notSelected(id: ObjectId) = false
-            // TODO MIGRATION DOS
-            //            val files = controllers.dos.FileStore.getFilesForItemId(o._id).map(_.asFileUploadResponse(notSelected))
-            val files = List.empty[FileUploadResponse]
+            val files = controllers.dos.FileStore.getFilesForItemId(o._id).map(_.asFileUploadResponse(notSelected))
             Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
         }.getOrElse(NotFound(orgId))
     }
@@ -88,9 +81,7 @@ object CMS extends OrganizationController {
       implicit request =>
       // use the organization object ID to link the files. we later maybe more lax in the DoS and allow the orgId to be used
         Organization.findByOrgId(orgId).map {
-          o =>
-          // TODO MIGRATION DOS
-          //controllers.dos.FileUpload.markFilesAttached(uid, o._id)
+          o => controllers.dos.FileUpload.markFilesAttached(uid, o._id)
         }
         Redirect("/organizations/%s/site/upload".format(orgId))
     }
@@ -101,9 +92,7 @@ object CMS extends OrganizationController {
       implicit request =>
         Organization.findByOrgId(orgId).map {
           o =>
-            val images = List.empty[StoredFile]
-            // TODO MIGRATION DOS
-            //              val images = controllers.dos.FileStore.getFilesForItemId(o._id).filter(_.contentType.contains("image"))
+            val images = controllers.dos.FileStore.getFilesForItemId(o._id).filter(_.contentType.contains("image"))
 
             // tinyMCE stoopidity
             val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
@@ -167,7 +156,7 @@ object CMS extends OrganizationController {
     }
   }
 
-  private def getThemes() = if (Play.isDev || PortalTheme.findAll.length == 1) {
+  private def getThemes = if (Play.isDev || PortalTheme.findAll.length == 1) {
     PortalTheme.findAll.map(t => (t.name, t.name))
   } else {
     PortalTheme.findAll.filterNot(_.name == "default").map(t => (t.name, t.name))

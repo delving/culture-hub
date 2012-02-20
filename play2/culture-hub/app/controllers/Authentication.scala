@@ -8,7 +8,7 @@ import core.ThemeAware
 import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
-import util.MissingLibs
+import extensions.MissingLibs
 import java.util.Date
 import models.{Visibility, UserCollection, User}
 import core.indexing.IndexingService

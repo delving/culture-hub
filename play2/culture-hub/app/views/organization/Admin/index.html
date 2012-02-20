@@ -4,7 +4,7 @@
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs theme: themeInfo.getTheme() /}
+#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"administration", isOwner: isOwner /}
 

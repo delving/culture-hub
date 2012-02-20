@@ -1,5 +1,6 @@
 package views.tags.gravatar;
 
+import extensions.MissingLibs;
 import play.templates.FastTags;
 import play.templates.GroovyTemplate;
 import play.exceptions.TagInternalException;
@@ -12,7 +13,6 @@ import java.io.PrintWriter;
 
 import groovy.lang.Closure;
 import play.templates.exceptions.TemplateExecutionException;
-import util.MissingLibs;
 
 /**
  *

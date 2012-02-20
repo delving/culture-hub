@@ -1,12 +1,13 @@
-package util
+package extensions
 
 import java.io.InputStream
-import java.util.Properties
 import java.security.{NoSuchAlgorithmException, MessageDigest}
 import play.api.UnexpectedException
 import io.Source
-import org.apache.commons.io.IOUtils
 import org.apache.commons.codec.binary.{Hex, Base64}
+import java.text.SimpleDateFormat
+import java.util.{TimeZone, Locale, Properties}
+import org.apache.commons.io.IOUtils
 
 /**
  * Libs copy-pasted from Play 1
@@ -37,17 +38,17 @@ object MissingLibs {
    * @return The String content
    */
   def readContentAsString(is: InputStream, encoding: String) = {
+    try {
+      IOUtils.toString(is, encoding);
+    } catch {
+      case e => throw new RuntimeException(e);
+    } finally {
       try {
-          IOUtils.toString(is, encoding);
+        is.close();
       } catch {
-        case e => throw new RuntimeException(e);
-      } finally {
-          try {
-              is.close();
-          } catch {
-            case _ => //
-          }
+        case _ => //
       }
+    }
   }
 
   // ~~~ play.libs.Codec
@@ -55,7 +56,7 @@ object MissingLibs {
   def UUID: String = java.util.UUID.randomUUID().toString
 
   def encodeBASE64(value: java.io.File): String = new String(Base64.encodeBase64((Source.fromFile(value).map(_.toByte).toArray)))
-  
+
   def encodeBASE64(value: String) = {
     try {
       new String(Base64.encodeBase64(value.getBytes("utf-8")))
@@ -70,15 +71,15 @@ object MissingLibs {
    * @return An hexadecimal Hash
    */
   def hexMD5(value: String) = {
-      try {
-          val messageDigest = MessageDigest.getInstance("MD5");
-          messageDigest.reset();
-          messageDigest.update(value.getBytes("utf-8"));
-          val digest = messageDigest.digest();
-          byteToHexString(digest);
-      } catch {
-        case ex => throw new UnexpectedException(Some(ex.getMessage));
-      }
+    try {
+      val messageDigest = MessageDigest.getInstance("MD5");
+      messageDigest.reset();
+      messageDigest.update(value.getBytes("utf-8"));
+      val digest = messageDigest.digest();
+      byteToHexString(digest);
+    } catch {
+      case ex => throw new UnexpectedException(Some(ex.getMessage));
+    }
   }
 
   /**
@@ -103,5 +104,18 @@ object MissingLibs {
       case e: NoSuchAlgorithmException => throw new RuntimeException(e);
     }
   }
+
+  // ~~~ play.Utils
+
+  private val httpFormatter = new ThreadLocal[SimpleDateFormat]
+
+  def getHttpDateFormatter = {
+    if (httpFormatter.get() == null) {
+      httpFormatter.set(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US));
+      httpFormatter.get().setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+    httpFormatter.get();
+  }
+
 
 }

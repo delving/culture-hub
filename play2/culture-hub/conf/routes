@@ -33,12 +33,42 @@ GET        /fcgi-bin/iipsrv.fcgi                                                
 
 
 # Image Upload - with authentication
-#POST       /file/upload/{uid}                                                user.FileUpload.uploadFile
-#DELETE     /file/{id}                                                        user.FileUpload.deleteFile
+POST       /file/upload/:uid                                                       controllers.user.FileUpload.uploadFile(uid)
+DELETE     /file/:id                                                               controllers.user.FileUpload.deleteFile(id)
 
 
-# Delving object Server module
-#*          /                                                                 module:dos
+##################################
+### Delving object Server module #
+##################################
+
+# File Upload API
+POST       /file/upload/:uid                                 controllers.dos.FileUpload.uploadFile(uid)
+#DELETE     /file/:id                                         controllers.dos.FileUpload.deleteFile(id)
+
+# File Download API
+GET        /file/:id                                         controllers.dos.FileStore.get(id)
+
+# Image Cache API
+GET        /image/cache                                      controllers.dos.ImageCache.image(id, withDefaultFromUrl: Boolean ?= true)
+GET        /thumbnail/cache                                  controllers.dos.ImageCache.thumbnail(id, width: Option[String], withDefaultFromUrl: Boolean ?= true)
+
+# Image Display API
+
+## Lookup by GridFS file ID
+GET        /file/image/:id                                   controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
+GET        /file/thumbnail/:id/:width                        controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
+GET        /file/thumbnaila/*id                              controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+
+## Lookup by item ID or other form of IDs
+GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = false)
+GET        /thumbnail/:orgId/:collectionId/:id/:width        controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET        /thumbnail/:orgId/:collectionId/*id               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+
+
+
+
 
 # Backwards compatibility with the old services module
 #GET         /services/                                                       Services.index

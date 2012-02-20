@@ -18,24 +18,6 @@ import extensions.JJson
 
 object Admin extends DelvingController {
 
-  def SecuredUserAction[A](user: String)(action: Action[A]): Action[A] = {
-    Themed {
-      UserAction(user) {
-        Authenticated {
-          Action(action.parser) {
-            implicit request => {
-              if (connectedUser != user) {
-                Forbidden(Messages("user.secured.noAccess"))
-              } else {
-                action(request)
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   def profile(user: String) = SecuredUserAction(user) {
     Action {
       implicit request =>

@@ -4,7 +4,7 @@
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs theme: themeInfo.getTheme() /}
+#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
@@ -49,12 +49,10 @@
         initUploadWidget(false);
 
         $('#fileupload').fileupload({
-            url: '@{controllers.routes.user.FileUpload.uploadFile(uid)}',
+            url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
             autoUpload: true
         }).bind('fileuploaddone', function (e, data) {
-            $.post('/organizations/${orgId}/site/upload/${uid}', function() {
-                document.location = '/organizations/${orgId}/site/upload';
-            });
+            $.post('/organizations/${orgId}/site/upload/${uid}');
         });
 
         var files = ${files.raw()};

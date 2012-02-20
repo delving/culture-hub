@@ -383,24 +383,3 @@ case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccess
     def getConcatenatedList(key: String, fields: java.util.List[String]) : java.util.List[String] = mutableSeqAsJavaList(solrDocument.getConcatenatedArray(key, fields.toList).getValues)
 
 }
-
-
-
-/////////// TODO MIGRATION
-
-//case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
-//
-//  def value = facetCount.getName
-//  def count = facetCount.getCount
-//
-//  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
-//}
-//
-//case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false) {
-//
-//  def getType: String = facetName
-//  def getLinks: List[FacetCountLink] = links
-//  def isFacetSelected: Boolean =facetSelected
-//
-//}
-

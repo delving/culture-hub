@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 import play.api.Play.current
 import play.api.{Logger, PlayException}
 import java.lang.String
+import extensions.MissingLibs
 
 /**
  * Handler for display theme information
