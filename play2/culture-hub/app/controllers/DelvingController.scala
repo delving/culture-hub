@@ -54,7 +54,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
-          renderArgs +=(__LANG, requestLanguage)
+          renderArgs += (LANG, requestLanguage) // todo find out why there was a __ in front of __LANG
 
           val r = action(request).asInstanceOf[PlainResult]
           if (languageChanged) {
