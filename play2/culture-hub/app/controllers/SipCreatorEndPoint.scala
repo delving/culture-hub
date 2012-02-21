@@ -371,7 +371,6 @@ object SipCreatorEndPoint extends ApplicationController {
             pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
             pw.print(record.getXmlString())
             pw.println("</input>")
-            println("foobar")
 
             if (count % 100 == 0) {
               pw.flush()

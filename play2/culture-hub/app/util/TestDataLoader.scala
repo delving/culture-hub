@@ -147,6 +147,7 @@ object TestDataLoader {
       ),
       lastUploaded = new Date(0),
       idxMappings = List("icn"),
+      invalidRecords = Map("icn" -> List(1)),
       mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head))
     ))
   }

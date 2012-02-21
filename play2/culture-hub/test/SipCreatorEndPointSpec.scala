@@ -1,8 +1,7 @@
-import collection.mutable.Buffer
 import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecordMapping
-import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
+import java.io.{DataInputStream, File, FileInputStream}
 import java.util.zip.{GZIPInputStream, ZipInputStream}
 import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
@@ -212,6 +211,10 @@ class SipCreatorEndPointSpec extends Specification with Cleanup {
       }
     }
   }
+
+  step(cleanup)
+
+
 
 }
 
