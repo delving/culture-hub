@@ -24,7 +24,7 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def dataset(orgId: String, spec: String) = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
         val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
