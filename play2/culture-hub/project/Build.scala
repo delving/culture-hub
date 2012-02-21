@@ -9,6 +9,9 @@ object ApplicationBuild extends Build {
 
   val dosVersion = "1.5"
 
+  val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/groups/public"
+  val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
@@ -21,14 +24,19 @@ object ApplicationBuild extends Build {
 
   )
 
-  val frameworkExtensions = Project("framework-extensions", file("modules/framework-extensions"))
+  val frameworkExtensions = Project("framework-extensions", file("modules/framework-extensions")).settings(
+    resolvers += delvingSnapshots,
+    resolvers += delvingReleases
+  )
 
   val dosDependencies = Seq(
     "com.thebuzzmedia"         %  "imgscalr-lib"                     % "3.2"
   )
 
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).dependsOn(frameworkExtensions).settings(
-    resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com"
+    resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
+    resolvers += delvingSnapshots,
+    resolvers += delvingReleases
   )
 
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
@@ -36,8 +44,8 @@ object ApplicationBuild extends Build {
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers += "jahia" at "http://maven.jahia.org/maven2",
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
-    resolvers += "delving-snapshots" at "http://development.delving.org:8081/nexus/content/repositories/snapshots",
-    resolvers += "delving-releases" at "http://development.delving.org:8081/nexus/content/repositories/releases",
+    resolvers += delvingSnapshots,
+    resolvers += delvingReleases,
 
     routesImport += "extensions.Binders._"
 
