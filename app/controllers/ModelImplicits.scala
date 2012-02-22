@@ -19,7 +19,7 @@ package controllers
 import org.bson.types.ObjectId
 import models._
 import com.mongodb.casbah.Imports._
-import views.context.thumbnailUrl
+import views.Helpers.thumbnailUrl
 import eu.delving.sip.IndexDocument
 import util.Constants._
 
@@ -29,7 +29,7 @@ import util.Constants._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait ModelImplicits extends Internationalization {
+trait ModelImplicits {
 
   // ~~~ View models
 
@@ -86,7 +86,7 @@ trait ModelImplicits extends Internationalization {
 
   // ~~~ Misc.
 
-  implicit def toDBObject(indexDocument: IndexDocument): DBObject = {
+  implicit def toDBObject(indexDocument: IndexDocument): Map[String, List[String]] = {
     val m = indexDocument.getMap
     import scala.collection.JavaConverters._
     val values: Map[String, List[String]] = (m.keySet().asScala.map { key =>
@@ -94,9 +94,6 @@ trait ModelImplicits extends Internationalization {
       (key, value.asScala.map(_.toString).toList)
     }).toMap
     values
-    val builder = MongoDBObject.newBuilder
-    values.keys foreach { k => builder += (k -> values(k))}
-    builder.result()
   }
 
 }

@@ -18,10 +18,12 @@ package models
 
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import salatContext._
+import mongoContext._
 import com.mongodb.casbah.Imports._
 import java.util.Date
 import com.mongodb.casbah.WriteConcern
+import play.api.Play
+import play.api.Play.current
 
 /**
  * 
@@ -135,7 +137,7 @@ object GrantType {
 
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))
 
-  def description(key: String) = play.i18n.Messages.get("org.group.grantType." + key)
+  def description(key: String) = play.api.i18n.Messages("org.group.grantType." + key)
 
   val VIEW = GrantType("view", description("view"))
   val MODIFY = GrantType("modify", description("modify"))
@@ -148,7 +150,7 @@ object GrantType {
 
   val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
 
-  def allGrantTypes = if(play.Play.mode == play.Play.Mode.DEV) {
+  def allGrantTypes = if(Play.isDev) {
     (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
   } else {
     cachedGrantTypes

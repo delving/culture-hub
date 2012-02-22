@@ -1,12 +1,12 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-#{set title: viewUtils.getKey('thing.dataset') + ' ' + dataSet.name + ' - ' + viewUtils.getKey('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('thing.dataset') + ' ' + dataSet.name + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-                                                                      [label:viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
-                                                                      [label:viewUtils.getKey('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label:messages.get('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+                                                                      [label:messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner],
+                                                                      [label:messages.get('ui.label.edit'), url:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", iconClass:"icon145", visible: canEdit] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 <div class="row">
     <div class="grid_12 dashboard">
         <h1 class="sep">&{'thing.dataset'} <span>"${dataSet.spec}"</span></h1>
@@ -28,6 +28,10 @@
             <div class="g-1of2">
                 #{/if}
                 %{}}%
+                <div class="info-box">
+                    <span class="label">Indexing Mapping Record Definition</span>
+                    <span class="text">${views.Helpers.getOrElse(dataSet.indexingMappingPrefix, "Not defined")}</span>
+                </div>
             </div>
         </div>
     </div>

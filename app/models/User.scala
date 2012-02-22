@@ -16,16 +16,17 @@
 
 package models
 
+import extensions.MissingLibs
+import extensions.MissingLibs
+import util.Constants._
 import com.novus.salat._
+import com.novus.salat.dao._
 import com.mongodb.casbah.Imports._
-import dao.{SalatDAOError, SalatDAO}
-import models.salatContext._
-import play.libs.Crypto
-import controllers.{ServicesSecurity, InactiveUserException}
-import _root_.util.Constants._
-import components.IndexingService
+import mongoContext._
+import play.Play
+import core.indexing.IndexingService
 
-case class User(_id: ObjectId = new ObjectId,                     // mongoDB ID of the user, deprectated as identifier
+case class User(_id: ObjectId = new ObjectId,
                 userName: String,                                 // userName, unique in the world
                 firstName: String,
                 lastName: String,
@@ -50,6 +51,15 @@ case class User(_id: ObjectId = new ObjectId,                     // mongoDB ID 
   override def toString = email
 }
 
+case class UserProfile(isPublic: Boolean = false,
+                   description: Option[String] = None,
+                   funFact: Option[String] = None,
+                   // place: EmbeddedLink, // TODO
+                   websites: List[String] = List.empty[String],
+                   twitter: Option[String] = None,
+                   facebook: Option[String] = None,
+                   linkedIn: Option[String] = None)
+
 /** User password reset token **/
 case class ResetPasswordToken(token: String, issueTime: Long = System.currentTimeMillis())
 
@@ -63,9 +73,9 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false, userProfile = UserProfile())
 
   def connect(userName: String, password: String): Boolean = {
-    val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> Crypto.passwordHash(password, Crypto.HashType.SHA512)))
+    val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> MissingLibs.passwordHash(password, MissingLibs.HashType.SHA512)))
     if (!theOne.getOrElse(return false).isActive) {
-      throw new InactiveUserException
+      return false
     }
     if(theOne.getOrElse(return false).blocked) {
       return false
@@ -136,9 +146,11 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return None)
     val activeUser: User = user.copy(isActive = true, activationToken = None)
     User.update(MongoDBObject("userName" -> activeUser.userName), activeUser, false, false, new WriteConcern())
-    // also log the guy in
-    play.mvc.Scope.Session.current().put("userName", activeUser.userName)
-    new ServicesSecurity().onAuthenticated(activeUser.userName, play.mvc.Scope.Session.current())
+
+    // TODO MIGRATION - move this to the controller
+  // also log the guy in
+    // play.mvc.Scope.Session.current().put("userName", activeUser.userName)
+    // new ServicesSecurity().onAuthenticated(activeUser.userName, play.mvc.Scope.Session.current())
     Some(user)
   }
 
@@ -151,12 +163,12 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def findByResetPasswordToken(resetPasswordToken: String): Option[User] = {
     val delta = System.currentTimeMillis() - PASSWORD_RESET_TOKEN_EXPIRATION * 1000
-    User.findOne(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken) ++ "resetPasswordToken.issueTime" $lt delta)
+    User.findOne(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken) ++ ("resetPasswordToken.issueTime" $lt delta))
   }
 
   def changePassword(resetPasswordToken: String, newPassword: String): Boolean = {
     val user = findByResetPasswordToken(resetPasswordToken).getOrElse(return false)
-    val resetUser = user.copy(password = Crypto.passwordHash(newPassword, Crypto.HashType.SHA512), resetPasswordToken = None)
+    val resetUser = user.copy(password = MissingLibs.passwordHash(newPassword, MissingLibs.HashType.SHA512), resetPasswordToken = None)
     User.update(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken), resetUser, false, false, new WriteConcern())
     true
   }
@@ -183,7 +195,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   def findByAccessToken(token: String): Option[User] = {
-    if(play.Play.mode == play.Play.Mode.DEV && token == "TEST") return User.findOne(MongoDBObject("userName" -> "bob"))
+    if((Play.isTest || Play.isDev) && token == "TEST") return User.findOne(MongoDBObject("userName" -> "bob"))
     User.findOne(MongoDBObject("accessToken.token" -> token))
   }
 

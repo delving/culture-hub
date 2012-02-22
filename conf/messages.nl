@@ -118,8 +118,8 @@ thing.organization=Organisatie
 thing.organizations=Organisaties
 thing.group=Groep
 thing.groups=Groepen
-thing.notavailable.single=Er is momenteel geen %s beschikbaar
-thing.notavailable.plural=Er zijn momenteel geen %s beschikbaar
+thing.notavailable.single=Er is momenteel geen {0} beschikbaar
+thing.notavailable.plural=Er zijn momenteel geen {0} beschikbaar
 thing.owner=Eigenaar
 thing.datecreated=Datum aangemaakt
 thing.datemodified=Datum aangepast
@@ -138,22 +138,22 @@ thing.addlabel=Label toevoegen
 thing.comments=Comments
 thing.addcomment=Comment toevoegen
 thing.collaborators=Collaborators
-thing.createnew=Maak een nieuw %s aan
-thing.browse=Ontdek %s
-thing.browse.of=Ontdek %s van
-thing.browse.ownedby=Ontdek %s van gebruiker
-thing.confirmation:Zeker weten?
+thing.createnew=Maak een nieuw {0} aan
+thing.browse=Ontdek {0}
+thing.browse.of=Ontdek {0} van
+thing.browse.ownedby=Ontdek {0} van gebruiker
+thing.confirmation=Zeker weten?
 
 # Account registration and activation messages
-ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar %s om het account te activeren
-ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: %
+ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
+ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: {0}
 ui.message.activation.success=Uw account is nu actief!
 ui.message.activation.error=Er is een fout opgetreded met het activeren van uw account.
 ui.message.resetpassword.email.success=Er is een e-mail naar uw verstuurd met een link om uw wachtwoord opnieuw aan te maken
 ui.message.resetpassword.success=Uw wachtwoord is aangepast
-ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: %s
+ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw nieuw wachtwoord: {0}
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
-ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="%s"><strong>zichtbaarheid status</strong></a> naar "Publiek".
+ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="{0}"><strong>zichtbaarheid status</strong></a> naar "Publiek".
 ui.message.charsLeft=characters mogelijk
 # User navigation
 
@@ -186,9 +186,9 @@ labels.createLabel=Nieuwe label
 
 ## Admin toolbar
 
-thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers %s kunnen zien of gebruiken.
+thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers {0} kunnen zien of gebruiken.
 thing.admin.disable.user.explain=Deze actie blokkeert de gebruiker en alle objecten, collecties en verhalen van deze gebruiker.
-thing.admin.disable.confirm=Weet u zeker dat u %s wil blokkeren?
+thing.admin.disable.confirm=Weet u zeker dat u {0} wil blokkeren?
 thing.admin.disable.goProfile=Ga naar de profielpagina van deze gebruiker om die te blokkeren. Deze actie blokkeert de gebruiker en ook alle objecten, collecties en verhalen van de gebruiker.
 thing.admin.disable.goProfile=Deze actie neemt u naar de profiel pagina van deze gebruiker waar u vervolgens de gebruiker kunt blokkeren. Tevens worden alle objecten, collecties en verhalen van deze gebruiker geblokkeert.
 thing.admin.disable.object=dit object
@@ -213,8 +213,6 @@ admin.themes.label.templatedir=Template directory
 admin.themes.label.displayname=Display name
 admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
 admin.themes.label.homepage=Homepage
-admin.themes.label.secondarybrandingname=
-admin.themes.label.secondarybrandingurl=
 admin.themes.label.defaultlanguage=Default language
 admin.themes.label.colorscheme=Color scheme
 admin.themes.label.solrurl=Solr select URL
@@ -262,8 +260,8 @@ dataset.confirmDeletion=Verwijder deze DataSet?
 dataset.find=Vind een DataSet
 
 ##Mails
-mail.message.activateaccount=uw account voor %s is aangemaakt. Om uw account te activeren, klik op de onderstaande link
-mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor %s opnieuw in te stellen
+mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
+mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor {0} opnieuw in te stellen
 
 ##Profiles
 profile.title=Profiel pagina voor
@@ -274,14 +272,14 @@ registration.lostpassword=Wachtwoord vergeten
 registration.lostpassword.message=Wachtwoord vergeten? Vul het e-mail adres van uw account hieronder in
 registration.resetpassword=Wachtwoord herstellen
 registration.newpassword=Voer een nieuw wachtwoord in
-registration.registerFor=Registreer voor %s
+registration.registerFor=Registreer voor {0}
 
 ##Search
 search.addItemsToCollection=Voeg toe aan een collectie
 search.addToCollection=Toevoegen
 search.dragItems=Sleep een resultaat object hier in om aan een collectie toe te voegen
 search.facets=Facetten
-search.nrfound= %s resultaten gevonden
+search.nrfound= {0} resultaten gevonden
 search.resultsfor=Zoekresultate voor
 search.sortby= Sorteer op
 search.refineYourSearchBy=Zoekopdracht verfijnen per
@@ -289,7 +287,7 @@ search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
-search.trail=U bekijkt resultaten <strong>%s - %s</strong> van <strong>%s</strong> voor:
+search.trail=U bekijkt resultaten <strong>{0} - {0}</strong> van <strong>{0}</strong> voor:
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 ##Story
 story.pages=Pagina's
@@ -418,7 +416,7 @@ metadata.tib.vindplaats=Vindplaats
 #Users
 
 ##Index
-user.index.title=Gebruiker %s
+user.index.title=Gebruiker {0}
 
 ##List
 user.list.browse=Ontdek gebruikers
@@ -434,8 +432,8 @@ user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
 user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
 ##Collections
-user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker %s
-user.collection.title.update=Collectie aanpassen voor gebruiker %s
+user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker {0}
+user.collection.title.update=Collectie aanpassen voor gebruiker {0}
 user.collection.create=Collectie aanmaken
 user.collection.update=Collectie aanpassen
 user.collection.info=Collectie informatie
@@ -449,8 +447,8 @@ user.collection.title.selectObjects=Object(en) selecteren
 user.collection.save=Bewaar collectie
 
 ##DataSets
-user.dataset.title.create=Dataset aanmaken voor gebruiker %s
-user.dataset.title.update=Dataset bewerken voor gebruiker %s
+user.dataset.title.create=Dataset aanmaken voor gebruiker {0}
+user.dataset.title.update=Dataset bewerken voor gebruiker {0}
 user.dataset.create=Dataset aanmaken
 user.dataset.update=Dataset bewerken
 user.dataset.info=Dataset informatie
@@ -459,8 +457,8 @@ user.dataset.help.identifier=De unieke identifier voor deze dataset
 user.dataset.save=Dataset bewaren
 
 ##DObjects
-user.object.title.create=Nieuw object aanmaken voor gebruiker %s
-user.object.title.update=Object aanpassen voor gebruiker %s
+user.object.title.create=Nieuw object aanmaken voor gebruiker {0}
+user.object.title.update=Object aanpassen voor gebruiker {0}
 user.object.create=Object aanmaken
 user.object.update=Object aanpassen
 user.object.label.addToCollection=Voeg toe aan collectie
@@ -473,11 +471,11 @@ user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. T
 
 ##Stories
 
-user.story.title.create=Nieuw verhaal aanmaken voor gebruiker %s
-user.story.title.update=Verhaal aanpassen voor gebruiker %s
+user.story.title.create=Nieuw verhaal aanmaken voor gebruiker {0}
+user.story.title.update=Verhaal aanpassen voor gebruiker {0}
 user.story.create=Verhaal aanmaken
 user.story.update=Verhaal aanpassen
-user.story.updateStory=Aanpassen: %s
+user.story.updateStory=Aanpassen: {0}
 user.story.storyInformationStep1=Stap 1
 user.story.storyInformation=Verhaal informatie
 user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een titel en een korte beschrijving. Deze informatie komt tevens op de titelpagina van uw verhaal.
@@ -510,11 +508,11 @@ user.profile.funFact=Grappig weetje
 # Organizations
 
 ### This gets concatenated to a sentence
-org.list.memberCount=%s member(s)
+org.list.memberCount={0} member(s)
 org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
-org.list.dataSetCount=%s DataSet(s)
+org.list.dataSetCount={0} DataSet(s)
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -544,8 +542,8 @@ org.admin.index.addMembers=Voeg een nieuw lid toe door de gebruikersnaam hierbov
 org.admin.index.members=Leden
 org.admin.index.owners=Eigenaren
 
-organization.dataset.title.create=Create new dataset for user %s
-organization.dataset.title.update=Update dataset for user %s
+organization.dataset.title.create=Create new dataset for user {0}
+organization.dataset.title.update=Update dataset for user {0}
 organization.dataset.create=DataSet aanmaken
 organization.dataset.update=DataSet aanpassen
 organization.dataset.info=DataSet informatie
@@ -571,27 +569,27 @@ dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
 dataSetState.error=Error occured while indexing
 
-admin.themes.themeNotFound=Theme with id %s was not found
-admin.themes.saveError=Error saving theme %s
-user.admin.userNotFound=Could not find user %s
+admin.themes.themeNotFound=Theme with id {0} was not found
+admin.themes.saveError=Error saving theme {0}
+user.admin.userNotFound=Could not find user {0}
 user.admin.profile.saveError=Error saving your profile, please try again
-user.collections.objectNotFound=Object with id %s was not found
-user.collections.saveError=Error saving collection %s
-user.dobjects.objectNotFound=Object with id %s was not found
-user.dobjects.saveError=Error saving object %s
-user.fileupload.removeError=Error removing file, invalid id %s
-user.stories.storyNotFound=Story with id %s was not found
-collections.invalidCollectionId=Invalid collection id %s
-datasets.dataSetNotFound=DataSet %s was not found
-delvingcontroller.userNotFound=User %s was not found
+user.collections.objectNotFound=Object with id {0} was not found
+user.collections.saveError=Error saving collection {0}
+user.dobjects.objectNotFound=Object with id {0} was not found
+user.dobjects.saveError=Error saving object {0}
+user.fileupload.removeError=Error removing file, invalid id {0}
+user.stories.storyNotFound=Story with id {0} was not found
+collections.invalidCollectionId=Invalid collection id {0}
+datasets.dataSetNotFound=DataSet {0} was not found
+delvingcontroller.userNotFound=User {0} was not found
 
-listPageTitle.object.user=List of object for user %s
+listPageTitle.object.user=List of object for user {0}
 listPageTitle.object.all=List of objects
-listPageTitle.collection.user=List of collections for user %s
+listPageTitle.collection.user=List of collections for user {0}
 listPageTitle.collection.all=List of collections
-listPageTitle.dataset.user=List of datasets for user %s
+listPageTitle.dataset.user=List of datasets for user {0}
 listPageTitle.dataset.all=List of datasets
-listPageTitle.story.user=List of stories for user %s
+listPageTitle.story.user=List of stories for user {0}
 listPageTitle.story.all=List of stories
 listPageTitle.user.all=List of users
 
@@ -611,431 +609,27 @@ authentication.passwordRequired=Wachtwoord is verplicht
 authentication.error=Login niet juist
 authentication.logout=U bent uitgelogd
 authentication.notactive.error=Uw account is nog niet actief. Activeer uw account door op de link in de verzonden email te klikken.
-servicessecurity.userNotFound=De gebruiker %s was niet gevonden
+servicessecurity.userNotFound=De gebruiker {0} was niet gevonden
 
-stories.storyNotFound=Story with id %s was not found
+stories.storyNotFound=Story with id {0} was not found
 
-profile.profileNotFound=Geen profiel gevonden voor: %s
+profile.profileNotFound=Geen profiel gevonden voor: {0}
 
-organizations.organization.orgNotFound=%s niet gevonden
+organizations.organization.orgNotFound={0} niet gevonden
 
-organizations.admin.userNotFound=Gebruiker met gebruikersnaam %s niet gevonden
+organizations.admin.userNotFound=Gebruiker met gebruikersnaam {0} niet gevonden
 
-organizations.group.cannotAddUser=Gebruiker met gebruikersnaam %s kon niet toegevoegd worden aan %s
-organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam %s kon niet verwijderd worden van %s
-organizations.group.cannotAddDataset=Dataset met ID %s kon niet toegevoegd worden aan %s
-organizations.group.cannotRemoveDataset=Dataset met %s kon niet verwijderd worden van %s
-organizations.group.groupNotFound=Group met ID %s kon niet gevonden worden
+organizations.group.cannotAddUser=Gebruiker met gebruikersnaam {0} kon niet toegevoegd worden aan {1}
+organizations.group.cannotRemoveUser=Gebruiker met gebruikersnaam {0} kon niet verwijderd worden van {1}
+organizations.group.cannotAddDataset=Dataset met ID {0} kon niet toegevoegd worden aan {1}
+organizations.group.cannotRemoveDataset=Dataset met {0} kon niet verwijderd worden van {1}
+organizations.group.groupNotFound=Group met ID {0} kon niet gevonden worden
 organizations.group.cannotSaveGroup=Groep kon niet bewaard worden, probeer opnnieuw
 
-organization.datasets.dataSetNotFound=DataSet %s was not found
+organization.datasets.dataSetNotFound=DataSet {0} was not found
 organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
 organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
 organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
 organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
 organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Old stuff
-
-_action.OpenInNewWindow=Opent in een nieuw venster
-_action.add.annotation=null
-_action.add.tag=Voeg een tag toe
-_action.advanced.search=Uitgebreid zoeken
-_action.alt.list.view=Lijstweergave
-_action.alt.more.info=Klik voor meer informatie
-_action.alt.next.page=Klik hier voor volgende pagina van resultaten
-_action.alt.previous.page=Klik hier voor vorige pagina van resultaten
-_action.alt.table.view=Tabelweergave
-_action.chooselanguage=Kies een taal
-_action.personal.page=Mijn Schatkist
-_action.previous=Vorige
-_action.refine.your.search=Zoekopdracht verfijnen
-_action.return.to.results=Terug naar resultaten
-_action.save.this.search=Bewaar deze zoekopdracht
-_action.save.to.mine=Bewaar
-_action.search=Zoek
-_action.search.order.by=Sorteren op
-_action.see.all.related.items=Bekijk alle gerelateerde items
-_action.send=Verstuur
-_action.share.with.friend=Deel met een vriend
-_action.view.enlarge.image=Afbeelding vergroten
-_action.view.in.original.context=Bekijk in oorspronkelijke context
-_cms.administration.images=Afbeeldingen beheren
-_cms.administration.pages=Paginas beheren
-_cms.administration.title=Beheer
-_cms.administration.users=Gebruikers beheren
-_cms.cancel=Annuleren
-_cms.change=Aanpassen
-_cms.create=Aanmaken
-_cms.delete=Verwijderen
-_cms.edit=Bewerken
-_cms.existing.images=Bestaande afbeeldingen
-_cms.existing.pages=Bestaande paginas
-_cms.find=vind
-_cms.goto.upload=Ga naar Uploaden
-_cms.html.editor.show.hide=Toon / verberg HTML editor
-_cms.image.change=Afbeelding aanpassen
-_cms.image.choose=Kies een afbeelding
-_cms.image.create=Abeelding aanmaken
-_cms.image.delete.fail=Afbeelding kon niet worden verwijderd
-_cms.image.delete.question=Afbeelding verwijderen?
-_cms.image.list=Afbeelding lijst
-_cms.image.not.exist=Afbeelding bestaat niet
-_cms.image.new.path=Afbeelding pad aanpassen
-_cms.image.rename=Afbeelding hernoemen
-_cms.image.upload.new=Nieuwe afbeelding uploaden
-_cms.user.change.role.step.1=Fill in the name or email of the user whose role you want to change
-_cms.user.change.role.step.2=Press "Find"
-_cms.user.change.role.step.3=Select the new role for the user from the drop-down list
-_cms.user.change.role.step.4=Press "Change"
-_cms.user.find=Vind een gebruiker
-_cms.user.list=Gebruikers lijst
-_cms.user.not.found=Geen gebruiker(s) gevonden
-_cms.user.remove.confirm=Door op OK te klikken worden alle opgeslagen gegevens en de gebruikers registratie <strong>voorgoed verwijderd</strong>.<br/><br/>Klik ANNULEER om af te breken.
-_cms.user.remove.fail=Gebruiker kon nier worden verwijderd. Probeer opnieuw
-_cms.user.remove.success=Gebruiker verwijderd
-_cms.user.role.administrator=Administrator
-_cms.user.role.choose=Kies een rol
-_cms.user.role.choose.required=U moet een nieuwe rol kiezen
-_cms.user.role.current=Huidige rol
-_cms.user.role.new=Nieuwe rol
-_cms.user.role.public=Gewone gebruiker
-_cms.user.role.research=Museometrie gebruiker
-_cms.user.role.set.to=heeft nu de rol van
-_cms.user.role.super=Super gebruiker
-_cms.page.create=Maak een nieuwe pagina aan
-_cms.page.create.step.1=Voor het aanmaken van een pagina vul in het pad (als gewenst) en de naam van de nieuwe pagina. De naam van de pagina moet eindigen met .dml
-_cms.page.create.step.2=Het basis pad wordt automatisch aangemaakt. Daarop volgende paden zijn niet verplicht maar kunnen wel helpen met het ordennen en overzicht van de paginas.
-_cms.page.edit=Deze pagina bewerken
-_cms.page.list=Pagina lijst
-_cms.page.not.exist=Deze pagina bestaat niet
-_cms.page.view.source=HTML
-_cms.page.view.wysiwyg=WYSIWYG
-_cms.save=Bewaren
-_cms.undo=wijzigingen ongedaan maken
-_cms.update=Aanpassen
-_cms.upload=Uploaden
-_cms.version.approve=Deze versie goedkeuren
-_cms.version.approve.explain=Door een versie goed te keuren worden alle andere versies verwijderd.
-_cms.version.management=Versiebeheer
-_facet.by.collection=Per collectie
-_facet.by.country=Per land
-_facet.by.date=Per datum
-_facet.by.language=Per taal
-_facet.by.provider=Per aanbieder
-_facet.by.type=Per soort object
-_facet.by.user.tag=Per gebruikers tag
-_facet.by.year=Per jaar
-_facet.has.digital.object=Heeft digitaal object
-_facet.has.images.only=Alleen afbeeldingen
-_locale.AL=Albanië
-_locale.AM=Armenië
-_locale.AT=Oosterijk
-_locale.AZ=Azerbeidzjan
-_locale.BE=België
-_locale.BG=Bulgarije
-_locale.CH=Zwitzerland
-_locale.CY=Cyprus
-_locale.CZ=Tsjechische Republiek
-_locale.DE=Duitsland
-_locale.EE=Estland
-_locale.ES=Spanje
-_locale.FI=Finland
-_locale.FR=Frankrijk
-_locale.GB=Verenigd Koninkrijk
-_locale.GE=Georgië
-_locale.GR=Griekenland
-_locale.HR=Croatië
-_locale.HU=Hongarije
-_locale.IE=Ierland
-_locale.IS=IJsland
-_locale.IT.florence=Italië-Florence
-_locale.IT.rome=Italë-Rome
-_locale.LI=Liechtenstein
-_locale.LT=Litouwen
-_locale.LU=Luxemburg
-_locale.LV=Letland
-_locale.MD=Moldavië
-_locale.MT=Malta
-_locale.NL=Nederland
-_locale.NO=Noorwegen
-_locale.PL=Polen
-_locale.PT=Portugal
-_locale.RO=Roemenië
-_locale.RS=Servië
-_locale.RU.moscow=Rusland - Moscow
-_locale.RU.st.petersburg=Rusland - Sint Petersburg
-_locale.SE=Zweden
-_locale.SK=Slowakije
-_locale.TR=Turkije
-_locale.UA=Oekraïne
-_locale.cs=Tsjechisch (tsj)
-_locale.da=Denemarken
-_locale.danish=Deens (dee)
-_locale.de=Duits (dui)
-_locale.el=Grieks (gri)
-locale.en=Engels (eng)
-_locale.es=Spaans (spa)
-_locale.et=Estisch (est)
-_locale.fi=Fins (fin)
-_locale.fr=Frans (fra)
-_locale.hr=Kroatisch (kro)
-_locale.hu=Hongaars (hon)
-_locale.is=IJslands (ijs)
-_locale.it=Italiaans (ita)
-_locale.lb=Luxemburgs
-_locale.lt=Litouws (lit)
-_locale.lv=Lets (let)
-_locale.mt=Maltees
-locale.nl=Nederlands (ned)
-_locale.norwegian=Noors
-_locale.pl=Pools
-_locale.pt=Portugees (por)
-_locale.ro=Roemeens (rom)
-_locale.ru=Russisch (rus)
-_locale.sk=Slowaaks (slo)
-_locale.sl=Sloveens (slv)
-_locale.sr=Servisch (ser)
-_locale.sv=Zweeds (zwe)
-_metadata.dc.contributor=Met bijdrage(n) van
-_metadata.dc.coverage=Vervaardiging plaats
-_metadata.dc.creator=Vervaardiger
-_metadata.dc.date=Vervaardigingsdatum
-_metadata.dc.description=Beschrijving
-_metadata.dc.format=Formaat
-_metadata.dc.identifier=Identificatie
-_metadata.dc.language=Taal
-_metadata.dc.provider=Aanbieder
-_metadata.dc.publisher=Uitgever
-_metadata.dc.relation=Verwijzing(en)
-_metadata.dc.rights=Rechten
-_metadata.dc.source=Bron
-_metadata.dc.subject=Trefwoorden
-_metadata.dc.title=Titel
-_metadata.dc.type=Soort object
-_metadata.dcterms.alternative=Alternatief
-_metadata.dcterms.conformsTo=Voldoet aan
-_metadata.dcterms.hasFormat=Heeft formaat
-_metadata.dcterms.hasPart=Is onderdeel
-_metadata.dcterms.isFormatOf=Is formaat van
-_metadata.dcterms.isPartOf=Is deel van
-_metadata.dcterms.isReferencedBy=Is verwezen door
-_metadata.dcterms.isReplacedBy=Is vervangen door
-_metadata.dcterms.provenance=Herkomst
-_metadata.dcterms.references=Referenties
-_metadata.dcterms.replaces=Vervangt
-_metadata.dcterms.requires=Vereist
-_metadata.dcterms.spatial=Plaats van vervaardiging
-_metadata.dcterms.temporal=Periode
-_metadata.delving.dimensions=Afmeting
-_metadata.delving.owner=Eigenaar
-_metadata.europeana.country=Land
-_metadata.europeana.dataProvider=Data-aanbieder
-_metadata.europeana.provider=Aanbieder
-_metadata.europeana.type=Type
-_metadata.europeana.year=Jaar
-_metadata.icn.acquisitionMeans=Wijze van verwerving
-_metadata.icn.acquisitionYear=Jaar van verwerving
-_metadata.icn.acquiredWithHelpFrom=Verworven met steun van
-_metadata.icn.collectionPart=Deelcollectie
-_metadata.icn.collection=Collectie
-_metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
-_metadata.icn.location=Locatie
-_metadata.icn.material=Materiaal
-_metadata.icn.physicalState=Fysieke staat
-_metadata.icn.province=Provincie
-_metadata.icn.purchasePrice=Aankoopbedrag
-_metadata.icn.technique=Techniek
-_metadata.searchfield.contributor=Bijdragende organisatie
-_metadata.type.all=Alle
-_metadata.type.images=Beelden
-_metadata.type.sounds=Geluiden
-_metadata.type.texts=Teksten
-_metadata.type.video=Video
-_metadata.type.videos=Videos
-_mine.change.password.success=Wachtwoord aangepast
-_mine.date.saved=Datum opgeslagen
-_mine.delete=Verwijder
-_mine.email.address=Email adres
-_mine.firstname=Voornaam
-_mine.forgotpassword=Ik ben mijn wachtwoord vergeten
-_mine.forgotpassword.new.password=Nieuw wachtwoord
-_mine.forgotpassword.new.password.repeat=Nieuw wachtwoord herhalen
-_mine.itemsaved=Item opgeslagen
-_mine.itemsavefailed=Opslaan item mislukt
-_mine.last.name=Achternaam
-_mine.loggedinas=Ingelogd als
-_mine.login=Inloggen
-_mine.logout=Uitloggen
-_mine.nosaveditems=Geen opgeslagen items
-_mine.nosavedsearches=Geen opgeslagen zoekopdrachten
-_mine.nosavedtags=Geen opgeslagen tags
-_mine.saved.items=Bewaarde items
-_mine.saved.searches=Bewaarde zoekopdrachten
-_mine.saved.tags=Bewaarde tags
-_mine.user.information=Gebruikersinformatie
-_mine.user.last.login.date=Laastse inlogdatum
-_mine.user.notification.emailformaterror=Controleer of uw email correct is opgemaakt en probeer het opnieuw
-_mine.user.notification.emailnotregistered=Email adres is niet geregistreerd
-_mine.user.notification.emailsendfailed=Email kan niet worden verzonden
-_mine.user.notification.emailsent=Email verzonden
-_mine.user.notification.failure.search.saved=Zoekopdracht opslaan mislukt
-_mine.user.notification.login.failed=Inloggen mislukt. Probeer opnieuw.
-_mine.user.notification.login.required=U moet eerst inloggen of registreren
-_mine.user.register-request.emailalreadyregistered=Deze email adres is reeds geregistreerd
-_mine.user.register.email.has.been.sent=Een email is verzonden naar het volgende adres
-_mine.user.register.emailclicktoconfirm=Klik op de volgende link om uw registratie te bevestigen
-_mine.user.register.emailuse=U gebruikt uw email samen met uw wachtwoord om in te loggen op de site
-_mine.user.register.entervalidemail=Voer a.u.b. een geldig email adres in
-_mine.user.register.enteryouremail=Geef uw email
-_mine.user.register.erase=Wissen
-_mine.user.register.errordetails=Fout details
-_mine.user.register.finishregistration=Registratie voltooien
-_mine.user.register.iagree=Ik ga akkoord
-_mine.user.register.linkexpired=De link die u heeft gebruikt voor het voltooien van uw registratie is ongeldig of verlopen
-_mine.user.register.mycodeofconduct=Ik begrijp dat registreren mij de mogelijkheid biedt tags te creëren voor ieder gewenst item. Ik ga ermee akkoord dat ik geen tags zal creëren die beschouwd zouden kunnen worden als lasterlijk, schadelijk, bedreigend, onwettig, smadend, schendend, beledigend, opruiend, treiterend, pornografisch, onzedelijk, frauduleus, de privacy- of publiciteitsrechten schendend, kwaadaardig, of racistisch of vanuit een etnisch of ander oogpunt aanstootgevend. Door het aanklikken van deze knop verklaar ik dat ik mij zal houden aan deze overeenkomst en ik begrijp dat als ik dat niet doe, mijn registratie zal worden beëindigd.
-_mine.user.register.mycodeofconductrequired=U dient in te stemmen met onze gedragscode te registreren
-_mine.user.register.password=Wachtwoord
-_mine.user.register.password.choose=Kies een wachtwoord
-_mine.user.register.password.explain=Wachtwoorden dienen 6-30 karakters lang te zijn
-_mine.user.register.pick.user.name=Uw gebruikersnaam wordt weergegeven wanneer u bent ingelogd
-_mine.user.register.please.follow.link=Volg de link in de email om het proces af te ronden
-_mine.user.register.register=Registreren
-_mine.user.register.registration.failed=Een fout is opgetreden tijdens het verwerken van uw registratie. Probeert het opnieuw
-_mine.user.register.repeat.password=Herhaal wachtwoord
-_mine.user.register.requiredfield=Dit is een verplicht veld
-_mine.user.register.username.choose=Kies een gebruikersnaam
-_mine.user.register.username.explain=Uw gebruikersnaam wordt weergegeven wanneer u bent ingelogd
-_mine.user.registration.date=Registratie datum
-_mine.user.registration.notification.succeed=U bent met succes geregistreerd
-_mine.user.validation.disclaimer.unchecked=Voorwaarden moeten geaccepteerd worden
-_mine.user.validation.password.long=Wachtwoord te lang
-_mine.user.validation.password.mismatch=Wachtwoorden ongelijk
-_mine.user.validation.password.tooshort=Wachtwoord te kort
-_mine.user.validation.username.exists=Gebrukersnaam bestaat al
-_mine.user.validation.username.in.use=Is in gebruik. Kies een andere gebruikernaam
-_mine.user.validation.username.invalid=Gebrukersnaam mag zijn: 2 t/m 24 karakters, kleine letters, getallen and enkel onderstreep
-_mine.username=Gebruikersnaam
-_portal.menu.languagedropdownlist=Taal
-_portal.ui.message.actions=Acties
-_portal.ui.messages.close=Sluiten
-_portal.ui.message.less=Minder
-_portal.ui.message.more=Meer
-_portal.ui.message.noscript=Om optimaal gebruik te kunnen maken van deze website, dient JavaScript op uw computer geactiveerd te zijn.
-_portal.ui.message.relatedcontent=Gerelateerde content
-_portal.ui.message.success.search.saved=Zoekopdracht bewaard
-_portal.ui.message.usertags=Gebruikerstag(s)
-_portal.ui.messages.items=Items
-_portal.ui.messages.query.required=U moet een zoekterm invullen
-_portal.ui.navigation.matchesfor=Zoekresultaten voor
-_portal.ui.navigation.next=Volgende
-_portal.ui.navigation.of=van
-_portal.ui.navigation.page=Pagina
-_portal.ui.navigation.results=Resultaten
-_portal.ui.notification.error=Fout
-_portal.ui.notification.noitemsfound=Geen items gevonden
-_portal.ui.notification.tryAnotherSearch=Probeer een nieuwe zoekopdracht
-_portal.ui.reset.searchbox=Reset
-_portal.ui.viewingrelateditems=U bekijkt gerelateerde items
-_search.boolean.and=en
-_search.boolean.not=niet
-_search.boolean.or=of
-_search.field.any.field=Elk veld
-_search.field.country=Land
-_search.field.creator=Vervaardiger
-_search.field.date=Datum
-_search.field.description=Omschrijving
-_search.field.keyword=Trefwoord
-_search.field.provider=Aanbieder
-_search.field.subject=Onderwerp
-_search.field.title=Titel
-_toberemoved.althome=Klik hier om terug te keren naar de homepage
-_toberemoved.altlogoeuropeana=logo Europeana denk cultuur
-_toberemoved.checkthefaqs=Bekijk de lijst met veelgestelde vragen; wellicht omvat deze uw feedback.
-_toberemoved.communities=Communities
-_toberemoved.contributorexplain=Dit zijn de organisaties die materiaal bijdragen: gedigitaliseerde schilderijen, boeken, uitzendingen enz. Een aantal van deze bijdragers is aggregator*, Culture.fr is de grootste aggregator, die onderwerpen aanbiedt afkomstig van ongeveer 480 organisaties in Frankrijk, waaronder het Louvre en het Musée d'Orsay. Achter de naam van de aggregator ziet u tussen haakjes het aantal organisaties dat informatie aanlevert bij de aggregator, bijv. Videoactive (10)
-_toberemoved.emaileuropeanateam=Het Europeana Team
-_toberemoved.using.europeana=Gebruik Europeana
-_unused.about.us=Over ons
-_unused.accessibility=Toegang
-_unused.add=Toevoegen
-_unused.aggregator.explain=* Een aggregator verzamelt materiaal van een scala van andere bijdragers, toont het op zijn eigen website en maakt het toegankelijk voor Europeana.
-_unused.altprint=Print deze pagina
-_unused.aplacetoshareideas=een plaats voor inspiratie en ideeën. Doorzoek de culturele collecties van Europa, volg het pad van andere gebruikers en deel je ontdekkingen.
-_unused.bosnia.and.herzegovina=Bosnië en Herzegovina
-_unused.browse.through.time=Navigeer door de tijd
-_unused.contacts=Contact
-_unused.contributors=Bijdragende organisaties
-_unused.createaccount=Maak een account
-_unused.emailwelcome=Welkom bij Mijn Europeana
-_unused.enewsoptin=Houd mij op de hoogte van nieuwe ontwikkelingen binnen Europeana
-_unused.featuredisabled=Deze functie is momenteel niet in gebruik
-_unused.feedbackresponse=Hartelijk dank voor uw feedback. Als uw feedback antwoord behoeft, neemt een lid van het Europeana-team zo snel mogelijk contact met u op. Voor een snellere reactie dient feedback in het Engels te worden aangeboden.
-_unused.findoutmore=Lees meer
-_unused.fromourparnters=Van onze partner musea, archieven, bibliotheken en audiovisuele collecties.
-_unused.fundedby=mede gefinancierd door de Europese Unie
-_unused.fyrom=Voormalige Joegoslavische Republiek Macedonië
-_unused.hideadvancedsearch=Verberg uitgebreid zoeken
-_unused.image=Beeld
-_unused.invalidquery=Ongeldige zoekopdracht
-_unused.itemdetails=Item details
-_unused.languagepolicy=Taalbeleid
-_unused.newcontent=Nieuwe inhoud
-_unused.other=Overig
-_unused.partner=Partner
-_unused.partnerexplain=Dit is het netwerk van partners die hebben bijgedragen aan de totstandkoming van Europeana en die Europeana vertegenwoordigen in hun eigen land en bij beroepsverenigingen.
-_unused.partners=Partners
-_unused.peoplearecurrentlythinkingabout=Mensen denken momenteel aan
-_unused.privacy=Privacy
-_unused.registeragain=Registreer opnieuw
-_unused.remember.me=Onthoud mij op deze computer
-_unused.remove=Verwijder
-_unused.sector=Sector
-_unused.send.feedback=Stuur ons feedback
-_unused.share.your.ideas=Deel jouw ideeën
-_unused.show.all=Toon alles
-_unused.sign.in=Log in
-_unused.site.map=Sitemap
-_unused.slovenia=Slovenië
-_unused.sound=Geluid
-_unused.strorylinecredits=Storyline en credits
-_unused.tag.added=Tags toevoegen
-_unused.tag.addition.failed=Tag toevoegen mislukt
-_unused.tagging=Tagging
-_unused.terms.and.conditions=Algemene voorwaarden
-_unused.text=Teksten
-_unused.thisiseuropeana=Dit is Europeana
-_unused.thoughtlab=Denklab
-_unused.timeline=Tijdslijn
-_unused.timelinenavigator=Tijdslijn navigatie
-_unused.userconduct=Gebruikersgedrag
-_unused.userconductagree=Ik begrijp dat registreren mij de mogelijkheid biedt tags te creëren voor ieder gewenst item. Ik ga ermee akkoord dat ik geen tags zal creëren die beschouwd zouden kunnen worden als lasterlijk, schadelijk, bedreigend, onwettig, smadend, schendend, beledigend, opruiend, treiterend, pornografisch, onzedelijk, frauduleus, de privacy- of publiciteitsrechten schendend, kwaadaardig, of racistisch of vanuit een etnisch of ander oogpunt aanstootgevend. Door het aanklikken van deze knop verklaar ik dat ik mij zal houden aan deze overeenkomst en ik begrijp dat als ik dat niet doe, mijn lidmaatschap zal worden beëindigd. AANKLIKKEN OM AKKOORD TE GAAN
-_unused_portal.ui.message.view.as.xml=Bekijk als XML
-_unused_portal.ui.message.view.with.labels=Bekijk met labels
-_unused_portal.ui.message.view.without.labels=Bekijk zonder labels
-_unused_portal.ui.message.you.have.search.for=U heeft gezocht naar

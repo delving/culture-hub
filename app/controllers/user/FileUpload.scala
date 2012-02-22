@@ -16,11 +16,13 @@
 
 package controllers.user
 
-import play.mvc.results.Result
-import controllers.{Secure, DelvingController}
-import play.Play
+import play.api.mvc._
 import models.DObject
 import org.bson.types.ObjectId
+import controllers.DelvingController
+import play.api.Play
+import play.api.Play.current
+import play.api.i18n.Messages
 
 /**
  * Router for the FileUpload service that either directly invokes the module API when running locally or invokes the remote
@@ -29,36 +31,39 @@ import org.bson.types.ObjectId
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends DelvingController with Secure {
+object FileUpload extends DelvingController {
 
-  val mode = Play.configuration.getProperty("DoS.mode", "local")
+  val mode = Play.configuration.getString("DoS.mode").getOrElse("local")
 
-  def uploadFile(uid: String): Result = {
-
-    mode match {
-      case "local" =>
-        controllers.dos.FileUpload.uploadFile(uid)
-      case "remote" =>
-        // TODO
-        Error("Not implemented!")
-    }
+  def uploadFile(uid: String) = ConnectedUserAction {
+    controllers.dos.FileUpload.uploadFile(uid)
   }
 
-  def deleteFile(id: String): Result = {
+  def deleteFile(id: String): Action[AnyContent] = ConnectedUserAction {
+    Action {
+      implicit request =>
+        if(!ObjectId.isValid(id)) {
+          BadRequest("Invalid id " + id)
+        } else {
+          mode match {
+            case "local" => {
+              controllers.dos.FileUpload.deleteFileById(new ObjectId(id))
+              Ok
+            }
+            case "remote" => InternalServerError("Not implemented")
+          }
+        }
 
-    mode match {
-      case "local" =>
-        controllers.dos.FileUpload.deleteFile(id)
-      case "remote" =>
-        // TODO
-        Error("Not implemented!")
+        // remove refering objects
+        if (!ObjectId.isValid(id)) {
+          Error(Messages("user.fileupload.removeError", id))
+        } else {
+          val oid = new ObjectId(id)
+          DObject.removeFile(oid)
+          Ok
+        }
+
     }
-
-    // remove referring objects
-    val oid = if (ObjectId.isValid(id)) new ObjectId(id) else (return Error(&("user.fileupload.removeError", id)))
-    DObject.removeFile(oid)
-
-    Ok
   }
 
 }

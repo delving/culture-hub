@@ -21,7 +21,7 @@ hr {
 }
 
 .extHelp {
-    background-image: url(buttons/button-icons-color.png) !important;
+    background-image: url(/assets/common/stylesheets/buttons/button-icons-color.png) !important;
     background-position: -72px -90px;
     background-repeat: no-repeat;
     display: inline-block;
@@ -421,7 +421,7 @@ div.dropdown-slider .ddm.heading {
 }
 
 .result-overlay .close {
-    background-image: url("/public/common/images/close.png");
+    background-image: url("/assets/common/images/close.png");
     cursor: pointer;
     height: 35px;
     position: absolute;

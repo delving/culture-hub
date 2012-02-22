@@ -1,3 +1,5 @@
+package models
+
 /*
  * Copyright 2011 Delving B.V.
  *
@@ -14,23 +16,30 @@
  * limitations under the License.
  */
 
-package models {
-
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.{MongoCollection, WriteConcern}
+import com.mongodb.casbah.{MongoCollection}
 import com.mongodb.DBObject
+import play.api.Play.current
+import extensions.ConfigurationException
 
-package object salatContext {
+// TODO when it works, rename to "models"
+package object mongoContext extends models.MongoContext {
 
-  val MONGO_ID: String = "_id" // mongo identifier we use
-
-  def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
+  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
   // ~~~ mongo connections
-  val connectionName = if(Play.configuration != null) Play.configuration.getProperty("db.cultureHub.name") else if(Play.mode == Play.Mode.DEV) "culturehub" else null
+  val connectionName = if(Play.isProd) {
+    current.configuration.getString("cultureHub.db.name").getOrElse(null)
+  } else if(Play.isDev) {
+    "culturehub"
+  } else if(Play.isTest) {
+    "culturehub-TEST"
+  } else {
+    null
+  }
 
-  val cloudConnectionName = if(Play.id == "test") "culturecloud-TEST" else "culturecloud"
+  val cloudConnectionName = if(Play.isTest) "culturecloud-TEST" else "culturecloud"
 
   val connection = createConnection(connectionName)
   val commonsConnection = createConnection(cloudConnectionName)
@@ -39,10 +48,11 @@ package object salatContext {
   // ~~~ mongo collections
 
   val thingIndexes = Seq(
+    MongoDBObject("user_id" -> 1, "visibility.value" -> 1, "deleted" -> 1),
     MongoDBObject("userName" -> 1, "visibility.value" -> 1, "deleted" -> 1),
     MongoDBObject("links.linkType" -> 1)
   )
-  
+
   def addIndexes(collection: MongoCollection, indexes: Seq[DBObject]) {
     indexes.foreach(collection.ensureIndex(_))
   }
@@ -82,7 +92,7 @@ package object salatContext {
 
   lazy val cmsPages = connection("CMSPages")
   cmsPages.ensureIndex(MongoDBObject("_id" -> 1, "language" -> 1))
-  
+
   lazy val cmsMenuEntries = connection("CMSMenuEntries")
   cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1))
   cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1))
@@ -103,14 +113,5 @@ package object salatContext {
   lazy val geonamesCollection = geonamesConnection("geonames")
   geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
 
-  def wasUpdated(collection: MongoCollection) = {
-    Option(collection.lastError().get("updateExisting")) match {
-      case None => false
-      case Some(e) => e.asInstanceOf[Boolean]
-    }
-
-  }
-
-}
 
 }

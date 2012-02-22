@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package models
+package models {
 
 import _root_.util.Constants._
-import _root_.util.ProgrammerException
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import salatContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
-import play.Logger
+import play.api.{Logger, PlayException}
+import extensions.ProgrammerException
+import mongoContext._
 
 case class Link(_id: ObjectId = new ObjectId,
                 userName: String, // user who created the label in the first place
@@ -102,10 +102,10 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
           // sanity check on the embedded stuff
           if (embedFrom != None && ((link.from.hubAlternativeId == None || link.from.hubCollection == None || link.from.hubType == None) && (link.from.hubType == None || link.from.id == None))) {
-            throw new ProgrammerException("You can't create a link with an embedFrom if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
+            throw ProgrammerException("You can't create a link with an embedFrom if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
           if (embedTo != None && ((link.to.hubAlternativeId == None || link.to.hubCollection == None || link.to.hubType == None) && (link.to.hubType == None || link.to.id == None))) {
-            throw new ProgrammerException("You can't create a link with an embedTo if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
+            throw ProgrammerException("You can't create a link with an embedTo if the linkReference has no hubType and id OR hubCollection and hubAlternativeId!")
           }
 
           val inserted = Link.insert(link)
@@ -154,7 +154,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
           case USERCOLLECTION => "collection/" + id
           case STORY => "story/" + id
           case MDR => "thing/" + id
-          case _ => throw new ProgrammerException("Invalid hubType " + hubType)
+          case _ => throw PlayException("Programmer Error", "Invalid hubType " + hubType)
         }
         "http://id.%s/%s".format(hostName, typeUri)
     }
@@ -172,7 +172,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
           if (hubType == MDR && hubCollection.isDefined && hubAlternativeId.isDefined) {
             connection(hubCollection.get).update(MongoDBObject(MDR_HUB_ID -> hubAlternativeId.get), pull)
           } else {
-            Logger.warn("Could not delete embedded Link %s %s %s", hubType, id, hubCollection)
+            Logger("CultureHub").warn("Could not delete embedded Link %s %s %s".format(hubType, id, hubCollection))
           }
       }
 
@@ -254,6 +254,9 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
 
   // ~~~ shared link creation, we maybe find a better place for this
 
+  // TODO MIGRATION
+  /*
+
   def createThumbnailLink(fromId: ObjectId, fromType: String, hubId: String, userName: String, hostName: String) = {
     val Array(orgId, spec, recordId) = hubId.split("_")
     val mdrCollectionName = DataSet.getRecordsCollectionName(orgId, spec)
@@ -261,7 +264,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     val fromCollection = fromType match {
       case USERCOLLECTION => userCollectionsCollection
       case STORY => userStoriesCollection
-      case _ => throw new ProgrammerException("What are you doing?")
+      case _ => throw ProgrammerException("What are you doing?")
     }
 
     Link.create(
@@ -287,6 +290,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     )
 
   }
+  */
 
 }
 
@@ -342,4 +346,6 @@ case class EmbeddedLinkWriter(value: Option[Map[String, String]] = None, collect
         }
     }
   }
+}
+
 }

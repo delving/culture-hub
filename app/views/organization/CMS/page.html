@@ -1,12 +1,12 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-<script id='delving-wysiyg' src="@{'/public/common/javascripts/tiny_mce/tiny_mce.js'}" type='text/javascript'></script>
+<script id='delving-wysiyg' src="@{routes.Assets.at('/common/javascripts/tiny_mce/tiny_mce.js')}" type='text/javascript'></script>
 
-#{set title: viewUtils.getKey('thing.pages') /}
+#{set title: messages.get('thing.pages') /}
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs /}
+#{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 <div class="row">
@@ -21,11 +21,11 @@
         <form id="pageForm" method="post" action="">
             <div data-bind="text: errors().global"></div>
 
-            #{textField name:"key", label:viewUtils.getKey('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
-            #{populatedSelectField options: themes, name:"theme", label:viewUtils.getKey('ui.label.theme'), dataBind:"value: theme", required: true /}
-            #{populatedSelectField options: languages, name:"lang", label:viewUtils.getKey('ui.label.language'), dataBind:"value: lang", required: true /}
-            #{textField name:"title", label:viewUtils.getKey('thing.title'), dataBind:"value: title", required: true /}
-            #{textArea name:"pageContent", extraClass:"mceEditor", label:viewUtils.getKey('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+            #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
+            #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
+            #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
+            #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
+            #{textArea name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
 
             <div class="field">
                 <label class="label">&{'org.cms.page.menu.add'}</label>
@@ -38,12 +38,12 @@
                 </div>
             </div>
 
-            #{textField name:"position", label:viewUtils.getKey('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+            #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
 
             <div class="buttons">
-                #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
-                #{btnButton label: viewUtils.getKey('ui.label.reset'), extraClass:"submit", type:"reset" /}
-                #{btnButton label: viewUtils.getKey('org.cms.page.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
+                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
+                #{btnButton label: messages.get('ui.label.reset'), extraClass:"submit", type:"reset" /}
+                #{btnButton label: messages.get('org.cms.page.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
 

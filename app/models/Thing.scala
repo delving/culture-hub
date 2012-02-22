@@ -21,7 +21,7 @@ import com.novus.salat.annotations.raw.Salat
 import org.bson.types.ObjectId
 import java.util.Date
 import util.Constants._
-import views.context._
+import views.Helpers._
 
 @Salat
 trait Base extends AnyRef with Product {

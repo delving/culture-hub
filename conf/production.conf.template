@@ -2,34 +2,37 @@
 # CultureHub production settings  #
 ###################################
 
+include "application.conf"
+
 ### Play settings
 
 # Generate the secret via `play secret`
-%prod.application.secret=
-%prod.application.langs=en
-%prod.mail.smtp.host=smtp.hostice.nl
-%prod.play.pool=3
+application.secret=
+
+application.langs="en"
+
+mail.smtp.host=mx2.hostice.net
 
 ### Global CultureHub settings
-%prod.culturehub.nodeName=
+cultureHub.nodeName=
 
 ### Mongo configuration
-%prod.db.cultureHub.name=
-%prod.mongo.test.context = false
-%prod.mongo.server1.host = mongo1
-%prod.mongo.server1.port = 27017
-%prod.mongo.server2.host = mongo2
-%prod.mongo.server2.port = 27017
-%prod.mongo.server3.host = mongo1
-%prod.mongo.server3.port = 27019
+db.cultureHub.name=
+mongo.test.context = false
+mongo.server1.host = mongo1
+mongo.server1.port = 27017
+mongo.server2.host = mongo2
+mongo.server2.port = 27017
+mongo.server3.host = mongo1
+mongo.server3.port = 27019
 
 ### Solr configuration
-%prod.solr.baseUrl =
+solr.baseUrl =
 
 ### DeepZoom
-%prod.iipsrv.url=
+iipsrv.url=
 
 ### DoS configuration
-%prod.dos.graphicsmagic.cmd=/usr/bin/gm
-%prod.dos.tilesOutputBaseDir=
-%prod.dos.tilesWorkingBaseDir=
+dos.graphicsmagic.cmd=/usr/bin/gm
+dos.tilesOutputBaseDir=
+dos.tilesWorkingBaseDir=

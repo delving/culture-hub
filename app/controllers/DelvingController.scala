@@ -1,251 +1,325 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers
 
-import dos.StoredFile
+import core.ThemeAware
 import organization.CMS
-import play.Play
+import play.api.Play.current
+import play.templates.groovy.GroovyTemplates
+import play.api.mvc._
+import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject
-import scala.collection.JavaConversions._
-import play.mvc._
-import results.Result
-import models._
 import org.bson.types.ObjectId
-import play.data.validation.Validation
-import extensions.AdditionalActions
-import play.i18n.{Lang, Messages}
-import util.{ThemeInfoReader, ThemeHandler, LocalizedFieldNames, ProgrammerException}
+import models._
+import play.api.data.Form
+import play.api.i18n.{Lang, Messages}
+import play.api.{Logger, Play}
 
 /**
- * Root controller for culture-hub. Takes care of checking URL parameters and other generic concerns.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait DelvingController extends Controller with ModelImplicits with AdditionalActions with Logging with ThemeAware with UserAuthentication with Internationalization {
 
-  @Before(priority = 0) def baseAction(): Result = {
+trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging with Extensions {
 
-    // CSRF check
-    if(request.method == "POST" && Play.id != "test") {
-      val authenticityTokenParam = params.get("authenticityToken")
-      val CSRFHeader = request.headers.get("x-csrf-token")
-      if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == session.getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.value() == session.getAuthenticityToken))) {
-        return Forbidden("Bad authenticity token")
+  // ~~~ i18n
+
+  private val LANG = "lang"
+
+  implicit def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+
+  override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
+
+  def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
+
+  def ApplicationAction[A](action: Action[A]): Action[A] = {
+    Themed {
+      Action(action.parser) {
+        implicit request: Request[A] => {
+
+          val langParam = request.queryString.get(LANG)
+
+          val requestLanguage = if (langParam.isDefined) {
+            Logger("CultureHub").debug("Setting language from parameter to " + langParam.get(0))
+            langParam.get(0)
+          } else if (request.session.get(LANG).isEmpty) {
+            // if there is no language for this cookie / user set, set the default one from the PortalTheme
+            Logger("CultureHub").debug("Setting language from theme to " + theme.defaultLanguage)
+            theme.defaultLanguage
+          } else {
+            Logger("CultureHub").debug("Setting language from session to " + request.session(LANG))
+            request.session(LANG)
+          }
+
+          val languageChanged = request.session.get(LANG) != Some(requestLanguage)
+
+          // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
+          // action composition being applied after the template has been rendered, we need to pass it in this way
+          renderArgs += (__LANG, requestLanguage)
+
+          val r = action(request).asInstanceOf[PlainResult]
+          if (languageChanged) {
+            composeSession(r, Session(Map(LANG -> getLang)))
+          } else {
+            r
+          }
+        }
       }
     }
-
-    // Connected user
-    User.findByUsername(connectedUser).map {
-      u => {
-        renderArgs += ("fullName", u.fullname)
-        renderArgs += ("userName", u.userName)
-        renderArgs += ("userId", u._id)
-        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-        renderArgs += ("organizations", u.organizations)
-        renderArgs += ("email", u.email)
-        renderArgs += ("isNodeAdmin", u.nodesAdmin.contains(getNode))
-
-        // refresh session parameters
-        session.put(AccessControl.ORGANIZATIONS, u.organizations.mkString(","))
-        session.put(AccessControl.GROUPS, u.groups.mkString(","))
-      }
-    }
-
-    // Language
-
-    // if a lang param is passed, this is a request to explicitly change the language
-    // and will change it in the user's cookie
-    val lang: String = params.get("lang")
-    if(lang != null) {
-      Lang.change(lang)
-    }
-
-    // if there is no language for this cookie / user set, set the default one from the PortalTheme
-    val cn: String = Play.configuration.getProperty("application.lang.cookie", "PLAY_LANG")
-    if (request.cookies.containsKey(cn)) {
-      val localeFromCookie: String = request.cookies.get(cn).value
-      if (localeFromCookie == null || localeFromCookie != null && localeFromCookie.trim.length == 0) {
-        Lang.change(theme.defaultLanguage)
-      }
-    }
-
-    // Menu entries
-    val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(Lang.get())).map(e => (Map(
-        "title" -> e.title(Lang.get()),
-        "page" -> e.targetPageKey.getOrElse("")))
-    ).toList
-    renderArgs += ("menu", mainMenuEntries)
-
-    // Browsed user
-    Option(params.get("user")).map {
-      userName =>
-        val user = User.findByUsername(userName)
-        user match {
-          case Some(u) =>
-            renderArgs += ("browsedFullName", u.fullname)
-            renderArgs += ("browsedUserId", u._id)
-            renderArgs += ("browsedUserName", u.userName)
-          case None =>
-            renderArgs += ("browsedUserNotFound", userName)
-      }
-    }
-
-    Option(params.get("orgId")).map {
-      orgId =>
-        val orgName = Organization.fetchName(orgId)
-        renderArgs += ("browsedOrgName", orgName)
-    }
-
-    if(!browsedUserExists) return NotFound(&("delvingcontroller.userNotFound", renderArgs.get("browsedUserNotFound", classOf[String])))
-
-    Continue
   }
 
-  // ~~~ convenience methods to access user information
+  def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
 
-  @Util def getUser(userName: String): Either[Result, User] = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> true)) match {
-    case Some(user) => Right(user)
-    case None => Left(NotFound(&("delvingcontroller.userNotFound", userName)))
+
+  // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
+
+  implicit def withRichBody[A <: AnyContent](body: A) = RichBody(body)
+
+  implicit def withRichQueryString(queryString: Map[String, Seq[String]]) = new {
+    def getFirst(key: String): Option[String] = queryString.get(key).getOrElse(return None).headOption
   }
 
-  @Util def connectedUserId = renderArgs.get("userId", classOf[ObjectId])
+  implicit def withRichSession(session: Session) = new {
 
-  @Util def browsedUserName: String = renderArgs.get("browsedUserName", classOf[String])
+    def +(another: Session) = another.data.foldLeft(session) {
+      _ + _
+    }
+  }
 
-  @Util def browsedUserId: ObjectId = renderArgs.get("browsedUserId", classOf[ObjectId])
-
-  @Util def browsedFullName: String = renderArgs.get("browsedFullName", classOf[String])
-
-  @Util def browsedUserExists: Boolean = renderArgs.get("browsedUserNotFound") == null
-
-  @Util def browsedIsConnected: Boolean = browsedUserName == connectedUser
-
-  @Util def browsingUser: Boolean = browsedUserName != null
-
-  @Util def isNodeAdmin: Boolean = renderArgs.get("isNodeAdmin", classOf[Boolean])
-
-  // ~~~ convenience methods
-
-  @Util def listPageTitle(itemName: String) = if(browsingUser) &("listPageTitle.%s.user".format(itemName), browsedFullName) else &("listPageTitle.%s.all".format(itemName))
-
-  @Util def validate(viewModel: AnyRef): Option[Map[String, String]] = {
-    import scala.collection.JavaConversions.asScalaIterable
-
-    if(!Validation.valid("object", viewModel).ok || Validation.hasErrors) {
-      val fieldErrors = asScalaIterable(Validation.errors).filter(_.getKey.contains(".")).map { error => (error.getKey.split("\\.")(1), error.message()) }
-      val globalErrors = asScalaIterable(Validation.errors).filterNot(_.getKey.contains(".")).map { error => ("global", error.message()) }
-      val errors = fieldErrors ++ globalErrors
-      Some(errors.toMap)
+  protected def composeSession(actionResult: PlainResult, additionalSession: Session)(implicit request: RequestHeader) = {
+    // workaround since withSession calls aren't composable it seems
+    val innerSession = actionResult.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
+    if (innerSession.isDefined) {
+      // there really should be an API method for adding sessions
+      val combined = additionalSession.data.foldLeft(innerSession.get) {
+        _ + _
+      }
+      actionResult.withSession(session + combined)
     } else {
-      None
+      actionResult.withSession(session + additionalSession)
     }
   }
 
-  @Util def getNode = play.Play.configuration.getProperty("culturehub.nodeName")
+  // ~~~ form handling when using knockout. This returns a map of error messages
 
+  def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
+    val fieldErrors = form.errors.filterNot(_.key.isEmpty).map(error => (error.key.replaceAll("\\.", "_"), Messages(error.message, error.args))).toMap
+    val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
 
-  // ~~~ error handling
-
-  @Finally()
-  def handleEOF(t: Throwable) {
-    if(t != null) {
-      ErrorReporter.reportError(request, params, connectedUser, t, "Something went wrong")
-    }
+    Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
 
 }
 
 
-trait ThemeAware { self: Controller =>
+case class RichBody[A <: AnyContent](body: A) {
 
-  val localizedFieldNames = new LocalizedFieldNames
-
-  private val themeThreadLocal: ThreadLocal[PortalTheme] = new ThreadLocal[PortalTheme]
-  private val lookupThreadLocal: ThreadLocal[LocalizedFieldNames.Lookup] = new ThreadLocal[LocalizedFieldNames.Lookup]
-
-  @Util implicit def theme = themeThreadLocal.get()
-
-  @Util implicit def lookup = lookupThreadLocal.get()
-
-  @Util def viewUtils: ViewUtils = renderArgs.get("viewUtils").asInstanceOf[ViewUtils]
-  
-  @Before(priority = 0)
-  def setTheme() {
-    val portalTheme = if(Http.Request.current() == null) ThemeHandler.getDefaultTheme.get else ThemeHandler.getByRequest(Http.Request.current())
-    themeThreadLocal.set(portalTheme)
-    lookupThreadLocal.set(localizedFieldNames.createLookup(portalTheme.localiseQueryKeys))
-    renderArgs.put("theme", theme)
+  def getFirstAsString(key: String): Option[String] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).getOrElse(Seq()).headOption
+    case None => None
   }
 
-  @Before(priority = 1) def setViewUtils() {
-    renderArgs += ("viewUtils", new ViewUtils(theme))
+  def getFirstAsObjectId(key: String): Option[ObjectId] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).getOrElse(return None).headOption.map(id => if (ObjectId.isValid(id)) new ObjectId(id) else null)
+    case None => None
   }
-
-  @Finally
-  def cleanup() {
-    themeThreadLocal.remove()
-    lookupThreadLocal.remove()
-  }
-
-}
-
-trait Internationalization {
-
-  import play.i18n.Messages
-
-  def &(msg: String, args: String*) = Messages.get(msg, args : _ *)
-
 }
 
 /**
- * This class will hold all sort of utility methods that need to be called form the templates. It is meant to be initalized at each request
- * and be passed to the view using the renderArgs.
- *
- * It should replace the old views.context package object
+ * Organization controller making sure you're an owner
  */
-class ViewUtils(theme: PortalTheme) {
+trait OrganizationController extends DelvingController with Secured {
 
-  def themeProperty(property: String) = {
-    themeProperty[String](property, classOf[String])
-  }
+  def isOwner: Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
 
-  def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val value: String = ThemeInfoReader.get(property, theme.name) match {
-      case Some(prop) => prop
-      case None =>
-        ThemeInfoReader.get(property, "default") match {
-          case Some(prop) => prop
-          case None => throw new ProgrammerException("No default value, nor actual value, defined for property '%s' in application.conf".format(property))
+  def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    OrgMemberAction(orgId) {
+      Action(action.parser) {
+        implicit request => {
+          if (isOwner) {
+            action(request)
+          } else {
+            Forbidden(Messages("user.secured.noAccess"))
+          }
         }
+      }
     }
-
-    val INT = classOf[Int]
-    val result = mf.erasure match {
-      case INT => Integer.parseInt(value)
-      case _ => value
-    }
-
-    result.asInstanceOf[T]
   }
 
-  def getKey(msg: String, args: String): String = {
-    Messages.get(msg, args)
+  def OrgMemberAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    OrgBrowsingAction(orgId) {
+      Authenticated {
+        Action(action.parser) {
+          implicit request => {
+            if (orgId == null || orgId.isEmpty) {
+              Error("How did you even get here?")
+            }
+            val organizations = request.session.get(AccessControl.ORGANIZATIONS).getOrElse("")
+            if (organizations == null || organizations.isEmpty) {
+              Forbidden(Messages("user.secured.noAccess"))
+            } else if (!organizations.split(",").contains(orgId)) {
+              Forbidden(Messages("user.secured.noAccess"))
+            }
+            renderArgs += ("orgId" -> orgId)
+            renderArgs += ("isOwner" -> Organization.isOwner(orgId, userName))
+            renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
+            action(request)
+          }
+        }
+      }
+    }
   }
-  def getKey(msg: String): String = Messages.get(msg)
+}
+
+trait DelvingController extends ApplicationController with ModelImplicits {
+
+  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
+
+  def userName(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).getOrElse(null)
+
+  def Root[A](action: Action[A]): Action[A] = {
+    ApplicationAction {
+      Action(action.parser) {
+        implicit request: Request[A] => {
+
+          val additionalSessionParams = new collection.mutable.HashMap[String, String]
+
+          // CSRF check
+          // TODO FIXME
+          if (request.method == "POST" && Play.isTest) {
+            val params = request.body match {
+              case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
+              case _ => Map.empty[String, Seq[String]] // TODO
+            }
+            val authenticityTokenParam = params.get(key = "authenticityToken")
+            val CSRFHeader = request.headers.get("x-csrf-token")
+            if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.get == getAuthenticityToken)))
+            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
+              Forbidden("Bad authenticity token")
+          }
+
+          // Connected user
+          User.findByUsername(userName).map {
+            u => {
+              renderArgs +=("fullName", u.fullname)
+              renderArgs +=("userName", u.userName)
+              renderArgs +=("userId", u._id)
+              //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
+              renderArgs +=("organizations", u.organizations)
+              renderArgs +=("email", u.email)
+              renderArgs +=("isNodeAdmin", u.nodesAdmin.contains(getNode))
+
+              // refresh session parameters
+              additionalSessionParams += (AccessControl.ORGANIZATIONS -> u.organizations.mkString(","))
+              additionalSessionParams += (AccessControl.GROUPS -> u.groups.mkString(","))
+            }
+          }
+
+          // Menu entries
+          val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
+            "title" -> e.title(getLang),
+            "page" -> e.targetPageKey.getOrElse("")))
+          ).toList
+          renderArgs +=("menu", mainMenuEntries)
+
+          // TODO
+          //        Option(params.get("orgId")).map {
+          //              orgId =>
+          //                val orgName = Organization.fetchName(orgId)
+          //                renderArgs += ("browsedOrgName", orgName)
+          //            }
+
+          val r: PlainResult = action(request).asInstanceOf[PlainResult]
+          composeSession(r, Session(additionalSessionParams.toMap))
+        }
+      }
+    }
+  }
+
+  /**
+   * Action in the user space (/bob/object)
+   */
+  def UserAction[A](user: String)(action: Action[A]): Action[A] = {
+    Root {
+      Action(action.parser) {
+        implicit request =>
+          val maybeUser = User.findByUsername(user)
+          maybeUser match {
+            case Some(u) =>
+              renderArgs +=("browsedFullName", u.fullname)
+              renderArgs +=("browsedUserId", u._id)
+              renderArgs +=("browsedUserName", u.userName)
+              action(request)
+            case None =>
+              NotFound(Messages("delvingcontroller.userNotFound", user))
+          }
+      }
+    }
+  }
+
+  def ConnectedUserAction[A](action: Action[A]): Action[A] = {
+    Root {
+      Authenticated {
+        Action(action.parser) {
+          implicit request =>
+            action(request)
+        }
+      }
+    }
+  }
+
+  /**
+   * Action secured for the connected user
+   */
+  def SecuredUserAction[A](user: String)(action: Action[A]): Action[A] = {
+    UserAction(user) {
+      Authenticated {
+        Action(action.parser) {
+          implicit request => {
+            if (connectedUser != user) {
+              Forbidden(Messages("user.secured.noAccess"))
+            } else {
+              action(request)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def OrgBrowsingAction[A](orgId: String)(action: Action[A]): Action[A] = {
+    Root {
+      Action(action.parser) {
+        implicit request =>
+          val orgName = Organization.fetchName(orgId)
+          renderArgs +=("browsedOrgName", orgName)
+          action(request)
+      }
+    }
+  }
+
+  def isConnected(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).isDefined
+
+  def connectedUser = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
+
+  def connectedUserId = renderArgs("userId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
+
+  def browsedUserName: String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)
+
+  def browsedUserId: ObjectId = renderArgs("browsedUserId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
+
+  def browsedFullName: String = renderArgs("browsedFullName").map(_.asInstanceOf[String]).getOrElse(null)
+
+  def browsedUserExists: Boolean = renderArgs("browsedUserNotFound") == null
+
+  def browsedIsConnected(implicit request: RequestHeader): Boolean = browsedUserName == request.session.get(Authentication.USERNAME)
+
+  def browsingUser: Boolean = browsedUserName != null
+
+  def isNodeAdmin: Boolean = renderArgs("isNodeAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)
+
+  // ~~~ convenience methods
+
+  def listPageTitle(itemName: String) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
+
 
 }

@@ -19,11 +19,10 @@ package models
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import _root_.util.Constants._
-import salatContext._
+import mongoContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._
-import controllers.MetadataAccessors
-import components.IndexingService
+import core.indexing.IndexingService
 
 /**
  *

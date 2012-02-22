@@ -1,49 +1,52 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: viewUtils.getKey('register') /}
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('register') /}
 
 <div id="register" class="row">
 
+    ${registrationForm}
+
     <div class="grid_12">
-    <form id="registrationForm" action="@{Registration.register()}" method="POST" class="register">
+    <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="register">
         #{authenticityToken /}
-        <h3>${viewUtils.getKey('registration.registerFor', views.context.package.themeDisplayName())}</h3>
-        #{if !errors.isEmpty()}
+        <h3>${messages.get('registration.registerFor', themeInfo.displayName())}</h3>
+        #{if views.Helpers.hasErrors(registrationForm)}
         <p class="error pam">
-            Error creating your account, please check the errors marked in red
+            Error creating your account, please correct the errors
         </p>
+            <ul>
+            #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
+                <li>${e}</li>
+            #{/list}
+            </ul>
         #{/if}
 
-
-        #{textField name:"registration.firstName", label: viewUtils.getKey('ui.label.firstname') , required: true /}
-        #{textField name:"registration.lastName", label: viewUtils.getKey('ui.label.lastname') , required: true /}
-        #{textField name:"registration.email", label: viewUtils.getKey('ui.label.email') , required: true /}
+        #{textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
+        #{textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
+        #{textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
         <hr>
-        #{textField name:"registration.userName", label:  viewUtils.getKey('ui.label.username') , required: true /}
-        #{passwordField name:"registration.password1", label: viewUtils.getKey('ui.label.password') , required: true /}
-        #{passwordField name:"registration.password2", label: viewUtils.getKey('ui.label.passwordrepeat') , required: true /}
+        #{textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
+        #{passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
+        #{passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
 
         <hr>
-        <!--<fieldset>-->
             <div class="field">
                 <label class="label" for="code">&{'ui.label.captcha'}</label>
                    <div class="inputs">
-                            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.context.package.showError('code')}required #{/if}">
+                            <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.Helpers.showError('code', registrationForm)}required #{/if}">
 
-                            <input type="hidden" name="randomID" value="${randomId}">
-                            <span class="error">${views.context.package.showError("code")}</span>
+                            <input type="hidden" name="randomId" value="${randomId}">
+                            <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
                             <span class="help"><strong>&{'ui.label.required'}</strong></span>
 
                        <div class="extra">
-                           <img src="@{Registration.captcha(randomId)}" align="top"/>
+                           <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
                        </div>
                 </div>
             </div>
-        <!--</fieldset>-->
 
-        <!--<fieldset>-->
         <div class="buttons">
-            #{btnButton label: viewUtils.getKey('ui.label.register'), id:"submit", extraClass:"action complete"/}
-            #{btnButton label: viewUtils.getKey('ui.label.cancel'), extraClass:"action cancelButton"/}
+            #{btnButton label: messages.get('ui.label.register'), id:"submit", extraClass:"action complete"/}
+            #{btnButton label: messages.get('ui.label.cancel'), extraClass:"action cancelButton"/}
         </div>
 
     </form>

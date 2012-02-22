@@ -17,15 +17,15 @@
 package models
 
 import org.bson.types.ObjectId
-import salatContext._
+import mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
 import util.Constants._
-import views.context.DEFAULT_THUMBNAIL
+import views.Helpers.DEFAULT_THUMBNAIL
 import Commons.FilteredMDO
-import components.IndexingService
+import core.indexing.IndexingService
 
 /**
  * 

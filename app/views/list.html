@@ -1,34 +1,34 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 #{set bodyId: 'list' /}
-#{if count > views.context.package.PAGE_SIZE()}
+#{if count > views.Helpers.PAGE_SIZE()}
 #{set 'moreScripts'}
     <script>
         pageObject = new Object();
         pageObject.count = ${count};
         pageObject.page = ${page};
         pageObject.link = '?page=__id__';
-        pageObject.previous = "${viewUtils.getKey('ui.label.previous')}";
-        pageObject.next = "${viewUtils.getKey('ui.label.next')}";
-        pageObject.itemsPerPage = ${views.context.package.PAGE_SIZE()}
+        pageObject.previous = "${messages.get('ui.label.previous')}";
+        pageObject.next = "${messages.get('ui.label.next')}";
+        pageObject.itemsPerPage = ${views.Helpers.PAGE_SIZE()}
         pageObject.selector = ".pager"
     </script>
-    <script type="text/javascript" language="javascript" src="/public/common/javascripts/paginationInit.js"></script>
+    <script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 
 #{breadcrumbs /}
 
 #{if browsedUserName}
-    #{set title: viewUtils.getKey('ui.label.browse') + ' ' + viewUtils.getKey("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
-    <h1 class="sep">&{'ui.label.browse'} ${viewUtils.getKey("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
+    #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
+    <h1 class="sep">&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h1>
 #{/if}
 #{else}
-    #{set title: viewUtils.getKey('ui.label.browse') + ' ' + viewUtils.getKey("thing.${itemName.pluralize()}") + ' (' + count +')' /}
-    <h1 class="sep">&{'ui.label.browse'} ${viewUtils.getKey("thing.${itemName.pluralize()}")} (${count})</h1>
+    #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ' (' + count +')' /}
+    <h1 class="sep">&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")} (${count})</h1>
 #{/else}
     <div class="row">
         <div class="g-12of12 grid_12 mbm">
-        #{if count > views.context.package.PAGE_SIZE()}
+        #{if count > views.Helpers.PAGE_SIZE()}
             <div class="pager"></div>
         #{/if}
         #{elseif items.length() == 0}
@@ -56,7 +56,7 @@
 #{/list}
 </div>
 
-#{if count > views.context.package.PAGE_SIZE()}
+#{if count > views.Helpers.PAGE_SIZE()}
 <div class="row">
     <div class="g-12of12 grid_12 mtm">
         <div class="pager"></div>

@@ -1,6 +1,6 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-#{set title: viewUtils.getKey('thing.groups') /}
+#{set title: messages.get('thing.groups') /}
 
 #{set bodyId: 'organization' /}
 
@@ -8,7 +8,7 @@
 
 #{organizationNavBar orgId: orgId, active:"groups",
 extraButtons: [
-    [label: viewUtils.getKey('org.group.create'), url:"/organizations/"+orgId+"/groups/create", extraClass:"action complete", visible: isOwner]
+    [label: messages.get('org.group.create'), url:"/organizations/"+orgId+"/groups/create", extraClass:"action complete", visible: isOwner]
 ],
 isOwner: isOwner/}
 

@@ -1,10 +1,10 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-#{set title: viewUtils.getKey('org.admin.index.title') /}
+#{set title: messages.get('org.admin.index.title') /}
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs /}
+#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"administration", isOwner: isOwner /}
 

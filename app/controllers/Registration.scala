@@ -16,217 +16,259 @@
 
 package controllers
 
-import play.data.validation.{Validation, Required, Email}
-import play.cache.Cache
-import play.libs.Codec
-import play.libs.Crypto
 import notifiers.Mails
-import play.Play
-import play.mvc.results.Result
-import models.salatContext._
-import play.mvc.Controller
+import play.api.Play.current
+import models.mongoContext._
 import models.{User, Organization}
+import extensions.MissingLibs
+import play.api._
+import cache.Cache
+import data.Form._
+import http.{ContentTypeOf, Writeable}
+import play.api.mvc._
+import play.api.data._
+import play.api.data.Forms._
+import play.api.data.validation.Constraints._
+import play.api.i18n.Messages
+import validation.{ValidationError, Valid, Invalid, Constraint}
+import play.libs.Time
+import play.libs.Images.Captcha
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Registration extends Controller with ThemeAware with Internationalization with Logging {
+object Registration extends ApplicationController {
 
-  def index(): Result = {
-    Template('randomId -> Codec.UUID())
+  case class RegistrationInfo(firstName: String,
+                              lastName: String,
+                              email: String,
+                              userName: String,
+                              password1: String,
+                              password2: String,
+                              code: String,
+                              randomId: String)
+
+  val samePassword = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
+    case r if r.password1 == r.password2 => Valid
+    case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
   }
 
-  def register(): AnyRef = {
-    val code = params.get("code")
-    val randomId = params.get("randomID")
+  val captchaConstraint = Constraint[RegistrationInfo]("registration.invalidCode") {
+    case r if Cache.get(r.randomId) == Some(r.code) => Valid
+    case e => Invalid(ValidationError(Messages("registration.invalidCode")))
+  }
 
-    Validation.clear()
+  val emailTaken = Constraint[RegistrationInfo]("registration.duplicateEmail") {
+    case r if !User.existsWithEmail(r.email) => Valid
+    case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
+  }
 
-    // FIXME play is broken !?
-//    val r: Registration = params.get("registration", classOf[Registration])
-    val r: Registration = Registration(params.get("registration.firstName"), params.get("registration.lastName"), params.get("registration.email"), params.get("registration.userName"), params.get("registration.password1"), params.get("registration.password2"))
+  val userNameTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    case r if !User.existsWithUsername(r.userName) => Valid
+    case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
+  }
 
-    Validation.required("registration.firstName", r.firstName)
-    Validation.required("registration.lastName", r.lastName)
-    Validation.required("registration.email", r.email)
-    Validation.email("registration.email", r.email)
-    Validation.required("registration.userName", r.userName)
-    Validation.required("registration.password1", r.password1)
-    Validation.required("registration.password2", r.password2)
-    if (r.password1 != r.password2) {
-      Validation.addError("registration.password2", "registration.passwordsDiffer", r.password2)
+  val orgIdTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    case r if Organization.findByOrgId(r.userName).isEmpty => Valid
+    case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
+  }
+
+  val registrationForm: Form[RegistrationInfo] = Form(
+    mapping(
+      "firstName" -> nonEmptyText,
+      "lastName" -> nonEmptyText,
+      "email" -> email,
+      "userName" -> text.verifying(pattern("^[a-z0-9]{3,15}$".r, error = Messages("registration.userNameInvalid"))),
+      "password1" -> nonEmptyText,
+      "password2" -> nonEmptyText,
+      "code" -> text,
+      "randomId" -> text
+    )(RegistrationInfo.apply)(RegistrationInfo.unapply).verifying(samePassword, captchaConstraint, emailTaken, userNameTaken, orgIdTaken)
+
+  )
+
+  def index() = ApplicationAction {
+    Action {
+      implicit request =>
+        Ok(Template('randomId -> MissingLibs.UUID, 'registrationForm -> registrationForm))
     }
-    if("^[a-z0-9]{3,15}$".r.findFirstIn(r.userName) == None) {
-      Validation.addError("registration.userName", "registration.userNameInvalid", r.userName)
-    }
+  }
 
-    if (Play.id != "test") {
-      Validation.equals("code", code, "code", Cache.get(randomId).orNull).message("registration.invalidCode")
-    }
+  def register() = ApplicationAction {
+    Action {
+      implicit request =>
+        registrationForm.bindFromRequest.fold(
+          formWithErrors => {
+            registrationForm.value.map(r => Cache.set(r.randomId, null))
+            BadRequest(Template("/Registration/index.html", 'randomId -> MissingLibs.UUID, 'registrationForm -> formWithErrors))
+          },
+          registration => {
+            val r = registration
+            Cache.set(r.randomId, null)
 
-    if (User.existsWithEmail(r.email)) Validation.addError("registration.email", "registration.duplicateEmail", r.email)
-    if (User.existsWithUsername(r.userName)) Validation.addError("registration.userName", "registration.duplicateDisplayName", r.userName)
-    if (Organization.findByOrgId(r.userName) != None) Validation.addError("registration.userName", "registration.duplicateDisplayName", r.userName)
+            val activationToken: String = if (Play.isTest) "testActivationToken" else MissingLibs.UUID
+            val newUser = User(
+              userName = r.userName,
+              firstName = r.firstName,
+              lastName = r.lastName,
+              nodes = List(getNode),
+              email = r.email,
+              password = MissingLibs.passwordHash(r.password1, MissingLibs.HashType.SHA512),
+              userProfile = models.UserProfile(),
+              isActive = false,
+              activationToken = Some(activationToken))
 
-    Cache.delete(randomId)
+            val inserted = User.insert(newUser)
 
-    if (Validation.hasErrors) {
-      params.flash()
-      Validation.keep()
-      index()
-    } else {
-      val activationToken: String = if (Play.id == "test") "testActivationToken" else Codec.UUID()
-      val newUser = User(
-        userName = r.userName,
-        firstName = r.firstName,
-        lastName = r.lastName,
-        nodes = List(getNode),
-        email = r.email,
-        password = Crypto.passwordHash(r.password1, Crypto.HashType.SHA512),
-        userProfile = models.UserProfile(),
-        isActive = false,
-        activationToken = Some(activationToken))
-      val inserted = User.insert(newUser)
+            val index = Redirect(controllers.routes.Application.index)
 
-      inserted match {
-        case Some(id) =>
-          try {
-            Mails.activation(newUser, activationToken)
-            flash += ("registrationSuccess" -> newUser.email)
-          } catch {
-            case t: Throwable => {
-              User.remove(newUser.copy(_id = id))
-              logError(t, t.getMessage, r.userName)
-              flash += ("registrationError" -> t.getMessage)
+            inserted match {
+              case Some(id) =>
+                try {
+                  Mails.activation(newUser, activationToken, theme)
+                  index.flashing(("registrationSuccess", newUser.email))
+                } catch {
+                  case t => {
+                    User.remove(newUser.copy(_id = id))
+                    logError(t, t.getMessage, r.userName)
+                    index.flashing(("registrationError" -> t.getMessage))
+                  }
+                }
+              case None =>
+                logError("Could not save new user %s", r.userName)
+                index.flashing(("registrationError" -> Messages("registration.errorCreating")))
             }
           }
-        case None =>
-          logError("Could not save new user %s", r.userName)
-          flash += ("registrationError" -> &("registration.errorCreating"))
-      }
-
-      Action(controllers.Application.index)
+        )
     }
   }
 
-  def captcha(id: String) = {
-    val captcha = play.libs.Images.captcha
-    val code = captcha.getText("#000000")
-    Cache.set(id, code, "10mn")
-    captcha
-  }
+  implicit val contentTypeOf_captcha = ContentTypeOf[Captcha](Some("image/png"))
 
-  def activate(activationToken: Option[String]): AnyRef = {
-    if(activationToken.isEmpty) {
-      warning("Empty activation token")
-      flash += ("activation" -> "false")
-    } else {
-      val activated = User.activateUser(activationToken.get)
-      val success = activated != None
-      if (success) {
-        flash += ("activation" -> "true")
-        try {
-          Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullname, activated.get.email)
-        } catch {
-          case t => logError(t, "Could not send activation email")
+  // there must be a way to stream this tough
+  implicit val wCaptcha: Writeable[Captcha] = Writeable[Captcha](c => Stream.continually(c.read).takeWhile(-1 !=).map(_.toByte).toArray)
+
+  def captcha(id: String) = Action {
+    implicit request =>
+      val captcha = play.libs.Images.captcha
+      val code = captcha.getText("#000000")
+      Cache.set(id, code, Time.parseDuration("10mn"))
+      Ok(captcha)
+  }
+  
+  def activate(activationToken: String) = ApplicationAction {
+    Action {
+      implicit request =>
+        val indexAction = Redirect(controllers.routes.Application.index)
+        if(Option(activationToken).isEmpty) {
+          warning("Empty activation token received")
+          indexAction.flashing(("activation", "false"))
+        } else {
+          val activated = User.activateUser(activationToken)
+          if (activated.isDefined) {
+            try {
+              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullname, activated.get.email, theme)
+              indexAction.flashing(("activation", "true"))
+            } catch {
+              case t => logError(t, "Could not send activation email")
+              indexAction.flashing(("activation", "false"))
+            }
+          } else {
+            indexAction.flashing(("activation", "false"))
+          }
         }
-      } else {
-        flash += ("activation" -> "false")
-      }
     }
-    Action(controllers.Application.index)
+  }
+  
+  def lostPassword = ApplicationAction {
+    Action {
+      implicit request => Ok(Template('resetPasswordForm -> resetPasswordForm))
+    }
   }
 
-  def lostPassword(): Result = Template
 
-  def resetPasswordEmail(): AnyRef = {
-    Validation.clear()
+  val accountNotFound = Constraint[String]("registration.accountNotFoundWithEmail") {
+    case r if User.findByEmail(r).isDefined => Valid
+    case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
+  }
+  
+  val accountNotActive = Constraint[String]("registration.accountNotActive") {
+    case r if User.findByEmail(r).map(_.isActive).getOrElse(false) => Valid
+    case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
+  }
 
-    val email = request.params.get("email")
-    Validation.required("email", email)
-    Validation.email("email", email)
+  case class ResetPassword(email: String)
 
-    if(Validation.hasErrors) {
-      Validation.keep()
-      lostPassword()
-    } else {
+  val resetPasswordForm: Form[ResetPassword] = Form(
+    mapping(
+      "email" -> email.verifying(accountNotFound, accountNotActive)
+    )(ResetPassword.apply)(ResetPassword.unapply)
+  )
 
-      // second validation pass
-      val user = User.findByEmail(email)
-      if(user == None) {
-        Validation.addError("email", "registration.accountNotFoundWithEmail", email)
-      } else {
-        val u = user.get
-        if(!u.isActive) {
-          Validation.addError("email", "registration.accountNotActive", email)
+  def resetPasswordEmail = ApplicationAction {
+    Action {
+      implicit request =>
+        resetPasswordForm.bindFromRequest().fold(
+          formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
+          resetPassword => {
+            val resetPasswordToken = if (Play.isTest) "testResetPasswordToken" else MissingLibs.UUID
+            val u = User.findByEmail(resetPassword.email).get
+            User.preparePasswordReset(u, resetPasswordToken)
+            Mails.resetPassword(u, resetPasswordToken, theme)
+            Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
+          }
+        )
+
+    }
+  }
+
+  def resetPassword(resetPasswordToken: String) = Themed {
+    Action {
+      implicit request =>
+        val indexAction = Redirect(controllers.routes.Application.index)
+        if(Option(resetPasswordToken).isEmpty) {
+          indexAction.flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
+        } else {
+          if(User.canChangePassword(resetPasswordToken)) {
+            indexAction.flashing(("resetPasswordError", Messages("registration.errorPasswordChange")))
+          } else {
+            Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
+          }
         }
-      }
-      if(Validation.hasErrors) {
-        Validation.keep()
-        lostPassword()
-      } else {
-        val resetPasswordToken = if (Play.id == "test") "testResetPasswordToken" else Codec.UUID()
-
-        User.preparePasswordReset(user.get, resetPasswordToken)
-        Mails.resetPassword(user.get, resetPasswordToken)
-
-        flash += ("resetPasswordEmail" -> "true")
-        Action(controllers.Application.index)
-      }
     }
   }
 
-  def resetPassword(resetPasswordToken: Option[String]): AnyRef = {
-    if (resetPasswordToken == None) {
-      flash += ("resetPasswordError" -> &("registration.resetTokenNotFound"))
-      Action(controllers.Application.index)
-    } else {
-      val canChange = User.canChangePassword(resetPasswordToken.get)
-      if(!canChange) {
-        flash += ("resetPasswordError" -> &("registration.errorPasswordChange"))
-        Action(controllers.Application.index)
-      } else {
-        Template('resetPasswordToken -> resetPasswordToken.get)
-      }
-    }
+  val sameNewPassword = Constraint[NewPassword]("registration.passwordsDiffer") {
+    case r if r.password1 == r.password2 => Valid
+    case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
   }
 
-  def newPassword(): AnyRef = {
-    Validation.clear()
-    
-    val resetPasswordToken: Option[String] = Option(params.get("resetPasswordToken"))
-    val password1: String = params.get("password1")
-    val password2: String = params.get("password2")
+  case class NewPassword(password1: String, password2: String)
 
-    if(resetPasswordToken == None) Validation.addError("", "registration.resetTokenNotFound")
+  val newPasswordForm: Form[NewPassword] = Form(
+    mapping(
+      "password1" -> nonEmptyText,
+      "password2" -> nonEmptyText
+    )(NewPassword.apply)(NewPassword.unapply) verifying(sameNewPassword)
+  )
 
-    Validation.required("password1", password1)
-    Validation.required("password2", password2)
-
-    if (password1 != password2) {
-      Validation.addError("password2", "registration.passwordsDiffer", password2)
+  def newPassword(resetPasswordToken: String) = Themed {
+    Action {
+      implicit request =>
+        if(Option(resetPasswordToken).isEmpty) {
+          Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "false"))
+        } else {
+          newPasswordForm.bindFromRequest().fold(
+            formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
+            newPassword => {
+              User.changePassword(resetPasswordToken, newPassword.password1)
+              Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "true"))
+            }
+          )
+        }
     }
-
-    if(Validation.hasErrors) {
-      Validation.keep()
-      resetPassword(resetPasswordToken)
-    } else {
-      val user: Option[User] = User.findByResetPasswordToken(resetPasswordToken.get)
-      // TODO handle the unlikely case in which this guy can't be found anymore
-      User.changePassword(resetPasswordToken.get, password1)
-      flash += ("resetPasswordSuccess" -> "true")
-      Action(controllers.Application.index)
-    }
-
   }
-
-  case class Registration(@Required firstName: String,
-                          @Required lastName: String,
-                          @Email email: String,
-                          @Required userName: String,
-                          @Required password1: String,
-                          @Required password2: String)
 
 }

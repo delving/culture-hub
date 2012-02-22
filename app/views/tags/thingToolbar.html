@@ -81,7 +81,7 @@
   $(document).ready(function() {
     var addthis_config = {
         ui_use_css: true,
-        ui_language: "${play.i18n.Lang.get()}",
+        ui_language: "${session.get("lang")}",
         ui_header_background: "#000",
         ui_header_color: "#f1f1f1"
     }

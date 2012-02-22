@@ -1,10 +1,10 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-#{set title: viewUtils.getKey('thing.browse.of', viewUtils.getKey('thing.datasets')) + ': ' + orgId /}
+#{set title: messages.get('thing.browse.of', messages.get('thing.datasets')) + ': ' + orgId /}
 
 #{set 'moreScripts'}
-#{press.script '/public/common/javascripts/jquery.tablesorter.min.js', pos:28, compress:false /}
-#{press.script '/public/common/javascripts/jquery.uitablefilter.js', pos:29 /}
+<script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.tablesorter.min.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.uitablefilter.js")}"></script>
 #{/set}
 
 #{set bodyId: 'organization' /}
@@ -12,8 +12,8 @@
 #{breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"datasets",
-extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-              [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
+extraButtons: [[label:messages.get('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+              [label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
 ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
 
@@ -35,7 +35,7 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
 
              <div class="data-grid">
                 <table width="100%" id="dataset-table" class="sortable">
-                    <caption>${viewUtils.getKey('thing.datasets')}</caption>
+                    <caption>${messages.get('thing.datasets')}</caption>
                     <thead>
                     <tr>
                         <th width="200">&{'thing.name'}</th>
@@ -48,7 +48,7 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
                     <tr>
                         <td colspan="4">
                             #{ifnot items.length() > 0}
-                            ${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}
+                            ${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
                             #{/}
                         </td>
                     </tr>
@@ -60,24 +60,25 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
                         <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
                         <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
                         <td id="description${i.spec}" width="150">
-                            #{if i.state.name() == models.DataSetState.ERROR().name()}
-                            <span class="error">${i.state.description()}</span>
-                            #{/if}
-                            #{else}
-                            ${i.state.description()}
-                            #{/else}
+                            *{todo enable this again after classloader fix}*
+                            *{#{if i.state.name() == models.DataSetState.ERROR().name()}}*
+                                *{<span class="error">${i.state.description()}</span>}*
+                            *{#{/if}}*
+                            *{#{else}}*
+                                ${i.state.description()}
+                            *{#{/else}}*
                         </td>
                         <td width="550">
                             #{if isOwner}
                             <div class="buttons">
                                 <a class="button submit" href="/organizations/${orgId}/dataset/${i.spec}/update">
-                                    <span class="label">${viewUtils.getKey('ui.label.edit')}</span>
+                                    <span class="label">${messages.get('ui.label.edit')}</span>
                                 </a>
                                 <a class="button beware"#{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if} id="remove${i.spec}">
-                                    <span class="label">${viewUtils.getKey('ui.label.remove')}</span>
+                                    <span class="label">${messages.get('ui.label.remove')}</span>
                                 </a>
                                 <a class="button beware"#{if i.lockedBy.isEmpty()} disabled#{/if} id="unlock${i.spec}">
-                                    <span class="label">${viewUtils.getKey('ui.label.unlock')}</span>
+                                    <span class="label">${messages.get('ui.label.unlock')}</span>
                                 </a>
 
                                 <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p>
@@ -191,7 +192,7 @@ extraButtons: [[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizatio
 
             #{/}
             #{else}
-            <p>${viewUtils.getKey('thing.notavailable.plural', viewUtils.getKey('thing.datasets'))}</p>
+            <p>${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}</p>
             #{/}
         </div>
     </div>

@@ -1,8 +1,8 @@
 #{if _navStyle == 'plain'}
     #{if !_userName}
-    <a href="/login" rel="nofollow" class="${'Authentication.login'.isCurrent()}" tabindex="1"><span class="label">${messages.get('ui.label.login')}</span></a>
+    <a href="/login" rel="nofollow" class="${false ? "current" : ""}" tabindex="1"><span class="label">${messages.get('ui.label.login')}</span></a>
     <span class="pipe">|</span>
-    <a href="/registration" rel="nofollow" class="${'Registration.login'.isCurrent()}" tabindex="2"><span class="label">${messages.get('ui.label.register')}</span></a>
+    <a href="/registration" rel="nofollow" class="${'Registration.login' ? "" : ""}" tabindex="2"><span class="label">${messages.get('ui.label.register')}</span></a>
     #{/if}
     #{else}
     <div class="user-panel">
@@ -36,8 +36,8 @@
 #{else}
     #{if !_userName}
     <div class="buttons">
-        #{btnHref label: messages.get('ui.label.login'), id:"login", extraClass:"${"Authentication.login".isCurrent()}", href:"/login", rel:"nofollow" /}
-        #{btnHref label: messages.get('ui.label.register'), id:"register", extraClass:"${"Registration.index".isCurrent()}", href:"/registration", rel:"nofollow" /}
+        #{btnHref label: messages.get('ui.label.login'), id:"login", extraClass: (false ? "current" : ""), href:"/login", rel:"nofollow" /}
+        #{btnHref label: messages.get('ui.label.register'), id:"register", extraClass: ("Registration.index" ? "" : ""), href:"/registration", rel:"nofollow" /}
         #{ifnot _showLang==false}
         #{languageSelect /}
         #{/ifnot}

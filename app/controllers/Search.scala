@@ -1,35 +1,16 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers
 
-import scala.collection.JavaConversions._
-import search._
-import play.mvc.results.Result
-import play.mvc.Http.Request
-import play.mvc.Util
-import views.context.PAGE_SIZE
+import play.api.mvc._
+import models._
 import util.Constants._
-import models.{PortalTheme, Visibility, UserCollection}
-import exceptions.SolrConnectionException
+import views.Helpers._
+import core.search._
+import exceptions._
+import play.api.i18n.Messages
 
 /**
  *
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @since 8/10/11 2:40 PM  
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object Search extends DelvingController {
@@ -38,69 +19,87 @@ object Search extends DelvingController {
   val SEARCH_TERM = "searchTerm"
   val IN_ORGANIZATION = "inOrg"
 
-  def index(query: String = "*:*", page: Int = 1) = search(theme, query, page)
+  def index(query: String, page: Int) = search(query, page)
 
-  @Util def search(theme: PortalTheme, query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = {
-    val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser), additionalSystemHQFs)
-    try {
-      session.put(RETURN_TO_RESULTS, request.querystring)
-      session.put(SEARCH_TERM, request.params.get("query"))
-      val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
-      val briefItemView = BriefItemView(response)
+  def search(query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = Root {
+    Action {
+      implicit request =>
+        val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser), additionalSystemHQFs)
+        try {
+          val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+          val briefItemView = BriefItemView(response)
+          val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
-      val userCollections: List[ListItem] = if(isConnected) UserCollection.findByUser(connectedUser).toList else List()
-
-      Template("/Search/index.html", 'briefDocs -> briefItemView.getBriefDocs, 'pagination -> briefItemView.getPagination, 'facets -> briefItemView.getFacetQueryLinks, 'collections -> userCollections, 'themeFacets -> theme.getFacets)
-    } catch {
-      case MalformedQueryException(s, t) => Template("/Search/invalidQuery.html", 'query -> params.get("query"))
-      case c: SolrConnectionException =>
-        logError(c, "Search backend connection problem")
-        Error(&("search.backendConnectionError"))
+          Ok(Template("/Search/index.html",
+            'briefDocs -> briefItemView.getBriefDocs,
+            'pagination -> briefItemView.getPagination,
+            'facets -> briefItemView.getFacetQueryLinks,
+            'collections -> userCollections,
+            'themeFacets -> theme.getFacets,
+            'searchTerm -> query,
+            'returnToResults -> request.rawQueryString)).withSession(
+            session +
+              (RETURN_TO_RESULTS -> request.rawQueryString) +
+              (SEARCH_TERM -> query))
+        } catch {
+          case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
+          case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
+        }
     }
   }
 
-  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false): Result = {
-    val id = "%s_%s_%s".format(orgId, spec, recordId)
-    val idType = DelvingIdType(id, params.all().getOrElse("idType", Array[String]("hubId")).head)
-    val chQuery = SolrQueryService.createCHQuery(request, theme, false)
-    val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:\"%s\"".format(idType.idSearchField, idType.normalisedId)))
-    val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
-    val response = CHResponse(params, theme, queryResponse, changedQuery)
+  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
+    Action {
+      implicit request =>
+        val id = "%s_%s_%s".format(orgId, spec, recordId)
+        val idType = DelvingIdType(id, Params(request.queryString).all.getOrElse("idType", Seq("hubId")).head)
+        val chQuery = SolrQueryService.createCHQuery(request, theme, false)
+        val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:\"%s\"".format(idType.idSearchField, idType.normalisedId)))
+        val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
+        val response = CHResponse(Params(request.queryString), theme, queryResponse, changedQuery)
 
-    if (response.response.getResults.size() == 0)
-      return NotFound(id)
+        if (response.response.getResults.size() == 0) {
+          NotFound(id)
+        } else {
+          val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+            // we're coming from someplace else then a search, remove the return to results cookie
+            request.session - (RETURN_TO_RESULTS)
+          } else {
+            request.session
+          }
 
-    // this is a hack to be able to distinguish between userName/object/... and orgId/object/...
-    request.args.put(IN_ORGANIZATION, "yes")
+          println(updatedSession)
 
-    if(request.headers.get("referer") != null && !request.headers.get("referer").value().contains("search")) {
-      // we're coming from someplace else then a search, remove the return to results cookie
-      session.remove(RETURN_TO_RESULTS)
-    }
+          val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
+          if (overlay) {
+            Ok(Template("Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc))
+          } else {
+            val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+            val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+            Ok(Template("Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
+          }.withSession(updatedSession)
+        }
 
-    val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
-    if (overlay) {
-      Template("/Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc)
-    } else {
-      val returnToUrl = if (session.contains(RETURN_TO_RESULTS)) session.get(RETURN_TO_RESULTS) else ""
-      Template("/Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToUrl)
+
     }
   }
 
-  @Util def browse(recordType: String, user: Option[String], request: Request, theme: PortalTheme) = {
-    search(user, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
+
+  // ~~~ Utility methods (not controller actions)
+
+  def browse(recordType: String, user: Option[String], page: Int, request: RequestHeader, theme: PortalTheme) = {
+    search(user, page, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
   }
 
-  @Util def search(user: Option[String], request: Request, theme: PortalTheme, query: List[String]) = {
-    val start = (Option(request.params.get("page")).getOrElse("1").toInt - 1) * PAGE_SIZE + 1
-    request.params.put("start", start.toString)
+  def search(user: Option[String], page: Int, request: RequestHeader, theme: PortalTheme, query: List[String]) = {
+    val start = (page - 1) * PAGE_SIZE + 1
     val queryList = (user match {
       case Some(u) => List("%s:%s".format(OWNER, u))
       case None => List()
     }) ::: query
     val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), queryList)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
-    val chResponse = CHResponse(params, theme, queryResponse, chQuery)
+    val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), theme, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
     val items = briefItemView.getBriefDocs.map(bd =>
@@ -116,8 +115,6 @@ object Search extends DelvingController {
 
     (items, briefItemView.pagination.getNumFound)
   }
-
-
 
 
 }

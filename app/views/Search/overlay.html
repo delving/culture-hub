@@ -3,7 +3,7 @@
     <title></title>
 </head>
 <body>
-<h1 class="sep">${fullDoc.getTitle().shorten(100)}</h1>
+<h1 class="sep">${views.Helpers.shorten(fullDoc.getTitle(), 100)}</h1>
 
 <div class="row">
     <div class="g-12of12">
@@ -18,14 +18,14 @@
                     <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">
-                            #{metadataField label: viewUtils.getKey('metadata.dc.title'), data: fullDoc.getTitle() /}
-                            #{metadataField label: viewUtils.getKey('metadata.dc.creator'), data: fullDoc.getCreator() /}
-                            #{metadataField label: viewUtils.getKey('metadata.dc.year'), data: fullDoc.getYear() /}
+                            #{metadataField label: messages.get('metadata.dc.title'), data: fullDoc.getTitle() /}
+                            #{metadataField label: messages.get('metadata.dc.creator'), data: fullDoc.getCreator() /}
+                            #{metadataField label: messages.get('metadata.dc.year'), data: fullDoc.getYear() /}
                         </div>
 
                         <div class="g-1of2 omega">
-                            #{metadataField label: viewUtils.getKey('metadata.dc.language'), data: fullDoc.getLanguage() /}
-                            #{metadataField label: viewUtils.getKey('metadata.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
+                            #{metadataField label: messages.get('metadata.dc.language'), data: fullDoc.getLanguage() /}
+                            #{metadataField label: messages.get('metadata.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
                         </div>
                     </div>
                 </div>

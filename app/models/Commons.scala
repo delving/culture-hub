@@ -62,7 +62,7 @@ object Commons {
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
-  import views.context.PAGE_SIZE
+  import views.Helpers.PAGE_SIZE
 
   /**
    * Returns a page and the total object count

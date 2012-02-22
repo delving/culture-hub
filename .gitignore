@@ -5,19 +5,15 @@ test-result
 .DS_Store
 .idea
 /modules
-/lib
 /logs
 /out
 /system.out
 /conf/production.conf
-/conf/additional.conf
-/conf/*_themes.yml
-!/conf/default_theme.yml
+/conf/*_themes.xml
+!/conf/default_themes.xml
 target/
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
-legacyServices/lib/*.jar
-/precompiled
 /public/sip-creator/*.jar
 /public/sip-creator/*.zip
 /public/sip-creator/*.jnlp
@@ -33,16 +29,10 @@ legacyServices/lib/*.jar
 /public/javascripts/press
 /public/stylesheets/press
 
-/play2/culture-hub/public/themes
-!/play2/culture-hub/public/themes/default
-/play2/culture-hub/public/sip-creator/*.jar
-/play2/culture-hub/public/sip-creator/*.zip
-/play2/culture-hub/public/sip-creator/*.jnlp
-
-logs
 project/project
 project/target
 target
 tmp
 
+.idea
 .idea_modules
