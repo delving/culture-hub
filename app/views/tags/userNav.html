@@ -52,10 +52,10 @@
             #{btnHref label: messages.get('user.nav.goto'), toggle:true/}
             <div class="dropdown-slider">
                 <a href="/${_userName}" class="ddm user"><span class="label">${messages.get('user.nav.yourprofile')}</span></a>
-                <a href="/${_userName}/object" class="ddm"><span class="label">${messages.get('user.nav.yourobjects')}</span></a>
-                <a href="/${_userName}/collection" class="ddm">
-                    <span class="label">${messages.get('user.nav.yourcollections')}</span></a>
-                <a href="/${_userName}/story" class="ddm"></span><span class="label">${messages.get('user.nav.yourstories')}</span></a>
+                *{<a href="/${_userName}/object" class="ddm"><span class="label">${messages.get('user.nav.yourobjects')}</span></a>}*
+                *{<a href="/${_userName}/collection" class="ddm">}*
+                    *{<span class="label">${messages.get('user.nav.yourcollections')}</span></a>}*
+                *{<a href="/${_userName}/story" class="ddm"></span><span class="label">${messages.get('user.nav.yourstories')}</span></a>}*
                 #{if _organizations.length() > 0}
                 <a class="ddm heading orgs"><span class="label">${messages.get('thing.organizations')}</span></a>
                 #{list _organizations, as: 'org'}
@@ -64,15 +64,15 @@
                 #{/if}
             </div>
         </div>
-        <div class="dropdown">
-            <!--#{btnHref label: messages.get('user.nav.create'), iconClass:"icon144", toggle:true/}-->
-            #{btnHref label: messages.get('user.nav.create'), toggle:true/}
-            <div class="dropdown-slider">
-                <a href="/${_userName}/object/add" class="ddm"><span class="label">${messages.get('user.nav.newobject')}</span></a>
-                <a href="/${_userName}/collection/add" class="ddm"><span class="label">${messages.get('user.nav.newcollection')}</span></a>
-                <a href="/${_userName}/story/add" class="ddm"><span class="label">${messages.get('user.nav.newstory')}</span></a>
-            </div>
-        </div>
+        *{<div class="dropdown">}*
+            *{<!--#{btnHref label: messages.get('user.nav.create'), iconClass:"icon144", toggle:true/}-->}*
+            *{#{btnHref label: messages.get('user.nav.create'), toggle:true/}}*
+            *{<div class="dropdown-slider">}*
+                *{<a href="/${_userName}/object/add" class="ddm"><span class="label">${messages.get('user.nav.newobject')}</span></a>}*
+                *{<a href="/${_userName}/collection/add" class="ddm"><span class="label">${messages.get('user.nav.newcollection')}</span></a>}*
+                *{<a href="/${_userName}/story/add" class="ddm"><span class="label">${messages.get('user.nav.newstory')}</span></a>}*
+            *{</div>}*
+        *{</div>}*
         #{ifnot _showLang==false}
         #{languageSelect /}
         #{/ifnot}

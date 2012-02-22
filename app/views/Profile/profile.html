@@ -28,9 +28,9 @@
         #{if isVisible}
         <div class="g-1of4 grid_3">
             <div class="info-box long">
-                <span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objectsCount}</a></span>
-                <span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collectionsCount}</a></span>
-                <span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${storiesCount}</a></span>
+                *{<span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objectsCount}</a></span>}*
+                *{<span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collectionsCount}</a></span>}*
+                *{<span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${storiesCount}</a></span>}*
                 #{ifnot user.userProfile.funFact().isEmpty()}
                 <span class="label">&{'user.profile.funFact'}:</span><span class="text">${user.userProfile.funFact().get()}</span>
                 #{/ifnot}
@@ -49,13 +49,13 @@
             #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + user.userName + "/admin/profile/update" /}
             #{/if}
         </div>
-        <div class="grid_12">
-            #{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}
-        </div>
+        *{<div class="grid_12">}*
+            *{#{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}}*
+        *{</div>}*
     </div>
 
     <hr/>
-    #{if isVisible}
+    #{if false}
     <div class="row">
         <div class="g-1of3">
             <div class="widget">
