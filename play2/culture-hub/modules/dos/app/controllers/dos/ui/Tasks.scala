@@ -25,8 +25,6 @@ import play.api.Play
 import play.api.Logger
 import play.api.Play.current
 import play.templates.groovy.GroovyTemplates
-import play.api.libs.json._
-import play.api.libs.json.Reads._
 
 /**
  *
@@ -46,7 +44,7 @@ object Tasks extends Controller with Extensions with GroovyTemplates {
       } else {
         val taskParams: Map[String, Seq[String]] = request.body
         val task = Task(node = getNode, path = path, taskType = tt.get, params = taskParams.map(e => (e._1, e._2.head)).toMap)
-        Logger.info("Adding new task to queue: " + task.toString)
+        Logger("DOS").info("Adding new task to queue: " + task.toString)
         Task.insert(task) match {
           case None => InternalServerError("Could not create da task")
           case Some(taskId) => Json(task.copy(_id = taskId))
