@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>#{get 'title' /}</title>
+        <meta charset="${_response_encoding}">
+        <link rel="stylesheet" media="screen" href="/assets/dos/stylesheets/dos-core.css">
+        <link rel="stylesheet" media="screen" href="/assets/dos/stylesheets/main.css">
+        <link rel="stylesheet" media="screen" href="/assets/dos/stylesheets/ui-lightness/jquery-ui-1.8.16.custom.css">
+        #{get 'moreStyles' /}
+        <link rel="shortcut icon" type="image/png" href="/assets/dos/images/favicon.png">
+        <script src="/assets/dos/javascripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/jquery-ui-1.8.16.custom.min.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/jquery.tmpl.min.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/knockout-1.2.1.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/knockout.mapping-latest.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/smartupdater.js" type="text/javascript"></script>
+        <script src="/assets/dos/javascripts/dos.js" type="text/javascript"></script>
+        #{get 'moreScripts' /}
+    </head>
+    <body>
+        #{doLayout /}
+    </body>
+</html>

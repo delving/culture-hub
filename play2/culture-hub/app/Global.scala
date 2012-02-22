@@ -65,6 +65,16 @@ object Global extends GlobalSettings {
       EvictOAuth2Tokens
     )
 
+    // DoS
+    val dos = Akka.system.actorOf(Props[TaskQueueActor])
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      10 seconds,
+      dos,
+      Look
+    )
+
+
     // ~~~ load test data
 
     if (Play.isDev || Play.isTest) {

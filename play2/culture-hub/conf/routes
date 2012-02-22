@@ -67,6 +67,22 @@ GET        /thumbnail/:id/:width                             controllers.dos.Ima
 GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
 
 
+# UI
+GET     /@dos                                   controllers.dos.ui.MCP.index
+GET     /@dos/browse                            controllers.dos.ui.MCP.browse(path)
+
+PUT     /@dos/task/add                          controllers.dos.ui.Tasks.add(path: String, taskType: String)
+DELETE  /@dos/task/cancel/:id                   controllers.dos.ui.Tasks.cancel(id: org.bson.types.ObjectId)
+GET     /@dos/task/list                         controllers.dos.ui.Tasks.listAll
+GET     /@dos/task/list/queued                  controllers.dos.ui.Tasks.list(what: String = "queued")
+GET     /@dos/task/list/running                 controllers.dos.ui.Tasks.list(what: String = "running")
+GET     /@dos/task/list/finished                controllers.dos.ui.Tasks.list(what: String = "finished")
+GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(id: org.bson.types.ObjectId)
+
+GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
+GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
+
+
 
 
 
