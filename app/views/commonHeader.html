@@ -5,63 +5,61 @@
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
     <meta charset="utf-8">
-    <title>#{get 'title' /} </title>
-    #{press.stylesheet '/public/common/stylesheets/reset.css', pos:1 /}
-    #{press.stylesheet '/public/common/stylesheets/grid/grid-960.css', pos:2 /}
-    #{press.stylesheet '/public/common/stylesheets/grid/grid-zemmy.css', pos:3 /}
-    #{press.stylesheet '/public/common/stylesheets/ui/jquery-ui-1.8.16.custom.css', pos:4 /}
-    #{press.stylesheet '/public/common/stylesheets/media/media.css', pos:5 /}
-    #{press.stylesheet '/public/common/stylesheets/spacing/space.css', pos:6 /}
-    #{press.stylesheet '/public/common/stylesheets/forms/form-elements.css', pos:7 /}
-    #{press.stylesheet '/public/common/stylesheets/breadcrumb/breadcrumb.css', pos:8 /}
-    #{press.stylesheet '/public/common/stylesheets/tiptip.css', pos:9 /}
-    #{press.stylesheet '/public/common/stylesheets/tables.css', pos:10 /}
-    #{press.stylesheet '/public/common/stylesheets/plugins/jquery.fileupload-ui.css', pos:12 /}
-    #{press.stylesheet '/public/common/stylesheets/pagination/pagination.css', pos:13 /}
-    #{press.stylesheet '/public/common/stylesheets/plugins/token-input.css', pos:14 /}
-    #{press.stylesheet '/public/common/stylesheets/plugins/token-input-facebook.css', pos:15 /}
-    #{press.stylesheet '/public/common/stylesheets/buttons/css3-buttons.css', pos:16 /}
-    #{press.stylesheet '/public/common/stylesheets/helpers.css', pos:17 /}
-    #{press.compressed-stylesheet /}
+    <title>#{get 'title' /}</title>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/reset.css")}" />
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-960.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-zemmy.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/ui/jquery-ui-1.8.16.custom.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/spacing/space.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/forms/form-elements.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/breadcrumb/breadcrumb.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tiptip.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tables.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/jquery.fileupload-ui.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/pagination/pagination.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/buttons/css3-buttons.css")}"/>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/helpers.css")}"/>
     #{get 'moreCss' /}
-    <link rel="stylesheet/less" type="text/css" href='${views.context.package.themePath("stylesheets/style.less")}'/>
+    <link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>
     <script>
-        var themePath = "${views.context.package.themePath('')}";
+        var themePath = "${themeInfo.path('')}";
         jsLabels = new Object();
-        jsLabels.add = "${viewUtils.getKey('ui.label.add')}";
-        jsLabels.cancel = "${viewUtils.getKey('ui.label.cancel')}";
-        jsLabels.remove = "${viewUtils.getKey('ui.label.delete')}";
-        jsLabels.enlargeImage = "${viewUtils.getKey('ui.label.enlargeImage')}";
+        jsLabels.add = "${messages.get('ui.label.add')}";
+        jsLabels.cancel = "${messages.get('ui.label.cancel')}";
+        jsLabels.remove = "${messages.get('ui.label.delete')}";
+        jsLabels.enlargeImage = "${messages.get('ui.label.enlargeImage')}";
     </script>
-    #{press.script '/public/common/javascripts/less-1.1.5.min.js', compress:false, pos:1 /}
-    #{press.script '/public/common/javascripts/modernizr-2.0.6.min.js', compress:false, pos:2 /}
-    #{press.script '/public/common/javascripts/jquery-1.6.2.min.js', compress:false, pos:3 /}
-    #{press.script '/public/common/javascripts/jquery.hoverIntent.minified.js', compress:false, pos:4 /}
-    #{press.script '/public/common/javascripts/jquery-ui-1.8.16.custom.min.js', compress:false, pos:5 /}
-    #{press.script '/public/common/javascripts/jquery.iframe-transport.js', pos:6 /}
-    #{press.script '/public/common/javascripts/jquery.fileupload.js', pos:7 /}
-    #{press.script '/public/common/javascripts/jquery.fileupload-ui.js', pos:8 /}
-    #{press.script '/public/common/javascripts/upload.js', pos:9 /}
-    #{press.script '/public/common/javascripts/jquery.tmpl.min.js', compress:false, pos:10 /}
-    #{press.script '/public/common/javascripts/jquery.cookie.js', pos:11 /}
-    #{press.script '/public/common/javascripts/jquery.metadata.js', pos:12 /}
-    #{press.script '/public/common/javascripts/jquery.validate.js', pos:13 /}
-    #{press.script '/public/common/javascripts/knockout-1.3.0beta.js', pos:14 /}
-    #{press.script '/public/common/javascripts/knockout.mapping-latest.js', compress:false, pos:15 /}
-    #{press.script '/public/common/javascripts/jquery.form.js', pos:16 /}
-    #{press.script '/public/common/javascripts/jquery.delving.spinner.js', pos:17 /}
-    #{press.script '/public/common/javascripts/jquery.tokeninput.js', pos:18 /}
-    #{press.script '/public/common/javascripts/jquery.multiselect.min.js', pos:19 /}
-    #{press.script '/public/common/javascripts/jquery.multiselect.filter.js', pos:20 /}
-    #{press.script '/public/common/javascripts/jquery.tools.min.js', compress:false, pos:21 /}
-    #{press.script '/public/common/javascripts/jquery.tiptip.js', pos:22 /}
-    #{press.script '/public/common/javascripts/smartupdater.js', pos:23 /}
-    #{press.script '/public/common/javascripts/jquery.pagination.js', pos:24 /}
-    #{press.script '/public/common/javascripts/jquery.capSlide.js', pos:25 /}
-    #{press.script '/public/common/javascripts/jquery.ui.touch-punch.min.js', compress:false, pos:26 /}
-    #{press.script '/public/common/javascripts/jquery.dateFormat-1.0.js', compress:false, pos:27 /}
-    #{press.script '/public/common/javascripts/culturehub.js', pos:50 /}
-    #{press.compressed-script /}
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-1.6.2.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.hoverIntent.minified.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-ui-1.8.16.custom.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.iframe-transport.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload-ui.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/upload.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tmpl.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.cookie.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.metadata.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.validate.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/knockout-1.3.0beta.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/knockout.mapping-latest.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.form.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.delving.spinner.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tokeninput.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.filter.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tools.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tiptip.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.capSlide.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.ui.touch-punch.min.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/culturehub.js")}"></script>
     #{get 'moreScripts' /}
     <script type="text/javascript">
       $(document).ready(function() {

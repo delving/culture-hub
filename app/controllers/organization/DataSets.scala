@@ -1,54 +1,55 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers.organization
 
-import java.util.regex.Pattern
-import play.mvc.results.Result
-import com.mongodb.casbah.commons.MongoDBObject
-import collection.JavaConversions._
-import controllers.{Fact, ShortDataSet, Token, DelvingController}
+import play.api.mvc.Action
 import models.DataSet
+import collection.JavaConverters._
+import play.api.i18n.Messages
+import com.mongodb.casbah.commons.MongoDBObject
+import controllers.{Token, Fact, ShortDataSet, OrganizationController}
+import java.util.regex.Pattern
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSets extends DelvingController with OrganizationSecured {
+object DataSets extends OrganizationController {
 
-  def list(orgId: String): Result = {
-    val dataSetsPage = DataSet.findAllCanSee(orgId, connectedUser)
-    val items: List[ShortDataSet] = dataSetsPage
-    Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'count -> dataSetsPage.size)
+  def list(orgId: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val dataSetsPage = DataSet.findAllCanSee(orgId, userName)
+        val items: List[ShortDataSet] = dataSetsPage
+        Ok(Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'count -> dataSetsPage.size))
+    }
   }
 
-  def dataSet(orgId: String, spec: String): Result = {
-    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
-    val ds = dataSet.getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
-    if(!DataSet.canView(ds, connectedUser)) return NotFound(&("datasets.dataSetNotFound", ds.spec))
-    val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
-    Template('dataSet -> ds, 'canEdit -> DataSet.canEdit(ds, connectedUser), 'facts -> asJavaList(describedFacts))
+  def dataSet(orgId: String, spec: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        if (maybeDataSet.isEmpty) {
+          NotFound(Messages("organization.datasets.dataSetNotFound", spec))
+        } else {
+          val ds = maybeDataSet.get
+          if (!DataSet.canView(ds, userName)) {
+            NotFound(Messages("datasets.dataSetNotFound", ds.spec))
+          } else {
+            val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
+            Ok(Template('dataSet -> ds, 'canEdit -> DataSet.canEdit(ds, userName), 'facts -> describedFacts.asJava))
+          }
+        }
+    }
   }
 
-  def listAsTokens(orgId: String, q: String): Result = {
-    val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
-    val asTokens = dataSets.map(ds => Token(ds._id, ds.spec, Some("dataset")))
-    Json(asTokens)
+  def listAsTokens(orgId: String, q: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+        val asTokens = dataSets.map(ds => Token(ds._id, ds.spec, Some("dataset")))
+        Json(asTokens)
+    }
   }
-
 
 }
+

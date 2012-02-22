@@ -67,7 +67,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var recordId: String = null
 
     while (!hasParsedOne) {
-      if (!parser.hasNext()) return None
+      if (!parser.hasNext) return None
       val next = parser.next()
       next match {
         case EvElemStart(_, "delving-sip-source", _, scope) =>

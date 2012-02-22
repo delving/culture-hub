@@ -16,66 +16,61 @@
 
 package util
 
-import play.i18n.Messages
-import java.lang.reflect.Field
-import play.data.validation.Annotations._
+import play.api.i18n.Messages
 import collection.mutable.ArrayBuffer
+import play.api.data.Form
+import play.api.Logger
+import collection.Seq
 
 /**
- * Builds annotation rules for the jQuery form validation plugin, given a case class annotated with Play validation annotations.
+ * Builds annotation rules for the jQuery form validation plugin, given a Form definition.
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object Validation {
 
-  def getClientSideValidationRules(clazz: Class[_]): Map[String, String] =
-    clazz.getDeclaredFields.map(f => (f.getName, buildValidationRuleString(f))).toMap
+  def getClientSideValidationRules(form: Form[AnyRef]): Map[String, String] = {
 
-  private def buildValidationRuleString(implicit field: Field) = {
-    val rules = new ArrayBuffer[String]
-    val messages = new scala.collection.mutable.HashMap[String, String]
+//    form.mapping.mappings.foreach {
+//      m =>
+//        println(m.key)
+//    }
 
-    Option(field.getAnnotation(classOf[play.data.validation.Required])).foreach(required => {
-      rules += "required: true"
-      if (required.message() != null) messages.put("required", Messages.get(required.message))
-    })
+    val fieldConstraints = form.mapping.mappings.map(m => (m.key -> m.constraints))
 
-    Option(field.getAnnotation(classOf[play.data.validation.Min])).foreach(min => {
-      rules += "min: " + min.value()
-      if (min.message() != null) messages.put("min", Messages.get(min.message, min.value.asInstanceOf[AnyRef]))
-    })
+    val validationRules: Seq[(String, String)] = for (f <- fieldConstraints) yield {
+      val rules = new ArrayBuffer[String]
+      val messages = new scala.collection.mutable.HashMap[String, String]
 
-    Option(field.getAnnotation(classOf[play.data.validation.Max])).foreach(max => {
-      rules += "max: " + max.value()
-      if (max.message() != null) messages.put("max", Messages.get(max.message, max.value.asInstanceOf[AnyRef]))
-    })
+      for (c <- f._2) {
+        c.name match {
+          case Some("constraint.required") =>
+            rules += "required: true"
+            messages.put("required", Messages("error.required"))
+          case Some("constraint.min") =>
+            rules += "min: " + c.args(0)
+            messages.put("min", Messages("error.min", c.args(0)))
+          case Some("constraint.max") =>
+            rules += "max: " + c.args(0)
+            messages.put("max", Messages("error.max", c.args(0)))
+          case Some("constraint.minLength") =>
+            rules += "minLength: " + c.args(0)
+            messages.put("minLength", Messages("error.minLength", c.args(0)))
+          case Some("constraint.maxLength") =>
+            rules += "maxLength: " + c.args(0)
+            messages.put("maxLength", Messages("error.maxLength", c.args(0)))
+          case Some("constraint.email") =>
+            rules += "email: true"
+            messages.put("email", Messages("error.email"))
+          case _ => Logger("CultureHub").warn("Could not generate client-side validation rule for constraint %s of field %s".format(c.name, f._1))
+        }
+      }
 
-    Option(field.getAnnotation(classOf[play.data.validation.Range])).foreach(range => {
-      rules += "range:[%s, %s]".format(range.min, range.max)
-      if (range.message() != null) messages.put("range", Messages.get(range.message, range.min.asInstanceOf[AnyRef], range.max.asInstanceOf[AnyRef]))
-    })
+      (f._1, "{" + rules.mkString(",") + (if (!messages.isEmpty) { ", messages:{" + messages.map(pair => """"%s":"%s"""".format(pair._1, pair._2)).mkString(",") + "}" }) + "}")
+    }
 
-    Option(field.getAnnotation(classOf[play.data.validation.MaxSize])).foreach(maxSize => {
-      rules += "maxLength: " + maxSize.value()
-      if (maxSize.message() != null) messages.put("maxSize", Messages.get(maxSize.message, maxSize.value.asInstanceOf[AnyRef]))
-    })
-
-    Option(field.getAnnotation(classOf[play.data.validation.MinSize])).foreach(minSize => {
-      rules += "minLength: " + minSize.value()
-      if (minSize.message() != null) messages.put("minSize", Messages.get(minSize.message, minSize.value.asInstanceOf[AnyRef]))
-    })
-
-    Option(field.getAnnotation(classOf[play.data.validation.URL])).foreach(url => {
-      rules += "url: true"
-      if (url.message() != null) messages.put("url", Messages.get(url.message))
-    })
-
-    Option(field.getAnnotation(classOf[play.data.validation.Email])).foreach(email => {
-      rules += "email: true"
-      if (email.message() != null) messages.put("email", Messages.get(email.message))
-    })
-
-    "{" + rules.mkString(",") + (if (!messages.isEmpty) { ", messages:{" + messages.map(pair => """"%s":"%s"""".format(pair._1, pair._2)).mkString(",") + "}" }) + "}"
+    validationRules.toMap[String, String]
 
   }
 

@@ -1,19 +1,44 @@
 import collection.mutable.ListBuffer
 import java.io.ByteArrayInputStream
 import models.{MetadataRecord, DataSet}
-import org.scalatest.matchers.ShouldMatchers
-import play.test.{UnitFlatSpec}
-import util.{TestDataGeneric, SimpleDataSetParser}
+import org.specs2.execute.Error
+import org.specs2.mutable.Specification
+import util.SimpleDataSetParser
+import play.api.test._
+import play.api.test.Helpers._
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGeneric {
+class DataSetParserSpec extends Specification with Cleanup {
+
+  "The DataSetParser" should {
+
+    "parse an input stream" in {
+
+      running(FakeApplication()) {
+        val buffer = parseStream
+        buffer.length must be equalTo (2)
+      }
+
+    }
+
+    "properly assign valid metadata formats" in {
+
+      running(FakeApplication()) {
+        val buffer = parseStream
+        buffer(1).validOutputFormats should not contain ("icn")
+      }
+
+    }
+  }
+
+  step(cleanup)
 
   def parseStream = {
-    val ds = DataSet.findBySpecAndOrgId("Verzetsmuseum", "delving").get
+    val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
@@ -32,24 +57,13 @@ class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
       }
 
     } catch {
-      case t => fail(t)
+      case t => Error(t)
     }
 
     buffer
   }
 
-  it should "parse an input stream" in {
-    val buffer = parseStream
-
-    buffer.length should be (2)
-  }
-
-  it should "properly assign valid metadata formats" in {
-    val buffer = parseStream
-    buffer(1).validOutputFormats should not contain ("icn")
-  }
-
-// TODO parse from a real gzipped source
+  // TODO parse from a real gzipped source
   val sampleDataSet =
     """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
@@ -104,7 +118,7 @@ class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
 <title.type>toegekend</title.type>
 <object_name>bord</object_name>
 <location.default>1.12-K10-P05</location.default>
-<material.notes>scherf cr�me</material.notes>
+<material.notes>scherf cr?me</material.notes>
 <material>hard aardewerk</material>
 <location_type>DEP</location_type>
 <location_check.date>2007-12-04</location_check.date>
@@ -224,5 +238,6 @@ class DataSetParserSpec extends UnitFlatSpec with ShouldMatchers with TestDataGe
 <percentC>32.5</percentC>
 </input>
 </delving-sip-source>"""
+
 
 }

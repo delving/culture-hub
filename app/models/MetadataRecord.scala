@@ -20,17 +20,16 @@ import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import java.util.Date
 import exceptions.RecordNotFoundException
-import models.salatContext._
+import models.mongoContext._
 import com.novus.salat.grater
 import util.Constants._
-import controllers.MetadataAccessors
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.{WriteConcern, BasicDBList, DBObject}
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
                           rawMetadata: Map[String, String], // this is the raw xml data string
-                          mappedMetadata: Map[String, DBObject] = Map.empty[String, DBObject], // this is the mapped xml data string only added after transformation, and it's a DBObject because Salat won't let us use an inner Map[String, List[String]]
+                          mappedMetadata: Map[String, Map[String, List[String]]] = Map.empty,
                           modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
                           deleted: Boolean = false, // if the record has been deleted
@@ -46,18 +45,29 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   def getXmlString(metadataPrefix: String = "raw"): String = {
     if (rawMetadata.contains(metadataPrefix)) {
       rawMetadata.get(metadataPrefix).get
-    }
-    else if (mappedMetadata.contains(metadataPrefix)) {
-      import scala.collection.JavaConversions._
-      val indexDocument: MongoDBObject = mappedMetadata.get(metadataPrefix).get
-      indexDocument.entrySet().foldLeft("")(
-        (output, indexDoc) => {
-          val unMungedKey = indexDoc.getKey.replaceFirst("_", ":")
-          output + indexDoc.getValue.asInstanceOf[List[String]].map(value => {
-            "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
-          }).mkString
+    } else if (mappedMetadata.contains(metadataPrefix)) {
+
+      // welcome to the mad world of working around some mongo/casbah/salat limitation
+
+      // we store the mappings in a Map[String, Map[String, List[String]]]
+      // so for one prefix we should get back a Map[String, List[String]]
+      // but instead we get back a Map[String, BasicDBList]
+      // basically the first value of each list is the key, the second one the value (which is itself a BasicDBList, where the values are strings)
+      // thus the code below. don't touch.
+
+      import scala.collection.JavaConverters._
+
+      val map = mappedMetadata.asInstanceOf[Map[String, BasicDBList]]
+      val inner = map(metadataPrefix).asScala.map(entry => entry.asInstanceOf[BasicDBList])
+
+      inner.foldLeft("") {
+        (output: String, e: BasicDBList) => {
+          val entry = (e.get(0), e.get(1))
+          val unMungedKey = entry._1.toString.replaceFirst("_", ":")
+          val value = entry._2.asInstanceOf[BasicDBList].toList
+          value.map(v => "<%s>%s</%s>".format(unMungedKey, v, unMungedKey)).mkString("\n")
         }
-      )
+      }
     }
     else
       throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
@@ -73,7 +83,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   }
 
   def getAccessor(prefix: String) = {
-    if (!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, MongoDBObject())
+    if (!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, Map())
     val map = mappedMetadata(prefix)
     new MultiValueMapMetadataAccessors(hubId, map)
   }
@@ -111,7 +121,7 @@ object MetadataRecord {
 
 }
 
-class MultiValueMapMetadataAccessors(hubId: String, dbo: MongoDBObject) extends MetadataAccessors {
+class MultiValueMapMetadataAccessors(hubId: String, dbo: Map[String, List[String]]) extends MetadataAccessors {
   protected def assign(key: String) = {
     dbo.get(key) match {
       case Some(v) => v.asInstanceOf[BasicDBList].toList.head.toString

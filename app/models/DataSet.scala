@@ -16,23 +16,27 @@
 
 package models
 
+import extensions.ConfigurationException
 import java.util.Date
 import org.bson.types.ObjectId
-import models.salatContext._
+import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
-import dao.SalatDAO
+import com.novus.salat.dao._
 import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
-import play.exceptions.ConfigurationException
 import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
-import cake.ComponentRegistry
-import play.i18n.Messages
+import scala.collection.JavaConverters._
 import eu.delving.sip.IndexDocument
-import controllers.ModelImplicits
+import eu.delving.sip.MappingEngine
 import com.mongodb.casbah.{MongoCollection}
 import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingNotFoundException}
+import controllers.ModelImplicits
+import core.mapping.MappingService
+import play.api.Play
+import play.api.Play.current
+import play.api.i18n.{Lang, Messages}
 
 /**
  * DataSet model
@@ -45,7 +49,7 @@ import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingN
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-                   user_id: ObjectId, // who created this, TODO: replace with userName
+                   user_id: ObjectId, // who created this
                    orgId: Predef.String,
                    lockedBy: Option[ObjectId] = None,
                    description: Option[String] = Some(""),
@@ -107,7 +111,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getFactDefinitionFile: File = {
     val file = new File("conf/fact-definition-list.xml")
-    if (!file.exists()) throw new ConfigurationException("Fact definition configuration file not found!")
+    if (!file.exists()) throw ConfigurationException("Fact definition configuration file not found!")
     file
   }
 
@@ -233,7 +237,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
     val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
-    // remove First Harvest Step
     val updated = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, newMapping))
     DataSet.updateById(dataSet._id, updated)
     updated
@@ -295,18 +298,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       record
     else {
       val mappedRecord = record.get
-      val transformedDoc: DBObject = transformXml(metadataFormat, ds.get, mappedRecord)
+      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
 
       Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
     }
   }
 
   def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
-    import eu.delving.sip.MappingEngine
-    import scala.collection.JavaConversions.asJavaMap
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), asJavaMap(dataSet.namespaces), play.Play.classloader, ComponentRegistry.metadataModel)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, Play.classloader, MappingService.metadataModel)
     val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
     mappedRecord
   }
@@ -354,7 +355,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     // todo add accessKey checker
     val accessKeyIsValid: Boolean = true
     findBySpec(spec) match {
-      case ds: Some[DataSet] => ds.get.getMetadataFormats(accessKeyIsValid)
+      case Some(ds) => ds.getMetadataFormats(accessKeyIsValid)
       case None => List[RecordDefinition]()
     }
   }
@@ -368,11 +369,11 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 }
 
 case class DataSetState(name: String) {
-  def description = Messages.get("dataSetState." + name.toLowerCase)
+
+  def description = Messages("dataSetState." + name.toLowerCase)
 }
 
 object DataSetState {
-  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
   val INCOMPLETE = DataSetState("incomplete")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
@@ -382,6 +383,7 @@ object DataSetState {
   val ERROR = DataSetState("error")
   def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
   def valid(name: String) = values.contains(DataSetState(name))
+  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
 }
 
 case class RecordSep(pre: String, label: String, path: Path = new Path())
@@ -404,7 +406,6 @@ case class Details(name: String,
                   ) {
 
   def getFactsAsText: String = {
-    import com.mongodb.casbah.Implicits._
     val builder = new StringBuilder
     facts foreach {
       fact => builder.append(fact._1).append("=").append(fact._2).append("\n")

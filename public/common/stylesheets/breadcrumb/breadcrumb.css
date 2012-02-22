@@ -4,7 +4,7 @@
 }
 
 .breadcrumb li {
-    /*background: transparent url(/public/common/images/crumb.png) no-repeat top right;*/
+    /*background: transparent url(/assets/common/images/crumb.png) no-repeat top right;*/
     display: inline-block;
     height: 16px;
     line-height: 16px;
@@ -13,7 +13,7 @@
 
 .breadcrumb li:after {
     /*content: "\25B8";*/
-    content: url(/public/common/images/crumb.png);
+    content: url(/assets/common/images/crumb.png);
     display: inline-block;
     padding: 0 10px 0 10px;
 }

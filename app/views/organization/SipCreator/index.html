@@ -1,17 +1,17 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 #{set title: 'Sip-Creator' /}
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs/}
 
-#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete"] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete"] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
 <div class="g-12of12 grid_12 dashboard">
 <h1 class="sep">SIP-Creator</h1>
 
 <div class="row">
     <div class="g-3of12 grid_3">
-         <a href="/${userName}/sip-creator.jnlp"><img src="@{'/public/sip-creator/sip-creator-logo.png'}" alt="logo"/></a>
+         <a href="/${userName}/sip-creator.jnlp"><img src="@{routes.Assets.at('/sip-creator/sip-creator-logo.png')}" alt="logo"/></a>
     </div>
     <div class="g-8of12 grid_8">
          <p>&{'organization.sipcreator.p1'}</p>

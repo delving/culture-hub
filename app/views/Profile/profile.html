@@ -1,5 +1,5 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: viewUtils.getKey('profile.title') + ': ' + userName /}
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('profile.title') + ': ' + browsedUserName /}
 #{set bodyId: 'profile' /}
 <div class="row">
     #{breadcrumbs /}
@@ -18,7 +18,7 @@
                 <span class="label">&{'ui.label.username'}:</span><span class="text">${user.userName}</span>
                 #{if isVisible}
                 <span class="label">&{'ui.label.fullname'}:</span><span class="text">${user.fullname()}</span>
-                <span class="label">&{'profile.activesince'}:</span><span class="text">${views.context.package.niceTime(user._id.getTime())}</span>
+                <span class="label">&{'profile.activesince'}:</span><span class="text">${views.Helpers.niceTime(user._id.getTime())}</span>
                 #{ifnot user.userProfile.description().isEmpty()}
                 <span class="label">&{'user.profile.aboutYou'}:</span><span class="text">${user.userProfile.description().get()}</span>
                 #{/ifnot}
@@ -67,7 +67,7 @@
                     <hr/>
                     #{/list}
                     #{if objectsCount > objects.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
+                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
                     #{/if}
 
                 </div>
@@ -84,7 +84,7 @@
                     <hr/>
                     #{/list}
                     #{if collectionsCount > collections.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/collection" /}
+                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/collection" /}
                     #{/if}
                 </div>
             </div>
@@ -99,7 +99,7 @@
                     <hr/>
                     #{/list}
                     #{if storiesCount > stories.size()}
-                    #{btnHref label: viewUtils.getKey('ui.label.more')+"...", href: user.userName + "/story" /}
+                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/story" /}
                     #{/if}
 
                 </div>

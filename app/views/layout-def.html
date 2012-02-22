@@ -3,15 +3,13 @@
     <div class="user-nav">
         <div class="container_12">
             <div class="grid_12">
-       #{userNav
-            userName: userName,
-            email:email,
-            organizations:organizations,
-            navStyle:viewUtils.themeProperty('userNavStyle'),
-            showLang:viewUtils.themeProperty('userNavLangSelect')
-        /}
+           #{userNav
+                userName: userName,
+                email:email,
+                organizations:organizations,
+                navStyle:themeInfo.get('userNavStyle'),
+                showLang:themeInfo.get('userNavLangSelect') /}
             </div>
-
         </div>
     </div>
 
@@ -20,34 +18,30 @@
         <div class="row">
         <div class="grid_12">
         <div class="branding">
-            <h1 class="site-name"><span>${views.context.package.themeDisplayName()}</span></h1>
+            <h1 class="site-name"><span>${themeInfo.displayName}</span></h1>
 
-            <div class="site-slogan">${viewUtils.themeProperty('siteSlogan').raw()}</div>
+            <div class="site-slogan">${themeInfo.get('siteSlogan').raw()}</div>
 
             <div class="primary-branding">
-                <a href="@{Application.index()}"><img src='${views.context.package.themePath("images/logo-primary.png")}' alt="${views.context.package.themeDisplayName()}" title="${views.context.package.themeDisplayName()}"/></a>
+                <a href="/"><img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/></a>
             </div>
 
             <div class="secondary-branding" role="banner">
-                <a href="${viewUtils.themeProperty('secondaryBrandingURL')}" target="_blank" title="${viewUtils.themeProperty('secondaryBrandingName')}"><img src='${views.context.package.themePath("images/logo-secondary.png")}' alt="" title=""/></a>
+                <a href="${themeInfo.get('secondaryBrandingURL')}" target="_blank" title="${themeInfo.get('secondaryBrandingName')}"><img src='${themeInfo.path("images/logo-secondary.png")}' alt="" title=""/></a>
             </div>
         </div>
         <div class="site-nav">
             <!--site nav-->
             <ul>
-                <li class='${"Application.index".isCurrent()}'><a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${"HeritageObjects".isCurrent()}'><a href="@{HeritageObjects.list()}"><span>&{'thing.objects.heritage'}</span></a></li>
-                <li class='${"DObjects".isCurrent()}'><a href="@{DObjects.list()}"><span>&{'thing.objects.user'}</span></a></li>
-                <li class='${"Collections".isCurrent()}'><a href="@{Collections.list()}"><span>&{'thing.collections'}</span></a></li>
-                <li class='${"Stories".isCurrent()}'><a href="@{Stories.list()}"><span>&{'thing.stories'}</span></a>
-                <li class='${"Users".isCurrent()}'><a href="@{Users.list()}"><span>&{'thing.users'}</span></a></li>
+                <li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                <li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
                 #{mainMenu menu:menu /}
             </ul>
         </div>
 
         <div class="search" role="search">
             <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                <input type="text" id="query" name="query" value='${params.query}'/>
+                <input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                 <input type="submit" value="&{'ui.label.search'}">
             </form>
         </div>
@@ -68,7 +62,7 @@
 
 <div class="footer">
     <div class="container  container_12">
-        <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{'/public/common/images/powered-by-delving.png'}" alt="&{'ui.poweredby'}"/></a>
+        <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{routes.Assets.at('/common/images/powered-by-delving.png')}" alt="&{'ui.poweredby'}"/></a>
 
 
     </div>

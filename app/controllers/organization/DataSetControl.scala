@@ -1,3 +1,5 @@
+package controllers.organization
+
 /*
  * Copyright 2011 Delving B.V.
  *
@@ -14,247 +16,341 @@
  * limitations under the License.
  */
 
-package controllers.organization
-
-import play.mvc.results.Result
 import extensions.JJson
-import scala.collection.JavaConversions._
-import com.mongodb.BasicDBObject
+import com.mongodb.casbah.Imports._
+import org.bson.types.ObjectId
 import models._
 import models.DataSetState._
-import controllers.{ShortDataSet, DelvingController}
 import java.util.Date
-import components.Indexing
-
+import play.api.i18n.Messages
+import core.indexing.Indexing
+import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
+import play.api.data.Forms._
+import collection.JavaConverters._
+import extensions.Formatters._
+import play.api.data.{Form}
+import play.api.data.validation.Constraints
+import controllers.{ViewModel, OrganizationController}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSetControl extends DelvingController with OrganizationSecured {
+case class DataSetViewModel(id:                     Option[ObjectId] = None,
+                            spec:                   String = "",
+                            facts:                  HardcodedFacts = HardcodedFacts(),
+//                            facts:                  Map[String, String] = Map.empty,
+                            recordDefinitions:      Seq[String] = Seq.empty,
+                            indexingMappingPrefix:  String = "",
+                            visibility:             Int = 0,
+                            errors:                 Map[String, String] = Map.empty) extends ViewModel
 
-  def dataSet(orgId: String, spec: String): Result = {
-    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+case class HardcodedFacts(name: String = "",
+                          language: String = "",
+                          country: String = "",
+                          provider: String = "",
+                          dataProvider: String = "",
+                          rights: String = "",
+                          `type`: String = "") {
+  def asMap = Map(
+    "name" -> name,
+    "language" -> language,
+    "country" -> country,
+    "provider" -> provider,
+    "dataProvider" -> dataProvider,
+    "rights" -> rights,
+    "type" -> `type`
+  )
+}
 
-    val data = if (dataSet == None)
-      JJson.generate(ShortDataSet(userName = connectedUser, orgId = orgId, indexingMappingPrefix = "", lockedBy = None))
-    else {
-      val dS = dataSet.get
-      if(DataSet.canEdit(dS, connectedUser)) {
-        JJson.generate(
-          ShortDataSet(
-            id = Some(dS._id),
-            spec = dS.spec,
-            facts = dS.getFacts,
-            userName = dS.getCreator.userName,
-            orgId = dS.orgId,
-            recordDefinitions = dS.recordDefinitions,
-            indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
-            visibility = dS.visibility.value,
-            lockedBy = dS.lockedBy)
-        )
-      } else {
-        return Forbidden("You are not allowed to edit DataSet %s".format(spec))
-      }
-    }
+object HardcodedFacts {
+  
+  def fromMap(map: Map[String, String]) = HardcodedFacts(
+    name = map.get("name").getOrElse(""),
+    language = map.get("language").getOrElse(""),
+    country = map.get("country").getOrElse(""),
+    provider = map.get("provider").getOrElse(""),
+    dataProvider = map.get("dataProvider").getOrElse(""),
+    rights = map.get("rights").getOrElse(""),
+    `type` = map.get("type").getOrElse("")
+  )
+}
 
-    Template('spec -> Option(spec), 'data -> data, 'factDefinitions -> asJavaList(DataSet.factDefinitionList.filterNot(factDef => factDef.automatic)), 'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
-  }
+object DataSetViewModel {
 
-  def dataSetSubmit(orgId: String, data: String): Result = {
-    val dataSet = JJson.parse[ShortDataSet](data)
-    val spec: String = dataSet.spec
-
-    // TODO validation!
-
-    if("^[A-Za-z0-9-]{3,40}$".r.findFirstIn(spec) == None) {
-      return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("ds.spec" -> "Invalid spec format!"))))
-    }
-
-    if(dataSet.indexingMappingPrefix.trim.isEmpty || !dataSet.recordDefinitions.contains(dataSet.indexingMappingPrefix)) {
-      return JsonBadRequest(JJson.generate(dataSet.copy(errors = Map("ds.indexingMappingPrefix" -> "Choose an indexing mapping prefix!"))))
-    }
+  val dataSetForm = Form(
+    mapping(
+      "id" -> optional(of[ObjectId]),
+      "spec" -> nonEmptyText.verifying(Constraints.pattern ("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
+//      "facts" -> of[Map[String, String]],
+      "facts" -> mapping (
+        "name" -> nonEmptyText,
+        "language" -> nonEmptyText,
+        "country" -> nonEmptyText,
+        "provider" -> nonEmptyText,
+        "dataProvider" -> nonEmptyText,
+        "rights" -> nonEmptyText,
+        "type" -> nonEmptyText
+      )(HardcodedFacts.apply)(HardcodedFacts.unapply),
+      "recordDefinitions" -> seq(text),
+      "indexingMappingPrefix" -> nonEmptyText,
+      "visibility" -> number,
+      "errors" -> of[Map[String, String]]
+    )(DataSetViewModel.apply)(DataSetViewModel.unapply)
+  )
 
 
+}
 
-    val factsObject = new BasicDBObject(dataSet.facts)
+object DataSetControl extends OrganizationController {
 
-    def buildMappings(recordDefinitions: List[String]): Map[String, Mapping] = {
-      val mappings = recordDefinitions.map {
-        recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
-      }
-      mappings.toMap[String, Mapping]
-    }
+  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val dataSet = if(spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
 
-    def updateMappings(recordDefinitions: List[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
-      val existing = mappings.filter(m => recordDefinitions.contains(m._1))
-      val added = recordDefinitions.filter(prefix => !mappings.keys.contains(prefix))
-      existing ++ buildMappings(added)
-    }
-
-    // TODO handle all "automatic facts"
-    factsObject.append("spec", spec)
-    factsObject.append("orgId", orgId)
-
-    dataSet.id match {
-      // TODO for update, add the operator that appends key-value pairs rather than setting all
-      case Some(id) => {
-        val existing = DataSet.findOneByID(id).get
-        if(!DataSet.canEdit(existing, connectedUser)) return Forbidden("You have no rights to edit this DataSet")
-
-        val updatedDetails = existing.details.copy(facts = factsObject)
-        val updated = existing.copy(
-          spec = spec,
-          details = updatedDetails,
-          mappings = updateMappings(dataSet.recordDefinitions, existing.mappings),
-          idxMappings = List(dataSet.indexingMappingPrefix),
-          visibility = Visibility.get(dataSet.visibility))
-        DataSet.save(updated)
+        val data = if (dataSet == None) {
+          JJson.generate(DataSetViewModel())
+        } else {
+          val dS = dataSet.get
+          if (DataSet.canEdit(dS, connectedUser)) {
+            JJson.generate(
+              DataSetViewModel(
+                id = Some(dS._id),
+                spec = dS.spec,
+                facts = HardcodedFacts.fromMap(dS.getFacts),
+                recordDefinitions = dS.recordDefinitions,
+                indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
+                visibility = dS.visibility.value)
+            )
+          } else {
+            return Action {
+              Forbidden("You are not allowed to edit DataSet %s".format(spec))
+            }
+          }
         }
-      case None =>
-        // TODO for now only owners can do
-        if(!isOwner) return Forbidden("You are not allowed to create a DataSet.")
-
-        DataSet.insert(
-        DataSet(
-          spec = dataSet.spec,
-          orgId = orgId,
-          user_id = connectedUserId,
-          state = DataSetState.INCOMPLETE,
-          visibility = Visibility.get(dataSet.visibility),
-          lastUploaded = new Date(),
-          details = Details(
-            name = dataSet.facts("name").toString,
-            facts = factsObject,
-            metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
-          ),
-          mappings = buildMappings(dataSet.recordDefinitions),
-          idxMappings = List(dataSet.indexingMappingPrefix)
+        Ok(Template(
+          'spec -> Option(spec),
+          'data -> data,
+          'dataSetForm -> DataSetViewModel.dataSetForm,
+          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic).toList,
+          'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
         )
-      )
     }
-    Json(dataSet)
   }
 
-  def index(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case DISABLED | UPLOADED | ERROR =>
-          try {
+  def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        DataSetViewModel.dataSetForm.bindFromRequest.fold(
+          formWithErrors => handleValidationError(formWithErrors),
+          dataSetForm => {
+            val factsObject = new BasicDBObject()
+            factsObject.putAll(dataSetForm.facts.asMap)
+
+            def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
+              val mappings = recordDefinitions.map {
+                recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
+              }
+              mappings.toMap[String, Mapping]
+            }
+
+            def updateMappings(recordDefinitions: Seq[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
+              val existing = mappings.filter(m => recordDefinitions.contains(m._1))
+              val keyList = mappings.keys.toList
+              val added = recordDefinitions.filter(prefix => !keyList.contains(prefix))
+              existing ++ buildMappings(added)
+            }
+
+            // TODO handle all "automatic facts"
+            factsObject.append("spec", dataSetForm.spec)
+            factsObject.append("orgId", orgId)
+
+            dataSetForm.id match {
+              // TODO for update, add the operator that appends key-value pairs rather than setting all
+              case Some(id) => {
+                val existing = DataSet.findOneByID(id).get
+                if (!DataSet.canEdit(existing, connectedUser)) {
+                  return Action { implicit request => Forbidden("You have no rights to edit this DataSet") }
+                }
+
+                val updatedDetails = existing.details.copy(facts = factsObject)
+                val updated = existing.copy(
+                  spec = dataSetForm.spec,
+                  details = updatedDetails,
+                  mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                  idxMappings = List(dataSetForm.indexingMappingPrefix),
+                  visibility = Visibility.get(dataSetForm.visibility))
+                DataSet.save(updated)
+              }
+              case None =>
+                // TODO for now only owners can do
+                if (!isOwner) return Action { implicit request => Forbidden("You are not allowed to create a DataSet.") }
+
+                DataSet.insert(
+                  DataSet(
+                    spec = dataSetForm.spec,
+                    orgId = orgId,
+                    user_id = connectedUserId,
+                    state = DataSetState.INCOMPLETE,
+                    visibility = Visibility.get(dataSetForm.visibility),
+                    lastUploaded = new Date(),
+                    details = Details(
+                      name = dataSetForm.facts.name,
+                      facts = factsObject,
+                      metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
+                    ),
+                    mappings = buildMappings(dataSetForm.recordDefinitions),
+                    idxMappings = List(dataSetForm.indexingMappingPrefix)
+                  )
+                )
+            }
+            Json(dataSetForm)
+          }
+        )
+    }
+  }
+
+
+  def index(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case DISABLED | UPLOADED | ERROR =>
+            try {
+              DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+              DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
+              Redirect("/organizations/%s/dataset".format(orgId))
+            } catch {
+              case rt if rt.getMessage.contains() =>
+                // TODO give the user some decent feedback in the interface
+                DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
+                Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
+            }
+          case _ => Error(Messages("organization.datasets.cannotBeIndexed"))
+        }
+    }
+  }
+
+  def reIndex(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case ENABLED =>
             DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
-          } catch {
-            case rt if rt.getMessage.contains() =>
-              // TODO give the user some decent feedback in the interface
-              LoggedError(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
-              DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
-          }
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeIndexed"))
-      }
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeReIndexed"))
+        }
     }
   }
 
-  def reIndex(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case ENABLED =>
-          DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeReIndexed"))
-      }
+  def cancel(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId: String, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case QUEUED | INDEXING =>
+            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.UPLOADED)
+            try {
+              Indexing.deleteFromSolr(dataSet)
+            } catch {
+              case _ => DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
+            }
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeCancelled"))
+        }
     }
   }
 
-  def cancel(orgId: String, spec: String): Result = {
-    withDataSet(orgId: String, spec) { dataSet =>
-      dataSet.state match {
-        case QUEUED | INDEXING =>
-          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.UPLOADED)
-          try {
-            Indexing.deleteFromSolr(dataSet)
-          } catch {
-            case _ => DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
-          }
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeCancelled"))
-      }
+  def state(orgId: String, spec: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request => Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
     }
   }
 
-  def state(orgId: String, spec: String): Result = {
-    Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
-  }
-
-  def indexingStatus(orgId: String, spec: String): Result = {
-    val state = DataSet.getIndexingState(orgId, spec) match {
-      case (a, b) if a == b => "DONE"
-      case (a, b) => ((a.toDouble / b) * 100).round
-    }
-    Json(Map("status" -> state))
-  }
-
-  def disable(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case QUEUED | INDEXING | ERROR | ENABLED =>
-          val updatedDataSet = DataSet.updateStateAndIndexingCount(dataSet, DataSetState.DISABLED)
-          Indexing.deleteFromSolr(updatedDataSet)
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeDisabled"))
-      }
+  def indexingStatus(orgId: String, spec: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val state = DataSet.getIndexingState(orgId, spec) match {
+          case (a, b) if a == b => "DONE"
+          case (a, b) => ((a.toDouble / b) * 100).round
+        }
+        Json(Map("status" -> state))
     }
   }
 
-  def enable(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case DISABLED =>
-          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ENABLED)
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeEnabled"))
-      }
+  def disable(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case QUEUED | INDEXING | ERROR | ENABLED =>
+            val updatedDataSet = DataSet.updateStateAndIndexingCount(dataSet, DataSetState.DISABLED)
+            Indexing.deleteFromSolr(updatedDataSet)
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeDisabled"))
+        }
     }
   }
 
-  def delete(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
-          DataSet.delete(dataSet)
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeDeleted"))
-      }
+  def enable(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case DISABLED =>
+            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ENABLED)
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeEnabled"))
+        }
     }
   }
 
-  def invalidate(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      dataSet.state match {
-        case DISABLED | ENABLED | UPLOADED | ERROR =>
-          DataSet.invalidateHashes(dataSet)
-          DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INCOMPLETE)
-          Redirect("/organizations/%s/dataset".format(orgId))
-        case _ => Error(&("organization.datasets.cannotBeInvalidated"))
-      }
+  def delete(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
+            DataSet.delete(dataSet)
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeDeleted"))
+        }
+    }
+  }
+
+  def invalidate(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        dataSet.state match {
+          case DISABLED | ENABLED | UPLOADED | ERROR =>
+            DataSet.invalidateHashes(dataSet)
+            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INCOMPLETE)
+            Redirect("/organizations/%s/dataset".format(orgId))
+          case _ => Error(Messages("organization.datasets.cannotBeInvalidated"))
+        }
     }
   }
 
 
-
-  def forceUnlock(orgId: String, spec: String): Result = {
-    withDataSet(orgId, spec) { dataSet =>
-      DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
-      Ok
+  def forceUnlock(orgId: String, spec: String): Action[AnyContent] = {
+    withDataSet(orgId, spec) {
+      dataSet => implicit request =>
+        DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
+        Ok
     }
   }
 
-  def withDataSet(orgId: String, spec: String)(operation: DataSet => Result): Result = {
-    val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return NotFound(&("organization.datasets.dataSetNotFound", spec)))
-    // TODO for now only owners can do
-    if(!isOwner) return Forbidden
-    operation(dataSet)
+  def withDataSet(orgId: String, spec: String)(operation: => DataSet => RequestHeader => Result): Action[AnyContent] = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return Action {
+          implicit request => NotFound(Messages("organization.datasets.dataSetNotFound", spec))
+        })
+        // TODO for now only owners can do
+        if (!isOwner) return Action {
+          implicit request => Forbidden
+        }
+        operation(dataSet)(request)
+    }
   }
 }
+

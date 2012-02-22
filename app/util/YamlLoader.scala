@@ -17,8 +17,11 @@
 package util
 
 import collection.mutable.Buffer
+import extensions.ProgrammerException
 import org.yaml.snakeyaml.nodes._
 import com.mongodb.BasicDBObject
+import org.yaml.snakeyaml.Yaml
+import play.api.Play.current
 
 /**
  * Loader for Yaml files, based on the play-scala loader but meant for real-life usage. Adds improved support for type conversion.
@@ -37,7 +40,7 @@ object YamlLoader {
 
   def load[T](name: String)(implicit m: ClassManifest[T]) = {
 
-    val constructor = new org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor(classOf[Object], play.Play.classloader) {
+    val constructor = new org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor(classOf[Object], play.api.Play.classloader) {
 
       class MoreComplicated extends Exception
 
@@ -69,10 +72,6 @@ object YamlLoader {
           case n: ScalarNode if n.getTag.getClassName == "Some[String]" => Some(n.getValue)
           case n: ScalarNode if n.getTag.getClassName == "Some[Long]" => Some(java.lang.Long.parseLong(n.getValue, 10))
           case n: ScalarNode if n.getTag.getClassName == "Some[Int]" => Some(java.lang.Integer.parseInt(n.getValue, 10))
-          case n: ScalarNode if n.getTag.getClassName == "NotAssigned" => play.db.anorm.NotAssigned
-          case n: ScalarNode if n.getTag.getClassName == "Id[String]" => play.db.anorm.Id(n.getValue)
-          case n: ScalarNode if n.getTag.getClassName == "Id[Long]" => play.db.anorm.Id(java.lang.Long.parseLong(n.getValue, 10))
-          case n: ScalarNode if n.getTag.getClassName == "Id[Int]" => play.db.anorm.Id(java.lang.Integer.parseInt(n.getValue, 10))
 
           case n: ScalarNode if n.getTag.getClassName == "ObjectId" => new org.bson.types.ObjectId(n.getValue)
 
@@ -135,27 +134,24 @@ object YamlLoader {
 
     }
 
-
-
-    // this code is here for future reference should we one day need to dive into this madness again.
-    //
-    // so far, I found no better way to make both SnakeYaml and Salat happy about Object type construction. (Salat will complain that a property needs to have a default value, hence be
-    // declared as an option, if it is queried for somewhere)
-    // this means every time we have an Option(anotherCaseClass) we need to tell SnakeYaml how to build it. it also makes the YAML code look funny.
-
-    //    val referenceDescription = new TypeDescription(classOf[models.User])
-    //    referenceDescription.putMapPropertyType("reference", classOf[String], classOf[scala.Option[models.UserReference]])
-    //    constructor.addTypeDescription(referenceDescription)
-
-    val yamlParser = new org.yaml.snakeyaml.Yaml(constructor)
+    val yamlParser = new Yaml(constructor)
     yamlParser.setBeanAccess(org.yaml.snakeyaml.introspector.BeanAccess.FIELD)
+
+    def loadYaml(name: String, yaml: Yaml) {
+      try {
+        val is = play.api.Play.current.resourceAsStream(name).getOrElse(throw ProgrammerException("Could not find YAML file " + name))
+        yaml.load(is)
+      } catch {
+        case t => throw new RuntimeException("Problem reading YAML from " + name, t)
+      }
+    }
 
     import scala.collection.JavaConversions._
 
     m.erasure.getName match {
-      case "scala.collection.immutable.List" => play.test.Fixtures.loadYaml(name, yamlParser).asInstanceOf[java.util.List[Any]].toList.asInstanceOf[T]
-      case "scala.collection.immutable.Map" => play.test.Fixtures.loadYaml(name, yamlParser).asInstanceOf[java.util.Map[Any, Any]].toMap[Any, Any].asInstanceOf[T]
-      case _ => play.test.Fixtures.loadYaml(name, yamlParser).asInstanceOf[T]
+      case "scala.collection.immutable.List" => loadYaml(name, yamlParser).asInstanceOf[java.util.List[Any]].toList.asInstanceOf[T]
+      case "scala.collection.immutable.Map" => loadYaml(name, yamlParser).asInstanceOf[java.util.Map[Any, Any]].toMap[Any, Any].asInstanceOf[T]
+      case _ => loadYaml(name, yamlParser).asInstanceOf[T]
     }
   }
 }

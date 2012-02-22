@@ -1,6 +1,6 @@
 #{set 'visibility'}hidden#{/}
-#{extends viewUtils.themeProperty('themeLayout') /}
-#{set title: viewUtils.getKey('organization.dataset.create') /}
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('organization.dataset.create') /}
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
@@ -8,19 +8,19 @@
 orgId: orgId,
 active:"datasets",
 extraButtons: [
-[label:viewUtils.getKey('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-[label: viewUtils.getKey('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
+[label:messages.get('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
+[label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
 ],
 isOwner: isOwner /}
 <div class="row">
     <div class="grid_12 dashboard">
-        <h1 class="sep">${spec.isEmpty() ? viewUtils.getKey('organization.dataset.create') : viewUtils.getKey('organization.dataset.update') }</h1>
+        <h1 class="sep">${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h1>
 
         <form method="post" action="" id="collectionForm">
             <div class="row">
                 <div class="g-1of2">
                     <h3>&{'organization.dataset.info'}</h3>
-                    #{textField name:"spec", label: viewUtils.getKey('organization.dataset.label.identifier'), dataBind:"value: spec", help: viewUtils.getKey('organization.dataset.help.identifier') /}
+                    #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
                     <div class="field">
                         <label class="label">&{'ui.label.visibility'}</label>
 
@@ -32,13 +32,13 @@ isOwner: isOwner /}
                     </div>
 
                     %{for(i in 0..factDefinitions.size() - 1) {
-                    def factDef = factDefinitions.get(i);
+                    def factDef = factDefinitions.apply(i);
                     }%
                     #{if factDef.hasOptions()}
-                    #{populatedSelectField name: factDef.name + "_field", label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                    #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
                     #{/if}
                     #{else}
-                    #{textField name:factDef.name + "_field", label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                    #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
                     #{/else}
 
                     %{ }}%
@@ -55,7 +55,7 @@ isOwner: isOwner /}
             </div>
             <div class="row">
                 <div class="buttons">
-                    #{btnHref id:"saveButton", name:"saveButton", label:viewUtils.getKey('organization.dataset.save'), extraClass:"submit"/}
+                    #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"submit"/}
                 </div>
             </div>
         </form>
@@ -69,8 +69,6 @@ isOwner: isOwner /}
                 event.preventDefault();
                 handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
                     window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
-                }, function() {
-                    alert("Could not save dataset! Maybe an invalid spec was passed in or no mapping was selected for indexing?")
                 });
             });
 

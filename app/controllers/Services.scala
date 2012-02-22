@@ -18,6 +18,10 @@ package controllers
 
 import models.DataSet
 import util.Constants
+import extensions.HTTPClient
+import play.api.mvc.Action
+import core.search.{Params, SearchService}
+import core.opendata.OaiPmhService
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -26,65 +30,61 @@ import util.Constants
 
 object Services extends DelvingController with HTTPClient {
 
-  import play.mvc.results.Result
-
-  // todo change this with the real portal skins and functionality etc
-  def index(user: String): AnyRef = {
-    val u = getUser(user) match {
-      case Right(aUser) => aUser
-      case Left(error) => return error
-    }
-    Template
-  }
-
-  def solrSearchProxy : Result  = {
-    import org.apache.commons.httpclient.methods.GetMethod
-    import org.apache.commons.httpclient.{HttpClient, HttpMethod}
-    import play.mvc.results.{RenderJson, RenderXml, RenderBinary}
-    import play.Play
-
-    val solrQueryString: String = request.querystring
-
-    val solrServerUrl: String = String.format("%s/select?%s", Play.configuration.getProperty("solr.baseUrl", "http://localhost:8983/solr/core2"), solrQueryString)
-    val method: HttpMethod = new GetMethod(solrServerUrl)
-
-    val httpClient: HttpClient = getHttpClient
-    httpClient executeMethod (method)
-
-    val responseContentType: String = method.getResponseHeader("Content-Type").getValue
-    val solrResponseType: Option[String] = Option[String](request.params.get("wt"))
-
-    val responseString: String = method.getResponseBodyAsString
-
-    solrResponseType match {
-      case Some("javabin") => new RenderBinary(method.getResponseBodyAsStream, "solrResult", responseContentType, false)
-      case Some("json") => new RenderJson(responseString)
-      case Some("xml") => new RenderXml(responseString)
-      case _ => new RenderXml(responseString)
+  def searchApi(orgId: String) = Root {
+    Action {
+      implicit request =>
+        orgId.isEmpty match {
+          case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
+          case true => SearchService.getApiResult(request, theme)
+        }
     }
   }
+  
+  def solrSearchProxy = Root {
+    Action {
+      implicit request =>
+        import org.apache.commons.httpclient.methods.GetMethod
+        import org.apache.commons.httpclient.{HttpClient, HttpMethod}
+        import play.api.Play
+        import play.api.Play.current
 
-  def oaipmh : Result = {
-    import play.mvc.results.{RenderXml}
-    import cake.metaRepo.OaiPmhService
+        val solrQueryString: String = request.rawQueryString
+        val params = Params(request.queryString)
 
-    val oaiPmhService = new OaiPmhService(request)
-    new RenderXml(oaiPmhService.parseRequest)
-  }
+        val solrServerUrl: String = String.format("%s/select?%s", Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2"), solrQueryString)
+        val method: HttpMethod = new GetMethod(solrServerUrl)
 
-  def oaipmhSecured(accessKey: String) : Result = {
-    import play.mvc.results.{RenderXml}
-    import cake.metaRepo.OaiPmhService
+        val httpClient: HttpClient = getHttpClient
+        httpClient executeMethod (method)
 
-    val oaiPmhService = new OaiPmhService(request, accessKey)
-    new RenderXml(oaiPmhService.parseRequest)
-  }
+        val responseContentType: String = method.getResponseHeader("Content-Type").getValue
+        val solrResponseType = params.getValueOrElse("wt", "xml")
 
-  def searchApi(orgId: Option[String]) : Result = {
-    import search.SearchService
-    orgId match {
-      case Some(id) => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, id)))
-      case None => SearchService.getApiResult(request, theme)
+        val responseString: String = method.getResponseBodyAsString
+
+        solrResponseType match {
+          // case "javabin" => Ok(method.getResponseBodyAsStream).as(BINARY) todo enable this again , "solrResult", responseContentType, false todo test if this still works
+          case "json" => Ok(responseString).as(JSON)
+          case "xml" => Ok(responseString).as(XML)
+          case _ => Ok(responseString).as(XML)
+        }
     }
+    
   }
+
+  def oaipmh(orgId: String = "delving") = Root {
+      Action {
+        implicit request =>
+          val oaiPmhService = new OaiPmhService(request = request, orgId = orgId)
+          Ok(oaiPmhService.parseRequest).as(XML)
+      }
+  }
+
+//  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
+//      Action {
+//        implicit request =>
+//          val oaiPmhService = new OaiPmhService(request, accessKey)
+//          Ok(oaiPmhService.parseRequest).as(XML)
+//      }
+//  }
 }

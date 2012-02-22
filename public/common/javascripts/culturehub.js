@@ -9,7 +9,7 @@ function initializeElements() {
       document.location = document.referrer;
     });
     $.preloadImages (
-        "/public/common/images/spinner.gif"
+        "/assets/common/images/spinner.gif"
     );
 }
 
@@ -110,7 +110,7 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
         }, function(jqXHR, textStatus, errorThrown) {
             $(".wait").spinner("hide");
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
-            if (typeof onError !== 'undefined') onError.call();
+            if (typeof onError !== 'undefined' && onError !== null) onError.call();
         }, additionalData);
     } else {
         $(".wait").spinner("hide");
@@ -127,13 +127,16 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
  * @param additionalData an additional object with data, directly extended into what is sent to the server
  */
 $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
-    var data = typeof additionalData === 'undefined' ? { data: ko.mapping.toJSON(viewModel) } : $.extend({ data: ko.mapping.toJSON(viewModel) }, additionalData);
+    var data = typeof additionalData === 'undefined' ? ko.mapping.toJS(viewModel) : $.extend(ko.mapping.toJS(viewModel) , additionalData);
+    // again, make Play happy
+    var serializedData = $.param(data).
+        replace(/%5B([a-zA-Z_-]+)%5D/g, ".$1"). // mapName[key] -> mapName.key
+        replace(/%5B%5D/g, "%5B0%5D");       //  listOneElement[] -> listOneElement[0]
     return jQuery.ajax({
         type: 'POST',
         url: url,
-        data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=utf-8',
-        dataType: 'json'
+        data: serializedData,
+        contentType: 'application/x-www-form-urlencoded; charset=utf-8'
     }).success(onSuccess).error(onFailure);
 };
 
@@ -519,12 +522,12 @@ Delving.wysiwyg = function (params) {
         fix_content_duplication: false,
         fix_list_elements: true,
         valid_child_elements: "ul[li],ol[li]",
-        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,",
-        theme_advanced_buttons2: "|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source",
+        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source",
+        theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
         theme_advanced_toolbar_align: "left",
         height : "320",
-        plugins: "advimage",
+        plugins: "advimage,autoresize",
         external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]"
     };

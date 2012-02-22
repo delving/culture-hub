@@ -19,7 +19,7 @@ package models
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import salatContext._
+import mongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
 
 /**
@@ -89,7 +89,7 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
         val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title))
         save(updatedEntry)
         // update position of siblings by shifting them to the right
-        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey) ++ "position" $gte (position) ++ "targetPageKey" $ne (targetPageKey), $inc("position" -> 1))
+        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
       case None =>
         val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title))
         insert(newEntry)

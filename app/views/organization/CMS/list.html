@@ -1,10 +1,10 @@
-#{extends viewUtils.themeProperty('themeLayout') /}
+#{extends themeInfo.get('themeLayout') /}
 
-#{set title: viewUtils.getKey('thing.pages') /}
+#{set title: messages.get('thing.pages') /}
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs /}
+#{breadcrumbs theme: themeInfo.getTheme() /}
 <div class="row">
     #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 </div>

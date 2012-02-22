@@ -16,17 +16,18 @@
 
 package util
 
+import extensions.ConfigurationException
 import java.lang.String
-import play.mvc.Http
-import scala.collection.JavaConversions._
-import models.PortalTheme
+import play.api.Play.current
+import play.api.{Play, Logger}
+import xml.{Node, XML}
+
+//import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
-import play.{Logger, Play}
-import java.io.File
-import play.exceptions.ConfigurationException
+import models.{EmailTarget, PortalTheme}
 
 /**
- * ThemHandler taking care of loading themes (initially from YML, then from mongo)
+ * ThemHandler taking care of loading themes
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -35,8 +36,6 @@ import play.exceptions.ConfigurationException
 object ThemeHandler {
 
   private var themeList: Seq[PortalTheme] = List()
-
-  private val defaultQueryKeys = List("dc.title", "dc.description", "dc.creator", "dc.subject", "dc.date") // todo add more default cases
 
   def getThemeNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
@@ -49,7 +48,7 @@ object ThemeHandler {
    */
   def startup() {
     if (PortalTheme.count() == 0) {
-      themeList = readThemesFromDisk()
+      themeList = readThemesFromDisk
       themeList foreach {
         PortalTheme.insert(_)
       }
@@ -64,7 +63,7 @@ object ThemeHandler {
     }
 
     if (!getDefaultTheme.isDefined) {
-      throw new ConfigurationException("No default theme could be found!")
+      throw ConfigurationException("No default theme could be found!")
     }
   }
 
@@ -77,22 +76,11 @@ object ThemeHandler {
 
   def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
 
-  def readThemesFromDisk(): Seq[PortalTheme] = {
-    try {
-      loadThemesYaml()
-    } catch {
-      case ex: Throwable => {
-        Logger.error("Error updating themes from YAML descriptor")
-        throw new RuntimeException("Error updating themes from YAML descriptor", ex)
-      }
-    }
-  }
-
   def hasSingleTheme: Boolean = themeList.length == 1
 
   def hasTheme(themeName: String): Boolean = !themeList.filter(theme => theme.name == themeName).isEmpty
 
-  def getDefaultTheme = themeList.filter(_.name == Play.configuration.getProperty("themes.defaultTheme", "default")).headOption
+  def getDefaultTheme = themeList.filter(_.name == current.configuration.getString("themes.defaultTheme").getOrElse("default")).headOption
 
   def getByThemeName(name: String) = {
     val theme = themeList.filter(_.name.equalsIgnoreCase(name))
@@ -100,8 +88,8 @@ object ThemeHandler {
     else getDefaultTheme.get
   }
 
-  def getByRequest(request: Http.Request): PortalTheme = {
-    if(Play.mode == Play.Mode.DEV) {
+  def getByDomain(domain: String): PortalTheme = {
+    if (Play.isDev) {
       startup()
     }
     if (hasSingleTheme) getDefaultTheme.get
@@ -109,8 +97,8 @@ object ThemeHandler {
       // fetch by longest matching subdomain
       themeList.foldLeft(getDefaultTheme.get) {
         (r: PortalTheme, c: PortalTheme) => {
-          val rMatches = r.subdomain != None && request.domain.startsWith(r.subdomain.get)
-          val cMatches = c.subdomain != None && request.domain.startsWith(c.subdomain.get)
+          val rMatches = r.subdomain != None && domain.startsWith(r.subdomain.get)
+          val cMatches = c.subdomain != None && domain.startsWith(c.subdomain.get)
           val rLonger = r.subdomain.get.length() > c.subdomain.get.length()
 
           if (rMatches && cMatches && rLonger) r
@@ -123,22 +111,34 @@ object ThemeHandler {
     }
   }
 
-  private[util] def loadThemesYaml(): Seq[PortalTheme] = {
-
-    val themeFiles = new File(Play.applicationPath + "/conf").list().filter(_.endsWith("_themes.yml"))
-
-    if (themeFiles.length == 0) {
-      Logger.fatal("No themes configuration YML file could be found in conf/");
-      System.exit(1);
-    }
-
-    PortalTheme.removeAll()
-
-    val themes = for (theme: PortalTheme <- themeFiles.flatMap(f => YamlLoader.load[List[PortalTheme]](f))) yield {
-      theme.copy(localiseQueryKeys = if (theme.localiseQueryKeys == null) defaultQueryKeys else defaultQueryKeys ++ theme.localiseQueryKeys)
-    }
-    themes
+  def readThemesFromDisk: Seq[PortalTheme] = {
+    val THEME_CONFIG_SUFFIX = "_themes.xml"
+    val themeDefinitions = Play.getFile("conf/").listFiles().filter(f => f.isFile && f.getName.endsWith(THEME_CONFIG_SUFFIX))
+    themeDefinitions.flatMap(f => parseThemeDefinition(XML.loadFile(f)))
   }
+
+  private def parseThemeDefinition(root: Node): Seq[PortalTheme] = {
+    for( theme <- root \\ "theme") yield {
+      PortalTheme(
+        name             = (theme \ "@name").text,
+        subdomain        = Some((theme \ "subdomain").text),
+        defaultLanguage  = (theme \ "defaultLanguage").text,
+        solrSelectUrl    = (theme \ "solrSelectUrl").text,
+        facets           = Some((theme \ "facets").text),
+        sortFields       = Some((theme \ "sortFields").text),
+        apiWsKey         = (theme \ "apiWsKey").text.toBoolean,
+        emailTarget = EmailTarget(
+          (theme \ "emailTarget" \ "adminTo").text,
+          (theme \ "emailTarget" \ "exceptionTo").text,
+          (theme \ "emailTarget" \ "feedbackTo").text,
+          (theme \ "emailTarget" \ "registerTo").text,
+          (theme \ "emailTarget" \ "systemFrom").text,
+          (theme \ "emailTarget" \ "feedbackFrom").text
+        )
+      )
+    }
+  }
+
 }
 
 

@@ -1,34 +1,28 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package models {
 
-package models
-
+import org.bson.types.ObjectId
+import com.mongodb.casbah.Imports._
+import play.api.Logger
 import com.novus.salat.dao.SalatDAO
-import com.mongodb.casbah.commons.Imports._
-import models.salatContext._
-import controllers.search.SolrFacetElement
-import controllers.search.SolrSortElement
-import play.Logger
 import org.apache.solr.client.solrj.SolrQuery
+import mongoContext._
+import core.search.{SolrSortElement, SolrFacetElement}
 
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
+
+case class EmailTarget(adminTo: String = "test-user@delving.eu",
+                       exceptionTo: String = "test-user@delving.eu",
+                       feedbackTo: String = "test-user@delving.eu",
+                       registerTo: String = "test-user@delving.eu",
+                       systemFrom: String = "noreply@delving.eu",
+                       feedbackFrom: String = "noreply@delving.eu") {
+
+ }
+
 
 case class PortalTheme(_id:                                 ObjectId = new ObjectId,
                        name:                                String,
@@ -56,7 +50,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
               SolrFacetElement(k(0), k(1), k(2).toInt)
             } catch {
               case  _ : java.lang.NumberFormatException =>
-                Logger.warn("Wrong value %s for facet display column number for theme %s", k(2), name)
+                Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), name))
                 SolrFacetElement(k(0), k(1))
             }
         }
@@ -89,4 +83,6 @@ object PortalTheme extends SalatDAO[PortalTheme, ObjectId](collection = portalTh
   def removeAll() {
     remove(MongoDBObject())
   }
+}
+
 }

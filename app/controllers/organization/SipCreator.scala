@@ -1,23 +1,7 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers.organization
 
 import controllers.DelvingController
-import play.mvc.results.Result
+import play.api.mvc._
 
 /**
  *
@@ -26,64 +10,69 @@ import play.mvc.results.Result
 
 object SipCreator extends DelvingController {
 
-  def index(orgId: String): Result = Template('orgId -> orgId)
-
-  def jnlp(user: String): Result = {
-
-    response.contentType = "application/x-java-jnlp-file"
-    response.setHeader("Cache-Control", "no-cache")
-
-    val sipCreatorVersion = "0.4.6"
-    val home = "http://" + request.host + "/" + user + "/"
-    val codebase = "http://" + request.host + "/public/sip-creator/"
-
-    val jnlp = <jnlp spec="1.0+" codebase={ codebase } href={ home + "sip-creator.jnlp" }>
-    <information>
-        <title>Delving SIP-Creator</title>
-        <vendor>Delving</vendor>
-        <description kind="one-line">Delving SIP-Creator</description>
-        <icon href={ codebase + "sip-creator-logo.png" } kind="default"/>
-        <icon href={ codebase + "sip-creator-logo.png" } kind="splash"/>
-        <shortcut online="false">
-            <desktop/>
-        </shortcut>
-        <update check="always"/>
-    </information>
-    <security>
-        <all-permissions/>
-    </security>
-    <resources>
-        <java version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
-        <property name="jnlp.versionEnabled" value="false"/>
-        <jar href={ "sip-creator-" + sipCreatorVersion + "-SNAPSHOT.jar" } main="true"/>
-        <jar href={ "sip-core-" + sipCreatorVersion + "-SNAPSHOT.jar" }/>
-        <jar href="oauth2-client-0.2-SNAPSHOT.jar"/>
-        <jar href="oauth2-common-0.2-SNAPSHOT.jar"/>
-        <jar href="jettison-1.2.jar"/>
-        <jar href="slf4j-api-1.6.1.jar"/>
-        <jar href="utils-1.07.00.jar"/>
-        <jar href="httpclient-4.1.2.jar"/>
-        <jar href="httpcore-4.1.2.jar"/>
-        <jar href="commons-logging-1.1.1.jar"/>
-        <jar href="commons-codec-1.4.jar"/>
-        <jar href="log4j-1.2.16.jar"/>
-        <jar href="commons-lang-2.3.jar"/>
-        <jar href="commons-io-2.0.jar"/>
-        <jar href="xstream-1.3.1.jar"/>
-        <jar href="xpp3_min-1.1.4c.jar"/>
-        <jar href="gson-1.7.1.jar"/>
-        <jar href="groovy-all-1.7.10.jar"/>
-        <jar href="woodstox-core-asl-4.0.9.jar"/>
-        <jar href="stax-api-1.0-2.jar"/>
-        <jar href="stax2-api-3.0.3.jar"/>
-        <jar href="cglib-2.1_3.jar"/>
-        <jar href="asm-1.5.3.jar"/>
-    </resources>
-    <application-desc main-class="eu.delving.sip.Application">
-        <argument>{ user }</argument>
-    </application-desc>
-</jnlp>
-
-    Xml(jnlp)
+  def index(orgId: String) = Root {
+    Action {
+      implicit request => Ok(Template('orgId -> orgId))
+    }
   }
+
+  def jnlp(user: String) = Root {
+    Action {
+      implicit request =>
+
+        val sipCreatorVersion = "0.4.6"
+        val home = "http://" + request.host + "/" + user + "/"
+        val codebase = "http://" + request.host + "/assets/sip-creator/"
+
+        val jnlp = <jnlp spec="1.0+" codebase={codebase} href={home + "sip-creator.jnlp"}>
+          <information>
+            <title>Delving SIP-Creator</title>
+            <vendor>Delving</vendor>
+            <description kind="one-line">Delving SIP-Creator</description>
+              <icon href={codebase + "sip-creator-logo.png"} kind="default"/>
+              <icon href={codebase + "sip-creator-logo.png"} kind="splash"/>
+            <shortcut online="false">
+                <desktop/>
+            </shortcut>
+              <update check="always"/>
+          </information>
+          <security>
+              <all-permissions/>
+          </security>
+          <resources>
+              <java version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
+              <property name="jnlp.versionEnabled" value="false"/>
+              <jar href={"sip-creator-" + sipCreatorVersion + "-SNAPSHOT.jar"} main="true"/>
+              <jar href={"sip-core-" + sipCreatorVersion + "-SNAPSHOT.jar"}/>
+              <jar href="oauth2-client-0.2-SNAPSHOT.jar"/>
+              <jar href="oauth2-common-0.2-SNAPSHOT.jar"/>
+              <jar href="jettison-1.2.jar"/>
+              <jar href="slf4j-api-1.6.1.jar"/>
+              <jar href="utils-1.07.00.jar"/>
+              <jar href="httpclient-4.1.2.jar"/>
+              <jar href="httpcore-4.1.2.jar"/>
+              <jar href="commons-logging-1.1.1.jar"/>
+              <jar href="commons-codec-1.4.jar"/>
+              <jar href="log4j-1.2.16.jar"/>
+              <jar href="commons-lang-2.3.jar"/>
+              <jar href="commons-io-2.0.jar"/>
+              <jar href="xstream-1.3.1.jar"/>
+              <jar href="xpp3_min-1.1.4c.jar"/>
+              <jar href="gson-1.7.1.jar"/>
+              <jar href="groovy-all-1.7.10.jar"/>
+              <jar href="woodstox-core-asl-4.0.9.jar"/>
+              <jar href="stax-api-1.0-2.jar"/>
+              <jar href="stax2-api-3.0.3.jar"/>
+              <jar href="cglib-2.1_3.jar"/>
+              <jar href="asm-1.5.3.jar"/>
+          </resources>
+          <application-desc main-class="eu.delving.sip.Application">
+            <argument>{user}</argument>
+          </application-desc>
+        </jnlp>
+
+        Ok(jnlp).as("application/x-java-jnlp-file").withHeaders(("Cache-Control", "no-cache"))
+    }
+  }
+
 }

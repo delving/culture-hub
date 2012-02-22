@@ -21,6 +21,9 @@
         <field prefix="abm" localName="contentProvider"/>
         <field prefix="abm" localName="addresss"/>
         <field prefix="abm" localName="digitised"/>
+        <field prefix="abm" localName="lat"/>
+        <field prefix="abm" localName="long"/>
+        <field prefix="abm" localName="type"/>
 
 
         <field prefix="dc" localName="contributor"/>
@@ -76,7 +79,7 @@
         <!-- to be deleted is unused -->
         <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
         <field prefix="europeana" localName="unstored" fieldType="text"/>
-        <field prefix="europeana" localName="uri" identifierField="true">
+        <field prefix="europeana" localName="uri" identifierField="true" fieldType="string">
             <converter call=".toId(spec)"/>
         </field>
         <field prefix="europeana" localName="userTag"/>
@@ -85,52 +88,52 @@
             <converter multipleOutput="true" call=".extractYear()"/>
         </field>
     </root>
-    <views>
-        <view name="full">
-            <view-field name="dc_title" prefix="dc" localName="title"/>
-            <view-field name="dc_date">
-                <field-ref prefix="dc" localName="date"/>
-                <field-ref prefix="dcterms" localName="created"/>
-                <field-ref prefix="dcterms" localName="issued"/>
-            </view-field>
-            <view-field name="dc_creator" prefix="dc" localName="creator"/>
-            <view-field name="dc_description" prefix="dc" localName="description"/>
-            <view-field name="dc_language" prefix="dc" localName="language"/>
-            <view-field name="dc_format">
-                <field-ref prefix="dc" localName="format"/>
-                <field-ref prefix="dcterms" localName="extent"/>
-                <field-ref prefix="dcterms" localName="medium"/>
-            </view-field>
-            <view-field name="dc_source" prefix="dc" localName="source"/>
-            <view-field name="dc_rights" prefix="dc" localName="rights"/>
-            <view-field name="dc_publisher" prefix="dc" localName="publisher"/>
-            <view-field name="europeana_provider" prefix="abm" localName="contentProvider"/>
-            <view-field name="dc_subject">
-                <field-ref prefix="dc" localName="subject"/>
-                <field-ref prefix="dcterms" localName="spatial"/>
-                <field-ref prefix="dcterms" localName="coverage"/>
-            </view-field>
-            <view-field name="dcterms_temporal" prefix="dcterms" localName="temporal"/>
-            <view-field name="dcterms_provenance" prefix="dcterms" localName="provenance"/>
-            <view-field name="dc_type" prefix="dc" localName="type"/>
-            <view-field name="dc_identifier" prefix="dc" localName="identifier"/>
-            <view-field name="dc_relation">
-                <field-ref prefix="dc" localName="relation"/>
-                <field-ref prefix="dcterms" localName="references"/>
-                <field-ref prefix="dcterms" localName="isReferencedBy"/>
-                <field-ref prefix="dcterms" localName="isReplacedBy"/>
-                <field-ref prefix="dcterms" localName="isRequiredBy"/>
-                <field-ref prefix="dcterms" localName="isPartOf"/>
-                <field-ref prefix="dcterms" localName="hasPart"/>
-                <field-ref prefix="dcterms" localName="replaces"/>
-                <field-ref prefix="dcterms" localName="requires"/>
-                <field-ref prefix="dcterms" localName="isVersionOf"/>
-                <field-ref prefix="dcterms" localName="hasVersion"/>
-                <field-ref prefix="dcterms" localName="conformsTo"/>
-                <field-ref prefix="dcterms" localName="hasFormat"/>
-            </view-field>
-        </view>
-    </views>
+    <!--<views>-->
+        <!--<view name="full">-->
+            <!--<view-field name="dc_title" prefix="dc" localName="title"/>-->
+            <!--<view-field name="dc_date">-->
+                <!--<field-ref prefix="dc" localName="date"/>-->
+                <!--<field-ref prefix="dcterms" localName="created"/>-->
+                <!--<field-ref prefix="dcterms" localName="issued"/>-->
+            <!--</view-field>-->
+            <!--<view-field name="dc_creator" prefix="dc" localName="creator"/>-->
+            <!--<view-field name="dc_description" prefix="dc" localName="description"/>-->
+            <!--<view-field name="dc_language" prefix="dc" localName="language"/>-->
+            <!--<view-field name="dc_format">-->
+                <!--<field-ref prefix="dc" localName="format"/>-->
+                <!--<field-ref prefix="dcterms" localName="extent"/>-->
+                <!--<field-ref prefix="dcterms" localName="medium"/>-->
+            <!--</view-field>-->
+            <!--<view-field name="dc_source" prefix="dc" localName="source"/>-->
+            <!--<view-field name="dc_rights" prefix="dc" localName="rights"/>-->
+            <!--<view-field name="dc_publisher" prefix="dc" localName="publisher"/>-->
+            <!--<view-field name="europeana_provider" prefix="abm" localName="contentProvider"/>-->
+            <!--<view-field name="dc_subject">-->
+                <!--<field-ref prefix="dc" localName="subject"/>-->
+                <!--<field-ref prefix="dcterms" localName="spatial"/>-->
+                <!--<field-ref prefix="dcterms" localName="coverage"/>-->
+            <!--</view-field>-->
+            <!--<view-field name="dcterms_temporal" prefix="dcterms" localName="temporal"/>-->
+            <!--<view-field name="dcterms_provenance" prefix="dcterms" localName="provenance"/>-->
+            <!--<view-field name="dc_type" prefix="dc" localName="type"/>-->
+            <!--<view-field name="dc_identifier" prefix="dc" localName="identifier"/>-->
+            <!--<view-field name="dc_relation">-->
+                <!--<field-ref prefix="dc" localName="relation"/>-->
+                <!--<field-ref prefix="dcterms" localName="references"/>-->
+                <!--<field-ref prefix="dcterms" localName="isReferencedBy"/>-->
+                <!--<field-ref prefix="dcterms" localName="isReplacedBy"/>-->
+                <!--<field-ref prefix="dcterms" localName="isRequiredBy"/>-->
+                <!--<field-ref prefix="dcterms" localName="isPartOf"/>-->
+                <!--<field-ref prefix="dcterms" localName="hasPart"/>-->
+                <!--<field-ref prefix="dcterms" localName="replaces"/>-->
+                <!--<field-ref prefix="dcterms" localName="requires"/>-->
+                <!--<field-ref prefix="dcterms" localName="isVersionOf"/>-->
+                <!--<field-ref prefix="dcterms" localName="hasVersion"/>-->
+                <!--<field-ref prefix="dcterms" localName="conformsTo"/>-->
+                <!--<field-ref prefix="dcterms" localName="hasFormat"/>-->
+            <!--</view-field>-->
+        <!--</view>-->
+    <!--</views>-->
     <validation>
         assert record.'europeana:collectionTitle'
         assert record.'europeana:country'

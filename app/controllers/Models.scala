@@ -19,7 +19,7 @@ package controllers
 import dos.StoredFile
 import org.bson.types.ObjectId
 import models._
-import views.context.getThumbnailUrl
+import views.Helpers.getThumbnailUrl
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -33,13 +33,17 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         orgId: String,
                         userName: String,
                         lockedBy: Option[ObjectId],
-                        errors: Map[String, String] = Map.empty[String, String], visibility: Int = 0)
+                        errors: Map[String, String] = Map.empty[String, String],
+                        visibility: Int = 0)
 
 case class Fact(name: String, prompt: String, value: String)
 
 case class ShortLabel(labelType: String, value: String)
 
-case class Token(id: String, name: String, tokenType: Option[String] = None, data: Option[Map[String, String]] = None)
+case class Token(id: String,
+                 name: String,
+                 tokenType: Option[String] = None,
+                 data: Option[Map[String, String]] = None)
 
 case class ListItem(id: String,
                     recordType: String,
@@ -83,5 +87,4 @@ case class CollectionReference(id: String, name: String)
 
 abstract class ViewModel {
   val errors: Map[String, String]
-  lazy val validationRules: Map[String, String] = util.Validation.getClientSideValidationRules(this.getClass)
 }

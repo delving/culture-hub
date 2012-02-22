@@ -18,11 +18,11 @@ package models
 
 import org.apache.solr.common.SolrInputDocument
 import com.novus.salat.dao.SalatDAO
-import models.salatContext._
+import mongoContext._
 import org.bson.types.ObjectId
 import java.util.Date
 import util.Constants._
-import components.IndexingService
+import core.indexing.IndexingService
 import controllers.{ModelImplicits, ShortObjectModel}
 
 /**

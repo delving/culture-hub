@@ -18,7 +18,8 @@ package models
 
 import java.io.File
 import xml.{Node, XML}
-import play.Play
+import play.api.Play
+import play.api.Play.current
 
 /**
  *
@@ -37,7 +38,7 @@ object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
 
-  val enabledDefinitions = Play.configuration.getProperty("culturehub.recordDefinitions", "").split(",").map(_.trim())
+  val enabledDefinitions = Play.configuration.getString("culturehub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
   def recordDefinitions = parseRecordDefinitions
 
