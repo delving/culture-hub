@@ -2,15 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /favicon.ico                                                     controllers.Default.notFound
-
-
-#GET         /public/themes/{theme}/info.conf                                 404
-#GET         /public/themes/{theme}/{<.*>relativePath}                        Asset.serveTheme
+GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
+GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
 #GET         /robots.txt                                                      staticFile:public/robots.txt
-
-#GET         /asset                                                           Asset.get
 
 # Home page
 GET     /                                                                          controllers.Application.index
@@ -240,13 +235,6 @@ GET         /api/sip-creator/unlock/:orgId/:spec                              co
 POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
 POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
 GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
-
-# Hub Administration
-#GET        /admin/indexDataSets                                              admin.Admin.indexDataSets
-
-#GET        /image/upload                                                     ImageUpload.upload
-#POST       /image/upload                                                     ImageUpload.uploadFile
-
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)

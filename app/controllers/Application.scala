@@ -32,5 +32,9 @@ object Application extends DelvingController {
     }
   }
 
+  def notFound(what: String) = Action {
+    implicit request => NotFound(what)
+  }
+
 
 }
