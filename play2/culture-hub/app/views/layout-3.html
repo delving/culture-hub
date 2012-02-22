@@ -28,15 +28,12 @@
 
         <div class="grid_12" id="site-nav">
             <ul>
-*{
-                <li class='${"Application.index".isCurrent()}'>
-                    <a href="@{Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${"HeritageObjects".isCurrent()}'>
-                    <a href="@{HeritageObjects.list()}"><span>&{'thing.objects.heritage'}</span></a></li>
-                <li class='${"Users".isCurrent()}'>
-                    <a href="@{Users.list()}"><span>&{'thing.users'}</span></a>
-                </li>
-}*
+                <!--site nav-->
+                <ul>
+                    <li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                    <li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
+                    #{mainMenu menu:menu /}
+                </ul>
                 #{mainMenu menu:menu /}
             </ul>
 
