@@ -87,12 +87,12 @@ object Search extends DelvingController {
 
   // ~~~ Utility methods (not controller actions)
 
-  def browse(recordType: String, user: Option[String], request: RequestHeader, theme: PortalTheme) = {
-    search(user, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
+  def browse(recordType: String, user: Option[String], page: Int, request: RequestHeader, theme: PortalTheme) = {
+    search(user, page, request, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
   }
 
-  def search(user: Option[String], request: RequestHeader, theme: PortalTheme, query: List[String]) = {
-    val start = (request.queryString.getFirst("page").getOrElse("1").toInt - 1) * PAGE_SIZE + 1
+  def search(user: Option[String], page: Int, request: RequestHeader, theme: PortalTheme, query: List[String]) = {
+    val start = (page - 1) * PAGE_SIZE + 1
     val queryList = (user match {
       case Some(u) => List("%s:%s".format(OWNER, u))
       case None => List()
