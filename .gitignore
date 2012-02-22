@@ -4,7 +4,6 @@ tmp
 test-result
 .DS_Store
 .idea
-/modules
 /logs
 /out
 /system.out
