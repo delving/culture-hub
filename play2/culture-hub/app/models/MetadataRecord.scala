@@ -29,7 +29,7 @@ import com.mongodb.{WriteConcern, BasicDBList, DBObject}
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
                           rawMetadata: Map[String, String], // this is the raw xml data string
-                          mappedMetadata: Map[String, Map[String, List[String]]] = Map.empty, // this is the mapped xml data string only added after transformation, and it's a DBObject because Salat won't let us use an inner Map[String, List[String]]
+                          mappedMetadata: Map[String, Map[String, List[String]]] = Map.empty,
                           modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
                           deleted: Boolean = false, // if the record has been deleted
@@ -45,17 +45,29 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
   def getXmlString(metadataPrefix: String = "raw"): String = {
     if (rawMetadata.contains(metadataPrefix)) {
       rawMetadata.get(metadataPrefix).get
-    }
-    else if (mappedMetadata.contains(metadataPrefix)) {
-      val indexDocument: Map[String, List[String]] = mappedMetadata.get(metadataPrefix).get
-      indexDocument.foldLeft("")(
-        (output, indexDoc) => {
-          val unMungedKey = indexDoc._1.replaceFirst("_", ":")
-          output + indexDoc._2.map(value => {
-            "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
-          }).mkString
+    } else if (mappedMetadata.contains(metadataPrefix)) {
+
+      // welcome to the mad world of working around some mongo/casbah/salat limitation
+
+      // we store the mappings in a Map[String, Map[String, List[String]]]
+      // so for one prefix we should get back a Map[String, List[String]]
+      // but instead we get back a Map[String, BasicDBList]
+      // basically the first value of each list is the key, the second one the value (which is itself a BasicDBList, where the values are strings)
+      // thus the code below. don't touch.
+
+      import scala.collection.JavaConverters._
+
+      val map = mappedMetadata.asInstanceOf[Map[String, BasicDBList]]
+      val inner = map(metadataPrefix).asScala.map(entry => entry.asInstanceOf[BasicDBList])
+
+      inner.foldLeft("") {
+        (output: String, e: BasicDBList) => {
+          val entry = (e.get(0), e.get(1))
+          val unMungedKey = entry._1.toString.replaceFirst("_", ":")
+          val value = entry._2.asInstanceOf[BasicDBList].toList
+          value.map(v => "<%s>%s</%s>".format(unMungedKey, v, unMungedKey)).mkString("\n")
         }
-      )
+      }
     }
     else
       throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
