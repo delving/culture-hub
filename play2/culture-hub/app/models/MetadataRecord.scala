@@ -47,12 +47,11 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
       rawMetadata.get(metadataPrefix).get
     }
     else if (mappedMetadata.contains(metadataPrefix)) {
-      import scala.collection.JavaConversions._
       val indexDocument: Map[String, List[String]] = mappedMetadata.get(metadataPrefix).get
-      indexDocument.entrySet().foldLeft("")(
+      indexDocument.foldLeft("")(
         (output, indexDoc) => {
-          val unMungedKey = indexDoc.getKey.replaceFirst("_", ":")
-          output + indexDoc.getValue.asInstanceOf[List[String]].map(value => {
+          val unMungedKey = indexDoc._1.replaceFirst("_", ":")
+          output + indexDoc._2.map(value => {
             "<%s>%s</%s>".format(unMungedKey, value.toString, unMungedKey)
           }).mkString
         }

@@ -55,7 +55,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   private val log = Logger("CultureHub")
 
   private val VERB = "verb"
-  private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
+    private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
   val params = Params(request.queryString)
 
   /**
@@ -223,8 +223,8 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val dataSet: DataSet = DataSet.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
     val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).limit(pmhRequestEntry.recordsReturned)
 
-    val totalValidRecords = records.length
     val recordList = records.toList
+    val totalValidRecords = records.count
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
@@ -412,9 +412,9 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
       val nextResumptionToken = "%s:%s:%s:%s".format(getSet, getMetadataFormat, nextLastIdx, getPagenumber + 1)
 
-      if (recordInt.toInt + recordsReturned < totalListSize)
+      if (getLastTransferIdx + recordsReturned < totalListSize)
         <resumptionToken expirationDate={printDate(new Date())} completeListSize={totalListSize.toString}
-                         cursor={(pageNumber.toInt * recordsReturned).toString}>{nextResumptionToken}</resumptionToken>
+                         cursor={(getPagenumber * recordsReturned).toString}>{nextResumptionToken}</resumptionToken>
       else
           <resumptionToken/>
     }
