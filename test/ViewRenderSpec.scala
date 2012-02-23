@@ -14,37 +14,56 @@
  * limitations under the License.
  */
 
-import groovy.util.XmlParser
+import groovy.util.{XmlParser, Node}
 import models.GrantType
-import org.junit.{Ignore, Test}
-import org.scalatest.matchers.ShouldMatchers
-import play.Play
-import play.templates.TemplateLoader
-import play.test.UnitTest
-import play.vfs.VirtualFile
-import util.TestDataGeneric
-import groovy.util.Node
+import org.specs2.mutable._
+import play.api.Play
+import play.api.Play.current
+import play.api.test._
+import play.api.test.Helpers._
+import play.templates.{Play2VirtualFile, GenericTemplateLoader}
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends UnitTest with ShouldMatchers with TestDataGeneric {
+class ViewRenderSpec extends Specification {
 
-  @Ignore
-  @Test
-  def testRender() {
-    val view = components.ViewRenderer.renderView(play.Play.getFile("conf/icn-record-definition.xml").getAbsoluteFile, "full", testData(), List(GrantType("administrator", "blabla", "icn")))
-    val template = TemplateLoader.load(VirtualFile.open(Play.getFile("test/view.html")))
-    val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
-    args.put("view", view)
-    val rendered = template.render(args)
+  "The ViewRenderer" should {
 
-    println(rendered)
+    "render a record" in {
+      running(FakeApplication()) {
+
+        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, "full", testRecord(), List(GrantType("administrator", "blabla", "icn")))
+        val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
+        val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
+        args.put("view", view)
+        val rendered = template.render(args)
+
+        println(rendered)
+
+        1 should be equalTo (1)
+      }
+    }
+
   }
-  
-  private def testData(): Node = {
+
+  private def testViewDefinition =
+    <view name="full">
+      <row>
+        <column id="description">
+            <field path="delving:summaryFields/delving:description" label="metadata.dc.description"/>
+        </column>
+        <column id="fields">
+            <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
+            <field path="icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+        </column>
+      </row>
+    </view>
+
+
+  private def testRecord(): Node = {
 
     // test record, hierarchical
     val testRecord =

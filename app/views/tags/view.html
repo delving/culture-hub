@@ -1,6 +1,7 @@
 #{list items: _view.content(), as: 'row'}
 <div class="row">
 #{list items: row.content(), as: 'col'}
+%{System.out.println(col)}%
   <div class="column" id="${col.attr("id")}">
 #{list items: col.content(), as: 'item'}
 #{if item.nodeType == 'field'}
