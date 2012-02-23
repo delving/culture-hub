@@ -24,8 +24,8 @@ import collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.{RequestHeader, AnyContent, Request}
-import collection.immutable.List
 import util.Constants
+import collection.immutable.{Map, List}
 
 /**
  *
@@ -494,14 +494,14 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 case class Params(queryString: Map[String, Seq[String]]) {
 
-  private val params: Map[String, Seq[String]] = queryString.filter(!_._2.isEmpty)
+  private val params = collection.mutable.Map(queryString.filter(!_._2.isEmpty).toSeq: _*)
 
-  def put(key: String, values: Seq[String]) = params + (key -> values)
-  
+  def put(key: String, values: Seq[String]) {params put (key, values)}
+
   def all = params
 
   def allNonEmpty = params
-  
+
   val allSingle = params.map(params => (params._1, params._2.head)).toMap
 
   def _contains(key: String) = params.contains(key)
