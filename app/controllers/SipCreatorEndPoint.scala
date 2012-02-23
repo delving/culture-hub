@@ -9,11 +9,13 @@ import eu.delving.metadata.{RecordMapping, MetadataModel}
 import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
-import org.apache.commons.io.{FileUtils, IOUtils, FileCleaningTracker}
+import org.apache.commons.io.{FileUtils, IOUtils}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import util.SimpleDataSetParser
+import play.libs.Akka
+import akka.actor.{Props, Actor}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -26,7 +28,6 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
   private val metadataModel: MetadataModel = MappingService.metadataModel
-  private val fileCleaningTracker = new FileCleaningTracker
 
   val DOT_PLACEHOLDER = "--"
 
@@ -196,7 +197,10 @@ object SipCreatorEndPoint extends ApplicationController {
             val actionResult: Either[String, String] = kind match {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecordMapping.read(inputStream, metadataModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
-              case "source" if extension == "xml.gz" => receiveSource(dataSet.get, inputStream)
+              case "source" if extension == "xml.gz" =>
+                val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
+                receiveActor ! SourceStream(dataSet.get, theme, inputStream)
+                Right("Received it")
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
@@ -240,67 +244,6 @@ object SipCreatorEndPoint extends ApplicationController {
     val updatedDataSet = dataSet.copy(hints = Stream.continually(inputStream.read).takeWhile(-1 !=).map(_.toByte).toArray)
     DataSet.save(updatedDataSet)
     Right("Allright")
-  }
-
-  private def receiveSource(dataSet: DataSet, inputStream: InputStream)(implicit request: RequestHeader): Either[String, String] = {
-    if (!DataSet.canEdit(dataSet, connectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
-
-    println("receiving source")
-
-    var uploadedRecords = 0
-
-    try {
-      uploadedRecords = loadSourceData(dataSet, inputStream)
-    } catch {
-      case t: Throwable => {
-        t.printStackTrace()
-        logError(t, "Error while parsing records for spec %s of org %s", dataSet.spec, dataSet.orgId)
-        ErrorReporter.reportError(request, t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        return Left("Error parsing records: " + t.getMessage)
-      }
-    }
-
-    val recordCount: Int = DataSet.getRecordCount(dataSet)
-
-    // TODO review the semantics behind total_records, deleted records etc.
-    val details = dataSet.details.copy(
-      uploaded_records = uploadedRecords,
-      total_records = recordCount,
-      deleted_records = recordCount - dataSet.details.uploaded_records
-    )
-
-    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
-    DataSet.save(updatedDataSet)
-    Right("Goodbye and thanks for all the fish")
-  }
-
-  def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
-    var uploadedRecords = 0
-
-    val records = DataSet.getRecords(dataSet)
-    records.collection.drop()
-
-    val parser = new SimpleDataSetParser(source, dataSet)
-
-    var continue = true
-    while (continue) {
-      val maybeNext = parser.nextRecord
-      if (maybeNext != None) {
-        uploadedRecords += 1
-        val record = maybeNext.get
-
-        // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
-        val incomingLinks = Link.findTo(record.getUri(dataSet.orgId, dataSet.spec), Link.LinkType.PARTOF)
-        val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value))
-
-        val toInsert = record.copy(modified = new Date(), deleted = false, links = embeddedLinks)
-        records.insert(toInsert)
-      } else {
-        continue = false
-      }
-    }
-
-    uploadedRecords
   }
 
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
@@ -414,5 +357,77 @@ object SipCreatorEndPoint extends ApplicationController {
     out.flush()
   }
 
+  def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
+    var uploadedRecords = 0
+
+    val records = DataSet.getRecords(dataSet)
+    records.collection.drop()
+
+    val parser = new SimpleDataSetParser(source, dataSet)
+
+    var continue = true
+    while (continue) {
+      val maybeNext = parser.nextRecord
+      if (maybeNext != None) {
+        uploadedRecords += 1
+        val record = maybeNext.get
+
+        // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
+        val incomingLinks = Link.findTo(record.getUri(dataSet.orgId, dataSet.spec), Link.LinkType.PARTOF)
+        val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value))
+
+        val toInsert = record.copy(modified = new Date(), deleted = false, links = embeddedLinks)
+        records.insert(toInsert)
+      } else {
+        continue = false
+      }
+    }
+
+    uploadedRecords
+  }
 
 }
+
+class ReceiveSource extends Actor {
+  
+  protected def receive = {
+    case SourceStream(dataSet, theme, is) =>
+      receiveSource(dataSet, theme, is) match {
+        case Left(t) =>
+          Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
+          ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+        case _ => // all is good
+      }
+    case _ => // nothing
+  }
+  
+  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, String] = {
+
+    println("receiving source")
+
+    var uploadedRecords = 0
+
+    try {
+      uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+    } catch {
+      case t: Throwable => return Left(t)
+    }
+
+    val recordCount: Int = DataSet.getRecordCount(dataSet)
+
+    // TODO review the semantics behind total_records, deleted records etc.
+    val details = dataSet.details.copy(
+      uploaded_records = uploadedRecords,
+      total_records = recordCount,
+      deleted_records = recordCount - dataSet.details.uploaded_records
+    )
+
+    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
+    DataSet.save(updatedDataSet)
+    Right("Goodbye and thanks for all the fish")
+  }
+
+
+}
+
+case class SourceStream(dataSet: DataSet, theme: PortalTheme, is: InputStream)

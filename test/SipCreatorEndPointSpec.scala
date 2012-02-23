@@ -178,6 +178,10 @@ class SipCreatorEndPointSpec extends Specification with Cleanup {
         status(result) must equalTo(OK)
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+
+        // now we wait since the parsing is asynchronous
+        Thread.sleep(3000)
+
         DataSet.getRecordCount(dataSet) must equalTo(8)
       }
     }
