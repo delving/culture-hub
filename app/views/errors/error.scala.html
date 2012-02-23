@@ -1,0 +1,39 @@
+@(error: Throwable)
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>500</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="/assets/common/stylesheets/error-pages.css" type="text/css" media="all" />
+</head>
+<body>
+
+<div class="container fivehundred">
+    <h1 class="error-code">500</h1>
+    <h2 class="error-message">Holy cow, an error occured!</h2>
+    <img src="/assets/common/images/error-500-1.jpg" width="300" />
+    <img src="/assets/common/images/error-500-2.jpg" width="300" />
+    <p>We are dispatching a team of highly trained mathematicians to analyze the issue.</p>
+    <div class="options">
+      <a href="/">@play.api.i18n.Messages("site.nav.home")</a>
+    </div>
+</div>
+
+
+        @if(error.isInstanceOf[play.api.PlayException.UsefulException]) {
+		<p id="detail">
+			This exception has been logged with id <strong>@error.asInstanceOf[play.api.PlayException.UsefulException].id</strong>.
+		</p>
+        }
+
+	</body>
+</html>
+
+
+
+
+
+
+

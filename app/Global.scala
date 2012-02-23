@@ -9,7 +9,9 @@ import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
+import mvc.RequestHeader
 import play.api.Play.current
+import play.templates.GroovyTemplatesPlugin
 import util.ThemeHandler
 
 object Global extends GlobalSettings {
@@ -83,5 +85,13 @@ object Global extends GlobalSettings {
 
   }
 
+  override def onError(request: RequestHeader, ex: Throwable) = {
+    if(Play.isProd) {
+      import play.api.mvc.Results._
+      InternalServerError(views.html.errors.error(ex))
+    } else {
+      super.onError(request, ex)
+    }
+  }
 
 }
