@@ -1,4 +1,4 @@
-@(error: Throwable)
+@(error: Option[Throwable])
 
 <!DOCTYPE html>
 
@@ -22,9 +22,9 @@
 </div>
 
 
-        @if(error.isInstanceOf[play.api.PlayException.UsefulException]) {
+        @if(error.isDefined && error.get.isInstanceOf[play.api.PlayException.UsefulException]) {
 		<p id="detail">
-			This exception has been logged with id <strong>@error.asInstanceOf[play.api.PlayException.UsefulException].id</strong>.
+			This exception has been logged with id <strong>@error.get.asInstanceOf[play.api.PlayException.UsefulException].id</strong>.
 		</p>
         }
 

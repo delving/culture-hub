@@ -45,26 +45,21 @@ trait Logging extends Secured { self: ApplicationController =>
   }
   def NotFound(implicit request: RequestHeader)                                                          = {
     info("Not found")
-    Results.NotFound
+    Results.NotFound(views.html.errors.notFound(request, "Not found", None))
   }
   def NotFound(why: String)(implicit request: RequestHeader)                                             = {
     info(why)
-    Results.NotFound(why)
+    Results.NotFound(views.html.errors.notFound(request, why, None))
   }
   def Error(implicit request: RequestHeader)        = {
     Logger.error(withContext("Internal server error"))
     reportError(request, "Internal server error", theme)
-    Results.InternalServerError("Internal server error")
+    Results.InternalServerError(views.html.errors.error(None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
     Logger.error(withContext(why))
     reportError(request, why, theme)
     Results.InternalServerError(why)
-  }
-  def Error(status: Int, why: String)(implicit request: RequestHeader)                 = {
-    Logger.error(withContext(why))
-    reportError(request, status + " " + why, theme)
-    Results.Status(status)(why)
   }
   def BadRequest(implicit request: RequestHeader)              = {
     warning("Bad request")

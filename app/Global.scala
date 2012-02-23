@@ -88,10 +88,19 @@ object Global extends GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     if(Play.isProd) {
       import play.api.mvc.Results._
-      InternalServerError(views.html.errors.error(ex))
+      InternalServerError(views.html.errors.error(Some(ex)))
     } else {
       super.onError(request, ex)
     }
   }
 
+  override def onHandlerNotFound(request: RequestHeader) = {
+    if(Play.isProd) {
+      import play.api.mvc.Results._
+      InternalServerError(views.html.errors.notFound(request, "", None))
+    } else {
+      super.onHandlerNotFound(request)
+    }
+
+  }
 }

@@ -249,8 +249,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               renderArgs +=("browsedUserId", u._id)
               renderArgs +=("browsedUserName", u.userName)
               action(request)
-            case None =>
-              NotFound(Messages("delvingcontroller.userNotFound", user))
+            case None => NotFound(Messages("delvingcontroller.userNotFound", user))
           }
       }
     }
