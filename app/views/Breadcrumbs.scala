@@ -29,7 +29,7 @@ object Breadcrumbs {
       case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
       case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
-      case "search" :: Nil =>
+      case "search" :: Nil if p != null =>
         val returnToResults = p.get("search").get("returnToResults")
         val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
         List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
