@@ -21,9 +21,9 @@ import play.Logger
 import util.Constants._
 import exceptions.AccessKeyException
 import play.api.mvc.Results._
-import play.api.i18n.Messages
 import play.api.http.ContentTypes._
 import play.api.mvc.{RequestHeader, Result}
+import play.api.i18n.{Lang, Messages}
 
 /**
  *
@@ -37,7 +37,7 @@ object SearchService {
 
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
-    val localizedName = Messages(language, "metadata." + metadataField.replaceAll("_", "."))
+    val localizedName = Messages("metadata." + metadataField.replaceAll("_", "."))(Lang(language))
     if (localizedName != null && !defaultLabel.startsWith("#")) localizedName else defaultLabel
   }
 }

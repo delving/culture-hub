@@ -228,7 +228,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
-    val elem: Elem = if (!idsOnly) {
+    var elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
@@ -267,10 +267,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     }
 
     // todo enable later again
-    //    for (entry <- harvestStep.getNamespaces.toMap.entrySet()) {
-    //      import xml.{Null, UnprefixedAttribute}
-    //      elem = elem % new UnprefixedAttribute( "xmlns:"+entry.getKey.toString, entry.getValue.toString, Null )
-    //    }
+        for (entry <- dataSet.namespaces) {
+          import xml.{Null, UnprefixedAttribute}
+          elem = elem % new UnprefixedAttribute( "xmlns:"+entry._1.toString, entry._2, Null)
+        }
 
     elem
   }
