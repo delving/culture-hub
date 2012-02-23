@@ -158,7 +158,7 @@ object FileUpload extends Controller with Extensions with Thumbnail {
         fileStore.findOne(f._id.get) match {
           case Some(storedFile) =>
             val thumbnails = createThumbnails(storedFile, fileStore)
-            if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnail) else emptyThumbnail
+            if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
           case None => ""
         }
       } else ""

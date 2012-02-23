@@ -8,7 +8,7 @@ import play.api.mvc.Results._
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
-trait RespondWithDefaultImage {
+trait RespondWithDefaultImage extends play.api.http.Status {
 
   def withDefaultFromRequest(result: Result, thumbnail: Boolean = true, width: Option[String], notFoundResponse: Boolean = true)(implicit request: Request[AnyContent]): Result = {
 
@@ -23,18 +23,21 @@ trait RespondWithDefaultImage {
         else
           ImageCache.image(defaultImageUrl, false)(request)).asInstanceOf[SimpleResult[Any]]
 
-        defaultImage.header.status match {
-          case NotFound => if (notFoundResponse) result else emptyFileResult
-          case _ => defaultImage
+        if (defaultImage.header.status == NOT_FOUND) {
+          if (notFoundResponse) result else emptyFileResult
+        } else {
+          defaultImage
         }
+      } else if (notFoundResponse) {
+        result
+      } else {
+        emptyFileResult
       }
-      else
-        if (notFoundResponse) result else emptyFileResult
     }
 
-    result.asInstanceOf[SimpleResult[Any]].header.status match {
-        case NotFound => getDefaultImage
-        case _ => result
-    }
+    if (result.asInstanceOf[SimpleResult[Any]].header.status == NOT_FOUND)
+      getDefaultImage
+    else
+      result
   }
 }
