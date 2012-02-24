@@ -24,6 +24,8 @@ import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.mvc.{RequestHeader, Result}
 import play.api.i18n.{Lang, Messages}
+import collection.JavaConverters._
+import xml.Elem
 
 /**
  *
@@ -89,7 +91,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: String = params match {
-      case x if x._contains("explain") => ExplainResponse(theme).renderAsJson
+      case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
+      case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
       case x if x.valueIsNonEmpty("id") =>
         val fullItemView = getFullResultsFromSolr
         val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "json"), response = fullItemView.response)
@@ -107,7 +110,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
-      case x if x._contains("explain") => ExplainResponse(theme).renderAsXml
+      case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
+      case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
       case x if x.valueIsNonEmpty("id") =>
         import org.apache.solr.client.solrj.SolrQuery
         val fullItemView = getFullResultsFromSolr
@@ -210,7 +214,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
             {searchTerms}
           </terms>
           <breadCrumbs>
-            {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>
+            {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value} i18n={SearchService.localiseKey(bc.field, language)}>
             {bc.display}
           </breadcrumb>)}
           </breadCrumbs>
@@ -286,7 +290,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         </items>
         <facets>
           {result.getFacetQueryLinks.map(fql =>
-          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language)}>
+          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language)} missingDocs={fql.getMissingValueCount.toString}>
             {fql.links.map(link =>
             <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>
               {link.value}
@@ -373,12 +377,8 @@ case class FullView(fullResult: FullItemView, language: String = "en", chRespons
             {uniqueKeyNames.map {
             item =>
               <field>
-                <key>
-                  {SearchService.localiseKey(item, language)}
-                </key>
-                <value>
-                  {item}
-                </value>
+                <key>{SearchService.localiseKey(item, language)}</key>
+                <value>{item} </value>
               </field>
           }}
           </fields>
@@ -455,7 +455,39 @@ case class ExplainItem(label: String, options: List[String] = List(), descriptio
 
 }
 
-case class ExplainResponse(theme: PortalTheme) {
+case class FacetAutoComplete(params: Params) {
+  require(params._contains("field"))
+  val facet = params.getValueOrElse("field", "nothing")
+  val query = params.getValueOrElse("value", "")
+
+  val autocomplete = SolrServer.getFacetFieldAutocomplete(facet, query)
+
+  def renderAsXml : Elem = {
+    <results>
+      {
+      autocomplete.asScala.map(item =>
+          <item count={item.getCount.toString}>{item.getName}</item>
+      )
+      }
+    </results>
+  }
+
+  def renderAsJson : String = {
+    import net.liftweb.json.JsonAST._
+    import net.liftweb.json.{Extraction, Printer}
+    import scala.collection.immutable.ListMap
+    implicit val formats = net.liftweb.json.DefaultFormats
+
+    val outputJson = Printer.pretty(render(Extraction.decompose(
+      ListMap("results" ->
+          autocomplete.asScala.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
+    )))))
+    outputJson
+  }
+
+}
+
+case class ExplainResponse(theme: PortalTheme, params: Params) {
 
   import xml.Elem
 
@@ -474,7 +506,7 @@ case class ExplainResponse(theme: PortalTheme) {
     ExplainItem("qf", List("any valid Facet as defined in the facets block")),
     ExplainItem("hqf", List("any valid Facet as defined in the facets block"), "This link is not used for the display part of the API." +
       "It is used to send hidden constraints to the API to create custom API views"),
-    ExplainItem("explain", List("all")),
+    ExplainItem("explain", List("all", "light", "fieldValue"), "fieldValue will give you back an autocomplete response when you provide the 'field' to autocomplete on and the 'value' to limit it."),
     ExplainItem("mlt", List("true", "false"), "This enables the related item search functionality in combination with requesting a record via the 'id' parameter."),
     ExplainItem("sortBy", List("any valid sort field prefixed by 'sort_'", "geodist()"), "Geodist is can be used to sort the results by distance."),
     ExplainItem("sortOrder", List("asc", "desc"), "The sort order of the field specified by sortBy"),
@@ -490,18 +522,23 @@ case class ExplainResponse(theme: PortalTheme) {
   val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
   val sortableFields = solrFields.filter(_.fieldIsSortable)
 
+  val explainType = params.getValueOrElse("explain", "light")
+
   def renderAsXml: Elem = {
 
     <results>
       <api>
+        { if (!explainType.equalsIgnoreCase("light"))
         <parameters>
           {paramOptions.map(param => param.toXML)}
         </parameters>
+        }
         <solr-dynamic>
           <fields>
             {solrFields.map {
             field =>
               <field xml={field.xmlFieldName} search={field.name} fieldType={field.fieldType} docs={field.docs.toString} distinct={field.distinct.toString}>
+                { if (explainType.equalsIgnoreCase("full")) {
                 <topTerms>
                   {field.topTerms.map {
                   term =>
@@ -518,6 +555,7 @@ case class ExplainResponse(theme: PortalTheme) {
                     </item>
                 }}
                 </histoGram>
+              }}
               </field>
           }}
           </fields>
@@ -549,10 +587,12 @@ case class ExplainResponse(theme: PortalTheme) {
         ListMap("api" ->
           ListMap(
             "parameters" -> paramOptions.map(param => param.toJson).toIterable,
-            "search-fields" -> solrFields.map(facet => ExplainItem(facet.name).toJson),
-            "facets" -> solrFieldsWithFacets.map(facet => ExplainItem(facet.name).toJson)))
+            "search-fields" -> solrFields.map(facet =>  ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType)),
+            "facets" -> solrFieldsWithFacets.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType))
       ))
-    ))
+    ))))
     outputJson
   }
 }

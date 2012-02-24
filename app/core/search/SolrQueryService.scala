@@ -108,6 +108,7 @@ object SolrQueryService extends SolrServer {
     query setFacet true
     query setFacetMinCount (1)
     query setFacetLimit (100)
+    query setFacetMissing true
     query setFields ("*,score")
     // highlighting parameters
     query setHighlight true
@@ -356,13 +357,19 @@ object SolrQueryService extends SolrServer {
     )
   }
 
+  def getMissingCount(facetField: FacetField) = {
+    val last = facetField.getValues.asScala.last
+    if (last.getName == null) last.getCount.toInt else 0
+  }
+
   def createFacetQueryLinks(chResponse: CHResponse): List[FacetQueryLinks] = {
     chResponse.response.getFacetFields.asScala.map{
       facetField =>
         FacetQueryLinks(
           facetName = facetField.getName,
           links = buildFacetCountLinks(facetField, chResponse.chQuery.filterQueries),
-          facetSelected = !chResponse.chQuery.filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).isEmpty
+          facetSelected = !chResponse.chQuery.filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).isEmpty,
+          missingValues = getMissingCount(facetField)
         )
     }.toList
   }
@@ -379,7 +386,7 @@ object SolrQueryService extends SolrServer {
             url = makeFacetQueryUrls(facetField, filterQueries, facetCount, remove),
             remove = remove
           )
-      }.toList
+      }.toList.init /// todo maybe later replace with the more verbose filterNot(p => p.facetCount.getName == null)
   }
 
   def makeFacetQueryUrls(facetField: FacetField, filterQueries: List[FilterQuery], facetCount: FacetField.Count, remove: Boolean): String = {
@@ -478,17 +485,18 @@ case class DelvingIdType(id: String, idType: String) {
 
 case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
 
-  def value = facetCount.getName
+  def value = if (facetCount.getName != null) facetCount.getName else "missing"
   def count = facetCount.getCount
 
   override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
 }
 
-case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false) {
+case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false, missingValues: Int = 0) {
 
   def getType: String = facetName
   def getLinks: List[FacetCountLink] = links
-  def isFacetSelected: Boolean =facetSelected
+  def isFacetSelected: Boolean = facetSelected
+  def getMissingValueCount: Int = missingValues
 
 }
 

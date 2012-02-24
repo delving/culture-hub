@@ -128,6 +128,20 @@ object SolrServer {
       }
     }.toList
   }
+
+  def getFacetFieldAutocomplete(facetName: String,  facetQuery: String) = {
+    val query = new SolrQuery("*:*")
+    query setFacet true
+    query setFacetLimit 10
+    query setFacetMinCount 1
+    query addFacetField (facetName)
+    query setFacetPrefix (facetName, facetQuery)
+    query setRows 0
+    val response = solrServer query (query)
+    val facetValues = response getFacetField (facetName)
+    facetValues.getValues
+  }
+
 }
 
 case class SolrDynamicField(name: String, fieldType: String = "text", schema: String = "", index: String = "", dynamicBase: String = "", docs: Int = 0, distinct: Int = 0, topTerms: List[SolrFrequencyItem] = List.empty, histogram: List[SolrFrequencyItem] = List.empty) {
