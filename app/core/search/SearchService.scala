@@ -17,7 +17,6 @@ package core.search
  */
 
 import models.PortalTheme
-import play.Logger
 import util.Constants._
 import exceptions.AccessKeyException
 import play.api.mvc.Results._
@@ -26,6 +25,7 @@ import play.api.mvc.{RequestHeader, Result}
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
 import xml.Elem
+import play.api.Logger
 
 /**
  *
@@ -40,7 +40,7 @@ object SearchService {
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
     val localizedName = Messages("metadata." + metadataField.replaceAll("_", "."))(Lang(language))
-    if (localizedName != null && !defaultLabel.startsWith("#")) localizedName else defaultLabel
+    if (localizedName != null && !defaultLabel.startsWith("#") && !localizedName.startsWith("metadata.")) localizedName else defaultLabel
   }
 }
 
@@ -79,7 +79,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     }
     catch {
       case ex: Exception =>
-        Logger.error("something went wrong", ex)
+        Logger("CultureHub").error("something went wrong", ex)
         errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
     }
     response
@@ -147,12 +147,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       val response =
         <results>
           <error>
-            <title>
-              {error}
-            </title>
-            <description>
-              {errorMessage}
-            </description>
+            <title>{error}</title>
+            <description>{errorMessage}</description>
           </error>
         </results>
       "<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response)
@@ -162,27 +158,22 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       import net.liftweb.json.JsonAST._
       import net.liftweb.json.{Extraction, Printer}
       import collection.immutable.ListMap
-      //      aro.response setContentType ("text/javascript")
       implicit val formats = net.liftweb.json.DefaultFormats
       val docMap = ListMap("status" -> error, "message" -> errorMessage)
       Printer pretty (render(Extraction.decompose(docMap)))
     }
 
     val response = format match {
-      case x: String if x.startsWith("json") || x.startsWith("simile") => Ok(toJSON).as(JSON)
-      case _ => Ok(toXML).as(XML)
+      case x: String if x.startsWith("json") || x.startsWith("simile") => BadRequest(toJSON).as(JSON)
+      case _ => BadRequest(toXML).as(XML)
     }
 
-    //    aro.response setStatus (HttpServletResponse.SC_BAD_REQUEST)
-    // todo set error response
     response
   }
-
 }
 
 case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
 
-  import collection.mutable.LinkedHashMap
   import xml.Elem
 
   private val pagination = result.getPagination
@@ -196,11 +187,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   val filterKeys = List("id", "timestamp", "score")
   val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
 
-  val drupalLayoutMap = LinkedHashMap[String, String]("#thumbnail" -> "europeana_object", "#title" -> "dc_title", "#uri" -> "europeana_uri",
-    "#isShownAt" -> "europeana_isShownAt", "#description" -> "dc_description", "Creator" -> "dc_creator",
-    "Subject(s)" -> "dc_subject", "County" -> "abm_county", "Municipality" -> "abm_municipality", "Place" -> "abm_namedPlace",
-    "Person(s)" -> "abm_aboutPerson")
-
   def renderAsXML(authorized: Boolean): Elem = {
 
     // todo add years from query if they exist
@@ -210,34 +196,22 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
                xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
-          <terms>
-            {searchTerms}
-          </terms>
+          <terms>{searchTerms}</terms>
           <breadCrumbs>
-            {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value} i18n={SearchService.localiseKey(bc.field, language)}>
-            {bc.display}
-          </breadcrumb>)}
+              {pagination.getBreadcrumbs.map(bc =>
+            <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(bc.field), language)}>{bc.display}</breadcrumb>)}
           </breadCrumbs>
         </query>
         <pagination>
-          <start>
-            {pagination.getStart}
-          </start>
-          <rows>
-            {pagination.getRows}
-          </rows>
-          <numFound>
-            {pagination.getNumFound}
-          </numFound>{if (pagination.isNext) {
-          <nextPage>
-            {pagination.getNextPage}
-          </nextPage>
-            <lastPage>
-              {pagination.getLastViewablePage}
-            </lastPage>
-        }}{if (pagination.isPrevious) <previousPage>
-          {pagination.getPreviousPage}
-        </previousPage>}<currentPage>
+          <start>{pagination.getStart}</start>
+          <rows>{pagination.getRows}</rows>
+          <numFound>{pagination.getNumFound}</numFound>
+          {if (pagination.isNext) {
+          <nextPage>{pagination.getNextPage}</nextPage>
+          <lastPage>{pagination.getLastViewablePage}</lastPage>
+          }}
+          {if (pagination.isPrevious)
+          <previousPage>{pagination.getPreviousPage}</previousPage>}<currentPage>
           {pagination.getStart}
         </currentPage>
 
@@ -253,27 +227,11 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
             {uniqueKeyNames.map {
             item =>
               <field>
-                <key>
-                  {SearchService.localiseKey(item, language)}
-                </key>
-                <value>
-                  {item}
-                </value>
+                <key>{SearchService.localiseKey(item, language)}</key>
+                <value>{item}</value>
               </field>
           }}
           </fields>
-          <drupal>
-            {drupalLayoutMap.map(item =>
-            <field>
-              <key>
-                {SearchService.localiseKey(item._2, language, item._1)}
-              </key>
-              <value>
-                {item._2}
-              </value>
-            </field>
-          )}
-          </drupal>
         </layout>
         <items>
           {briefDocs.map(item =>
@@ -290,7 +248,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         </items>
         <facets>
           {result.getFacetQueryLinks.map(fql =>
-          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language)} missingDocs={fql.getMissingValueCount.toString}>
+          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(fql.getType), language)} missingDocs={fql.getMissingValueCount.toString}>
             {fql.links.map(link =>
             <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>
               {link.value}
@@ -317,16 +275,9 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       ListMap(recordMap.toSeq: _*)
     }
 
-    def createLayoutItems: ListMap[String, Any] = {
-      val recordMap = collection.mutable.ListMap[String, Any]();
-      drupalLayoutMap.map(item =>
-        recordMap.put(SearchService.localiseKey(item._2, item._1, language), item._2))
-      ListMap(recordMap.toSeq: _*)
-    }
-
     def createFacetList: List[ListMap[String, Any]] = {
       result.getFacetQueryLinks.map(fql =>
-        ListMap("name" -> fql.getType, "isSelected" -> fql.facetSelected, "links" -> fql.links.map(link =>
+        ListMap("name" -> fql.getType, "isSelected" -> fql.facetSelected, "i18n" -> SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language), "links" -> fql.links.map(link =>
           ListMap("url" -> minusAmp(link.url), "isSelected" -> link.remove, "value" -> link.value, "count" -> link.count, "displayString" -> "%s (%s)".format(link.value, link.count))))
       ).toList
     }
@@ -343,7 +294,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
             ),
           "layout" ->
-            ListMap[String, Any]("drupal" -> createLayoutItems),
+            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("key" -> SearchService.localiseKey(item, language), "value" -> item))),
           "items" ->
             result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
           "facets" -> createFacetList
@@ -378,7 +329,7 @@ case class FullView(fullResult: FullItemView, language: String = "en", chRespons
             item =>
               <field>
                 <key>{SearchService.localiseKey(item, language)}</key>
-                <value>{item} </value>
+                <value>{item}</value>
               </field>
           }}
           </fields>
@@ -388,13 +339,15 @@ case class FullView(fullResult: FullItemView, language: String = "en", chRespons
             {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
             SolrQueryService.renderXMLFields(field, chResponse)}
           </fields>
-        </item>{if (!fullResult.getRelatedItems.isEmpty)
+        </item>
+        {if (!fullResult.getRelatedItems.isEmpty)
         <relatedItems>
           {fullResult.getRelatedItems.map(item =>
           <item>
             <fields>
               {item.getFieldValuesFiltered(false, Array()).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
-            </fields>{if (item.getHighlights.isEmpty) <highlights/>
+            </fields>
+          {if (item.getHighlights.isEmpty) <highlights/>
           else
             <highlights>
               {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse))}
@@ -432,15 +385,12 @@ case class ExplainItem(label: String, options: List[String] = List(), descriptio
 
   def toXML: Elem = {
     <element>
-      <label>
-        {label}
-      </label>{if (!options.isEmpty) <options>
-      {options.map(option => <option>
-        {option}
-      </option>)}
-    </options>}{if (!description.isEmpty) <description>
-      {description}
-    </description>}
+      <label>{label}</label>
+      {if (!options.isEmpty)
+      <options>
+        {options.map(option => <option>{option}</option>)}
+      </options>}
+      {if (!description.isEmpty) <description>{description}</description>}
     </element>
   }
 
@@ -542,17 +492,13 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
                 <topTerms>
                   {field.topTerms.map {
                   term =>
-                    <item count={term.freq.toString}>
-                      {term.name}
-                    </item>
+                    <item count={term.freq.toString}>{term.name}</item>
                 }}
                 </topTerms>
                 <histoGram>
                   {field.histogram.map {
                   term =>
-                    <item count={term.freq.toString}>
-                      {term.name}
-                    </item>
+                    <item count={term.freq.toString}>{term.name}</item>
                 }}
                 </histoGram>
               }}
