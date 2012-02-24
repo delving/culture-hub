@@ -18,7 +18,7 @@ package controllers.dos.ui
 
 import play.api.mvc._
 import java.io.File
-import play.templates.groovy.GroovyTemplates
+import eu.delving.templates.scala.GroovyTemplates
 import extensions.Extensions
 import play.api.libs.MimeTypes
 

@@ -55,7 +55,5 @@ object Helpers {
   
   def printValidationRules(form: Form[AnyRef], field: String) = if(form != null) Validation.getClientSideValidationRules(form).get(field).getOrElse("") else ""
 
-  def crumble(params: Any) = ""
-
 }
 

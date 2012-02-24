@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.templates.groovy.GroovyTemplates
+import eu.delving.templates.scala.GroovyTemplates
 import core.ThemeAware
 import play.api.libs.Crypto
 import play.libs.Time

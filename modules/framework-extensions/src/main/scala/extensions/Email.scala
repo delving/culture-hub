@@ -3,7 +3,7 @@ package extensions
 import org.apache.commons.mail.SimpleEmail
 import play.api.Logger
 import play.api.Play.current
-import play.templates.GroovyTemplatesPlugin
+import eu.delving.templates.GroovyTemplatesPlugin
 
 /**
  * Email sending

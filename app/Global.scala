@@ -11,7 +11,6 @@ import core.mapping.MappingService
 import play.api._
 import mvc.RequestHeader
 import play.api.Play.current
-import play.templates.GroovyTemplatesPlugin
 import util.ThemeHandler
 
 object Global extends GlobalSettings {

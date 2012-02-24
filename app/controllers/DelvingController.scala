@@ -3,7 +3,7 @@ package controllers
 import core.ThemeAware
 import organization.CMS
 import play.api.Play.current
-import play.templates.groovy.GroovyTemplates
+import eu.delving.templates.scala.GroovyTemplates
 import play.api.mvc._
 import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject

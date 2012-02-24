@@ -24,7 +24,7 @@ import play.api.mvc._
 import play.api.Play
 import play.api.Logger
 import play.api.Play.current
-import play.templates.groovy.GroovyTemplates
+import eu.delving.templates.scala.GroovyTemplates
 
 /**
  *
