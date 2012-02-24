@@ -37,7 +37,7 @@ import models.MetadataAccessors
 object SolrBindingService {
 
   def stripDynamicFieldLabels(fieldName: String): String = {
-    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s)$","").replaceFirst("^(facet|sort|sort_all)_","")
+    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase)$","").replaceFirst("^(facet|sort|sort_all)_","")
   }
 
   def getFullDocFromOaiPmh(response : QueryResponse) : FullDocItem = {
