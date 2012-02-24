@@ -38,12 +38,12 @@ object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
 
-  val enabledDefinitions = Play.configuration.getString("culturehub.recordDefinitions").getOrElse("").split(",").map(_.trim())
+  val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
   def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinitionFiles: Seq[File] = {
-    val conf = new File("conf/")
+    val conf = new File(current.path.getAbsolutePath + "/conf/")
     conf.listFiles()
       .filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
       .filter(f => enabledDefinitions.contains(f.getName.substring(0, f.getName.indexOf(RECORD_DEFINITION_SUFFIX))))

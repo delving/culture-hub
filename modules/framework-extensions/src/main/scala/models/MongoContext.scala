@@ -35,7 +35,7 @@ trait MongoContext {
   val mongoOptions = MongoOptions(connectionsPerHost = connectionsPerHost.toInt)
 
   def createConnection(connectionName: String): MongoDB  = if (current.configuration.getBoolean("mongo.test.context").getOrElse(true) || Play.isDev) {
-    Logger.info("Starting Mongo in Test Mode connecting to localhost:27017")
+    Logger.info("Starting Mongo in Test Mode connecting to localhost:27017 to database %s".format(connectionName))
     MongoConnection()(connectionName)
   }
   else if (mongoServerAddresses.isEmpty || mongoServerAddresses.size > 2) {

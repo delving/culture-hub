@@ -17,7 +17,7 @@ mail.smtp.host=mx2.hostice.net
 cultureHub.nodeName=
 
 ### Mongo configuration
-db.cultureHub.name=
+cultureHub.db.name=
 mongo.test.context = false
 mongo.server1.host = mongo1
 mongo.server1.port = 27017

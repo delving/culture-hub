@@ -2,7 +2,7 @@ package core.mapping
 
 import eu.delving.metadata.{MetadataModel, MetadataModelImpl}
 import models.{RecordDefinition, DataSet}
-
+import play.api.Logger
 
 /**
  * Initializes the MetadataModel used by the mapping engine
@@ -16,9 +16,14 @@ object MappingService {
 
   def init() {
     try {
+      println("Initializing MappingService")
       val metadataModelImpl = metadataModel.asInstanceOf[MetadataModelImpl]
       metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
-      metadataModelImpl.setRecordDefinitionFiles(RecordDefinition.getRecordDefinitionFiles: _*)
+      val recordDefinitions = RecordDefinition.getRecordDefinitionFiles
+      recordDefinitions.foreach {
+        definition => println("Loading record definition: " + definition.getAbsolutePath)
+      }
+      metadataModelImpl.setRecordDefinitionFiles(recordDefinitions : _*)
     } catch {
       case t: Throwable =>
         t.printStackTrace()
