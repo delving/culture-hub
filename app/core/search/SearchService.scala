@@ -214,7 +214,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
             {searchTerms}
           </terms>
           <breadCrumbs>
-            {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value}>
+            {pagination.getBreadcrumbs.map(bc => <breadcrumb field={bc.field} href={minusAmp(bc.href)} value={bc.value} i18n={SearchService.localiseKey(bc.field, language)}>
             {bc.display}
           </breadcrumb>)}
           </breadCrumbs>
@@ -377,12 +377,8 @@ case class FullView(fullResult: FullItemView, language: String = "en", chRespons
             {uniqueKeyNames.map {
             item =>
               <field>
-                <key>
-                  {SearchService.localiseKey(item, language)}
-                </key>
-                <value>
-                  {item}
-                </value>
+                <key>{SearchService.localiseKey(item, language)}</key>
+                <value>{item} </value>
               </field>
           }}
           </fields>
