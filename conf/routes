@@ -5,7 +5,7 @@
 GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
 GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
-#GET         /robots.txt                                                      staticFile:public/robots.txt
+GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
 GET     /                                                                          controllers.Application.index
