@@ -591,10 +591,12 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
         ListMap("api" ->
           ListMap(
             "parameters" -> paramOptions.map(param => param.toJson).toIterable,
-            "search-fields" -> solrFields.map(facet => ExplainItem(facet.name).toJson),
-            "facets" -> solrFieldsWithFacets.map(facet => ExplainItem(facet.name).toJson)))
+            "search-fields" -> solrFields.map(facet =>  ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType)),
+            "facets" -> solrFieldsWithFacets.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType))
       ))
-    ))
+    ))))
     outputJson
   }
 }
