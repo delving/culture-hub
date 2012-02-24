@@ -286,7 +286,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         </items>
         <facets>
           {result.getFacetQueryLinks.map(fql =>
-          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language)}>
+          <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(fql.getType.replaceAll("_facet", "").replaceAll("_", "."), language)} missingDocs={fql.getMissingValueCount.toString}>
             {fql.links.map(link =>
             <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>
               {link.value}
