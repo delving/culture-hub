@@ -26,6 +26,8 @@ import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
 import xml.Elem
 import play.api.Logger
+import collection.immutable.ListMap
+import net.liftweb.json.JsonAST
 
 /**
  *
@@ -74,6 +76,9 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
         case "jsonp" =>
           getJSONResultResponse(callback = params.getValueOrElse("callback", "delvingCallback"))
         // todo add simile and similep support later
+        case "simile" => getSimileResultResponse()
+        case "similep" =>
+          getSimileResultResponse(callback = params.getValueOrElse("callback", "delvingCallback"))
         case _ => getXMLResultResponse()
       }
     }
@@ -170,7 +175,71 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
 
     response
   }
+
+  def getSimileResultResponse(callback : String = "") : Result  = {
+    import net.liftweb.json.JsonAST._
+    import net.liftweb.json.{Extraction, Printer}
+    import collection.immutable.ListMap
+    implicit val formats = net.liftweb.json.DefaultFormats
+
+    val filteredFields = Array("delving_title", "delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
+
+    try {
+      val output : ListMap[String, Any] = if (params.valueIsNonEmpty("id")) {
+        val recordMap = collection.mutable.ListMap[String, Any]()
+        val fullItemView: FullItemView = getFullResultsFromSolr
+        fullItemView.getFullDoc.getFieldValuesFiltered(false, filteredFields)
+          .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, fv.getValueAsArray))
+
+        ListMap("result" ->
+          ListMap("item" -> ListMap(recordMap.toSeq: _*))
+        )
+      }
+      else ListMap("items" -> getBriefResultsFromSolr.getBriefDocs.map(doc => renderSimileRecord(doc)))
+
+      val outputJson = Printer.pretty(render(Extraction.decompose(output)))
+
+      if (!callback.isEmpty) {
+        Ok("%s(%s)".format(callback, outputJson))
+      }
+      else
+        Ok(outputJson)
+    }
+    catch {
+      case ex: Exception =>
+        Logger("CultureHub").error("something went wrong", ex)
+        errorResponse(errorMessage = ex.getMessage, format = "json")
+    }
+  }
+
+  def renderSimileRecord(doc: BriefDocItem): ListMap[String, Any] = {
+
+    val recordMap = collection.mutable.ListMap[String, Any]()
+    val labelPairs = List[RecordLabel](
+      RecordLabel("type", "europeana_type"), RecordLabel("label", "dc_title"), RecordLabel("id", "dc_identifier"),
+      RecordLabel("link", "europeana_isShownAt"), RecordLabel("county", "abm_county"),
+      RecordLabel("geography", "dcterms_spatial", true), RecordLabel("thumbnail", "europeana_object"),
+      RecordLabel("description", "dc_description", true), RecordLabel("created", "dcterms_created"),
+      RecordLabel("municipality", "abm_municipality"), RecordLabel("pid", "europeana_uri")
+    )
+
+    labelPairs.sortBy(label => label.name < label.name).foreach(label => {
+      val fieldValue = doc.getFieldValue(label.fieldValue)
+      if (fieldValue.isNotEmpty) {
+        if (label.multivalued) {
+          recordMap.put(label.name, fieldValue.getValueAsArray)
+        }
+        else {
+          recordMap.put(label.name, fieldValue.getFirst) // todo add url encoding later
+        }
+      }
+    }
+    )
+    ListMap(recordMap.toSeq : _*)
+  }
 }
+
+case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean = false)
 
 case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
 
@@ -548,5 +617,3 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
     outputJson
   }
 }
-
-case class RecordLabel(name: String, fieldValue: String, multivalued: Boolean = false)
