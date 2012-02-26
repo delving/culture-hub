@@ -17,14 +17,14 @@
 package core.search
 
 import org.bson.types.ObjectId
-import org.apache.solr.client.solrj.response.UpdateResponse
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
 import play.api.Play.current
 import xml.Node
 import org.apache.solr.common.SolrInputDocument
 import play.api.Play
+import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
+import collection.JavaConverters._
 
 
 /**
@@ -130,17 +130,18 @@ object SolrServer {
   }
 
   def getFacetFieldAutocomplete(facetName: String,  facetQuery: String) = {
-    val normalisedFacetName = if (!facetName.endsWith("_string") || !facetName.endsWith("_facet")) "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName)) else facetName
+    val normalisedFacetName = "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName))
+    val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
     val query = new SolrQuery("*:*")
     query setFacet true
     query setFacetLimit 10
     query setFacetMinCount 1
-    query addFacetField (facetName)
-    query setFacetPrefix (normalisedFacetName, facetQuery)
+    query addFacetField (normalisedFacetName)
+    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
     query setRows 0
     val response = solrServer query (query)
-    val facetValues = response getFacetField (facetName)
-    facetValues.getValues
+    val facetValues = response getFacetField (normalisedFacetName)
+    if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
   }
 
 }

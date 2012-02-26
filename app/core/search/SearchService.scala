@@ -418,7 +418,7 @@ case class FacetAutoComplete(params: Params) {
   def renderAsXml : Elem = {
     <results>
       {
-      autocomplete.asScala.map(item =>
+      autocomplete.map(item =>
           <item count={item.getCount.toString}>{item.getName}</item>
       )
       }
@@ -433,7 +433,7 @@ case class FacetAutoComplete(params: Params) {
 
     val outputJson = Printer.pretty(render(Extraction.decompose(
       ListMap("results" ->
-          autocomplete.asScala.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
+          autocomplete.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
     )))))
     outputJson
   }
