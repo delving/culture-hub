@@ -182,19 +182,19 @@
 
 metadata.abm.contentProvider=Institusjon
 metadata.abm.county=Fylke
-metadata.abm.data.provider=Tilbyder
+metadata.abm.data.provider=Tilbydar
 metadata.abm.municipality=Kommune
 metadata.abm.namedPlace=Stad
 metadata.abm.aboutPerson=Personar
-metadata.abm.landedProperty=Landed Property
-metadata.abm.address=Address
-metadata.abm.digitised=Digitised
+metadata.abm.landedProperty=Gardsnummer
+metadata.abm.address=Addresse
+metadata.abm.digitised=Digitalisert
 metadata.abm.lat=Latitude
 metadata.abm.long=Longitude
 metadata.abm.geo=GeoCoordinates
 
 ##Dublin
-metadata.dc.contributor=Bidragsyter
+metadata.dc.contributor=Bidragsytar
 metadata.dc.coverage=Dekning
 metadata.dc.creator=Opphavsperson
 metadata.dc.date=Dato
@@ -229,31 +229,31 @@ metadata.dcterms.temporal=Tidsrom
 metadata.dcterms.medium=Medium
 
 ## Delving
-metadata.delving.dimensions=Dimensions
-metadata.delving.owner=Owner
-metadata.delving.creator=Creator
-metadata.delving.recordType=Record type
-metadata.delving.hasDigitalObject=Record has a digital object
+metadata.delving.dimensions=Dimensjonar
+metadata.delving.owner=Eigar
+metadata.delving.creator=Opphavsperson
+metadata.delving.recordType=Objekt type
+metadata.delving.hasDigitalObject=Objektet har eit digitalt objekt
 
 ## Europeana
 metadata.europeana.country=Land
 metadata.europeana.dataProvider=Tilbydar
 metadata.europeana.provider=Tilbydar
 metadata.europeana.type=Type
-metadata.europeana.isShownAt=Remote Landing Page
-metadata.europeana.isShownBy=Remote url to digital object
-metadata.europeana.year=Year
-metadata.europeana.language=Language
-metadata.europeana.collectionTitle=Collection Title
-metadata.europeana.collectionName=Collection Name
-metadata.europeana.rights=Rights
+metadata.europeana.isShownAt=Ekstern landingsside
+metadata.europeana.isShownBy=Ekstern url til digitalt objekt
+metadata.europeana.year=År
+metadata.europeana.language=Språk
+metadata.europeana.collectionTitle=Tittel på samlinga
+metadata.europeana.collectionName=Namn på samlinga
+metadata.europeana.rights=Rettar
 metadata.europeana.uri=Europeana Url
 
 ## General
-metadata.is.about=Handler om
+metadata.is.about=Handlar om
 metadata.searchfield.contributor=Bidragsytar
 metadata.searchfield.dataprovider=Tilbydar
-metadata.searchfield.hasDigitalObject=Has digital object
+metadata.searchfield.hasDigitalObject=Har eit digitalt objekt
 metadata.type.all=Alle
 metadata.type.images=Bilete
 metadata.type.sounds=Lydar
