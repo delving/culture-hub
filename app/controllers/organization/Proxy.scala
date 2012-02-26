@@ -35,7 +35,6 @@ object Proxy extends DelvingController {
                     xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
             <items>
               {(xml \\ "item").map(item => {
-              println(item.scope.toString())
                <item>
                  <fields>
                    {item.nonEmptyChildren}
