@@ -49,7 +49,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
   import xml.PrettyPrinter
   import java.lang.String
 
-  val prettyPrinter = new PrettyPrinter(150, 5)
+  val prettyPrinter = new PrettyPrinter(200, 5)
   val params = Params(request.queryString)
   val format = params.getValueOrElse("format", "default")
   val apiLanguage = params.getValueOrElse("lang", "en")
