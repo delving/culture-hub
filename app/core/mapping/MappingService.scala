@@ -16,12 +16,12 @@ object MappingService {
 
   def init() {
     try {
-      println("Initializing MappingService")
+      Logger("CultureHub").info("Initializing MappingService")
       val metadataModelImpl = metadataModel.asInstanceOf[MetadataModelImpl]
       metadataModelImpl.setFactDefinitionsFile(DataSet.getFactDefinitionFile)
       val recordDefinitions = RecordDefinition.getRecordDefinitionFiles
       recordDefinitions.foreach {
-        definition => println("Loading record definition: " + definition.getAbsolutePath)
+        definition => Logger("CultureHub").info("Loading record definition: " + definition.getAbsolutePath)
       }
       metadataModelImpl.setRecordDefinitionFiles(recordDefinitions : _*)
     } catch {

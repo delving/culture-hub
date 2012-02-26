@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import eu.delving.templates.Play2VirtualFile
 import groovy.util.{XmlParser, Node}
 import models.GrantType
 import org.specs2.mutable._
@@ -21,7 +22,7 @@ import play.api.Play
 import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
-import play.templates.{Play2VirtualFile, GenericTemplateLoader}
+import play.templates.GenericTemplateLoader
 
 /**
  *
