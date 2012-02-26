@@ -187,6 +187,12 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   val filterKeys = List("id", "timestamp", "score")
   val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
 
+  def translateFacetValue(name: String, value: String) = {
+    val listOfFacets = List("europeana_type")
+    val cleanLabel = SolrBindingService.stripDynamicFieldLabels(name)
+    if (listOfFacets.contains(cleanLabel)) SearchService.localiseKey("type.%ss".format(cleanLabel.toLowerCase), language) else value
+  }
+
   def renderAsXML(authorized: Boolean): Elem = {
 
     // todo add years from query if they exist
@@ -249,13 +255,10 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         <facets>
           {result.getFacetQueryLinks.map(fql =>
           <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(fql.getType), language)} missingDocs={fql.getMissingValueCount.toString}>
-            {fql.links.map(link =>
-            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>
-              {link.value}
-              (
-              {link.count.toString}
-              )</link>
-          )}
+            {fql.links.map(link => {
+            val i18nValue = translateFacetValue(fql.getType, link.value)
+            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={i18nValue} count={link.count.toString}>{i18nValue} ({link.count.toString})</link>
+            })}
           </facet>
         )}
         </facets>
@@ -415,7 +418,7 @@ case class FacetAutoComplete(params: Params) {
   def renderAsXml : Elem = {
     <results>
       {
-      autocomplete.asScala.map(item =>
+      autocomplete.map(item =>
           <item count={item.getCount.toString}>{item.getName}</item>
       )
       }
@@ -430,7 +433,7 @@ case class FacetAutoComplete(params: Params) {
 
     val outputJson = Printer.pretty(render(Extraction.decompose(
       ListMap("results" ->
-          autocomplete.asScala.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
+          autocomplete.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
     )))))
     outputJson
   }

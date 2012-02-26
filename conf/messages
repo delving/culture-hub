@@ -89,7 +89,6 @@ ui.label.visibility.public=Public
 ui.label.visibility.notpublic=Private
 ui.label.website=Website
 ui.label.welcome=Welcome
-ui.label.language=Language
 ui.label.load=Load
 ui.label.theme=Site theme
 
@@ -664,3 +663,5 @@ search.backendConnectionError=Cannot connect to the search backend
 
 locale.en=English (en)
 locale.nl=Dutch (nl)
+locale.no=Norwegian (no)
+locale.nb=Norwegian bøkmal (nb)
