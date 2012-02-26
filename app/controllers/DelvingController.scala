@@ -39,14 +39,14 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           val langParam = request.queryString.get(LANG)
 
           val requestLanguage = if (langParam.isDefined) {
-            Logger("CultureHub").debug("Setting language from parameter to " + langParam.get(0))
+            Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
             langParam.get(0)
           } else if (request.session.get(LANG).isEmpty) {
             // if there is no language for this cookie / user set, set the default one from the PortalTheme
-            Logger("CultureHub").debug("Setting language from theme to " + theme.defaultLanguage)
+            Logger("CultureHub").trace("Setting language from theme to " + theme.defaultLanguage)
             theme.defaultLanguage
           } else {
-            Logger("CultureHub").debug("Setting language from session to " + request.session(LANG))
+            Logger("CultureHub").trace("Setting language from session to " + request.session(LANG))
             request.session(LANG)
           }
 
