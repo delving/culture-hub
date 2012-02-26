@@ -122,6 +122,7 @@ object ThemeHandler {
       PortalTheme(
         name             = (theme \ "@name").text,
         subdomain        = Some((theme \ "subdomain").text),
+        themeDir         = (theme \ "themeDir").text,
         defaultLanguage  = (theme \ "defaultLanguage").text,
         solrSelectUrl    = (theme \ "solrSelectUrl").text,
         facets           = Some((theme \ "facets").text),

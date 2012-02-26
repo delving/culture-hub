@@ -2,6 +2,7 @@
 <themes>
     <theme name="default">
         <subdomain>default</subdomain>
+        <themeDir>default</themeDir>
         <defaultLanguage>en</defaultLanguage>
         <solrSelectUrl>http://localhost:8989/solr/core2</solrSelectUrl>
         <emailTarget>

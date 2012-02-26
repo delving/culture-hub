@@ -16,10 +16,10 @@ class ThemeInfo(theme: PortalTheme) {
   }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val value: String = ThemeInfoReader.get(property, theme.name) match {
+    val value: String = ThemeInfoReader.get(property, theme.name, theme.themeDir) match {
       case Some(prop) => prop
       case None =>
-        ThemeInfoReader.get(property, "default") match {
+        ThemeInfoReader.get(property, "default", "default") match {
           case Some(prop) => prop
           case None => throw PlayException("Programmer Exceptions", "No default value, nor actual value, defined for property '%s' in application.conf".format(property))
         }
@@ -34,7 +34,7 @@ class ThemeInfo(theme: PortalTheme) {
     result.asInstanceOf[T]
   }
 
-  def path(path: String) = "/assets/themes/%s/%s".format(theme.name, path)
+  def path(path: String) = "/assets/themes/%s/%s".format(theme.themeDir, path)
 
   val displayName = themeProperty("displayName")
 

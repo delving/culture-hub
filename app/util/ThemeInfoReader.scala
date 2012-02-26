@@ -21,17 +21,17 @@ object ThemeInfoReader {
 
   var cache = new ConcurrentHashMap[String, Properties]()
 
-  def get(key: String, theme: String): Option[String] = {
+  def get(key: String, theme: String, themeDir: String): Option[String] = {
 
     val mayInfo = if (Play.isDev) {
       val themeInfo = cache.get(theme)
       if (themeInfo != null) {
         Right(themeInfo)
       } else {
-        getInfo(key, theme)
+        getInfo(key, theme, themeDir)
       }
     } else {
-      getInfo(key, theme)
+      getInfo(key, theme, themeDir)
     }
     val info = mayInfo match {
       case Right(i) => cache.put(theme, i); i
@@ -44,8 +44,8 @@ object ThemeInfoReader {
     }
   }
 
-  private[util] def getInfo(key: String, theme: String): Either[String, Properties] = {
-    val infoPath: String = THEMES_ROOT + theme + "/info.conf"
+  private[util] def getInfo(key: String, theme: String, themeDir: String): Either[String, Properties] = {
+    val infoPath: String = THEMES_ROOT + themeDir + "/info.conf"
     val info = current.resourceAsStream(infoPath)
     if (info.isDefined) Right(MissingLibs.readUtf8Properties(info.get))
     else {
