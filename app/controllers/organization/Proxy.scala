@@ -5,7 +5,7 @@ import controllers.DelvingController
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
-import xml.Elem
+import xml.{TopScope, Elem}
 
 /**
  *
@@ -35,10 +35,12 @@ object Proxy extends DelvingController {
                     xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
             <items>
               {(xml \\ "item").map(item => {
-              println(item.scope.toString())
                <item>
                  <fields>
-                   {item.nonEmptyChildren}
+                   {item.nonEmptyChildren map {
+                   case e: Elem => e.copy(scope = TopScope)
+                   case other@_ => other
+                 }}
                  </fields>
                </item>
             })}
