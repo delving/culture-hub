@@ -4,6 +4,8 @@ import play.api.mvc._
 import controllers.DelvingController
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Promise
+import collection.immutable.Map
+import xml.Elem
 
 /**
  *
@@ -12,22 +14,30 @@ import play.api.libs.concurrent.Promise
 
 object Proxy extends DelvingController {
 
-  val proxies = List(
+  val proxies = List[ProxyConfiguration](
     new ProxyConfiguration(
       key = "europeana",
       searchUrl = "http://api.europeana.eu/api/opensearch.rss",
       itemUrl = "http://www.europeana.eu/portal/record/",
-      constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ"))) {
+      constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
+      queryRemapping = Map("query" -> "searchTerms")) {
 
       override def handleSearchResponse(response: play.api.libs.ws.Response): Result = {
 
         val xml = response.xml
 
-        val processed =
-          <results xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/"
-               xmlns:europeana="http://www.europeana.eu"
-               xmlns:dcterms="http://purl.org/dc/terms/"
-               xmlns:dc="http://purl.org/dc/elements/1.1/">{xml \\ "item"}
+        val processed: Elem =
+          <results>
+            <items>
+              {(xml \\ "item").map(item => {
+              println(item.scope.toString())
+               <item>
+                 <fields>
+                   {item.nonEmptyChildren}
+                 </fields>
+               </item>
+            })}
+            </items>
           </results>
 
         Ok(processed)
@@ -38,7 +48,16 @@ object Proxy extends DelvingController {
   def list(orgId: String) = Root {
     Action {
       implicit request =>
-        Ok(proxies.mkString("\n"))
+        val list =
+          <explain>
+            {proxies.map{proxy =>
+            <item>
+              <id>{proxy.key}</id>
+              <url>{proxy.searchUrl}</url>
+            </item>
+          }}
+          </explain>
+        Ok(list)
     }
   }
 
@@ -52,7 +71,7 @@ object Proxy extends DelvingController {
 
             WS.
               url(proxy.searchUrl).
-              withQueryString(getWSQueryString(request, proxy.constantQueryString) : _*).
+              withQueryString(getWSQueryString(request, proxy) : _*).
               get().map(proxy.handleSearchResponse)
 
         }.getOrElse {
@@ -70,7 +89,7 @@ object Proxy extends DelvingController {
 
             WS.
               url(proxy.itemUrl + itemKey).
-              withQueryString(getWSQueryString(request, proxy.constantQueryString) : _*).
+              withQueryString(getWSQueryString(request, proxy) : _*).
               get().map(proxy.handleItemResponse)
 
         }.getOrElse {
@@ -80,16 +99,23 @@ object Proxy extends DelvingController {
       }
   }
 
-  private def getWSQueryString(request: RequestHeader, constantQueryString: Map[String, Seq[String]]) = {
-    val queryString = request.queryString.filter(e => !List("path").contains(e._1))
-    (constantQueryString ++ queryString).map(entry => (entry._1, entry._2.head)).toSeq
+  private def getWSQueryString(request: RequestHeader, proxy: ProxyConfiguration) = {
+    val queryString: Map[String, Seq[String]] = request.queryString
+      .filter(e => !List("path").contains(e._1))
+      .map(e => (proxy.queryRemapping.getOrElse(e._1, e._1), e._2))
+    (proxy.constantQueryString ++ queryString).map(entry => (entry._1, entry._2.head)).toSeq
   }
 
 
 
 }
 
-case class ProxyConfiguration(key: String, searchUrl: String, itemUrl: String, constantQueryString: Map[String, Seq[String]]) {
+case class ProxyConfiguration(
+                               key: String,
+                               searchUrl: String,
+                               itemUrl: String,
+                               constantQueryString: Map[String, Seq[String]],
+                               queryRemapping: Map[String, String]) {
 
   import play.api.mvc.Results._
 
