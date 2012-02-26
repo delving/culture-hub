@@ -375,6 +375,7 @@ case class DataSetState(name: String) {
 
 object DataSetState {
   val INCOMPLETE = DataSetState("incomplete")
+  val PROCESSING = DataSetState("processing")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
   val INDEXING = DataSetState("indexing")

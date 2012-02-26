@@ -583,6 +583,7 @@ user.secured.noAccess=We are deeply sorry - really, we are - but you do not have
 
 dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for indexing
+dataSetState.processing=Processing uploaded source data
 dataSetState.queued=queued for indexing
 dataSetState.indexing=Indexing
 dataSetState.enabled=Enabled
@@ -664,4 +665,4 @@ search.backendConnectionError=Cannot connect to the search backend
 locale.en=English (en)
 locale.nl=Dutch (nl)
 locale.no=Norwegian (no)
-locale.nb=Norwegian bøkmal (nb)
+locale.nb=Norwegian bï¿½kmal (nb)

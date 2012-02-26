@@ -200,6 +200,7 @@ object SipCreatorEndPoint extends ApplicationController {
               case "source" if extension == "xml.gz" =>
                 val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
                 receiveActor ! SourceStream(dataSet.get, theme, inputStream)
+                DataSet.updateState(dataSet.get, DataSetState.PROCESSING)
                 Right("Received it")
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
               case _ => {
@@ -394,6 +395,7 @@ class ReceiveSource extends Actor {
     case SourceStream(dataSet, theme, is) =>
       receiveSource(dataSet, theme, is) match {
         case Left(t) =>
+          DataSet.updateState(dataSet, DataSetState.ERROR)
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
         case _ => // all is good
@@ -402,8 +404,6 @@ class ReceiveSource extends Actor {
   }
   
   private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, String] = {
-
-    println("receiving source")
 
     var uploadedRecords = 0
 
