@@ -240,10 +240,12 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     // add facets at indexing time
     dataSet.idxFacets.foreach {
       facet =>
+        val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
         if (indexedKeys.contains(facet)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
           inputDoc addField("%s_facet".format(facet), facetContent)
         }
+        // enable case-insensitive autocomplete
+        inputDoc addField ("%s_lowercase".format(facet), facetContent)
     }
     // adding sort fields at index time
     dataSet.idxSortFields.foreach {

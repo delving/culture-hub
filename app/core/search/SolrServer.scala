@@ -130,12 +130,13 @@ object SolrServer {
   }
 
   def getFacetFieldAutocomplete(facetName: String,  facetQuery: String) = {
+    val normalisedFacetName = if (!facetName.endsWith("_string") || !facetName.endsWith("_facet")) "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName)) else facetName
     val query = new SolrQuery("*:*")
     query setFacet true
     query setFacetLimit 10
     query setFacetMinCount 1
     query addFacetField (facetName)
-    query setFacetPrefix (facetName, facetQuery)
+    query setFacetPrefix (normalisedFacetName, facetQuery)
     query setRows 0
     val response = solrServer query (query)
     val facetValues = response getFacetField (facetName)

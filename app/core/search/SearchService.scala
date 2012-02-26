@@ -187,6 +187,13 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   val filterKeys = List("id", "timestamp", "score")
   val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
 
+  def translateFacetValue(name: String, value: String) = {
+    val listOfFacets = List("europeana_type")
+    val cleanLabel = SolrBindingService.stripDynamicFieldLabels(name)
+    if (listOfFacets.contains(cleanLabel)) SearchService.localiseKey("type.".format(cleanLabel.toLowerCase), language) else value
+
+  }
+
   def renderAsXML(authorized: Boolean): Elem = {
 
     // todo add years from query if they exist
@@ -250,11 +257,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           {result.getFacetQueryLinks.map(fql =>
           <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(fql.getType), language)} missingDocs={fql.getMissingValueCount.toString}>
             {fql.links.map(link =>
-            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>
-              {link.value}
-              (
-              {link.count.toString}
-              )</link>
+            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{translateFacetValue(fql.getType, link.value)} ({link.count.toString})</link>
           )}
           </facet>
         )}

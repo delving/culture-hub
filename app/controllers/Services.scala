@@ -69,7 +69,6 @@ object Services extends DelvingController with HTTPClient {
           case _ => Ok(responseString).as(XML)
         }
     }
-    
   }
 
   def oaipmh(orgId: String = "delving") = Root {

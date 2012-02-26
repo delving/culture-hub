@@ -16,6 +16,9 @@ mail.smtp.host=mx2.hostice.net
 ### Global CultureHub settings
 cultureHub.nodeName=
 
+# Default theme for this hub
+themes.defaultTheme=default
+
 ### Mongo configuration
 cultureHub.db.name=
 mongo.test.context = false

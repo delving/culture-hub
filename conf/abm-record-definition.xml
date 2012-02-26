@@ -19,11 +19,12 @@
         <field prefix="abm" localName="namedPlace"/>
         <field prefix="abm" localName="landedProperty"/>
         <field prefix="abm" localName="contentProvider"/>
-        <field prefix="abm" localName="addresss"/>
+        <field prefix="abm" localName="address"/>
         <field prefix="abm" localName="digitised"/>
         <field prefix="abm" localName="lat"/>
         <field prefix="abm" localName="long"/>
         <field prefix="abm" localName="type"/>
+        <field prefix="abm" localName="geo"/>
 
 
         <field prefix="dc" localName="contributor"/>
