@@ -190,8 +190,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   def translateFacetValue(name: String, value: String) = {
     val listOfFacets = List("europeana_type")
     val cleanLabel = SolrBindingService.stripDynamicFieldLabels(name)
-    if (listOfFacets.contains(cleanLabel)) SearchService.localiseKey("type.".format(cleanLabel.toLowerCase), language) else value
-
+    if (listOfFacets.contains(cleanLabel)) SearchService.localiseKey("type.%ss".format(cleanLabel.toLowerCase), language) else value
   }
 
   def renderAsXML(authorized: Boolean): Elem = {
@@ -256,9 +255,10 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         <facets>
           {result.getFacetQueryLinks.map(fql =>
           <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(fql.getType), language)} missingDocs={fql.getMissingValueCount.toString}>
-            {fql.links.map(link =>
-            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={link.value} count={link.count.toString}>{translateFacetValue(fql.getType, link.value)} ({link.count.toString})</link>
-          )}
+            {fql.links.map(link => {
+            val i18nValue = translateFacetValue(fql.getType, link.value)
+            <link url={minusAmp(link.url)} isSelected={link.remove.toString} value={i18nValue} count={link.count.toString}>{i18nValue} ({link.count.toString})</link>
+            })}
           </facet>
         )}
         </facets>
