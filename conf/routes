@@ -179,11 +179,18 @@ POST        /:user/admin/profile                                              co
 
 # Organizations
 GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
+
 GET         /organizations/:orgId/search                                      controllers.Services.searchApi(orgId: String)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String)
+GET         /organizations/:orgId/proxy/list                                  controllers.organization.Proxy.list(orgId)
+GET         /organizations/:orgId/proxy/:proxyKey/search                      controllers.organization.Proxy.query(orgId, proxyKey)
+GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey               controllers.organization.Proxy.item(orgId, proxyKey, itemKey)
+
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
+GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
+GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 
 GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId, q)
@@ -226,9 +233,6 @@ POST        /organizations/:orgId/dataset/:spec/invalidate                    co
 POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
 
 GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
-
-GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
-GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 
 GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
 GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
