@@ -253,6 +253,7 @@ metadata.europeana.uri=Europeana Url
 metadata.is.about=Handler om
 metadata.searchfield.contributor=Bidragsytar
 metadata.searchfield.dataprovider=Tilbydar
+metadata.searchfield.hasDigitalObject=Has digital object
 metadata.type.all=Alle
 metadata.type.images=Bilete
 metadata.type.sounds=Lydar
