@@ -68,8 +68,6 @@ object Search extends DelvingController {
             request.session
           }
 
-          println(updatedSession)
-
           val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
           if (overlay) {
             Ok(Template("Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc))
