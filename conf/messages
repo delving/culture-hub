@@ -357,6 +357,8 @@ metadata.dcterms.replaces=Replaces
 metadata.dcterms.requires=Requires
 metadata.dcterms.spatial=Spatial coverage
 metadata.dcterms.temporal=Temporal coverage
+metadata.dcterms.rightsHolder=Rights holder
+metadata.dcterms.extent=Extent
 
 metadata.delving.dimensions=Dimensions
 metadata.delving.owner=Owner
@@ -376,6 +378,7 @@ metadata.europeana.collectionTitle=Collection Title
 metadata.europeana.collectionName=Collection Name
 metadata.europeana.rights=Rights
 metadata.europeana.uri=Europeana Url
+metadata.europeana.object=Object
 
 metadata.icn.material=Material
 metadata.icn.collection=Collection

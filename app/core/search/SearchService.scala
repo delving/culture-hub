@@ -190,7 +190,10 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   def translateFacetValue(name: String, value: String) = {
     val listOfFacets = List("europeana_type")
     val cleanLabel = SolrBindingService.stripDynamicFieldLabels(name)
-    if (listOfFacets.contains(cleanLabel)) SearchService.localiseKey("type.%ss".format(cleanLabel.toLowerCase), language) else value
+    if (listOfFacets.contains(cleanLabel))
+      SearchService.localiseKey("type.%ss".format(value.toLowerCase), language)
+    else
+      value
   }
 
   def renderAsXML(authorized: Boolean): Elem = {
