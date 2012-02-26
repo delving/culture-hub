@@ -27,7 +27,12 @@ object Proxy extends DelvingController {
         val xml = response.xml
 
         val processed: Elem =
-          <results>
+          <results  xmlns:atom="http://www.w3.org/2005/Atom"
+                    xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/"
+                    xmlns:europeana="http://www.europeana.eu"
+                    xmlns:dcterms="http://purl.org/dc/terms/"
+                    xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
             <items>
               {(xml \\ "item").map(item => {
               println(item.scope.toString())
