@@ -184,9 +184,9 @@ metadata.abm.data.provider=Tilbyder
 metadata.abm.municipality=Kommune
 metadata.abm.namedPlace=Sted
 metadata.abm.aboutPerson=Personer
-metadata.abm.landedProperty=Landed Property
-metadata.abm.address=Address
-metadata.abm.digitised=Digitised
+metadata.abm.landedProperty=Gårdsnummer
+metadata.abm.address=Addresse
+metadata.abm.digitised=Digitalisert
 metadata.abm.lat=Latitude
 metadata.abm.long=Longitude
 metadata.abm.geo=GeoCoordinates
@@ -228,24 +228,24 @@ metadata.dcterms.medium=Medium
 
 ## Delving
 
-metadata.delving.dimensions=Dimensions
-metadata.delving.owner=Owner
-metadata.delving.creator=Creator
-metadata.delving.recordType=Record type
-metadata.delving.hasDigitalObject=Record has a digital object
+metadata.delving.dimensions=Dimensjoner
+metadata.delving.owner=Eier
+metadata.delving.creator=Opphavsperson
+metadata.delving.recordType=Objekttype
+metadata.delving.hasDigitalObject=Objektet har et digitalt objekt
 
 ## Europeana
 metadata.europeana.country=Land
 metadata.europeana.dataProvider=Tilbyder
 metadata.europeana.provider=Tilbyder
 metadata.europeana.type=Type
-metadata.europeana.isShownAt=Remote Landing Page
-metadata.europeana.isShownBy=Remote url to digital object
-metadata.europeana.year=Year
-metadata.europeana.language=Language
-metadata.europeana.collectionTitle=Collection Title
-metadata.europeana.collectionName=Collection Name
-metadata.europeana.rights=Rights
+metadata.europeana.isShownAt=Ekstern landingsside
+metadata.europeana.isShownBy=Ekstern URL til digitalt objekt
+metadata.europeana.year=År
+metadata.europeana.language=Språk
+metadata.europeana.collectionTitle=Tittel på samlingen
+metadata.europeana.collectionName=Navn på samlingen
+metadata.europeana.rights=Rettigheter
 metadata.europeana.uri=Europeana Url
 
 
@@ -254,8 +254,8 @@ metadata.is.about=Handler om
 metadata.searchfield.recordType=Object type
 metadata.searchfield.contributor=Bidragsyter
 metadata.searchfield.dataprovider=Tilbyder
-metadata.searchfield.creator=Creator
-metadata.searchfield.hasDigitalObject=Has digital object
+metadata.searchfield.creator=Opphavsperson
+metadata.searchfield.hasDigitalObject=Har et digitalt objekt
 metadata.type.all=Alle
 metadata.type.images=Bilder
 metadata.type.sounds=Lyder
