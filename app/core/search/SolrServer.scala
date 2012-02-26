@@ -134,14 +134,18 @@ object SolrServer {
     val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
     val query = new SolrQuery("*:*")
     query setFacet true
-    query setFacetLimit 10
+    query setFacetLimit 50
     query setFacetMinCount 1
-    query addFacetField (normalisedFacetName)
-    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
+//    query addFacetField (normalisedFacetName)
+//    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
+    query addFacetField (facetName)
+    query setFacetPrefix (facetName, facetQuery.capitalize) // split(" ") map(_.capitalize) mkString(" ")
     query setRows 0
     val response = solrServer query (query)
-    val facetValues = response getFacetField (normalisedFacetName)
-    if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
+    val facetValues = (response getFacetField (facetName))
+//    val facetValuesLowerCase = (response getFacetField (normalisedFacetName))
+
+    if (facetValues.getValueCount != 0) facetValues.getValues.asScala.take(10) else List[FacetField.Count]()
   }
 
 }
