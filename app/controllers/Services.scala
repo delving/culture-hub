@@ -16,12 +16,12 @@
 
 package controllers
 
-import models.DataSet
 import util.Constants
 import extensions.HTTPClient
 import play.api.mvc.Action
 import core.search.{Params, SearchService}
 import core.opendata.OaiPmhService
+import play.api.libs.concurrent.Promise
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -71,11 +71,13 @@ object Services extends DelvingController with HTTPClient {
     }
   }
 
-  def oaipmh(orgId: String = "delving") = Root {
-      Action {
-        implicit request =>
-          val oaiPmhService = new OaiPmhService(request = request, orgId = orgId)
-          Ok(oaiPmhService.parseRequest).as(XML)
+  def oaipmh(orgId: String = "delving") = Action {
+    implicit request =>
+      Async {
+        val oaiPmhService = new OaiPmhService(request = request, orgId = orgId)
+        Promise.pure(oaiPmhService.parseRequest).map {
+          response => Ok(response).as(XML)
+        }
       }
   }
 
