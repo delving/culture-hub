@@ -25,6 +25,7 @@ import org.apache.solr.common.SolrInputDocument
 import play.api.Play
 import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
 import collection.JavaConverters._
+import play.api.cache.Cache
 
 
 /**
@@ -100,7 +101,17 @@ object SolrServer {
     }.toList
   }
 
+  val SOLR_FIELDS = "solrFields"
+
   def getSolrFields: List[SolrDynamicField] = {
+
+    Cache.getOrElse(SOLR_FIELDS, 120) {
+      computeSolrFields
+    }
+
+  }
+
+  def computeSolrFields = {
     import xml.XML
     import java.net.URL
     val lukeUrl: URL = new URL("%s/admin/luke".format(url))
@@ -127,6 +138,7 @@ object SolrServer {
         )
       }
     }.toList
+
   }
 
   def getFacetFieldAutocomplete(facetName: String,  facetQuery: String) = {
