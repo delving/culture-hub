@@ -14,43 +14,7 @@ import xml.{TopScope, Elem}
 
 object Proxy extends DelvingController {
 
-  val proxies = List[ProxyConfiguration](
-    new ProxyConfiguration(
-      key = "europeana",
-      searchUrl = "http://api.europeana.eu/api/opensearch.rss",
-      itemUrl = "http://www.europeana.eu/portal/record/",
-      constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
-      queryRemapping = Map("query" -> "searchTerms")) {
-
-      override def handleSearchResponse(response: play.api.libs.ws.Response): Result = {
-
-        val xml = response.xml
-
-        val processed: Elem =
-          <results  xmlns:atom="http://www.w3.org/2005/Atom"
-                    xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/"
-                    xmlns:europeana="http://www.europeana.eu"
-                    xmlns:dcterms="http://purl.org/dc/terms/"
-                    xmlns:dc="http://purl.org/dc/elements/1.1/"
-                    xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
-            <items>
-              {(xml \\ "item").map(item => {
-               <item>
-                 <fields>
-                   {item.nonEmptyChildren map {
-                   case e: Elem => e.copy(scope = TopScope)
-                   case other@_ => other
-                 }}
-                 </fields>
-               </item>
-            })}
-            </items>
-          </results>
-
-        Ok(processed)
-      }
-    }
-  )
+  val proxies = List[ProxyConfiguration](europeana, wikipediaNo, wikipediaNn, lokalhistorieWiki)
 
   def list(orgId: String) = Root {
     Action {
@@ -74,7 +38,6 @@ object Proxy extends DelvingController {
         proxies.find(_.key == proxyKey).map {
           proxy =>
             val queryString = request.queryString.filter(e => !List("path").contains(e._1))
-            val completeQueryString = (proxy.constantQueryString ++ queryString).map(entry => (entry._1, entry._2.head))
 
             WS.
               url(proxy.searchUrl).
@@ -115,6 +78,50 @@ object Proxy extends DelvingController {
 
 
 
+  // ~~~ proxy configs
+
+  lazy val europeana = new ProxyConfiguration(
+        key = "europeana",
+        searchUrl = "http://api.europeana.eu/api/opensearch.rss",
+        itemUrl = "http://www.europeana.eu/portal/record/",
+        constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
+        queryRemapping = Map("query" -> "searchTerms"))
+
+  lazy val wikipediaNo = new ProxyConfiguration(
+        key = "wikipedia.no",
+        searchUrl = "http://no.wikipedia.org/w/api.php",
+        itemUrl = "http://no.wikipedia.org/wiki/",
+        constantQueryString = Map("format" -> Seq("xml"), "action" -> Seq("opensearch")),
+        queryRemapping = Map("query" -> "search")) {
+
+    override def getItems(xml: Elem) = xml \\ "Item"
+
+  }
+
+  lazy val wikipediaNn = new ProxyConfiguration(
+        key = "wikipedia.nn",
+        searchUrl = "http://nn.wikipedia.org/w/api.php",
+        itemUrl = "http://nn.wikipedia.org/wiki/",
+        constantQueryString = Map("format" -> Seq("xml"), "action" -> Seq("opensearch")),
+        queryRemapping = Map("query" -> "search")) {
+
+    override def getItems(xml: Elem) = xml \\ "Item"
+
+  }
+
+  lazy val lokalhistorieWiki = new ProxyConfiguration(
+        key = "lokalhistoriewiki.no",
+        searchUrl = "http://lokalhistoriewiki.no/api.php",
+        itemUrl = "http://lokalhistoriewiki.no/index.php/",
+        constantQueryString = Map("format" -> Seq("xml"), "action" -> Seq("opensearch")),
+        queryRemapping = Map("query" -> "search")) {
+
+      override def handleSearchResponse(response: play.api.libs.ws.Response): Result = {
+        // the MediaWiki is an old version and the API returns nothing but JSON, and incomplete that is
+        Ok(response.json)
+      }
+  }
+
 }
 
 case class ProxyConfiguration(
@@ -126,7 +133,34 @@ case class ProxyConfiguration(
 
   import play.api.mvc.Results._
 
-  def handleSearchResponse(response: play.api.libs.ws.Response): Result = Ok(response.xml)
+  def getItems(xml: Elem) = xml \\ "item"
+
+  def handleSearchResponse(response: play.api.libs.ws.Response): Result = {
+    val xml = response.xml
+
+    val processed: Elem =
+      <results  xmlns:atom="http://www.w3.org/2005/Atom"
+                xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/"
+                xmlns:europeana="http://www.europeana.eu"
+                xmlns:dcterms="http://purl.org/dc/terms/"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+        <items>
+          {getItems(xml).map(item => {
+           <item>
+             <fields>
+               {item.nonEmptyChildren map {
+               case e: Elem => e.copy(scope = TopScope)
+               case other@_ => other
+             }}
+             </fields>
+           </item>
+        })}
+        </items>
+      </results>
+
+    Ok(processed)
+  }
 
   def handleItemResponse(response: play.api.libs.ws.Response): Result = Ok(response.xml)
 
