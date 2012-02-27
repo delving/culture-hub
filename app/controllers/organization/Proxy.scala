@@ -14,7 +14,7 @@ import xml.{TopScope, Elem}
 
 object Proxy extends DelvingController {
 
-  val proxies = List[ProxyConfiguration](europeana, wikipediaNo, wikipediaNn, lokalhistorieWiki)
+  val proxies = List[ProxyConfiguration](europeana, wikipediaNo, wikipediaNn)
 
   def list(orgId: String) = Root {
     Action {
