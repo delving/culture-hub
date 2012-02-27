@@ -27,6 +27,7 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatMongoCursor
 import play.api.{Logger, Play}
 import xml.{PrettyPrinter, Elem}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -322,7 +323,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
-      val elem: Elem = XML.loadString(recordAsString)
+      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString))
       <record>
         <header>
           <identifier>{set}:{record._id}</identifier>
