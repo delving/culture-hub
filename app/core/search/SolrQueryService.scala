@@ -26,6 +26,7 @@ import play.api.Logger
 import play.api.mvc.{RequestHeader, AnyContent, Request}
 import util.Constants
 import collection.immutable.{Map, List}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  *
@@ -48,7 +49,7 @@ object SolrQueryService extends SolrServer {
       try {
         import xml.XML
         val normalisedValue = if (field.getKeyAsXml.endsWith("_text")) "<![CDATA[%s]]>".format(value) else value
-        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(normalisedValue.replaceAll("&nbsp;", " "), field, response), keyAsXml))
+        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(normalisedValue), field, response), keyAsXml))
       }
       catch {
         case ex: Exception =>
@@ -63,7 +64,7 @@ object SolrQueryService extends SolrServer {
     field.getHighLightValuesAsArray.map(value =>
       try {
         import xml.XML
-        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(value.replaceAll("&nbsp;", " "), field, response), field.getKeyAsXml))
+        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(value), field, response), field.getKeyAsXml))
       }
       catch {
         case ex : Exception =>
