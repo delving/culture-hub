@@ -85,7 +85,6 @@
         ui_header_background: "#000",
         ui_header_color: "#f1f1f1"
     }
-  });
 #{if _authUser}
     $("#addLabel").click(function () {
       if ($("#add-comment.dialog")) {
@@ -128,6 +127,7 @@
     }, function(item) {
       $('li[id=' + item.id + ']').remove();
     });
-  });
 #{/if}
+});
+
 </script>
