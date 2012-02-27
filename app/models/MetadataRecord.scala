@@ -25,6 +25,7 @@ import com.novus.salat.grater
 import util.Constants._
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.{WriteConcern, BasicDBList, DBObject}
+import core.search.{SolrBindingService, SolrQueryService}
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
@@ -63,9 +64,12 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
       inner.foldLeft("") {
         (output: String, e: BasicDBList) => {
           val entry = (e.get(0), e.get(1))
-          val unMungedKey = entry._1.toString.replaceFirst("_", ":")
+          val unMungedKey = SolrBindingService.stripDynamicFieldLabels(entry._1.toString.replaceFirst("_", ":"))
           val value = entry._2.asInstanceOf[BasicDBList].toList
-          value.map(v => "<%s>%s</%s>".format(unMungedKey, v, unMungedKey)).mkString("\n")
+          if (!unMungedKey.startsWith("delving"))
+            output + value.map(v => "<%s>%s</%s>".format(unMungedKey, v, unMungedKey)).mkString("", "\n", "\n")
+          else
+            output
         }
       }
     }

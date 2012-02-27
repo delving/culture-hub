@@ -277,6 +277,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
     recordCollection.ensureIndex(MongoDBObject("hubId" -> 1))
+    recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
     CollectionMDR
   }

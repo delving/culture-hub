@@ -18,7 +18,6 @@ package core.opendata
 
 import java.text.SimpleDateFormat
 import java.util.Date
-import xml.Elem
 import exceptions._
 import play.api.mvc.RequestHeader
 import core.search.Params
@@ -27,6 +26,7 @@ import models.{DataSet, MetadataRecord}
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatMongoCursor
 import play.api.{Logger, Play}
+import xml.{PrettyPrinter, Elem}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -53,9 +53,10 @@ object OaiPmhService {
 class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: String = "delving") extends MetaConfig {
 
   private val log = Logger("CultureHub")
+  val prettyPrinter = new PrettyPrinter(200, 5)
 
   private val VERB = "verb"
-    private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
+  private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
   val params = Params(request.queryString)
 
   /**
@@ -69,7 +70,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
     def pmhRequest(verb: PmhVerb) : PmhRequestEntry = createPmhRequest(params, verb)
 
-    val response = try {
+    val response: Elem = try {
       params.getValueOrElse(VERB, "error") match {
         case "Identify" => processIdentify( pmhRequest(PmhVerbType.IDENTIFY) )
         case "ListMetadataFormats" => processListMetadataFormats( pmhRequest(PmhVerbType.List_METADATA_FORMATS) )
@@ -91,7 +92,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
       case ii   : InvalidIdentifierException => createErrorResponse("idDoesNotExist")
       case e    : Exception => createErrorResponse("badArgument", e)
     }
-    response.toString()
+    prettyPrinter.format(response)
   }
 
   def isLegalPmhRequest(params: Params) : Boolean = {
@@ -221,7 +222,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val setName = pmhRequestEntry.getSet
     val metadataFormat = pmhRequestEntry.getMetadataFormat
     val dataSet: DataSet = DataSet.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).limit(pmhRequestEntry.recordsReturned)
+    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).sort(MongoDBObject("transferIdx" -> 1)).limit(pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
     val totalValidRecords = records.count
@@ -229,7 +230,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val to = printDate(recordList.last.modified)
 
     var elem: Elem = if (!idsOnly) {
-      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
           {currentDate}
@@ -266,11 +267,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
       </OAI-PMH>
     }
 
-    // todo enable later again
-        for (entry <- dataSet.namespaces) {
-          import xml.{Null, UnprefixedAttribute}
-          elem = elem % new UnprefixedAttribute( "xmlns:"+entry._1.toString, entry._2, Null)
-        }
+    for (entry <- dataSet.namespaces) {
+      import xml.{Null, UnprefixedAttribute}
+      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
+    }
 
     elem
   }
@@ -306,10 +306,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         </GetRecord>
       </OAI-PMH>
     // todo enable later again
-    //    for (entry <- record.getNamespaces.toMap.entrySet) {
-    //      import xml.{Null, UnprefixedAttribute}
-    //      elem = elem % new UnprefixedAttribute( "xmlns:"+entry.getKey.toString , entry.getValue.toString, Null )
-    //    }
+//    for (entry <- dataSet.namespaces) {
+//      import xml.{Null, UnprefixedAttribute}
+//      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
+//    }
     elem
   }
 
@@ -322,7 +322,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
-      val elem = XML.loadString(recordAsString)
+      val elem: Elem = XML.loadString(recordAsString)
       <record>
         <header>
           <identifier>{set}:{record._id}</identifier>
@@ -397,24 +397,31 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
     val recordsReturned = 250
 
-    private val ResumptionTokenExtractor = """(.+?):(.+?):(.+?):(.+)""".r
+    private val ResumptionTokenExtractor = """(.+?):(.+?):(.+?):(.+?):(.+)""".r
 
-    lazy val ResumptionTokenExtractor(set, metadataFormat, recordInt, pageNumber) = resumptionToken // set:medataFormat:lastTransferIdx:numberSeen
+    lazy val ResumptionTokenExtractor(set, metadataFormat, recordInt, pageNumber, originalSize) = resumptionToken // set:medataFormat:lastTransferIdx:numberSeen
     
     def getSet = if (resumptionToken.isEmpty) pmhRequestItem.set else set
     def getMetadataFormat = if (resumptionToken.isEmpty) pmhRequestItem.metadataPrefix else metadataFormat
-    def getPagenumber = if (resumptionToken.isEmpty) 0 else pageNumber.toInt
+    def getPagenumber = if (resumptionToken.isEmpty) 1 else pageNumber.toInt
     def getLastTransferIdx = if (resumptionToken.isEmpty) 0 else recordInt.toInt
+    def getOriginalListSize = if (resumptionToken.isEmpty) 0 else originalSize.toInt
     
     def renderResumptionToken(recordList: List[MetadataRecord], totalListSize: Int) = {
 
       val nextLastIdx = recordList.last.transferIdx.get
 
-      val nextResumptionToken = "%s:%s:%s:%s".format(getSet, getMetadataFormat, nextLastIdx, getPagenumber + 1)
+      val originalListSize = if (getOriginalListSize == 0) totalListSize else getOriginalListSize
 
-      if (getLastTransferIdx + recordsReturned < totalListSize)
-        <resumptionToken expirationDate={printDate(new Date())} completeListSize={totalListSize.toString}
-                         cursor={(getPagenumber * recordsReturned).toString}>{nextResumptionToken}</resumptionToken>
+      val currentPageNr = if (resumptionToken.isEmpty) getPagenumber else getPagenumber + 1
+
+      val nextResumptionToken = "%s:%s:%s:%s:%s".format(getSet, getMetadataFormat, nextLastIdx, currentPageNr, originalListSize)
+
+      val cursor = currentPageNr * recordsReturned
+      if (cursor < originalListSize) {
+        <resumptionToken expirationDate={printDate(new Date())} completeListSize={(originalListSize).toString}
+                         cursor={cursor.toString}>{nextResumptionToken}</resumptionToken>
+      }
       else
           <resumptionToken/>
     }
