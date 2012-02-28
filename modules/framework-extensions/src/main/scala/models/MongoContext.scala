@@ -20,10 +20,14 @@ import com.mongodb.casbah.{MongoOptions, MongoConnection, MongoDB}
 import com.mongodb.ServerAddress
 import com.novus.salat.Context
 import play.Play
-import play.Logger
 import play.api.Play.current
+import collection.mutable.ListBuffer
+import play.api.Logger
 
 trait MongoContext {
+
+  val logger = Logger(classOf[MongoContext])
+  val connections = new ListBuffer[MongoConnection]
 
   implicit val ctx = new Context {
     val name = "PlaySalatContext"
@@ -35,16 +39,27 @@ trait MongoContext {
   val mongoOptions = MongoOptions(connectionsPerHost = connectionsPerHost.toInt)
 
   def createConnection(connectionName: String): MongoDB  = if (current.configuration.getBoolean("mongo.test.context").getOrElse(true) || Play.isDev) {
-    Logger.info("Starting Mongo in Test Mode connecting to localhost:27017 to database %s".format(connectionName))
-    MongoConnection()(connectionName)
+    logger.info("Starting Mongo in Test Mode connecting to localhost:27017 to database %s".format(connectionName))
+    val connection = MongoConnection()
+    connections += connection
+    connection(connectionName)
+  } else if (mongoServerAddresses.isEmpty || mongoServerAddresses.size > 2) {
+    logger.info("Starting Mongo in Replicaset Mode connecting to %s".format(mongoServerAddresses.mkString(", ")))
+    val connection = MongoConnection(mongoServerAddresses, mongoOptions)
+    connections += connection
+    connection(connectionName)
+  } else {
+    logger.info("Starting Mongo in Single Target Mode connecting to %s".format(mongoServerAddresses.head.toString))
+    val connection = MongoConnection(mongoServerAddresses.head, mongoOptions)
+    connections += connection
+    connection(connectionName)
   }
-  else if (mongoServerAddresses.isEmpty || mongoServerAddresses.size > 2) {
-    Logger.info("Starting Mongo in Replicaset Mode connecting to %s".format(mongoServerAddresses.mkString(", ")))
-    MongoConnection(mongoServerAddresses, mongoOptions)(connectionName)
-  }
-  else {
-    Logger.info("Starting Mongo in Single Target Mode connecting to %s".format(mongoServerAddresses.head.toString))
-    MongoConnection(mongoServerAddresses.head, mongoOptions)(connectionName)
+
+  def close() {
+    logger.info("Closing %s connections to MongoDB".format(connections.length))
+    connections foreach {
+      c => c.close()
+    }
   }
 
   lazy val mongoServerAddresses: List[ServerAddress] = {
@@ -56,5 +71,7 @@ trait MongoContext {
     }.filter(entry => !entry._1.isEmpty && !entry._2.isEmpty).map(entry => new ServerAddress(entry._1, entry._2.toInt))
   }
 
-
+  override def finalize() {
+    close()
+  }
 }
