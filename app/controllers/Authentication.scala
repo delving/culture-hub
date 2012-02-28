@@ -4,7 +4,6 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import eu.delving.templates.scala.GroovyTemplates
-import core.ThemeAware
 import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
@@ -12,6 +11,7 @@ import extensions.MissingLibs
 import java.util.Date
 import models.{Visibility, UserCollection, User}
 import core.indexing.IndexingService
+import core.{HubServices, ThemeAware}
 
 /**
  *
@@ -32,7 +32,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => User.connect(u, p)
+      case (u, p, r) => HubServices.authenticationService.connect(u, p)
     }))
 
   def login = Themed {

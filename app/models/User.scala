@@ -17,7 +17,6 @@
 package models
 
 import extensions.MissingLibs
-import extensions.MissingLibs
 import util.Constants._
 import com.novus.salat._
 import com.novus.salat.dao._
@@ -40,7 +39,6 @@ case class User(_id: ObjectId = new ObjectId,
                 isActive: Boolean = false,
                 blocked: Boolean = false,
                 blockingInfo: Option[BlockingInfo] = None,
-                activationToken: Option[String] = None,
                 resetPasswordToken: Option[ResetPasswordToken] = None,
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None,
@@ -68,7 +66,7 @@ case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis
 
 object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
-  val PASSWORD_RESET_TOKEN_EXPIRATION = 3600 //ms
+  val PASSWORD_RESET_TOKEN_EXPIRATION = 3600 // one hour
 
   val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false, userProfile = UserProfile())
 
@@ -142,28 +140,14 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def existsWithUsername(userName: String) = User.count(MongoDBObject("userName" -> userName)) != 0
 
-  def activateUser(activationToken: String): Option[User] = {
-    val user: User = User.findOne(MongoDBObject("activationToken" -> activationToken)) getOrElse (return None)
-    val activeUser: User = user.copy(isActive = true, activationToken = None)
-    User.update(MongoDBObject("userName" -> activeUser.userName), activeUser, false, false, new WriteConcern())
-
-    // TODO MIGRATION - move this to the controller
-  // also log the guy in
-    // play.mvc.Scope.Session.current().put("userName", activeUser.userName)
-    // new ServicesSecurity().onAuthenticated(activeUser.userName, play.mvc.Scope.Session.current())
-    Some(user)
+  def preparePasswordReset(userName: String, resetPasswordToken: String) {
+    // FIXME the format of the issueTime of the resetToken may be wrong here
+    User.update(MongoDBObject("userName" -> userName), $set ("resetPasswordToken" -> grater[ResetPasswordToken].asDBObject(ResetPasswordToken(resetPasswordToken))) )
   }
-
-  def preparePasswordReset(user: User, resetPasswordToken: String) {
-    val resetUser = user.copy(resetPasswordToken = Some(ResetPasswordToken(resetPasswordToken)))
-    User.update(MongoDBObject("userName" -> resetUser.userName), resetUser, false, false, new WriteConcern())
-  }
-
-  def canChangePassword(resetPasswordToken: String): Boolean = User.count(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken)) != 0
 
   def findByResetPasswordToken(resetPasswordToken: String): Option[User] = {
-    val delta = System.currentTimeMillis() - PASSWORD_RESET_TOKEN_EXPIRATION * 1000
-    User.findOne(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken) ++ ("resetPasswordToken.issueTime" $lt delta))
+    val then = System.currentTimeMillis() - PASSWORD_RESET_TOKEN_EXPIRATION * 1000
+    User.findOne(MongoDBObject("resetPasswordToken.token" -> resetPasswordToken) ++ ("resetPasswordToken.issueTime" $gt then))
   }
 
   def changePassword(resetPasswordToken: String, newPassword: String): Boolean = {

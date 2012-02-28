@@ -33,6 +33,7 @@ import play.api.i18n.Messages
 import validation.{ValidationError, Valid, Invalid, Constraint}
 import play.libs.Time
 import play.libs.Images.Captcha
+import core.HubServices
 
 /**
  *
@@ -108,30 +109,18 @@ object Registration extends ApplicationController {
             val r = registration
             Cache.set(r.randomId, null)
 
-            val activationToken: String = if (Play.isTest) "testActivationToken" else MissingLibs.UUID
-            val newUser = User(
-              userName = r.userName,
-              firstName = r.firstName,
-              lastName = r.lastName,
-              nodes = List(getNode),
-              email = r.email,
-              password = MissingLibs.passwordHash(r.password1, MissingLibs.HashType.SHA512),
-              userProfile = models.UserProfile(),
-              isActive = false,
-              activationToken = Some(activationToken))
-
-            val inserted = User.insert(newUser)
+            val activationToken = HubServices.registrationService.registerUser(r.userName, getNode, r.firstName, r.lastName, r.email, r.password1)
 
             val index = Redirect(controllers.routes.Application.index)
 
-            inserted match {
-              case Some(id) =>
+            activationToken match {
+              case Some(token) =>
                 try {
-                  Mails.activation(newUser, activationToken, theme)
-                  index.flashing(("registrationSuccess", newUser.email))
+                  Mails.activation(r.email, r.firstName + " " + r.lastName, token, theme)
+                  index.flashing(("registrationSuccess", r.email))
                 } catch {
                   case t => {
-                    User.remove(newUser.copy(_id = id))
+//                    User.remove(newUser.copy(_id = id))
                     logError(t, t.getMessage, r.userName)
                     index.flashing(("registrationError" -> t.getMessage))
                   }
@@ -166,10 +155,10 @@ object Registration extends ApplicationController {
           warning("Empty activation token received")
           indexAction.flashing(("activation", "false"))
         } else {
-          val activated = User.activateUser(activationToken)
+          val activated = HubServices.registrationService.activateUser(activationToken)
           if (activated.isDefined) {
             try {
-              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullname, activated.get.email, theme)
+              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullName, activated.get.email, theme)
               indexAction.flashing(("activation", "true"))
             } catch {
               case t => logError(t, "Could not send activation email")
@@ -213,11 +202,15 @@ object Registration extends ApplicationController {
         resetPasswordForm.bindFromRequest().fold(
           formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
           resetPassword => {
-            val resetPasswordToken = if (Play.isTest) "testResetPasswordToken" else MissingLibs.UUID
             val u = User.findByEmail(resetPassword.email).get
-            User.preparePasswordReset(u, resetPasswordToken)
-            Mails.resetPassword(u, resetPasswordToken, theme)
-            Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
+            HubServices.registrationService.preparePasswordReset(u.userName) match {
+              case Some(resetPasswordToken) =>
+                Mails.resetPassword(u, resetPasswordToken, theme)
+                Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
+              case None =>
+                // TODO adjust view for this case
+                Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "false"))
+            }
           }
         )
 
@@ -231,11 +224,7 @@ object Registration extends ApplicationController {
         if(Option(resetPasswordToken).isEmpty) {
           indexAction.flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
         } else {
-          if(User.canChangePassword(resetPasswordToken)) {
-            indexAction.flashing(("resetPasswordError", Messages("registration.errorPasswordChange")))
-          } else {
-            Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
-          }
+          Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
         }
     }
   }
@@ -258,13 +247,17 @@ object Registration extends ApplicationController {
     Action {
       implicit request =>
         if(Option(resetPasswordToken).isEmpty) {
-          Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "false"))
+          Redirect(controllers.routes.Application.index).flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
         } else {
           newPasswordForm.bindFromRequest().fold(
             formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
             newPassword => {
-              User.changePassword(resetPasswordToken, newPassword.password1)
-              Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "true"))
+              val passwordChanged = HubServices.registrationService.resetPassword(resetPasswordToken, newPassword.password1)
+              if(passwordChanged) {
+                Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "true"))
+              } else {
+                Redirect(controllers.routes.Application.index).flashing(("resetPasswordError", Messages("registration.resetProblem")))
+              }
             }
           )
         }

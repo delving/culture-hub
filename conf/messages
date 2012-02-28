@@ -289,6 +289,8 @@ profile.activesince=Active since
 registration.lostpassword=Lost password
 registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
 registration.resetpassword=Reset password
+registration.reset.error=Error resetting your password, correct the errors below:
+registration.resetProblem=Error resetting your password, please try again
 registration.newpassword=Enter a new password below
 registration.registerFor=Register for {0}
 

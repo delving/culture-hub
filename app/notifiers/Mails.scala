@@ -18,8 +18,8 @@ import play.api.i18n.Messages
 
 object Mails {
 
-  def activation(user: User, token: String, theme: PortalTheme) {
-    Email(theme.emailTarget.systemFrom, "Welcome to CultureHub").to(user.email).withTemplate("Mails/activation.txt", 'fullName -> user.fullname, 'activationToken -> token, 'themeInfo -> new ThemeInfo(theme)).send()
+  def activation(email: String, fullName: String, token: String, theme: PortalTheme) {
+    Email(theme.emailTarget.systemFrom, "Welcome to CultureHub").to(email).withTemplate("Mails/activation.txt", 'fullName -> fullName, 'activationToken -> token, 'themeInfo -> new ThemeInfo(theme)).send()
   }
 
   def accountBlocked(user: User, contactEmail: String, theme: PortalTheme) {

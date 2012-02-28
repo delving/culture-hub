@@ -1,9 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('register') /}
+#{set title: messages.get('ui.label.register') /}
 
 <div id="register" class="row">
-
-    ${registrationForm}
 
     <div class="grid_12">
     <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="register">

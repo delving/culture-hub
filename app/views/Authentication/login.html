@@ -15,6 +15,15 @@
                 ${flash.success}
             </p>
             #{/if}
+            #{if views.Helpers.hasErrors(loginForm)}
+            <div class="panel error pam">
+                <ul>
+                #{list views.Helpers.listGlobalErrors(loginForm), as: 'e'}
+                    <li>${e}</li>
+                #{/list}
+                </ul>
+            </div>
+            #{/if}
 
             #{textField name:"userName", label: messages.get("ui.label.username"), form: loginForm /}
             #{passwordField name:"password", label: messages.get("ui.label.password"), form: loginForm /}

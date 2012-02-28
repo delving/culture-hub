@@ -17,7 +17,7 @@ import play.api._
 import play.api.Play.current
 import play.api.mvc._
 import models.User
-import extensions._
+import core.HubServices
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -52,7 +52,7 @@ object OAuth2TokenEndpoint extends Controller {
 
             val user = grantType match {
               // TODO use real node from URL
-              case GrantType.PASSWORD => if (!User.connect(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
+              case GrantType.PASSWORD => if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
               case GrantType.REFRESH_TOKEN => {
                 val maybeUser = User.findByRefreshToken(oauthRequest.getRefreshToken)
                 if(maybeUser == None) {
