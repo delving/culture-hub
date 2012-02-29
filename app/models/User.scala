@@ -87,7 +87,7 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
-  def findByUsername(userName: String, active: Boolean = true) = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> active))
+  def findByUsername(userName: String, active: Boolean = true): Option[User] = User.findOne(MongoDBObject("userName" -> userName, "isActive" -> active))
 
   // ~~~ profile
 

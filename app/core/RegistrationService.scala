@@ -27,5 +27,7 @@ trait RegistrationService {
 }
 
 case class RegisteredUser(userName: String, firstName: String, lastName: String, email: String) {
-  val fullName = firstName + " " + lastName 
+  val fullName = firstName + " " + lastName
 }
+
+

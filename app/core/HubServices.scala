@@ -9,18 +9,18 @@ import services._
 
 object HubServices {
 
-
-  // service references
+  // ~~~ service references
   // TODO decide on a dependency injection mechanism
 
   var authenticationService: AuthenticationService = null
   var registrationService: RegistrationService = null
-
+  var userProfileService: UserProfileService = null
 
 
   def init() {
     authenticationService = new MongoAuthenticationService
     registrationService = new MongoRegistrationService
+    userProfileService = new MongoUserProfileService
   }
 
 

@@ -10,6 +10,7 @@ import play.api.data.format.Formats._
 import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
+import core.HubServices
 
 /**
  *
@@ -36,14 +37,16 @@ object Admin extends DelvingController {
           profileModel => {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
-            val updated = User.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email,
-              UserProfile(
-                isPublic = profileModel.isPublic,
-                description = StrictOption(profileModel.description),
-                funFact = StrictOption(profileModel.funFact),
-                websites = profileModel.websites,
-                twitter = StrictOption(profileModel.twitter),
-                linkedIn = StrictOption(profileModel.linkedIn)))
+            val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
+              firstName = profileModel.firstName,
+              lastName = profileModel.lastName,
+              email = profileModel.email,
+              description = StrictOption(profileModel.description),
+              funFact = StrictOption(profileModel.funFact),
+              websites = profileModel.websites,
+              twitter = StrictOption(profileModel.twitter),
+              linkedIn = StrictOption(profileModel.linkedIn)))
+
             if (updated) {
               Json(profileModel)
               Ok
