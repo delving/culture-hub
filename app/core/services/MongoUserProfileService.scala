@@ -14,6 +14,7 @@ class MongoUserProfileService extends UserProfileService {
     User.findByUsername(userName).map {
       user: User =>
         UserProfile(
+          isPublic = user.userProfile.isPublic,
           firstName = user.firstName,
           lastName = user.lastName,
           email = user.email,

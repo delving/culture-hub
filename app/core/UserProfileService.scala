@@ -14,7 +14,8 @@ trait UserProfileService {
 
 }
 
-case class UserProfile(firstName:     String,
+case class UserProfile(isPublic:      Boolean,
+                       firstName:     String,
                        lastName:      String,
                        email:         String,
                        description:   Option[String],

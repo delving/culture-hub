@@ -38,6 +38,7 @@ object Admin extends DelvingController {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
             val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
+              isPublic = profileModel.isPublic,
               firstName = profileModel.firstName,
               lastName = profileModel.lastName,
               email = profileModel.email,

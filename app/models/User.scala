@@ -157,10 +157,6 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     true
   }
 
-  def findBookmarksCollection(userName: String): Option[UserCollection] = {
-    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
-  }
-
   def evictExpiredPasswordResetTokens(timeout: Long = 3600) {
     val delta = System.currentTimeMillis() - timeout * 1000
     User.update("resetPasswordToken.issueTime" $lt delta, $unset ("resetPasswordToken"), false, false, new WriteConcern())

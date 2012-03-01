@@ -57,6 +57,10 @@ package object mongoContext extends models.MongoContext {
     indexes.foreach(collection.ensureIndex(_))
   }
 
+  lazy val hubUserCollection = connection("Users")
+  userCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
+
+
   lazy val groupCollection = connection("Groups")
 
   lazy val  portalThemeCollection = connection("PortalThemes")
@@ -70,10 +74,10 @@ package object mongoContext extends models.MongoContext {
 
   lazy val userCollectionsCollection = connection("UserCollections") // the collections made by users
   addIndexes(userCollectionsCollection, thingIndexes)
-  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
 
   lazy val userStoriesCollection = connection("UserStories")
   addIndexes(userStoriesCollection, thingIndexes)
+  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
 
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
