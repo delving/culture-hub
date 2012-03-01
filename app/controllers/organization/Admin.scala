@@ -6,6 +6,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Action
 import util.ThemeHandler
 import models._
+import core.HubServices
 
 /**
  *
@@ -17,13 +18,11 @@ object Admin extends OrganizationController {
   def index(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        val org = Organization.findByOrgId(orgId)
-        if (org.isEmpty) {
+        if (!HubServices.organizationService.exists(orgId)) {
           NotFound(Messages("organizations.organization.orgNotFound").format(orgId))
         } else {
-          val membersAsTokens = JJson.generate(org.get.users.map(m => Map("id" -> m, "name" -> m)))
-          val idAndOwners = Organization.listOwnersAndId(orgId)
-          Ok(Template('members -> membersAsTokens, 'owners -> idAndOwners._2, 'ownerGroupId -> idAndOwners._1.getOrElse("")))
+          val membersAsTokens = JJson.generate(HubUser.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
+          Ok(Template('members -> membersAsTokens, 'owners -> HubServices.organizationService.listAdmins(orgId)))
         }
     }
   }
@@ -35,8 +34,8 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
-        val success = Organization.addUser(orgId, id)
+        HubUser.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
+        val success = HubUser.addToOrganization(id, orgId)
         // TODO logging
         if (success) Ok else Error
     }
@@ -49,8 +48,8 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        User.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
-        val success = Organization.removeUser(orgId, id)
+        HubUser.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
+        val success = HubUser.removeFromOrganization(id, orgId)
         // TODO logging
         if (success) Ok else Error
     }

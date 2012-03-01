@@ -1,6 +1,5 @@
 package controllers
 
-import core.ThemeAware
 import organization.CMS
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
@@ -12,6 +11,7 @@ import models._
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.api.{Logger, Play}
+import core.{HubServices, ThemeAware}
 
 /**
  *
@@ -160,8 +160,8 @@ trait OrganizationController extends DelvingController with Secured {
               Forbidden(Messages("user.secured.noAccess"))
             }
             renderArgs += ("orgId" -> orgId)
-            renderArgs += ("isOwner" -> Organization.isOwner(orgId, userName))
-            renderArgs += ("isCMSAdmin" -> (Organization.isOwner(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
+            renderArgs += ("isOwner" -> HubServices.organizationService.isAdmin(orgId, userName))
+            renderArgs += ("isCMSAdmin" -> (HubServices.organizationService.isAdmin(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
             action(request)
           }
         }
@@ -198,7 +198,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           }
 
           // Connected user
-          User.findByUsername(userName).map {
+          HubUser.findByUsername(userName).map {
             u => {
               renderArgs +=("fullName", u.fullname)
               renderArgs +=("userName", u.userName)
@@ -206,7 +206,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
               renderArgs +=("organizations", u.organizations)
               renderArgs +=("email", u.email)
-              renderArgs +=("isNodeAdmin", u.nodesAdmin.contains(getNode))
 
               // refresh session parameters
               additionalSessionParams += (AccessControl.ORGANIZATIONS -> u.organizations.mkString(","))
@@ -242,7 +241,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val maybeUser = User.findByUsername(user)
+          val maybeUser = HubUser.findByUsername(user)
           maybeUser match {
             case Some(u) =>
               renderArgs +=("browsedFullName", u.fullname)
@@ -289,7 +288,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = Organization.fetchName(orgId)
+          val orgName = HubServices.organizationService.getName(orgId, "en")
           renderArgs +=("browsedOrgName", orgName)
           action(request)
       }

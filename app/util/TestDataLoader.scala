@@ -69,7 +69,7 @@ object TestDataLoader {
     val bnfId = Organization.insert(bnf)
 
     // all users are in delving
-    User.find(MongoDBObject()).foreach(u => Organization.addUser("delving", u.userName))
+    User.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
 
     val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN.key)
     val delvingOwnersId = Group.insert(delvingOwners)
@@ -128,7 +128,7 @@ object TestDataLoader {
 
     DataSet.insert(DataSet(
       spec = "PrincessehofSample",
-      user_id = new ObjectId("4e5679a80364ae80333ab939"),
+      userName = "bob",
       orgId = "delving",
       description = Some("Test Data"),
       state = DataSetState.ENABLED,

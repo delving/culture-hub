@@ -13,6 +13,7 @@ import controllers.{ViewModel, OrganizationController}
 import extensions.{MissingLibs, JJson}
 import models._
 import com.mongodb.casbah.Imports._
+import core.HubServices
 
 
 /**
@@ -29,7 +30,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (Organization.isOwner(orgId, connectedUser) || Group.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
+          if (HubServices.organizationService.isAdmin(orgId, connectedUser) || Group.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -66,23 +67,17 @@ object CMS extends OrganizationController {
   def upload(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        Organization.findByOrgId(orgId).map {
-          o =>
-            def notSelected(id: ObjectId) = false
-            val files = controllers.dos.FileStore.getFilesForItemId(o._id).map(_.asFileUploadResponse(notSelected))
-            Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
-        }.getOrElse(NotFound(orgId))
+        def notSelected(id: ObjectId) = false
+        val files = controllers.dos.FileStore.getFilesForItemId(orgId).map(_.asFileUploadResponse(notSelected))
+        Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
     }
   }
-
 
   def uploadSubmit(orgId: String, uid: String) = CMSAction(orgId) {
     Action {
       implicit request =>
       // use the organization object ID to link the files. we later maybe more lax in the DoS and allow the orgId to be used
-        Organization.findByOrgId(orgId).map {
-          o => controllers.dos.FileUpload.markFilesAttached(uid, o._id)
-        }
+        controllers.dos.FileUpload.markFilesAttached(uid, orgId)
         Redirect("/organizations/%s/site/upload".format(orgId))
     }
   }
@@ -90,14 +85,11 @@ object CMS extends OrganizationController {
   def listImages(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        Organization.findByOrgId(orgId).map {
-          o =>
-            val images = controllers.dos.FileStore.getFilesForItemId(o._id).filter(_.contentType.contains("image"))
+        val images = controllers.dos.FileStore.getFilesForItemId(orgId).filter(_.contentType.contains("image"))
 
-            // tinyMCE stoopidity
-            val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
-            Ok(javascript).as("text/html")
-        }.getOrElse(Ok)
+        // tinyMCE stoopidity
+        val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
+        Ok(javascript).as("text/html")
     }
   }
 

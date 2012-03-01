@@ -32,8 +32,7 @@ class SipCreatorEndPointSpec extends Specification with Cleanup {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      val bob = User.findByUsername("bob").get
-      DataSet.update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> bob._id))
+      DataSet.update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
 
       running(FakeApplication()) {
         val result = controllers.SipCreatorEndPoint.unlock("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())

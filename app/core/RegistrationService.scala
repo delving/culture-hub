@@ -12,6 +12,8 @@ trait RegistrationService {
 
   def isEmailTaken(email: String): Boolean
 
+  def isAccountActive(email: String): Boolean
+
   /**
    * Registers a user with the service. If things are good, returns an activationToken to be given to the user for verification
    */
@@ -20,7 +22,7 @@ trait RegistrationService {
   def activateUser(activationToken: String): Option[RegisteredUser]
 
   /** Prepares password reset by returning a reset token **/
-  def preparePasswordReset(userName: String): Option[String]
+  def preparePasswordReset(email: String): Option[String]
 
   def resetPassword(resetToken: String, newPassword: String): Boolean
 

@@ -32,7 +32,7 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         indexingMappingPrefix: String,
                         orgId: String,
                         userName: String,
-                        lockedBy: Option[ObjectId],
+                        lockedBy: Option[String],
                         errors: Map[String, String] = Map.empty[String, String],
                         visibility: Int = 0)
 

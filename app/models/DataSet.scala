@@ -36,7 +36,8 @@ import controllers.ModelImplicits
 import core.mapping.MappingService
 import play.api.Play
 import play.api.Play.current
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.{Messages}
+import core.HubServices
 
 /**
  * DataSet model
@@ -49,9 +50,9 @@ import play.api.i18n.{Lang, Messages}
 
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
-                   user_id: ObjectId, // who created this
+                   userName: String,
                    orgId: Predef.String,
-                   lockedBy: Option[ObjectId] = None,
+                   lockedBy: Option[String] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
                    visibility: Visibility,
@@ -71,9 +72,9 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   val name = spec
 
-  def getCreator: User = User.findOneByID(user_id).get // orElse we are in trouble
+  def getCreator: HubUser = HubUser.findByUsername(userName).get // orElse we are in trouble
 
-  def getLockedBy: Option[User] = if(lockedBy == None) None else User.findOneByID(lockedBy.get)
+  def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.findByUsername(lockedBy.get)
 
   def getFacts: Map[String, String] = {
     val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]
@@ -185,7 +186,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             toList.flatten.distinct
 
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
-    if(Organization.isOwner(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
+    if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
     val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
     (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
   }
@@ -195,13 +196,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   // ~~~ access control
 
   def canView(ds: DataSet, userName: String) = {
-    Organization.isOwner(ds.orgId, userName) ||
+    HubServices.organizationService.isAdmin(ds.orgId, userName) ||
     Group.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
     ds.visibility == Visibility.PUBLIC
   }
 
   def canEdit(ds: DataSet, userName: String) = {
-    Organization.isOwner(ds.orgId, userName) || Group.count(MongoDBObject(
+    HubServices.organizationService.isAdmin(ds.orgId, userName) || Group.count(MongoDBObject(
       "dataSets" -> ds._id,
       "users" -> userName,
       "grantType" -> GrantType.MODIFY.key)

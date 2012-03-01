@@ -15,12 +15,14 @@ object HubServices {
   var authenticationService: AuthenticationService = null
   var registrationService: RegistrationService = null
   var userProfileService: UserProfileService = null
+  var organizationService: OrganizationService = null
 
 
   def init() {
     authenticationService = new MongoAuthenticationService
     registrationService = new MongoRegistrationService
     userProfileService = new MongoUserProfileService
+    organizationService = new MongoOrganizationService
   }
 
 

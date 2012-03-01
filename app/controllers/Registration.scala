@@ -19,7 +19,6 @@ package controllers
 import notifiers.Mails
 import play.api.Play.current
 import models.mongoContext._
-import models.{User, Organization}
 import extensions.MissingLibs
 import play.api._
 import cache.Cache
@@ -62,17 +61,17 @@ object Registration extends ApplicationController {
   }
 
   val emailTaken = Constraint[RegistrationInfo]("registration.duplicateEmail") {
-    case r if !User.existsWithEmail(r.email) => Valid
+    case r if !HubServices.registrationService.isEmailTaken(r.email) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
   }
 
   val userNameTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-    case r if !User.existsWithUsername(r.userName) => Valid
+    case r if !HubServices.registrationService.isUserNameTaken(r.userName) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
   }
 
   val orgIdTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-    case r if Organization.findByOrgId(r.userName).isEmpty => Valid
+    case r if !HubServices.organizationService.exists(r.userName) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
   }
 
@@ -179,12 +178,12 @@ object Registration extends ApplicationController {
 
 
   val accountNotFound = Constraint[String]("registration.accountNotFoundWithEmail") {
-    case r if User.findByEmail(r).isDefined => Valid
+    case r if HubServices.registrationService.isEmailTaken(r) => Valid
     case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
   }
   
   val accountNotActive = Constraint[String]("registration.accountNotActive") {
-    case r if User.findByEmail(r).map(_.isActive).getOrElse(false) => Valid
+    case r if HubServices.registrationService.isAccountActive(r) => Valid
     case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
   }
 
@@ -202,10 +201,9 @@ object Registration extends ApplicationController {
         resetPasswordForm.bindFromRequest().fold(
           formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
           resetPassword => {
-            val u = User.findByEmail(resetPassword.email).get
-            HubServices.registrationService.preparePasswordReset(u.userName) match {
+            HubServices.registrationService.preparePasswordReset(resetPassword.email) match {
               case Some(resetPasswordToken) =>
-                Mails.resetPassword(u, resetPasswordToken, theme)
+                Mails.resetPassword(resetPassword.email, resetPasswordToken, theme)
                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
               case None =>
                 // TODO adjust view for this case

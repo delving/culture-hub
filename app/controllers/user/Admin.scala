@@ -22,7 +22,7 @@ object Admin extends DelvingController {
   def profile(user: String) = SecuredUserAction(user) {
     Action {
       implicit request =>
-        val u = User.findByUsername(connectedUser).get
+        val u = HubUser.findByUsername(connectedUser).get
         val p = u.userProfile
         val profile = ProfileViewModel(p.isPublic, u.firstName, u.lastName, u.email, p.description.getOrElse(""), p.funFact.getOrElse(""), p.websites, p.twitter.getOrElse(""), p.linkedIn.getOrElse(""))
         Ok(Template('data -> JJson.generate(profile), 'profileForm -> ProfileViewModel.profileForm))

@@ -16,8 +16,8 @@ import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
 import play.api.mvc._
-import models.User
 import core.HubServices
+import models.HubUser
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -52,9 +52,9 @@ object OAuth2TokenEndpoint extends Controller {
 
             val user = grantType match {
               // TODO use real node from URL
-              case GrantType.PASSWORD => if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else User.findByUsername(oauthRequest.getUsername).get
+              case GrantType.PASSWORD => if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else HubUser.findByUsername(oauthRequest.getUsername).get
               case GrantType.REFRESH_TOKEN => {
-                val maybeUser = User.findByRefreshToken(oauthRequest.getRefreshToken)
+                val maybeUser = HubUser.findByRefreshToken(oauthRequest.getRefreshToken)
                 if(maybeUser == None) {
                    return errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token")
                 } else {
@@ -73,13 +73,13 @@ object OAuth2TokenEndpoint extends Controller {
             if (grantType == GrantType.REFRESH_TOKEN) {
               accessToken = oauthIssuerImpl.accessToken
               refreshToken = oauthIssuerImpl.refreshToken
-              User.setOauthTokens(user, accessToken, refreshToken)
+              HubUser.setOauthTokens(user, accessToken, refreshToken)
             } else {
               accessToken = if(user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
               refreshToken = if(user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
               // save only if this is new
               if(user.accessToken == None) {
-                User.setOauthTokens(user, accessToken, refreshToken)
+                HubUser.setOauthTokens(user, accessToken, refreshToken)
               }
             }
 
@@ -112,14 +112,14 @@ object OAuth2TokenEndpoint extends Controller {
 
   def isValidToken(token: String): Boolean = {
     if((Play.isTest || Play.isDev) && token == "TEST") return true
-    User.isValidAccessToken(token, TOKEN_TIMEOUT)
+    HubUser.isValidAccessToken(token, TOKEN_TIMEOUT)
   }
 
   def evictExpiredTokens() {
-    User.evictExpiredAccessTokens(TOKEN_TIMEOUT)
+    HubUser.evictExpiredAccessTokens(TOKEN_TIMEOUT)
   }
 
-  def getUserByToken(token: String) = User.findByAccessToken(token)
+  def getUserByToken(token: String) = HubUser.findByAccessToken(token)
 
 }
 

@@ -18,6 +18,9 @@ class MongoRegistrationService extends RegistrationService {
 
   def isEmailTaken(email: String) = User.existsWithEmail(email)
 
+
+  def isAccountActive(email: String) = User.findByEmail(email).map(u => u.isActive).getOrElse(false)
+
   def registerUser(userName: String, node: String, firstName: String, lastName: String, email: String, password: String) = {
     val newUser = User(
       userName = userName,
@@ -47,9 +50,9 @@ class MongoRegistrationService extends RegistrationService {
     }
   }
 
-  def preparePasswordReset(userName: String) = {
+  def preparePasswordReset(email: String) = {
     val resetPasswordToken = if (play.api.Play.isTest) "testResetPasswordToken" else MissingLibs.UUID
-    User.preparePasswordReset(userName, resetPasswordToken)
+    User.preparePasswordReset(email, resetPasswordToken)
     Some(resetPasswordToken)
   }
 

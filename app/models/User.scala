@@ -22,7 +22,6 @@ import com.novus.salat._
 import com.novus.salat.dao._
 import com.mongodb.casbah.Imports._
 import mongoContext._
-import play.Play
 import core.indexing.IndexingService
 
 case class User(_id: ObjectId = new ObjectId,
@@ -40,8 +39,6 @@ case class User(_id: ObjectId = new ObjectId,
                 blocked: Boolean = false,
                 blockingInfo: Option[BlockingInfo] = None,
                 resetPasswordToken: Option[ResetPasswordToken] = None,
-                accessToken: Option[AccessToken] = None,
-                refreshToken: Option[String] = None,
                 isHubAdmin: Option[Boolean] = None) {             // super-user powers everywhere
 
   val fullname = firstName + " " + lastName
@@ -61,14 +58,9 @@ case class UserProfile(isPublic: Boolean = false,
 /** User password reset token **/
 case class ResetPasswordToken(token: String, issueTime: Long = System.currentTimeMillis())
 
-/** OAuth2 Access token **/
-case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
-
 object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   val PASSWORD_RESET_TOKEN_EXPIRATION = 3600 // one hour
-
-  val nobody: User = User(userName = "", firstName = "", lastName = "", email = "none@nothing.com", password = "", isActive = false, userProfile = UserProfile())
 
   def connect(userName: String, password: String): Boolean = {
     val theOne: Option[User] = User.findOne(MongoDBObject("userName" -> userName, "password" -> MissingLibs.passwordHash(password, MissingLibs.HashType.SHA512)))
@@ -82,8 +74,6 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
   }
 
   // ~~~ global finders
-
-  def findAll = find(MongoDBObject("isActive" -> true))
 
   def findByEmail(email: String) = User.findOne(MongoDBObject("email" -> email))
 
@@ -140,9 +130,9 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
 
   def existsWithUsername(userName: String) = User.count(MongoDBObject("userName" -> userName)) != 0
 
-  def preparePasswordReset(userName: String, resetPasswordToken: String) {
+  def preparePasswordReset(email: String, resetPasswordToken: String) {
     // FIXME the format of the issueTime of the resetToken may be wrong here
-    User.update(MongoDBObject("userName" -> userName), $set ("resetPasswordToken" -> grater[ResetPasswordToken].asDBObject(ResetPasswordToken(resetPasswordToken))) )
+    User.update(MongoDBObject("email" -> email), $set ("resetPasswordToken" -> grater[ResetPasswordToken].asDBObject(ResetPasswordToken(resetPasswordToken))) )
   }
 
   def findByResetPasswordToken(resetPasswordToken: String): Option[User] = {
@@ -161,32 +151,5 @@ object User extends SalatDAO[User, ObjectId](userCollection) with Pager[User] {
     val delta = System.currentTimeMillis() - timeout * 1000
     User.update("resetPasswordToken.issueTime" $lt delta, $unset ("resetPasswordToken"), false, false, new WriteConcern())
   }
-
-
-  // ~~~ OAuth2
-
-  def setOauthTokens(user: User, accessToken: String, refreshToken: String) {
-    User.update(MongoDBObject("userName" -> user.userName), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
-  }
-
-  def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
-    val delta = System.currentTimeMillis() - timeout * 1000
-    User.count(MongoDBObject("accessToken.token" -> token, "accessToken.issueTime" -> MongoDBObject("$gt" -> delta))) > 0
-  }
-
-  def findByAccessToken(token: String): Option[User] = {
-    if((Play.isTest || Play.isDev) && token == "TEST") return User.findOne(MongoDBObject("userName" -> "bob"))
-    User.findOne(MongoDBObject("accessToken.token" -> token))
-  }
-
-  def findByRefreshToken(token: String): Option[User] = {
-    User.findOne(MongoDBObject("refreshToken" -> token))
-  }
-
-  def evictExpiredAccessTokens(timeout: Long = 3600) {
-    val delta = System.currentTimeMillis() - timeout * 1000
-    User.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
-  }
-
 
 }
