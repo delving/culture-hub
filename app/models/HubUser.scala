@@ -41,6 +41,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
     UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
   }
 
+  // ~~~ organizations
 
   def addToOrganization(userName: String, orgId: String): Boolean = {
     try {
@@ -67,6 +68,17 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
   
   def listOrganizationMembers(orgId: String): List[String] = {
     HubUser.find(MongoDBObject("organizations" -> orgId)).map(_.userName).toList
+  }
+  
+  // ~~~ various
+  
+  def updateProfile(userName: String, profile: UserProfile) {
+    findByUsername(userName).map {
+      u => {
+        val updated = u.copy(userProfile = profile)
+        HubUser.save(updated)
+      }
+    }
   }
 
   // ~~~ OAuth2

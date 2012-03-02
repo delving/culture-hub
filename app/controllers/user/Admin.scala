@@ -37,6 +37,17 @@ object Admin extends DelvingController {
           profileModel => {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
+            // update local
+            HubUser.updateProfile(connectedUser, UserProfile(
+              isPublic = profileModel.isPublic,
+              description = StrictOption(profileModel.description),
+              funFact = StrictOption(profileModel.funFact),
+              websites = profileModel.websites,
+              twitter = StrictOption(profileModel.twitter),
+              linkedIn = StrictOption(profileModel.linkedIn
+            )))
+
+            // update remote
             val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
               isPublic = profileModel.isPublic,
               firstName = profileModel.firstName,

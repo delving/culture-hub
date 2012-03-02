@@ -10,25 +10,10 @@ import extensions.MissingLibs
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class MemoryServices extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService {
+class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String, MemoryUser],
+                     val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization]
+                    ) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService {
 
-  case class MemoryUser(userName: String,
-                        firstName: String,
-                        lastName: String,
-                        email: String,
-                        password: String,
-                        profile: UserProfile,
-                        isActive: Boolean = false,
-                        activationToken: String = MissingLibs.UUID,
-                        passwordResetToken: Option[String] = None)
-
-  case class MemoryOrganization(orgId: String,
-                                name: Map[String, String],
-                                admins: List[String])
-
-  val users = new HashMap[String, MemoryUser]
-
-  val organizations = new HashMap[String, MemoryOrganization]
 
   // ~~~ authentication
 
@@ -44,7 +29,7 @@ class MemoryServices extends AuthenticationService with RegistrationService with
 
   def registerUser(userName: String, node: String, firstName: String, lastName: String, email: String, password: String): Option[String] = {
     if (users.contains(userName)) return None
-    val newUser = MemoryUser(userName, firstName, lastName, email, password, UserProfile(false, firstName, lastName, email))
+    val newUser = MemoryUser(userName, firstName, lastName, email, password, models.UserProfile())
     users += (userName -> newUser)
     Some(newUser.activationToken)
   }
@@ -72,11 +57,14 @@ class MemoryServices extends AuthenticationService with RegistrationService with
   // ~~~ user profile
 
   def getUserProfile(userName: String) = users.get(userName).map {
-    u => u.profile
+    u => {
+      val p = u.profile
+      UserProfile(p.isPublic, u.firstName, u.lastName, u.email, p.description, p.funFact, p.websites, p.twitter, p.linkedIn)
+    }
   }
 
   def updateUserProfile(userName: String, profile: UserProfile): Boolean = {
-    val user = users.get(userName).getOrElse(return false).copy(profile = profile)
+    val user = users.get(userName).getOrElse(return false).copy(profile = models.UserProfile(profile.isPublic, profile.description, profile.funFact, profile.websites, profile.twitter, None, profile.linkedIn))
     users += (userName -> user)
     true
   }
@@ -103,3 +91,18 @@ class MemoryServices extends AuthenticationService with RegistrationService with
 
   def getName(orgId: String, language: String): Option[String] = organizations.get(orgId).getOrElse(return None).name.get(language)
 }
+
+case class MemoryUser(userName: String,
+                      firstName: String,
+                      lastName: String,
+                      email: String,
+                      password: String,
+                      profile: models.UserProfile,
+                      isActive: Boolean = false,
+                      activationToken: String = MissingLibs.UUID,
+                      passwordResetToken: Option[String] = None)
+
+case class MemoryOrganization(orgId: String,
+                              name: Map[String, String],
+                              admins: List[String])
+
