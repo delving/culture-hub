@@ -60,12 +60,6 @@ object Global extends GlobalSettings {
       0 seconds,
       5 minutes,
       tokenExpiration,
-      EvictPasswordResetTokens
-    )
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      5 minutes,
-      tokenExpiration,
       EvictOAuth2Tokens
     )
 
