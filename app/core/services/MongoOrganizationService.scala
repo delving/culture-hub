@@ -1,7 +1,7 @@
 package core.services
 
 import core.OrganizationService
-import models.{HubUser, Organization}
+import models.Organization
 
 /**
  *
@@ -19,8 +19,6 @@ class MongoOrganizationService extends OrganizationService {
   def addAdmin(orgId: String, userName: String) = Organization.addAdmin(orgId, userName)
 
   def removeAdmin(orgId: String, userName: String) = Organization.removeAdmin(orgId, userName)
-
-  def listLocalMembers(orgId: String): List[String] = HubUser.listOrganizationMembers(orgId)
 
   def getName(orgId: String, language: String) = Organization.fetchName(orgId)
 }

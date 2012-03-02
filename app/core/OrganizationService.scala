@@ -20,6 +20,4 @@ trait OrganizationService {
 
   def getName(orgId: String, language: String): Option[String]
   
-  def listLocalMembers(orgId: String): List[String]
-
 }
