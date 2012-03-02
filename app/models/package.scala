@@ -39,15 +39,6 @@ package object mongoContext extends models.MongoContext {
     null
   }
 
-  val cloudConnectionName = if(Play.isTest) "culturecloud-TEST" else "culturecloud"
-  val commonsConnection = createConnection(cloudConnectionName)
-
-  lazy val organizationCollection = commonsConnection("Organizations")
-  organizationCollection.ensureIndex(MongoDBObject("orgId" -> 1))
-
-  lazy val userCollection = commonsConnection("Users")
-  userCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
-
   val geonamesConnection = createConnection("geonames")
   lazy val geonamesCollection = geonamesConnection("geonames")
   geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
@@ -69,7 +60,7 @@ package object mongoContext extends models.MongoContext {
   }
 
   lazy val hubUserCollection = connection("Users")
-  userCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
+  hubUserCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
 
 
   lazy val groupCollection = connection("Groups")
