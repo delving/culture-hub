@@ -11,7 +11,7 @@ import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.message.OAuthResponse.OAuthErrorResponseBuilder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import play.api.mvc._
-import models.User
+import core.HubServices
 
 /**
  *
@@ -25,7 +25,7 @@ object OAuth2Authenticator extends Controller {
 
       val oauthRequest = new PlayOAuthAuthzRequest(request)
       val responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE)
-      val authenticated: Boolean = User.connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
+      val authenticated: Boolean = HubServices.authenticationService.connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
 
           if(authenticated) {
             val oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator)

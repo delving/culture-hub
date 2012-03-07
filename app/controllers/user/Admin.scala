@@ -10,6 +10,7 @@ import play.api.data.format.Formats._
 import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
+import core.HubServices
 
 /**
  *
@@ -21,7 +22,7 @@ object Admin extends DelvingController {
   def profile(user: String) = SecuredUserAction(user) {
     Action {
       implicit request =>
-        val u = User.findByUsername(connectedUser).get
+        val u = HubUser.findByUsername(connectedUser).get
         val p = u.userProfile
         val profile = ProfileViewModel(p.isPublic, u.firstName, u.lastName, u.email, p.description.getOrElse(""), p.funFact.getOrElse(""), p.websites, p.twitter.getOrElse(""), p.linkedIn.getOrElse(""))
         Ok(Template('data -> JJson.generate(profile), 'profileForm -> ProfileViewModel.profileForm))
@@ -36,19 +37,33 @@ object Admin extends DelvingController {
           profileModel => {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
-            val updated = User.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email,
-              UserProfile(
-                isPublic = profileModel.isPublic,
-                description = StrictOption(profileModel.description),
-                funFact = StrictOption(profileModel.funFact),
-                websites = profileModel.websites,
-                twitter = StrictOption(profileModel.twitter),
-                linkedIn = StrictOption(profileModel.linkedIn)))
+            // update local
+            HubUser.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(
+              isPublic = profileModel.isPublic,
+              description = StrictOption(profileModel.description),
+              funFact = StrictOption(profileModel.funFact),
+              websites = profileModel.websites,
+              twitter = StrictOption(profileModel.twitter),
+              linkedIn = StrictOption(profileModel.linkedIn
+            )))
+
+            // update remote
+            val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
+              isPublic = profileModel.isPublic,
+              firstName = profileModel.firstName,
+              lastName = profileModel.lastName,
+              email = profileModel.email,
+              description = StrictOption(profileModel.description),
+              funFact = StrictOption(profileModel.funFact),
+              websites = profileModel.websites,
+              twitter = StrictOption(profileModel.twitter),
+              linkedIn = StrictOption(profileModel.linkedIn)))
+
             if (updated) {
               Json(profileModel)
               Ok
             } else {
-              Error(Messages("user.admin.profile.saveError"))
+              Json(Map("errors" -> (Map("global" -> Messages("user.admin.profile.saveError")))), BAD_REQUEST)
             }
           }
         )

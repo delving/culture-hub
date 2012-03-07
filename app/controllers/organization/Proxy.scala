@@ -122,12 +122,11 @@ object Proxy extends DelvingController {
 
 }
 
-case class ProxyConfiguration(
-                               key: String,
-                               searchUrl: String,
-                               itemUrl: String,
-                               constantQueryString: Map[String, Seq[String]],
-                               queryRemapping: Map[String, String]) {
+class ProxyConfiguration(val key: String,
+                         val searchUrl: String,
+                         val itemUrl: String,
+                         val constantQueryString: Map[String, Seq[String]],
+                         val queryRemapping: Map[String, String]) {
 
   import play.api.mvc.Results._
 

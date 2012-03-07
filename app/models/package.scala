@@ -39,11 +39,13 @@ package object mongoContext extends models.MongoContext {
     null
   }
 
-  val cloudConnectionName = if(Play.isTest) "culturecloud-TEST" else "culturecloud"
+  val geonamesConnection = createConnection("geonames")
+  lazy val geonamesCollection = geonamesConnection("geonames")
+  geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
+
+
 
   val connection = createConnection(connectionName)
-  val commonsConnection = createConnection(cloudConnectionName)
-  val geonamesConnection = createConnection("geonames")
 
   // ~~~ mongo collections
 
@@ -56,6 +58,10 @@ package object mongoContext extends models.MongoContext {
   def addIndexes(collection: MongoCollection, indexes: Seq[DBObject]) {
     indexes.foreach(collection.ensureIndex(_))
   }
+
+  lazy val hubUserCollection = connection("Users")
+  hubUserCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
+
 
   lazy val groupCollection = connection("Groups")
 
@@ -70,10 +76,10 @@ package object mongoContext extends models.MongoContext {
 
   lazy val userCollectionsCollection = connection("UserCollections") // the collections made by users
   addIndexes(userCollectionsCollection, thingIndexes)
-  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
 
   lazy val userStoriesCollection = connection("UserStories")
   addIndexes(userStoriesCollection, thingIndexes)
+  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
 
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
@@ -102,16 +108,5 @@ package object mongoContext extends models.MongoContext {
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
 
   lazy val CoRefCollecion = connection("coRefs")
-
-
-  lazy val organizationCollection = commonsConnection("Organizations")
-  organizationCollection.ensureIndex(MongoDBObject("orgId" -> 1))
-
-  lazy val userCollection = commonsConnection("Users")
-  userCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
-
-  lazy val geonamesCollection = geonamesConnection("geonames")
-  geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
-
 
 }

@@ -116,7 +116,7 @@ GET         /enrichment/place/search                                            
 # Delving URL scheme
 
 GET          /users                                                           controllers.Users.list(query: String ?= "", page: Int ?= 1)
-GET          /users/search                                                    controllers.Users.listAsTokens(q: String ?= "", orgId: String ?= null)
+GET          /users/search                                                    controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 #GET         /collections/?                                                   Collections.list
 #GET         /objects/?                                                       DObjects.list
 GET          /heritageObjects                                                 controllers.HeritageObjects.list(page: Int ?= 1)
@@ -192,8 +192,8 @@ DELETE      /organizations/:orgId/admin/users/remove                          co
 GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 
-GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId, q: String ?= "")
-GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId, q)
+GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
+GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
 GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)
 GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)

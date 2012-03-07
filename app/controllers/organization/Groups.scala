@@ -3,7 +3,7 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import models.{Organization, GrantType, Group}
+import models.{GrantType, Group}
 import models.mongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel, Token}
@@ -11,6 +11,7 @@ import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
 import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
+import core.HubServices
 
 /**
  *
@@ -171,10 +172,10 @@ object Groups extends OrganizationController {
   }
 
   private def canUpdateGroup(orgId: String, groupId: ObjectId)(implicit request: RequestHeader): Boolean = {
-    groupId != null && Organization.isOwner(orgId, userName)
+    groupId != null && HubServices.organizationService.isAdmin(orgId, userName)
   }
 
-  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean = Organization.isOwner(orgId, userName)
+  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, userName)
 }
 
 case class GroupViewModel(id: Option[ObjectId] = None,

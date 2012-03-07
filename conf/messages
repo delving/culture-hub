@@ -125,6 +125,7 @@ thing.stories=Stories
 thing.stories.info=Creating a captivating narrative is sometimes the only way to give cultural objects the context they deserve. Often their descriptions do not do them justice, and using them in a story with maybe a few of your own cultural treasures would be much better. This website makes it easy for us to build these stories and make them available for everyone to read.
 thing.user=User
 thing.users=Users
+thing.admins=Administrators
 thing.organization=Organization
 thing.organizations=Organizations
 thing.group=Group
@@ -289,6 +290,8 @@ profile.activesince=Active since
 registration.lostpassword=Lost password
 registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
 registration.resetpassword=Reset password
+registration.reset.error=Error resetting your password, correct the errors below:
+registration.resetProblem=Error resetting your password, please try again
 registration.newpassword=Enter a new password below
 registration.registerFor=Register for {0}
 

@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.Action
 import com.mongodb.casbah.Imports._
-import models.User
+import models.HubUser
 import java.util.regex.Pattern
 
 /**
@@ -20,7 +20,7 @@ object Users extends DelvingController {
       // ~~~ temporary hand-crafted search for users
         import views.Helpers.PAGE_SIZE
         def queryOk(query: String) = query != null && query.trim().length > 0
-        val queriedUsers = (if (queryOk(query)) User.find(MongoDBObject("firstName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) ++ User.find(MongoDBObject("lastName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else User.findAll).toList
+        val queriedUsers = (if (queryOk(query)) HubUser.find(MongoDBObject("firstName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) ++ HubUser.find(MongoDBObject("lastName" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))) else HubUser.findAll).toList
         val pageEndIndex: Int = (page + 1) * PAGE_SIZE
         val listMax = queriedUsers.length
         val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
@@ -31,11 +31,11 @@ object Users extends DelvingController {
     }
   }
 
-  def listAsTokens(orgId: String, q: String) = Root {
+  def listAsTokens(orgId: Option[String], q: String) = Root {
     Action {
       implicit request =>
-        val query = MongoDBObject("isActive" -> true, "userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
-        val users = if(orgId != null) User.find(query ++ MongoDBObject("organizations" -> orgId)) else User.find(query)
+        val query = MongoDBObject("userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
+        val users = if(orgId != None) HubUser.find(query ++ MongoDBObject("organizations" -> orgId.get)) else HubUser.find(query)
         val asTokens = users.map(u => Token(u.userName, u.userName))
         Json(asTokens)
     }

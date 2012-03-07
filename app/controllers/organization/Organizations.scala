@@ -1,13 +1,12 @@
 package controllers.organization
 
 import play.api.mvc.Action
-import com.mongodb.casbah.Imports._
-import models.{Visibility, DataSet, User, Organization}
+import models.{Visibility, DataSet, HubUser}
 import play.api.i18n.Messages
 import controllers._
+import core.HubServices
 
 /**
- * todo: javadoc
  *
  * @author Gerald de Jong <gerald@delving.eu>
  */
@@ -17,9 +16,8 @@ object Organizations extends DelvingController {
   def index(orgId: String) = Root {
     Action {
       implicit request =>
-        Organization.findByOrgId(orgId) match {
-          case Some(o) =>
-            val members: List[ListItem] = User.find(Authentication.USERNAME $in o.users).toList
+        if(HubServices.organizationService.exists(orgId)) {
+            val members: List[ListItem] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
             val dataSets: List[ShortDataSet] =
               DataSet.findAllCanSee(orgId, connectedUser).
                 filter(ds =>
@@ -31,14 +29,15 @@ object Organizations extends DelvingController {
                   )
             ).toList
             Ok(Template(
-              'orgId -> o.orgId,
-              'orgName -> o.name.get(getLang).getOrElse(o.name("en")),
-              'memberSince -> o.userMembership.get(connectedUser),
+              'orgId -> orgId,
+              'orgName -> HubServices.organizationService.getName(orgId, "en").getOrElse(orgId),
+              'isMember -> HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
               'members -> members,
               'dataSets -> dataSets,
-              'isOwner -> Organization.isOwner(o.orgId, connectedUser)
+              'isOwner -> HubServices.organizationService.isAdmin(orgId, connectedUser)
             ))
-          case None => NotFound(Messages("organizations.organization.orgNotFound", orgId))
+        } else {
+          NotFound(Messages("organizations.organization.orgNotFound", orgId))
         }
     }
   }
