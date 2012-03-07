@@ -14,7 +14,7 @@ import play.api.Logger
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class CommonsServices(commonsHost: String, orgId: String, apiToken: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with play.api.http.Status {
+class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with play.api.http.Status {
 
 
   val host = if (commonsHost.endsWith("/")) commonsHost.substring(0, commonsHost.length() - 1) else commonsHost
@@ -22,6 +22,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String) exte
   val apiQueryParams = Seq(
     ("apiToken" -> apiToken),
     ("apiOrgId" -> orgId)
+    ("apiNode" -> node)
   )
 
   private def get[T](path: String, queryParams: (String, String)*): Option[Response] = call(path, None, "GET", queryParams)

@@ -25,9 +25,10 @@ object HubServices {
 
     val services = Play.configuration.getString("cultureCommon.host") match {
       case Some(host) =>
+        val node = Play.configuration.getString("cultureHub.nodeName").getOrElse(throw new RuntimeException("No nodeName provided"))
         val orgId = Play.configuration.getString("cultureHub.orgId").getOrElse(throw new RuntimeException("No orgId provided"))
         val apiToken = Play.configuration.getString("cultureCommons.apiToken").getOrElse(throw new RuntimeException("No api token provided"))
-        new CommonsServices(host, orgId, apiToken)
+        new CommonsServices(host, orgId, apiToken, node)
       case None if !Play.isProd =>
         // load all hubUsers as basis for the remote ones
         val users = HubUser.findAll.map(u => MemoryUser(u.userName, u.firstName, u.lastName, u.email, "secret", u.userProfile, true)).map(u => (u.userName -> u)).toMap
