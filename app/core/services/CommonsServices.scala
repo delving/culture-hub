@@ -21,7 +21,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 
   val apiQueryParams = Seq(
     ("apiToken" -> apiToken),
-    ("apiOrgId" -> orgId)
+    ("apiOrgId" -> orgId),
     ("apiNode" -> node)
   )
 
