@@ -72,10 +72,10 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
   
   // ~~~ various
   
-  def updateProfile(userName: String, profile: UserProfile) {
+  def updateProfile(userName: String, firstName: String, lastName: String, email: String, profile: UserProfile) {
     findByUsername(userName).map {
       u => {
-        val updated = u.copy(userProfile = profile)
+        val updated = u.copy(firstName = firstName, lastName = lastName, email = email,  userProfile = profile)
         HubUser.save(updated)
       }
     }

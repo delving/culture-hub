@@ -38,7 +38,7 @@ object Admin extends DelvingController {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
             // update local
-            HubUser.updateProfile(connectedUser, UserProfile(
+            HubUser.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(
               isPublic = profileModel.isPublic,
               description = StrictOption(profileModel.description),
               funFact = StrictOption(profileModel.funFact),
@@ -63,7 +63,7 @@ object Admin extends DelvingController {
               Json(profileModel)
               Ok
             } else {
-              Error(Messages("user.admin.profile.saveError"))
+              Json(Map("errors" -> (Map("global" -> Messages("user.admin.profile.saveError")))), BAD_REQUEST)
             }
           }
         )

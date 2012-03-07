@@ -1,5 +1,6 @@
 package core
 
+
 /**
  * Managing a user profile (updating information)
  * 
@@ -14,6 +15,7 @@ trait UserProfileService {
 
 }
 
+
 case class UserProfile(isPublic:      Boolean = false,
                        firstName:     String,
                        lastName:      String,
@@ -24,4 +26,3 @@ case class UserProfile(isPublic:      Boolean = false,
                        twitter:       Option[String] = None,
                        linkedIn:      Option[String] = None
                       )
-

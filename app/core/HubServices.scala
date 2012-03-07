@@ -2,6 +2,8 @@ package core
 
 import services._
 import models.HubUser
+import play.api.Play
+import play.api.Play.current
 
 /**
  *
@@ -21,25 +23,32 @@ object HubServices {
 
   def init() {
 
-    // for local development, unless a remote service address is passed in the configuration (TODO), work with example data in memory
+    val services = Play.configuration.getString("cultureCommon.host") match {
+      case Some(host) =>
+        val orgId = Play.configuration.getString("cultureHub.orgId").getOrElse(throw new RuntimeException("No orgId provided"))
+        val apiToken = Play.configuration.getString("cultureCommons.apiToken").getOrElse(throw new RuntimeException("No api token provided"))
+        new CommonsServices(host, orgId, apiToken)
+      case None if !Play.isProd =>
+        // load all hubUsers as basis for the remote ones
+        val users = HubUser.findAll.map(u => MemoryUser(u.userName, u.firstName, u.lastName, u.email, "secret", u.userProfile, true)).map(u => (u.userName -> u)).toMap
+        val memoryServices = new MemoryServices
+        users.foreach {
+          u => memoryServices.users += u
+        }
 
-    // load all hubUsers as basis for the remote ones
-    val users = HubUser.findAll.map(u => MemoryUser(u.userName, u.firstName, u.lastName, u.email, "secret", u.userProfile, true)).map(u => (u.userName -> u)).toMap
-    val memoryServices = new MemoryServices
-    users.foreach {
-      u => memoryServices.users += u
+        // add example organization
+        val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
+        memoryServices.organizations += ("delving" -> delving)
+
+        memoryServices
+      case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
     }
 
-    // add example organization
-    val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
-    memoryServices.organizations += ("delving" -> delving)
-    
-    authenticationService = memoryServices
-    registrationService = memoryServices
-    userProfileService = memoryServices
-    organizationService = memoryServices
+    authenticationService = services
+    registrationService = services
+    userProfileService = services
+    organizationService = services
   }
-
 
 
 }
