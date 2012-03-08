@@ -42,6 +42,17 @@ object Global extends GlobalSettings {
     HubServices.init()
     MappingService.init()
 
+    // ~~~ sanity check
+    Play.configuration.getString("cultureHub.orgId") match {
+      case Some(orgId) => 
+        if(!HubServices.organizationService.exists(orgId)) {
+          Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!")
+          System.exit(-1)
+        }
+      case None =>
+        Logger("CultureHub").error("No cultureHub.organization configured!")
+        System.exit(-1)
+  }
 
     // ~~~ bootstrap jobs
 
@@ -91,9 +102,11 @@ object Global extends GlobalSettings {
   }
 
   override def onStop(app: Application) {
+    if(!Play.isTest) {
     // close all Mongo connections
     import models.mongoContext._
     close()
+    }
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {

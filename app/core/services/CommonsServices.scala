@@ -6,6 +6,7 @@ import extensions.MissingLibs
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
 import play.api.Logger
+import java.util.concurrent.TimeoutException
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -33,19 +34,26 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 
   private def postWithBody[T <: JsValue](path: String, body: T, queryParams: (String, String)*): Option[Response] = call(path, Some(body), "POST", queryParams)
 
-  private def call[T <: JsValue](path: String, body: Option[T], method: String = "GET", queryParams: Seq[(String, String)]): Option[Response] = {
-    // TODO handle timeout and other errors
-    val call = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _ *)
+  private def call[T <: JsValue](path: String, body: Option[T], method: String = "GET", queryParams: Seq[(String, String)], retry: Int = 0): Option[Response] = {
+    val wsCall = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _ *)
     val callInvocation = method match {
-      case "GET" => call.get()
-      case "POST" if (body.isDefined) => call.post(body.get)
-      case "POST" if (body.isEmpty) => call.post("")
-      case "DELETE" => call.delete()
+      case "GET" => wsCall.get()
+      case "POST" if (body.isDefined) => wsCall.post(body.get)
+      case "POST" if (body.isEmpty) => wsCall.post("")
+      case "DELETE" => wsCall.delete()
       case _ => throw new RuntimeException("Should not be here")
     }
     try {
       callInvocation.await.fold(t => None, r => { println(path + " " + r.status); Some(r) })
     } catch {
+      case timeout: TimeoutException =>
+        // retry
+        if(retry < 3) {
+          call(path, body, method, queryParams, retry + 1)
+        } else {
+          Logger("CultureHub").error("Still getting a timeout error while contacting CultureCommons, after %s attempts".format(retry), timeout)
+          None
+        }
       case t =>
         Logger("CultureHub").error("Error contacting CultureCommons", t)
         None

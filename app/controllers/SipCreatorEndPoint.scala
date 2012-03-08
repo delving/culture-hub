@@ -231,7 +231,10 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecordMapping, spec: String, hash: String): Either[String, String] = {
-    if (!DataSet.canEdit(dataSet, connectedUser)) throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
+    if (!DataSet.canEdit(dataSet, connectedUser)) {
+      Logger("CultureHub").warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
+      throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
+    }
     DataSet.updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }

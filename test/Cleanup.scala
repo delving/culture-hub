@@ -1,4 +1,3 @@
-import core.indexing.IndexingService
 import models.mongoContext._
 
 /**
