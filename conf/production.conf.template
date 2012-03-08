@@ -15,10 +15,10 @@ mail.smtp.host=mx2.hostice.net
 
 ### Global CultureHub settings
 cultureHub.nodeName=
-
 cultureHub.orgId=
 
 cultureCommons.apiToken=
+cultureCommons.host="https://commons.delving.eu"
 
 # Default theme for this hub
 themes.defaultTheme=default

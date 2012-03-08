@@ -23,7 +23,7 @@ object HubServices {
 
   def init() {
 
-    val services = Play.configuration.getString("cultureCommon.host") match {
+    val services = Play.configuration.getString("cultureCommons.host") match {
       case Some(host) =>
         val node = Play.configuration.getString("cultureHub.nodeName").getOrElse(throw new RuntimeException("No nodeName provided"))
         val orgId = Play.configuration.getString("cultureHub.orgId").getOrElse(throw new RuntimeException("No orgId provided"))
