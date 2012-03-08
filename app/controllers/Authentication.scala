@@ -4,14 +4,14 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import eu.delving.templates.scala.GroovyTemplates
-import core.ThemeAware
 import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
 import java.util.Date
-import models.{Visibility, UserCollection, User}
 import core.indexing.IndexingService
+import core.{HubServices, ThemeAware}
+import models.{HubUser, Visibility, UserCollection}
 
 /**
  *
@@ -32,7 +32,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => User.connect(u, p)
+      case (u, p, r) => HubServices.authenticationService.connect(u, p)
     }))
 
   def login = Themed {
@@ -55,15 +55,39 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
   /**
    * Handle login form submission.
    */
-  def authenticate = Themed { Action {
+  def authenticate: Action[AnyContent] = Themed {Action {
     implicit request =>
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
         user => {
-          // on authenticated
-          val maybeUser = User.findByUsername(user._1)
+          // first check if the user exists in this hub
+          val u: Option[HubUser] = HubUser.findByUsername(user._1).orElse {
+            // create a local user
+            HubServices.userProfileService.getUserProfile(user._1).map {
+              p => {
+                val newHubUser = HubUser(userName = user._1,
+                                         firstName = p.firstName,
+                                         lastName = p.lastName,
+                                         email = p.email,
+                                         userProfile = models.UserProfile(
+                                           isPublic = p.isPublic,
+                                           description = p.description,
+                                           funFact = p.funFact,
+                                           websites = p.websites,
+                                           twitter = p.twitter,
+                                           linkedIn = p.linkedIn
+                                         )
+                                        )
+                HubUser.insert(newHubUser)
+                HubUser.findByUsername(user._1)
+              }
+            }.getOrElse {
+              ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1), theme)
+              return Action { implicit request => Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again")) }
+            }
+         }
 
-          User.findBookmarksCollection(user._1) match {
+          HubUser.findBookmarksCollection(user._1) match {
             case None =>
               // create default bookmarks collection
               val bookmarksCollection = UserCollection(
@@ -89,9 +113,9 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
             case None => Redirect(controllers.routes.Application.index)
           }).withSession(
             USERNAME -> user._1,
-            "connectedUserId" -> maybeUser.get._id.toString,
-            AccessControl.ORGANIZATIONS -> maybeUser.get.organizations.mkString(","),
-            AccessControl.GROUPS -> maybeUser.get.groups.mkString(","),
+            "connectedUserId" -> u.get._id.toString,
+            AccessControl.ORGANIZATIONS -> u.get.organizations.mkString(","),
+            AccessControl.GROUPS -> u.get.groups.mkString(","),
             AT_KEY -> authenticityToken)
 
           if (user._3) {

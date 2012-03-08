@@ -4,6 +4,8 @@
  */
 
 import actors._
+import com.mongodb.casbah.MongoConnection
+import core.HubServices
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
@@ -37,6 +39,7 @@ object Global extends GlobalSettings {
     ThemeHandler.startup()
 
     // ~~~ bootstrap services
+    HubServices.init()
     MappingService.init()
 
 
@@ -53,12 +56,6 @@ object Global extends GlobalSettings {
 
     // token expiration
     val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      5 minutes,
-      tokenExpiration,
-      EvictPasswordResetTokens
-    )
     Akka.system.scheduler.schedule(
       0 seconds,
       5 minutes,
@@ -91,6 +88,12 @@ object Global extends GlobalSettings {
       util.TestDataLoader.load()
     }
 
+  }
+
+  override def onStop(app: Application) {
+    // close all Mongo connections
+    import models.mongoContext._
+    close()
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {

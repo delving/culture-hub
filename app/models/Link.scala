@@ -141,7 +141,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
     case OBJECT => objectsCollection
     case USERCOLLECTION => userCollectionsCollection
     case STORY => userStoriesCollection
-    case USER => userCollection
+    case USER => hubUserCollection
     case _ => null
   })
 

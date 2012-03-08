@@ -4,7 +4,7 @@
 #{set bodyId: 'organization' /}
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
-#{if memberSince.isDefined()}
+#{if isMember}
     #{organizationNavBar orgId: orgId, isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 #{/if}
 <div class="grid_12 dashboard">
@@ -14,9 +14,6 @@
         <div class="info-box">
             <h3>&{'org.info'}</h3>
             <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
-        #{if memberSince.isDefined()}
-            <span class="label">&{'ui.label.memberSince'}</span><span class="text">${views.Helpers.niceTime(memberSince.get())}</span>
-        #{/if}
         </div>
     </div>
     <div class="grid_4">

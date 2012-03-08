@@ -192,7 +192,7 @@ object DataSetControl extends OrganizationController {
                   DataSet(
                     spec = dataSetForm.spec,
                     orgId = orgId,
-                    user_id = connectedUserId,
+                    userName = connectedUser,
                     state = DataSetState.INCOMPLETE,
                     visibility = Visibility.get(dataSetForm.visibility),
                     lastUploaded = new Date(),

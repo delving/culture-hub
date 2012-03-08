@@ -16,6 +16,7 @@ import extensions.MissingLibs
 import util.SimpleDataSetParser
 import play.libs.Akka
 import akka.actor.{Props, Actor}
+import core.HubServices
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -34,10 +35,7 @@ object SipCreatorEndPoint extends ApplicationController {
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
-  private var connectedUserObject: Option[User] = None
-
-  private var connectedOrg: Option[Organization] = None
-
+  private var connectedUserObject: Option[HubUser] = None
 
   def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = Themed {
     Action(action.parser) {
@@ -62,8 +60,7 @@ object SipCreatorEndPoint extends ApplicationController {
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
         } else {
-          connectedOrg = Organization.findByOrgId(orgId)
-          if (connectedOrg == None) {
+          if (!HubServices.organizationService.exists(orgId)) {
             NotFound("Unknown organization " + orgId)
           } else {
             action(request)
@@ -72,12 +69,10 @@ object SipCreatorEndPoint extends ApplicationController {
     }
   }
 
-  def getConnectedUser: User = connectedUserObject.getOrElse({
+  def getConnectedUser: HubUser = connectedUserObject.getOrElse({
     Logger("CultureHub").warn("Attemtping to connect with an invalid access token")
     throw new AccessKeyException("No access token provided")
   })
-
-  def getConnectedUserId = getConnectedUser._id
 
   def connectedUser = getConnectedUser.userName
 
@@ -128,7 +123,7 @@ object SipCreatorEndPoint extends ApplicationController {
         } else {
           if (dataSet.get.lockedBy == None) {
             Ok
-          } else if (dataSet.get.lockedBy.get == getConnectedUserId) {
+          } else if (dataSet.get.lockedBy.get == connectedUser) {
             val updated = dataSet.get.copy(lockedBy = None)
             DataSet.save(updated)
             Ok
@@ -257,7 +252,7 @@ object SipCreatorEndPoint extends ApplicationController {
           val dataSet = maybeDataSet.get
 
           // lock it right away
-          val updatedDataSet = dataSet.copy(lockedBy = Some(getConnectedUserId))
+          val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
           DataSet.save(updatedDataSet)
 
           val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(getSipStream(dataSet))

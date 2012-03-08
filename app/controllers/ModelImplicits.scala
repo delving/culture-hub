@@ -61,13 +61,13 @@ trait ModelImplicits {
   implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, OBJECT, o.name, o.description, Some(o._id), None, o.getMimeType, o.userName, o.visibility == Visibility.PRIVATE, o.url)
   implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, c.thumbnail_url, "unknown/unknown", c.userName, c.visibility == Visibility.PRIVATE, c.url)
   implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, s.thumbnail_url, "unknown/unknown", s.userName, s.visibility == Visibility.PRIVATE, s.url)
-  implicit def userToListItem(u: User) = ListItem(u._id, USER, u.fullname, u.email, None, None, "unknown/unknown", u.userName, false, "/" + u.userName)
+  implicit def userToListItem(u: HubUser) = ListItem(u._id, USER, u.fullname, u.email, None, None, "unknown/unknown", u.userName, false, "/" + u.userName)
   implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, "unknown/unknown", ds.getCreator.userName, false, "/nope")
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }
   implicit def storyListToListItemList(l: List[Story]) = l.map { storyToListItem(_) }
-  implicit def userListToListItemList(l: List[User]) = l.map { userToListItem(_) }
+  implicit def userListToListItemList(l: List[HubUser]) = l.map { userToListItem(_) }
   implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
 
   // ~~~ ObjectId

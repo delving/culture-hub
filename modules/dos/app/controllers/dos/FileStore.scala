@@ -31,7 +31,7 @@ object FileStore extends Controller {
 
   // ~~~ public scala API
 
-  def getFilesForItemId(id: ObjectId): List[StoredFile] = fileStore.find(MongoDBObject(ITEM_POINTER_FIELD -> id)).map(fileToStoredFile).toList
+  def getFilesForItemId(id: String): List[StoredFile] = fileStore.find(MongoDBObject(ITEM_POINTER_FIELD -> id)).map(fileToStoredFile).toList
 
   // ~~~ private
 

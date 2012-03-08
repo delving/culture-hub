@@ -5,7 +5,6 @@ import org.joda.time.DateTime
 import org.bson.types.ObjectId
 import java.util.Date
 import models._
-import extensions.MissingLibs
 
 /**
  * Test data
@@ -16,7 +15,7 @@ import extensions.MissingLibs
 object TestDataLoader {
 
   def load() {
-    if (User.count() == 0) bootstrapUser()
+    if (HubUser.count() == 0) bootstrapUser()
     if (Group.count() == 0) bootstrapAccessControl()
     if (UserCollection.count() == 0) bootstrapUserCollection()
     if (DObject.count() == 0) bootstrapDObject()
@@ -26,52 +25,38 @@ object TestDataLoader {
 
   private def bootstrapUser() {
     val profile = UserProfile()
-    User.insert(new User(
+    HubUser.insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab939"),
       userName = "bob",
       firstName = "bob",
       lastName = "Marley",
       email = "bob@gmail.com",
-      password = MissingLibs.passwordHash("secret", MissingLibs.HashType.SHA512),
-      userProfile = profile,
-      isActive = true,
-      isHubAdmin = Some(true),
-      nodesAdmin = List("culturehub")
+      userProfile = profile
     ))
-    User.insert(new User(
+    HubUser.insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93a"),
       userName = "jimmy",
       firstName = "Jimmy",
       lastName = "Hendrix",
       email = "jimmy@gmail.com",
-      password = MissingLibs.passwordHash("secret", MissingLibs.HashType.SHA512),
-      userProfile = profile,
-      isActive = true
+      userProfile = profile
     ))
-    User.insert(new User(
+    HubUser.insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93b"),
       userName = "dan",
       firstName = "Dan",
       lastName = "Brown",
       email = "dan@gmail.com",
-      password = MissingLibs.passwordHash("secret", MissingLibs.HashType.SHA512),
-      userProfile = profile,
-      isActive = true
+      userProfile = profile
     ))
   }
 
   private def bootstrapAccessControl() {
 
-    val delving = Organization(node = "cultureHub", orgId = "delving", name = Map("en" -> "Delving"))
-    val bnf = Organization(node = "cultureHub", orgId = "bnf", name = Map("en" -> "National Library of France", "fr" -> "Bibliotheque nationale de France"))
-
-    val delvingId = Organization.insert(delving)
-    val bnfId = Organization.insert(bnf)
-
     // all users are in delving
-    User.find(MongoDBObject()).foreach(u => Organization.addUser("delving", u.userName))
+    HubUser.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
 
-    val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = delving.orgId, grantType = GrantType.OWN.key)
+    val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = "delving", grantType = GrantType.OWN.key)
     val delvingOwnersId = Group.insert(delvingOwners)
 
     // bob is an owner
@@ -128,7 +113,7 @@ object TestDataLoader {
 
     DataSet.insert(DataSet(
       spec = "PrincessehofSample",
-      user_id = new ObjectId("4e5679a80364ae80333ab939"),
+      userName = "bob",
       orgId = "delving",
       description = Some("Test Data"),
       state = DataSetState.ENABLED,

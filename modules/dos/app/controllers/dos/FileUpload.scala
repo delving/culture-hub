@@ -90,13 +90,13 @@ object FileUpload extends Controller with Extensions with Thumbnail {
   /**
    * Attaches all files to an object, given the upload UID
    */
-  def markFilesAttached(uid: String, objectId: ObjectId) {
+  def markFilesAttached(uid: String, objectIdentifier: String) {
     fileStore.find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
       f =>
       // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
       // f.removeField("uid")
         f.put(UPLOAD_UID_FIELD, "")
-        f.put(ITEM_POINTER_FIELD, objectId)
+        f.put(ITEM_POINTER_FIELD, objectIdentifier)
         f.save()
     }
   }
