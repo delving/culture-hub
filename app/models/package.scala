@@ -62,14 +62,15 @@ package object mongoContext extends models.MongoContext {
   lazy val hubUserCollection = connection("Users")
   hubUserCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
 
-
   lazy val groupCollection = connection("Groups")
 
-  lazy val  portalThemeCollection = connection("PortalThemes")
+  lazy val portalThemeCollection = connection("PortalThemes")
 
   lazy val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
 
   lazy val dataSetsCollection = connection("Datasets")
+
+  lazy val virtualCollectionsCollection = connection("VirtualCollections")
 
   lazy val objectsCollection = connection("UserObjects") // the user contributed objects
   addIndexes(objectsCollection, thingIndexes)

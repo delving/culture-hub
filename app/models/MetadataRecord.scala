@@ -105,8 +105,10 @@ object MetadataRecord {
     val collectionName = DataSet.getRecordsCollectionName(orgId, spec)
     getMDR(collectionName, hubId)
   }
-  
+
   def getMDR(hubCollection: String, hubId: String) = connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)).map(grater[MetadataRecord].asObject(_))
+  
+  def getMDRs(hubCollection: String, hubIds: Seq[String]): List[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_)).toList
 
   def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
     val collectionName = DataSet.getRecordsCollectionName(orgIdSpec._1, orgIdSpec._2)

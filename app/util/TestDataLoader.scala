@@ -119,11 +119,20 @@ object TestDataLoader {
           prefix = "raw",
           namespace = "http://delving.eu/namespaces/raw",
           schema = "http://delving.eu/namespaces/raw/schema.xsd",
+          allNamespaces = List(
+            Namespace(prefix="dc", uri="http://purl.org/dc/elements/1.1/", schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"),
+            Namespace(prefix="dcterms", uri="http://purl.org/dc/terms/", schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"),
+            Namespace(prefix="europeana", uri="http://www.europeana.eu/schemas/ese/", schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"),
+            Namespace(prefix="ese", uri="http://www.europeana.eu/schemas/ese/", schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"),
+            Namespace(prefix="icn", uri="http://www.icn.nl/", schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"),
+            Namespace(prefix="delving", uri="http://www.delving.eu/", schema="http://www.delving.eu/schemas/delving-1.0.xsd")
+          ),
           accessKeyRequired = true
         ),
         facts = factMap,
         errorMessage = Some("")
       ),
+
       lastUploaded = new Date(0),
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),

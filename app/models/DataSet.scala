@@ -60,7 +60,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    details: Details,
                    lastUploaded: Date,
                    hashes: Map[String, String] = Map.empty[String, String],
-                   namespaces: Map[String, String] = Map.empty[String, String],
+                   namespaces: Map[String, String] = Map.empty[String, String], // FIXME: this map makes no sense here since the namespaces depend on the format in which a DataSet is rendered.
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String],
@@ -170,12 +170,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
   }
 
-  def findAll(publicCollectionsOnly: Boolean = true) = {
-    val allDateSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
+  def findAll(orgId: String, publicCollectionsOnly: Boolean = true): List[DataSet] = {
+    val allDataSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
     if (publicCollectionsOnly)
-      allDateSets.filter(ds => !ds.details.metadataFormat.accessKeyRequired || ds.mappings.forall(ds => ds._2.format.accessKeyRequired == false))
+      allDataSets.filter(ds => !ds.details.metadataFormat.accessKeyRequired || ds.mappings.forall(ds => ds._2.format.accessKeyRequired == false))
     else
-      allDateSets
+      allDataSets
   }
 
   def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
@@ -241,7 +241,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
-    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
+    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, ns.get.allNamespaces, accessKeyRequired))
     val updated = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, newMapping))
     DataSet.updateById(dataSet._id, updated)
     updated
@@ -276,6 +276,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val count: Long = records.count
     count.toInt
   }
+
+  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] with MDRCollection = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
 
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
@@ -349,18 +351,18 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ OAI-PMH
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    val metadataFormats = findAll(publicCollectionsOnly).flatMap {
+  def getMetadataFormats(orgId: String, publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
+    val metadataFormats = findAll(orgId, publicCollectionsOnly).flatMap {
       ds =>
         ds.getMetadataFormats(publicCollectionsOnly)
     }
     metadataFormats.toList.distinct
   }
 
-  def getMetadataFormats(spec: String, accessKey: String): List[RecordDefinition] = {
+  def getMetadataFormats(spec: String, orgId: String, accessKey: String): List[RecordDefinition] = {
     // todo add accessKey checker
     val accessKeyIsValid: Boolean = true
-    findBySpec(spec) match {
+    findBySpecAndOrgId(spec, orgId) match {
       case Some(ds) => ds.getMetadataFormats(accessKeyIsValid)
       case None => List[RecordDefinition]()
     }

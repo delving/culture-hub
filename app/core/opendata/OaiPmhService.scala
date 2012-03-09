@@ -22,12 +22,10 @@ import exceptions._
 import play.api.mvc.RequestHeader
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
-import models.{DataSet, MetadataRecord}
-import com.mongodb.casbah.Imports._
-import com.novus.salat.dao.SalatMongoCursor
-import play.api.{Logger, Play}
+import play.api.Logger
 import xml.{PrettyPrinter, Elem}
 import org.apache.commons.lang.StringEscapeUtils
+import models.{Namespace, RecordDefinition, MetadataRecord}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -150,12 +148,11 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
     // todo add checking for accessKeys and see if is valid
-    val dataSets = DataSet.findAll(false)
+    val collections = models.Collection.findAll(orgId, None)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
-    if (dataSets.size == 0) return createErrorResponse("noSetHierarchy")
+    if (collections.size == 0) return createErrorResponse("noSetHierarchy")
 
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -163,10 +160,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
       <responseDate>{currentDate}</responseDate>
       <request verb="ListSets">{getRequestURL}</request>
       <ListSets>
-        { for (set <- dataSets) yield
+        { for (set <- collections) yield
         <set>
           <setSpec>{set.spec}</setSpec>
-          <setName>{set.details.name}</setName>
+          <setName>{set.name}</setName>
         </set>
         }
       </ListSets>
@@ -178,8 +175,6 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
    */
 
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
-
     val eseSchema =
       <metadataFormat>
         <metadataPrefix>ese</metadataPrefix>
@@ -193,7 +188,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
     // otherwise only list the formats available for the identifier
     val hasAccessKey: Boolean = pmhRequestEntry.pmhRequestItem.accessKey.isEmpty
-    val metadataFormats = if (identifier.isEmpty) DataSet.getMetadataFormats(false) else DataSet.getMetadataFormats(identifierSpec, pmhRequestEntry.pmhRequestItem.accessKey)
+    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, false) else models.Collection.getMetadataFormats(identifierSpec, orgId, pmhRequestEntry.pmhRequestItem.accessKey)
 
     def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{getRequestURL}</request>
     else <request verb="ListMetadataFormats">{getRequestURL}</request>
@@ -221,12 +216,14 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   def processListRecords(pmhRequestEntry: PmhRequestEntry, idsOnly: Boolean = false) : Elem = {
 
     val setName = pmhRequestEntry.getSet
+    if(setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
-    val dataSet: DataSet = DataSet.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).sort(MongoDBObject("transferIdx" -> 1)).limit(pmhRequestEntry.recordsReturned)
+    val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    val records: List[MetadataRecord] = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    val totalValidRecords = records.count
+    val totalValidRecords = records.size
+    // FIXME these head calls blow up if there are no records
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
@@ -268,9 +265,12 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
       </OAI-PMH>
     }
 
-    for (entry <- dataSet.namespaces) {
+    val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
+    val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
+    
+    for (ns <- (formatNamespaces ++ globalNamespaces)) {
       import xml.{Null, UnprefixedAttribute}
-      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
+      elem = elem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
     }
 
     elem

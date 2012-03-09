@@ -199,7 +199,12 @@ object DataSetControl extends OrganizationController {
                     details = Details(
                       name = dataSetForm.facts.name,
                       facts = factsObject,
-                      metadataFormat = RecordDefinition("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")
+                      metadataFormat = RecordDefinition(
+                        "raw",
+                        "http://delving.eu/namespaces/raw",
+                        "http://delving.eu/namespaces/raw/schema.xsd",
+                        List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd"))
+                      )
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
                     idxMappings = List(dataSetForm.indexingMappingPrefix)

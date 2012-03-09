@@ -28,9 +28,12 @@ import play.api.Play.current
 
 case class RecordDefinition(prefix: String,
                             schema: String,
-                            namespace: String,
+                            namespace: String, // the namespace of the format
+                            allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
                             accessKeyRequired: Boolean = false,
                             roles: List[Role] = List.empty)
+
+case class Namespace(prefix: String, uri: String, schema: String)
 
 case class Role(key: String, description: String, prefix: String)
 
@@ -57,12 +60,21 @@ object RecordDefinition {
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
+
+    val allNamespaces = (node \ "namespaces" \ "namespace").map(
+      n => Namespace(
+        n.attribute("prefix").get.text,
+        n.attribute("uri").get.text,
+        n.attribute("schema").get.text
+      )).toList
+
     val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
     Some(
       RecordDefinition(
         recordDefinitionNamespace \ "@prefix" text,
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
+        allNamespaces,
         false,
         roles
       )
