@@ -178,12 +178,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       allDateSets
   }
 
-  def findAllForUser(userName: String, grantType: GrantType): List[DataSet] =
-    Group.
-            find(MongoDBObject("users" -> userName)).
-            filter(g => g.grantType == grantType.key || g.grantType == GrantType.OWN.key).
-            map(g => if(g.grantType == GrantType.OWN.key) DataSet.findAllByOrgId(g.orgId).toList else DataSet.find("_id" $in g.dataSets).toList).
-            toList.flatten.distinct
+  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
+    val groupDataSets = Group.
+                              find(MongoDBObject("users" -> userName)).
+                              filter(g => g.grantType == grantType.key).
+                              map(g => DataSet.find("_id" $in g.dataSets).toList).
+                              toList.flatten
+    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService.isAdmin(orgId, userName)).map(orgId => DataSet.findAllByOrgId(orgId)).toList.flatten
+
+    (groupDataSets ++ adminDataSets).distinct
+  }
 
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList

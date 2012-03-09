@@ -56,12 +56,6 @@ object TestDataLoader {
     // all users are in delving
     HubUser.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
 
-    val delvingOwners = Group(node = "cultureHub", name = "Owners", orgId = "delving", grantType = GrantType.OWN.key)
-    val delvingOwnersId = Group.insert(delvingOwners)
-
-    // bob is an owner
-    Group.addUser("bob", delvingOwnersId.get)
-
   }
 
   private def bootstrapUserCollection() {
