@@ -90,6 +90,7 @@ object OAuth2TokenEndpoint extends Controller {
             case e: OAuthProblemException => {
               val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
               val resp: OAuthResponse = builder.error(e).buildJSONMessage()
+              Logger("CultureHub").warn(resp.getBody)
               BadRequest(resp.getBody).as(JSON)
             }
           }
@@ -98,6 +99,7 @@ object OAuth2TokenEndpoint extends Controller {
   def errorResponse(tokenResponse: String, message: String): Action[AnyContent] = {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
     val resp: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
+    Logger("CultureHub").warn(resp.getBody)
     Action {
       request => BadRequest(resp.getBody).as(JSON)
     }
