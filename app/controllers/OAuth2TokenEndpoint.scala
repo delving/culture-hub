@@ -37,13 +37,13 @@ object OAuth2TokenEndpoint extends Controller {
     request =>
       val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
 
-          try {
-            val oauthRequest = new PlayOAuthTokenRequest(request)
+      try {
+        val oauthRequest = new PlayOAuthTokenRequest(request)
 
-            // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
-            if (oauthRequest.getGrantType == null) return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
+        // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
+        if (oauthRequest.getGrantType == null) return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
 
-            var grantType: GrantType = null;
+        var grantType: GrantType = null;
             try {
               grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
             } catch {
@@ -52,7 +52,11 @@ object OAuth2TokenEndpoint extends Controller {
 
             val user = grantType match {
               // TODO use real node from URL
-              case GrantType.PASSWORD => if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password") else HubUser.findByUsername(oauthRequest.getUsername).get
+              case GrantType.PASSWORD =>
+                if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword))
+                  return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password")
+                else
+                  HubUser.findByUsername(oauthRequest.getUsername).get
               case GrantType.REFRESH_TOKEN => {
                 val maybeUser = HubUser.findByRefreshToken(oauthRequest.getRefreshToken)
                 if(maybeUser == None) {
