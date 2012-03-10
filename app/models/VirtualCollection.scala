@@ -15,8 +15,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
                              spec: String,
                              name: String,
                              orgId: String,
-                             dataSetReferences: List[DataSetReference], // kept here for redundancy
-                             records: List[MDRReference]
+                             dataSetReferences: List[DataSetReference] // kept here for redundancy
                              ) {
 
   def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.findBySpecAndOrgId(r.spec, r.orgId))
@@ -42,13 +41,17 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 case class DataSetReference(spec: String, orgId: String)
 
 // reference to an MDR with a minimal cache to speed up lookups
-case class MDRReference(hubCollection: String, // mongo collection in which this one is kept
+case class MDRReference(_id: ObjectId = new ObjectId,
+                        parentId: ObjectId = new ObjectId,
+                        hubCollection: String, // mongo collection in which this one is kept
                         hubId: String, // hubId of the MDR
                         idx: Int, // index, generated at collection creation time, to use as count
                         validOutputFormats: List[String]) // cache of valid output formats
 
 
 object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) with ModelImplicits {
+
+  val children = new ChildCollection[MDRReference, ObjectId](collection = virtualCollectionsRecordsCollection, parentIdField = "parentId") {}
 
   def findAll(orgId: String, accessKey: Option[String] = None): List[VirtualCollection] = {
     // TODO accessKey

@@ -21,8 +21,7 @@ case class Collection(spec: String,
     } else {
       VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
         case Some(vc) =>
-          // TODO not very memory-efficient
-          val references = vc.records.filter(ref => ref.validOutputFormats.contains(metadataFormat) && ref.idx > position).sortBy(_.idx).splitAt(limit)._1
+          val references = VirtualCollection.children.find(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit).toList
           references.groupBy(_.hubCollection).map {
             grouped => MetadataRecord.getMDRs(grouped._1, grouped._2.map(_.hubId))
           }.flatten.toList
@@ -91,11 +90,11 @@ object Collection {
 
   private implicit def dataSetToCollection(dataSet: DataSet): Collection = Collection(dataSet.spec, dataSet.orgId, dataSet.details.name, dataSet.namespaces)
 
-  private implicit def dataSetListToCollectoinList(dataSets: List[DataSet]) = dataSets.map(dataSetToCollection(_))
+  private implicit def dataSetListToCollectoinList(dataSets: List[DataSet]): List[Collection] = dataSets.map(dataSetToCollection(_))
 
   private implicit def virtualCollectionToCollection(vc: VirtualCollection): Collection = Collection(vc.spec, vc.orgId, vc.name, vc.namespaces)
 
-  private implicit def virtualCollectionListToCollectionList(vcs: List[VirtualCollection]) = vcs.map(virtualCollectionToCollection(_))
+  private implicit def virtualCollectionListToCollectionList(vcs: List[VirtualCollection]): List[Collection] = vcs.map(virtualCollectionToCollection(_))
 
   
 

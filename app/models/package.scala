@@ -71,6 +71,7 @@ package object mongoContext extends models.MongoContext {
   lazy val dataSetsCollection = connection("Datasets")
 
   lazy val virtualCollectionsCollection = connection("VirtualCollections")
+  lazy val virtualCollectionsRecordsCollection = connection("VirtualCollectionsRecords")
 
   lazy val objectsCollection = connection("UserObjects") // the user contributed objects
   addIndexes(objectsCollection, thingIndexes)

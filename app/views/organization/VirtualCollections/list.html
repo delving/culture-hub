@@ -1,0 +1,77 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('thing.virtualCollections') /}
+#{set bodyId: 'organization' /}
+
+#{breadcrumbs theme: themeInfo.getTheme() /}
+<div class="row">
+    #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+</div>
+
+<div class="row">
+    <div class="grid_12">
+        <div class="sub-panel clearfix">
+            #{vcNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="grid_12">
+        <div class="data-grid">
+            <table class="list">
+                <caption>&{'thing.virtualCollections'}</caption>
+                <thead>
+                <tr>
+                    <th>&{'thing.title'}</th>
+                    <th>&{'thing.actions'}</th>
+                </tr>
+                </thead>
+                <tbody>
+                #{list virtualColletions, as: 'vc'}
+                <tr>
+                    <td>
+                        <span>${vc.spec}</span>
+                    </td>
+                    <td>
+                        <a class="button" href="#">
+                            <span class="icon icon145"></span>
+                            <span class="label">&{'ui.label.edit'}</span>
+                        </a>
+                        <a id="${vc.spec}" class="button beware delete" href="#">
+                            <span class="icon icon186"></span>
+                            <span class="label">&{'ui.label.delete'}</span>
+                        </a>
+                    </td>
+                </tr>
+                #{/list}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="dialog-confirm-collection-delete" title="&{'organization.virtualCollection.deleteCollection'}" style="display: none;">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        &{'organization.virtualCollection.deleteCollectionConfirm'}
+    </p>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.delete').click(function(el) {
+                confirmDeletion('#dialog-confirm-collection-delete', function () {
+                    $.ajax({
+                        url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
+                        type: 'DELETE',
+                        success: function() {
+                            document.location = '/organizations/${orgId}/virtualCollection/list'
+                        }
+                    });
+                });
+        });
+
+
+    });
+</script>

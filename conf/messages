@@ -118,6 +118,8 @@ thing.objects.heritage.info=Heritage Objects are the rich collections of things 
 thing.collection=Collection
 thing.collections=Collections
 thing.collections.info=Everyone has their own favorite subjects of interest, and this site allows us to find objects using search and facet navigation, but we can also drag and drop the treasures we find into our own collections. A collection that we decide to create and make public is made available here under a unique URL which we can tell people about and link to.
+thing.virtualCollection=Virtual Collection
+thing.virtualCollections=Virtual Collections
 thing.bookmarksCollection=My bookmarks
 thing.bookmarksCollectionDescription=This is your bookmarks collection, visible only to you.
 thing.story=Story
@@ -578,6 +580,13 @@ organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this DataSet
 organization.dataset.save=Save DataSet
 organization.members=Members
+
+organization.virtualCollection.list=Virtual Collection list
+organization.virtualCollection.new=New Virtual Collection
+organization.virtualCollection.deleteCollection=Delete Virtual Collection
+organization.virtualCollection.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
+organization.virtualCollection.save=Save
+organization.virtualCollection.spec=Identifier
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
