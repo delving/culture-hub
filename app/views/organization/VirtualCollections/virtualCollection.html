@@ -23,6 +23,8 @@
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
 
+            <input type="text" name="query" id="queryField"> #{btnButton label: "Preview", extraClass:"action", id:"previewButton", type:"button" /}
+
             <div class="buttons">
                 #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
                 #{btnButton label: messages.get('ui.label.reset'), extraClass:"submit", type:"reset" /}
@@ -34,9 +36,41 @@
     </div>
 </div>
 
+<div id="result" class="row">
+    <div class="grid_12">
+        <div id="querySummary" style="visibility: hidden;">
+            Query: <span data-bind="text: query.terms()"> </span>,
+            Results found: <span data-bind="text: query.numfound()"> </span>
+        </div>
+        <div id="resultPagination" style="visibility: hidden;">
+            <div id="links" data-bind="foreach: pagination.links()">
+                <span data-bind="if: $data.isLinked()">
+                    <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
+                </span>
+                <span data-bind="ifnot: $data.isLinked()">
+                    <span data-bind="text: $data.pageNumber()"></span>
+                </span>
+            </div>
+        </div>
+        <div id="results" data-bind="foreach: items()">
+            <div class="resultItem">
+                <span data-bind="text: delving_title" style="font-weight: bold;"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     $(document).ready(function() {
+
         var virtualCollectionModel = {};
+        var resultModel = {
+
+            paginate: function(start) {
+                search(resultModel.initialQuery, resultModel.orgId, start);
+            }
+
+        };
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
@@ -45,8 +79,29 @@
             });
         });
 
-        load(${data.raw()}, virtualCollectionModel, null, function() {
+        load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function() {
             $("body").css('visibility', 'visible');
         });
+
+        $('#previewButton').click(function(event) {
+            search($('#queryField').val(), '${orgId}', 1);
+        });
+
+        function search(query, orgId, start) {
+
+            $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function(data) {
+                resultModel.initialQuery = query;
+                resultModel.orgId = orgId;
+                if(ko.mapping.isMapped(resultModel)) {
+                    ko.mapping.fromJS(data.result, resultModel);
+                } else {
+                    $('#querySummary').css('visibility', 'visible');
+                    $('#resultPagination').css('visibility', 'visible');
+                    $.extend(resultModel, ko.mapping.fromJS(data.result));
+                    ko.applyBindings(resultModel, document.getElementById('result'));
+                }
+            });
+        }
+
     });
 </script>
