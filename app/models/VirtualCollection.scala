@@ -15,6 +15,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
                              spec: String,
                              name: String,
                              orgId: String,
+                             query: VirtualCollectionQuery,
                              dataSetReferences: List[DataSetReference] // kept here for redundancy
                              ) {
 
@@ -39,6 +40,8 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 }
 
 case class DataSetReference(spec: String, orgId: String)
+
+case class VirtualCollectionQuery(includeTerm: String, excludeTerm: String = "", excludeHubIds: List[String] = List.empty)
 
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,

@@ -52,10 +52,10 @@ object VirtualCollections extends OrganizationController {
 
         val viewModel = spec match {
           case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
-            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, ""))
+            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.includeTerm, vc.query.excludeTerm))
             case None => None
           }
-          case None => Some(VirtualCollectionViewModel(None, "", "", ""))
+          case None => Some(VirtualCollectionViewModel(None, "", "", "", ""))
         }
 
         if (viewModel.isEmpty) {
@@ -77,15 +77,19 @@ object VirtualCollections extends OrganizationController {
               case Some(id) =>
                 VirtualCollection.findOneByID(id) match {
                   case Some(vc) =>
-                    // update spec and name
-                    val updated = vc.copy(spec = virtualCollectionForm.spec, name = virtualCollectionForm.name)
+                    // update collection definition
+                    val updated = vc.copy(
+                      spec = virtualCollectionForm.spec,
+                      name = virtualCollectionForm.name,
+                      query = VirtualCollectionQuery(virtualCollectionForm.includeTerm, virtualCollectionForm.excludeTerm)
+                    )
                     VirtualCollection.save(updated)
 
                     // clear the previous entries
                     VirtualCollection.children.removeByParentId(id)
 
                     // create new virtual collection
-                    createVirtualCollectionFromQuery(id, virtualCollectionForm.query, theme) match {
+                    createVirtualCollectionFromQuery(id, virtualCollectionForm.includeTerm, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -95,11 +99,16 @@ object VirtualCollections extends OrganizationController {
                     NotFound("Could not find VirtualCollection with ID " + id)
                 }
               case None =>
-                val vc = VirtualCollection(spec = virtualCollectionForm.spec, name = virtualCollectionForm.name, orgId = orgId, dataSetReferences = List.empty)
+                val vc = VirtualCollection(
+                            spec = virtualCollectionForm.spec,
+                            name = virtualCollectionForm.name,
+                            orgId = orgId,
+                            query = VirtualCollectionQuery(virtualCollectionForm.includeTerm, virtualCollectionForm.excludeTerm),
+                            dataSetReferences = List.empty)
                 val id = VirtualCollection.insert(vc)
                 id match {
                   case Some(vcid) =>
-                    createVirtualCollectionFromQuery(vcid, virtualCollectionForm.query, theme) match {
+                    createVirtualCollectionFromQuery(vcid, virtualCollectionForm.includeTerm, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -184,7 +193,8 @@ object VirtualCollections extends OrganizationController {
 case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
-                                      query: String, // if a query is specified, use it to add things to the virtual collection
+                                      includeTerm: String,
+                                      excludeTerm: String,
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
 object VirtualCollectionViewModel {
@@ -194,7 +204,8 @@ object VirtualCollectionViewModel {
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
-      "query" -> nonEmptyText,
+      "includeTerm" -> text,
+      "excludeTerm" -> text,
       "errors" -> of[Map[String, String]]
     )(VirtualCollectionViewModel.apply)(VirtualCollectionViewModel.unapply)
   )

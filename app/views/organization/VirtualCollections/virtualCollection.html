@@ -23,7 +23,8 @@
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
             <span>
-                #{textField name:"queryString", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: query", required: true /}
+                #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required: false /}
+                #{textField name:"excludeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required: false /}
                 #{btnButton label: "Preview", extraClass:"action", id:"previewButton", type:"button" /}
             </span>
 
@@ -82,12 +83,21 @@
         });
 
         load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function() {
+            if(virtualCollectionModel.id().length > 0) {
+                var query = composeQuery($('#includeTerm').val(), $('#excludeTerm').val());
+                search(query, '${orgId}', 1);
+            }
             $("body").css('visibility', 'visible');
         });
 
         $('#previewButton').click(function(event) {
-            search($('#queryString').val(), '${orgId}', 1);
+            var query = composeQuery($('#includeTerm').val(), $('#excludeTerm').val());
+            search(query, '${orgId}', 1);
         });
+
+        function composeQuery(includeTerm, excludeTerm) {
+            return includeTerm;
+        }
 
         function search(query, orgId, start) {
 
