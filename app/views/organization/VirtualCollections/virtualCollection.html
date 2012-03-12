@@ -83,7 +83,7 @@
         });
 
         load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function() {
-            if(virtualCollectionModel.id().length > 0) {
+            if(virtualCollectionModel.hasOwnProperty("id")) {
                 var query = composeQuery($('#includeTerm').val(), $('#excludeTerm').val());
                 search(query, '${orgId}', 1);
             }
