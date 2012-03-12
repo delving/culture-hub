@@ -27,13 +27,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                #{list virtualColletions, as: 'vc'}
+                #{list virtualCollections, as: 'vc'}
                 <tr>
                     <td>
                         <span>${vc.spec}</span>
                     </td>
                     <td>
-                        <a class="button" href="#">
+                        <a class="button" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
                             <span class="icon icon145"></span>
                             <span class="label">&{'ui.label.edit'}</span>
                         </a>

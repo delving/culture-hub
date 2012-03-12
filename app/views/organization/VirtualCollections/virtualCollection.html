@@ -10,7 +10,7 @@
 <div class="row">
     <div class="grid_12">
         <div class="sub-panel clearfix">
-            #{vcNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
+            #{vcNavBar active:'add', currentLanguage:currentLanguage, orgId: orgId/}
         </div>
     </div>
 </div>
@@ -22,8 +22,10 @@
 
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
-
-            <input type="text" name="query" id="queryField"> #{btnButton label: "Preview", extraClass:"action", id:"previewButton", type:"button" /}
+            <span>
+                #{textField name:"queryString", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: query", required: true /}
+                #{btnButton label: "Preview", extraClass:"action", id:"previewButton", type:"button" /}
+            </span>
 
             <div class="buttons">
                 #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
@@ -84,7 +86,7 @@
         });
 
         $('#previewButton').click(function(event) {
-            search($('#queryField').val(), '${orgId}', 1);
+            search($('#queryString').val(), '${orgId}', 1);
         });
 
         function search(query, orgId, start) {
