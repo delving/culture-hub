@@ -17,6 +17,23 @@
 
 # 08.03.2012 - Organization becoming a remote thing
 
+## Adding organizations to users from Organization
+
+db.Organizations.find().forEach(function(org) {
+  var users = org.users;
+  for(var key in users) {
+    var userName = users[key];
+    print(userName);
+    var user = db.Users.findOne({userName: userName});
+    if(user.hasOwnProperty("organizations")) {
+      user.organizations.push(org.orgId);
+    } else {
+      user.organizations = [org.orgId];
+    }
+    db.Users.save(user);
+  }
+})
+
 ## Org membership is saved locally in a HubUser, instead of an Organization
 
     TODO implement migration / do it by hand
