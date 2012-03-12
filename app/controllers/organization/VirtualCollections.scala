@@ -24,7 +24,12 @@ object VirtualCollections extends OrganizationController {
       implicit request =>
         VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
           case Some(vc) =>
-            Ok(Template('spec -> spec, 'name -> vc.name, 'dataSets -> vc.dataSetReferences.map(_.spec).toList))
+            Ok(Template(
+              'spec -> spec,
+              'name -> vc.name,
+              'dataSets -> vc.dataSetReferences.map(_.spec).toList,
+              'recordCount -> VirtualCollection.children.countByParentId(vc._id)
+            ))
 
           case None => NotFound("Could not find Virtual Collection " + spec)
         }

@@ -18,7 +18,7 @@
 
 <div class="row">
     <div class="grid_12">
-        <h1>&{'thing.virtualCollections'}</h1>
+        <h1>&{'thing.virtualCollection'} "${name}"</h1>
 
         <div class="info-box">
             <span class="label">&{'ui.label.identifier'}</span>
@@ -31,6 +31,10 @@
         <div class="info-box">
             <span class="label">&{'thing.datasets'}</span>
             <span class="text">#{list dataSets, as: 'ds'}<a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a>#{/list}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">&{'ui.label.nritems'}</span>
+            <span class="text">${recordCount}</span>
         </div>
 
     </div>
