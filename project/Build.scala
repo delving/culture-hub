@@ -19,7 +19,7 @@ object ApplicationBuild extends Build {
 
     "eu.delving"                %  "sip-core"                        % "0.4.6-SNAPSHOT",
     "eu.delving"                %  "sip-creator"                     % "0.4.6-SNAPSHOT",
-    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                % "1.0-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",
     "org.apache.tika"           %  "tika-parsers"                    % "1.0"
