@@ -28,14 +28,21 @@ import play.api.Play.current
 
 case class RecordDefinition(prefix: String,
                             schema: String,
-                            namespace: String, // the namespace of the format
+                            namespace: String,              // the namespace of the format
                             allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
-                            accessKeyRequired: Boolean = false,
-                            roles: List[Role] = List.empty)
+                            roles: List[Role] = List.empty, // roles that are described in the RecordDefinition
+                            access: FormatAccessControl     // access control settings for this format
+                            )
 
 case class Namespace(prefix: String, uri: String, schema: String)
 
 case class Role(key: String, description: String, prefix: String)
+
+case class FormatAccessControl(accessType: String = "none", accessKey: Option[String] = None) {
+  def isPublicAccess = accessType == "public"
+  def isProtectedAccess = accessType == "protected"
+  def isNoAccess = accessType == "none"
+}
 
 object RecordDefinition {
 
@@ -75,8 +82,8 @@ object RecordDefinition {
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
-        false,
-        roles
+        roles,
+        FormatAccessControl()
       )
     )
   }

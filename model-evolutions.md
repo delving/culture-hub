@@ -19,6 +19,8 @@
 
 ## Adding organizations to users from Organization
 
+db.Users.find().forEach(function(u) { u.organizations.clear(); db.Users.save(u); });
+
 db.Organizations.find().forEach(function(org) {
   var users = org.users;
   for(var key in users) {
@@ -54,6 +56,27 @@ May not be a problem but we need to check if there are any items live.
           print(key);
           var mapping = ds.mappings[key];
           mapping.format.allNamespaces = [];
+          ds.mappings[key] = mapping;
+        }
+      }
+      db.Datasets.save(ds);
+    })
+
+13.03.2012 - AccessKey implementation
+
+   var publicAccess = {
+     "_typeHint" : "models.FormatAccessControl",
+     "accessType" : "public"
+   }
+
+    db.Datasets.update({}, {$set: {"details.metadataFormat.access": publicAccess}}, false, true)
+
+    db.Datasets.find().forEach(function(ds) {
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          print(key);
+          var mapping = ds.mappings[key];
+          mapping.format.access = publicAccess;
           ds.mappings[key] = mapping;
         }
       }

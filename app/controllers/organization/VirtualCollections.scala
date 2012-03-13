@@ -52,10 +52,10 @@ object VirtualCollections extends OrganizationController {
 
         val viewModel = spec match {
           case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
-            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.includeTerm, vc.query.excludeTerm))
+            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(","), vc.query.includeTerm, vc.query.excludeTerm))
             case None => None
           }
-          case None => Some(VirtualCollectionViewModel(None, "", "", "", ""))
+          case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
         }
 
         if (viewModel.isEmpty) {
@@ -81,7 +81,11 @@ object VirtualCollections extends OrganizationController {
                     val updated = vc.copy(
                       spec = virtualCollectionForm.spec,
                       name = virtualCollectionForm.name,
-                      query = VirtualCollectionQuery(virtualCollectionForm.includeTerm, virtualCollectionForm.excludeTerm)
+                      query = VirtualCollectionQuery(
+                        virtualCollectionForm.datasets.split(",").map(_.trim).toList,
+                        virtualCollectionForm.includeTerm,
+                        virtualCollectionForm.excludeTerm
+                      )
                     )
                     VirtualCollection.save(updated)
 
@@ -103,7 +107,11 @@ object VirtualCollections extends OrganizationController {
                             spec = virtualCollectionForm.spec,
                             name = virtualCollectionForm.name,
                             orgId = orgId,
-                            query = VirtualCollectionQuery(virtualCollectionForm.includeTerm, virtualCollectionForm.excludeTerm),
+                            query = VirtualCollectionQuery(
+                              virtualCollectionForm.datasets.split(",").map(_.trim).toList,
+                              virtualCollectionForm.includeTerm,
+                              virtualCollectionForm.excludeTerm
+                            ),
                             dataSetReferences = List.empty)
                 val id = VirtualCollection.insert(vc)
                 id match {
@@ -121,6 +129,11 @@ object VirtualCollections extends OrganizationController {
           }
         )
     }
+  }
+
+  private def composeQuery(datasets: String, includeTerm: String, excludeTerm: String) = {
+    // TODO
+    includeTerm
   }
 
   private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme): Either[Throwable, String] = {
@@ -193,6 +206,7 @@ object VirtualCollections extends OrganizationController {
 case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
+                                      datasets: String, // comma-separated list of spec names
                                       includeTerm: String,
                                       excludeTerm: String,
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
@@ -204,6 +218,7 @@ object VirtualCollectionViewModel {
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
+      "datasets" -> text,
       "includeTerm" -> text,
       "excludeTerm" -> text,
       "errors" -> of[Map[String, String]]

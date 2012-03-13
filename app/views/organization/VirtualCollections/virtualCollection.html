@@ -27,24 +27,18 @@
 
             #{textField name:"spec", form:virtualCollectionForm,
             label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value:
-            name", required: true /}
-            #{textField name:"includeTerm", form:virtualCollectionForm,
-            label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required:
-            false /}
-            #{textField name:"excludeTerm", form:virtualCollectionForm,
-            label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required:
-            false /}
+            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
+            #{textField name:"datasets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: datasets", required: false /}
+            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required: false /}
+            #{textField name:"excludeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required: false /}
             <div class="buttons">
                 #{btnButton label: "Preview", extraClass:"action fright", id:"previewButton", type:"button" /}
             </div>
 
             <div class="buttons">
-                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton",
-                type:"reset" /}
+                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
                 #{btnButton label: messages.get('ui.label.reset'), extraClass:"submit", type:"reset" /}
-                #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"action complete",
-                id:"saveButton", type:"submit" /}
+                #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
 
@@ -125,7 +119,7 @@
         });
 
         function composeQuery(includeTerm, excludeTerm) {
-            return includeTerm;
+            return '"' + includeTerm + '" NOT "' + excludeTerm + '"';
         }
 
         function search(query, orgId, start) {

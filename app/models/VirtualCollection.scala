@@ -23,15 +23,15 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
   def namespaces = dataSets.map(_.namespaces).flatten.toMap[String, String]
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    // all commonly available formats to all dataSets
+  def getVisibleMetadataFormats(accessKey: Option[String]): List[RecordDefinition] = {
+    // all available formats to all dataSets in common
     // can probably be done in a more functional way, but how?
     var intersect: List[RecordDefinition] = null
     for(dataSet: DataSet <- dataSets) yield {
       if(intersect == null) {
-        intersect = dataSet.getMetadataFormats(publicCollectionsOnly)
+        intersect = dataSet.getVisibleMetadataFormats(accessKey)
       } else {
-        intersect = dataSet.getMetadataFormats(publicCollectionsOnly).intersect(intersect)
+        intersect = dataSet.getVisibleMetadataFormats(accessKey).intersect(intersect)
       }
     }
     intersect
@@ -41,7 +41,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
 case class DataSetReference(spec: String, orgId: String)
 
-case class VirtualCollectionQuery(includeTerm: String, excludeTerm: String = "", excludeHubIds: List[String] = List.empty)
+case class VirtualCollectionQuery(dataSets: List[String], includeTerm: String, excludeTerm: String = "", excludeHubIds: List[String] = List.empty)
 
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,

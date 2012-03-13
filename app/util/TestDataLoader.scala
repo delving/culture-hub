@@ -127,7 +127,8 @@ object TestDataLoader {
             Namespace(prefix="icn", uri="http://www.icn.nl/", schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"),
             Namespace(prefix="delving", uri="http://www.delving.eu/", schema="http://www.delving.eu/schemas/delving-1.0.xsd")
           ),
-          accessKeyRequired = true
+          roles = List.empty,
+          access = FormatAccessControl(accessType = "public")
         ),
         facts = factMap,
         errorMessage = Some("")

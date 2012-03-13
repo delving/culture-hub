@@ -37,7 +37,7 @@ object Collection {
   def findAll(orgId: String, accessKey: Option[String] = None): List[Collection] = {
 
     // TODO implement accessKey lookup
-    val dataSets: List[Collection] = DataSet.findAll(orgId, false)
+    val dataSets: List[Collection] = DataSet.findAll(orgId)
     val virtualCollections: List[Collection] = VirtualCollection.findAll(orgId)
 
     dataSets ++ virtualCollections
@@ -60,8 +60,8 @@ object Collection {
   }
 
 
-  def getMetadataFormats(spec: String, orgId: String, accessKey: String): Seq[RecordDefinition] = {
-    val dataSets = DataSet.findAll(orgId, false)
+  def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): Seq[RecordDefinition] = {
+    val dataSets = DataSet.findAll(orgId)
     val virtualCollections = VirtualCollection.findAll(orgId)
 
     val formats = if (dataSets.exists(_.spec == spec)) {
@@ -69,7 +69,7 @@ object Collection {
     } else if (virtualCollections.exists(_.spec == spec)) {
       VirtualCollection.findBySpecAndOrgId(spec, orgId).map {
         // TODO check this
-        vc => vc.getMetadataFormats(false)
+        vc => vc.getVisibleMetadataFormats(accessKey)
       }.getOrElse(Seq())
     } else {
       Seq()
@@ -78,15 +78,15 @@ object Collection {
     formats.distinct
   }
 
-  // returns the whole variety of formats out there
-  def getAllMetadataFormats(orgId: String, publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    DataSet.getMetadataFormats(orgId, publicCollectionsOnly).distinct
+  /**
+   * Gets all publicly available formats out there, plus the ones available via the accessKey.
+   */
+  def getAllMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
+    DataSet.getAllVisibleMetadataFormats(orgId, accessKey).distinct
   }
 
 
   
-
-  private def getAllDataSets(orgId: String) = DataSet.findAll(orgId, false) ++ VirtualCollection.findAll(orgId).map(vc => vc.dataSets).flatten
 
   private implicit def dataSetToCollection(dataSet: DataSet): Collection = Collection(dataSet.spec, dataSet.orgId, dataSet.details.name, dataSet.namespaces)
 

@@ -19,7 +19,6 @@ package core.opendata
 import java.text.SimpleDateFormat
 import java.util.Date
 import exceptions._
-import play.api.mvc.RequestHeader
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
@@ -49,14 +48,14 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: String = "delving") extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, accessKey: Option[String]) extends MetaConfig {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(200, 5)
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
-  val params = Params(request.queryString)
+  val params = Params(queryString)
 
   /**
    * receive an HttpServletRequest with the OAI-PMH parameters and return the correctly formatted xml as a string.
@@ -121,10 +120,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="Identify">{getRequestURL}</request>
+      <request verb="Identify">{requestURL}</request>
       <Identify>
         <repositoryName>{repositoryName}</repositoryName>
-        <baseURL>{getRequestURL}</baseURL>
+        <baseURL>{requestURL}</baseURL>
         <protocolVersion>2.0</protocolVersion>
         <adminEmail>{adminEmail}</adminEmail>
         <earliestDatestamp>{earliestDateStamp}</earliestDatestamp>
@@ -158,7 +157,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="ListSets">{getRequestURL}</request>
+      <request verb="ListSets">{requestURL}</request>
       <ListSets>
         { for (set <- collections) yield
         <set>
@@ -187,11 +186,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val identifierSpec = identifier.split(":").head
 
     // otherwise only list the formats available for the identifier
-    val hasAccessKey: Boolean = pmhRequestEntry.pmhRequestItem.accessKey.isEmpty
-    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, false) else models.Collection.getMetadataFormats(identifierSpec, orgId, pmhRequestEntry.pmhRequestItem.accessKey)
+    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
 
-    def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{getRequestURL}</request>
-    else <request verb="ListMetadataFormats">{getRequestURL}</request>
+    def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{requestURL}</request>
+    else <request verb="ListMetadataFormats">{requestURL}</request>
 
     val elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -235,7 +233,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         </responseDate>
         <request verb="ListRecords" from={from} until={to}
                  metadataPrefix={metadataFormat}>
-          {getRequestURL}
+          {requestURL}
         </request>
         <ListRecords>
           {for (record <- recordList) yield
@@ -251,7 +249,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         <responseDate>{currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
                  metadataPrefix={metadataFormat}
-                 set={setName}>{getRequestURL}</request>
+                 set={setName}>{requestURL}</request>
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
@@ -300,7 +298,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         </responseDate>
         <request verb="GetRecord" identifier={identifier}
                  metadataPrefix={metadataFormat}>
-          {getRequestURL}
+          {requestURL}
         </request>
         <GetRecord>
           {renderRecord(record, metadataFormat, identifier.split(":").head)}
@@ -345,21 +343,16 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
     def getParam(key: String) = params.getValueOrElse(key, "")
 
-    val accessKeyParam : String = if (accessKey.isEmpty) getParam("accessKey") else accessKey
-
     val pmh = PmhRequestItem(
       verb,
       getParam("set"),
       getParam("from"),
       getParam("until"),
       getParam("metadataPrefix"),
-      getParam("identifier"),
-      accessKeyParam
+      getParam("identifier")
     )
     PmhRequestEntry(pmh, getParam("resumptionToken"))
   }
-
-  def getRequestURL = "%s".format(request.uri)
 
   /**
    * This method is used to create all the OAI-PMH error responses to a given OAI-PMH request. The error descriptions have
@@ -377,7 +370,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request>{getRequestURL}</request>
+      <request>{requestURL}</request>
       {errorCode match {
       case "badArgument" => <error code="badArgument">The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.</error>
       case "badResumptionToken" => <error code="badResumptionToken">The value of the resumptionToken argument is invalid or expired.</error>
@@ -392,7 +385,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     </OAI-PMH>
   }
 
-  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String, accessKey: String)
+  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String)
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 

@@ -203,7 +203,9 @@ object DataSetControl extends OrganizationController {
                         "raw",
                         "http://delving.eu/namespaces/raw",
                         "http://delving.eu/namespaces/raw/schema.xsd",
-                        List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd"))
+                        List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
+                        List.empty,
+                        FormatAccessControl()
                       )
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
