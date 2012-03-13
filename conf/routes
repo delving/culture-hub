@@ -24,6 +24,8 @@ GET        /token                                                               
 
 # Demo space
 GET        /demo/viewer                                                            controllers.Demo.view(image: Option[String])
+GET        /demo/yumaImage                                                         controllers.Demo.yumaImage()
+GET        /demo/yumaMap                                                           controllers.Demo.yumaMap()
 GET        /fcgi-bin/iipsrv.fcgi                                                   controllers.Demo.iipsrv
 
 

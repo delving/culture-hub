@@ -1,0 +1,33 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title:'Image viewer' /}
+
+<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/yuma/theme-plain-grey/yuma.min.css")}"/>
+<script type='text/javascript' src="@{routes.Assets.at('/common/yuma/yuma.min.nocache.js')}"></script>
+<script type="text/javascript">
+
+    var annotationLayer;
+
+    $(document).ready(function () {
+
+        window.onYUMAready = function () {
+            annotationLayer = new YUMA.ImageAnnotationLayer('sample-image',
+                    {
+                        enableReplies:true,
+                        serverURL:"http://dme.ait.ac.at/yuma4j-server"
+                    });
+        }
+
+    });
+
+</script>
+
+<div id="container">
+
+    <img id="sample-image" width="600" src="@{routes.Assets.at('images/delving-team.jpg')}">
+    <br/>
+    <br/>
+    <input type="button" value="Add Annotation" onclick="javascript:annotationLayer.createNewAnnotation();"/>
+    <br/>
+    <br/>
+
+</div>
