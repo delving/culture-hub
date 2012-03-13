@@ -1,5 +1,8 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('thing.virtualCollections') /}
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
+#{/set}
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
@@ -16,81 +19,107 @@
 </div>
 
 <div class="row">
-    <div class="grid_12">
+    <div class="grid_5">
+        <h2>${messages.get('Virtual Collection Information')}</h2>
+
         <form id="virtualCollectionForm" method="post" action="">
             <div data-bind="text: errors().global"></div>
 
-            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
-            <span>
-                #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required: false /}
-                #{textField name:"excludeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required: false /}
-                #{btnButton label: "Preview", extraClass:"action", id:"previewButton", type:"button" /}
-            </span>
+            #{textField name:"spec", form:virtualCollectionForm,
+            label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
+            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value:
+            name", required: true /}
+            #{textField name:"includeTerm", form:virtualCollectionForm,
+            label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required:
+            false /}
+            #{textField name:"excludeTerm", form:virtualCollectionForm,
+            label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required:
+            false /}
+            <div class="buttons">
+                #{btnButton label: "Preview", extraClass:"action fright", id:"previewButton", type:"button" /}
+            </div>
 
             <div class="buttons">
-                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
+                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton",
+                type:"reset" /}
                 #{btnButton label: messages.get('ui.label.reset'), extraClass:"submit", type:"reset" /}
-                #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
+                #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"action complete",
+                id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
 
         </form>
     </div>
-</div>
+    <div id="result" class="grid_7">
+        <h2>${messages.get('Virtual Collection Preview')}</h2>
 
-<div id="result" class="row">
-    <div class="grid_12">
-        <div id="querySummary" style="visibility: hidden;">
-            Query: <span data-bind="text: query.terms()"> </span>,
-            Results found: <span data-bind="text: query.numfound()"> </span>
-        </div>
-        <div id="resultPagination" style="visibility: hidden;">
-            <div id="links" data-bind="foreach: pagination.links()">
+        <div class="panel">
+            <div id="previewList" style="visibility: hidden">
+                <div id="querySummary">
+                    Query: <span data-bind="text: query.terms()"> </span>,
+                    Results found: <span data-bind="text: query.numfound()"> </span>
+                </div>
+                <div id="resultPagination">
+                    <div id="links" class="pagination" data-bind="foreach: pagination.links()">
                 <span data-bind="if: $data.isLinked()">
-                    <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
+                    <a href="#"
+                       data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
                 </span>
                 <span data-bind="ifnot: $data.isLinked()">
+                    <span class="current">
                     <span data-bind="text: $data.pageNumber()"></span>
+                    </span>
                 </span>
-            </div>
-        </div>
-        <div id="results" data-bind="foreach: items()">
-            <div class="resultItem">
-                <span data-bind="text: delving_title" style="font-weight: bold;"></span>
+                    </div>
+                </div>
+
+
+                <div id="results" data-bind="foreach: items()">
+                    <div class="resultItem media">
+                        <div class="img clip clip-40">
+                            <img data-bind="attr: { src: delving_thumbnail }" width="40"/>
+                        </div>
+                        <div class="bd">
+                            <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>
+                            <strong>Provider:</strong> <span data-bind="text: delving_spec"></span><br/>
+                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+
 <script type="text/javascript">
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var virtualCollectionModel = {};
         var resultModel = {
 
-            paginate: function(start) {
+            paginate:function (start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
             }
 
         };
 
-        $('#saveButton').click(function(event) {
+        $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/virtualCollection/submit', virtualCollectionModel, '#virtualCollectionForm', null, function() {
+            handleSubmit('/organizations/${orgId}/virtualCollection/submit', virtualCollectionModel, '#virtualCollectionForm', null, function () {
                 window.location.href = '/organizations/${orgId}/virtualCollection/' + virtualCollectionModel.spec();
             });
         });
 
-        load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function() {
-            if(virtualCollectionModel.hasOwnProperty("id")) {
+        load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function () {
+            if (virtualCollectionModel.hasOwnProperty("id")) {
                 var query = composeQuery($('#includeTerm').val(), $('#excludeTerm').val());
                 search(query, '${orgId}', 1);
             }
             $("body").css('visibility', 'visible');
         });
 
-        $('#previewButton').click(function(event) {
+        $('#previewButton').click(function (event) {
             var query = composeQuery($('#includeTerm').val(), $('#excludeTerm').val());
             search(query, '${orgId}', 1);
         });
@@ -101,14 +130,13 @@
 
         function search(query, orgId, start) {
 
-            $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function(data) {
+            $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;
-                if(ko.mapping.isMapped(resultModel)) {
+                if (ko.mapping.isMapped(resultModel)) {
                     ko.mapping.fromJS(data.result, resultModel);
                 } else {
-                    $('#querySummary').css('visibility', 'visible');
-                    $('#resultPagination').css('visibility', 'visible');
+                    $("#previewList").css('visibility', 'visible');
                     $.extend(resultModel, ko.mapping.fromJS(data.result));
                     ko.applyBindings(resultModel, document.getElementById('result'));
                 }
