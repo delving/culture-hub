@@ -21,8 +21,9 @@ object SipCreator extends DelvingController {
       implicit request =>
 
         val sipCreatorVersion = "0.4.6"
-        val home = "http://" + request.host + ":9000/" + user + "/"
-        val codebase = "http://" + request.host + ":9000/assets/sip-creator/"
+        val host = request.domain + ":9000"
+        val home = "http://" + host + "/" + user + "/"
+        val codebase = "http://" + host + "/assets/sip-creator/"
 
         val jnlp = <jnlp spec="1.0+" codebase={codebase} href={home + "sip-creator.jnlp"}>
           <information>
