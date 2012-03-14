@@ -56,10 +56,7 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
 
   val children = new ChildCollection[MDRReference, ObjectId](collection = virtualCollectionsRecordsCollection, parentIdField = "parentId") {}
 
-  def findAll(orgId: String, accessKey: Option[String] = None): List[VirtualCollection] = {
-    // TODO accessKey
-    VirtualCollection.find(MongoDBObject("orgId" -> orgId)).toList
-  }
+  def findAll(orgId: String): List[VirtualCollection] = VirtualCollection.find(MongoDBObject("orgId" -> orgId)).toList
 
   def findBySpecAndOrgId(spec: String, orgId: String) = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 

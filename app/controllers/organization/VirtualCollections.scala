@@ -82,7 +82,7 @@ object VirtualCollections extends OrganizationController {
                       spec = virtualCollectionForm.spec,
                       name = virtualCollectionForm.name,
                       query = VirtualCollectionQuery(
-                        virtualCollectionForm.datasets.split(",").map(_.trim).toList,
+                        virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
                         virtualCollectionForm.includeTerm,
                         virtualCollectionForm.excludeTerm
                       )
@@ -108,7 +108,7 @@ object VirtualCollections extends OrganizationController {
                             name = virtualCollectionForm.name,
                             orgId = orgId,
                             query = VirtualCollectionQuery(
-                              virtualCollectionForm.datasets.split(",").map(_.trim).toList,
+                              virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
                               virtualCollectionForm.includeTerm,
                               virtualCollectionForm.excludeTerm
                             ),
@@ -131,9 +131,9 @@ object VirtualCollections extends OrganizationController {
     }
   }
 
-  private def composeQuery(datasets: String, includeTerm: String, excludeTerm: String) = {
-    // TODO
-    includeTerm
+  private def composeQuery(dataSets: String, includeTerm: String, excludeTerm: String) = {
+    val specCondition = dataSets.split(",").map(s => "delving_spec:" + s.trim + " ")
+    specCondition + " " + includeTerm
   }
 
   private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme): Either[Throwable, String] = {
@@ -206,7 +206,7 @@ object VirtualCollections extends OrganizationController {
 case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
-                                      datasets: String, // comma-separated list of spec names
+                                      dataSets: String, // comma-separated list of spec names
                                       includeTerm: String,
                                       excludeTerm: String,
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
@@ -218,7 +218,7 @@ object VirtualCollectionViewModel {
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
-      "datasets" -> text,
+      "dataSets" -> text,
       "includeTerm" -> text,
       "excludeTerm" -> text,
       "errors" -> of[Map[String, String]]
