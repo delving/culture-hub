@@ -70,7 +70,7 @@ object VirtualCollections extends OrganizationController {
     Action {
       implicit request =>
 
-        VirtualCollectionViewModel.virtualCollectionForm.bindFromRequest.fold(
+        VirtualCollectionViewModel.virtualCollectionForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           virtualCollectionForm => {
             virtualCollectionForm.id match {

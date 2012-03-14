@@ -62,6 +62,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    hashes: Map[String, String] = Map.empty[String, String],
                    namespaces: Map[String, String] = Map.empty[String, String], // FIXME: this map makes no sense here since the namespaces depend on the format in which a DataSet is rendered.
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String],
                    idxSortFields: List[String] = List.empty[String],
@@ -93,7 +94,10 @@ case class DataSet(_id: ObjectId = new ObjectId,
   def getAllMetadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
 
   def getVisibleMetadataFormats(accessKey: Option[String] = None): List[RecordDefinition] = {
-    getAllMetadataFormats.filter(format => format.access.isPublicAccess || (format.access.accessKey.isDefined && format.access.accessKey == accessKey))
+    getAllMetadataFormats.
+      filterNot(format => formatAccessControl.get(format.prefix).isEmpty).
+      filter(format => formatAccessControl(format.prefix).hasAccess(accessKey)
+    )
   }
 
 }
@@ -244,8 +248,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             ns.get.schema,
             ns.get.namespace,
             ns.get.allNamespaces,
-            ns.get.roles,
-            FormatAccessControl()
+            ns.get.roles
           )
         )
     }
@@ -301,22 +304,31 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
    *
    * this entails that orgIds, specs and localRecordKey-s never change
    */
-  def getRecord(identifier: String, metadataFormat: String): Option[MetadataRecord] = {
+  def getRecord(identifier: String, metadataFormat: String, accessKey: Option[String]): Option[MetadataRecord] = {
     if(identifier.split(":").length != 3)
       throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(identifier))
     val Array(orgId, spec, localRecordKey) = identifier.split(":")
     val ds: Option[DataSet] = findBySpecAndOrgId(spec, orgId)
     if(ds == None) return None
+
+    // can we haz access?
+    if(!ds.get.formatAccessControl.get(metadataFormat).map(_.hasAccess(accessKey)).getOrElse(false)) {
+      return None
+    }
+
     val record: Option[MetadataRecord] = getRecords(ds.get).findOne(MongoDBObject("localRecordKey" -> localRecordKey))
     if(record == None) return None
-    if (record.get.rawMetadata.contains(metadataFormat))
-      record
-    else {
-      val mappedRecord = record.get
-      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
+    record
 
-      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
-    }
+
+//    if (record.get.rawMetadata.contains(metadataFormat))
+//      record
+//    else {
+//      val mappedRecord = record.get
+//      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
+//
+//      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
+//    }
   }
 
   def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
@@ -366,8 +378,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
-    // todo add accessKey checker
-    val accessKeyIsValid: Boolean = true
     findBySpecAndOrgId(spec, orgId) match {
       case Some(ds) => ds.getVisibleMetadataFormats(accessKey)
       case None => List[RecordDefinition]()

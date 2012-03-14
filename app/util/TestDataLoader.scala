@@ -127,8 +127,7 @@ object TestDataLoader {
             Namespace(prefix="icn", uri="http://www.icn.nl/", schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"),
             Namespace(prefix="delving", uri="http://www.delving.eu/", schema="http://www.delving.eu/schemas/delving-1.0.xsd")
           ),
-          roles = List.empty,
-          access = FormatAccessControl(accessType = "public")
+          roles = List.empty
         ),
         facts = factMap,
         errorMessage = Some("")
@@ -137,7 +136,8 @@ object TestDataLoader {
       lastUploaded = new Date(0),
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
-      mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head))
+      mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head)),
+      formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "private"), "icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
 

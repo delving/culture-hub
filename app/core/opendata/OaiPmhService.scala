@@ -18,6 +18,7 @@ package core.opendata
 
 import java.text.SimpleDateFormat
 import java.util.Date
+import models._
 import exceptions._
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
@@ -62,7 +63,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
    */
 
   def parseRequest : String = {
-    import models._
 
     if (!isLegalPmhRequest(params)) return createErrorResponse("badArgument").toString()
 
@@ -217,6 +217,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
     val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
+      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
+    }
     val records: List[MetadataRecord] = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
@@ -225,7 +228,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
-    var elem: Elem = if (!idsOnly) {
+    val elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
@@ -244,7 +247,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
     else {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>{currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
@@ -262,16 +264,10 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         </ListIdentifiers>
       </OAI-PMH>
     }
+  
+      prependNamespaces(metadataFormat, collection, elem)
 
-    val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
-    val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
-    
-    for (ns <- (formatNamespaces ++ globalNamespaces)) {
-      import xml.{Null, UnprefixedAttribute}
-      elem = elem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
-    }
 
-    elem
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
@@ -283,15 +279,16 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    // TODO accessKey check should be done here
     val record: MetadataRecord = {
-      val mdRecord = DataSet.getRecord(identifier, metadataFormat) // , pmhRequest.accessKey
+      val mdRecord = DataSet.getRecord(identifier, metadataFormat, accessKey)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
 
+    val collection = models.Collection.findBySpecAndOrgId(identifier.split(":")(1), identifier.split(":")(0)).get
+
     val elem: Elem =
-      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
           {currentDate}
@@ -301,15 +298,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {requestURL}
         </request>
         <GetRecord>
-          {renderRecord(record, metadataFormat, identifier.split(":").head)}
+          {renderRecord(record, metadataFormat, identifier.split(":")(1))}
         </GetRecord>
       </OAI-PMH>
-    // todo enable later again
-//    for (entry <- dataSet.namespaces) {
-//      import xml.{Null, UnprefixedAttribute}
-//      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
-//    }
-    elem
+
+    prependNamespaces(metadataFormat, collection, elem)
   }
 
   // todo find a way to not show status namespace when not deleted
@@ -324,7 +317,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString))
       <record>
         <header>
-          <identifier>{set}:{record._id}</identifier>
+          <identifier>{record.pmhId}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
@@ -339,6 +332,21 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
     response
   }
+  
+  private def prependNamespaces(metadataFormat: String, collection: Collection, elem: Elem): Elem = {
+
+    var mutableElem = elem
+
+    val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
+    val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
+
+    for (ns <- (formatNamespaces ++ globalNamespaces)) {
+      import xml.{Null, UnprefixedAttribute}
+      mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+    }
+    mutableElem
+  }
+  
 
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
     def getParam(key: String) = params.getValueOrElse(key, "")
@@ -360,8 +368,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
    */
   def createErrorResponse(errorCode: String, exception : Exception): Elem = {
     log.error(errorCode, exception)
-    println(exception.getStackTraceString)
-    println(exception.getMessage)
     createErrorResponse(errorCode)
   }
 

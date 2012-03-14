@@ -31,6 +31,7 @@ import extensions.Formatters._
 import play.api.data.{Form}
 import play.api.data.validation.Constraints
 import controllers.{ViewModel, OrganizationController}
+import collection.immutable.List
 
 /**
  *
@@ -42,9 +43,13 @@ case class DataSetViewModel(id:                     Option[ObjectId] = None,
                             facts:                  HardcodedFacts = HardcodedFacts(),
 //                            facts:                  Map[String, String] = Map.empty,
                             recordDefinitions:      Seq[String] = Seq.empty,
+                            allRecordDefinitions:   List[String],
+                            oaiPmhAccess:           List[OaiPmhAccessViewModel],
                             indexingMappingPrefix:  String = "",
                             visibility:             Int = 0,
                             errors:                 Map[String, String] = Map.empty) extends ViewModel
+
+case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
 
 case class HardcodedFacts(name: String = "",
                           language: String = "",
@@ -94,6 +99,14 @@ object DataSetViewModel {
         "type" -> nonEmptyText
       )(HardcodedFacts.apply)(HardcodedFacts.unapply),
       "recordDefinitions" -> seq(text),
+      "allRecordDefinitions" -> list(text),
+      "oaiPmhAccess" -> list(
+        mapping(
+          "format" -> nonEmptyText,
+          "accessType" -> nonEmptyText,
+          "accessKey" -> optional(text)
+        )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
+      ),
       "indexingMappingPrefix" -> nonEmptyText,
       "visibility" -> number,
       "errors" -> of[Map[String, String]]
@@ -109,9 +122,13 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if(spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
+        val allRecordDefinitions: List[String] = RecordDefinition.recordDefinitions.map(r => r.prefix).toList
 
         val data = if (dataSet == None) {
-          JJson.generate(DataSetViewModel())
+          JJson.generate(DataSetViewModel(
+            allRecordDefinitions = allRecordDefinitions,
+            oaiPmhAccess = RecordDefinition.recordDefinitions.map(rDef => OaiPmhAccessViewModel(rDef.prefix))
+          ))
         } else {
           val dS = dataSet.get
           if (DataSet.canEdit(dS, connectedUser)) {
@@ -121,6 +138,8 @@ object DataSetControl extends OrganizationController {
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
                 recordDefinitions = dS.recordDefinitions,
+                allRecordDefinitions = allRecordDefinitions,
+                oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
                 indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
                 visibility = dS.visibility.value)
             )
@@ -130,20 +149,21 @@ object DataSetControl extends OrganizationController {
             }
           }
         }
+
         Ok(Template(
           'spec -> Option(spec),
           'data -> data,
           'dataSetForm -> DataSetViewModel.dataSetForm,
           'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic).toList,
-          'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix))
-        )
+          'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix)
+        ))
     }
   }
 
   def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        DataSetViewModel.dataSetForm.bindFromRequest.fold(
+        DataSetViewModel.dataSetForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           dataSetForm => {
             val factsObject = new BasicDBObject()
@@ -167,6 +187,11 @@ object DataSetControl extends OrganizationController {
             factsObject.append("spec", dataSetForm.spec)
             factsObject.append("orgId", orgId)
 
+            val formatAccessControl = dataSetForm.oaiPmhAccess.
+                                        filter(a => dataSetForm.recordDefinitions.contains(a.format)).
+                                        map(a => (a.format -> FormatAccessControl(a.accessType, a.accessKey))).toMap
+
+
             dataSetForm.id match {
               // TODO for update, add the operator that appends key-value pairs rather than setting all
               case Some(id) => {
@@ -180,6 +205,7 @@ object DataSetControl extends OrganizationController {
                   spec = dataSetForm.spec,
                   details = updatedDetails,
                   mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                  formatAccessControl = formatAccessControl,
                   idxMappings = List(dataSetForm.indexingMappingPrefix),
                   visibility = Visibility.get(dataSetForm.visibility))
                 DataSet.save(updated)
@@ -204,11 +230,11 @@ object DataSetControl extends OrganizationController {
                         "http://delving.eu/namespaces/raw",
                         "http://delving.eu/namespaces/raw/schema.xsd",
                         List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
-                        List.empty,
-                        FormatAccessControl()
+                        List.empty
                       )
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
+                    formatAccessControl = formatAccessControl,
                     idxMappings = List(dataSetForm.indexingMappingPrefix)
                   )
                 )

@@ -118,7 +118,7 @@ object CMS extends OrganizationController {
   def pageSubmit(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        CMSPageViewModel.pageForm.bindFromRequest.fold(
+        CMSPageViewModel.pageForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           pageModel => {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.

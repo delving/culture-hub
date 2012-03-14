@@ -62,23 +62,9 @@ May not be a problem but we need to check if there are any items live.
       db.Datasets.save(ds);
     })
 
-13.03.2012 - AccessKey implementation
-
-   var publicAccess = {
-     "_typeHint" : "models.FormatAccessControl",
-     "accessType" : "public"
-   }
-
-    db.Datasets.update({}, {$set: {"details.metadataFormat.access": publicAccess}}, false, true)
+14.03.2012 - AccessKey implementation
 
     db.Datasets.find().forEach(function(ds) {
-      for(var key in ds.mappings) {
-        if(ds.mappings.hasOwnProperty(key)) {
-          print(key);
-          var mapping = ds.mappings[key];
-          mapping.format.access = publicAccess;
-          ds.mappings[key] = mapping;
-        }
-      }
+      ds.formatAccessControl = {};
       db.Datasets.save(ds);
     })

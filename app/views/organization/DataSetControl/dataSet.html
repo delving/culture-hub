@@ -45,9 +45,30 @@ isOwner: isOwner /}
                 </div>
                 <div class="g-1of2">
                     <h3>Target Record Definitions</h3>
-                    #{list recordDefinitions, as: 'recordDef'}
-                    #{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}
-                    #{/list}
+                    <table>
+                        <thead><th>Record Definition</th><th>OAI-PMH Access</th></thead>
+                        <tbody>
+                        #{list recordDefinitions, as: 'recordDef'}
+                        <tr>
+                            <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
+                            <td align="left">
+                                <span data-bind="visible: recordDefinitions().indexOf('${recordDef}') > -1">
+                                    <select id="oaiAccess-${recordDef}">
+                                        <option value="none">No access</option>
+                                        <option value="public">Public access</option>
+                                        <option value="protected">Protected access</option>
+                                    </select>
+                                    <span id="protected-${recordDef}" style="visibility: hidden;">
+                                        <label for="accessKey-${recordDef}">Access key</label>
+                                        <input type="text" id="accessKey-${recordDef}">
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+                        #{/list}
+                        </tbody>
+                    </table>
+
                     <h3>Indexing Mapping Record Definition</h3>
                     <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
                     <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
@@ -73,6 +94,63 @@ isOwner: isOwner /}
             });
 
             load(${data.raw()}, dataSetModel, null, function() {
+
+                // set initial state of visible oai-pmh access control settings
+                $.each(dataSetModel.oaiPmhAccess(), function(index, access) {
+                    $('#oaiAccess-' + access.format()).val(access.accessType());
+                    if(access.accessType() == 'protected') {
+                        $('#accessKey-' + access.format()).val(access.accessKey());
+                        $('#protected-' + access.format()).css('visibility', 'visible');
+                    }
+                });
+
+                // listen to oaiPmh accessType changes
+                $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
+                    $('#oaiAccess-' + prefix).change(function() {
+                        var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
+                        var selectedValue = $('#oaiAccess-' + prefix).val();
+
+                        if(selectedValue == "protected") {
+                            $('#protected-' + prefix).css('visibility', 'visible');
+                        } else {
+                            $('#protected-' + prefix).css('visibility', 'hidden');
+                        }
+
+                        if(access.length > 0) {
+                            access[0].accessType(selectedValue);
+                        } else {
+                            access[0] = {
+                                format: ko.observable(prefix),
+                                accessType: ko.observable(selectedValue)
+                            }
+                        }
+                        dataSetModel.oaiPmhAccess.push(access[0]);
+                    });
+                });
+
+                // do the same thing for the accessKeys
+                $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
+                    $('#accessKey-' + prefix).change(function() {
+                        var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
+                        var accessKeyValue = $('#accessKey-' + prefix).val();
+
+                        if(access.length > 0) {
+                            access[0].accessKey = ko.observable(accessKeyValue);
+                        } else {
+                            access[0] = {
+                                format: ko.observable(prefix),
+                                accessType: ko.observable("protected"),
+                                accessKey: ko.observable(accessKeyValue)
+                            }
+                        }
+                        dataSetModel.oaiPmhAccess.push(access[0]);
+
+
+                    });
+                });
+
+
+
                 $("body").css('visibility', 'visible');
             });
         });

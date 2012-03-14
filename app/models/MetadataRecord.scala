@@ -41,6 +41,8 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hash: Map[String, String] // the hash for each field, for duplicate detection
                          ) {
 
+  def pmhId = hubId.replaceAll("_", ":")
+
   def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
 
   def getXmlString(metadataPrefix: String = "raw"): String = {
@@ -49,6 +51,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
     } else if (mappedMetadata.contains(metadataPrefix)) {
 
       // welcome to the mad world of working around some mongo/casbah/salat limitation
+
 
       // we store the mappings in a Map[String, Map[String, List[String]]]
       // so for one prefix we should get back a Map[String, List[String]]

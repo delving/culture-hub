@@ -109,7 +109,7 @@ object Groups extends OrganizationController {
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
           Forbidden(Messages("user.secured.noAccess"))
         } else {
-          GroupViewModel.groupForm.bindFromRequest.fold(
+          GroupViewModel.groupForm.bind(request.body.asJson.get).fold(
             formWithErrors => handleValidationError(formWithErrors),
             groupModel => {
 

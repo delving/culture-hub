@@ -59,7 +59,6 @@ object Collection {
     }
   }
 
-
   def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): Seq[RecordDefinition] = {
     val dataSets = DataSet.findAll(orgId)
     val virtualCollections = VirtualCollection.findAll(orgId)
