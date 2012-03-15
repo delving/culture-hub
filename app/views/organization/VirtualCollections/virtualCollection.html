@@ -29,8 +29,8 @@
             label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false /}
-            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.includeTerm'), dataBind:"value: includeTerm", required: false /}
-            #{textField name:"excludeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludeTerm'), dataBind:"value: excludeTerm", required: false /}
+            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: freeFormQuery", required: false /}
+            #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
             <div class="buttons">
                 #{btnButton label: "Preview", extraClass:"action fright", id:"previewButton", type:"button" /}
             </div>
@@ -108,18 +108,18 @@
 
         load(${data.raw()}, virtualCollectionModel, document.getElementById('virtualCollectionForm'), function () {
             if (virtualCollectionModel.hasOwnProperty("id")) {
-                var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludeTerm').val());
+                var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
                 search(query, '${orgId}', 1);
             }
             $("body").css('visibility', 'visible');
         });
 
         $('#previewButton').click(function (event) {
-            var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludeTerm').val());
+            var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
             search(query, '${orgId}', 1);
         });
 
-        function composeQuery(dataSets, includeTerm, excludeTerm) {
+        function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
             if(dataSets) {
                 var dataSetList = dataSets.split(",");
@@ -130,14 +130,32 @@
                             dataSetCondition = dataSetCondition + '(';
                         }
                         dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim() + ' ';
-                        if(initial) {
+                        if(index == dataSetList.length - 1) {
                             dataSetCondition = dataSetCondition + ')';
                         }
                     }
                 });
             }
-
-            return (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '') + '"' + includeTerm + '" NOT "' + excludeTerm + '"';
+            var excludedIdentifiersCondition = "";
+            if(excludedIdentifiers) {
+                var excludedIdsList = excludedIdentifiers.split(",");
+                $.each(excludedIdsList, function(index, el) {
+                    if(el.length > 0) {
+                        var initial = excludedIdentifiersCondition.length == 0;
+                        if(initial) {
+                            excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
+                        }
+                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + el.trim() + '"';
+                        if(index < excludedIdsList.length - 1) {
+                            excludedIdentifiersCondition = excludedIdentifiersCondition + ' OR ';
+                        }
+                        if(index == excludedIdsList.length - 1) {
+                            excludedIdentifiersCondition = excludedIdentifiersCondition + ')';
+                        }
+                    }
+                });
+            }
+            return (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '')  + freeFormQuery + (excludedIdentifiersCondition.length > 0 ? ' NOT ' + excludedIdentifiersCondition : '');
         }
 
         function search(query, orgId, start) {

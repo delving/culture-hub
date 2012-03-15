@@ -41,7 +41,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
 case class DataSetReference(spec: String, orgId: String)
 
-case class VirtualCollectionQuery(dataSets: List[String], includeTerm: String, excludeTerm: String = "", excludeHubIds: List[String] = List.empty)
+case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty)
 
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,

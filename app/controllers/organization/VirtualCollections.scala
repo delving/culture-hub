@@ -52,7 +52,7 @@ object VirtualCollections extends OrganizationController {
 
         val viewModel = spec match {
           case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
-            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(","), vc.query.includeTerm, vc.query.excludeTerm))
+            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(", "), vc.query.excludeHubIds.mkString(","), vc.query.freeFormQuery))
             case None => None
           }
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
@@ -83,8 +83,8 @@ object VirtualCollections extends OrganizationController {
                       name = virtualCollectionForm.name,
                       query = VirtualCollectionQuery(
                         virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
-                        virtualCollectionForm.includeTerm,
-                        virtualCollectionForm.excludeTerm
+                        virtualCollectionForm.freeFormQuery,
+                        virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).toList
                       )
                     )
                     VirtualCollection.save(updated)
@@ -93,7 +93,8 @@ object VirtualCollections extends OrganizationController {
                     VirtualCollection.children.removeByParentId(id)
 
                     // create new virtual collection
-                    createVirtualCollectionFromQuery(id, virtualCollectionForm.includeTerm, theme) match {
+                    val query = composeQuery(virtualCollectionForm.dataSets, virtualCollectionForm.freeFormQuery, virtualCollectionForm.excludedIdentifiers)
+                    createVirtualCollectionFromQuery(id, query, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -109,14 +110,15 @@ object VirtualCollections extends OrganizationController {
                             orgId = orgId,
                             query = VirtualCollectionQuery(
                               virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
-                              virtualCollectionForm.includeTerm,
-                              virtualCollectionForm.excludeTerm
+                              virtualCollectionForm.freeFormQuery,
+                              virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).toList
                             ),
                             dataSetReferences = List.empty)
                 val id = VirtualCollection.insert(vc)
                 id match {
                   case Some(vcid) =>
-                    createVirtualCollectionFromQuery(vcid, virtualCollectionForm.includeTerm, theme) match {
+                    val query = composeQuery(virtualCollectionForm.dataSets, virtualCollectionForm.freeFormQuery, virtualCollectionForm.excludedIdentifiers)
+                    createVirtualCollectionFromQuery(vcid, query, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -131,9 +133,12 @@ object VirtualCollections extends OrganizationController {
     }
   }
 
-  private def composeQuery(dataSets: String, includeTerm: String, excludeTerm: String) = {
-    val specCondition = dataSets.split(",").map(s => "delving_spec:" + s.trim + " ")
-    specCondition + " " + includeTerm
+  private def composeQuery(dataSets: String, freeFormQuery: String, excludedIdentifiers: String) = {
+    val specCondition = dataSets.split(",").filterNot(_.isEmpty).map(s => "delving_spec:" + s.trim + " ").mkString(" ")
+    val excludedIdentifiersCondition = "NOT (" + excludedIdentifiers.split(",").map(s => "delving_hubId:\"" + s.trim + "\"").mkString(" OR ") + ")"
+    val query = specCondition + " " + freeFormQuery + " " + excludedIdentifiersCondition
+    Logger("CultureHub").debug("Composed query " + query)
+    query
   }
 
   private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme): Either[Throwable, String] = {
@@ -188,6 +193,7 @@ object VirtualCollections extends OrganizationController {
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     val hubIds = briefItemView.getBriefDocs.map(b => b.getHubId)
+    Logger("CultureHub").debug("Found ids " + hubIds)
     ids ++= hubIds
 
     if(briefItemView.getPagination.isNext) {
@@ -207,8 +213,8 @@ case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
                                       dataSets: String, // comma-separated list of spec names
-                                      includeTerm: String,
-                                      excludeTerm: String,
+                                      excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
+                                      freeFormQuery: String,
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
 object VirtualCollectionViewModel {
@@ -219,8 +225,8 @@ object VirtualCollectionViewModel {
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
       "dataSets" -> text,
-      "includeTerm" -> text,
-      "excludeTerm" -> text,
+      "excludedIdentifiers" -> text,
+      "freeFormQuery" -> text,
       "errors" -> of[Map[String, String]]
     )(VirtualCollectionViewModel.apply)(VirtualCollectionViewModel.unapply)
   )
