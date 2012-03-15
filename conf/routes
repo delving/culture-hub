@@ -92,9 +92,8 @@ GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(task
 #GET         /services/oai-pmh/{accessKey}                                    controllers.Services.oaipmhSecured
 
 # Custom Controllers and Functionality for customers
-# TODO maybe later change this to an action based mechanism
-#GET         /services/api/itin                                               custom.ItinEndPoint.search
-#POST        /services/api/itin                                               custom.ItinEndPoint.store
+GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
+POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store
 
 
 # User registration
