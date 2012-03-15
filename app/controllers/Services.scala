@@ -33,13 +33,24 @@ object Services extends DelvingController with HTTPClient {
   def searchApi(orgId: String) = Root {
     Action {
       implicit request =>
-        orgId.isEmpty match {
-          case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
-          case true => SearchService.getApiResult(request, theme)
-        }
+
+      val apiResult = orgId.isEmpty match {
+        case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
+        case true => SearchService.getApiResult(request, theme)
+      }
+
+      // CORS - see http://www.w3.org/TR/cors/
+      apiResult.withHeaders(
+        ("Access-Control-Allow-Origin" -> "*"),
+        ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+        ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+        ("Access-Control-Max-Age" -> "86400")
+      )
+
+
     }
   }
-  
+
   def solrSearchProxy = Root {
     Action {
       implicit request =>
@@ -81,11 +92,11 @@ object Services extends DelvingController with HTTPClient {
       }
   }
 
-//  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
-//      Action {
-//        implicit request =>
-//          val oaiPmhService = new OaiPmhService(request, accessKey)
-//          Ok(oaiPmhService.parseRequest).as(XML)
-//      }
-//  }
+  //  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
+  //      Action {
+  //        implicit request =>
+  //          val oaiPmhService = new OaiPmhService(request, accessKey)
+  //          Ok(oaiPmhService.parseRequest).as(XML)
+  //      }
+  //  }
 }

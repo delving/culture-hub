@@ -53,7 +53,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
     val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
 
-    // only retrieve records that have a valid mapping for this metadata
+    // only retrieve records that have a valid mapping for this metadata format
     val records = DataSet.getRecords(dataSet).find(MongoDBObject("validOutputFormats" -> metadataFormatForIndexing))
     DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)

@@ -21,13 +21,12 @@ import util.Constants._
 import exceptions.AccessKeyException
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
-import play.api.mvc.{RequestHeader, Result}
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
 import xml.Elem
 import play.api.Logger
 import collection.immutable.ListMap
-import net.liftweb.json.JsonAST
+import play.api.mvc.{PlainResult, RequestHeader}
 
 /**
  *
@@ -36,7 +35,7 @@ import net.liftweb.json.JsonAST
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): Result =
+  def getApiResult(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): PlainResult =
     new SearchService(request, theme, hiddenQueryFilters).getApiResult
 
 
@@ -60,7 +59,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
    * This function parses the response for with output format needs to be rendered
    */
 
-  def getApiResult: Result = {
+  def getApiResult: PlainResult = {
 
     val response = try {
       if (theme.apiWsKey) {
@@ -90,7 +89,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     response
   }
 
-  def getJSONResultResponse(authorized: Boolean = true, callback: String = ""): Result = {
+  def getJSONResultResponse(authorized: Boolean = true, callback: String = ""): PlainResult = {
 
     import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
@@ -110,7 +109,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
 
   }
 
-  def getXMLResultResponse(authorized: Boolean = true): Result = {
+  def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
     import xml.Elem
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
@@ -146,7 +145,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
 
 
   def errorResponse(error: String = "Unable to respond to the API request",
-                    errorMessage: String = "Unable to determine the cause of the Failure", format: String = "xml"): Result = {
+                    errorMessage: String = "Unable to determine the cause of the Failure", format: String = "xml"): PlainResult = {
 
     def toXML: String = {
       val response =
@@ -176,7 +175,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     response
   }
 
-  def getSimileResultResponse(callback : String = "") : Result  = {
+  def getSimileResultResponse(callback : String = "") : PlainResult  = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.{Extraction, Printer}
     import collection.immutable.ListMap
