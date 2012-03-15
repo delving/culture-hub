@@ -1,6 +1,6 @@
 import java.io.File
 import org.specs2.mutable._
-import play.api.mvc.AnyContent
+import play.api.mvc.{Result, AsyncResult, AnyContent}
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.Play
@@ -16,6 +16,8 @@ import xml.XML
 
 class ItinEndPointSpec extends Specification with Cleanup {
 
+  def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
+  
   "ItinEndPoint" should {
 
     "Store XML post" in {
@@ -29,7 +31,7 @@ class ItinEndPointSpec extends Specification with Cleanup {
           body = XML.loadString(scala.io.Source.fromFile(new File(Play.application.path, "test/resource/xmlpost1320334216.xml")).getLines().mkString("\n"))
         )
 
-        val result = controllers.custom.ItinEndPoint.store()(fakeRequest)
+        val result = asyncToResult(controllers.custom.ItinEndPoint.store()(fakeRequest))
         status(result) must equalTo(OK)
 
         contentAsString(result) must contain("success")

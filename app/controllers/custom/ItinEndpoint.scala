@@ -17,12 +17,15 @@ package controllers.custom
  */
 
 import core.search.SearchService
+import play.api.Play
+import play.api.Play.current
 import collection.JavaConverters._
-import play.api.mvc.{Action}
 import core.ThemeAware
 import play.api.Logger
 import controllers.DelvingController
 import models.{DrupalEntity, StoreResponse}
+import play.api.mvc.{Action}
+import play.api.libs.concurrent.Promise
 
 /**
  *
@@ -35,34 +38,50 @@ object ItinEndPoint extends DelvingController with ThemeAware {
   def search =
     Action {
       implicit request =>
-        SearchService.getApiResult(request, theme)
+        if (!enabled) {
+          Status(NOT_FOUND)
+        } else {
+          SearchService.getApiResult(request, theme)
+        }
     }
 
-  def store = Root {
-    Action(parse.tolerantXml) {
-      implicit request => {
+  def store: Action[scala.xml.NodeSeq] = Action(parse.tolerantXml) {
+    implicit request => {
+      Async {
 
-        val xmlResponse = try {
+        if (!enabled) {
+          Promise.pure().map {
+            response => Status(NOT_FOUND)
+          }
+        } else {
+          Promise.pure {
+            val xmlResponse = try {
               val response: StoreResponse = DrupalEntity.processStoreRequest(request.body)((item, list) => DrupalEntity.insertInMongoAndIndex(item, list))
               StoreResponse(response.itemsParsed, response.coRefsParsed)
-        }
-        catch {
-          case ex: Exception =>
-            Logger.error("Problem with the posted xml file", ex)
-            StoreResponse(success = false, errorMessage = "Unable to receive the xml-file from the POST")
-        }
+            } catch {
+              case ex: Exception =>
+                Logger.error("Problem with the posted xml file", ex)
+                StoreResponse(success = false, errorMessage = "Unable to receive the xml-file from the POST")
+            }
 
-        val responseString =
-          <response recordsProcessed={xmlResponse.itemsParsed.toString} linksProcessed={xmlResponse.coRefsParsed.toString}>
-            <status>
-              {if (xmlResponse.success) "succcess" else "failure"}
-            </status>{if (!xmlResponse.errorMessage.isEmpty) <error>
-            {xmlResponse.errorMessage}
-          </error>}
-          </response>
-        Ok(responseString.toString())
+            <response recordsProcessed={xmlResponse.itemsParsed.toString} linksProcessed={xmlResponse.coRefsParsed.toString}>
+              <status>
+                {if (xmlResponse.success) "success" else "failure"}
+              </status>{if (!xmlResponse.errorMessage.isEmpty) <error>
+              {xmlResponse.errorMessage}
+            </error>}
+            </response>
+          } map {
+            response => Ok(response.toString()).as(XML)
+
+          }
+        }
       }
     }
+
   }
+
+
+  private def enabled: Boolean = Play.configuration.getString("cultureHub.additionalModules").getOrElse(return false).split(",").map(_.trim).contains("itin")
 
 }
