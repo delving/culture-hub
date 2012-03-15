@@ -7,43 +7,54 @@
 
 h4.trigger
 {
-	background: #fff url(/assets/common/stylesheets/facets/togglerch.gif) no-repeat 98% 50%;
-	border-bottom:1px solid #ccc;
+    background: #fff url(/assets/common/stylesheets/facets/togglerch.gif) no-repeat 98% 50%;
+    border-bottom:1px solid #ccc;
     font-family: Arial;
     font-weight: normal;
-	font-size:100%;
-	margin:0;
-	/*padding:5px 0 5px 25px;*/
-	padding:8px;
+    font-size:100%;
+    margin:0;
+    /*padding:5px 0 5px 25px;*/
+    padding:8px;
     cursor: pointer;
     /*color: #336699;*/
 }
 
 h4.trigger:hover {
-   background: #fff url(/assets/common/stylesheets/facets/togglerc.gif) no-repeat 98% 50%;
+    background: #fff url(/assets/common/stylesheets/facets/togglerc.gif) no-repeat 98% 50%;
     color: #555;
     text-decoration: underline;
 }
 
 h4.trigger.active {
-   background: #fff url(/assets/common/stylesheets/facets/toggleroh.gif) no-repeat 98% 50%;
+    background: #fff url(/assets/common/stylesheets/facets/toggleroh.gif) no-repeat 98% 50%;
 }
 
 h4.trigger.active:hover {
-   background: #fff url(/assets/common/stylesheets/facets/togglero.gif) no-repeat 98% 50%;
+    background: #fff url(/assets/common/stylesheets/facets/togglero.gif) no-repeat 98% 50%;
 }
 
 .facet-container
 {
-	/*background:#f2f7f8;*/
-	border-bottom:1px solid #ddddd0;
-	clear:both;
-	margin:0;
-	max-height:185px;
-	overflow-x:hidden;
-	overflow-y:auto;
-	padding:5px 0;
+    background:#f2f7f8;
+    border-bottom:1px solid #ddddd0;
+    clear:both;
+    margin:0;
+    max-height:185px;
+    overflow-x:hidden;
+    overflow-y:auto;
+    padding:5px 2px 5px 10px;
     font-size: smaller;
+}
+
+.facet-container div {
+    display: table-row;
+}
+.facet-container input[type="checkbox"] {
+    display: table-cell;
+    margin-right: 5px;
+}
+.facet-container span {
+    display: table-cell;
 }
 
 .facets .widget .bd {
