@@ -311,7 +311,7 @@ object SipCreatorEndPoint extends ApplicationController {
           for (record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
             pw.println("<input>")
             pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
-            pw.print(record.getXmlString())
+            pw.print(record.getRawXmlString)
             pw.println("</input>")
 
             if (count % 100 == 0) {

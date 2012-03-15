@@ -15,7 +15,7 @@ import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
 
-class SipCreatorEndPointSpec extends Specification with Cleanup {
+class SipCreatorEndPointSpec extends Specification with TestData {
 
   "SipCreatorEndPoint" should {
 

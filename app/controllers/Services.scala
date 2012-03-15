@@ -71,10 +71,10 @@ object Services extends DelvingController with HTTPClient {
     }
   }
 
-  def oaipmh(orgId: String = "delving") = Action {
+  def oaipmh(orgId: String, accessKey: Option[String]) = Action {
     implicit request =>
       Async {
-        val oaiPmhService = new OaiPmhService(request = request, orgId = orgId)
+        val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, accessKey)
         Promise.pure(oaiPmhService.parseRequest).map {
           response => Ok(response).as(XML)
         }

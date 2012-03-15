@@ -1,0 +1,43 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('thing.virtualCollection') + ' ' + name + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+#{set bodyId: 'organization' /}
+
+#{breadcrumbs theme: themeInfo.getTheme() /}
+
+<div class="row">
+    #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+</div>
+
+<div class="row">
+    <div class="grid_12">
+        <div class="sub-panel clearfix">
+            #{vcNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="grid_12">
+        <h1>&{'thing.virtualCollection'} "${name}"</h1>
+
+        <div class="info-box">
+            <span class="label">&{'ui.label.identifier'}</span>
+            <span class="text">${spec}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">&{'thing.name'}</span>
+            <span class="text">${name}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">&{'thing.datasets'}</span>
+            <span class="text">#{list dataSets, as: 'ds'}<a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a>#{/list}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">&{'ui.label.nritems'}</span>
+            <span class="text">${recordCount}</span>
+        </div>
+
+    </div>
+</div>
+
+

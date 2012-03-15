@@ -1,4 +1,6 @@
-.pagination a, .pagination span {
+/*.pagination a, .pagination span {*/
+
+.pagination a, .pagination span:not([data-bind]) {
     background:  #fff;
     background: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1) repeat scroll 0 0 transparent;
     border: 1px solid rgba(0, 0, 0, 0.1);

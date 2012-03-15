@@ -16,14 +16,12 @@
 
 package controllers
 
-import play.mvc.Controller
 import notifiers.Mails
 import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
 import play.api.mvc.{RequestHeader, Results, Result}
 import models.PortalTheme
-import core.ThemeAware
 
 /**
  * Unified logging for controllers

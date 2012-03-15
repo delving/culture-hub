@@ -28,11 +28,21 @@ import play.api.Play.current
 
 case class RecordDefinition(prefix: String,
                             schema: String,
-                            namespace: String,
-                            accessKeyRequired: Boolean = false,
-                            roles: List[Role] = List.empty)
+                            namespace: String,              // the namespace of the format
+                            allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
+                            roles: List[Role] = List.empty  // roles that are described in the RecordDefinition
+                            )
+
+case class Namespace(prefix: String, uri: String, schema: String)
 
 case class Role(key: String, description: String, prefix: String)
+
+case class FormatAccessControl(accessType: String = "none", accessKey: Option[String] = None) {
+  def hasAccess(key: Option[String]) = isPublicAccess || (isProtectedAccess && key != None && accessKey == key)
+  def isPublicAccess = accessType == "public"
+  def isProtectedAccess = accessType == "protected"
+  def isNoAccess = accessType == "none"
+}
 
 object RecordDefinition {
 
@@ -57,13 +67,21 @@ object RecordDefinition {
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
+
+    val allNamespaces = (node \ "namespaces" \ "namespace").map(
+      n => Namespace(
+        n.attribute("prefix").get.text,
+        n.attribute("uri").get.text,
+        n.attribute("schema").get.text
+      )).toList
+
     val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
     Some(
       RecordDefinition(
         recordDefinitionNamespace \ "@prefix" text,
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
-        false,
+        allNamespaces,
         roles
       )
     )

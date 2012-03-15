@@ -11,6 +11,7 @@ application.secret=
 
 application.langs="en"
 
+mail.smtp.type=smtp
 mail.smtp.host=mx2.hostice.net
 
 ### Global CultureHub settings

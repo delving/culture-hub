@@ -18,16 +18,14 @@ package core.opendata
 
 import java.text.SimpleDateFormat
 import java.util.Date
+import models._
 import exceptions._
-import play.api.mvc.RequestHeader
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
-import models.{DataSet, MetadataRecord}
-import com.mongodb.casbah.Imports._
-import com.novus.salat.dao.SalatMongoCursor
-import play.api.{Logger, Play}
+import play.api.Logger
 import xml.{PrettyPrinter, Elem}
 import org.apache.commons.lang.StringEscapeUtils
+import models.{Namespace, RecordDefinition, MetadataRecord}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -51,21 +49,20 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: String = "delving") extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, accessKey: Option[String]) extends MetaConfig {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(200, 5)
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
-  val params = Params(request.queryString)
+  val params = Params(queryString)
 
   /**
    * receive an HttpServletRequest with the OAI-PMH parameters and return the correctly formatted xml as a string.
    */
 
   def parseRequest : String = {
-    import models._
 
     if (!isLegalPmhRequest(params)) return createErrorResponse("badArgument").toString()
 
@@ -123,10 +120,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="Identify">{getRequestURL}</request>
+      <request verb="Identify">{requestURL}</request>
       <Identify>
         <repositoryName>{repositoryName}</repositoryName>
-        <baseURL>{getRequestURL}</baseURL>
+        <baseURL>{requestURL}</baseURL>
         <protocolVersion>2.0</protocolVersion>
         <adminEmail>{adminEmail}</adminEmail>
         <earliestDatestamp>{earliestDateStamp}</earliestDatestamp>
@@ -150,23 +147,22 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
     // todo add checking for accessKeys and see if is valid
-    val dataSets = DataSet.findAll(false)
+    val collections = models.Collection.findAll(orgId, None)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
-    if (dataSets.size == 0) return createErrorResponse("noSetHierarchy")
+    if (collections.size == 0) return createErrorResponse("noSetHierarchy")
 
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request verb="ListSets">{getRequestURL}</request>
+      <request verb="ListSets">{requestURL}</request>
       <ListSets>
-        { for (set <- dataSets) yield
+        { for (set <- collections) yield
         <set>
           <setSpec>{set.spec}</setSpec>
-          <setName>{set.details.name}</setName>
+          <setName>{set.name}</setName>
         </set>
         }
       </ListSets>
@@ -178,8 +174,6 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
    */
 
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
-
     val eseSchema =
       <metadataFormat>
         <metadataPrefix>ese</metadataPrefix>
@@ -192,11 +186,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val identifierSpec = identifier.split(":").head
 
     // otherwise only list the formats available for the identifier
-    val hasAccessKey: Boolean = pmhRequestEntry.pmhRequestItem.accessKey.isEmpty
-    val metadataFormats = if (identifier.isEmpty) DataSet.getMetadataFormats(false) else DataSet.getMetadataFormats(identifierSpec, pmhRequestEntry.pmhRequestItem.accessKey)
+    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
 
-    def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{getRequestURL}</request>
-    else <request verb="ListMetadataFormats">{getRequestURL}</request>
+    def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{requestURL}</request>
+    else <request verb="ListMetadataFormats">{requestURL}</request>
 
     val elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -221,16 +214,21 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
   def processListRecords(pmhRequestEntry: PmhRequestEntry, idsOnly: Boolean = false) : Elem = {
 
     val setName = pmhRequestEntry.getSet
+    if(setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
-    val dataSet: DataSet = DataSet.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    val records: SalatMongoCursor[MetadataRecord] = DataSet.getRecords(dataSet).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt pmhRequestEntry.getLastTransferIdx) )).sort(MongoDBObject("transferIdx" -> 1)).limit(pmhRequestEntry.recordsReturned)
+    val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
+      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
+    }
+    val records: List[MetadataRecord] = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    val totalValidRecords = records.count
+    val totalValidRecords = records.size
+    // FIXME these head calls blow up if there are no records
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
-    var elem: Elem = if (!idsOnly) {
+    val elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
@@ -238,7 +236,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         </responseDate>
         <request verb="ListRecords" from={from} until={to}
                  metadataPrefix={metadataFormat}>
-          {getRequestURL}
+          {requestURL}
         </request>
         <ListRecords>
           {for (record <- recordList) yield
@@ -249,12 +247,11 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     }
     else {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>{currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
                  metadataPrefix={metadataFormat}
-                 set={setName}>{getRequestURL}</request>
+                 set={setName}>{requestURL}</request>
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
@@ -267,17 +264,13 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
         </ListIdentifiers>
       </OAI-PMH>
     }
+  
+      prependNamespaces(metadataFormat, collection, elem)
 
-    for (entry <- dataSet.namespaces) {
-      import xml.{Null, UnprefixedAttribute}
-      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
-    }
 
-    elem
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
@@ -285,33 +278,30 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    // TODO accessKey check should be done here
     val record: MetadataRecord = {
-      val mdRecord = DataSet.getRecord(identifier, metadataFormat) // , pmhRequest.accessKey
+      val mdRecord = MetadataRecord.getMDR(identifier, metadataFormat, accessKey)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
 
+    val collection = models.Collection.findBySpecAndOrgId(identifier.split(":")(1), identifier.split(":")(0)).get
+
     val elem: Elem =
-      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
           {currentDate}
         </responseDate>
         <request verb="GetRecord" identifier={identifier}
                  metadataPrefix={metadataFormat}>
-          {getRequestURL}
+          {requestURL}
         </request>
         <GetRecord>
-          {renderRecord(record, metadataFormat, identifier.split(":").head)}
+          {renderRecord(record, metadataFormat, identifier.split(":")(1))}
         </GetRecord>
       </OAI-PMH>
-    // todo enable later again
-//    for (entry <- dataSet.namespaces) {
-//      import xml.{Null, UnprefixedAttribute}
-//      elem = elem % new UnprefixedAttribute("xmlns:" + entry._1.toString, entry._2, Null)
-//    }
-    elem
+
+    prependNamespaces(metadataFormat, collection, elem)
   }
 
   // todo find a way to not show status namespace when not deleted
@@ -319,14 +309,14 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
 
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
-    val recordAsString = record.getXmlStringAsRecord(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val recordAsString = "<record>%s</record>".format(record.getCachedTransformedRecord(metadataPrefix)).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString))
       <record>
         <header>
-          <identifier>{set}:{record._id}</identifier>
+          <identifier>{record.pmhId}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
@@ -341,11 +331,24 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     }
     response
   }
+  
+  private def prependNamespaces(metadataFormat: String, collection: Collection, elem: Elem): Elem = {
+
+    var mutableElem = elem
+
+    val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
+    val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
+
+    for (ns <- (formatNamespaces ++ globalNamespaces)) {
+      import xml.{Null, UnprefixedAttribute}
+      mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+    }
+    mutableElem
+  }
+  
 
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
     def getParam(key: String) = params.getValueOrElse(key, "")
-
-    val accessKeyParam : String = if (accessKey.isEmpty) getParam("accessKey") else accessKey
 
     val pmh = PmhRequestItem(
       verb,
@@ -353,13 +356,10 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
       getParam("from"),
       getParam("until"),
       getParam("metadataPrefix"),
-      getParam("identifier"),
-      accessKeyParam
+      getParam("identifier")
     )
     PmhRequestEntry(pmh, getParam("resumptionToken"))
   }
-
-  def getRequestURL = "%s".format(request.uri)
 
   /**
    * This method is used to create all the OAI-PMH error responses to a given OAI-PMH request. The error descriptions have
@@ -367,8 +367,6 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
    */
   def createErrorResponse(errorCode: String, exception : Exception): Elem = {
     log.error(errorCode, exception)
-    println(exception.getStackTraceString)
-    println(exception.getMessage)
     createErrorResponse(errorCode)
   }
 
@@ -377,7 +375,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
       <responseDate>{currentDate}</responseDate>
-      <request>{getRequestURL}</request>
+      <request>{requestURL}</request>
       {errorCode match {
       case "badArgument" => <error code="badArgument">The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.</error>
       case "badResumptionToken" => <error code="badResumptionToken">The value of the resumptionToken argument is invalid or expired.</error>
@@ -392,7 +390,7 @@ class OaiPmhService(request: RequestHeader, accessKey: String = "", orgId: Strin
     </OAI-PMH>
   }
 
-  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String, accessKey: String)
+  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String)
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 

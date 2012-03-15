@@ -1,0 +1,13 @@
+.resultItem {
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ccc;
+}
+
+.resultItem .bd {
+    font-size: smaller;
+}
+
+#resultPagination .current {
+    font-weight: bold;
+    background: #fffff0;
+}
