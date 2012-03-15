@@ -271,7 +271,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    import models.DataSet
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
@@ -280,7 +279,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val metadataFormat = pmhRequest.metadataPrefix
 
     val record: MetadataRecord = {
-      val mdRecord = DataSet.getRecord(identifier, metadataFormat, accessKey)
+      val mdRecord = MetadataRecord.getMDR(identifier, metadataFormat, accessKey)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -310,7 +309,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
-    val recordAsString = record.getXmlStringAsRecord(metadataPrefix).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val recordAsString = "<record>%s</record>".format(record.getCachedTransformedRecord(metadataPrefix)).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML

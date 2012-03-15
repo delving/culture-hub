@@ -137,7 +137,7 @@ object TestDataLoader {
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
       mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head)),
-      formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "private"), "icn" -> FormatAccessControl(accessType = "public"))
+      formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "public"), "icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
 

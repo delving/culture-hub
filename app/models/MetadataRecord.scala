@@ -17,15 +17,16 @@
 package models
 
 import com.mongodb.casbah.Imports._
+import exceptions.{MappingNotFoundException, InvalidIdentifierException, RecordNotFoundException}
 import org.bson.types.ObjectId
 import java.util.Date
-import exceptions.RecordNotFoundException
 import models.mongoContext._
 import com.novus.salat.grater
 import util.Constants._
 import com.novus.salat.dao.SalatDAO
-import com.mongodb.{WriteConcern, BasicDBList, DBObject}
-import core.search.{SolrBindingService, SolrQueryService}
+import com.mongodb.{WriteConcern, BasicDBList}
+import core.search.{SolrBindingService}
+import core.mapping.MappingService
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
@@ -39,19 +40,20 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
                           links: List[EmbeddedLink] = List.empty[EmbeddedLink],
                           globalHash: String, // the hash of the raw content
                           hash: Map[String, String] // the hash for each field, for duplicate detection
-                         ) {
+                           ) {
 
   def pmhId = hubId.replaceAll("_", ":")
 
   def getUri(orgId: String, spec: String) = "http://%s/%s/object/%s/%s".format(getNode, orgId, spec, localRecordKey)
 
-  def getXmlString(metadataPrefix: String = "raw"): String = {
+  def getRawXmlString = rawMetadata("raw")
+
+  def getCachedTransformedRecord(metadataPrefix: String): String = {
     if (rawMetadata.contains(metadataPrefix)) {
       rawMetadata.get(metadataPrefix).get
     } else if (mappedMetadata.contains(metadataPrefix)) {
 
       // welcome to the mad world of working around some mongo/casbah/salat limitation
-
 
       // we store the mappings in a Map[String, Map[String, List[String]]]
       // so for one prefix we should get back a Map[String, List[String]]
@@ -75,13 +77,9 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
             output
         }
       }
-    }
-    else
+    } else {
       throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
-  }
-
-  def getXmlStringAsRecord(metadataPrefix: String = "raw"): String = {
-    "<record>%s</record>".format(getXmlString(metadataPrefix))
+    }
   }
 
   def getDefaultAccessor = {
@@ -94,9 +92,9 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
     val map = mappedMetadata(prefix)
     new MultiValueMapMetadataAccessors(hubId, map)
   }
-  
+
   // ~~~ linked meta-data
-  
+
   def linkedUserCollections: Seq[String] = links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID))
 
 }
@@ -110,18 +108,49 @@ object MetadataRecord {
   }
 
   def getMDR(hubCollection: String, hubId: String) = connection(hubCollection).findOne(MongoDBObject(MDR_HUB_ID -> hubId)).map(grater[MetadataRecord].asObject(_))
-  
+
   def getMDRs(hubCollection: String, hubIds: Seq[String]): List[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_)).toList
+
+  def getMDR(hubId: String, metadataFormat: String, accessKey: Option[String]): Option[MetadataRecord] = {
+    if (hubId.split(":").length != 3)
+      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(hubId))
+    val Array(orgId, spec, localRecordKey) = hubId.split(":")
+    val ds: Option[DataSet] = DataSet.findBySpecAndOrgId(spec, orgId)
+    if (ds == None) return None
+
+    // can we have access?
+    if (!ds.get.formatAccessControl.get(metadataFormat).map(_.hasAccess(accessKey)).getOrElse(false)) {
+      return None
+    }
+
+    val record: Option[MetadataRecord] = DataSet.getRecords(ds.get).findOne(MongoDBObject("localRecordKey" -> localRecordKey))
+    if (record == None) {
+      None
+    } else if (record.get.rawMetadata.contains(metadataFormat)) {
+      record
+    } else {
+      val mappedRecord = record.get
+      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
+
+      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
+    }
+  }
+
+  def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): Map[String, List[String]] = {
+    val mapping = dataSet.mappings.get(prefix)
+    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
+    MappingService.transformXml(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), dataSet.namespaces)
+  }
 
   def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
     val collectionName = DataSet.getRecordsCollectionName(orgIdSpec._1, orgIdSpec._2)
-    getAccessors(collectionName, hubIds : _ *)
+    getAccessors(collectionName, hubIds: _ *)
   }
 
   def getAccessors(hubCollection: String, hubIds: String*): List[_ <: MetadataAccessors] = {
     val mdrs: Iterator[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_))
     mdrs.map(mdr =>
-      if(!mdr.mappedMetadata.isEmpty) {
+      if (!mdr.mappedMetadata.isEmpty) {
         Some(mdr.getDefaultAccessor)
       } else {
         None
@@ -139,6 +168,7 @@ class MultiValueMapMetadataAccessors(hubId: String, dbo: Map[String, List[String
   }
 
   override def getHubId = hubId
+
   override def getRecordType = _root_.util.Constants.MDR
 }
 

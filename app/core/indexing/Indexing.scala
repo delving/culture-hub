@@ -68,7 +68,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
             DataSet.updateIndexingCount(dataSet, records.numSeen)
             state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
-          val mapped: Option[IndexDocument] = Option(engine.executeMapping(record.getXmlString()))
+          val mapped: Option[IndexDocument] = Option(engine.executeMapping(record.getRawXmlString))
 
           mapped match {
             case Some(mappedDocument) =>
@@ -127,7 +127,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         val mapping = dataSet.mappings.get(dataSet.getIndexingMappingPrefix.getOrElse(""))
         if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"))
         val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, play.api.Play.classloader, MappingService.metadataModel)
-        val mapped = Option(engine.executeMapping(mdr.getXmlString()))
+        val mapped = Option(engine.executeMapping(mdr.getRawXmlString))
         indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))
       case None =>
         Logger("CultureHub").warn("Could not index MDR")

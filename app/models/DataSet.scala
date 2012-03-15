@@ -299,46 +299,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     CollectionMDR
   }
 
-  /**
-   * identifier = orgId:spec:localRecordKey
-   *
-   * this entails that orgIds, specs and localRecordKey-s never change
-   */
-  def getRecord(identifier: String, metadataFormat: String, accessKey: Option[String]): Option[MetadataRecord] = {
-    if(identifier.split(":").length != 3)
-      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(identifier))
-    val Array(orgId, spec, localRecordKey) = identifier.split(":")
-    val ds: Option[DataSet] = findBySpecAndOrgId(spec, orgId)
-    if(ds == None) return None
-
-    // can we haz access?
-    if(!ds.get.formatAccessControl.get(metadataFormat).map(_.hasAccess(accessKey)).getOrElse(false)) {
-      return None
-    }
-
-    val record: Option[MetadataRecord] = getRecords(ds.get).findOne(MongoDBObject("localRecordKey" -> localRecordKey))
-    if(record == None) return None
-    record
-
-
-//    if (record.get.rawMetadata.contains(metadataFormat))
-//      record
-//    else {
-//      val mappedRecord = record.get
-//      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
-//
-//      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
-//    }
-  }
-
-  def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
-    val mapping = dataSet.mappings.get(prefix)
-    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, Play.classloader, MappingService.metadataModel)
-    val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
-    mappedRecord
-  }
-
   // ~~~ indexing control
 
   def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
