@@ -133,7 +133,7 @@
                                 </form>
                                 #{/if}
 
-                                #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
+                                #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.PROCESSING().name()}
                                 <div id="#indexCounter${i.spec}"></div>
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
                                     #{authenticityToken /}
@@ -149,7 +149,7 @@
                                         minTimeout: 2000
                                     }, function (data) {
                                         var d = $.parseJSON(data);
-                                        if (d.state == '${models.DataSetState.INDEXING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
+                                        if (d.state == '${models.DataSetState.PROCESSING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
                                             // yadaaa
                                             document.location = "/organizations/${orgId}/dataset";
                                         }
@@ -157,7 +157,7 @@
                                 </script>
                                 #{/if}
 
-                                #{if i.state.name() == models.DataSetState.INDEXING().name()}
+                                #{if i.state.name() == models.DataSetState.PROCESSING().name()}
                                 <div id="indexCounter${i.spec}"></div>
                                 <script type="text/javascript">
                                     $('#indexCounter${i.spec}').progressbar();
@@ -188,6 +188,7 @@
                                     <button class="button action complete invalidate"><span class="label">&{'dataset.invalidate'}</span></button>
                                 </form>
                                 #{/if}
+
 
                             #{/if}
                             </div>

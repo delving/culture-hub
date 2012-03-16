@@ -2,18 +2,12 @@
 <fact-definition-list>
     <fact-definition name="spec">
         <prompt>Data Set Spec</prompt>
-        <toolTip>The reference identifier of this data set, without spaces.</toolTip>
-        <automatic>true</automatic>
-        <!--this is not used as a default-->
     </fact-definition>
     <fact-definition name="name">
         <prompt>Name</prompt>
-        <toolTip>The name given to this data set.  </toolTip>
-        <!--this is not used as a default-->
     </fact-definition>
     <fact-definition name="language">
         <prompt>Language</prompt>
-        <toolTip>Which lingo?</toolTip>
         <options>
             <string>az</string>
             <string>bg</string>
@@ -56,7 +50,6 @@
     </fact-definition>
     <fact-definition name="country">
         <prompt>Country</prompt>
-        <toolTip>Which land?</toolTip>
         <options>
             <string>former yugoslav republic of macedonia</string>
             <string>albania</string>
@@ -107,15 +100,12 @@
     </fact-definition>
     <fact-definition name="provider">
         <prompt>Provider</prompt>
-        <toolTip>Either the original data provider or the aggregator</toolTip>
     </fact-definition>
     <fact-definition name="dataProvider">
         <prompt>Data Provider</prompt>
-        <toolTip>The original provider of the data, who actually owns the data</toolTip>
     </fact-definition>
     <fact-definition name="rights">
         <prompt>Rights</prompt>
-        <toolTip>What can you do with it? See http://version1.europeana.eu/c/document_library/get_file?uuid=06e63d96-0358-4be8-9422-d63df3218510&amp;groupId=10602 for an explanation.</toolTip>
         <options>
             <string>http://creativecommons.org/publicdomain/mark/1.0/</string>
             <string>http://creativecommons.org/publicdomain/zero/1.0/</string>
@@ -133,7 +123,6 @@
     </fact-definition>
     <fact-definition name="type">
         <prompt>Type</prompt>
-        <toolTip>Europeana Type</toolTip>
         <options>
             <string>TEXT</string>
             <string>IMAGE</string>
@@ -143,3 +132,4 @@
         </options>
     </fact-definition>
 </fact-definition-list>
+

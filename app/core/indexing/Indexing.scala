@@ -55,10 +55,10 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
 
     // only retrieve records that have a valid mapping for this metadata format
     val records = DataSet.getRecords(dataSet).find(MongoDBObject("validOutputFormats" -> metadataFormatForIndexing))
-    DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INDEXING)
+    DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INDEXING)
     val mapping = dataSet.mappings.get(metadataFormatForIndexing)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, Play.classloader, MappingService.metadataModel)
+    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel)
     var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
 
     if (state == DataSetState.INDEXING) {
@@ -68,7 +68,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
             DataSet.updateIndexingCount(dataSet, records.numSeen)
             state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
           }
-          val mapped: Option[IndexDocument] = Option(engine.executeMapping(record.getRawXmlString))
+          val mapped: Option[IndexDocument] = Option(engine.toIndexDocument(record.getRawXmlString))
 
           mapped match {
             case Some(mappedDocument) =>
@@ -126,8 +126,8 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
       case Some(dataSet) =>
         val mapping = dataSet.mappings.get(dataSet.getIndexingMappingPrefix.getOrElse(""))
         if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"))
-        val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, play.api.Play.classloader, MappingService.metadataModel)
-        val mapped = Option(engine.executeMapping(mdr.getRawXmlString))
+        val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), play.api.Play.classloader, MappingService.recDefModel)
+        val mapped = Option(engine.toIndexDocument(mdr.getRawXmlString))
         indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))
       case None =>
         Logger("CultureHub").warn("Could not index MDR")

@@ -270,9 +270,9 @@ collection.confirmDeletion=Are you sure you want to remove this collection?
 
 
 ##DataSets
-dataset.index=Index
-dataset.reindex=Re-index
-dataset.cancelindex=Cancel indexing
+dataset.index=Process
+dataset.reindex=Re-process
+dataset.cancelindex=Cancel processing
 dataset.disable=Disable
 dataset.enable=Enable
 dataset.confirmDeletion=Are you sure you want to remove this DataSet?
@@ -603,12 +603,13 @@ user.secured.noAccess=We are deeply sorry - really, we are - but you do not have
 
 dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for indexing
-dataSetState.processing=Processing uploaded source data
-dataSetState.queued=queued for indexing
+dataSetState.parsing=Parsing uploaded source data
+dataSetState.queued=queued for processing
+dataSetState.processing=Processing
 dataSetState.indexing=Indexing
 dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
-dataSetState.error=Error occured while indexing
+dataSetState.error=Error occured while processing
 
 admin.themes.themeNotFound=Theme with id {0} was not found
 admin.themes.saveError=Error saving theme {0}
@@ -670,8 +671,8 @@ organizations.group.groupNotFound=Could not find group with ID {0}
 organizations.group.cannotSaveGroup=Could not save group, please try again
 
 organization.datasets.dataSetNotFound=DataSet {0} was not found
-organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
+organization.datasets.cannotBeProcessed=DataSet cannot be processed in the current state
+organization.datasets.cannotBeReProcessed=DataSet cannot be re-processed in the current state
 organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
 organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state

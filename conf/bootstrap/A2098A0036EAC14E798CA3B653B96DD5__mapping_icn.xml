@@ -1,0 +1,46 @@
+<rec-mapping prefix="icn">
+  <facts>
+    <entry>
+      <string>orgId</string>
+      <string>delving</string>
+    </entry>
+    <entry>
+      <string>spec</string>
+      <string>Princessehof</string>
+    </entry>
+    <entry>
+      <string>dataProvider</string>
+      <string>Prinecssehof</string>
+    </entry>
+    <entry>
+      <string>name</string>
+      <string>Princessehof</string>
+    </entry>
+    <entry>
+      <string>rights</string>
+      <string>http://creativecommons.org/publicdomain/mark/1.0/</string>
+    </entry>
+    <entry>
+      <string>provider</string>
+      <string>Princessehof</string>
+    </entry>
+    <entry>
+      <string>language</string>
+      <string>nl</string>
+    </entry>
+    <entry>
+      <string>type</string>
+      <string>TEXT</string>
+    </entry>
+    <entry>
+      <string>country</string>
+      <string>netherlands</string>
+    </entry>
+  </facts>
+  <functions/>
+  <node-mappings>
+    <node-mapping inputPath="/input/creator" outputPath="/icn:record/dc:creator"/>
+    <node-mapping inputPath="/input/description" outputPath="/icn:record/dc:description"/>
+    <node-mapping inputPath="/input/title" outputPath="/icn:record/dc:title"/>
+  </node-mappings>
+</rec-mapping>

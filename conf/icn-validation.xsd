@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:icn="http://www.icn.nl/schemas/icn/"
+           xmlns:delving="http://schemas.delving.eu/"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:dcterms="http://purl.org/dc/terms/"
+           xmlns:europeana="http://www.europeana.eu/schemas/ese/"
+           targetNamespace="http://www.icn.nl/schemas/icn/"
+           blockDefault="#all">
+
+    <xs:import namespace="http://schemas.delving.eu/" schemaLocation="http://schemas.delving.eu/delving-V1.0.xsd"/>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+    <xs:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="http://www.dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+    <xs:import namespace="http://purl.org/dc/terms/" schemaLocation="http://schemas.delving.eu/dcterms-local.xsd"/>
+    <xs:import namespace="http://www.europeana.eu/schemas/ese/" schemaLocation="http://schemas.delving.eu/ese-local.xsd"/>
+
+
+    <xs:group name="dcGroup">
+        <xs:sequence >
+            <xs:element ref="dc:creator" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="dc:title" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:description" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:publisher" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:contributor" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:date" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:format" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:source" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:language" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:relation" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:coverage" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dc:rights" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="dctermsGroup">
+        <xs:choice>
+            <xs:element ref="dcterms:conformsTo" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:created" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:extent" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:hasFormat" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:hasPart" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:hasVersion" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isFormatOf" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isPartOf" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isReferencedBy" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isReplacedBy" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isRequiredBy" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:isVersionOf" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:issued" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:medium" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:references" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:replaces" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:requires" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:tableOfContents" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:alternative" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:spatial" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="dcterms:temporal" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="dcterms:provenance" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="dcterms:rightsHolder" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:group>
+
+
+    <xs:element name="record" type="icn:recordType" block="substitution"/>
+
+    <xs:complexType name="recordType">
+        <xs:sequence>
+            <xs:element name="creatorYearOfBirth" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="creatorYearOfDeath" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="creatorRole" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="technique" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="material" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="location" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="province" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="collectionPart" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="acquisitionMeans" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="collectionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="acquisitionYear" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="purchasePrice" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="acquiredWithHelpFrom" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="physicalState" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="icn:dcGroup" />
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="icn:dctermsGroup" />
+
+            <xs:element ref="europeana:isShownBy" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:rights" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:isShownAt" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:unstored" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:object" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:provider" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:dataProvider" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:type" minOccurs="0" maxOccurs="1"/>
+
+            <xs:element ref="europeana:uri" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:language" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:country" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:collectionName" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:collectionTitle" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:source" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="delving:year" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="delving:thumbnail" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="delving:deepZoomUrl" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="delving:fullTextObjectUrl" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="delving:fullText" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

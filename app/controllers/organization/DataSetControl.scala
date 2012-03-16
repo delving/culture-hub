@@ -32,22 +32,23 @@ import play.api.data.{Form}
 import play.api.data.validation.Constraints
 import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
+import play.api.libs.concurrent.Promise
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class DataSetViewModel(id:                     Option[ObjectId] = None,
-                            spec:                   String = "",
-                            facts:                  HardcodedFacts = HardcodedFacts(),
-//                            facts:                  Map[String, String] = Map.empty,
-                            recordDefinitions:      Seq[String] = Seq.empty,
-                            allRecordDefinitions:   List[String],
-                            oaiPmhAccess:           List[OaiPmhAccessViewModel],
-                            indexingMappingPrefix:  String = "",
-                            visibility:             Int = 0,
-                            errors:                 Map[String, String] = Map.empty) extends ViewModel
+case class DataSetViewModel(id: Option[ObjectId] = None,
+                            spec: String = "",
+                            facts: HardcodedFacts = HardcodedFacts(),
+                            //                            facts:                  Map[String, String] = Map.empty,
+                            recordDefinitions: Seq[String] = Seq.empty,
+                            allRecordDefinitions: List[String],
+                            oaiPmhAccess: List[OaiPmhAccessViewModel],
+                            indexingMappingPrefix: String = "",
+                            visibility: Int = 0,
+                            errors: Map[String, String] = Map.empty) extends ViewModel
 
 case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
 
@@ -70,7 +71,7 @@ case class HardcodedFacts(name: String = "",
 }
 
 object HardcodedFacts {
-  
+
   def fromMap(map: Map[String, String]) = HardcodedFacts(
     name = map.get("name").getOrElse(""),
     language = map.get("language").getOrElse(""),
@@ -87,9 +88,9 @@ object DataSetViewModel {
   val dataSetForm = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
-      "spec" -> nonEmptyText.verifying(Constraints.pattern ("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
-//      "facts" -> of[Map[String, String]],
-      "facts" -> mapping (
+      "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
+      //      "facts" -> of[Map[String, String]],
+      "facts" -> mapping(
         "name" -> nonEmptyText,
         "language" -> nonEmptyText,
         "country" -> nonEmptyText,
@@ -107,7 +108,7 @@ object DataSetViewModel {
           "accessKey" -> optional(text)
         )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
       ),
-      "indexingMappingPrefix" -> nonEmptyText,
+      "indexingMappingPrefix" -> text,
       "visibility" -> number,
       "errors" -> of[Map[String, String]]
     )(DataSetViewModel.apply)(DataSetViewModel.unapply)
@@ -121,7 +122,7 @@ object DataSetControl extends OrganizationController {
   def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSet = if(spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
+        val dataSet = if (spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
         val allRecordDefinitions: List[String] = RecordDefinition.recordDefinitions.map(r => r.prefix).toList
 
         val data = if (dataSet == None) {
@@ -188,8 +189,8 @@ object DataSetControl extends OrganizationController {
             factsObject.append("orgId", orgId)
 
             val formatAccessControl = dataSetForm.oaiPmhAccess.
-                                        filter(a => dataSetForm.recordDefinitions.contains(a.format)).
-                                        map(a => (a.format -> FormatAccessControl(a.accessType, a.accessKey))).toMap
+              filter(a => dataSetForm.recordDefinitions.contains(a.format)).
+              map(a => (a.format -> FormatAccessControl(a.accessType, a.accessKey))).toMap
 
 
             dataSetForm.id match {
@@ -197,7 +198,9 @@ object DataSetControl extends OrganizationController {
               case Some(id) => {
                 val existing = DataSet.findOneByID(id).get
                 if (!DataSet.canEdit(existing, connectedUser)) {
-                  return Action { implicit request => Forbidden("You have no rights to edit this DataSet") }
+                  return Action {
+                    implicit request => Forbidden("You have no rights to edit this DataSet")
+                  }
                 }
 
                 val updatedDetails = existing.details.copy(facts = factsObject)
@@ -206,13 +209,15 @@ object DataSetControl extends OrganizationController {
                   details = updatedDetails,
                   mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
                   formatAccessControl = formatAccessControl,
-                  idxMappings = List(dataSetForm.indexingMappingPrefix),
+                  idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix),
                   visibility = Visibility.get(dataSetForm.visibility))
                 DataSet.save(updated)
               }
               case None =>
                 // TODO for now only owners can do
-                if (!isOwner) return Action { implicit request => Forbidden("You are not allowed to create a DataSet.") }
+                if (!isOwner) return Action {
+                  implicit request => Forbidden("You are not allowed to create a DataSet.")
+                }
 
                 DataSet.insert(
                   DataSet(
@@ -230,12 +235,13 @@ object DataSetControl extends OrganizationController {
                         "http://delving.eu/namespaces/raw",
                         "http://delving.eu/namespaces/raw/schema.xsd",
                         List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
-                        List.empty
+                        List.empty,
+                        true
                       )
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
                     formatAccessControl = formatAccessControl,
-                    idxMappings = List(dataSetForm.indexingMappingPrefix)
+                    idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix)
                   )
                 )
             }
@@ -253,15 +259,15 @@ object DataSetControl extends OrganizationController {
           case DISABLED | UPLOADED | ERROR =>
             try {
               DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-              DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
+              DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
               Redirect("/organizations/%s/dataset".format(orgId))
             } catch {
               case rt if rt.getMessage.contains() =>
                 // TODO give the user some decent feedback in the interface
-                DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
+                DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR)
                 Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
             }
-          case _ => Error(Messages("organization.datasets.cannotBeIndexed"))
+          case _ => Error(Messages("organization.datasets.cannotBeProcessed"))
         }
     }
   }
@@ -272,9 +278,9 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case ENABLED =>
             DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.QUEUED)
+            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
             Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeReIndexed"))
+          case _ => Error(Messages("organization.datasets.cannotBeReProcessed"))
         }
     }
   }
@@ -283,12 +289,12 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId: String, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case QUEUED | INDEXING =>
-            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.UPLOADED)
+          case QUEUED | PROCESSING =>
+            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.UPLOADED)
             try {
               Indexing.deleteFromSolr(dataSet)
             } catch {
-              case _ => DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ERROR)
+              case _ => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR)
             }
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeCancelled"))
@@ -298,7 +304,12 @@ object DataSetControl extends OrganizationController {
 
   def state(orgId: String, spec: String) = OrgMemberAction(orgId) {
     Action {
-      implicit request => Json(Map("state" -> DataSet.getStateBySpecAndOrgId(spec, orgId).name))
+      implicit request =>
+        Async {
+          Promise.pure(DataSet.getStateBySpecAndOrgId(spec, orgId).name).map {
+            response => Json(Map("state" -> response))
+          }
+        }
     }
   }
 
@@ -317,8 +328,8 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case QUEUED | INDEXING | ERROR | ENABLED =>
-            val updatedDataSet = DataSet.updateStateAndIndexingCount(dataSet, DataSetState.DISABLED)
+          case QUEUED | PROCESSING | ERROR | ENABLED =>
+            val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, DataSetState.DISABLED)
             Indexing.deleteFromSolr(updatedDataSet)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeDisabled"))
@@ -331,7 +342,7 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         dataSet.state match {
           case DISABLED =>
-            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.ENABLED)
+            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ENABLED)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeEnabled"))
         }
@@ -356,7 +367,7 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case DISABLED | ENABLED | UPLOADED | ERROR =>
             DataSet.invalidateHashes(dataSet)
-            DataSet.updateStateAndIndexingCount(dataSet, DataSetState.INCOMPLETE)
+            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INCOMPLETE)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeInvalidated"))
         }

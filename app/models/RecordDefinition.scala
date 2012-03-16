@@ -28,9 +28,10 @@ import play.api.Play.current
 
 case class RecordDefinition(prefix: String,
                             schema: String,
-                            namespace: String,              // the namespace of the format
-                            allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
-                            roles: List[Role] = List.empty  // roles that are described in the RecordDefinition
+                            namespace: String,               // the namespace of the format
+                            allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
+                            roles: List[Role] = List.empty,  // roles that are described in the RecordDefinition
+                            isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
                             )
 
 case class Namespace(prefix: String, uri: String, schema: String)
@@ -47,6 +48,7 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
 object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
+  val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
 
   val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
@@ -66,6 +68,7 @@ object RecordDefinition {
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
+    val isFlat = node.attribute("flat").isDefined && (node \ "@flat" text).length > 0 && (node \ "@flat" text).toBoolean
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
 
     val allNamespaces = (node \ "namespaces" \ "namespace").map(
@@ -82,7 +85,8 @@ object RecordDefinition {
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
-        roles
+        roles,
+        isFlat
       )
     )
   }

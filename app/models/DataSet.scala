@@ -25,19 +25,13 @@ import com.novus.salat._
 import com.novus.salat.dao._
 import com.mongodb.{BasicDBObject, WriteConcern}
 import java.io.File
-import eu.delving.metadata.{Path, RecordMapping}
 import xml.{Node, XML}
-import scala.collection.JavaConverters._
-import eu.delving.sip.IndexDocument
-import eu.delving.sip.MappingEngine
 import com.mongodb.casbah.{MongoCollection}
-import exceptions.{InvalidIdentifierException, MetaRepoSystemException, MappingNotFoundException}
+import exceptions.{MetaRepoSystemException}
 import controllers.ModelImplicits
-import core.mapping.MappingService
-import play.api.Play
-import play.api.Play.current
 import play.api.i18n.{Messages}
 import core.HubServices
+import eu.delving.metadata.{RecMapping, Path}
 
 /**
  * DataSet model
@@ -84,6 +78,12 @@ case class DataSet(_id: ObjectId = new ObjectId,
   }
   
   def getIndexingMappingPrefix = idxMappings.headOption
+
+  def getPublishableMappingFormats = mappings.
+    map(mapping => mapping._2.format).
+    filter(format => formatAccessControl.get(format.prefix).isDefined).
+    filter(format => formatAccessControl(format.prefix).isPublicAccess || formatAccessControl(format.prefix).isProtectedAccess).
+    toList
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
 
@@ -156,10 +156,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ finders
 
-  // FIXME: this assumes that the spec is unique accross all users
-  @Deprecated
-  def findBySpec(spec: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "deleted" -> false))
-
   def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findByState(state: DataSetState) = {
@@ -227,7 +223,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
-  def updateMapping(dataSet: DataSet, mapping: RecordMapping): DataSet = {
+  def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {
     val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
@@ -238,17 +234,18 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       case Some(existingMapping) =>
         existingMapping.copy(
           format = existingMapping.format.copy(roles = ns.get.roles),
-          recordMapping = Some(RecordMapping.toXml(mapping))
+          recordMapping = Some(mapping.toString)
         )
       case None =>
         Mapping(
-          recordMapping = Some(RecordMapping.toXml(mapping)),
+          recordMapping = Some(mapping.toString),
           format = RecordDefinition(
             ns.get.prefix,
             ns.get.schema,
             ns.get.namespace,
             ns.get.allNamespaces,
-            ns.get.roles
+            ns.get.roles,
+            ns.get.isFlat
           )
         )
     }
@@ -274,6 +271,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       connection(getRecordsCollectionName(dataSet)).rename(getRecordsCollectionName(dataSet) + "_" + dataSet._id.toString)
     }
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
+  }
+
+  // ~~~ caching
+
+  def cacheMappedRecord(dataSet: DataSet, record: MetadataRecord, prefix: String, xml: String) {
+    getRecords(dataSet).update(MongoDBObject("_id" -> record._id), $set("rawMetadata." + prefix -> xml))
   }
 
 
@@ -307,7 +310,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
-  def updateStateAndIndexingCount(dataSet: DataSet, state: DataSetState): DataSet = {
+  def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
     val mappings = dataSetLatest.mappings.transform((key, map) => map.copy(rec_indexed = 0))
     val updatedDataSet = dataSetLatest.copy(state = state, mappings = mappings)
@@ -363,9 +366,10 @@ case class DataSetState(name: String) {
 
 object DataSetState {
   val INCOMPLETE = DataSetState("incomplete")
-  val PROCESSING = DataSetState("processing")
+  val PARSING = DataSetState("parsing")
   val UPLOADED = DataSetState("uploaded")
   val QUEUED = DataSetState("queued")
+  val PROCESSING = DataSetState("processing")
   val INDEXING = DataSetState("indexing")
   val ENABLED = DataSetState("enabled")
   val DISABLED = DataSetState("disabled")
@@ -375,7 +379,7 @@ object DataSetState {
   val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
 }
 
-case class RecordSep(pre: String, label: String, path: Path = new Path())
+case class RecordSep(pre: String, label: String, path: Path = Path.empty())
 
 case class Mapping(recordMapping: Option[String] = None,
                    format: RecordDefinition,

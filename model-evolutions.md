@@ -106,3 +106,28 @@ May not be a problem but we need to check if there are any items live.
       ds.formatAccessControl = {};
       db.Datasets.save(ds);
     })
+
+15.03.2012 - RecordDefinition flatness
+
+    db.Datasets.update({}, {$set: {"details.metadataFormat.isFlat": true}}, false, true)
+
+    db.Datasets.find().forEach(function(ds) {
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          print(key);
+          var mapping = ds.mappings[key];
+          mapping.format.isFlat = true;
+          ds.mappings[key] = mapping;
+        }
+      }
+      db.Datasets.save(ds);
+    })
+
+16.03.2012 - SummaryField storage in MDRs
+
+    db.Datasets.find().forEach(function(ds) {
+      var mongoCollectionName = "Records." + ds.orgId + "_" + ds.spec;
+      var records = db.getCollection(mongoCollectionName)
+      records.update({}, { $set: { summaryFields: {} } }, false, true);
+    })
+

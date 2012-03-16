@@ -1,271 +1,183 @@
 <?xml version="1.0"?>
-<!--
-  ~ Copyright 2011 Delving B.V.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<record-definition prefix="icn" flat="true">
 
-<record-definition prefix="icn">
     <namespaces>
         <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
         <namespace prefix="dcterms" uri="http://purl.org/dc/terms/" schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
         <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
-        <namespace prefix="ese" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
-        <namespace prefix="icn" uri="http://www.icn.nl/" schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"/>
-        <namespace prefix="delving" uri="http://www.delving.eu/" schema="http://www.delving.eu/schemas/delving-1.0.xsd"/>
+        <namespace prefix="icn" uri="http://www.icn.nl/schemas/icn/" schema="ICN-V1.0.xsd"/>
+        <namespace prefix="delving" uri="http://schemas.delving.eu/" schema="delving-1.0.xsd"/>
     </namespaces>
-    <!--
-    sortable            => default false; action index also with sort_ prefix in fieldname
-    searchField         => add content of field to each field specified in the list
-    housekeeping        => default false; this field can never be mapped and its value is only used in back-end processes
-    facetPrefix         => this is the prefix used during Solr Query construction for multivalued search
-                           If facetPrefix is non-empty store this field with prefix facet_ to enable its use as facet.
-    facetName           => this is the name used for the facet
-    fieldType           => default text; this value is used to determine the fieldType for the Solr search Engine
-    multivalued         => default = true; check if field name appears multiple times.
-    -->
-    <root localName="record">
-        <field prefix="icn" localName="creatorYearOfBirth" fieldType="string">
-            <converter multipleOutput="true" call=".extractYear()"/>
-        </field>
-        <field prefix="icn" localName="creatorYearOfDeath" fieldType="string">
-            <converter multipleOutput="true" call=".extractYear()"/>
-        </field>
-        <field prefix="icn" localName="creatorRole"/>
-        <field prefix="icn" localName="technique">
-            <options>
-                <string>Schilderkunst</string>
-                <string>Prentkunst</string>
-                <string>Fotografie</string>
-                <string>Tekeningen</string>
-                <string>Beeldhouwkunst</string>
-                <string>Textiel</string>
-                <string>Film/Video/DVD</string>
-                <string>Anders:</string>
-            </options>
-        </field>
-        <field prefix="icn" localName="material"/>
-        <field prefix="icn" localName="location"/>
-        <field prefix="icn" localName="province"/>
-        <field prefix="icn" localName="collectionPart"/>
-        <field prefix="icn" localName="acquisitionMeans">
-            <options>
-                <string>aankoop</string>
-                <string>schenking</string>
-                <string>bruikleen</string>
-                <string>ruil</string>
-                <string>opdracht</string>
-                <string>opdracht derden</string>
-                <string>opdracht museum</string>
-                <string>legaat</string>
-                <string>overdracht</string>
-                <string>successieregeling</string>
-                <string>vondst</string>
-                <string>onbekend:</string>
-            </options>
-        </field>
-        <field prefix="icn" localName="collectionType">
-            <options>
-                <string>all</string>
-                <string>portal</string>
-                <string>mm</string>
-            </options>
-        </field>
-        <field prefix="icn" localName="acquisitionYear" fieldType="string"/>
-        <field prefix="icn" localName="purchasePrice"/>
-        <field prefix="icn" localName="acquiredWithHelpFrom"/>
-        <field prefix="icn" localName="physicalState"/>
-        <field prefix="dc" localName="contributor"/>
-        <field prefix="dc" localName="coverage"/>
-        <field prefix="dc" localName="creator" summaryField="CREATOR"/>
-        <field prefix="dc" localName="date"/> <!--removed extract year it doesn't belong here -->
-        <field prefix="dc" localName="description" summaryField="DESCRIPTION"/>
-        <field prefix="dc" localName="format"/>
-        <field prefix="dc" localName="identifier" fieldType="string"/>
-        <field prefix="dc" localName="language"/>
-        <field prefix="dc" localName="publisher"/>
-        <field prefix="dc" localName="relation"/>
-        <field prefix="dc" localName="rights"/>
-        <field prefix="dc" localName="source"/>
-        <field prefix="dc" localName="subject" summaryField="SNIPPET"/>
-        <field prefix="dc" localName="title" summaryField="TITLE"/>
-        <field prefix="dc" localName="type"/>
-        <field prefix="dcterms" localName="alternative" summaryField="SNIPPET"/>
-        <field prefix="dcterms" localName="conformsTo"/>
-        <field prefix="dcterms" localName="created"/>
-        <field prefix="dcterms" localName="extent"/>
-        <field prefix="dcterms" localName="hasFormat"/>
-        <field prefix="dcterms" localName="hasPart"/>
-        <field prefix="dcterms" localName="hasVersion"/>
-        <field prefix="dcterms" localName="isFormatOf"/>
-        <field prefix="dcterms" localName="isPartOf"/>
-        <field prefix="dcterms" localName="isReferencedBy"/>
-        <field prefix="dcterms" localName="isReplacedBy"/>
-        <field prefix="dcterms" localName="isRequiredBy"/>
-        <field prefix="dcterms" localName="isVersionOf"/>
-        <field prefix="dcterms" localName="issued"/>
-        <field prefix="dcterms" localName="medium"/>
-        <field prefix="dcterms" localName="provenance"/>
-        <field prefix="dcterms" localName="references"/>
-        <field prefix="dcterms" localName="replaces"/>
-        <field prefix="dcterms" localName="requires"/>
-        <field prefix="dcterms" localName="spatial"/>
-        <field prefix="dcterms" localName="tableOfContents"/>
-        <field prefix="dcterms" localName="temporal"/>
-        <field prefix="dcterms" localName="rightsHolder"/>
-        <field prefix="europeana" localName="collectionName" factName="spec"/>
-        <field prefix="europeana" localName="collectionTitle" factName="name" summaryField="SNIPPET"/>
-        <field prefix="europeana" localName="country" factName="country"/>
-        <field prefix="europeana" localName="dataProvider" factName="dataProvider" fieldType="string" summaryField="OWNER"/>
-        <field prefix="europeana" localName="isShownAt" fieldType="string" summaryField="LANDING_PAGE"/>
-        <field prefix="europeana" localName="isShownBy" fieldType="string"/>
-        <field prefix="europeana" localName="language" fieldType="string" factName="language"/>
-        <field prefix="europeana" localName="object" fieldType="string" summaryField="THUMBNAIL"/>
-        <field prefix="europeana" localName="provider" factName="provider" fieldType="string"/>
-        <field prefix="europeana" localName="rights" factName="rights" fieldType="string"/>
-        <field prefix="europeana" localName="source"/> <!-- to be deleted is unused -->
-        <field prefix="europeana" localName="type" fieldType="string" factName="type"/>
-        <field prefix="europeana" localName="unstored" fieldType="text"/>
-        <field prefix="europeana" localName="uri" identifierField="true" fieldType="string">
-            <converter call=".toLocalId(spec)"/>
-        </field>
-        <field prefix="delving" localName="year" fieldType="string">
-            <converter multipleOutput="true" call=".extractYear()"/>
-        </field>
-        <field prefix="delving" localName="thumbnail" fieldType="string" summaryField="THUMBNAIL"/>
-        <field prefix="delving" localName="deepZoomUrl" fieldType="string"/>
-        <field prefix="delving" localName="fullTextObjectUrl" fieldType="string"/>
-        <field prefix="delving" localName="fullText" fieldType="text" summaryField="SNIPPET"/>
+
+    <root tag="record">
+        <elem tag="icn:creatorYearOfBirth" fieldType="gumby"/>
+        <elem tag="icn:creatorYearOfDeath" summaryField="DESCRIPTION"/>
+        <elem tag="icn:creatorRole"/>
+        <elem tag="icn:technique"/>
+        <elem tag="icn:material"/>
+        <elem tag="icn:location"/>
+        <elem tag="icn:province"/>
+        <elem tag="icn:collectionPart"/>
+        <elem tag="icn:acquisitionMeans"/>
+        <elem tag="icn:collectionType"/>
+        <elem tag="icn:acquisitionYear"/>
+        <elem tag="icn:purchasePrice"/>
+        <elem tag="icn:acquiredWithHelpFrom"/>
+        <elem tag="icn:physicalState"/>
+
+        <elem tag="dc:contributor"/>            <!-- ESE 3.4 -->
+        <elem tag="dc:coverage"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:creator"/>                <!-- ESE 3.4 -->
+        <elem tag="dc:date"/>                   <!-- ESE 3.4 -->
+        <elem tag="dc:description"/>            <!-- ESE 3.4 -->
+        <elem tag="dc:format"/>                 <!-- ESE 3.4 -->
+        <elem tag="dc:identifier"/>             <!-- ESE 3.4 -->
+        <elem tag="dc:language"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:publisher"/>              <!-- ESE 3.4 -->
+        <elem tag="dc:relation"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:rights"/>                 <!-- ESE 3.4 -->
+        <elem tag="dc:source"/>                 <!-- ESE 3.4 -->
+        <elem tag="dc:subject"/>                <!-- ESE 3.4 -->
+        <elem tag="dc:title"/>                  <!-- ESE 3.4 -->
+        <elem tag="dc:type"/>                   <!-- ESE 3.4 -->
+
+        <elem tag="dcterms:alternative"/>       <!-- ESE 3.4 -->
+        <elem tag="dcterms:conformsTo"/>        <!-- ESE 3.4 -->
+        <elem tag="dcterms:created"/>           <!-- ESE 3.4 -->
+        <elem tag="dcterms:extent"/>            <!-- ESE 3.4 -->
+        <elem tag="dcterms:hasFormat"/>         <!-- ESE 3.4 -->
+        <elem tag="dcterms:hasPart"/>           <!-- ESE 3.4 -->
+        <elem tag="dcterms:hasVersion"/>        <!-- ESE 3.4 -->
+        <elem tag="dcterms:isFormatOf"/>        <!-- ESE 3.4 -->
+        <elem tag="dcterms:isPartOf"/>          <!-- ESE 3.4 -->
+        <elem tag="dcterms:isReferencedBy"/>    <!-- ESE 3.4 -->
+        <elem tag="dcterms:isReplacedBy"/>      <!-- ESE 3.4 -->
+        <elem tag="dcterms:isRequiredBy"/>      <!-- ESE 3.4 -->
+        <elem tag="dcterms:isVersionOf"/>       <!-- ESE 3.4 -->
+        <elem tag="dcterms:issued"/>            <!-- ESE 3.4 -->
+        <elem tag="dcterms:medium"/>            <!-- ESE 3.4 -->
+        <elem tag="dcterms:provenance"/>        <!-- ESE 3.4 -->
+        <elem tag="dcterms:references"/>        <!-- ESE 3.4 -->
+        <elem tag="dcterms:replaces"/>          <!-- ESE 3.4 -->
+        <elem tag="dcterms:requires"/>          <!-- ESE 3.4 -->
+        <elem tag="dcterms:spatial"/>           <!-- ESE 3.4 -->
+        <elem tag="dcterms:tableOfContents"/>   <!-- ESE 3.4 -->
+        <elem tag="dcterms:temporal"/>          <!-- ESE 3.4 -->
+        <elem tag="dcterms:rightsHolder"/>      <!-- NOT part of ESE 3.4 -->
+
+        <elem tag="europeana:dataProvider"/>    <!-- ESE 3.4 -->
+        <elem tag="europeana:isShownAt"/>       <!-- ESE 3.4 -->
+        <elem tag="europeana:isShownBy"/>       <!-- ESE 3.4 -->
+        <elem tag="europeana:object"/>          <!-- ESE 3.4 -->
+        <elem tag="europeana:provider"/>        <!-- ESE 3.4 -->
+        <elem tag="europeana:rights"/>          <!-- ESE 3.4 -->
+        <elem tag="europeana:type"/>            <!-- ESE 3.4 -->
+        <elem tag="europeana:unstored"/>        <!-- ESE 3.4 -->
+
+        <!-- moved from europeana to delving -->
+        <elem tag="europeana:uri"/>             <!-- ESE 3.4, not accepted by the office and not part of the ESE XSD-->
+        <elem tag="europeana:language"/>        <!-- ESE 3.4, not accepted by the office and not part of the ESE XSD -->
+        <elem tag="europeana:country"/>         <!-- ESE 3.4,  not accepted by the office and not part of the ESE XSD -->
+        <elem tag="europeana:collectionName"/>  <!-- NOT part of ESE 3.4 -->
+        <elem tag="europeana:collectionTitle"/> <!-- NOT part of ESE 3.4 -->
+        <elem tag="europeana:source"/>          <!-- NOT part of ESE 3.4 -->
+
+        <!-- original delving namespace -->
+        <elem tag="delving:year"/>
+        <elem tag="delving:thumbnail"/>
+        <elem tag="delving:deepZoomUrl"/>
+        <elem tag="delving:fullTextObjectUrl"/>
+        <elem tag="delving:fullText"/>
+
     </root>
 
-    <!-- Role definitions that can be used in view definitions -->
-    <!--<roles>-->
-        <!--<role key="administrator" description="Administrator rights" />-->
-        <!--<role key="testRole" description="Test rights" />-->
-    <!--</roles>-->
+    <options>
+        <option-list path="/record/technique"> <!-- no keyPath needed in this definition, keys are dummys, Can be deleted but are needed in other rec-defs -->
+            <opt key="1">Schilderkunst</opt>
+            <opt key="2">Prentkunst</opt>
+            <opt key="3">Fotografie</opt>
+            <opt key="4">Tekeningen</opt>
+            <opt key="5">Beeldhouwkunst</opt>
+            <opt key="6">Textiel</opt>
+            <opt key="7">Film/Video/DVD</opt>
+            <opt key="8">Anders:</opt>
+        </option-list>
+        <option-list path="/record/acquisitionMeans">
+            <opt key="1">aankoop</opt>
+            <opt key="2">schenking</opt>
+            <opt key="3">bruikleen</opt>
+            <opt key="4">ruil</opt>
+            <opt key="5">opdracht</opt>
+            <opt key="6">opdracht derden</opt>
+            <opt key="7">opdracht museum</opt>
+            <opt key="8">legaat</opt>
+            <opt key="9">overdracht</opt>
+            <opt key="10">successieregeling</opt>
+            <opt key="11">vondst</opt>
+            <opt key="12">onbekend:</opt>
+        </option-list>
+        <option-list path="/record/collectionType">
+            <opt key="1">all</opt>
+            <opt key="2">portal</opt>
+            <opt key="3">mm</opt>
+        </option-list>
+    </options>
 
-    <!-- View definitions-->
-    <!--<views>-->
-        <!--<view name="full">-->
-            <!--<row>-->
-                <!--<column id="description">-->
-                    <!--<field path="delving:summaryFields/delving:description" label="metadata.dc.description"/>-->
-                <!--</column>-->
-                <!--<column id="fields">-->
-                    <!--<list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>-->
-                    <!--<field path="icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>-->
-                <!--</column>-->
-            <!--</row>-->
-        <!--</view>-->
-        <!--<view name="fullTakeOne">-->
-            <!--<row>-->
-                <!--<column id="description">-->
-                    <!--<field path="description" label="metadata.dc.description"/>-->
-                <!--</column>-->
-            <!--</row>-->
-            <!--<row>-->
-                <!--<column id="1">-->
-                    <!--<field path="title" label="metadata.dc.title" />-->
-                    <!--<field label="metadata.dc.type" path="dc_type" queryLink= "true" />-->
-                    <!--<list label="metadata.dcterms.alternative" path="dcterms_alternative, _metadata.dcterms.alternative" listType="concatenated" separator=", " />-->
-                    <!--<field label="metadata.icn.material" path="icn_material" queryLink="true" />-->
-                    <!--<list label="metadata.icn.creatorYearOfBirth" path="icn_creatorYearOfBirth" listType="concatenated" separator=", "  />-->
-                    <!--<list label="metadata.dc.subject" path="dc_subject, dcterms_temporal, dcterms_spatial, dc_coverage" listType="concatenated" separator=", " queryLink="true"  />-->
-                    <!--<field label="metadata.dc.source" path="dc_source" />-->
-                <!--</column>-->
-                <!--<column id="2">-->
-                   <!--<field label="metadata.dc.creator" path="creator" queryLink="true" />-->
-                   <!--<field label="metadata.dc.date" path="year" queryLink="true" />-->
-                   <!--<field label="metadata.dc.language" path="language" />-->
-                   <!--<field label="metadata.europeana.dataProvider" path="dataProvider" />-->
-                   <!--<list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />-->
-                   <!--<list type="concatenated" label="metadata.dc.relation" path="dc_relation, dcterms_references, dcterms_isReferencedBy, dcterms_isReplacedBy, dcterms_isRequiredBy, dcterms_isPartOf, dcterms_hasPart, dcterms_replaces, dcterms_requires, dcterms_isVersionOf, dcterms_hasVersion, dcterms_conformsTo, dcterms_hasFormat" separator=", " />-->
-                   <!--<field label="metadata.dcterms.provenance" path="dcterms_provenance" />-->
-                   <!--<field label="metadata.icn.technique" path="icn_technique" queryLink="true" />-->
-                <!--</column>-->
-            <!--</row>-->
-        <!--</view>-->
-        <!--<disabledView>-->
-            <!--<view-field name="dc_title" prefix="dc" localName="title"/>-->
-            <!--<view-field name="dc_creator" prefix="dc" localName="creator"/>-->
-            <!--<view-field name="icn_creatorYearOfBirth" prefix="icn" localName="creatorYearOfBirth"/>-->
-            <!--<view-field name="dc_date">-->
-                <!--<field-ref prefix="dc" localName="date"/>-->
-                <!--<field-ref prefix="dcterms" localName="created"/>-->
-                <!--<field-ref prefix="dcterms" localName="issued"/>-->
-            <!--</view-field>-->
-            <!--<view-field name="dc_type" prefix="dc" localName="type"/>-->
-            <!--<view-field name="dc_format">-->
-                <!--<field-ref prefix="dc" localName="format"/>-->
-                <!--<field-ref prefix="dcterms" localName="extent"/>-->
-                <!--<field-ref prefix="dcterms" localName="medium"/>-->
-            <!--</view-field>-->
-            <!--<view-field name="dc_language" prefix="dc" localName="language"/>-->
-            <!--<view-field name="dc_description" prefix="dc" localName="description"/>-->
-            <!--<view-field name="dc_subject">-->
-                <!--<field-ref prefix="dc" localName="subject"/>-->
-                <!--<field-ref prefix="dcterms" localName="temporal"/>-->
-                <!--<field-ref prefix="dcterms" localName="spatial"/>-->
-                <!--<field-ref prefix="dcterms" localName="coverage"/>-->
-            <!--</view-field>-->
-            <!--<view-field name="dc_identifier" prefix="dc" localName="identifier"/>-->
-            <!--<view-field name="dc_source" prefix="dc" localName="source"/>-->
-            <!--<view-field name="dc_rights" prefix="dc" localName="rights"/>-->
-            <!--<view-field name="dc_publisher" prefix="dc" localName="publisher"/>-->
-            <!--<view-field name="dc_provider" prefix="europeana" localName="dataProvider"/>-->
-            <!--<view-field name="dc_relation">-->
-                <!--<field-ref prefix="dc" localName="relation"/>-->
-                <!--<field-ref prefix="dcterms" localName="references"/>-->
-                <!--<field-ref prefix="dcterms" localName="isReferencedBy"/>-->
-                <!--<field-ref prefix="dcterms" localName="isReplacedBy"/>-->
-                <!--<field-ref prefix="dcterms" localName="isRequiredBy"/>-->
-                <!--<field-ref prefix="dcterms" localName="isPartOf"/>-->
-                <!--<field-ref prefix="dcterms" localName="hasPart"/>-->
-                <!--<field-ref prefix="dcterms" localName="replaces"/>-->
-                <!--<field-ref prefix="dcterms" localName="requires"/>-->
-                <!--<field-ref prefix="dcterms" localName="isVersionOf"/>-->
-                <!--<field-ref prefix="dcterms" localName="hasVersion"/>-->
-                <!--<field-ref prefix="dcterms" localName="conformsTo"/>-->
-                <!--<field-ref prefix="dcterms" localName="hasFormat"/>-->
-            <!--</view-field>-->
-            <!--<view-field name="dcterms_provenance" prefix="dcterms" localName="provenance"/>-->
-            <!--<view-field name="icn_technique" prefix="icn" localName="technique"/>-->
-            <!--<view-field name="icn_material" prefix="icn" localName="material"/>-->
-            <!--<view-field name="icn_location" prefix="icn" localName="location"/>-->
-            <!--<view-field name="icn_province" prefix="icn" localName="province"/>-->
-            <!--<view-field name="icn_collectionPart" prefix="icn" localName="collectionPart"/>-->
-            <!--&lt;!&ndash;<#if (user??) && (user.role=="ROLE_RESEARCH_USER" || user.role=="ROLE_ADMINISTRATOR" || user.role=="ROLE_GOD" )>&ndash;&gt;-->
-            <!--<view-field name="icn_acquisitionMeans" prefix="icn" localName="acquisitionMeans"/>-->
-            <!--<view-field name="icn_acquisitionYear" prefix="icn" localName="acquisitionYear"/>-->
-            <!--<view-field name="icn_acquiredWithHelpFrom" prefix="icn" localName="acquiredWithHelpFrom"/>-->
-            <!--<view-field name="icn_purchasePrice" prefix="icn" localName="purchasePrice"/>-->
-            <!--<view-field name="icn_physicalState" prefix="icn" localName="physicalState"/>-->
-            <!--&lt;!&ndash;</#if>&ndash;&gt;-->
-        <!--</disabledView>-->
-    <!--</views>-->
-    <validation>
-        assert record.'europeana:collectionTitle'
-        assert record.'europeana:country'
-        assert record.'europeana:dataProvider'
-        assert record.'europeana:provider'
-        assert record.'europeana:language'
-        assert record.'europeana:rights'
-        assert record.'europeana:type'
-        assert record.'europeana:uri'
-        assert record.'europeana:isShownAt' || record.'europeana:isShownBy'
-        assert isUrl(record.'europeana:isShownAt')
-        assert isOption(record.'icn:acquisitionMeans')
-        assert isUnique(record.'europeana:uri')
-    </validation>
+    <search>
+        <searchField name="CREATOR" path="/icn:creator"/>
+        <searchField name="TITLE" path="/icn:title"/>
+        <searchField name="DESCRIPTION" path="/icn:description"/>
+        <searchField name="OWNER" path="/icn:dataProvider"/>
+        <searchField name="LANDING_PAGE" path="/icn:isShownAt"/>
+        <searchField name="THUMBNAIL" path="/icn:object"/>
+        <searchField name="THUMBNAIL" path="/icn:thumbnail"/>
+        <searchField name="SNIPPET" path="/icn:fullText"/>
+        <searchField name="SNIPPET" path="/icn:subject"/>
+        <searchField name="SNIPPET" path="/icn:alternative"/>
+        <searchField name="SNIPPET" path="/icn:collectionTitle"/>
+    </search>
+
+    <!--<facts>-->
+        <!--<fact name="spec" path="/icn:collectionName"/>-->
+        <!--<fact name="name" path="/icn:collectionTitle"/>-->
+        <!--<fact name="country" path="/icn:country"/>-->
+        <!--<fact name="dataProvider" path="/icn:dataProvider"/>-->
+        <!--<fact name="language" path="/icn:language"/>-->
+        <!--<fact name="provider" path="/icn:provider"/>-->
+        <!--<fact name="rights" path="/icn:rights"/>-->
+        <!--<fact name="type" path="/icn:type"/>-->
+    <!--</facts>-->
+
+    <!--<converters>-->
+        <!--<converter multipleOutput="true" call=".extractYear()" path="/icn:creatorYearOfBirth"/>-->
+        <!--<converter multipleOutput="true" call=".extractYear()" path="/icn:creatorYearOfDeath"/>-->
+        <!--<converter call=".toLocalId(spec)" path="/europeana:uri"/>-->
+        <!--<converter multipleOutput="true" call=".extractYear()" path="/delving:year"/>-->
+    <!--</converters>-->
+    
+    <docs>
+        <doc path="/record/dc:contributor">
+            <string name="Dublin Core definition">An entity responsible for making contributions to the content of the resource. Examples of a Contributor include a person, an organization or a service. Typically, the name of a Contributor should be used to indicate the entity.</string>
+            <string name="Europeana definition">An entity responsible for making contributions to the resource</string>
+            <string name="Europeana note">The name of contributors to the original analog or born digital object.  This could be a person, an organisation or a service. </string>
+        </doc>
+        <!-- ... -->
+    </docs>
+
+    <bookmarks>
+        <!--<category name="Mandatory ICN elements">-->
+            <!--<doc>-->
+                <!--<string>These elements must be included in any ESE delivery to Europeana</string>-->
+            <!--</doc>-->
+            <!--<ref path="/europeana:provider" display="Provider"/>-->
+            <!--<ref path="/europeana:dataProvider" display="Data provider"/>-->
+            <!--<ref path="/europeana:rights" display="Rights"/>-->
+            <!--<ref path="/europeana:type" display="Type"/>-->
+            <!--<ref path="/europeana:isShownBy" display="Is Shown By"/>-->
+            <!--<ref path="/europeana:isShownAt" display="Is Shown At"/>-->
+        <!--</category>-->
+    </bookmarks>
+
 </record-definition>
+
 
