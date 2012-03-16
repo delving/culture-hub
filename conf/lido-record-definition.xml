@@ -1,0 +1,1551 @@
+<?xml version="1.0"?>
+<record-definition prefix="lido">
+    <namespaces>
+        <namespace prefix="lido" uri="http://www.lido-schema.org" schema=""/>
+    </namespaces>
+
+    <attrs>
+        <attr tag="relatedencoding"/>
+        <attr tag="type"/>
+        <attr tag="politicalEntity"/>
+        <attr tag="geographicalEntity"/>
+        <attr tag="addedSearchTerm"/>
+        <attr tag="pref"/>
+        <attr tag="encodinganalog"/>
+        <attr tag="label"/>
+        <attr tag="xml:lang"/>
+        <attr tag="sortorder"/>
+        <attr tag="codecResource"/>
+        <attr tag="source"/>
+        <attr tag="formatResource"/>
+    </attrs>
+
+    <elems>
+        <elem tag="conceptID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="term" attrs="pref, addedSearchTerm, xml:lang, encodinganalog, label"/>
+
+        <elem tag="appellationValue" attrs="pref, xml:lang, encodinganalog, label" required="true"/>
+        <elem tag="sourceAppellation" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="appellationName" singular="true"/>
+
+        <!-- legal stuff and text for testing commit-->
+        <elem tag="legalBodyID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="legalBodyName" elems="appellationValue, appellationName"/>
+        <elem tag="legalBodyWeblink" attrs="pref, formatResource,xml:lang, encodinganalog, label"/>
+
+        <!-- rights -->
+        <elem tag="rightsType" elems="conceptID, term"/>
+        <elem tag="rightsDate" elems="earliestDate, latestDate" singular="true"/>
+        <elem tag="rightsHolder" elems="legalBodyID, legalBodyName, legalBodyWeblink" attrs="sortorder"/>
+        <elem tag="creditLine" attrs="xml:lang, encodinganalog, label"/>
+
+        <!-- descriptive: super-elements: eventDescriptionSet; inscriptionDescription; objectDescriptionSet -->
+        <elem tag="descriptiveNoteID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="descriptiveNoteValue" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="sourceDescriptiveNote" attrs="xml:lang, encodinganalog, label"/>
+
+        <!-- dates: super-elements: eventDate; subjectDate -->
+        <elem tag="displayDate" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="date" elems="earliestDate, latestDate" singular="true"/>
+        <elem tag="earliestDate" attrs="type, source, encodinganalog, label" singular="true"/>
+        <elem tag="latestDate" attrs="type, source, encodinganalog, label" singular="true"/>
+
+        <!-- measurement -->
+        <elem tag="measurementType" attrs="xml:lang, encodinganalog, label" required="true"/>
+        <elem tag="measurementUnit" attrs="xml:lang, encodinganalog, label" required="true"/>
+        <elem tag="measurementValue" attrs="xml:lang, encodinganalog, label" required="true" singular="true"/>
+
+        <!-- actors: super-elements:  -->
+        <elem tag="displayActor" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="displayActorInRole" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="actorInRole" elems="actor, roleActor, attributionQualifierActor, extentActor" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="roleActor" elems="conceptID, term" attrs="sortorder"/>
+        <elem tag="attributionQualifierActor" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="extentActor" attrs="xml:lang, encodinganalog, label"/>
+
+        <elem tag="actor" elems="actorID, nameActorSet, nationalityActor,vitalDatesActor, genderActor" attrs="type" singular="true"/>
+        <elem tag="actorID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="nameActorSet" elems="appellationValue, sourceAppellation" required="yes"/>
+        <elem tag="nationalityActor" elems="conceptID, term" attrs="sortorder"/>
+        <elem tag="vitalDatesActor" elems="earliestDate, latestDate" singular="true"/>
+        <elem tag="genderActor" attrs="xml:lang, encodinganalog, label"/>
+
+        <!-- event: super-elements: eventSet; relatedEvent; subjectEvent -->
+        <elem tag="displayEvent" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="event" elems="eventID, eventType, roleInEvent, eventName, eventActor, culture, eventDate, periodName, eventPlace, eventMethod, eventMaterialsTech, thingPresent, relatedEventSet, eventDescriptionSet"  singular="true"/>
+        <elem tag="eventID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="eventType" elems="conceptID, term" required="true" singular="true"/>
+        <elem tag="roleInEvent" elems="conceptID, term"/>
+        <elem tag="eventName" elems="appellationValue,sourceAppellation"/>
+        <elem tag="eventActor" elems="displayActorInRole, actorInRole" attrs="sortorder"/>
+        <elem tag="culture" elems="conceptID, term" attrs="sortorder"/>
+        <elem tag="eventDate" elems="displayDate, date" singular="true"/>
+        <elem tag="periodName" elems="conceptID, term" attrs="type, sortorder"/>
+        <elem tag="eventPlace" elems="displayPlace, place" attrs="type, sortorder"/>
+        <elem tag="eventMethod" elems="conceptID, term" attrs="sortorder"/>
+        <elem tag="eventMaterialsTech" elems="displayMaterialsTech, materialsTech" attrs="sortorder"/>
+        <elem tag="thingPresent" elems="displayObject, object" attrs="sortorder"/>
+
+        <!-- temp, se below -->
+        <elem tag="relatedEventSet" attrs="sortorder"/>
+        <!-- related event gives java.lang.StackOverflowError:
+        <elem tag="relatedEventSet" elems="relatedEvent, relatedEventRelType" attrs="sortorder"/>
+            <elem tag="relatedEvent" elems="relatedEventSet, event"/>
+            <elem tag="relatedEventRelType" elems="conceptID, term"/>
+        -->
+        <elem tag="eventDescriptionSet" elems="descriptiveNoteID, descriptiveNoteValue, sourceDescriptiveNote" singular="true"/>
+
+        <!-- places: super-elements: eventPlace; subjectPlace OBS!! CHECK NESTED PARTOFPLACES-->
+        <elem tag="displayPlace" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="place" elems="placeID, namePlaceSet, gml, partOfPlace, placeClassification" singular="true"/>
+        <elem tag="placeID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="namePlaceSet" elems="appellationValue, sourceAppellation"/>
+        <elem tag="gml" elems="gml:point, gml:LineString, gml:Polygon, " attrs="xml:lang"/>
+        <elem tag="gml:point" singular="true"/>
+        <elem tag="gml:LineString" singular="true"/>
+        <elem tag="gml:Polygon" singular="true"/>
+        <!-- OBS Part of place should have elem="partofplace .-->
+        <elem tag="partOfPlace" elems="placeID, namePlaceSet, gml, placeClassification" attrs="politicalEntity, geographicalEntity"/>
+        <elem tag="placeClassification" elems="conceptID, term" attrs="type"/>
+
+        <!-- objects: super-elements: relatedWork; subjectObject; thingPresent -->
+        <elem tag="displayObject" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="object" elems="objectWebResource, objectID, objectNote" singular="true"/>
+        <elem tag="objectWebResource" attrs="pref, formatResource, xml:lang, encodinganalog, label"/>
+        <elem tag="objectID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="objectNote" attrs="type"/>
+
+        <!-- material: super-elements: relatedWork; subjectObject; thingPresent -->
+        <elem tag="displayMaterialsTech" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="materialsTech" elems="termMaterialsTech, extentMaterialsTech, sourceMaterialsTech" singular="true"/>
+        <elem tag="termMaterialsTech" elems="conceptID, term" attrs="type, sortorder"/>
+        <elem tag="extentMaterialsTech" attrs="xml:lang, encodinganalog, label"/>
+        <elem tag="sourceMaterialsTech" attrs="xml:lang, encodinganalog, label"/>
+
+    </elems>
+
+    <root tag="lido" attrs="sortorder" required="true">
+        <elem tag="lidoRecID" attrs="pref, type, source, encodinganalog, label" required="true"/>
+        <elem tag="objectPublishedID" attrs="pref, type, source, encodinganalog, label"/>
+        <elem tag="category" elems="term, conceptID" singular="true"/>
+
+        <elem tag="descriptiveMetadata" attrs="xml:lang" required="true">
+
+            <elem tag="objectClassificationWrap" required="true" singular="true">
+                <elem tag="objectWorkTypeWrap" required="yes" singular="true">
+                    <elem tag="objectWorkType" elems="conceptID, term" attrs="type, sortorder" required="true"/>
+                </elem>
+                <elem tag="classificationWrap" singular="true">
+                    <elem tag="classification" elems="conceptID, term" attrs="type, sortorder" />
+                </elem>
+            </elem>
+
+            <elem tag="objectIdentificationWrap" required="true" singular="true">
+                <elem tag="titleWrap" required="true" singular="true">
+                    <elem tag="titleSet" elems="appellationValue, sourceAppellation" attrs="type, sortorder" required="true"/>
+                </elem>
+
+                <elem tag="inscriptionsWrap" singular="true">
+                    <elem tag="inscriptions" attrs="type, sortorder">
+                        <elem tag="inscriptionTranscription" attrs="xml:lang, encodinganalog, label"/>
+                        <elem tag="inscriptionDescription" attrs="type, sortorder">
+                            <elem tag="descriptiveNoteID" attrs="pref, type, source, encodinganalog, label"/>
+                            <elem tag="descriptiveNoteValue" attrs="xml:lang, encodinganalog, label"/>
+                            <elem tag="sourceDescriptiveNote" attrs="xml:lang, encodinganalog, label"/>
+                        </elem>
+                    </elem>
+                </elem>
+
+                <!-- NESTED PArtOFPlace MISSING-->
+                <elem tag="repositoryWrap" singular="true">
+                    <elem tag="repositorySet" attrs="type, sortorder">
+                        <elem tag="repositoryName" elems="legalBodyID, legalBodyName, legalBodyWeblink" singular="true"/>
+                        <elem tag="workID" attrs="type, sortorder, encodinganalog, label"/>
+                        <elem tag="repositoryLocation" elems="placeID, namePlaceSet, gml, partOfPlace, placeClassification" attrs="politicalEntity, geographicalEntity" singular="true"/>
+                    </elem>
+                </elem>
+
+                <elem tag="displayStateEditionWrap" singular="true">
+                    <elem tag="displayState" attrs="xml:lang, encodinganalog, label"/>
+                    <elem tag="displayEdition" attrs="xml:lang, encodinganalog, label"/>
+                    <elem tag="sourceStateEdition" attrs="xml:lang, encodinganalog, label"/>
+                </elem>
+
+                <elem tag="objectDescriptionWrap" singular="true">
+                    <elem tag="objectDescriptionSet" elems="descriptiveNoteID, descriptiveNoteValue, sourceDescriptiveNote" attrs="type, sortorder"/>
+                </elem>
+
+                <elem tag="objectMeasurementsWrap" singular="true">
+                    <elem tag="objectMeasurementsSet" attrs="sortorder">
+                        <elem tag="displayObjectMeasurements" attrs="xml:lang, encodinganalog, label"/>
+                        <elem tag="objectMeasurements" singular="true">
+                            <elem tag="measurementsSet" elems="measurementType, measurementUnit, measurementValue" attrs="sortorder"/>
+                            <elem tag="extentMeasurements" attrs="sortorder"/>
+                            <elem tag="qualifierMeasurements" attrs="sortorder"/>
+                            <elem tag="formatMeasurements" attrs="sortorder"/>
+                            <elem tag="shapeMeasurements" attrs="sortorder"/>
+                            <elem tag="scaleMeasurements" attrs="sortorder"/>
+                        </elem>
+                    </elem>
+                </elem>
+            </elem>
+
+            <elem tag="eventWrap" singular="true">
+                <elem tag="eventSet" elems="displayEvent, event" attrs="sortorder"/>
+            </elem>
+
+            <elem tag="objectRelationWrap" singular="true">
+                <elem tag="subjectWrap" singular="true">
+                    <elem tag="subjectSet" attrs="sortorder">
+                        <elem tag="displaySubject" attrs="xml:lang, encodinganalog, label"/>
+                        <elem tag="subject" attrs="type" singular="true">
+                            <elem tag="extentSubject" attrs="xml:lang, encodinganalog, label"/>
+                            <elem tag="subjectConcept" elems="conceptID, term" attrs="sortorder"/>
+                            <elem tag="subjectActor" elems="displayActor, actor" singular="true"/>
+                            <elem tag="subjectDate" elems="displayDate, date" attrs="sortorder"/>
+                            <elem tag="subjectEvent" elems="displayEvent, event" attrs="sortorder"/>
+                            <elem tag="subjectPlace" elems="displayPlace, place" attrs="sortorder"/>
+                            <elem tag="subjectObject" elems="displayObject, object" attrs="sortorder"/>
+                        </elem>
+                    </elem>
+                </elem>
+
+                <elem tag="relatedWorksWrap" singular="true">
+                    <elem tag="relatedWorkSet" attrs="sortorder">
+                        <elem tag="relatedWork" elems="displayObject, object" singular="true"/>
+                        <elem tag="relatedWorkRelType" elems="conceptID, term" singular="true"/>
+                    </elem>
+                </elem>
+            </elem>
+        </elem>
+
+        <elem tag="administrativeMetadata" attrs="xml:lang" required="true">
+            <elem tag="rightsWorkWrap" singular="true">
+                <elem tag="rightsWorkSet" elems="rightsType, rightsDate, rightsHolder, creditLine" attrs="sortorder" singular="true"/>
+            </elem>
+            <elem tag="recordWrap" singular="true">
+                <elem tag="recordID" attrs="pref, type, source, encodinganalog, label" required="true"/>
+                <elem tag="recordType" elems="conceptID, term" required="true" singular="true"/>
+                <elem tag="recordSource" elems="legalBodyID, legalBodyName, legalBodyWeblink" attrs="type, sortorder"/>
+                <elem tag="recordRights" elems="rightsType, rightsDate, rightsHolder, creditLine" />
+                <elem tag="recordInfoSet" attrs="type">
+                    <elem tag="recordInfoID" attrs="pref, type, source, encodinganalog, label"/>
+                    <elem tag="recordInfoLink" attrs="pref, formatResource,xml:lang, encodinganalog, label"/>
+                    <elem tag="recordMetadataDate" attrs="type,source"/>
+                </elem>
+            </elem>
+            <elem tag="resourceWrap" singular="true">
+                <elem tag="resourceSet" attrs="sortorder">
+                    <elem tag="resourceID" attrs="pref, type, source, encodinganalog, label" singular="true"/>
+                    <elem tag="resourceRepresentation" attrs="type">
+                        <elem tag="linkResource" attrs="codecResource" required="true" singular="true"/>
+                        <elem tag="resourceMeasurementsSet" elems="measurementType, measurementUnit, measurementValue" />
+                    </elem>
+                    <elem tag="resourceType" elems="conceptID, term" singular="true"/>
+                    <elem tag="resourceRelType" elems="conceptID, term" singular="true"/>
+                    <elem tag="resourcePerspective" elems="conceptID, term"/>
+                    <elem tag="resourceDescription" attrs="type, sortorder"/>
+                    <elem tag="resourceSource" elems="legalBodyID, legalBodyName, legalBodyWeblink" attrs="type, sortorder"/>
+                    <elem tag="rightsResource" elems="rightsType, rightsDate, rightsHolder, creditLine" singular="true"/>
+                </elem>
+            </elem>
+        </elem>
+
+    </root>
+
+
+    <options>
+        <!--<option-list path="/lido/administrativeMetadata/recordWrap">-->
+            <!--<opt key="1">Item</opt>-->
+            <!--<opt key="2">Collection</opt>-->
+            <!--<opt key="3">Series</opt>-->
+            <!--<opt key="4">Group</opt>-->
+            <!--<opt key="5">Fonds</opt>-->
+        <!--</option-list>-->
+    </options>
+
+
+    <bookmarks>
+
+        <category name="Mandatory LIDO elements">
+           <doc>
+               <string>These elements must be included by any professional mapper. If that's too much work, maybe you can find employment in the food services industry</string>
+           </doc>
+           <ref path="/lido/administrativeMetadata/@xml:lang" name="adminLanguage" display="Administrative Language"/>
+           <ref path="/lido/descriptiveMetadata/@xml:lang" name="descriptiveLanguage" display="Descriptive Language"/>
+           <ref path="/lido/descriptiveMetadata/objectClassificationWrap/objectWorkTypeWrap/objectWorkType/term" name="objectWorkType" display="Work Type"/>
+           <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/titleWrap/titleSet/appellationValue" name="title" display="Object Title">
+            <doc>
+                <string>LIDO: Maps to the title set as a preferred appellation value</string>
+                <string>Requirements: @pref="yes"</string>
+              </doc>
+            </ref>
+           <ref path="/lido/administrativeMetadata/recordWrap/recordID" name="recordID" display="Record ID"/>
+           <ref path="/lido/administrativeMetadata/recordWrap/recordType/term" name="recordType" display="Record type"/>
+           <ref path="/lido/administrativeMetadata/recordWrap/recordSource/legalBodyName/appellationValue" name="recordSource" display="Record source"/>
+        </category>
+
+        <category name="Classifications">
+            <ref path="/lido/descriptiveMetadata/objectClassificationWrap/classificationWrap/classification/term" name="material" display="Material">
+                <doc>
+                    <string>What is it actually made of?</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectClassificationWrap/classificationWrap/classification/term" name="technique" display="Technique">
+                <options>
+                    <opt key="1">Schilderkunst</opt>
+                    <opt key="2">Prentkunst</opt>
+                    <opt key="3">Fotografie</opt>
+                    <opt key="4">Tekeningen</opt>
+                    <opt key="5">Beeldhouwkunst</opt>
+                    <opt key="6">Textiel</opt>
+                    <opt key="7">Film/Video/DVD</opt>
+                    <opt key="8">Anders:</opt>
+                </options>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectClassificationWrap/classificationWrap/classification/term" name="iconclass" display="Iconclass"/>
+            <ref path="/lido/descriptiveMetadata/objectClassificationWrap/classificationWrap/classification/term" name="aat" display="AAT"/>
+        </category>
+
+        <category name="Subject relations">
+            <doc>
+               <string>Concepts, actors, dates, events, places and objects that are depicted on an image or on an object etc</string>
+           </doc>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectConcept/term" name="subjectConcept" display="Related Concepts"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectActor/displayActor" name="subjectActor" display="Relatated Actors"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectDate/displayDate" name="subjectDate" display="Relatated Dates"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectEvent/displayEvent" name="subjectEvent" display="Relatated Events"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectPlace/displayPlace" name="subjectPlace" display="Relatated Places"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/subjectWrap/subjectSet/subject/subjectObject/displayObject" name="subjectObject" display="Related Objects"/>
+        </category>
+
+        <category name="Object relations">
+            <doc>
+                <string>Related objects, is_partOf etc</string>
+            </doc>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/relatedWorksWrap/relatedWorkSet/relatedWork/displayObject" name="relatedWork" display="Related work"/>
+            <ref path="/lido/descriptiveMetadata/objectRelationWrap/relatedWorksWrap/relatedWorkSet/relatedWorkRelType/term" name="objectRelationType" display="Relation Type"/>
+        </category>
+
+        <!--
+        <category name="Events">
+            <ref path="/lido/lidoRecID" name="acqusition" display="AcqusitionEvent"/>
+
+        </category>
+
+        <category name="Collection information">
+            <doc>
+                <string>Collection name, type and what bigger collection it is part should be taken from Musip (and the URIs).</string>
+            </doc>
+            <ref path="/lido/lidoRecID" name="collectionTitle" factName="name" display="Collection Name"/>
+            <ref path="/lido/lidoRecID" name="collectionType" factName="collectionType" display="Collection Type"/>
+            <ref path="/lido/lidoRecID" name="collectionPart" display="Part of collection"/>
+        </category>
+        -->
+
+        <category name="DiMCoN Rijks elements">
+            <ref path="/lido/descriptiveMetadata/eventWrap/eventSet/event/eventDate/displayDate" name="acquisitionYear" display="Year of acquisition">
+                <doc>
+                    <string>The source dataset acquisition date is mapped into event - eventDate - displayDate  </string>
+                    <string>Acquisition is a LIDO event of type CRM E8 Acquisition (URI http://www.cidoc-crm.org/rdfs/crm_e8). </string>
+                    <string>The option key is mapped into event - eventType - conceptID  </string>
+                    <string>The option value is mapped into event - eventType - term  </string>
+                </doc>
+                <options>
+                    <opt key="http://www.cidoc-crm.org/rdfs/crm_e8">Acquisition</opt>
+                </options>
+            </ref>
+
+            <ref path="/lido/descriptiveMetadata/eventWrap/eventSet/event/eventMethod/term" name="meansOfAcquisition" display="Means of acquisition">
+                <doc>
+                    <string>This should be mapped as in what method the same acquisition event as above was carried out.</string>
+                    <string>The option key is mapped into event - eventMethod - conceptID </string>
+                    <string>The option value is mapped into event - eventMethod - term</string>
+                    <string>URIs for the option keys will be provided by CultureCloud</string>
+                </doc>
+                <options>
+                    <opt key="9">aankoop</opt>
+                    <opt key="10">schenking</opt>
+                    <opt key="11">bruikleen</opt>
+                    <opt key="12">ruil</opt>
+                    <opt key="13">opdracht</opt>
+                    <opt key="14">opdracht derden</opt>
+                    <opt key="15">opdracht museum</opt>
+                    <opt key="16">legaat</opt>
+                    <opt key="17">overdracht</opt>
+                    <opt key="18">successieregeling</opt>
+                    <opt key="19">vondst</opt>
+                    <opt key="20">onbekend</opt>
+                </options>
+            </ref>
+            <ref path="/lido/lidoRecID" name="acquiredWithHelpFrom" display="Acquired with help from">
+                <doc>
+                    <string>This is an actor in the same event that helped out in some way to carry out the acquisition</string>
+                    <string>To be continued...</string>
+
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" name="legalStatus" display="Legal status">
+                <doc>
+                    <string>To be continued...</string>
+                </doc>
+                <options>
+                    <opt key="21">stateOwned</opt>
+                    <opt key="22">notStateOwned</opt>
+                    <opt key="23">trustedToState</opt>
+                    <opt key="24">borrowedFrom</opt>
+                    <opt key="25">unknown</opt>
+                </options>
+            </ref>
+            <ref path="/lido/lidoRecID" name="chargesByState" display="Charges by state ????"/>
+
+            <ref path="/lido/descriptiveMetadata/eventWrap/eventSet/event/eventMethod/term" name="methodOfDisposal" display="Method of disposal">
+               <doc>
+                    <string>This is sligthly different from the acquisition event. LIDO uses CIDOC CRM to define events and CRM defines them a bit different than just one "disposal event"</string>
+                    <string>Sale, donation and exchange are  "E10 Transfer of Custody" events and destruction is an "E6 Destruction" event. </string>
+                    <string>The option key is mapped into event - eventType - conceptID  </string>
+                    <string>The option value is mapped into event - eventType - term  </string>
+               </doc>
+                <options>
+                    <opt key="http://www.cidoc-crm.org/rdfs/crm_e10">sale</opt>
+                    <opt key="http://www.cidoc-crm.org/rdfs/crm_e6">destruction</opt>
+                    <opt key="http://www.cidoc-crm.org/rdfs/crm_e10">donation</opt>
+                    <opt key="http://www.cidoc-crm.org/rdfs/crm_e10">exchange</opt>
+                </options>
+            </ref>
+            <ref path="/lido/lidoRecID" name="yearOfDisposal" display="Year of disposal">
+                <doc>
+                     <string>The source dataset date for the destruction or transfer of custody event is mapped into event - eventDate - displayDate  </string>
+                 </doc>
+             </ref>
+        </category>
+<!--
+        <category name="Facts from dataset registration">
+            <ref path="/lido/lidoRecID" name="collectionType" factName="collectionType" display="Collection Type"/>
+            <ref path="/lido/lidoRecID" name="collectionTitle" factName="name" display="Collection Name"/>
+            <ref path="/lido/lidoRecID" name="country" factName="country" display="Provider country"/>
+            <ref path="/lido/lidoRecID" name="dataProvider" factName="dataProvider" display="Data provider"/>
+            <ref path="/lido/lidoRecID" name="language" fieldType="string" factName="language" display="Default language"/>
+            <ref path="/lido/lidoRecID" name="rights" factName="rights" display="Rigths"/>
+            <ref path="/lido/lidoRecID" name="type" fieldType="string" factName="type" display="Type"/>
+            <ref path="/lido/lidoRecID" name="unstored" fieldType="text" display="Unstored"/>
+            <ref path="/lido/lidoRecID" name="hub_uri" summaryField="HUB_ID" display="CultureHub URI"/>
+        </category>
+
+
+
+-->     <category name="SPECTRUM Object Identification Information">
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/repositoryWrap/repositorySet/workID" display="Object number" localName="">
+                <doc>
+                    <string>[Object Identification]/repositoryWrap/repositorySet/workID (no type attribute)</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/repositoryWrap/repositorySet/workID" display="Other number" localName="">
+                <doc>
+                    <string>[Object Identification]/repositoryWrap/repositorySet/workID (type attribute = data from Other number type Unit)</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/repositoryWrap/repositorySet/@type" display="Other number type" localName="">
+                <doc>
+                    <string>[See above]</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet/descriptiveNoteValue" display="Brief description" localName="">
+                <doc>
+                    <string>[Object Identification]/objectDescriptionWrap/objectDescriptionSet (no type attribute)/descriptiveNoteValue</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet/descriptiveNoteValue" display="Comments" localName="">
+                <doc>
+                    <string>[Object Identification]/objectDescriptionWrap/objectDescriptionSet (type attribute = ‘Comments’)/descriptiveNoteValue </string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet/descriptiveNoteValue" display="Distinguishing features" localName="">
+                <doc>
+                    <string>[Object Identification]/objectDescriptionWrap/objectDescriptionSet (type attribute = ‘Distinguishing-features’)/descriptiveNoteValue</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet/descriptiveNoteValue" display="Number of objects" localName="">
+                <doc>
+                    <string>([Object Identification]/objectDescriptionWrap/objectDescriptionSet (type attribute = ‘Number-of-objects’)/descriptiveNoteValue</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/titleWrap/titleSet/appellationValue" display="Object name [if no title only]" localName="">
+                <doc>
+                    <string>[Object Identification]/titleWrap/titleSet/appellationValue</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectClassificationWrap/objectWorkTypeWrap/objectWorkType/term" display="Object name" localName="">
+                <doc>
+                    <string>[Object Classification]/objectWorkTypeWrap/objectWorkType/term</string>
+                </doc>
+            </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/titleWrap/titleSet/appellationValue" display="Title" localName="">
+                <doc>
+                    <string>[Object Identification]/titleWrap/titleSet/appellationValue</string>
+                </doc>
+            </ref>
+
+        </category>
+
+        <category name="icn mapping">
+            <doc>
+                <string>This bookmark will only be provided as an overview and as a guide for providers that delivers data using OAI-PMH and Dublin Core and until they have realized that they should drop Dublin Core.</string>
+                <string>This will take some time to get right...</string>
+            </doc>
+            <ref path="/lido/lidoRecID" display="icn:creatorYearOfBirth" localName="creatorYearOfBirth"/>
+            <ref path="/lido/lidoRecID" display="icn:technique" localName="technique"/>
+            <ref path="/lido/lidoRecID" display="icn:material" localName="material"/>
+            <ref path="/lido/lidoRecID" display="icn:location" localName="location"/>
+            <ref path="/lido/lidoRecID" display="icn:province" localName="province"/>
+            <ref path="/lido/lidoRecID" display="icn:collectionPart" localName="collectionPart"/>
+            <ref path="/lido/lidoRecID" display="icn:acquisitionMeans" localName="acquisitionMeans"/>
+            <ref path="/lido/lidoRecID" display="icn_collectionType" name="collectionType"/>
+            <ref path="/lido/lidoRecID" display="icn:acquisitionYear" name="acquisitionYear"/>
+            <ref path="/lido/lidoRecID" display="icn:purchasePrice" name="purchasePrice"/>
+            <ref path="/lido/lidoRecID" display="icn:acquiredWithHelpFrom" name="acquiredWithHelpFrom"/>
+            <ref path="/lido/lidoRecID" display="icn:physicalState" name="physicalState"/>
+
+            <ref path="/lido/lidoRecID" display="dc:contributor" name="contributor">
+                <doc>
+                    <string>Description: An entity responsible for making contributions to the content of the resource. Examples of a Contributor include a person, an organization or a service. Typically, the name of a Contributor should be used to indicate the entity.</string>
+                    <string>Europeana definition: An entity responsible for making contributions to the resource</string>
+                    <string>Europeana note: The name of contributors to the original analog or born digital object.  This could be a person, an organisation or a service. </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dc:coverage" name="coverage">
+                <doc>
+                    <string>Description: The extent or scope of the content of the resource. Coverage will typically include spatial location (a place name or geographic co-ordinates), temporal period (a period label, date, or date range) or jurisdiction (such as a named administrative entity). Recommended best practice is to select a value from a controlled vocabulary (for example, the Thesaurus of Geographic Names [Getty Thesaurus of Geographic Names, http://www. getty.edu/research/tools/vocabulary/tgn/]). Where appropriate, named places or time periods should be used in preference to numeric identifiers such as sets of co-ordinates or date ranges.</string>
+                    <string>Example: Coverage="1995-1996", Coverage="Boston, MA", Coverage="17th century", Coverage="Upstate New York"</string>
+                    <string>Europeana definition:
+                            The spatial or temporal topic of the resource, the spatial applicability of the
+                            resource, or the jurisdiction under which the resource is relevant.  This may be
+                            a named place, a location, a spatial coordinate, a period, date, date range or a
+                            named administrative entity.
+                            Refined by dcterms:spatial and dcterms:tempora
+                    </string>
+                    <string>Europeana note:
+                            Coverage is the unqualified spatial or temporal coverage of the original analog
+                            or born digital object.  Use of the more specific dcterms:spatial and
+                            dcterms:temporal elements is preferred where possibl</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dc:creator" name="creator">
+                <doc>
+                    <string>Description: An entity primarily responsible for making the content of the resource. Examples of a Creator include a person, an organization, or a service. Typically the name of the Creator should be used to indicate the entity.</string>
+                    <string>Europeana definition: An entity primarily responsible for making the resource. This may be a person, organisation or a service.</string>
+                    <string>Europeana note: This is the name of the creator of the original analog or born digital object</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dc:date" name="date">
+                <doc>
+                    <string>Description: A date associated with an event in the life cycle of the resource. Typically, Date will be associated with the creation or availability of the resource. Recommended best practice for encoding the date value is defined in a profile of ISO 8601 [Date and Time Formats, W3C Note, http://www.w3.org/TR/NOTE- datetime] and follows the YYYY-MM-DD format.</string>
+                    <string>Europeana definition: A point or period of time associated with an event in the lifecycle of the resource.
+                            Refined by: dcterms:created and dcterms:issued
+                    </string>
+                    <string>Europeana note: Use for a significant date in the life of the original analog or born digital object (see example).
+                            Use dcterms:temporal (or dc:coverage) if the date is associated with the topic of the resource.
+
+                            dc:date will be used to generate europeana:year for the timeline where
+                            appropriate.  See Guidelines for date format recommendations
+                    </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dc:description" name="description">
+                <doc>
+                    <string>Description: An account of the content of the resource. Description may include but is not limited to: an abstract, table of contents, reference to a graphical representation of content or a free-text account of the content.</string>
+                    <string>Europeana definition: An account of the resource.  Refined by: dcterms:tableOfContents</string>
+                    <string>Europeana note: A description of the original analog or born digital object.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:format" name="format">
+                <doc>
+                    <string>Description: The physical or digital manifestation of the resource. Typically, Format may include the media-type or dimensions of the resource. Examples of dimensions include size and duration. Format may be used to determine the software, hardware or other equipment needed to display or operate the resource.
+                            Recommended best practice is to select a value from a controlled vocabulary (for example, the list of Internet Media Types [http://www.iana.org/ assignments/media-types/] defining computer media formats).</string>
+                    <string>Europeana definition: The file format, physical medium or dimensions of the resource. Refined by: dcterms:extent and dcterms:medium</string>
+                    <string>Europeana note:
+                            The unqualified element includes file format, physical medium or dimensions of the original and/or digital object.
+                            Use this element for the file format of the digital object or born digital originals. Internet Media Types [MIME] are highly recommended (http://www.iana.org/assignments/media-types/).
+                            Use of the more specific elements dcterms:extent (dimensions) and dcterms:medium (physical medium) is preferred where appropriate.
+                    </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:identifier" name="identifier">
+                <doc>
+                    <string>Description: An unambiguous reference to the resource within a given context. Recommended best practice is to identify the resource by means of a string or number conforming to a formal identification system. Examples of formal identification systems include the Uniform Resource Identifier (URI) (including the Uniform Resource Locator (URL), the Digital Object Identifier (DOI) and the International Standard Book Number (ISBN).</string>
+                    <string>Europeana definition: An unambiguous reference to the resource within a given context. </string>
+                    <string>Europeana note: This is the identifier for the original analog or born digital object.  Use europeana:isShownBy for the URL of the digital object. If the URL is already included in the dc:identifier element in the existing metadata, keep it and repeat the information in europeana:isShownBy. </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:language" name="language">
+                <doc>
+                    <string>Description: A language of the intellectual content of the resource. Recommended best practice for the values of the Language element is defined by RFC 3066 [RFC 3066, http://www.ietf.org/rfc/ rfc3066.txt] which, in conjunction with ISO 639 [ISO 639, http://www.oasis- open.org/cover/iso639a.html]), defines two- and three-letter primary language tags with optional subtags. Examples include "en" or "eng" for English, "akk" for Akkadian, and "en-GB" for English used in the United Kingdom.</string>
+                    <string>Europeana definition: A language of the resource.</string>
+                    <string>Europeana comment: The recommended best practice is to use a controlled vocabulary such as RFC 4646 (http://www.rfc-archive.org/getrfc.php?rfc=4646) which, in conjunction with ISO 639, defines two- and three-letter primary language tags. Either a coded value or text string can be represented here.  </string>
+                    <string>Europeana note:
+                            Use this element for the language of textual objects and also where there is a language aspect to other objects  e.g. sound recordings, posters, newspapers etc). If there is no language aspect to the digital object (e.g. a photograph), please ignore this element.
+
+                            This element is not for the language of the metadata of a resource, which may be described in xml:lang attribute. For example, dc:title xml:lang=”en” After dark /dc:title.  See europeana:language.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dc:publisher" name="publisher">
+                <doc>
+                    <string>Description: The entity responsible for making the resource available. Examples of a Publisher include a person, an organization, or a service. Typically, the name of a Publisher should be used to indicate the entity.</string>
+                    <string>Europeana definition: An entity responsible for making the resource available. Examples of a publisher include a person, an organisation and a service.</string>
+                    <string>Europeana note: The name of the publisher of the original analog or born digital object</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:relation" name="relation">
+                <doc>
+                    <string>Description: A reference to a related resource. Recommended best practice is to reference the resource by means of a string or number conforming to a formal identification system.</string>
+                    <string>Europeana definition: A related resource. The recommended best practice is to identify the resource using a formal identification scheme.  </string>
+                    <string>Europeana note: This is information about resources that are related to the original analog or born digital object.
+                            Refined by: dcterms:isVersionOf; dcterms:hasVersion;
+                            dcterms:isReplacedBy; dcterms:replaces;
+                            dcterms:isRequiredBy; dcterms:requires; dcterms:isPartOf;
+                            dcterms:hasPart; dcterms:isReferencedBy;
+                            dcterms:references; dcterms:isFormatOf;
+                            dcterms:hasFormat; dcterms:conformsTo;
+                            europeana:isShownBy; europeana:isShownAt
+                    </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:rights" name="rights">
+                <doc>
+                    <string>Description: Information about rights held in and over the resource. Typically a Rights element will contain a rights management statement for the resource, or reference a service providing such information. Rights information often encompasses Intellectual Property Rights (IPR), Copyright, and various Property Rights. If the rights element is absent, no assumptions can be made about the status of these and other rights with respect to the resource.</string>
+                    <string>Europeana definition: Information about rights held in and over the resource.</string>
+                    <string>Europeana note: This is a free text element and should be used for information about intellectual property rights or access arrangements for the digital object that is additional to the controlled value provided in europeana:rights. Compare the use of this element with europeana:rights before making a mapping decision.  A record may contain both elements but do not duplicate values in both elements: #europeana:rights# http://www.europeana.eu/rights/rr-f/#/europeana:rights# #dc:rights#Kilmarnock House Trust (David Jones)#/dc:rights#</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:source" name="source">
+                <doc>
+                    <string>Description: A Reference to a resource from which the present resource is derived. The present resource may be derived from the Source resource in whole or part. Recommended best practice is to reference the resource by means of a string or number conforming to a formal identification system.</string>
+                    <string>Europeana definition: A related resource from which the described resource is derived in whole or in part.</string>
+                    <string>Europeana note: This element can be used for several different types of source that are related to the object (such as reference sources). The name of the content holder should no longer be recorded here as a new element, europeana:dataProvider has been defined for that purpose.   Multiple instances of dc:source may be supplied and all values will be displayed. </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:subject" name="subject">
+                <doc>
+                    <string>Description: The topic of the content of the resource. Typically, a Subject will be expressed as keywords or key phrases or classification codes that describe the topic of the resource. Recommended best practice is to select a value from a controlled vocabulary or formal classification scheme.</string>
+                    <string>Europeana definition: The topic of the resource</string>
+                    <string>Europeana note: This is the subject of the original analog or born digital object. </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:title" name="title">
+                <doc>
+                    <string>Description: The name given to the resource. Typically, a Title will be a name by which the resource is formally known.</string>
+                    <string>Europeana definition: A name given to the resource. Typically, a Title will be a name by which the resource is formally known.  Refined by: dcterms:alternative</string>
+                    <string>Europeana note: The title of the original analog or born digital object. </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dc:type" name="type">
+                <doc>
+                    <string>Description: The nature or genre of the content of the resource. Type includes terms describing general categories, functions, genres, or aggregation levels for content. Recommended best practice is to select a value from a controlled vocabulary (for example, the DCMIType vocabulary ). To describe the physical or digital manifestation of the resource, use the FORMAT element.</string>
+                    <string>Europeana definition: The nature or genre of the resource.  Type includes terms describing general categories, functions, genres, or aggregation levels for content.  The recommended best practice is to select a value from a controlled vocabulary (for example, the DC Type vocabulary is available at http://dublincore.org/documents/dcmi-type-vocabulary/).</string>
+                    <string>Europeana note: The type of the original analog or born digital object as recorded by the content holder, this element typically includes values such as photograph, painting, sculpture etc. Providers are recommended to map the values entered in this element to the four material types used in Europeana: TEXT, IMAGE, SOUND and VIDEO.  See europeana:type below. </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/descriptiveMetadata/objectIdentificationWrap/titleWrap/titleSet/appellationValue" display="dcterms:alternative" name="dcterms:alternative">
+                <doc>
+                    <string>Dublin Core definition: An alternative name for the resource.</string>
+                    <string>Comment: The distinction between titles and alternative titles is application-specific.</string>
+                    <string>Europeana definition: An alternative name for the resource. This can be any form of the title that is used as a substitute or an alternative to the formal title of the resource including abbreviations or translations of the title. Refinement of dc:title</string>
+                    <string>Europeana note: Any alternative title by which the original analog or born digital object is known. This can include abbreviations or translations of the title</string>
+                    <string>LIDO: Maps to the title set as a non preferred appellation value</string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:conformsTo" name="conformsTo">
+                <doc>
+                    <string>Dublin Core definition: An established standard to which the described resource conforms.</string>
+                    <string>Europeana definition: An established standard to which the described resource conforms. Refinement of dc:relation.</string>
+                    <string>Europeana note: The names of standards that the digital object (digitized or born digital) complies with and which are useful for the use of the object.  </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:created" name="created">
+                <doc>
+                    <string>Dublin Core definition: Date of creation of the resource.</string>
+                    <string>Europeana definition:  Date of creation of the resource.  Refinement of dc:date</string>
+                    <string>Europeana note:
+                            This is the date when the original analog or born digital object was created.
+                            The creation date is used to generate the europeana:year for use in the
+                            timeline where appropriate.   See Guidelines for date format recommendation
+                    </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:extent" name="extent">
+                <doc>
+                    <string>Dublin Core definition: </string>
+                    <string>Europeana definition: The size or duration of the resource.  Refinement of dc:format.</string>
+                    <string>Europeana note: Size or duration of the digital object and the original object may be recorded.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:hasFormat" name="hasFormat">
+                <doc>
+                    <string>Dublin Core definition: </string>
+                    <string>Europeana definition: A related resource that is substantially the same as the pre-existing described resource, but in another format. Refinement of dc:relation.  See also dcterms:isFormatOf</string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:hasPart" name="hasPart">
+                <doc>
+                    <string>Dublin Core definition: A related resource that is included either physically or logically in the described resource.</string>
+                    <string>Europeana definition: A related resource that is included either physically or logically in the described resource. Refinement of dc:relation.  See also dcterms:isPartOf.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:hasVersion" name="hasVersion">
+                <doc>
+                    <string>Dublin Core definition: A related resource that is a version, edition, or adaptation of the described resource.</string>
+                    <string>Europeana definition: A related resource that is a version, edition, or adaptation of the described resource. Changes in version imply substantive changes in content rather than differences in format. Refinement of dc:relation.  See also dcterms:isVersionOf</string>
+                    <string>Europeana note: Use dcterms:hasFormat for differences in format</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isFormatOf" name="isFormatOf">
+               <doc>
+                    <string>Dublin Core definition: A related resource that is substantially the same as the described resource, but in another format.</string>
+                    <string>Europeana definition: A related resource that is substantially the same as the described resource, but in another format.  Refinement of dc:relation.  See also dcterms:hasFormat. </string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isPartOf" name="isPartOf">
+               <doc>
+                    <string>Dublin Core definition: A related resource in which the described resource is physically or logically included.</string>
+                    <string>Europeana definition: A related resource in which the described resource is physically or logically included. Refinement of dc:relation.  See also dcterms:hasPart.</string>
+                    <string>Europeana note: Use for the name of the collection which the digital object is part of.  </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isReferencedBy" name="isReferencedBy">
+               <doc>
+                    <string>Dublin Core definition: A related resource that references, cites, or otherwise points to the described resource.</string>
+                    <string>Europeana definition: A related resource that references, cites, or otherwise points to the described resource.  Refinement of dc:relation.  See also dcterms:references.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isReplacedBy" name="isReplacedBy">
+               <doc>
+                    <string>Dublin Core definition: A related resource that supplants, displaces, or supersedes the described resource.</string>
+                    <string>Europeana definition: A related resource that supplants, displaces, or supersedes the described resource. Refinement of dc:relation.  See also dcterms:replaces. </string>
+                    <string>LIDO: </string>
+               </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isRequiredBy" name="isRequiredBy">
+               <doc>
+                    <string>Dublin Core definition: A related resource that requires the described resource to support its function, delivery, or coherence.</string>
+                    <string>Europeana definition: A related resource that requires the described resource to support its function, delivery or coherence. Refinement of dc:relation.  See also dcterms:requires.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:isVersionOf" name="isVersionOf">
+               <doc>
+                    <string>Dublin Core definition: A related resource of which the described resource is a version, edition, or adaptation.</string>
+                    <string>Europeana definition: A related resource of which the described resource is a version, edition, or adaptation. Changes in version imply substantive changes in content rather than differences in format.  Refinement of dc:relation.  See also dcterms:hasVersion.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:issued" name="issued">
+               <doc>
+                    <string>Dublin Core definition: Date of formal issuance (e.g., publication) of the resource.</string>
+                    <string>Europeana definition: Date of formal issuance (e.g., publication) of the resource.  Refinement of dc:date</string>
+                    <string>Europeana note: The date when the original analog or born digital object was issued or published. It may be used to generate the europeana:year for the timeline where this is appropriate. See Guidelines for date format recommendations.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:medium" name="medium">
+               <doc>
+                    <string>Dublin Core definition: The material or physical carrier of the resource.</string>
+                    <string>Europeana definition: The material or physical carrier of the resource. Refinement of dc:format </string>
+                    <string>Europeana note: This is the medium of the original analog or born digital object</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:provenance" name="provenance">
+               <doc>
+                    <string>Dublin Core definition: A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation.</string>
+                    <string>Europeana definition: A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity and interpretation.This may include a description of any changes successive custodians made to the resourc</string>
+                    <string>Europeana note: This relates to the ownership and custody of the original analog or born digital object.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:references" name="references">
+               <doc>
+                    <string>Dublin Core definition: A related resource that is referenced, cited, or otherwise pointed to by the described resource.</string>
+                    <string>Europeana definition: A related resource that is referenced, cited, or otherwise pointed to by the described resource.  Refinement of dc:relation.  See also dcterms:isReferencedBy.</string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:replaces" name="replaces">
+               <doc>
+                    <string>Dublin Core definition: A related resource that is supplanted, displaced, or superseded by the described resource.</string>
+                    <string>Europeana definition: A related resource that is supplanted, displaced, or superseded by the described resource. Refinement of dc:relation.  See also dcterms:isReplacedBy</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:requires" name="requires">
+               <doc>
+                    <string>Dublin Core definition: A related resource that is required by the described resource to support its function, delivery, or coherence.</string>
+                    <string>Europeana definition: A related resource that is required by the described resource to support its function, delivery or coherence.  Refinement of dc:relation.  See also dcterms:isRequiredBy</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:spatial" name="spatial">
+               <doc>
+                    <string>Dublin Core definition: Spatial characteristics of the resource.</string>
+                    <string>Europeana definition: Spatial characteristics of the resource.  Refinement of dc:coverage.</string>
+                    <string>Europeana note: Information about the spatial characteristics of the original analog or born digital object, i.e. what the resource represents or depicts in terms of space. This may be a named place, a location, a spatial coordinate or a named administrative entity</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:tableOfContents" name="tableOfContents">
+               <doc>
+                    <string>Dublin Core definition: A list of subunits of the resource.</string>
+                    <string>Europeana definition: A list of subunits of the resource.   Refinement of dc:description.</string>
+                    <string>Europeana note: A list of the units within the original analog or born digital resource object.</string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:temporal" name="temporal">
+               <doc>
+                    <string>Dublin Core definition: Temporal characteristics of the resource.</string>
+                    <string>Europeana definition: Temporal characteristics of the resource. Refinement of dc:coverage</string>
+                    <string>Europeana note: The temporal characteristics of the original analog or born digital object i.e. what the resource is about or depicts in terms of time.  This may be a period, date or date range </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="dcterms:rightsHolder" name="rightsHolder">
+               <doc>
+                    <string>Dublin Core definition: A person or organization owning or managing rights over the resource.</string>
+                    <string>Europeana definition: </string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+             </ref>
+            <ref path="/lido/lidoRecID" display="europeana:collectionName" name="collectionName">
+                <doc>
+                    <string>Europeana definition: </string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:collectionTitle" name="collectionTitle">
+                <doc>
+                    <string>Europeana definition: </string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:country" name="country">
+                <doc>
+                    <string>Europeana definition: The name of the country of the data provider or “Europe” in the case of Europe-wide projects</string>
+                    <string>Europeana note: Europeana enters the name of the country of the data provider as part of the ingest process but can only do this accurately if Providers (aggregators) supply datasets by country. </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:dataProvider" name="dataProvider">
+                <doc>
+                    <string>Europeana definition: The name or identifier of the organisation that contributes data to Europeana</string>
+                    <string>Europeana note:
+                            This element is specifically included to allow the name of the organisation who
+                            supplies data to Europeana indirectly via an aggregator to be recorded and
+                            displayed in the portal.  (Aggregator names are recorded in europeana:provider.)
+                            If an organisation provides data directly to Europeana (i.e. not via an
+                            aggregator) the values in europeana:dataProvider and europeana:provider will be the same.
+
+                            Organisation names should be provided as an ordinary text string until the
+                            Europeana Authority File for Organisations has been established.  At that
+                            point providers will be able to send an identifier from the file instead of a text string.
+
+                            The name provided should be the preferred form of the name in the language
+                            the provider chooses as the default language for display in the portal.
+                            Countries with multiple languages may prefer to concatenate the name in
+                            more than one language (See the example below.)
+
+                            Note: Europeana Data Provider is not necessarily the institution where the physical object is located.
+                    </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:isShownAt" name="isShownAt">
+                <doc>
+                    <string>Europeana definition: An unambiguous URL reference to the digital object on the provider’s web site in its full information context.  Refinement of dc:relation.  See also europeana:isShownBy.</string>
+                    <string>Europeana note: This is a URL that will be active in the Europeana interface. It will lead users to the digital object displayed on the provider’s web site in its full information context.  Use europeana:isShownAt if you display the digital object with extra information (such as header, banner etc).</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:isShownBy" name="isShownBy">
+                <doc>
+                    <string>Europeana definition: An unambiguous URL reference to the digital object on the provider’s web site in the best available resolution/quality.  Refinement of dc:relation.  See also europeana:isShownAt.</string>
+                    <string>Europeana note: This is a URL that will be active in the Europeana interface.  It will lead users to the digital object on the provider’s website where they can view or play it.  The digital object needs to be directly accessible by the URL and reasonably independent at that location. If the URL includes short copyright information with the pointer to the object it can be entered in europeana:isShownBy. Use europeana:isShownAt for digital objects embedded in HTML pages (even where the page is extremely simple)</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:language" name="language">
+                <doc>
+                    <string>Europeana definition: A normalised language value assigned to the resource with reference to the language given in the dc:language element.  </string>
+                    <string>Europeana note: As part of the ingest process the language(s) stated in dc:language will be normalised and entered in this element to support the Language facet. It/they will be expressed using the ISO 639-2 (the three-character code) (e.g. “eng”.  </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/administrativeMetadata/resourceWrap/resourceSet/resourceRepresentation/linkResource" display="europeana:object" name="object">
+                <doc>
+                    <string>Europeana definition: The URL of a suitable source image in the best resolution available on the web site of the data provider from which small images could be generated for use in the portal.  This will often be the same URL as given in  europeana:isShownBy.</string>
+                    <string>Europeana note: The specifications for suitable source images and details of their use and processing in Europeana can be found in the Europeana Portal Image Policy. Please consult this document before entering a URL in this metadata element. Note that there is no requirement to provide an image in any other format than those readily available on the providers website. If it is not possible to generate a suitable image a default icon corresponding to the Europeana type of object will be displayed.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:provider" name="provider">
+                <doc>
+                    <string>Europeana definition: Name of the organization that delivers data to Europeana. </string>
+                    <string>Europeana note: The europeana:provider is the organization that sends the data to Europeana, and this is not necessarily the institution that holds or owns the original or digitised object.  Where data is being supplied by an aggregator or project europeana:provider is the name of aggregator/project.  The name of the content holder can be recorded in the new europeana:dataProvider element. If the content holder supplies data directly to Europeana then the name should appear in both these elements. The name should be in the original language(s)</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:rights" name="rights">
+                <doc>
+                    <string>Europeana definition: Information about copyright of the digital object that is specified in isShownBy and isShownAt </string>
+                    <string>Europeana note: The value must be a URL constructed according to the specifications in the “Rights Guidelines” document on the Technical Requirements page at:http://version1.europeana.eu/web/guest/technicalrequirements/ The URLs are constructed by adding a code indicating the copyright status of an object to the domain name where that status is defined.  For users of Europeana.eu this copyright information also applies to the preview specified in europeana:object. The rights statement will be represented as a badge below the preview on the object page.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:type" name="type">
+                <doc>
+                    <string>Europeana definition: on  The Europeana material type of the resource.</string>
+                    <string>Europeana note: All digital objects in Europeana must be classified as one of the four Europeana types using upper case letters: TEXT, IMAGE, SOUND or VIDEO. This element is used to create the Type facet based on the Europeana material types. A default icon is used for each object type in the short or full record display when an image is not available (see europeana:object).As well as recording the orignal type values in #dc:type#, providers are asked to map from the local type terminology to the four types used in Europeana. </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:unstored" name="unstored">
+                <doc>
+                    <string>Europeana definition: This is a container element which includes all relevant information that otherwise cannot be mapped to another element in the ESE.</string>
+                    <string>Europeana note: The europeana:unstored element is provided in order to include important information for indexing purposes. All relevant information elements, which cannot be mapped to another element in the ESE, should be mapped into this element. This element is not available in “full search result display”. </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:uri" name="uri">
+                <doc>
+                    <string>Europeana definition: An unambiguous URI to the resource within Europeana’s context.</string>
+                    <string>Europeana note: This is a record identifier for the object in the Europeana system. It is created by Europeana based on the unique identifiers provided in the source metadata.  Please note that in cases where a provider supplies two or more records with the same record identifier, only the first record is kept by Europeana. Subsequent records with the same identifier are discarded.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:userTag" name="userTag">
+                <doc>
+                    <string>Europeana definition:  This is a tag created by a user through the Europeana interface.</string>
+                    <string>Europeana note: These are tags created by registered users.</string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:hasDigitalObject" name="hasDigitalObject">
+                <doc>
+                    <string>Europeana definition: </string>
+                    <string>Europeana note: </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+            <ref path="/lido/lidoRecID" display="europeana:year" name="year">
+                <doc>
+                    <string>Europeana definition: A point of time associated with an event in the life of the original analog or born digital object.</string>
+                    <string>Europeana note: This is a 4 digit year in the Gregorian calendar (e.g. 1523), which is derived by Europeana from date values in the source metadata.  It is derived from dc:date and its refinements. It is used in the Europeana timeline and the date facet. Objects with no europeana:year will not be represented in the Timeline or the date facet.  </string>
+                    <string>LIDO: </string>
+                </doc>
+            </ref>
+        </category>
+
+
+   </bookmarks>
+
+
+   <docs>
+    <doc tag="actor">
+        <string name="Definition">Describes and identifies an actor, i.e. a person, corporation, family or group, containing structured sub-elements for indexing and identification references. </string>
+    </doc>
+    <doc tag="actorID">
+        <string name="Definition">A unique identifier for the actor.</string>
+        <string name="How to record">Preferably taken from a published authority file.</string>
+    </doc>
+    <doc tag="actorInRole">
+        <string name="Definition">Describes an actor with role and (if necessary) attributions in a structured way, consisting of the sub-elements actor, its role, attribution and extent.</string>
+    </doc>
+    <doc tag="addedSearchTerm">
+        <string name="How to record">Has the two values: &quot;yes&quot; or &quot;no&quot;. ”yes” indicates, that the term is an additional term which is derived from an underlying controlled vocabulary (eg. synonym, generic term, superordinate term) and should be used only for retrieval.&quot;no&quot; is default.</string>
+    </doc>
+    <doc tag="administrativeMetadata">
+        <string name="Definition">Holds the administrative metadata for an object / work record. </string>
+        <string name="How to record">The attribute xml:lang is mandatory and specifies the language of the administrative metadata.For fully multi-lingual resources, repeat this element once for each language represented.If only a few data fields (e.g. title, creditline) are provided in more than one language, the respective text elements may be repeated specifying the lang attribute on the text level.</string>
+    </doc>
+    <doc tag="appellationValue">
+        <string name="Definition">Appellations, e.g. titles, identifying phrases, or names given to an item, but also name of a person or corporation, also place name etc. </string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="attributionQualifierActor">
+        <string name="Definition">A qualifier used when the attribution is uncertain, is in dispute, when there is more than one actor, when there is a former attribution, or when the attribution otherwise requires explanation.</string>
+        <string name="How to record">Example values: attributed to, studio of, workshop of, atelier of, office of, assistant of, associate of, pupil of, follower of, school of, circle of, style of, after copyist of, manner of...</string>
+    </doc>
+    <doc tag="category">
+        <string name="Definition">Indicates the category of which this item is an instance, preferably referring to CIDOC-CRM concept definitions. </string>
+        <string name="How to record">CIDOC-CRM concept definitions are  given at http://www.cidoc-crm.org/crm-concepts/Data values in the sub-element term may often be: Man-Made Object (with conceptID &quot;http://www.cidoc-crm.org/crm-concepts/E22&quot;), Man-Made Feature (http://www.cidoc-crm.org/crm-concepts/E25), Collection (http://www.cidoc-crm.org/crm-concepts/E78). </string>
+    </doc>
+    <doc tag="classification">
+        <string name="Definition">Concepts used to categorize an object / work by grouping it together with others on the basis of similar characteristics.</string>
+        <string name="How to record">The category belongs to a systematic scheme (classification) which groups objects of similar characteristics according to uniform aspects. This grouping / classification may be done according to material, form, shape, function, region of origin, cultural context, or historical or stylistic period. In addition to this systematic grouping it may also be done according to organizational divisions within a museum (e.g., according to the collection structure of a museum). If the object / work is assigned to multiple classifications, repeat this element.Preferably taken from a published controlled vocabulary. </string>
+    </doc>
+    <doc tag="classificationWrap">
+        <string name="Definition">A wrapper for classification information.</string>
+    </doc>
+    <doc tag="codecResource">
+        <string name="Definition">Codec information about the digital resource.</string>
+    </doc>
+    <doc tag="conceptID">
+        <string name="Definition">A unique identifier for the concept.</string>
+        <string name="How to record">Preferably taken from and linking to a published controlled vocabulary.</string>
+    </doc>
+    <doc tag="creditLine">
+        <string name="Definition">Acknowledgement of the rights associated with the physical and/or digital object as requested.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="culture">
+        <string name="Definition">Name of a culture, cultural context, people, or also a nationality. </string>
+        <string name="How to record">Preferably using a controlled vocabuarly. </string>
+    </doc>
+    <doc tag="date">
+        <string name="Definition">Contains a date specification by providing a set of years as earliest and latest date delimiting the respective span of time.This may be a period or a set of years in the proleptic Gregorian calendar delimiting the span of time. If it is an exact date, possibly with time, repeat the same date (and time) in earliest and latest date. </string>
+    </doc>
+    <doc tag="descriptiveMetadata">
+        <string name="Definition">Holds the descriptive metadata of an object record. </string>
+        <string name="How to record">The attribute xml:lang is mandatory and specifies the language of the descriptive metadata.For fully multi-lingual resources, repeat this element once for each language represented.If only a few data fields (e.g. title) are provided in more than one language, the respective text elements may be repeated specifying the lang attribute on the text level.</string>
+    </doc>
+    <doc tag="descriptiveNoteID">
+        <string name="Definition">Identifier for an external resource describing the entity. </string>
+        <string name="Notes">The referenced resource may be any kind of document, preferably web-accessible.</string>
+    </doc>
+    <doc tag="descriptiveNoteValue">
+        <string name="Definition">Usually a relatively brief essay-like text that describes the entity.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayActor">
+        <string name="Definition">Display element for one actor, corresponding to the following actor element.</string>
+        <string name="How to record">May include name, brief biographical information of the named actor, presented in a syntax suitable for display to the end-user. If there is no known actor, make a reference to the presumed culture or nationality of the unknown actor.May be concatenated from the respective Actor element. The name should be in natural order, if possible, although inverted order is acceptable. Include nationality and life dates. For unknown actors, use e.g.: &quot;unknown,&quot; &quot;unknown Chinese,&quot; &quot;Chinese,&quot; or &quot;unknown 15th century Chinese.&quot;Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayActorInRole">
+        <string name="Definition">DIsplay element for an actor coupled with its specific role, corresponding to the following actor element.</string>
+        <string name="How to record">May include name, brief biographical information, and roles (if necessary) of the named actor, presented in a syntax suitable for display to the end-user and including any necessary indications of uncertainty, ambiguity, and nuance. If there is no known actor, make a reference to the presumed culture or nationality of the unknown actor.May be concatenated from the respective Actor element. The name should be in natural order, if possible, although inverted order is acceptable. Include nationality and life dates. For unknown actors, use e.g.: &quot;unknown,&quot; &quot;unknown Chinese,&quot; &quot;Chinese,&quot; or &quot;unknown 15th century Chinese.&quot;Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayDate">
+        <string name="Definition">splay element for a date specification, corresponding to the following date element.</string>
+        <string name="How to record">It is a concise description of the date, presented in a syntax suitable for display to the end-user and including any necessary indications of uncertainty, ambiguity, and nuance.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayEdition">
+        <string name="Definition">A description of the edition of the object / work. Used primarily for prints and other multiples.</string>
+        <string name="How to record">Formulated according to rules. For Edition, include impression number, edition size, and edition number, or edition name, as appropriate.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayEvent">
+        <string name="Definition">splay element for an event, corresponding to the following event element.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayMaterialsTech">
+        <string name="Definition">DIsplay element for materials/technique, corresponding to the following materialsTech element.</string>
+        <string name="How to record">It is presented in a syntax suitable for display to the end-user and including any necessary indications of uncertainty, ambiguity, and nuance.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayObject">
+        <string name="Definition">A free-text description of the object, corresponding to the following object element</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayObjectMeasurements">
+        <string name="Definition">splay element for one object measurement, corresponding to the following objectMeasurement element.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayPlace">
+        <string name="Definition">splay element for a place specification, corresponding to the following place element.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayState">
+        <string name="Definition">A description of the state of the object / work. Used primarily for prints and other multiples</string>
+        <string name="How to record">Formulated according to rules. For State, include state identification and known states, as appropriate.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="displayStateEditionWrap">
+        <string name="Definition">A wrapper for the state and edition of the object / work. </string>
+    </doc>
+    <doc tag="displaySubject">
+        <string name="Definition">A free-text description of the subject matter represented by/in the object / work, corresponding to the following subject element</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="earliestDate">
+        <string name="Definition">A year or exact date that broadly delimits the beginning of an implied date span. </string>
+        <string name="How to record">General format: YYYY[-MM[-DD]]Format is according to ISO 8601. This may include date and time specification. </string>
+    </doc>
+    <doc tag="encodinganalog">
+        <string name="How to record">Elements with data values are accompanied by the attributes encodinganalog and label to indicate the format of the data source from which the data were migrated. The attribute encodinganalog refers to the internal field label of the source database. The source format is indicated in the attribute relatedencoding of the lidoWrap </string>
+    </doc>
+    <doc tag="event">
+        <string name="Definition">Identifying, descriptive and indexing information for the events in which the object participated or was present at, e.g. creation, excavation, collection, and use.</string>
+        <string name="Notes">All information related to the creation of an object: creator, cutlural context, creation date, creation place, the material and techniques used are recorded here, qualified by the event type “creation”.</string>
+    </doc>
+    <doc tag="eventActor">
+        <string name="Definition">Wrapper for display and index elements for an actor with role information (participating or being present in the event).</string>
+        <string name="How to record">For multiple actors repeat the element.</string>
+    </doc>
+    <doc tag="eventDate">
+        <string name="Definition">Date specification of the event.</string>
+    </doc>
+    <doc tag="eventDescriptionSet">
+        <string name="Definition">Wrapper for a description of the event, including description identifer, descriptive note of the event and its sources. </string>
+        <string name="How to record">If there is more than one descriptive note, repeat this element.</string>
+    </doc>
+    <doc tag="eventID">
+        <string name="Definition">A unique identifier for the event.</string>
+        <string name="How to record">Preferably taken from and linking to a published resource describing the event.</string>
+    </doc>
+    <doc tag="eventMaterialsTech">
+        <string name="Definition">Indicates the substances or materials used within the event (e.g. the creation of an object / work), as well as any implements, production or manufacturing techniques, processes, or methods incorporated.</string>
+        <string name="How to record">Will be used most often within a production event, but also others such as excavation, restoration, etc. </string>
+    </doc>
+    <doc tag="eventMethod">
+        <string name="Definition">The method by which the event is carried out. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary.</string>
+        <string name="Notes">Used e.g. for SPECTRUM Units of Information &quot;field collection method&quot;, &quot;acquisition method&quot;.</string>
+    </doc>
+    <doc tag="eventName">
+        <string name="Definition">An appellation for the event, e.g. a title, identifying phrase, or name given to it.</string>
+    </doc>
+    <doc tag="eventPlace">
+        <string name="Definition">Place specification of the event.</string>
+    </doc>
+    <doc tag="eventSet">
+        <string name="Definition">Wrapper for the display and index elements for events (e.g. creation, find, and use), in which the object participated. </string>
+        <string name="How to record">For multiple events repeat the element.</string>
+    </doc>
+    <doc tag="eventType">
+        <string name="Definition">The nature of the event associated with an object / work.</string>
+        <string name="How to record">Controlled. Recommended: Defined list of subclasses of CRM entity E5 Event.Basic event types as recorded in sub-element term include: Acquisition, Collecting, Commisioning, Creation, Designing, Destruction, Event (non-specified), Excavation, Exhibition, Finding, Loss, Modification, Move, Part addition, Part removal, Performance, Planning, Production, Provenance, Publication, Restoration, Transformation, Type assignment, Type creation, Use.</string>
+    </doc>
+    <doc tag="eventWrap">
+        <string name="Definition">Wrapper for event sets.</string>
+    </doc>
+    <doc tag="extentActor">
+        <string name="Definition">Extent of the actor&#39;s participation in the event, if there are several actors.</string>
+        <string name="How to record">Example values: design, execution, with additions by, figures, renovation by, predella, embroidery, cast by, printed by, ...</string>
+    </doc>
+    <doc tag="extentMaterialsTech">
+        <string name="Definition">An explanation of the part of the object / work to which the corresponding materials or technique are applicable; included when necessary for clarity.</string>
+    </doc>
+    <doc tag="extentMeasurements">
+        <string name="Definition">An explanation of the part of the object / work being measured included, when necessary, for clarity.</string>
+        <string name="How to record">Example values: overall, components, sheet, plate mark, chain lines, pattern repeat, lid, base, laid lines, folios, leaves, columns per page, lines per page, tessera, footprint, panel, interior, mat, window of mat, secondary support, frame, and mount</string>
+    </doc>
+    <doc tag="extentSubject">
+        <string name="Definition">When there are multiple subjects, a term indicating the part of the object / work to which these subject terms apply.</string>
+        <string name="How to record">Example values: recto, verso, side A, side B, main panel, and predella.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="formatMeasurements">
+        <string name="Definition">The configuration of an object / work, including technical formats. Used as necessary.</string>
+        <string name="How to record">Example values: Vignette, VHS, IMAX, and DOS</string>
+    </doc>
+    <doc tag="formatResource">
+        <string name="Definition">Indicates the internet media type, e.g. the file format of the given web resource. </string>
+        <string name="How to record">Data values should be taken from the official IANA list (see http://www.iana.org/assignments/media-types/). Includes: text/html, text/xml, image/jpeg, audio/mpeg, video/mpeg, application/pdf.</string>
+    </doc>
+    <doc tag="genderActor">
+        <string name="Definition">The sex of the individual. </string>
+        <string name="How to record">Data values: male, female, unknown, not applicable.Repeat this element for language variants only.</string>
+        <string name="Notes">applicable for corporate bodies. </string>
+    </doc>
+    <doc tag="geographicalEntity">
+        <string name="Definition">Qualifies the type of the given place entity according to geographical structures. </string>
+        <string name="How to record">Data values can include: natural environment, landscape.</string>
+    </doc>
+    <doc tag="gml">
+        <string name="Definition">Georeferences of the place using the GML specification.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+        <string name="Notes">For further documentation on GML refer to http://www.opengis.net/gml/. </string>
+    </doc>
+    <doc tag="inscriptionDescription">
+        <string name="Definition">Wrapper for a description of the inscription, including description identifer, descriptive note of the inscription and sources. </string>
+    </doc>
+    <doc tag="inscriptions">
+        <string name="Definition">A transcription or description of any distinguishing or identifying physical lettering, annotations, texts, markings, or labels that are affixed, applied, stamped, written, inscribed, or attached to the object / work, excluding any mark or text inherent in the materials of which it is made.</string>
+        <string name="Notes">Record watermarks in Display Materials/Techniques.</string>
+    </doc>
+    <doc tag="inscriptionsWrap">
+        <string name="Definition">A wrapper for information about inscriptions and other marks.</string>
+    </doc>
+    <doc tag="inscriptionTranscription">
+        <string name="Definition">Transcription of the inscription.</string>
+        <string name="How to record">Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="label">
+        <string name="How to record">Elements with data values are accompanied by the attributes encodinganalog and label, to indicate the format of the data source from which the data were migrated. The attribute label refers to the external label of a data field at the visible user interface. The source format is indicated in the attribute </string>
+    </doc>
+    <doc tag="latestDate">
+        <string name="Definition">A year or exact date that broadly delimits the end of an implied date span.</string>
+        <string name="How to record">General format: YYYY[-MM[-DD]]Format is according to ISO 8601. This may include date and time specification. </string>
+    </doc>
+    <doc tag="legalBodyID">
+        <string name="Definition">Unambiguous identification of the institution or person referred to as legal body.</string>
+    </doc>
+    <doc tag="legalBodyName">
+        <string name="Definition">Appellation of the institution or person.</string>
+    </doc>
+    <doc tag="legalBodyWeblink">
+        <string name="Definition">Weblink of the institution or person referred to as legal body. </string>
+    </doc>
+    <doc tag="lido">
+        <string name="Definition">Holds the metadata of an object / work.</string>
+        <string name="How to record">Record attribute relatedencoding for this element only if it is the root element. If the document holds more than one LIDO record, assign the attribute to the lidoWrap element. </string>
+        <string name="Notes">Use this element as root for the delivery of content through OAI-PMH. </string>
+    </doc>
+    <doc tag="lidoRecID">
+        <string name="Definition">A unique lido record identification preferably composed of an identifier for the contributor and a record identification in the contributor&#39;s (local) system.</string>
+    </doc>
+    <doc tag="linkResource">
+        <string name="Definition">A url reference in the worldwide web environment.</string>
+    </doc>
+    <doc tag="materialsTech">
+        <string name="Definition">Materials and techniques data used for indexing.</string>
+    </doc>
+    <doc tag="measurementsSet">
+        <string name="Definition">The dimensions or other measurements for one aspect of an object / work (e.g., width).</string>
+        <string name="How to record">May be combined with extent, qualifier, and other sub-elements as necessary.The subelements &quot;measurementUnit&quot;, &quot;measurementValue&quot; and &quot;measurementType&quot; are mandatory.</string>
+    </doc>
+    <doc tag="measurementType">
+        <string name="Definition">Indicates what kind of measurement is taken. </string>
+        <string name="How to record">Data values for type: height, width, depth, length, diameter, circumference, stories, count, area, volume, running time, size.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="measurementUnit">
+        <string name="Definition">The unit of the measurement.</string>
+        <string name="How to record">E.g. cm, mm, m, g, kg, kb, Mb or Gb.Repeat this element only for language variants.</string>
+    </doc>
+    <doc tag="measurementValue">
+        <string name="Definition">The value of the measurement.</string>
+        <string name="How to record">Whole numbers or decimal fractions.</string>
+    </doc>
+    <doc tag="nameActorSet">
+        <string name="Definition">A wrapper for name elements.</string>
+        <string name="How to record">if there exists more than one name for a single actor, repeat Name Actor Set. </string>
+        <string name="Notes">Indicates names, appellations, or other identifiers assigned to an individual, group of people, firm or other corporate body, or other entity.</string>
+    </doc>
+    <doc tag="namePlaceSet">
+        <string name="Definition">The name of the geographic place. </string>
+        <string name="How to record">If there are different names of the same place, e.g. today&#39;s and historical names, repeat this element. </string>
+    </doc>
+    <doc tag="nationalityActor">
+        <string name="Definition">National or cultural affiliation of the person or corporate body. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary. </string>
+    </doc>
+    <doc tag="object">
+        <string name="Definition">Contains identifying information and links to another object.</string>
+    </doc>
+    <doc tag="objectClassificationWrap">
+        <string name="Definition">Wrapper for data classifying the object / work.Includes all classifying information about an object / work, such as: object / work type, style, genre, form, age, sex, and phase, or by how holding organization structures its collection (e.g. fine art, decorative art, prints and drawings, natural science, numismatics, or local history).</string>
+    </doc>
+    <doc tag="objectDescriptionSet">
+        <string name="Definition">Wrapper for a description of the object, including description identifer, descriptive note and sources.</string>
+        <string name="How to record">Includes usually a relatively brief essay-like text that describes the content and context of the object / work, including comments and an interpretation that may supplement, qualify, or explain the physical characteristics, subject, circumstances of creation or discovery, or other information about it.If there is more than one descriptive note, repeat this element.</string>
+        <string name="Notes">A reference to a text resource holding the description may be given in description identifier. </string>
+    </doc>
+    <doc tag="objectDescriptionWrap">
+        <string name="Definition">A wrapper for Description/Descriptive Note information.</string>
+    </doc>
+    <doc tag="objectID">
+        <string name="Definition">Unique identifier of the referenced object / work.</string>
+    </doc>
+    <doc tag="objectIdentificationWrap">
+        <string name="Definition">A Wrapper for information that identifies the object.</string>
+    </doc>
+    <doc tag="objectMeasurements">
+        <string name="Definition">Structured measurement information about the dimensions, size, or scale of the object / work. </string>
+        <string name="Notes">It may also include the parts of a complex object / work, series, or collection.</string>
+    </doc>
+    <doc tag="objectMeasurementsSet">
+        <string name="Definition">Wrapper for display and index elements for object / work measurements.</string>
+        <string name="How to record">If multiple parts of the object / work are measured repeat this element. </string>
+    </doc>
+    <doc tag="objectMeasurementsWrap">
+        <string name="Definition">A wrapper for the Measurements.</string>
+    </doc>
+    <doc tag="objectNote">
+        <string name="Definition">A descriptive identification of the object / work that will be meaningful to end-users, including some or all of the following information, as necessary for clarity and if known: title, object/work type, important actor, date and/or place information, potentially location of the object / work.</string>
+        <string name="How to record">The information should ideally be generated from fields/elements in the related record.</string>
+    </doc>
+    <doc tag="objectPublishedID">
+        <string name="Definition">A unique, published identification of the described object / work. </string>
+        <string name="How to record">May link to authority files maintained outside of the contributor&#39;s documentation system or may be an identifier for the object published by its repository, e.g. composed of an identifier for the repository and an inventory number of the object.Preferably a dereferenceable URL. </string>
+    </doc>
+    <doc tag="objectRelationWrap">
+        <string name="Definition">Wrapper for infomation about related topics and works, collections, etc.</string>
+        <string name="Notes">This includes visual contents and all associated entities the object is about. </string>
+    </doc>
+    <doc tag="objectWebResource">
+        <string name="Definition">A URL-Reference to a description of the object / work in the worldwide web environment.</string>
+    </doc>
+    <doc tag="objectWorkType">
+        <string name="Definition">The specific kind of object / work being described. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary. For a collection, include repeating instances for identifying all of or the most important items in the collection.</string>
+    </doc>
+    <doc tag="objectWorkTypeWrap">
+        <string name="Definition">A wrapper for Object/Work Types.</string>
+    </doc>
+    <doc tag="partOfPlace">
+        <string name="Definition">Allows for indexing larger geographical entities. </string>
+    </doc>
+    <doc tag="periodName">
+        <string name="Definition">A period in which the event happened. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary. Repeat this element only for indicating an earliest and latest period delimiting the event. </string>
+        <string name="Notes">Period concepts have delimiting character in time and space. </string>
+    </doc>
+    <doc tag="place">
+        <string name="Definition">Contains structured identifying and indexing information for a geographical entity.</string>
+    </doc>
+    <doc tag="placeClassification">
+        <string name="Definition">A classification of the place, e.g. by geological complex, stratigraphic unit or habitat type.</string>
+    </doc>
+    <doc tag="placeID">
+        <string name="Definition">A unique identifier for the place.</string>
+        <string name="How to record">Preferably taken from a published authority file.</string>
+    </doc>
+    <doc tag="politicalEntity">
+        <string name="Definition">Qualifies the type of the given place entity according to political structures. </string>
+        <string name="How to record">Data values can include: city, county, country, civil parish.</string>
+    </doc>
+    <doc tag="pref">
+        <string name="Definition">Qualifies the value as a preferred or alternative variant. </string>
+        <string name="How to record">Data values: preferred, alternate</string>
+    </doc>
+    <doc tag="qualifierMeasurements">
+        <string name="Definition">A word or phrase that elaborates on the nature of the measurements of the object / work when necessary, e.g. when the measurements are approximate.</string>
+        <string name="How to record">Example values: approximate, sight, maximum, larges, smallest, average, variable, assembled, before restoration, before restoration, at corners, rounded, framed, and with base.</string>
+    </doc>
+    <doc tag="recordID">
+        <string name="Definition">A unique record identification in the contributor&#39;s (local) system.</string>
+    </doc>
+    <doc tag="recordInfoID">
+        <string name="Definition">Unique ID of the metadata. </string>
+        <string name="How to record">Record Info ID has the same definition as Record ID but out of the context of original local system, such as a persistent identifier or an oai identifier (e.g., oai1:getty.edu:paintings/00001234 attribute type= oai).</string>
+    </doc>
+    <doc tag="recordInfoLink">
+        <string name="Definition">Link of the metadata, e.g., to the object data sheet (not the same as link of the object).</string>
+    </doc>
+    <doc tag="recordInfoSet">
+        <string name="Definition">Wrapper for metadata information about this record.</string>
+    </doc>
+    <doc tag="recordMetadataDate">
+        <string name="Definition">Creation date or date modified of the metadata record. Format will vary depending upon implementation.</string>
+    </doc>
+    <doc tag="recordRights">
+        <string name="Definition">Information about rights regarding the content provided in this LIDO record.</string>
+    </doc>
+    <doc tag="recordSource">
+        <string name="Definition">The source of information in this record, generally the repository or other institution.</string>
+    </doc>
+    <doc tag="recordType">
+        <string name="Definition">Term establishing whether the record represents an individual item or a collection, series, or group of works.</string>
+        <string name="How to record">Mandatory. Example values: item, collection, series, group, volume, fonds.Preferably taken from a published controlled value list. </string>
+    </doc>
+    <doc tag="recordWrap">
+        <string name="Definition">A wrapper for information about the record that contains the cataloguing information.</string>
+        <string name="Notes">Note that this section does not refer to any object or resource information, but only to the source record. </string>
+    </doc>
+    <doc tag="relatedEventSet">
+        <string name="Definition">References an event which is linked in some way to this event, e.g. a field trip within which this object was collected. </string>
+    </doc>
+    <doc tag="relatedWork">
+        <string name="Definition">Wrapper for the display and reference elements of a related object / work.</string>
+    </doc>
+    <doc tag="relatedWorkRelType">
+        <string name="Definition">A term describing the nature of the relationship between the object / work at hand and the related entity.</string>
+        <string name="How to record">Example values: part of, larger context for, model of, model for, study of, study forrendering of, copy of, related to.Indicate a term characterizing the relationship from the perspective of the currently described object / work towards the related object / work.</string>
+        <string name="Notes">For implementation of the data, note that relationships are conceptually reciprocal, but the Relationship Type is often different on either side of the relationship (e.g., one work is part of a second work, but from the point of view of the second record, the first work is the larger context for the second work). Whether or not relationships are physically reciprocal as implemented in systems is a local decision.</string>
+    </doc>
+    <doc tag="relatedWorkSet">
+        <string name="Definition">A wrapper for a object / work, group, collection, or series that is directly related to the object / work being recorded.</string>
+    </doc>
+    <doc tag="relatedWorksWrap">
+        <string name="Definition">A wrapper for Related Works information.</string>
+    </doc>
+    <doc tag="repositoryLocation">
+        <string name="Definition">Location of the object, especially relevant for architecture and archaeological sites. </string>
+    </doc>
+    <doc tag="repositoryName">
+        <string name="Definition">Unambiguous identification, designation and weblink of the institution of custody.</string>
+    </doc>
+    <doc tag="repositorySet">
+        <string name="Definition">Wrapper for designation and identification of the institution of custody, and possibly an indication of the exact location of the object.</string>
+    </doc>
+    <doc tag="repositoryWrap">
+        <string name="Definition">Wrapper for Repository/ Location information.</string>
+    </doc>
+    <doc tag="resourceDescription">
+        <string name="Definition">A description of the spatial, chronological, or contextual aspects of the object / work as captured in this particular resource.</string>
+    </doc>
+    <doc tag="resourceID">
+        <string name="Definition">The unique numeric or alphanumeric identification of the original (digital or analogue) resource.</string>
+    </doc>
+    <doc tag="resourceMeasurementsSet">
+        <string name="Definition">Any technical measurement information needed for online presentation of the resource. </string>
+        <string name="How to record">For images provide width and height of the digital image, for audio or video resources provide duration, bit rate, frame size, and if necessary TC-IN, TC-OUT.</string>
+    </doc>
+    <doc tag="resourcePerspective">
+        <string name="Definition">The specific vantage point or perspective of the view.</string>
+    </doc>
+    <doc tag="resourceRelType">
+        <string name="Definition">The relationship of the resource to the object / work being described.</string>
+        <string name="How to record">Example values: conservation image, documentary image, contextual image, historical image, reconstruction, and installation image</string>
+    </doc>
+    <doc tag="resourceRepresentation">
+        <string name="Definition">A digital representation of a resource for online presentation. </string>
+        <string name="How to record">Repeat this element set for variants representing the same resource, e.g. different sizes of the same image, or a thumbnail representing an audio or video file and the digital audio or video file itself. </string>
+    </doc>
+    <doc tag="resourceSet">
+        <string name="Definition">Contains sub-elements for a structured resource description.</string>
+        <string name="Notes">Provides identification of a surrogate of the object / work including digital images, slides, transparencies, photographs, audio, video and moving images, but excluding items that are considered object / works in their own right. For such as drawings, prints, paintings, or photographs considered art, and other works that themselves contain representations of other works, use Related Works and/or Subjects. </string>
+    </doc>
+    <doc tag="resourceSource">
+        <string name="Definition">Identification of the agency, individual, or repository from which the image or other resource was obtained. </string>
+        <string name="How to record">Include this sub-element when the source of the image/resource differs from the source named in Record Source.</string>
+    </doc>
+    <doc tag="resourceType">
+        <string name="Definition">The generic identification of the medium of the image or other resource.</string>
+        <string name="How to record">Preferably using a controlled published value list. Example values: digital image, photograph, slide, videotape, X-ray photograph, negative.</string>
+    </doc>
+    <doc tag="resourceWrap">
+        <string name="Definition">A wrapper for resources that are surrogates for an object / work, including digital images, videos or audio files that represent it in an online service.</string>
+    </doc>
+    <doc tag="rightsDate">
+        <string name="Definition">The date on which a right is or was current.</string>
+    </doc>
+    <doc tag="rightsHolder">
+        <string name="Definition">The holder of the right.</string>
+    </doc>
+    <doc tag="rightsResource">
+        <string name="Definition">Information about rights regarding the image or other resource. </string>
+        <string name="How to record">Use this sub-element if the holder of the reproduction rights for the image/resource differs from the holder of rights for the work. See also Rights Work above. (E.g., the work rights are &quot; National Museum of African Art, Smithsonian Instituition (Washing DC), &quot; but the image rights are &quot;Photo Frank Khoury.&quot;)</string>
+    </doc>
+    <doc tag="rightsType">
+        <string name="Definition">The specific type of right being recorded. </string>
+        <string name="How to record">For example: copyright, publication right, data protection right, trademark.Preferably taken from a published controlled value list. </string>
+    </doc>
+    <doc tag="rightsWorkSet">
+        <string name="Definition">Information about rights management; may include copyright and other intellectual property statements about the object / work.</string>
+    </doc>
+    <doc tag="rightsWorkWrap">
+        <string name="Definition">Wrapper for rights information about the object / work described.</string>
+        <string name="Notes">Rights information for the record and for resources is recorded in the respective rights elements recordRights and rightsResource. </string>
+    </doc>
+    <doc tag="roleActor">
+        <string name="Definition">Role of the Actor in the event. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary. </string>
+    </doc>
+    <doc tag="roleInEvent">
+        <string name="Definition">The role played within this event by the described entity. </string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary. </string>
+    </doc>
+    <doc tag="scaleMeasurements">
+        <string name="Definition">An expression of the ratio between the size of the representation of something and that thing (e.g., the size of the drawn structure and the actual built work). </string>
+        <string name="How to record">Example values for scale: numeric (e.g., 1 inch = 1 foot), full-size, life-size, half size,monumental. and others as recommended in CCO and CDWA. Combine this tag with Measurement Sets for numeric scales. For measurementsSet type for Scale, use &quot;base&quot; for the left side of the equation, and &quot;target&quot; for the right side of the equation).</string>
+        <string name="Notes">Used for studies, record drawings, models, and other representations drawn or constructed to scale.</string>
+    </doc>
+    <doc tag="shapeMeasurements">
+        <string name="Definition">The shape of an object / work. Used for unusual shapes (e.g., an oval painting).</string>
+        <string name="How to record">Example values: oval, round, square, rectangular, and irregular.</string>
+    </doc>
+    <doc tag="sortorder">
+        <string name="Definition">Assigns a priority order for online presentation of the element. </string>
+        <string name="How to record">Has to be a positive integer, with descending priority from 1 to x. </string>
+    </doc>
+    <doc tag="source">
+        <string name="Definition">Source of the information given in the holding element.</string>
+    </doc>
+    <doc tag="sourceAppellation">
+        <string name="Definition">The source for the appellation, generally a published source.</string>
+    </doc>
+    <doc tag="sourceDescriptiveNote">
+        <string name="Definition">The source for the descriptive note, generally a published source.</string>
+    </doc>
+    <doc tag="sourceMaterialsTech">
+        <string name="Definition">The source of the information about materials and technique, often used when citing a published source of watermarks.</string>
+    </doc>
+    <doc tag="sourceStateEdition">
+        <string name="Definition">The published source of the state or edition information.</string>
+    </doc>
+    <doc tag="subject">
+        <string name="Definition">Contains sub-elements for a structured subject description. These identify, describe, and/or interpret what is depicted in and by an object / work or what it is about.</string>
+    </doc>
+    <doc tag="subjectActor">
+        <string name="Definition">A person, group, or institution depicted in or by an object / work, or what it is about, provided as display and index elements. </string>
+    </doc>
+    <doc tag="subjectConcept">
+        <string name="Definition">Provides references to concepts related to the subject of the described object / work. </string>
+        <string name="How to record">May include iconography, themes from literature, or generic terms describing the material world, or topics (e.g., concepts, themes, or issues). However, references to people, dates, events, places, objects are indicated in the the respective sub-elements Subject Actor Set, Subject Date Set, Subject Event Set, Subject Place Set, and Subject Object Set.Preferably taken from a published controlled vocabulary. </string>
+    </doc>
+    <doc tag="subjectDate">
+        <string name="Definition">A time specification depicted in or by an object / work, or what it is about, provided as display and index elements. </string>
+    </doc>
+    <doc tag="subjectEvent">
+        <string name="Definition">An event depicted in or by an object / work, or what it is about, provided as display and index elements. </string>
+    </doc>
+    <doc tag="subjectObject">
+        <string name="Definition">An object - e.g. a building or a work of art depicted in or by an object / work, or what it is about, provided as display and index elements. </string>
+    </doc>
+    <doc tag="subjectPlace">
+        <string name="Definition">A place depicted in or by an object / work, or what it is about, provided as display and index elements. </string>
+    </doc>
+    <doc tag="subjectSet">
+        <string name="Definition">Wrapper for display and index elements for one set of subject information.</string>
+        <string name="How to record">If an object / work has multiple parts or otherwise has separate, multiple subjects, repeat this element and use Extent Subject in the Subject element. This element may also be repeated to distinguish between subjects that reflect what an object / work is *of* (description and identification) from what it is *about* (interpretation).</string>
+    </doc>
+    <doc tag="subjectWrap">
+        <string name="Definition">A wrapper for Subject information. This may be the visual content (e.g. the iconography of a painting) or what the object is about.</string>
+    </doc>
+    <doc tag="term">
+        <string name="Definition">A name for the referred concept, used for indexing.</string>
+    </doc>
+    <doc tag="termMaterialsTech">
+        <string name="Definition">A concept to index materials and/or technique.</string>
+        <string name="How to record">Preferably taken from a published controlled vocabulary.</string>
+    </doc>
+    <doc tag="thingPresent">
+        <string name="Definition">References another object that was present at this same event.</string>
+    </doc>
+    <doc tag="titleSet">
+        <string name="Definition">Wrapper for one title or object name and its source information.</string>
+        <string name="How to record">Mandatory. If there is no specific title, provide an object name in the appellation value. If there is more than one title, repeat the Title Set element.</string>
+        <string name="Notes">For objects from natural, technical, cultural history e.g. the object name given here and the object type, recorded in the object / work type element are often identical. </string>
+    </doc>
+    <doc tag="titleWrap">
+        <string name="Definition">Wrapper for Object name / Title information. </string>
+    </doc>
+    <doc tag="type">
+        <string name="Definition">Qualifies the type of information given in the holding element. </string>
+        <string name="How to record">Will generally have to be populated with a given value list. </string>
+    </doc>
+    <doc tag="vitalDatesActor">
+        <string name="Definition">The lifespan of the person or the existence of the corporate body or group. </string>
+        <string name="How to record">For individuals, record birth date as earliest and death date as latest date, estimated where necessary. For a corporate body or group, record the dates of founding and dissolution.Although this is not a mandatory field the use of birth date and death date is strongly recommended for unambigous identification of individuals. The type attribute of earliest and latest date may specify for indiviudals, if birth and death dates or if dates of activity are recorded. Data values for type attribute may include: birthDate, deathDate, estimatedDate. </string>
+    </doc>
+    <doc tag="workID">
+        <string name="Definition">An unambiguous numeric or alphanumeric identification number, assigned to the object by the institution of custody.</string>
+    </doc>
+</docs>
+
+</record-definition>
