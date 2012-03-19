@@ -23,7 +23,7 @@ import util.Constants._
 import collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
-import play.api.mvc.{RequestHeader, AnyContent, Request}
+import play.api.mvc.RequestHeader
 import util.Constants
 import collection.immutable.{Map, List}
 import org.apache.commons.lang.StringEscapeUtils
@@ -125,11 +125,10 @@ object SolrQueryService extends SolrServer {
   //    query
   //  }
 
-  def parseSolrQueryFromRequest(request: RequestHeader, theme: PortalTheme) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params, theme: PortalTheme) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
-    val params = Params(request.queryString)
     val facetsFromTheme: List[String] = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
     val facetFields: List[String] = if (params._contains("facet.field")) facetsFromTheme ::: params.getValues("facet.field").toList
     else facetsFromTheme
@@ -213,8 +212,11 @@ object SolrQueryService extends SolrServer {
   }
 
   def createCHQuery(request: RequestHeader, theme: PortalTheme, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
-
     val params = Params(request.queryString)
+    createCHQuery(params, theme, summaryView, connectedUser, additionalSystemHQFs)
+  }
+
+  def createCHQuery(params: Params, theme: PortalTheme, summaryView: Boolean, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -256,7 +258,7 @@ object SolrQueryService extends SolrServer {
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(if (!theme.hiddenQueryFilter.get.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
 
-    val query = parseSolrQueryFromRequest(request, theme)
+    val query = parseSolrQueryFromParams(params, theme)
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
@@ -265,6 +267,7 @@ object SolrQueryService extends SolrServer {
     systemHQFs.foreach(fq => query addFilterQuery (fq))
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
   }
+
 
   def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false): QueryResponse = {
     val r = DelvingIdType(id, idType)

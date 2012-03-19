@@ -32,7 +32,7 @@ object Admin extends DelvingController {
   def profileSubmit(user: String) = SecuredUserAction(user) {
     Action {
       implicit request =>
-        ProfileViewModel.profileForm.bindFromRequest.fold(
+        ProfileViewModel.profileForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           profileModel => {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)

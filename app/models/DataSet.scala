@@ -60,8 +60,9 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    details: Details,
                    lastUploaded: Date,
                    hashes: Map[String, String] = Map.empty[String, String],
-                   namespaces: Map[String, String] = Map.empty[String, String],
+                   namespaces: Map[String, String] = Map.empty[String, String], // FIXME: this map makes no sense here since the namespaces depend on the format in which a DataSet is rendered.
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String],
                    idxSortFields: List[String] = List.empty[String],
@@ -90,18 +91,13 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    val metadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
-    if (publicCollectionsOnly)
-      metadataFormats.filter(!_.accessKeyRequired)
-    else
-      metadataFormats
-  }
+  def getAllMetadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
 
-  def getAllNamespaces: Map[String, String] = {
-    val metadataNamespaces = RecordDefinition.recordDefinitions.map(rd => (rd.prefix, rd.namespace)).toMap[String, String]
-    val mdFormatNamespaces = Map(details.metadataFormat.prefix -> details.metadataFormat.namespace)
-    metadataNamespaces ++ mdFormatNamespaces
+  def getVisibleMetadataFormats(accessKey: Option[String] = None): List[RecordDefinition] = {
+    getAllMetadataFormats.
+      filterNot(format => formatAccessControl.get(format.prefix).isEmpty).
+      filter(format => formatAccessControl(format.prefix).hasAccess(accessKey)
+    )
   }
 
 }
@@ -170,13 +166,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
   }
 
-  def findAll(publicCollectionsOnly: Boolean = true) = {
-    val allDateSets: List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
-    if (publicCollectionsOnly)
-      allDateSets.filter(ds => !ds.details.metadataFormat.accessKeyRequired || ds.mappings.forall(ds => ds._2.format.accessKeyRequired == false))
-    else
-      allDateSets
-  }
+  def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
+
 
   def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
     val groupDataSets = Group.
@@ -236,15 +227,34 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     }
   }
 
-  def updateMapping(dataSet: DataSet, mapping: RecordMapping, accessKeyRequired: Boolean = true): DataSet = {
+  def updateMapping(dataSet: DataSet, mapping: RecordMapping): DataSet = {
     val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
-    val newMapping = Mapping(recordMapping = Some(RecordMapping.toXml(mapping)), format = RecordDefinition(ns.get.prefix, ns.get.schema, ns.get.namespace, accessKeyRequired))
-    val updated = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, newMapping))
-    DataSet.updateById(dataSet._id, updated)
-    updated
+    
+    // if we already have a mapping, update it but keep the format access control settings
+    val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
+      case Some(existingMapping) =>
+        existingMapping.copy(
+          format = existingMapping.format.copy(roles = ns.get.roles),
+          recordMapping = Some(RecordMapping.toXml(mapping))
+        )
+      case None =>
+        Mapping(
+          recordMapping = Some(RecordMapping.toXml(mapping)),
+          format = RecordDefinition(
+            ns.get.prefix,
+            ns.get.schema,
+            ns.get.namespace,
+            ns.get.allNamespaces,
+            ns.get.roles
+          )
+        )
+    }
+    val updatedDataSet = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, updatedMapping))
+    DataSet.updateById(dataSet._id, updatedDataSet)
+    updatedDataSet
   }
 
   def unlock(dataSet: DataSet) {
@@ -277,6 +287,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
+  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] with MDRCollection = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
+
   // TODO should we cache the constructions of these objects?
   def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
     val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
@@ -285,37 +297,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
     CollectionMDR
-  }
-
-  /**
-   * identifier = orgId:spec:localRecordKey
-   *
-   * this entails that orgIds, specs and localRecordKey-s never change
-   */
-  def getRecord(identifier: String, metadataFormat: String): Option[MetadataRecord] = {
-    if(identifier.split(":").length != 3)
-      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(identifier))
-    val Array(orgId, spec, localRecordKey) = identifier.split(":")
-    val ds: Option[DataSet] = findBySpecAndOrgId(spec, orgId)
-    if(ds == None) return None
-    val record: Option[MetadataRecord] = getRecords(ds.get).findOne(MongoDBObject("localRecordKey" -> localRecordKey))
-    if(record == None) return None
-    if (record.get.rawMetadata.contains(metadataFormat))
-      record
-    else {
-      val mappedRecord = record.get
-      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
-
-      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
-    }
-  }
-
-  def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): IndexDocument = {
-    val mapping = dataSet.mappings.get(prefix)
-    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), dataSet.namespaces.asJava, Play.classloader, MappingService.metadataModel)
-    val mappedRecord: IndexDocument = engine.executeMapping(record.getXmlString())
-    mappedRecord
   }
 
   // ~~~ indexing control
@@ -349,19 +330,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ OAI-PMH
 
-  def getMetadataFormats(publicCollectionsOnly: Boolean = true): List[RecordDefinition] = {
-    val metadataFormats = findAll(publicCollectionsOnly).flatMap {
-      ds =>
-        ds.getMetadataFormats(publicCollectionsOnly)
+  def getAllVisibleMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
+    val metadataFormats = findAll(orgId).flatMap {
+      ds => ds.getVisibleMetadataFormats(accessKey)
     }
     metadataFormats.toList.distinct
   }
 
-  def getMetadataFormats(spec: String, accessKey: String): List[RecordDefinition] = {
-    // todo add accessKey checker
-    val accessKeyIsValid: Boolean = true
-    findBySpec(spec) match {
-      case Some(ds) => ds.getMetadataFormats(accessKeyIsValid)
+  def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
+    findBySpecAndOrgId(spec, orgId) match {
+      case Some(ds) => ds.getVisibleMetadataFormats(accessKey)
       case None => List[RecordDefinition]()
     }
   }

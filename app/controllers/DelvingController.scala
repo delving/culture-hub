@@ -12,6 +12,7 @@ import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.api.{Logger, Play}
 import core.{HubServices, ThemeAware}
+import play.libs.Time
 
 /**
  *
@@ -25,7 +26,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   private val LANG = "lang"
 
-  implicit def getLang(implicit request: RequestHeader) = request.session.get(LANG).getOrElse(theme.defaultLanguage)
+  private val LANG_COOKIE = "CH_LANG"
+
+  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(theme.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
@@ -41,16 +44,16 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           val requestLanguage = if (langParam.isDefined) {
             Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
             langParam.get(0)
-          } else if (request.session.get(LANG).isEmpty) {
+          } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
             // if there is no language for this cookie / user set, set the default one from the PortalTheme
             Logger("CultureHub").trace("Setting language from theme to " + theme.defaultLanguage)
             theme.defaultLanguage
           } else {
-            Logger("CultureHub").trace("Setting language from session to " + request.session(LANG))
-            request.session(LANG)
+            Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
+            request.cookies.get(LANG_COOKIE).get.value
           }
 
-          val languageChanged = request.session.get(LANG) != Some(requestLanguage)
+          val languageChanged = request.cookies.get(LANG_COOKIE).map(_.value) != Some(requestLanguage)
 
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
@@ -58,7 +61,8 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
           val r = action(request).asInstanceOf[PlainResult]
           if (languageChanged) {
-            composeSession(r, Session(Map(LANG -> getLang)))
+            Logger("CultureHub").trace("Composing session after language change")
+            r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Time.parseDuration("30d")))
           } else {
             r
           }
@@ -80,23 +84,23 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   implicit def withRichSession(session: Session) = new {
 
-    def +(another: Session) = another.data.foldLeft(session) {
-      _ + _
-    }
+    def +(another: Session) = Session(session.data ++ another.data)
+
   }
 
   protected def composeSession(actionResult: PlainResult, additionalSession: Session)(implicit request: RequestHeader) = {
     // workaround since withSession calls aren't composable it seems
-    val innerSession = actionResult.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
-    if (innerSession.isDefined) {
-      // there really should be an API method for adding sessions
-      val combined = additionalSession.data.foldLeft(innerSession.get) {
-        _ + _
-      }
-      actionResult.withSession(session + combined)
+    val innerSession: Option[Session] = actionResult.header.headers.get(SET_COOKIE).map(cookies => Session.decodeFromCookie(Cookies.decode(cookies).find(_.name == Session.COOKIE_NAME)))
+    Logger("CultureHub").trace("Current session: " + session)
+    val s = if (innerSession.isDefined) {
+      Logger("CultureHub").trace("Composing inner session: " + innerSession.get + " with additional session: " + additionalSession)
+      val combined = innerSession.get + additionalSession
+      session + combined
     } else {
-      actionResult.withSession(session + additionalSession)
+      session + additionalSession
     }
+    Logger("CultureHub").trace("Setting session to: " + s)
+    actionResult.withSession(s)
   }
 
   // ~~~ form handling when using knockout. This returns a map of error messages
@@ -228,6 +232,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           //            }
 
           val r: PlainResult = action(request).asInstanceOf[PlainResult]
+          Logger("CultureHub").trace("DelvingController composing session with additional parameters " + additionalSessionParams.toMap)
           composeSession(r, Session(additionalSessionParams.toMap))
         }
       }

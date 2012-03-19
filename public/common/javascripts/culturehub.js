@@ -11,6 +11,11 @@ function initializeElements() {
     $.preloadImages (
         "/assets/common/images/spinner.gif"
     );
+
+    String.prototype.trim = function () {
+        return this.replace(/^\s*/, "").replace(/\s*$/, "");
+    }
+
 }
 
 /**
@@ -128,15 +133,11 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
  */
 $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
     var data = typeof additionalData === 'undefined' ? ko.mapping.toJS(viewModel) : $.extend(ko.mapping.toJS(viewModel) , additionalData);
-    // again, make Play happy
-    var serializedData = $.param(data).
-        replace(/%5B([a-zA-Z_-]+)%5D/g, ".$1"). // mapName[key] -> mapName.key
-        replace(/%5B%5D/g, "%5B0%5D");       //  listOneElement[] -> listOneElement[0]
     return jQuery.ajax({
         type: 'POST',
         url: url,
-        data: serializedData,
-        contentType: 'application/x-www-form-urlencoded; charset=utf-8'
+        data: JSON.stringify(data), //serializedData,
+        contentType: 'application/json; charset=utf-8'
     }).success(onSuccess).error(onFailure);
 };
 
