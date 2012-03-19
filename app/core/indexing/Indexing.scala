@@ -121,6 +121,10 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     Right("ok")
   }
 
+  def commit() {
+    getStreamingUpdateServer.commit
+  }
+
   def indexOneInSolr(orgId: String, spec: String, mdr: MetadataRecord) = {
     DataSet.findBySpecAndOrgId(spec, orgId) match {
       case Some(dataSet) =>

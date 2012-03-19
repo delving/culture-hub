@@ -10,6 +10,7 @@ import core.indexing.{IndexingService, Indexing}
 import play.api.{Logger, Play}
 import util.Constants._
 import com.mongodb.casbah.Imports._
+import core.search.SolrServer._
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -123,7 +124,7 @@ object DataSetProcessor {
         state match {
           case DataSetState.PROCESSING =>
             DataSet.updateState(dataSet, DataSetState.ENABLED)
-            IndexingService.commit()
+            Indexing.commit()
           case _ =>
             Logger.error("Failed to process DataSet %s".format(dataSet.spec))
             Logger("CultureHub").info("Deleting DataSet %s from SOLR".format(dataSet.spec))
