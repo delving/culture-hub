@@ -44,7 +44,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       case _ => throw new RuntimeException("Should not be here")
     }
     try {
-      callInvocation.await.fold(t => None, r => { println(path + " " + r.status); Some(r) })
+      callInvocation.await.fold(t => None, r => { Logger("CultureHub").info(path + " " + r.status); Some(r) })
     } catch {
       case timeout: TimeoutException =>
         // retry
@@ -158,6 +158,16 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     }.getOrElse(false)
   }
 
+  def listOrganizations(userName: String): List[String] = {
+    get("/user/" + userName + "/list").map {
+      response => if (response.status == OK) {
+        Json.parse(response.body).as[List[String]]
+      } else {
+        List()
+      }
+    }.getOrElse(List())
+  }
+
   // organization
 
   def exists(orgId: String): Boolean = {
@@ -206,7 +216,6 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
         }
     }.getOrElse(None)
   }
-
 
   import play.api.libs.json._
 

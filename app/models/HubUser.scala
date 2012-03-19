@@ -19,7 +19,6 @@ case class HubUser(_id: ObjectId = new ObjectId,
                 email: String,
                 userProfile: UserProfile,
                 groups: List[ObjectId] = List.empty[ObjectId],    // groups this user belongs to
-                organizations: List[String] = List.empty[String], // organizations this user belongs to
                 accessToken: Option[AccessToken] = None,
                 refreshToken: Option[String] = None) {
 

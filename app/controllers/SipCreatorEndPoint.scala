@@ -80,7 +80,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
     Action {
       implicit request =>
-        val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName, connectedUserObject.get.organizations, GrantType.MODIFY)
+        val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName, HubServices.userProfileService.listOrganizations(connectedUserObject.get.userName), GrantType.MODIFY)
 
         val dataSetsXml = <data-set-list>
           {dataSets.map {
