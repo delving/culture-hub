@@ -114,7 +114,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
           }).withSession(
             USERNAME -> user._1,
             "connectedUserId" -> u.get._id.toString,
-            AccessControl.ORGANIZATIONS -> HubServices.userProfileService.listOrganizations(u.get.userName).mkString(","),
+            AccessControl.ORGANIZATIONS -> u.get.organizations.mkString(","),
             AccessControl.GROUPS -> u.get.groups.mkString(","),
             AT_KEY -> authenticityToken)
 

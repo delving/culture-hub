@@ -19,5 +19,5 @@ trait OrganizationService {
   def removeAdmin(orgId: String, userName: String): Boolean
 
   def getName(orgId: String, language: String): Option[String]
-
+  
 }

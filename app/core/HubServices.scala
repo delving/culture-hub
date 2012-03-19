@@ -38,7 +38,7 @@ object HubServices {
         }
 
         // add example organization
-        val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"), users = List("bob", "dan", "jimmy"))
+        val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
         memoryServices.organizations += ("delving" -> delving)
 
         memoryServices

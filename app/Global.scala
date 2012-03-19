@@ -46,7 +46,7 @@ object Global extends GlobalSettings {
     Play.configuration.getString("cultureHub.orgId") match {
       case Some(orgId) => 
         if(!HubServices.organizationService.exists(orgId)) {
-          Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!".format(orgId))
+          Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!")
           System.exit(-1)
         }
       case None =>

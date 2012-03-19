@@ -13,8 +13,6 @@ trait UserProfileService {
 
   def updateUserProfile(userName: String, profile: UserProfile): Boolean
 
-  def listOrganizations(userName: String) : List[String]
-
 }
 
 

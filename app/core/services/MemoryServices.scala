@@ -69,8 +69,6 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
     true
   }
 
-  def listOrganizations(userName: String): List[String] = organizations.values.filter(o => o.users.contains(userName)).map(_.orgId).toList
-
   // ~~~ organization
 
   def exists(orgId: String) = organizations.contains(orgId)
@@ -106,6 +104,5 @@ case class MemoryUser(userName: String,
 
 case class MemoryOrganization(orgId: String,
                               name: Map[String, String],
-                              users: List[String],
                               admins: List[String])
 

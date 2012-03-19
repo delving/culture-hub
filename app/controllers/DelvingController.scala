@@ -208,12 +208,11 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               renderArgs +=("userName", u.userName)
               renderArgs +=("userId", u._id)
               //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-              renderArgs +=("organizations", session.get(AccessControl.ORGANIZATIONS).getOrElse("").split(",").map(_.trim).toList)
+              renderArgs +=("organizations", u.organizations)
               renderArgs +=("email", u.email)
 
               // refresh session parameters
-              // TODO every once in a while, get the new value from the UserProfile service
-//              additionalSessionParams += (AccessControl.ORGANIZATIONS -> session.get(AccessControl.ORGANIZATIONS).getOrElse(""))
+              additionalSessionParams += (AccessControl.ORGANIZATIONS -> u.organizations.mkString(","))
               additionalSessionParams += (AccessControl.GROUPS -> u.groups.mkString(","))
             }
           }
