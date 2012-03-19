@@ -1,7 +1,6 @@
 #{list items: _view.content(), as: 'row'}
 <div class="row">
 #{list items: row.content(), as: 'col'}
-%{System.out.println(col)}%
   <div class="column" id="${col.attr("id")}">
 #{list items: col.content(), as: 'item'}
 #{if item.nodeType == 'field'}
@@ -23,7 +22,7 @@
     </ol>
 #{/if}
 #{if item.attr("type") == "concatenated"}
-    #{list item.content(), as: 'e'}${e.text()}#{if !e_isLast}${item.attr("separator")}#{/if}#{/list}
+    <div>#{list item.content(), as: 'e'}${e.text()}#{if !e_isLast}${item.attr("separator")}#{/if}#{/list}</div>
 #{/if}
 #{/if}
 #{/list}

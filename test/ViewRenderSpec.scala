@@ -15,7 +15,6 @@
  */
 
 import eu.delving.templates.Play2VirtualFile
-import groovy.util.{XmlParser, Node}
 import models.GrantType
 import org.specs2.mutable._
 import play.api.Play
@@ -23,6 +22,7 @@ import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
 import play.templates.GenericTemplateLoader
+import xml.Node
 
 /**
  *
@@ -43,9 +43,21 @@ class ViewRenderSpec extends Specification {
         args.put("lang", "en")
         val rendered = template.render(args)
 
+        val expected: String =
+"""<div class="row">
+  <div class="column" id="description">
+    <div class="field">metadata.dc.description: This is a test record</div>
+  </div>
+  <div class="column" id="fields">
+    <div>A test hierarchical record, Wood</div>
+    <div class="field">metadata.icn.purchasePrice: 5000</div>
+  </div>
+</div>
+"""
+
         println(rendered)
 
-        1 should be equalTo (1)
+        rendered must be equalTo(expected)
       }
     }
 
@@ -68,7 +80,6 @@ class ViewRenderSpec extends Specification {
   private def testRecord(): Node = {
 
     // test record, hierarchical
-    val testRecord =
       <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:icn="http://www.icn.nl/schemas/ICN-V3.2.xsd">
         <delving:summaryFields>
           <delving:title>A test hierarchical record</delving:title>
@@ -90,7 +101,6 @@ class ViewRenderSpec extends Specification {
         </icn:data>
       </record>
 
-    new XmlParser().parseText(testRecord.toString())
   }
 
 }

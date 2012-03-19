@@ -17,10 +17,9 @@
 package core.rendering
 
 import java.io.File
-import groovy.util.Node
+import scala.xml.Node
 import xml.XML
 import collection.mutable.{HashMap, ArrayBuffer}
-import groovy.xml.QName
 import collection.mutable.Stack
 import models.GrantType
 import play.api.Logger
@@ -47,13 +46,13 @@ object ViewRenderer {
     }
   }
 
-  def renderView(prefix: String, viewDefinition: scala.xml.Node, view: String, record: Node, userGrantTypes: List[GrantType]): RenderNode = {
+  def renderView(prefix: String, viewDefinition: Node, view: String, record: Node, userGrantTypes: List[GrantType]): RenderNode = {
 
     val result = RenderNode("root")
 
     val treeStack = Stack(result)
 
-    def enter(node: scala.xml.Node, nodeType: String, attr: (String, Any)*)(block: scala.xml.Node => Unit) {
+    def enter(node: Node, nodeType: String, attr: (String, Any)*)(block: Node => Unit) {
       log.debug("Entered " + node.label)
       val entered = RenderNode(nodeType)
       attr foreach {
@@ -169,16 +168,16 @@ object ViewRenderer {
   }
 
   private def fetch(n: Node, p: Array[String], level: Int): List[String] = {
-    import scala.collection.JavaConversions._
 
-    // don't we all love type-unsafe APIs?
-    val children = n.children().filter(_.isInstanceOf[Node]).map(_.asInstanceOf[Node])
+    def qName(n: Node) = if(n.prefix != null) n.prefix + ":" + n.label else n.label
+
+    val children = n.child
 
     if (level + 1 < p.length) {
-      val t = children.find(_.name().asInstanceOf[QName].getQualifiedName == p(level)).getOrElse(return List.empty)
+      val t = children.find(c => qName(c) == p(level)).getOrElse(return List.empty)
       fetch(t, p, level + 1)
     } else {
-      children.filter(_.name().asInstanceOf[QName].getQualifiedName == p(level)).map(_.text()).toList
+      children.filter(qName(_) == p(level)).map(_.text).toList
     }
   }
 }
