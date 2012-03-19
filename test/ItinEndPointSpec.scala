@@ -1,11 +1,10 @@
 import java.io.File
 import org.specs2.mutable._
-import play.api.mvc.{Result, AsyncResult, AnyContent}
+import play.api.mvc.{Result, AsyncResult}
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.Play
 import play.api.Play.current
-import play.api.libs.Files._
 import xml.XML
 
 /**
@@ -14,7 +13,7 @@ import xml.XML
  * @since 3/15/12 8:40 AM  
  */
 
-class ItinEndPointSpec extends Specification with Cleanup {
+class ItinEndPointSpec extends Specification with TestData {
 
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
   
