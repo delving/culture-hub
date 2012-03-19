@@ -2,17 +2,24 @@
 
     use culturehub
     var users = db.Datasets.find({}, {"user_id": 1})
-
+    var lockUsers = db.Datasets.find({}, {"lockedBy": 1})
     var userNames = {}
+    var userNamesLock = {}
+
     use culturecloud
     users.forEach(function(u) {
         userNames[u.user_id] = db.Users.findOne({_id: u.user_id}).userName
     });
+    lockUsers.forEach(function(u) {
+        userNamesLock[u.lockedBy] = db.Users.findOne({_id: u.lockedBy}).userName
+    });
 
     use culturehub
     db.Datasets.find({}).forEach(function(ds) {
-      db.Datasets.update({_id: ds._id}, {$unset: "lockedBy"})
-      db.Datasets.update({_id: ds._id}, {$set: {"userName": userNames[ds.user_id]}})
+      if(ds.lockedBy != null) {
+        db.Datasets.update({_id: ds._id}, {$set: { lockedBy: userNamesLock[ds.lockedBy]})
+      }
+      db.Datasets.update({_id: ds._id}, {$set: { userName: userNames[ds.user_id]} } )
     })
 
 # 08.03.2012 - Organization becoming a remote thing
