@@ -66,7 +66,7 @@ object DataSetProcessor {
         var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
 
         // loop over records
-//        log.info("Processing %s valid records for format %s".format(records.length, format.prefix))
+        log.info("Processing %s valid records for format %s".format(recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix)), format.prefix))
 
 
         try {
