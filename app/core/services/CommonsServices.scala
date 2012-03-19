@@ -159,7 +159,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   }
 
   def listOrganizations(userName: String): List[String] = {
-    get("/user/" + userName + "/list").map {
+    get("/user/" + userName + "/organizations").map {
       response => if (response.status == OK) {
         Json.parse(response.body).as[List[String]]
       } else {
