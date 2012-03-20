@@ -9,7 +9,9 @@ include "application.conf"
 # Generate the secret via `play secret`
 application.secret=
 
-application.langs="en"
+# The languages. Make sure you include all of them.
+# Play 2 won't warn if you request one that doesn't exist!
+application.langs="en,nl,no,nb"
 
 mail.smtp.type=smtp
 mail.smtp.host=mx2.hostice.net
