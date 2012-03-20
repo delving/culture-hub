@@ -17,6 +17,10 @@ import play.api.libs.Files
 
 class SipCreatorEndPointSpec extends Specification with TestData {
 
+  step(cleanup)
+  step(loadStandalone)
+
+
   "SipCreatorEndPoint" should {
 
     "list all DataSets" in {
@@ -45,10 +49,10 @@ class SipCreatorEndPointSpec extends Specification with TestData {
     "accept a list of files" in {
       running(FakeApplication()) {
 
-        val lines = """15E64004081B71EE5CA8D55EF735DE44__hints.txt
-                       19EE613335AFBFFAD3F8BA271FBC4E96__mapping_icn.xml
-                       45109F902FCE191BBBFC176287B9B2A4__source.xml.gz
-                       19EE613335AFBFFAD3F8BA271FBC4E96__valid_icn.bit"""
+        val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
+A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
+EA525DF3C26F760A1D744B7A63C67247__source.xml.gz
+F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
         val result = controllers.SipCreatorEndPoint.acceptFileList("delving", "PrincessehofSample", Some("TEST"))(
           FakeRequest(
@@ -185,6 +189,26 @@ class SipCreatorEndPointSpec extends Specification with TestData {
       }
     }
 
+    "have marked all file hashes and not accept them again" in {
+      running(FakeApplication()) {
+
+        val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
+D15C73DFD3463F1D0281232BA54301C1__mapping_icn.xml
+EA525DF3C26F760A1D744B7A63C67247__source.xml.gz
+F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
+
+        val result = controllers.SipCreatorEndPoint.acceptFileList("delving", "PrincessehofSample", Some("TEST"))(
+          FakeRequest(
+            method = "POST",
+            body = new AnyContentAsText(lines.stripMargin),
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain")))
+          ))
+        status(result) must equalTo(OK)
+        contentAsString(result) must equalTo("")
+      }
+    }
+
     "download a source file" in {
 
       case class ZipEntry(name: String)
@@ -215,8 +239,9 @@ class SipCreatorEndPointSpec extends Specification with TestData {
     }
   }
 
-  step(cleanup)
-
+  running(FakeApplication()) {
+    step(cleanup)
+  }
 
 
 }

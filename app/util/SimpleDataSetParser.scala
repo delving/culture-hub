@@ -73,8 +73,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
         case EvElemStart(_, "delving-sip-source", _, scope) =>
           val namespaces = collection.mutable.Map.empty[String, String]
           extractNamespaces(scope, namespaces)
-          val updatedDataSet = dataSet.copy(namespaces = namespaces.toMap)
-          DataSet.save(updatedDataSet)
+          DataSet.updateNamespaces(dataSet.spec, namespaces.toMap)
         case EvElemStart(pre, "input", attrs, _) =>
           inRecord = true
           val mayId = attrs.get("id").headOption

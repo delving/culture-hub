@@ -32,4 +32,11 @@ trait TestData {
     //    IndexingService.deleteByQuery("*:*")
   }
 
+  def loadStandalone {
+    running(FakeApplication()) {
+      load
+    }
+
+  }
+
 }

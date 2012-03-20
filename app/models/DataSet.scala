@@ -257,6 +257,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     updatedDataSet
   }
 
+  def updateNamespaces(spec: String, namespaces: Map[String, String]) {
+    update(MongoDBObject("spec" -> spec), $set ("namespaces" -> namespaces.asDBObject))
+  }
+
   def unlock(dataSet: DataSet) {
     update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
   }

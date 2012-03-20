@@ -155,7 +155,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
           Logger("CultureHub").debug("Receiving file upload request, possible files to receive are: \n" + fileList)
 
-          val lines = fileList split ('\n')
+          val lines = fileList.split('\n').map(_.trim).toList
 
           def fileRequired(fileName: String): Option[String] = {
             val Array(hash, name) = fileName split ("__")
@@ -166,7 +166,7 @@ object SipCreatorEndPoint extends ApplicationController {
               case None => Some(fileName)
             }
           }
-          val requiredFiles = (lines flatMap fileRequired).mkString("\n")
+          val requiredFiles = (lines flatMap fileRequired).map(_.trim).mkString("\n")
           Ok(requiredFiles)
         }
     }
@@ -192,11 +192,12 @@ object SipCreatorEndPoint extends ApplicationController {
             val actionResult: Either[String, String] = kind match {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecordMapping.read(inputStream, metadataModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
-              case "source" if extension == "xml.gz" =>
+              case "source" if extension == "xml.gz" => {
                 val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
                 receiveActor ! SourceStream(dataSet.get, theme, inputStream)
                 DataSet.updateState(dataSet.get, DataSetState.PROCESSING)
                 Right("Received it")
+              }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
