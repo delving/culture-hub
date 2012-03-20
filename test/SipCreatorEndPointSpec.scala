@@ -1,9 +1,8 @@
 import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
-import eu.delving.metadata.RecordMapping
-import java.io.{DataInputStream, File, FileInputStream}
+import eu.delving.metadata.RecMapping
+import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
 import java.util.zip.{GZIPInputStream, ZipInputStream}
-import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import collection.JavaConverters._
 
@@ -90,11 +89,11 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a mappings file" in {
       running(FakeApplication()) {
-        val mappingSource: String = "conf/bootstrap/D15C73DFD3463F1D0281232BA54301C1__mapping_icn.xml"
-        val mappingTarget = "target/D15C73DFD3463F1D0281232BA54301C1__mapping_icn.xml"
+        val mappingSource: String = "conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
+        val mappingTarget = "target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         Files.copyFile(new File(mappingSource), new File(mappingTarget))
 
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "D15C73DFD3463F1D0281232BA54301C1__mapping_icn.xml", Some("TEST"))(FakeRequest(
+        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml", Some("TEST"))(FakeRequest(
           method = "POST",
           uri = "",
           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
@@ -102,11 +101,10 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         ))
         status(result) must equalTo(OK)
         val originalStream = new FileInputStream(new File(mappingSource))
-        val original = IOUtils.readLines(originalStream, "utf-8").asScala.mkString("\n")
-        val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.mappings("icn").recordMapping.get
+        val uploaded = new ByteArrayInputStream(DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.mappings("icn").recordMapping.get.getBytes("utf-8"))
 
-        val originalRecordMapping = RecordMapping.read(original, MappingService.metadataModel)
-        val uploadedRecordMapping = RecordMapping.read(uploaded, MappingService.metadataModel)
+        val originalRecordMapping = RecMapping.read(originalStream, MappingService.recDefModel)
+        val uploadedRecordMapping = RecMapping.read(uploaded, MappingService.recDefModel)
 
 
         /*
