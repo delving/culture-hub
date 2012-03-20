@@ -220,10 +220,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
     }
-    val records: List[MetadataRecord] = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
+    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    val totalValidRecords = records.size
     // FIXME these head calls blow up if there are no records
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
