@@ -16,7 +16,7 @@ object Application extends DelvingController {
         val recentStories: List[ListItem] = Story.findRecent(themeInfo.themeProperty("recentStoriesCount", classOf[Int])).toList
         val recentObjects: List[ListItem] = DObject.findRecent(themeInfo.themeProperty("recentObjectsCount", classOf[Int])).toList
         val recentMdrs: List[ListItem] = Search.search(None, 1, request, theme, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
-
+        //this is my file
         Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs))
     }
   }
