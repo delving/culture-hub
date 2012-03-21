@@ -34,7 +34,7 @@
     <div class="row">
         <div class="grid_8">
             #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-            <div class="pager mbl">
+            <div class="pager mtm mbl">
                 #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
             </div>
             #{/if}

@@ -79,7 +79,7 @@ function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteU
  */
 function thumbnailUrl(id) {
     if (typeof id === 'undefined' || id === "") {
-        return '/public/images/dummy-object.png';
+        return '/assets/common/images/dummy-object.png';
     } else {
         return '/thumbnail/' + (typeof id === 'function' ? id() : id);
     }
@@ -762,4 +762,13 @@ function setScrollablePageHeight(target, index){
         $(target).css("height", viewAreaHeight);
         viewAreaHeight = 0;
     });
+}
+
+/**
+ * Helper to fetch a thumbnail URL
+ * @param id the ID of the thumbnail
+ */
+function showDefaultImg(obj){
+//    alert("foo");
+    obj.src = "/assets/common/images/dummy-object.png";
 }

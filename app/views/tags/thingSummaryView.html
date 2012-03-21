@@ -20,12 +20,12 @@ switch (recordType) {
 
 #{ifnot _viewType == 'media'}
     *{*** summary view for things that have a digital object ***}*
-    #{if _data.hasDigitalObject()}
+    *{#{if _data.hasDigitalObject()}}*
     <div class="thing-container">
         <div class="ic_container">
             <a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">
                 #{if _data.getMimeType().contains('image/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
+                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('video/') }
                      <img src="@{routes.Assets.at('/common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
@@ -34,7 +34,7 @@ switch (recordType) {
                     <img src="@{routes.Assets.at('/common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('unknown/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}"/>
+                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
                 #{/}
 
                 <div class="overlay" style="display:none"></div>
@@ -54,27 +54,27 @@ switch (recordType) {
             </div>
         </div>
     </div>
-    #{/if}
+    *{#{/if}}*
     *{*** summary view for things that have a no digital object ***}*
-    #{else}
-    <div class="thing-container no-image">
-        <div class="media" style="margin:0; height:inherit">
-            <div class="bd">
-                <a href="${_data.getUri()}">
-                    <img src='@{routes.Assets.at('/images/dummy-object.png')}' width="" class="img" alt="${_data.getTitle()}"/>
-                </a>
-                <div class="metadata">
-                    <p class="ic_category">${recordType}</p>
-                    <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
-                    <div class="info-box small smaller">
-                        <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-                        #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    #{/else}
+    *{#{else}}*
+    *{<div class="thing-container no-image">}*
+        *{<div class="media" style="margin:0; height:inherit">}*
+            *{<div class="bd">}*
+                *{<a href="${_data.getUri()}">}*
+                    *{<img src='@{routes.Assets.at('/images/dummy-object.png')}' width="" class="img" alt="${_data.getTitle()}"/>}*
+                *{</a>}*
+                *{<div class="metadata">}*
+                    *{<p class="ic_category">${recordType}</p>}*
+                    *{<span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>}*
+                    *{<div class="info-box small smaller">}*
+                        *{<span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>}*
+                        *{#{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}}*
+                    *{</div>}*
+                *{</div>}*
+            *{</div>}*
+        *{</div>}*
+    *{</div>}*
+    *{#{/else}}*
 #{/ifnot}
 
 #{if _viewType == 'media'}
