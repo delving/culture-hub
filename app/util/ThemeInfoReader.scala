@@ -1,7 +1,6 @@
 package util
 
 import play.Play
-import java.io.{FileInputStream, File}
 import java.util.Properties
 import java.util.concurrent.ConcurrentHashMap
 import play.api.Play.current
@@ -23,7 +22,7 @@ object ThemeInfoReader {
 
   def get(key: String, theme: String, themeDir: String): Option[String] = {
 
-    val mayInfo = if (Play.isDev) {
+    val mayInfo = if (Play.isProd) {
       val themeInfo = cache.get(theme)
       if (themeInfo != null) {
         Right(themeInfo)
