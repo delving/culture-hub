@@ -45,7 +45,38 @@ db.Organizations.find().forEach(function(org) {
 
 ## Org membership is saved locally in a HubUser, instead of an Organization
 
-    TODO implement migration / do it by hand
+// configure the organization and the users here, make sure to adjust the database names
+var userNames = ["bob", "dan"];
+var orgId = "delving";
+
+// fetch users from culturecloud
+use culturecloud
+var users = db.Users.find({userName: {$in: userNames}});
+
+// create in culturehub
+use culturehub
+users.forEach(function(u) {
+  print(u.userName);
+  db.Users.insert({
+    "_typeHint" : "models.HubUser",
+    userName: u.userName,
+    email: u.email,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    organizations: [ orgId ],
+    "userProfile" : {
+    		"_typeHint" : "models.UserProfile",
+    		"isPublic" : u.userProfile.isPublic,
+    		"description" : u.userProfile.description,
+    		"funFact" : u.userProfile.funFact,
+    		"twitter" : u.userProfile.twitter,
+    		"linkedIn" : u.userProfile.linkedIn,
+    		"websites" : u.userProfile.websites
+    	}
+  });
+  }
+)
+
 
 ## CMS files and images aren't linked via the org mongo id anymore but via the orgId (I knew this would get back at me)
 
