@@ -34,4 +34,19 @@ object Demo extends DelvingController {
     }
   }
 
+  def yumaImage = Root {
+    Action {
+      implicit request =>
+        Ok(Template())
+    }
+  }
+
+  def yumaMap = Root {
+    Action {
+      implicit request =>
+        Ok(Template())
+    }
+  }
+
+
 }
