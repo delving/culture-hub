@@ -124,7 +124,7 @@ object Groups extends OrganizationController {
               }
 
               if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
-                reportSecurity("User %s tried to create an owners team!".format(connectedUserId))
+                reportSecurity("User %s tried to create an owners team!".format(connectedUser))
                 return Action {
                   Forbidden("Your IP has been logged and reported to the police.")
                 }

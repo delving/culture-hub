@@ -15,7 +15,7 @@ trait ThemeAware {
 
   def Themed[A](action: Action[A]): Action[A] = {
     Action(action.parser) {
-      request =>
+      implicit request =>
         try {
           val portalTheme = ThemeHandler.getByDomain(request.domain)
           themeThreadLocal.set(portalTheme)

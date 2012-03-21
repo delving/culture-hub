@@ -141,7 +141,7 @@ object VirtualCollections extends OrganizationController {
     query
   }
 
-  private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme): Either[Throwable, String] = {
+  private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme)(implicit request: RequestHeader): Either[Throwable, String] = {
     val vc = VirtualCollection.findOneByID(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
@@ -185,7 +185,7 @@ object VirtualCollections extends OrganizationController {
     Right("ok")
   }
 
-  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty): List[String] = {
+  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty)(implicit request: RequestHeader): List[String] = {
     
     // for the start, only pass a dead-simple query
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))

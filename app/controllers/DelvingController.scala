@@ -133,7 +133,7 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isOwner: Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
+  def isOwner(implicit request: RequestHeader): Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
@@ -302,27 +302,17 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
   def isConnected(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).isDefined
 
-  def connectedUser = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
+  def connectedUser(implicit request: RequestHeader) = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
 
-  def connectedUserId = renderArgs("userId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
+  def browsedUserName(implicit request: RequestHeader): String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)
 
-  def browsedUserName: String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)
+  def browsedFullName(implicit request: RequestHeader): String = renderArgs("browsedFullName").map(_.asInstanceOf[String]).getOrElse(null)
 
-  def browsedUserId: ObjectId = renderArgs("browsedUserId").map(_.asInstanceOf[ObjectId]).getOrElse(null)
-
-  def browsedFullName: String = renderArgs("browsedFullName").map(_.asInstanceOf[String]).getOrElse(null)
-
-  def browsedUserExists: Boolean = renderArgs("browsedUserNotFound") == null
-
-  def browsedIsConnected(implicit request: RequestHeader): Boolean = browsedUserName == request.session.get(Authentication.USERNAME)
-
-  def browsingUser: Boolean = browsedUserName != null
-
-  def isNodeAdmin: Boolean = renderArgs("isNodeAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)
+  def browsingUser(implicit request: RequestHeader): Boolean = browsedUserName != null
 
   // ~~~ convenience methods
 
-  def listPageTitle(itemName: String) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
+  def listPageTitle(itemName: String)(implicit request: RequestHeader) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
 
 
 }
