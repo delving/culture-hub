@@ -44,6 +44,32 @@
         <copy file="${root}/conf/production.conf.template" tofile="${root}/conf/production.conf" />
     </target>
 
+    <target name="startSolr">
+        <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
+    </target>
+
+    <target name="stopSolr">
+        <exec executable="jps" output="pid.out.file"/>
+        <loadfile srcfile="pid.out.file" property="pid">
+          <filterchain>
+                <linecontains>
+                  <contains value="start.jar"/>
+                </linecontains>
+                <tokenfilter>
+                    <deletecharacters chars="start.jar"/>
+                    <trim/>
+                    <ignoreblank/>
+                </tokenfilter>
+                <striplinebreaks/>
+          </filterchain>
+        </loadfile>
+        <exec command="kill">
+            <arg value="-9"/>
+            <arg value="${pid}"/>
+        </exec>
+        <delete file="pid.out.file"/>
+    </target>
+
     <target name="test" description="Runs all tests" depends="prepare, check">
         <!-- JAR-->
         <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
