@@ -1,0 +1,40 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title:'Image viewer' /}
+
+<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/yuma/theme-plain-grey/yuma.min.css")}"/>
+<script type='text/javascript' src="@{routes.Assets.at('/common/javascripts/seadragon/seadragon-min.js')}"></script>
+<script type='text/javascript' src="@{routes.Assets.at('/common/yuma/yuma.min.nocache.js')}"></script>
+<script type="text/javascript">
+    // Annotation canvas
+    var canvas;
+
+    // Deepzoom viewer
+    var viewer;
+
+    function initYuma() {
+        canvas = new YUMA.SeajaxAnnotationLayer('viewer', viewer, {enableReplies:true, serverURL:"http://dme.ait.ac.at/yuma4j-server"});
+    }
+
+    window.onYUMAready = function () {
+        if (viewer)
+            initYuma();
+    };
+
+    window.onload = function () {
+
+        Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
+        viewer = new Seadragon.Viewer("viewer");
+        viewer.openDzi({
+            "url":"http://thuisinbrabant.delving.org/iip/deepzoom/mnt/tib/tiles/thuisinbrabant/kaarten/BC-181.tif.dzi",
+            "width":15680,
+            "height":7176,
+            "tileSize":256,
+            "tileOverlap":0,
+            "tileFormat":"jpg"});
+    }
+</script>
+<div id="container">
+
+    <div id="viewer" style="width:640px;height:480px;"></div>
+    <input id="annotate-button" type="button" value="Add Note" onclick="canvas.createNewAnnotation();"/>
+</div>

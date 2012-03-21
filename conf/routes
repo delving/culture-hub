@@ -24,6 +24,8 @@ GET        /token                                                               
 
 # Demo space
 GET        /demo/viewer                                                            controllers.Demo.view(image: Option[String])
+GET        /demo/yumaImage                                                         controllers.Demo.yumaImage()
+GET        /demo/yumaMap                                                           controllers.Demo.yumaMap()
 GET        /fcgi-bin/iipsrv.fcgi                                                   controllers.Demo.iipsrv
 
 
@@ -92,9 +94,8 @@ GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(task
 #GET         /services/oai-pmh/{accessKey}                                    controllers.Services.oaipmhSecured
 
 # Custom Controllers and Functionality for customers
-# TODO maybe later change this to an action based mechanism
-#GET         /services/api/itin                                               custom.ItinEndPoint.search
-#POST        /services/api/itin                                               custom.ItinEndPoint.store
+GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
+POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store
 
 
 # User registration

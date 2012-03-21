@@ -71,7 +71,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
     }
   }
 
-  def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY).get
+  def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY)
 
 
   // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
@@ -189,17 +189,17 @@ trait DelvingController extends ApplicationController with ModelImplicits {
 
           // CSRF check
           // TODO FIXME
-          if (request.method == "POST" && Play.isTest) {
-            val params = request.body match {
-              case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
-              case _ => Map.empty[String, Seq[String]] // TODO
-            }
-            val authenticityTokenParam = params.get(key = "authenticityToken")
-            val CSRFHeader = request.headers.get("x-csrf-token")
-            if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(authenticityTokenParam == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader.get == getAuthenticityToken)))
-            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
-              Forbidden("Bad authenticity token")
-          }
+//          if (request.method == "POST" && Play.isTest) {
+//            val params = request.body match {
+//              case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
+//              case _ => Map.empty[String, Seq[String]] // TODO
+//            }
+//            val authenticityTokenParam = params.get(key = "authenticityToken")
+//            val CSRFHeader = request.headers.get("x-csrf-token")
+//            if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(Some(authenticityTokenParam) == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader == getAuthenticityToken)))
+//            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
+//              Forbidden("Bad authenticity token")
+//          }
 
           // Connected user
           HubUser.findByUsername(userName).map {
