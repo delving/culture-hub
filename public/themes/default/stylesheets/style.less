@@ -46,6 +46,12 @@
   -webkit-border-radius: 0 @radius 0 0;
 }
 
+.box-shadow {
+    box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+}
+
 /*---------------------------------
 	HTML ELEMENTS
 -----------------------------------*/
@@ -59,6 +65,7 @@ strike{}
 em,i{}
 .hide{display:none;}
 .show{display:block;}
+
 
 /*---------------------------------
 	UTILITY
@@ -159,25 +166,39 @@ text-shadow: 0px 0px 1px transparent; /* google font pixelation fix */
 
 
 #page-top .container_12 {
-
-position: relative;
+    position: relative;
     height: 144px;
 }
 
-#page-top .site-logo,
+#page-top #primary-branding {
+    /*background: #ccc;*/
+    height: inherit;
+    position: relative;
+}
+
+#page-top .site-logo {
+    position: absolute;
+    top: 20px;
+    left: 0px;
+}
+
+#page-top .site-name {
+    font-size: 150%;
+    position: absolute;
+    top: 40px;
+    left: 120px;
+} 
+
+#page-top .site-name a {
+    text-decoration: none;
+    color: @text;
+}
+
 #page-top .site-slogan {
-    float: left;
-    margin: 21px 11px 0 0;
-}
-
-#page-top h1 {
-    margin: 21px 0 0 0;
-    font-size: 125%;
-}
-
-#page-top h2 {
-    margin: 0px;
     font-size: 100%;
+    position: absolute;
+    top: 70px;
+    left: 120px;
 }
 
 #page-top .secondary-branding {
@@ -221,21 +242,10 @@ position: relative;
 
 .user-panel {
     padding: 8px 14px;
-//    background-color: @highlight;
-    background: rgb(255,255,255); /* Old browsers */
-    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(255,255,240,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,240,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,240,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,240,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,240,1) 100%); /* IE10+ */
-    background: linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,240,1) 100%); /* W3C */
-
-
+    background: @base-light url(/assets/common/images/bg-striped-3.png);
     float: right;
-    margin: 0;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.15);
-    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    -moz-box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    margin: 0 -10px 0 0;
+    .box-shadow();
     width: 100%;
 }
 
@@ -246,9 +256,9 @@ position: relative;
 -----------------------------------*/
 
 #site-nav {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
+    /*position: absolute;*/
+    /*bottom: 0px;*/
+    /*right: 0px;*/
 }
 
 #site-nav ul {
@@ -258,8 +268,8 @@ position: relative;
 }
 
 #site-nav ul li {
-    background:  @base-medium;
-    border-right: 1px solid @base-light;
+    background: @base-dark url(/assets/common/images/bg-striped-1.png);
+    border-right: 1px solid #ccc;
     display: inline;
     float: left;
     margin: 0;
@@ -274,10 +284,10 @@ position: relative;
 }
 
 #site-nav ul a {
-    color: #fff;
+    /*color: #fff;*/
     display: block;
     padding: 6px 12px;
-    text-decoration: none;
+    /*text-decoration: none;*/
 
 }
 
@@ -285,15 +295,18 @@ position: relative;
 	HEADER
 -----------------------------------*/
 
-#header {
-    background: @base-dark;
-    height: 111px;
-    position: relative;
-}
+/*#header  {*/
+/*//    background: @base-light;*/
+    /*height: 44px;*/
+    /*position: relative;*/
+/*}*/
 
-#header .container_12 .grid_12 {
-    height: 111px;
+#header .container_12  {
+    background: @base-light url(/assets/common/images/bg-striped-3.png);
+    height: 32px;
+    padding: 10px 0;
     position: relative;
+//    .box-shadow();
 }
 
 /*---------------------------------
@@ -301,12 +314,9 @@ position: relative;
 -----------------------------------*/
 
 #search {
-    background: #fff;
-    .border-top(@radius);
-    position: absolute;
-    left: 0px;
-    bottom: 0px;
-    padding: 4px 6px 0;
+    /*position: absolute;*/
+    /*left: 0px;*/
+    /*bottom: 0px;*/
 }
 
 #search form {
@@ -315,34 +325,29 @@ position: relative;
 }
 
 #search input[type=text] {
-    background: none repeat scroll 0 0 #fff;
     border:  1px solid  @base-medium;
-    .border-all(@radius);
-    padding: 8px;
+    padding: 7px;
     width: 233px;
 }
 
 #search input[type="submit"]  {
-    background: none repeat scroll 0 0 @base-dark;
-    border:  0px solid @base-dark;
-    .border-all(2px);
+//    background: none repeat scroll 0 0 @base-dark;
+    background: @base-dark url(/assets/common/images/bg-striped-2.png);
+    border:  1px solid @base-dark;
     color: @base-light;
     cursor: pointer;
-    font-size: 100%;
     font-weight: bold;
     margin-left: 4px;
-    padding: 6px;
-    /*text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);*/
+    padding: 7px;
     text-transform: uppercase;
     width: 80px;
 }
 
-#search input {
-    vertical-align: top;
-	border-radius: 2px;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
+#search input[type="submit"]::-moz-focus-inner {
+    border:0;
 }
+
+
 
 /*---------------------------------
 	MAIN CONTENT
@@ -356,9 +361,36 @@ position: relative;
 /*---------------------------------
 	BREADCRUMBS
 -----------------------------------*/
-.breadcrumb {
-    padding: 0 10px;
-    margin: 10px 0;
+ul.breadcrumbs {
+    margin: 0 0 21px 0;
+}
+
+/*---------------------------------
+	RESULTS
+-----------------------------------*/
+.thing_container {
+    background: @base-medium;
+}
+
+.ic_caption {
+    background-color: darken(@base-dark, 20%) !important;
+}
+
+.ic_category,
+.ic_text {
+    color: #fff;
+}
+
+.info-box .label {
+    color: #fff;
+}
+
+/*---------------------------------
+	FACETS
+-----------------------------------*/
+
+.facet-container {
+    background:  @base-light url(/assets/common/images/bg-striped-3.png);
 }
 
 /*---------------------------------
