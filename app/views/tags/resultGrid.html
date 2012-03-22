@@ -3,7 +3,8 @@
 #{if counter == 1}
 <div class="row">
 #{/if}
-    <div class="g-1of3 #{if counter == 1} alpha #{/if} #{if counter == 3} omega #{/if} ">
+    *{<div class="g-1of4 #{if counter == 1} alpha #{/if} #{if counter == 4} omega #{/if} ">}*
+    <div class="grid_3">
         <div class="draggable ${doc.getRecordType()} ">
             #{thingSummaryView data: doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
@@ -12,7 +13,7 @@
         </div>
     </div>
     %{ counter++ }%
-#{if counter > 3 || doc_isLast }
+#{if counter > 4 || doc_isLast }
 </div><!-- end row -->
 %{ counter = 1 }%
 #{/if}
