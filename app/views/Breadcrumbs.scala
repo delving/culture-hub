@@ -55,6 +55,9 @@ object Breadcrumbs {
       case "organizations" :: orgName :: "site" :: lang :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("locale." + lang)))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("org.cms.page.create")))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("org.cms.page.update") + " \"" + page + "\""))
+      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")))
+      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("organization.virtualCollection.new")))
+
 
       case user :: Nil => List(("/" + user, user))
       case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")))
