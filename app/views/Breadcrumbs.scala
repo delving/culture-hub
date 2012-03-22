@@ -29,10 +29,10 @@ object Breadcrumbs {
       case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
       case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
-      case "search" :: Nil if p != null =>
-        val returnToResults = p.get("search").get("returnToResults")
-        val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
-        List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
+//      case "search" :: Nil if p != null =>
+//        val returnToResults = p.get("search").get("returnToResults")
+//        val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
+//        List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
 
       case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
@@ -55,6 +55,9 @@ object Breadcrumbs {
       case "organizations" :: orgName :: "site" :: lang :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("locale." + lang)))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("org.cms.page.create")))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("org.cms.page.update") + " \"" + page + "\""))
+      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")))
+      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("organization.virtualCollection.new")))
+
 
       case user :: Nil => List(("/" + user, user))
       case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")))

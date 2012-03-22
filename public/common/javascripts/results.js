@@ -14,7 +14,9 @@ $(document).ready(function() {
         var toggles = $(document).find("h4.trigger");
         $.each(toggles, function() {
             if ($(this).hasClass("active")) {
-                $(this).next().css("display", "block");
+                $(this).next().css("display", "block").delay(2500).hide('slow');
+                $(this).removeClass("active");
+
             }
         })
     }
@@ -26,14 +28,15 @@ $(document).ready(function() {
     }
 
     // Scroll to first checked term
-    $(".facet-container").each(function(i) {
-        $this = $(this);
-        $checked = $this.find("input:checked");
-        if ($checked.length) {
-            $this.animate({
-                scrollTop: $checked.offset().top - $this.offset().top - $this.height() / 2
-            }, 1);
-        }
+    $(".facet-container").each(
+        function(i) {
+            $this = $(this);
+            $checked = $this.find("input:checked");
+            if ($checked.length) {
+                $this.animate({
+                    scrollTop: $checked.offset().top - $this.offset().top - $this.height() / 2
+                }, 1);
+            }
     });
 
     $(".ic_container").capslide({
