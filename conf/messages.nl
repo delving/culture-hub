@@ -287,7 +287,8 @@ search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
-search.trail=U bekijkt resultaten <strong>{0} - {0}</strong> van <strong>{0}</strong> voor:
+#search.trail=U bekijkt resultaten <strong>{0} - {0}</strong> van <strong>{0}</strong> voor:
+search.trail=U bekijkt resultaten {0} - {0} van ongeveer {0}
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 ##Story
 story.pages=Pagina's
