@@ -27,8 +27,8 @@
                 #{/else}
                 <div class="metadata">
                     <h5>&{'metadata.dc.description'}:</h5>
-                    <!--<p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>-->
-                    #{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /}
+                    ${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
+                    *{#{metadataField data: fullDoc.getConcatenatedList("dc_description", ["dc_description", "delving_description"]), separator:"<br/>"  /}}*
                     <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">
