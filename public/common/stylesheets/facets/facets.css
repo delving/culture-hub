@@ -1,3 +1,72 @@
+.facets {
+    margin: 0 0 21px 0;
+}
+
+.facets .facet {
+    background: url(/assets/common/images/bg-striped-3.png) 1px top;
+    /*background: black;*/
+    display: inline-block;
+    float: left;
+    width: 25%;
+}
+
+.facets h4.trigger
+{
+    background: url(/assets/common/stylesheets/facets/togglerch.gif) no-repeat 4px 50%;
+    /*border-bottom:1px solid #ccc;*/
+    font-family: Arial;
+    font-weight: normal;
+    font-size:100%;
+    margin:0;
+    padding:8px 0px 8px 20px;
+    cursor: pointer;
+}
+
+.facets h4.trigger:hover {
+    background: url(/assets/common/stylesheets/facets/togglerc.gif) no-repeat 0% 50%;
+    color: #555;
+    text-decoration: underline;
+}
+
+.facets h4.trigger.active {
+    background: url(/assets/common/stylesheets/facets/toggleroh.gif) no-repeat 0% 50%;
+}
+
+.facets h4.trigger.active:hover {
+    background: url(/assets/common/stylesheets/facets/togglero.gif) no-repeat 0% 50%;
+}
+
+
+.facets .facet-container {
+    position: absolute;
+    width: 23%;
+    /*background:#f2f7f8;*/
+    /*border-bottom:1px solid #ddddd0;*/
+    clear:both;
+    margin:0 1%;
+    max-height:300px;
+    overflow-x:hidden;
+    overflow-y:auto;
+    padding:5px 0px 5px 0px;
+    /*font-size: smaller;*/
+    z-index: 1000;
+}
+
+.facets .facet-container div {
+    display: table-row;
+    font-size: smaller;
+}
+
+.facet-container input[type="checkbox"] {
+    display: table-cell;
+    margin-right: 5px;
+}
+.facet-container a,
+.facet-container span{
+    display: table-cell;
+}
+
+/*
 .facets h3 {
     margin: 0;
     padding: 0 0 4px 0;
@@ -13,10 +82,8 @@ h4.trigger
     font-weight: normal;
     font-size:100%;
     margin:0;
-    /*padding:5px 0 5px 25px;*/
     padding:8px;
     cursor: pointer;
-    /*color: #336699;*/
 }
 
 h4.trigger:hover {
@@ -53,10 +120,13 @@ h4.trigger.active:hover {
     display: table-cell;
     margin-right: 5px;
 }
-.facet-container span {
+.facet-container a,
+.facet-container span{
     display: table-cell;
 }
 
 .facets .widget .bd {
     padding: 0px;
 }
+
+*/

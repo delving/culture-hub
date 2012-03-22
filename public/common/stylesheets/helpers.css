@@ -273,8 +273,9 @@ div.dropdown-slider .ddm.heading {
 
 /*results */
 .item-count {
-    /*margin-bottom: 20px;*/
-    font-size: 18px;
+    margin-bottom: 20px;
+    /*font-size: 18px;*/
+
 }
 
 .item-count ul {

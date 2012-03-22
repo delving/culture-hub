@@ -12,33 +12,47 @@
 <script src="@{routes.Assets.at('/common/javascripts/results.js')}" type='text/javascript'></script>
 #{/set}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]] /}
+<div class="grid_12">
+    #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
+</div>
+
 
 #{if briefDocs }
-    <div class="g-12of12 grid_12">
-        <div class="item-count mtm mbm">
+    <div class="grid_12">
+        <div class="item-count">
             &{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
-            <ul class="breadcrumb">
-                #{list pagination.getBreadcrumbs(), as: 'crumb'}
-                #{ifnot crumb_isLast}
-                <li><a href="@{controllers.routes.Search.index(params.get("query").apply(0), 1)}?${crumb.href()}"><span>${views.Helpers.shorten(crumb.value(), 50)}</span></a></li>
-                #{/ifnot}
-                #{else}
-                <li><span>${crumb.value()}</span></li>
-                #{/else}
-                #{/list}
-            </ul>
+            *{<ul class="breadcrumb">}*
+                *{#{list pagination.getBreadcrumbs(), as: 'crumb'}}*
+                *{#{ifnot crumb_isLast}}*
+                *{<li><a href="@{controllers.routes.Search.index(params.get("query").apply(0), 1)}?${crumb.href()}"><span>${views.Helpers.shorten(crumb.value(), 50)}</span></a></li>}*
+                *{#{/ifnot}}*
+                *{#{else}}*
+                *{<li><span>${crumb.value()}</span></li>}*
+                *{#{/else}}*
+                *{#{/list}}*
+            *{</ul>}*
         </div>
+        *{<button onclick="$('#facets').show('slow')">Refine your search</button>}*
     </div>
 
-    <div class="row">
-        <div class="grid_8">
+<div class="grid_12">
+    <div class="facets clearfix">
+        #{list items: themeFacets, as: 'tf'}
+            #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
+        #{/list}
+    </div>
+</div>
+
+    <div class="grid_12" style="position: relative;">
             #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
             <div class="pager mtm mbl">
                 #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
             </div>
             #{/if}
-            <div class="results">
+     </div>
+
+
+            <div class="results" class="grid_12">
                 #{resultGrid results: briefDocs /}
             </div>
             #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
@@ -46,21 +60,6 @@
                 #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
             </div>
             #{/if}
-        </div>
-        <div class="grid_4">
-            <div class="legend">
-
-            </div>
-            <div class="facets">
-                <div class="widget">
-                    <div class="hd"><h3>&{'search.refineYourSearchBy'}:</h3></div>
-                    <div class="bd">
-                    #{list items: themeFacets, as: 'tf'}
-                      #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
-                    #{/list}
-                    </div>
-                </div>
-            </div>
 
             *{#{if userName}}*
             *{<div id="dropbox" class="widget object">}*
@@ -90,16 +89,16 @@
                 *{</div>}*
             *{</div>}*
             *{#{/if}}*
-                *{ <!-- commented out for now until functionality is there -->
-                <div class="dropdown">
-                    #{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}
-                    <div class="dropdown-slider">
-                        <a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>
-                        <a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>
-                    </div>
-                </div>
-                }*
-            </div>
+                 <!-- commented out for now until functionality is there -->
+                *{<div class="dropdown">}*
+                    *{#{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}}*
+                    *{<div class="dropdown-slider">}*
+                        *{<a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>}*
+                        *{<a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>}*
+                    *{</div>}*
+                *{</div>}*
+
+            *{</div>}*
     </div>
 
 #{/if}
