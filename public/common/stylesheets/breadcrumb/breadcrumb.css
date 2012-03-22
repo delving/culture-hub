@@ -1,10 +1,10 @@
+/*
 .breadcrumb ul {
     margin: 0;
     padding: 0;
 }
 
 .breadcrumb li {
-    /*background: transparent url(/assets/common/images/crumb.png) no-repeat top right;*/
     display: inline-block;
     height: 16px;
     line-height: 16px;
@@ -12,7 +12,6 @@
 }
 
 .breadcrumb li:after {
-    /*content: "\25B8";*/
     content: url(/assets/common/images/crumb.png);
     display: inline-block;
     padding: 0 10px 0 10px;
@@ -27,4 +26,78 @@
 
 .breadcrumb a {
     color: #2c4460
+}
+
+*/
+
+/*---------------------------------
+	BREADCRUMBS
+-----------------------------------*/
+ul.breadcrumbs{
+    margin: 0;
+    padding:0;
+    line-height:0%;
+    font-size:0;
+}
+
+ul.breadcrumbs li{
+    list-style-type:none;
+    margin:0;
+    padding:0;
+    display:inline-block;
+    *display:inline; /* IE ONLY*/
+    position:relative;
+    zoom:1;
+    line-height:100%;
+    font-size:14px; /* 0.8em default to override font-size:0; on parent*/
+}
+
+ul.breadcrumbs li span{
+    display:inline-block;
+    *display:inline; /* IE ONLY*/
+    position:relative;
+    padding:5px 15px 5px 5px;
+    font-size:0.9em;
+    zoom:1;
+    margin:0;
+    background:url(icon-arrow-right.png) no-repeat right center;
+}
+
+ul.breadcrumbs li:last-of-type span{
+    color:#333;
+    cursor: default;
+    text-decoration:none;
+    background:none;
+}
+
+ul.breadcrumbs li:last-of-type span:hover{
+    text-decoration:none;
+}
+
+/* Alternative Style */
+ul.breadcrumbs.alt1{
+    border:1px solid transparent;
+    font-size:0;
+}
+
+ul.breadcrumbs.alt1 li span{
+    padding:10px 25px 10px 15px;
+    background:url(breadcrumbs-bg.gif) no-repeat right center;
+    text-decoration:none;
+    border-top:1px solid #efefef;
+    border-bottom:1px solid #efefef;
+    /*font-size:12px;*/
+}
+
+ul.breadcrumbs.alt1 a:hover{
+    text-decoration:underline;
+}
+
+ul.breadcrumbs.alt1 li:first-of-type span{
+    border-left:1px solid #efefef;
+}
+
+ul.breadcrumbs.alt1 li:last-of-type span{
+    background:none;
+    border-right:1px solid #efefef;
 }
