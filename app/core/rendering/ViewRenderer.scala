@@ -16,13 +16,15 @@
 
 package core.rendering
 
-import java.io.File
 import scala.xml.Node
 import xml.XML
 import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
 import play.api.Logger
+import java.io.File
+import org.w3c.dom.Document
+import play.libs.XPath
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -37,16 +39,17 @@ object ViewRenderer {
 
   val log = Logger("CultureHub")
 
-  def renderView(recordDefinition: File, view: String, record: Node, userGrantTypes: List[GrantType]): RenderNode = {
+  def renderView(recordDefinition: File, view: String, record: Document, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
     val prefix = recordDefinition.getName.substring(0, recordDefinition.getName.indexOf("-"))
     val xml = XML.loadFile(recordDefinition)
     (xml \ "views" \ "view").filter(v => (v \ "@name").text == view).headOption match {
-      case Some(viewDefinition) => renderView(prefix, viewDefinition, view, record, userGrantTypes)
+      case Some(viewDefinition) => renderView(prefix, viewDefinition, view, record, userGrantTypes, namespaces)
       case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, recordDefinition.getAbsolutePath))
     }
   }
 
-  def renderView(prefix: String, viewDefinition: Node, view: String, record: Node, userGrantTypes: List[GrantType]): RenderNode = {
+  def renderView(prefix: String, viewDefinition: Node, view: String, record: Document, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+
 
     val result = RenderNode("root")
 
@@ -104,7 +107,7 @@ object ViewRenderer {
                               })) {
                               field =>
                               // fetch the unique field value
-                                val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList, namespaces)
                                 field += RenderNode("text", values.headOption)
                             }
                           }
@@ -130,7 +133,7 @@ object ViewRenderer {
                                   // e.g.
                                   //       <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
 
-                                  val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList)
+                                  val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList, namespaces)
                                   values foreach {
                                     v => list += RenderNode("text", Some(v))
                                   }
@@ -159,27 +162,15 @@ object ViewRenderer {
   }
 
 
+  private def fetchPaths(record: Document, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
 
-  private def fetchPaths(rootNode: Node, paths: Seq[String]): Seq[String] = {
+    import collection.JavaConverters._
+
     (for (path <- paths) yield {
-      // basic traversal assuming we only have single elements all the way, until the last element which may be multiple
-      fetch(rootNode, path.split("/"), 0)
-    }).flatten
+      XPath.selectText(path, record, namespaces.asJava)
+    })
   }
 
-  private def fetch(n: Node, p: Array[String], level: Int): List[String] = {
-
-    def qName(n: Node) = if(n.prefix != null) n.prefix + ":" + n.label else n.label
-
-    val children = n.child
-
-    if (level + 1 < p.length) {
-      val t = children.find(c => qName(c) == p(level)).getOrElse(return List.empty)
-      fetch(t, p, level + 1)
-    } else {
-      children.filter(qName(_) == p(level)).map(_.text).toList
-    }
-  }
 }
 
 /**

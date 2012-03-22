@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
+import eu.delving.groovy.XmlSerializer
 import eu.delving.templates.Play2VirtualFile
+import java.io.ByteArrayInputStream
+import javax.xml.parsers.DocumentBuilderFactory
 import models.GrantType
 import org.specs2.mutable._
+import org.w3c.dom.Document
 import play.api.Play
 import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
+import play.libs.XML
 import play.templates.GenericTemplateLoader
 import xml.Node
 
@@ -36,12 +41,14 @@ class ViewRenderSpec extends Specification {
     "render a record" in {
       running(FakeApplication()) {
 
-        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, "full", testRecord(), List(GrantType("administrator", "blabla", "icn")))
+        val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+
+        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, "full", testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view)
         args.put("lang", "en")
-        val rendered = template.render(args)
+        val rendered: String = template.render(args)
 
         val expected: String =
 """<div class="row">
@@ -51,6 +58,7 @@ class ViewRenderSpec extends Specification {
   <div class="column" id="fields">
     <div>A test hierarchical record, Wood</div>
     <div class="field">metadata.icn.purchasePrice: 5000</div>
+    <div class="field">metadata.icn.purchaseType: auction</div>
   </div>
 </div>
 """
@@ -67,19 +75,21 @@ class ViewRenderSpec extends Specification {
     <view name="full">
       <row>
         <column id="description">
-            <field path="delving:summaryFields/delving:description" label="metadata.dc.description"/>
+            <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
         </column>
         <column id="fields">
-            <list type="concatenated" separator=", " label="random" path="delving:summaryFields/delving:title, icn:data/icn:general/icn:material"/>
-            <field path="icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+            <list type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
+            <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+            <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
         </column>
       </row>
     </view>
 
 
-  private def testRecord(): Node = {
+  private def testRecord(): Document = {
 
     // test record, hierarchical
+      val doc = """<?xml version="1.0" encoding="iso-8859-1" ?>
       <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:icn="http://www.icn.nl/schemas/ICN-V3.2.xsd">
         <delving:summaryFields>
           <delving:title>A test hierarchical record</delving:title>
@@ -95,11 +105,18 @@ class ViewRenderSpec extends Specification {
             <icn:material>Wood</icn:material>
             <icn:technique>Carving</icn:technique>
           </icn:general>
-          <icn:acquisition>
+          <icn:acquisition type="auction">
             <icn:cost>5000</icn:cost>
           </icn:acquisition>
         </icn:data>
-      </record>
+      </record>"""
+
+    val dbFactory = DocumentBuilderFactory.newInstance
+    dbFactory.setNamespaceAware(true)
+    val dBuilder = dbFactory.newDocumentBuilder
+    val res = dBuilder.parse(new ByteArrayInputStream(doc.getBytes("utf-8")))
+    res
+
 
   }
 
