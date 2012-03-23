@@ -50,12 +50,76 @@ object ViewRenderer {
 
   def renderView(prefix: String, viewDefinition: Node, view: String, record: Document, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
 
-
     val result = RenderNode("root")
-
     val treeStack = Stack(result)
+    val root = viewDefinition.child.iterator.filterNot(_.label == "#PCDATA").toList.head
+    walk(root)
 
-    def enter(node: Node, nodeType: String, attr: (String, Any)*)(block: Node => Unit) {
+    implicit def richerNode(n: Node) = new {
+        def attr(name: String) = {
+          val sel = "@" + name
+          (n \ sel).text
+        }
+      }
+
+    def walk(node: Node) {
+
+      node.foreach {
+        n =>
+          log.debug("Node " + n)
+          if (n.label != "#PCDATA") {
+
+            // common attributes
+            val label = n.attr("label")
+            val role = n.attr("role")
+            val path = n.attr("path")
+            val queryLink = {
+              val l = n.attr("queryLink")
+              if (l.isEmpty) false else l.toBoolean
+            }
+
+            val roleList = role.split(",").map(_.trim).filterNot(_.isEmpty).toList
+
+            n.label match {
+
+              case "row" => enterOne(n, "row")
+              case "column" => enterOne(n, "column", 'id -> n.attr("id"))
+              case "field" =>
+                if (hasAccess(roleList)) {
+                  appendOne("field", 'label -> label, 'queryLink -> queryLink) {
+                    field =>
+                      val values = fetchPaths(record, path.split(",").map(_.trim).toList, namespaces)
+                      field += RenderNode("text", values.headOption)
+                  }
+                }
+              case "enumeration" =>
+                if (hasAccess(roleList)) {
+
+                  appendOne("enumeration", 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'separator -> n.attr("separator")) {
+                    list =>
+
+                      if (!n.child.isEmpty) {
+                        throw new RuntimeException("An enumeration cannot have child elements!")
+                      }
+
+                      val values = fetchPaths(record, path.split(",").map(_.trim).toList, namespaces)
+                      values foreach {
+                        v => list += RenderNode("text", Some(v))
+                      }
+                  }
+                }
+
+              case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
+
+
+            }
+          }
+
+      }
+    }
+
+    /** appends a new RenderNode to the result tree and walks one level deeper **/
+    def enterOne(node: Node, nodeType: String, attr: (Symbol, Any)*) {
       log.debug("Entered " + node.label)
       val entered = RenderNode(nodeType)
       attr foreach {
@@ -66,12 +130,14 @@ object ViewRenderer {
       node.child foreach {
         n =>
           log.debug("Node " + n)
-          if (n.label != "#PCDATA") block(n)
+          walk(n)
       }
       treeStack.pop()
+
     }
 
-    def append(nodeType: String, attr: (String, Any)*)(block: RenderNode => Unit) {
+    /** appends a new RenderNode to the result tree and performs an operation on it **/
+    def appendOne(nodeType: String, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType)
       attr foreach {
         newNode addAttr _
@@ -82,83 +148,12 @@ object ViewRenderer {
       treeStack.pop()
     }
 
-    def hasAccess(roles: Array[String]) = roles.isEmpty || userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")
-
-    viewDefinition.child.iterator.filterNot(_.label == "#PCDATA") foreach {
-      r =>
-        r.label match {
-          case "row" =>
-            enter(r, "row") {
-              c =>
-                c.label match {
-                  case "column" =>
-                    enter(c, "column", ("id" -> (c \ "@id").text)) {
-                      e => e.label match {
-                        case "field" =>
-
-                          if (hasAccess((e \ "@role").text.split(",").map(_.trim).filterNot(_.isEmpty))) {
-
-                            // initialize the field and its meta-data
-                            append("field",
-                              ("label", (e \ "@label").text),
-                              ("queryLink", {
-                                val l = (e \ "@queryLink").text
-                                if (l.isEmpty) false else l.toBoolean
-                              })) {
-                              field =>
-                              // fetch the unique field value
-                                val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList, namespaces)
-                                field += RenderNode("text", values.headOption)
-                            }
-                          }
-
-                        case "list" =>
-
-                          if (hasAccess((e \ "@role").text.split(",").map(_.trim).filterNot(_.isEmpty))) {
-
-                            append("list",
-                              ("label", (e \ "@label").text),
-                              ("queryLink", {
-                                val l = (e \ "@queryLink").text
-                                if (l.isEmpty) false else l.toBoolean
-                              }),
-                              ("type", (e \ "@type").text),
-                              ("separator", (e \ "@separator").text)
-                            ) {
-                              list =>
-
-                                if (e.child.isEmpty) {
-
-                                  // first case: we have a closed list, thus assuming we only want to loop over the elements given in the list
-                                  // e.g.
-                                  //       <list type="concatenated" label="metadata.dc.format" path="dc_format, dcterms_extent" separator=", " />
-
-                                  val values = fetchPaths(record, (e \ "@path").text.split(",").map(_.trim).toList, namespaces)
-                                  values foreach {
-                                    v => list += RenderNode("text", Some(v))
-                                  }
-                                } else {
-                                  throw new RuntimeException("Complex <list> not yet implemented.")
-                                }
-
-
-                            }
-                          }
-                        case u => throwUnknownElement(e)
-                      }
-                    }
-                  case u => throwUnknownElement(c)
-                }
-            }
-          case u => throwUnknownElement(r)
-        }
+    def hasAccess(roles: List[String]) = {
+      roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
     result
-  }
 
-  private def throwUnknownElement(e: scala.xml.Node) {
-    throw new RuntimeException("Unknown element '%s'".format(e))
   }
 
 
@@ -191,8 +186,8 @@ case class RenderNode(nodeType: String, value: Option[String] = None) {
 
   def addAttr(key: String, value: AnyRef) = attributes + (key -> value)
 
-  def addAttr(element: (String, Any)) {
-    attributes += element
+  def addAttr(element: (Symbol, Any)) {
+    attributes += (element._1.name -> element._2)
   }
 
   def text: String = value.getOrElse("")

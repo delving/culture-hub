@@ -6,7 +6,7 @@
 #{if item.nodeType == 'field'}
     <div class="field">${item.attr("label")}: ${item.content().head().text()}</div>
 #{/if}
-#{if item.nodeType == 'list'}
+#{if item.nodeType == 'enumeration'}
 #{if item.attr("type") == "ul"}
     <ul>
 #{list item.content(), as: 'e'}

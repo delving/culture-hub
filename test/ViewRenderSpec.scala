@@ -27,7 +27,6 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.libs.XML
 import play.templates.GenericTemplateLoader
-import xml.Node
 
 /**
  *
@@ -78,7 +77,7 @@ class ViewRenderSpec extends Specification {
             <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
         </column>
         <column id="fields">
-            <list type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
+            <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
         </column>
@@ -109,6 +108,11 @@ class ViewRenderSpec extends Specification {
             <icn:cost>5000</icn:cost>
           </icn:acquisition>
         </icn:data>
+        <icn:places>
+          <icn:place name="Paris" country="France" />
+          <icn:place name="Berlin" country="German" />
+          <icn:place name="Amsterdam" country="Netherlands" />
+        </icn:places>
       </record>"""
 
     val dbFactory = DocumentBuilderFactory.newInstance
@@ -116,7 +120,6 @@ class ViewRenderSpec extends Specification {
     val dBuilder = dbFactory.newDocumentBuilder
     val res = dBuilder.parse(new ByteArrayInputStream(doc.getBytes("utf-8")))
     res
-
 
   }
 
