@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import eu.delving.groovy.XmlSerializer
+import core.rendering.RenderNode
 import eu.delving.templates.Play2VirtualFile
 import java.io.ByteArrayInputStream
 import javax.xml.parsers.DocumentBuilderFactory
@@ -25,7 +25,7 @@ import play.api.Play
 import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
-import play.libs.XML
+import play.libs.XPath
 import play.templates.GenericTemplateLoader
 
 /**
@@ -43,22 +43,32 @@ class ViewRenderSpec extends Specification {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, "full", testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
+
+        RenderNode.visit(view)
+
+        println()
+        println()
+
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view)
         args.put("lang", "en")
         val rendered: String = template.render(args)
-
         val expected: String =
 """<div class="row">
-  <div class="column" id="description">
-    <div class="field">metadata.dc.description: This is a test record</div>
-  </div>
-  <div class="column" id="fields">
+<div class="column" id="description">
+<div class="field">metadata.dc.description: This is a test record</div>
+</div>
+<div class="column" id="fields">
     <div>A test hierarchical record, Wood</div>
-    <div class="field">metadata.icn.purchasePrice: 5000</div>
-    <div class="field">metadata.icn.purchaseType: auction</div>
-  </div>
+<div class="field">metadata.icn.purchasePrice: 5000</div>
+<div class="field">metadata.icn.purchaseType: auction</div>
+</div>
+<div class="column" id="complexFields">
+<div class="field">metadata.icn.placeName: Paris</div>
+<div class="field">metadata.icn.placeName: Berlin</div>
+<div class="field">metadata.icn.placeName: Amsterdam</div>
+</div>
 </div>
 """
 
@@ -81,6 +91,11 @@ class ViewRenderSpec extends Specification {
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
         </column>
+        <column id="complexFields">
+             <list path="/record/icn:places/icn:place">
+                 <field path="@name" label="metadata.icn.placeName"/>
+             </list>
+         </column>
       </row>
     </view>
 

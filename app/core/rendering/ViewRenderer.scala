@@ -23,14 +23,12 @@ import collection.mutable.Stack
 import models.GrantType
 import play.api.Logger
 import java.io.File
-import org.w3c.dom.Document
+import org.w3c.dom.{Document, Node => WNode}
 import play.libs.XPath
+import collection.JavaConverters._
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
- *
- * TODO: separate definition parsing and output generation
- * TODO: complex list-s
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -53,7 +51,7 @@ object ViewRenderer {
     val result = RenderNode("root")
     val treeStack = Stack(result)
     val root = viewDefinition.child.iterator.filterNot(_.label == "#PCDATA").toList.head
-    walk(root)
+    walk(root, record)
 
     implicit def richerNode(n: Node) = new {
         def attr(name: String) = {
@@ -62,9 +60,9 @@ object ViewRenderer {
         }
       }
 
-    def walk(node: Node) {
+    def walk(viewDefinitionNode: Node, dataNode: WNode) {
 
-      node.foreach {
+      viewDefinitionNode.foreach {
         n =>
           log.debug("Node " + n)
           if (n.label != "#PCDATA") {
@@ -82,13 +80,13 @@ object ViewRenderer {
 
             n.label match {
 
-              case "row" => enterOne(n, "row")
-              case "column" => enterOne(n, "column", 'id -> n.attr("id"))
+              case "row" => enterOne(n, dataNode, "row")
+              case "column" => enterOne(n, dataNode, "column", 'id -> n.attr("id"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   appendOne("field", 'label -> label, 'queryLink -> queryLink) {
                     field =>
-                      val values = fetchPaths(record, path.split(",").map(_.trim).toList, namespaces)
+                      val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
                       field += RenderNode("text", values.headOption)
                   }
                 }
@@ -102,11 +100,23 @@ object ViewRenderer {
                         throw new RuntimeException("An enumeration cannot have child elements!")
                       }
 
-                      val values = fetchPaths(record, path.split(",").map(_.trim).toList, namespaces)
+                      val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
                       values foreach {
                         v => list += RenderNode("text", Some(v))
                       }
                   }
+                }
+
+              case "list" =>
+                if(hasAccess(roleList)) {
+                  
+                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
+                    child =>
+                      enterOne(n, child, "list")
+                  }
+                  
+                  
+                  
                 }
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
@@ -119,18 +129,18 @@ object ViewRenderer {
     }
 
     /** appends a new RenderNode to the result tree and walks one level deeper **/
-    def enterOne(node: Node, nodeType: String, attr: (Symbol, Any)*) {
-      log.debug("Entered " + node.label)
+    def enterOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, attr: (Symbol, Any)*) {
+      log.debug("Entered " + viewDefinitionNode.label)
       val entered = RenderNode(nodeType)
       attr foreach {
         entered addAttr _
       }
       treeStack.head += entered
       treeStack.push(entered)
-      node.child foreach {
+      viewDefinitionNode.child foreach {
         n =>
           log.debug("Node " + n)
-          walk(n)
+          walk(n, dataNode)
       }
       treeStack.pop()
 
@@ -157,12 +167,9 @@ object ViewRenderer {
   }
 
 
-  private def fetchPaths(record: Document, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
-
-    import collection.JavaConverters._
-
+  def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPath.selectText(path, record, namespaces.asJava)
+      XPath.selectText(path, dataNode, namespaces.asJava)
     })
   }
 
@@ -192,10 +199,17 @@ case class RenderNode(nodeType: String, value: Option[String] = None) {
 
   def text: String = value.getOrElse("")
 
-  override def toString = """
-  NodeType: %s
-  Value: %s
-  Attributes: %s
-  Content: %s
-  """.format(nodeType, value, attributes.toString(), content.map(_.nodeType))
+  override def toString = """[%s] - %s - %s""".format(nodeType, value, attributes.toString())
+}
+
+case object RenderNode {
+
+  def visit(n: RenderNode, level: Int = 0) {
+    for(i <- 0 to level) print(" ")
+    print(n.toString)
+    println()
+    for(c <- n.content) {
+      visit(c, level + 1)
+    }
+  }
 }
