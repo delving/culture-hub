@@ -2,7 +2,6 @@
 
 .pagination a, .pagination span:not([data-bind]) {
     background:  #fff;
-    background: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1) repeat scroll 0 0 transparent;
     border: 1px solid rgba(0, 0, 0, 0.1);
     -moz-border-radius:border-radius: 2px 2px 2px 2px;
     -webkit-border-radius: border-radius: 2px 2px 2px 2px;
@@ -11,7 +10,6 @@
     display: inline-block;
     font-size: 100%;
     min-width: 1em;
-    /*font: 75% arial,sans-serif;*/
     margin: 0 4px 0 0;
     outline: medium none;
     padding: 2px 6px;
@@ -21,11 +19,10 @@
 
 }
 
-.pagination .current,
+.pagination span.current,
 .pagination .active {
-    background: #26B;
+    background: #6699cc;
     color: #fff;
-    /*border: solid 1px #AAE;*/
 }
 
 .pagination .prev,
@@ -33,7 +30,11 @@
     background: #eaeaea;
 }
 
+
+/* fix for heritage obj. javascript pagination plugin which
+gives the prev link a class of current */
 .pagination .current.prev, .pagination .current.next {
     color: #999;
-    /*border-color:#999;*/
+    background-image: none;
+    background-color: #eaeaea;
 }
