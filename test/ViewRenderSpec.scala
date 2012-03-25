@@ -40,6 +40,7 @@ class ViewRenderSpec extends Specification {
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view)
+        args.put("lang", "en")
         val rendered = template.render(args)
 
         println(rendered)
