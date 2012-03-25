@@ -41,5 +41,59 @@ object Organizations extends DelvingController {
         }
     }
   }
+  
+  def providers(orgId: String) = Root {
+    Action {
+      implicit request =>
+        if(HubServices.organizationService.exists(orgId)) {
+
+          val providers = getFactAlternatives(orgId, "provider")
+          
+          val xmlResponse =
+            <providers>
+              {for (p <- providers) yield
+              <provider>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
+              </provider>
+              }
+            </providers>
+          
+          Ok(xmlResponse)
+          
+        } else {
+          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+        }        
+    }
+  }
+
+  def dataProviders(orgId: String) = Root {
+    Action {
+      implicit request =>
+        if(HubServices.organizationService.exists(orgId)) {
+
+          val dataProviders = getFactAlternatives(orgId, "dataProvider")
+
+          val xmlResponse =
+            <dataProviders>
+              {for (p <- dataProviders) yield
+              <dataProvider>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
+              </dataProvider>
+              }
+            </dataProviders>
+
+          Ok(xmlResponse)
+
+        } else {
+          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+        }
+    }
+  }
+  
+  private def getFactAlternatives(orgId: String, fact: String) = DataSet.findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
+
+  private def toIdentifier(name: String) = name.replaceAll(" ", "_").toLowerCase
 
 }

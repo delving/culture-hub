@@ -22,6 +22,7 @@ import play.api.mvc.Action
 import core.search.{Params, SearchService}
 import core.opendata.OaiPmhService
 import play.api.libs.concurrent.Promise
+import collection.mutable.ListBuffer
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -30,14 +31,24 @@ import play.api.libs.concurrent.Promise
 
 object Services extends DelvingController with HTTPClient {
 
-  def searchApi(orgId: String) = Root {
+  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String]) = Root {
     Action {
       implicit request =>
+        
+      val hiddenQueryFilters = ListBuffer[String]()
 
-      val apiResult = orgId.isEmpty match {
-        case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
-        case true => SearchService.getApiResult(request, theme)
+      if(!orgId.isEmpty)
+        hiddenQueryFilters += "%s:%s".format(Constants.ORG_ID, orgId)
+
+      if(provider.isDefined) {
+        hiddenQueryFilters += "%s:%s".format(Constants.PROVIDER, provider.get)
       }
+
+      if(dataProvider.isDefined) {
+        hiddenQueryFilters += "%s:%s".format(Constants.DATA_PROVIDER, dataProvider.get)
+      }
+
+      val apiResult = SearchService.getApiResult(request, theme, hiddenQueryFilters.toList)
 
       // CORS - see http://www.w3.org/TR/cors/
       apiResult.withHeaders(
