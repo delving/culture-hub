@@ -2,156 +2,166 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('organization.dataset.create') /}
 #{set bodyId: 'organization' /}
+
 #{breadcrumbs /}
 
-#{organizationNavBar
-orgId: orgId,
-active:"datasets",
-extraButtons: [
-[label:messages.get('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-[label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
-],
-isOwner: isOwner /}
-<div class="row">
-    <div class="grid_12 dashboard">
-        <h1 class="sep">${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h1>
+#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner /}
 
-        <form method="post" action="" id="collectionForm">
-            <div class="row">
-                <div class="g-1of2">
-                    <h3>&{'organization.dataset.info'}</h3>
-                    #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
-                    <div class="field">
-                        <label class="label">&{'ui.label.visibility'}</label>
+<div class="tab-content">
 
-                        <div class="inputs">
-                            <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
-                            <br/>
-                            <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+    <div class="buttons">
+        #{btnHref label: messages.get('organization.dataset.list'), href:"/organizations/"+orgId+"/dataset", extraClass:"action" /}
+        #{if isOwner == true }
+            #{btnHref label: messages.get('organization.dataset.create'), href:"/organizations/"+orgId+"/dataset/add", extraClass:"action" + spec.isEmpty() ? " on" : "" /}
+            #{btnHref label:messages.get('ui.label.sipcreator'), href:"/organizations/"+orgId+"/sip-creator" /}
+        #{/if}
+    </div>
+
+    <hr/>
+    <div class="row">
+
+            <h2 class="sep">${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
+
+            <form method="post" action="" id="collectionForm">
+                <div class="row">
+                    <div class="g-1of2">
+                        <h4>&{'organization.dataset.info'}</h4>
+                        #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+                        <div class="field">
+                            <label class="label">&{'ui.label.visibility'}</label>
+
+                            <div class="inputs">
+                                <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
+                                <br/>
+                                <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                            </div>
                         </div>
-                    </div>
 
                     %{for(i in 0..factDefinitions.size() - 1) {
-                    def factDef = factDefinitions.apply(i);
-                    }%
+                        def factDef = factDefinitions.apply(i);
+                        }%
                     #{if factDef.hasOptions()}
-                    #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                        #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
                     #{/if}
                     #{else}
-                    #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                        #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
                     #{/else}
 
                     %{ }}%
-                </div>
-                <div class="g-1of2">
-                    <h3>Target Record Definitions</h3>
-                    <table>
-                        <thead><th>Record Definition</th><th>OAI-PMH Access</th></thead>
-                        <tbody>
-                        #{list recordDefinitions, as: 'recordDef'}
-                        <tr>
-                            <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
-                            <td align="left">
+                    </div>
+                    <div class="g-1of2">
+                        <h4>Target Record Definitions</h4>
+
+                        <div class="data-grid">
+                        <table>
+                            <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
+                            <tbody>
+                            #{list recordDefinitions, as: 'recordDef'}
+                            <tr>
+                                <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
+                                <td align="left">
                                 <span data-bind="visible: recordDefinitions().indexOf('${recordDef}') > -1">
                                     <select id="oaiAccess-${recordDef}">
                                         <option value="none">No access</option>
                                         <option value="public">Public access</option>
                                         <option value="protected">Protected access</option>
                                     </select>
-                                    <span id="protected-${recordDef}" style="visibility: hidden;">
+                                    <span id="protected-${recordDef}" style="display: none;">
                                         <label for="accessKey-${recordDef}">Access key</label>
                                         <input type="text" id="accessKey-${recordDef}">
                                     </span>
                                 </span>
-                            </td>
-                        </tr>
-                        #{/list}
-                        </tbody>
-                    </table>
-
-                    <h3>Indexing Mapping Record Definition</h3>
-                    <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
-                    <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                                </td>
+                            </tr>
+                            #{/list}
+                            </tbody>
+                        </table>
+                        </div>
+                        <h4>Indexing Mapping Record Definition</h4>
+                        <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
+                        <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                        <hr/>
+                        <div class="buttons">
+                        #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"action submit"/}
+                        </div>
+                        <hr/>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="buttons">
-                    #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"submit"/}
-                </div>
-            </div>
-        </form>
-    </div>
 
-    <script type="text/javascript">
-        $(document).ready(function() {
-            var dataSetModel = {};
+            </form>
+        </div>
 
-            $('#saveButton').click(function(event) {
-                event.preventDefault();
-                handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
-                    window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
-                });
-            });
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var dataSetModel = {};
 
-            load(${data.raw()}, dataSetModel, null, function() {
-
-                // set initial state of visible oai-pmh access control settings
-                $.each(dataSetModel.oaiPmhAccess(), function(index, access) {
-                    $('#oaiAccess-' + access.format()).val(access.accessType());
-                    if(access.accessType() == 'protected') {
-                        $('#accessKey-' + access.format()).val(access.accessKey());
-                        $('#protected-' + access.format()).css('visibility', 'visible');
-                    }
-                });
-
-                // listen to oaiPmh accessType changes
-                $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
-                    $('#oaiAccess-' + prefix).change(function() {
-                        var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
-                        var selectedValue = $('#oaiAccess-' + prefix).val();
-
-                        if(selectedValue == "protected") {
-                            $('#protected-' + prefix).css('visibility', 'visible');
-                        } else {
-                            $('#protected-' + prefix).css('visibility', 'hidden');
-                        }
-
-                        if(access.length > 0) {
-                            access[0].accessType(selectedValue);
-                        } else {
-                            access[0] = {
-                                format: ko.observable(prefix),
-                                accessType: ko.observable(selectedValue)
-                            }
-                        }
-                        dataSetModel.oaiPmhAccess.push(access[0]);
-                    });
-                });
-
-                // do the same thing for the accessKeys
-                $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
-                    $('#accessKey-' + prefix).change(function() {
-                        var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
-                        var accessKeyValue = $('#accessKey-' + prefix).val();
-
-                        if(access.length > 0) {
-                            access[0].accessKey = ko.observable(accessKeyValue);
-                        } else {
-                            access[0] = {
-                                format: ko.observable(prefix),
-                                accessType: ko.observable("protected"),
-                                accessKey: ko.observable(accessKeyValue)
-                            }
-                        }
-                        dataSetModel.oaiPmhAccess.push(access[0]);
-
-
-                    });
-                });
-
-
-
-                $("body").css('visibility', 'visible');
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
+                window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
             });
         });
-    </script>
+
+        load(${data.raw()}, dataSetModel, null, function() {
+
+            // set initial state of visible oai-pmh access control settings
+            $.each(dataSetModel.oaiPmhAccess(), function(index, access) {
+                $('#oaiAccess-' + access.format()).val(access.accessType());
+                if(access.accessType() == 'protected') {
+                    $('#accessKey-' + access.format()).val(access.accessKey());
+                    $('#protected-' + access.format()).css('display', 'block');
+                }
+            });
+
+            // listen to oaiPmh accessType changes
+            $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
+                $('#oaiAccess-' + prefix).change(function() {
+                    var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
+                    var selectedValue = $('#oaiAccess-' + prefix).val();
+
+                    if(selectedValue == "protected") {
+                        $('#protected-' + prefix).css('visibility', 'visible');
+                    } else {
+                        $('#protected-' + prefix).css('visibility', 'hidden');
+                    }
+
+                    if(access.length > 0) {
+                        access[0].accessType(selectedValue);
+                    } else {
+                        access[0] = {
+                            format: ko.observable(prefix),
+                            accessType: ko.observable(selectedValue)
+                        }
+                    }
+                    dataSetModel.oaiPmhAccess.push(access[0]);
+                });
+            });
+
+            // do the same thing for the accessKeys
+            $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
+                $('#accessKey-' + prefix).change(function() {
+                    var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
+                    var accessKeyValue = $('#accessKey-' + prefix).val();
+
+                    if(access.length > 0) {
+                        access[0].accessKey = ko.observable(accessKeyValue);
+                    } else {
+                        access[0] = {
+                            format: ko.observable(prefix),
+                            accessType: ko.observable("protected"),
+                            accessKey: ko.observable(accessKeyValue)
+                        }
+                    }
+                    dataSetModel.oaiPmhAccess.push(access[0]);
+
+
+                });
+            });
+
+
+
+            $("body").css('visibility', 'visible');
+        });
+    });
+</script>

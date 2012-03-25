@@ -9,14 +9,13 @@
 
 #{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
-<div class="grid_12 dashboard">
+<div class="tab-content">
 
-    <h1 class="sep">&{'thing.groups'}</h1>
-
+    <h3>&{'org.group.create'}</h3>
 
 
     <div class="row">
-        <form action="" id="groupForm">
+        <form action="" id="groupForm" class="g-1of2">
         #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
             <div class="field" data-bind="visible: canChangeGrantType">
                 <label class="label" for="grantType">&{'thing.grantType'}</label>
@@ -47,20 +46,22 @@
 
             </div>
 
-            <div class="field" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
+            <div class="field"
+                 data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
                 <label class="label" for="datasets">&{'thing.datasets'}</label>
 
                 <div class="inputs">
                 #{if id.isDefined()}
                     #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
                 #{/if}
-                        #{else}
+                #{else}
                     #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
                 #{/else}
                 </div>
             </div>
+            <hr/>
             <div class="buttons">
-            #{btnButton label: messages.get('org.group.save'), extraClass:"submit", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('org.group.save'), extraClass:"submit action", id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
 
@@ -68,17 +69,16 @@
     </div>
 
 
-
 </div>
-<div class="clear"></div>
+
 <script type="text/javascript">
-    $(document).ready(function() {
+    $(document).ready(function () {
         var groupModel = {};
-        load(${data.raw()}, groupModel, null, function() {
+        load(${data.raw()}, groupModel, null, function () {
             $("body").css('visibility', 'visible');
         });
 
-        $('#saveButton').click(function(event) {
+        $('#saveButton').click(function (event) {
             event.preventDefault();
             handleSubmit('/organizations/${orgId}/groups/update/${views.Helpers.getOrElse(id, "")}', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null);
         });

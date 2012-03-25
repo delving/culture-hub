@@ -44,7 +44,7 @@ form h3 {
     display: table;
     clear: both;
     /*margin-bottom: 10px;*/
-    margin: 0 10px;
+    margin: 0;
     padding: 10px 0;
     vertical-align: top;
 }
@@ -54,9 +54,9 @@ form h3 {
     background-color: #fff;
 }
 
-form .buttons {
-    padding:  10px;
-}
+/*form .buttons {*/
+    /*padding:  10px;*/
+/*}*/
 label.label {
     color: #555;
     display: inline-block;
@@ -65,7 +65,7 @@ label.label {
     text-align: right;
     margin-right: 6px;
     vertical-align: top;
-    padding-left: 6px;
+    /*padding-left: 6px;*/
 
 }
 

@@ -1,21 +1,43 @@
-<div class="grid_12">
-<div class="toolbar organization">
-    <div class="buttons">
-        #{if _isOwner == true}
-            #{btnHref label: messages.get('ui.label.administration'), extraClass: (_active == 'administration' ? "on" : ""), iconClass:"icon23", href:"/organizations/" + _orgId + "/admin" /}
-        #{/if}
-        #{btnHref label: messages.get('thing.groups'), extraClass: (_active == 'groups' ? "on" : ""), iconClass:"icon204", href:"/organizations/" + _orgId + "/groups" /}
-        #{btnHref label: messages.get('thing.datasets'), extraClass: (_active == 'datasets' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/dataset" /}
-        #{btnHref label: messages.get('thing.virtualCollections'), extraClass: (_active == 'virtualCollection' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/virtualCollection" /}
-        #{btnHref label: messages.get('org.cms'), extraClass: (_active == 'site' ? "on" : "") , iconClass:"icon96", href:"/organizations/" + _orgId + "/site" /}
+*{<div class="grid_12">}*
 
-        #{if _extraButtons}
-           #{list _extraButtons, as:'button'}
-              #{if _isOwner}
-               #{btnHref label: button.get('label'), href: button.get('url'), extraClass:"fright " + (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}
-              #{/if}
-            #{/list}
+<div>
+    <ul class="tabs left">
+        #{if _isOwner == true}
+        <li class="${(_active == 'administration' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/admin'}">${messages.get('ui.label.administration')}</a></li>
         #{/if}
-    </div>
+        <li class="${(_active == 'groups' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/groups'}">${messages.get('thing.groups')}</a></li>
+        <li class="${(_active == 'datasets' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/dataset'}">${messages.get('thing.datasets')}</a></li>
+        <li class="${(_active == 'virtualCollection' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/virtualCollection'}">${messages.get('thing.virtualCollections')}</a></li>
+        #{if _isOwner == true || isCMSAdmin == true }
+            <li class="${(_active == 'site' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/site'}">${messages.get('org.cms')}</a></li>
+        #{/if}
+    </ul>
 </div>
-</div>
+
+
+
+*{<div class="toolbar">}*
+    *{<div class="buttons">}*
+    *{#{if _isOwner == true}}*
+    *{#{btnHref label: messages.get('ui.label.administration'), extraClass: (_active == 'administration' ? "on" : ""), iconClass:"icon23", href:"/organizations/" + _orgId + "/admin" /}}*
+    *{#{/if}}*
+    *{#{btnHref label: messages.get('thing.groups'), extraClass: (_active == 'groups' ? "on" : ""), iconClass:"icon204", href:"/organizations/" + _orgId + "/groups" /}}*
+    *{#{btnHref label: messages.get('thing.datasets'), extraClass: (_active == 'datasets' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/dataset" /}}*
+    *{#{btnHref label: messages.get('thing.virtualCollections'), extraClass: (_active == 'virtualCollection' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/virtualCollection" /}}*
+    *{#{btnHref label: messages.get('org.cms'), extraClass: (_active == 'site' ? "on" : "") , iconClass:"icon96", href:"/organizations/" + _orgId + "/site" /}}*
+    *{</div>}*
+    *{#{if _extraButtons}}*
+    *{<div class="sub-toolbar">}*
+        *{<div class="buttons">}*
+        *{#{list _extraButtons, as:'button'}}*
+            *{#{if _isOwner}}*
+                *{#{btnHref label: button.get('label'), href: button.get('url'), extraClass: (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}}*
+            *{#{/if}}*
+        *{#{/list}}*
+        *{</div>}*
+    *{</div>}*
+    *{#{/if}}*
+
+*{</div>}*
+
+*{</div>}*
