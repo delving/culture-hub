@@ -33,35 +33,41 @@ strong {
 }
 
 .toolbar {
-    position: relative;
-    z-index: 11;
-    margin: 10px;
-}
-
-.toolbar .buttons {
     display: block;
     background: none repeat scroll 0 0 #F1F1F1;
     border: 1px solid #D2D2D2;
-    padding: 0px;
+    padding: 11px;
+    position: relative;
+}
+
+/*.toolbar .buttons {*/
+    /*display: block;*/
+    /*background: none repeat scroll 0 0 #F1F1F1;*/
+    /*border: 1px solid #D2D2D2;*/
+    /*padding: 5px;*/
     /*width: 100%;*/
-    font-size: 85%;
+    /*font-size: 85%;*/
 
-}
+/*}*/
 
-.toolbar .pager {
-    display: inline-block;
-    float: left;
-    margin-top: 5px;
-}
+/*.toolbar .pager {*/
+    /*display: inline-block;*/
+    /*float: left;*/
+    /*margin-top: 5px;*/
+/*}*/
 
-.toolbar.organization {
-    margin-top: 10px;
-}
+/*.toolbar.organization {*/
+    /*margin-top: 10px;*/
+/*}*/
 
-#organization .toolbar {
-    margin-bottom: 0px;
+/*#organization .toolbar {*/
+    /*margin-bottom: 0px;*/
 
-}
+/*}*/
+
+/*.sub-panel {*/
+    /*margin-bottom: 21px;*/
+/*}*/
 
 .dashboard {
     clear: both;

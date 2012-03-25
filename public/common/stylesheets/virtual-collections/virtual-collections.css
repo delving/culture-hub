@@ -6,8 +6,3 @@
 .resultItem .bd {
     font-size: smaller;
 }
-
-#resultPagination .current {
-    font-weight: bold;
-    background: #fffff0;
-}

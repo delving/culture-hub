@@ -1,7 +1,3 @@
-<div class="toolbar">
-<div class="buttons">
-#{btnHref label: messages.get('organization.virtualCollection.new'), extraClass: (_active == 'add' ? "on fright" : "fright") , iconClass:"icon68", href:"/organizations/"+_orgId+"/virtualCollection/add" /}
-#{btnHref label: messages.get('organization.virtualCollection.list'), extraClass: (_active == 'list' ? "on fright" : "fright") , iconClass:"icon140", href:"/organizations/"+_orgId+"/virtualCollection" /}
-</div>
-</div>
+#{btnHref label: messages.get('organization.virtualCollection.list'), extraClass: (_active == 'list' ? "on" : "") , iconClass:"icon140", href:"/organizations/"+_orgId+"/virtualCollection" /}
+#{btnHref label: messages.get('organization.virtualCollection.new'), extraClass: (_active == 'add' ? "on" : "") , iconClass:"icon68", href:"/organizations/"+_orgId+"/virtualCollection/add" /}
 
