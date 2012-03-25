@@ -78,7 +78,7 @@ ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
 ui.label.search=Search
 ui.label.share=Share
-ui.label.sipcreator=Sip-Creator
+ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Start upload
 ui.label.status=Status
 ui.label.unlock=Unlock
@@ -581,6 +581,7 @@ organization.dataset.info=Data Set Information
 organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this DataSet
 organization.dataset.save=Save DataSet
+organization.dataset.list=DataSet list
 organization.members=Members
 
 organization.virtualCollection.list=Virtual Collection list

@@ -52,7 +52,7 @@
         #{if c._2 < views.Breadcrumbs.crumble(_params, request, _theme).length() -1 && views.Breadcrumbs.crumble(_params, request, _theme).length() > 1}
         #{if c._1._1 == "NOLINK"}
             <span>${views.Helpers.shorten(c._1._2, 50)}</span>
-        #{/}
+        #{/if}
         #{else}
             <span><a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a></span>
         #{/else}
@@ -60,7 +60,7 @@
         #{if c._2 < views.Breadcrumbs.crumble(_params, request, _theme).length() - 1 && views.Breadcrumbs.crumble(_params, request, _theme).length() == 1}
         #{if c._1._1 == "NOLINK"}
             <span>${views.Helpers.shorten(c._1._2, 50)}</span>
-        #{/}
+        #{/if}
         #{else}
             <span><a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a></span>
         #{/else}

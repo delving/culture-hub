@@ -8,19 +8,17 @@
 
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
-<div class="row">
-    <div class="grid_12">
-        <div class="sub-panel clearfix">
-            #{cmsNavBar active:'image', currentLanguage:currentLanguage, orgId: orgId/}
-        </div>
-        <div class="panel">
-            <p>&{'org.cms.upload.image.explain'}</p>
-        </div>
+<div class="tab-content">
+    <div class="buttons">
+    #{cmsNavBar active:'image', currentLanguage:currentLanguage, orgId: orgId/}
     </div>
-</div>
+    <hr/>
+    <div class="panel">
+        <p>&{'org.cms.upload.image.explain'}</p>
+    </div>
 
-<div class="row">
-    <div class="grid_12">
+    <div class="row">
+
 
         <div id="fileupload">
 
@@ -49,11 +47,11 @@
         initUploadWidget(false);
 
         $('#fileupload').fileupload({
-            url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
-            autoUpload: true
+            url:'@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+            autoUpload:true
         }).bind('fileuploaddone', function (e, data) {
-            $.post('/organizations/${orgId}/site/upload/${uid}');
-        });
+                    $.post('/organizations/${orgId}/site/upload/${uid}');
+                });
 
         var files = ${files.raw()};
         var fu = $('#fileupload').data('fileupload');

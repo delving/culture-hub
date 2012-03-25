@@ -3,20 +3,21 @@
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
+
 <div class="row">
+
     #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
-</div>
 
-<div class="row">
-    <div class="grid_12">
-        <div class="sub-panel clearfix">
-            #{vcNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
-        </div>
+<div class="tab-content">
+    <div class="buttons">
+
+    #{if isOwner == true}
+        #{btnHref label: messages.get('organization.virtualCollection.list'), extraClass: "on", iconClass:"icon140", href:"/organizations/"+orgId+"/virtualCollection" /}
+        #{btnHref label: messages.get('organization.virtualCollection.new'), iconClass:"icon68", href:"/organizations/"+orgId+"/virtualCollection/add" /}
+    #{/if}
+
     </div>
-</div>
 
-<div class="row">
-    <div class="grid_12">
         <div class="data-grid">
             <table class="list">
                 <caption>&{'thing.virtualCollections'}</caption>

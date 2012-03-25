@@ -151,7 +151,7 @@ object DataSetControl extends OrganizationController {
         }
 
         Ok(Template(
-          'spec -> Option(spec),
+          'spec -> spec,
           'data -> data,
           'dataSetForm -> DataSetViewModel.dataSetForm,
           'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic).toList,

@@ -7,16 +7,17 @@
 #{if isMember}
     #{organizationNavBar orgId: orgId, isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 #{/if}
-<div class="grid_12 dashboard">
+<div class="tab-content">
 
-    <div class="grid_4 alpha">
+    <div class="row">
+    <div class="g-1of3 alpha">
 
         <div class="info-box">
             <h3>&{'org.info'}</h3>
-            <span class="label">&{'thing.name'}</span><span class="text">${orgName}</span>
+            <span class="label">&{'thing.name'}:</span><span class="text">${orgName}</span>
         </div>
     </div>
-    <div class="grid_4">
+    <div class="g-1of3">
         <h3>&{'thing.datasets'}</h3>
         <ol>
         #{list dataSets, as: 'ds'}
@@ -24,12 +25,13 @@
         #{/list}
         </ol>
     </div>
-    <div class="grid_4 omega">
+    <div class="g-1of3 omega">
         <h3>&{'organization.members'}</h3>
         <ol>
         #{list members, as: 'm'}
             <li><a href="/${m.userName}">${m.userName}</a></li>
         #{/list}
         </ol>
+    </div>
     </div>
 </div>

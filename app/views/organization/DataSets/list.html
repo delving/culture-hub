@@ -11,15 +11,10 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets",
-extraButtons: [[label:messages.get('ui.label.sipcreator'), url:"/organizations/"+orgId+"/sip-creator"],
-              [label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner]
-], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
+        <div class="tab-content">
 
-
-    <div class="row">
-        <div class="grid_12 dashboard">
             #{if browsedUserName}
             <div class="g-1of1">
                 &{'thing.organization'}: <span>${browsedOrgName}</span><br/>
@@ -29,8 +24,22 @@ extraButtons: [[label:messages.get('ui.label.sipcreator'), url:"/organizations/"
             #{if items.length() > 0}
 
             <form id="filter-form" class="pam">
+
+
+                <div class="buttons">
+                #{btnHref label: messages.get('organization.dataset.list'), href:"/organizations/"+orgId+"/dataset", extraClass:"action on" /}
+                #{if isOwner == true }
+                    #{btnHref label: messages.get('organization.dataset.create'), href:"/organizations/"+orgId+"/dataset/add", visible: isOwner /}
+                #{/if}
+                #{btnHref label:messages.get('ui.label.sipcreator'), href:"/organizations/"+orgId+"/sip-creator" /}
+                </div>
+
+                <hr/>
                 <label>&{'dataset.find'}: </label>
                 <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"/>
+                <hr/>
+
+
             </form>
 
              <div class="data-grid">
@@ -71,14 +80,14 @@ extraButtons: [[label:messages.get('ui.label.sipcreator'), url:"/organizations/"
                         <td width="550">
                             #{if isOwner}
                             <div class="buttons">
-                                <a class="button submit" href="/organizations/${orgId}/dataset/${i.spec}/update">
+                                <a class="button blue" href="/organizations/${orgId}/dataset/${i.spec}/update">
                                     <span class="label">${messages.get('ui.label.edit')}</span>
                                 </a>
                                 <a class="button beware"#{if i.state.name() == models.DataSetState.ENABLED().name()} disabled#{/if} id="remove${i.spec}">
-                                    <span class="label">${messages.get('ui.label.remove')}</span>
+                                    <span class="label beware">${messages.get('ui.label.remove')}</span>
                                 </a>
                                 <a class="button beware"#{if i.lockedBy.isEmpty()} disabled#{/if} id="unlock${i.spec}">
-                                    <span class="label">${messages.get('ui.label.unlock')}</span>
+                                    <span class="label beware">${messages.get('ui.label.unlock')}</span>
                                 </a>
 
                                 <div id="removeConfirmation" title="&{'thing.confirmation'}" style="display: none;"><p>
@@ -195,7 +204,8 @@ extraButtons: [[label:messages.get('ui.label.sipcreator'), url:"/organizations/"
             <p>${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}</p>
             #{/}
         </div>
-    </div>
+
+
 
 
 <script type="text/javascript" language="javascript">

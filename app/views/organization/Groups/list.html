@@ -6,15 +6,15 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"groups",
-extraButtons: [
-    [label: messages.get('org.group.create'), url:"/organizations/"+orgId+"/groups/create", extraClass:"action complete", visible: isOwner]
-],
-isOwner: isOwner/}
+#{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner/}
 
-<div class="grid_12 dashboard">
 
-<h1 class="sep">&{'thing.groups'}</h1>
+<div class="tab-content">
+    #{if isOwner == true }
+    <div class='buttons'>
+        #{btnHref label: messages.get('org.group.create'), href:"/organizations/"+orgId+"/groups/create", extraClass:"action complete" /}
+    </div>
+    #{/if}
 
     <div class="row">
         <div class="g-1of1">
