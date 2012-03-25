@@ -77,7 +77,7 @@ ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
 ui.label.search=Zoeken
 ui.label.share=Deel
-ui.label.sipcreator=Sip-Creator
+ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Begin upload
 ui.label.status=Status
 ui.label.uploadcancel=Annuleer upload
@@ -517,8 +517,8 @@ org.list.dataSetCount={0} DataSet(s)
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
-org.group.save=Save group
-org.group.create=Create group
+org.group.save=Groep bewaren
+org.group.create=Groep aanmaken
 
 org.cms=Website paginas
 org.cms.page.key=Pagina sleutel
@@ -532,7 +532,7 @@ org.cms.list.languageSwitch=Bekijk paginas in
 org.cms.list.deletePage=Verwijder pagina
 org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
 org.cms.upload=Bestand uploaden
-org.cms.upload.image=Plaatje uploaden
+org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
 
 org.admin.index.title=Organisatie administratie
@@ -551,6 +551,7 @@ organization.dataset.info=DataSet informatie
 organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this DataSet
 organization.dataset.save=DataSet bewaren
+organization.dataset.list=DataSet lijst
 organization.members=Leden
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
