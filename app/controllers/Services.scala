@@ -41,11 +41,11 @@ object Services extends DelvingController with HTTPClient {
         hiddenQueryFilters += "%s:%s".format(Constants.ORG_ID, orgId)
 
       if(provider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(Constants.PROVIDER, provider.get)
+        hiddenQueryFilters += "%s:%s".format(Constants.PROVIDER, provider.get.replaceAll("_", " "))
       }
 
       if(dataProvider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(Constants.DATA_PROVIDER, dataProvider.get)
+        hiddenQueryFilters += "%s:%s".format(Constants.DATA_PROVIDER, dataProvider.get.replaceAll("_", " "))
       }
 
       val apiResult = SearchService.getApiResult(request, theme, hiddenQueryFilters.toList)

@@ -94,6 +94,6 @@ object Organizations extends DelvingController {
   
   private def getFactAlternatives(orgId: String, fact: String) = DataSet.findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
 
-  private def toIdentifier(name: String) = name.replaceAll(" ", "_").toLowerCase
+  private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 
 }

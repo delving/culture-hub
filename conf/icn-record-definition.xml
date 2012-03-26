@@ -65,11 +65,11 @@
         <elem tag="dcterms:temporal"/>          <!-- ESE 3.4 -->
         <elem tag="dcterms:rightsHolder"/>      <!-- NOT part of ESE 3.4 -->
 
-        <elem tag="europeana:dataProvider"/>    <!-- ESE 3.4 -->
+        <elem tag="europeana:dataProvider" summaryField="DATA_PROVIDER"/>    <!-- ESE 3.4 -->
         <elem tag="europeana:isShownAt"/>       <!-- ESE 3.4 -->
         <elem tag="europeana:isShownBy"/>       <!-- ESE 3.4 -->
         <elem tag="europeana:object"/>          <!-- ESE 3.4 -->
-        <elem tag="europeana:provider"/>        <!-- ESE 3.4 -->
+        <elem tag="europeana:provider" summaryField="PROVIDER" />        <!-- ESE 3.4 -->
         <elem tag="europeana:rights"/>          <!-- ESE 3.4 -->
         <elem tag="europeana:type"/>            <!-- ESE 3.4 -->
         <elem tag="europeana:unstored"/>        <!-- ESE 3.4 -->
@@ -79,7 +79,7 @@
         <elem tag="europeana:language"/>        <!-- ESE 3.4, not accepted by the office and not part of the ESE XSD -->
         <elem tag="europeana:country"/>         <!-- ESE 3.4,  not accepted by the office and not part of the ESE XSD -->
         <elem tag="europeana:collectionName"/>  <!-- NOT part of ESE 3.4 -->
-        <elem tag="europeana:collectionTitle"/> <!-- NOT part of ESE 3.4 -->
+        <elem tag="europeana:collectionTitle" summaryField="SPEC"/> <!-- NOT part of ESE 3.4 -->
         <elem tag="europeana:source"/>          <!-- NOT part of ESE 3.4 -->
 
         <!-- original delving namespace -->
