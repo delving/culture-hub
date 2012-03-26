@@ -1,0 +1,81 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<record>
+    <admin>
+        <ownerUri>http://www.vbm.se</ownerUri>
+        <displayOwner>Västerbottens museum</displayOwner>
+        <displayOwnerCountry>Sweden</displayOwnerCountry>
+        <providerUri>xxxxxx</providerUri>
+        <displayProvider>HUBNAME</displayProvider>
+        <rigths>Wahtever</rigths>
+    </admin>
+
+    <collection localId="42">
+        <collectionUri>http://id.vbm.se/collection/3</collectionUri>
+        <displayCollection>Skidsamlingen</displayCollection>
+    </collection>
+
+    <thing localId="42" localUri="http://id.vbm.se/thing/42">
+        <displayWorkType>string</displayWorkType>
+        <displayTitle>string</displayTitle>
+        <displayDescription>string</displayDescription>
+        <language>string</language>
+        <displayDimensions>string</displayDimensions>
+        <displayYear>string</displayYear>
+        <landingPage>string</landingPage>
+        <rigths>Whatever for an unique thing</rigths>
+    </thing>
+
+    <types>
+        <type localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
+            <displayType>Steel</displayType>
+            <categoryUri>http://option_key.se</categoryUri>
+            <displayCategory>Option_value</displayCategory>
+        </type>
+    </types>
+
+    <events>
+        <event>
+            <eventTypeUri>string</eventTypeUri>
+            <displayEventType>string</displayEventType>
+            <displayEvent>string</displayEvent>
+            <displayDate>string</displayDate>
+            <date>
+                <earliestDate>string</earliestDate>
+                <latestDate>string</latestDate>
+            </date>
+
+            <eventPlace localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
+                <displayPlaceInRole>string</displayPlaceInRole>
+                <placeInRoleUri>string</placeInRoleUri>
+                <displayPlace>string</displayPlace>
+                <displayPlaceType>string</displayPlaceType>
+                <displayPlaceAdmin>
+                    <displayAdmin1>string</displayAdmin1>
+                    <displayAdmin2>string</displayAdmin2>
+                    <displayAdmin3>string</displayAdmin3>
+                    <displayAdmin4>string</displayAdmin4>
+                    <displayCountry>string</displayCountry>
+                    <lat>string</lat>
+                    <long>string</long>
+                </displayPlaceAdmin>
+            </eventPlace>
+
+            <eventActor localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
+                <displayActorInRole>string</displayActorInRole>
+                <actorInRoleUri>string</actorInRoleUri>
+                <displayActor>string</displayActor>
+            </eventActor>
+        </event>
+    </events>
+
+    <mediaFiles>
+         <mediaFile>
+             <localURL>string</localURL>
+             <localMediaTypeUri>string</localMediaTypeUri>
+             <localMimeType>string</localMimeType>
+             <delvingMediaURI>string</delvingMediaURI>
+         </mediaFile>
+     </mediaFiles>
+
+</record>

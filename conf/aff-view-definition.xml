@@ -1,0 +1,21 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="full">
+      <row>
+        <column id="general">
+            <field path="/record/thing/displayTitle" label="thing.title"/>
+            <field path="/record/thing/displayDescription" label="thing.description"/>
+        </column>
+      </row>
+      <row>
+          <column id="events">
+              <list path="/record/events/event">
+                  <field label="thing.title" path="displayEvent" />
+                  <field label="thing.date" path="displayDate" />
+              </list>
+          </column>
+
+      </row>
+    </view>
+</views>

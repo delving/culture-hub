@@ -22,10 +22,11 @@ import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
 import play.api.Logger
-import java.io.File
 import org.w3c.dom.{Document, Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
+import javax.xml.parsers.DocumentBuilderFactory
+import java.io.{ByteArrayInputStream, File}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -37,20 +38,27 @@ object ViewRenderer {
 
   val log = Logger("CultureHub")
 
-  def renderView(recordDefinition: File, view: String, record: Document, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
-    val prefix = recordDefinition.getName.substring(0, recordDefinition.getName.indexOf("-"))
-    val xml = XML.loadFile(recordDefinition)
-    (xml \ "views" \ "view").filter(v => (v \ "@name").text == view).headOption match {
-      case Some(viewDefinition) => renderView(prefix, viewDefinition, view, record, userGrantTypes, namespaces)
-      case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, recordDefinition.getAbsolutePath))
+  val dbFactory = DocumentBuilderFactory.newInstance
+  dbFactory.setNamespaceAware(true)
+  val dBuilder = dbFactory.newDocumentBuilder
+
+  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+    val prefix = viewDefinitionSource.getName.substring(0, viewDefinitionSource.getName.indexOf("-"))
+    val xml = XML.loadFile(viewDefinitionSource)
+    (xml \ "view").filter(v => (v \ "@name").text == view).headOption match {
+      case Some(viewDefinition) =>
+        renderView(prefix, viewDefinition, record, userGrantTypes, namespaces)
+      case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, viewDefinitionSource.getAbsolutePath))
     }
   }
 
-  def renderView(prefix: String, viewDefinition: Node, view: String, record: Document, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+  def renderView(prefix: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+
+    val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
     val result = RenderNode("root")
     val treeStack = Stack(result)
-    val root = viewDefinition.child.iterator.filterNot(_.label == "#PCDATA").toList.head
+    val root = viewDefinition
     walk(root, record)
 
     implicit def richerNode(n: Node) = new {
@@ -80,6 +88,7 @@ object ViewRenderer {
 
             n.label match {
 
+              case "view" => enterOne(n, dataNode, "root")
               case "row" => enterOne(n, dataNode, "row")
               case "column" => enterOne(n, dataNode, "column", 'id -> n.attr("id"))
               case "field" =>

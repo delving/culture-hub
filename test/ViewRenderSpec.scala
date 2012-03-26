@@ -16,16 +16,14 @@
 
 import core.rendering.RenderNode
 import eu.delving.templates.Play2VirtualFile
-import java.io.ByteArrayInputStream
-import javax.xml.parsers.DocumentBuilderFactory
+import io.Source
+import java.io.File
 import models.GrantType
 import org.specs2.mutable._
-import org.w3c.dom.Document
 import play.api.Play
 import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
-import play.libs.XPath
 import play.templates.GenericTemplateLoader
 
 /**
@@ -42,7 +40,7 @@ class ViewRenderSpec extends Specification {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, "full", testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
+        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
 
         RenderNode.visit(view)
 
@@ -57,11 +55,11 @@ class ViewRenderSpec extends Specification {
         val expected: String =
 """<div class="row">
 <div class="column" id="description">
-<div class="field">metadata.dc.description: This is a test record</div>
+<div class="field">Description: This is a test record</div>
 </div>
 <div class="column" id="fields">
     <div>A test hierarchical record, Wood</div>
-<div class="field">metadata.icn.purchasePrice: 5000</div>
+<div class="field">Purchase Price: 5000</div>
 <div class="field">metadata.icn.purchaseType: auction</div>
 </div>
 <div class="column" id="complexFields">
@@ -77,6 +75,36 @@ class ViewRenderSpec extends Specification {
         rendered must be equalTo(expected)
       }
     }
+
+    "render an AFF record" in {
+      running(FakeApplication()) {
+
+        val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
+
+        val affViews = new File(Play.application.path, "conf/aff-view-definition.xml")
+        val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
+
+        val view = core.rendering.ViewRenderer.renderView(affViews, "full", affTestRecord, List.empty[GrantType], namespaces)
+
+        val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
+        val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
+        args.put("view", view)
+        args.put("lang", "en")
+        val rendered: String = template.render(args)
+
+        RenderNode.visit(view)
+
+        println()
+        println()
+
+        println(rendered)
+
+        1 must equalTo(1)
+      }
+
+    }
+
+
 
   }
 
@@ -100,10 +128,10 @@ class ViewRenderSpec extends Specification {
     </view>
 
 
-  private def testRecord(): Document = {
+  private def testRecord(): String = {
 
     // test record, hierarchical
-      val doc = """<?xml version="1.0" encoding="iso-8859-1" ?>
+      """<?xml version="1.0" encoding="iso-8859-1" ?>
       <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:icn="http://www.icn.nl/schemas/ICN-V3.2.xsd">
         <delving:summaryFields>
           <delving:title>A test hierarchical record</delving:title>
@@ -129,12 +157,6 @@ class ViewRenderSpec extends Specification {
           <icn:place name="Amsterdam" country="Netherlands" />
         </icn:places>
       </record>"""
-
-    val dbFactory = DocumentBuilderFactory.newInstance
-    dbFactory.setNamespaceAware(true)
-    val dBuilder = dbFactory.newDocumentBuilder
-    val res = dBuilder.parse(new ByteArrayInputStream(doc.getBytes("utf-8")))
-    res
 
   }
 
