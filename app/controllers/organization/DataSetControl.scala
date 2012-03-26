@@ -23,7 +23,6 @@ import models._
 import models.DataSetState._
 import java.util.Date
 import play.api.i18n.Messages
-import core.indexing.Indexing
 import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
 import play.api.data.Forms._
 import collection.JavaConverters._
@@ -33,6 +32,7 @@ import play.api.data.validation.Constraints
 import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
 import play.api.libs.concurrent.Promise
+import core.indexing.{IndexingService, Indexing}
 
 /**
  *
@@ -292,7 +292,7 @@ object DataSetControl extends OrganizationController {
           case QUEUED | PROCESSING =>
             DataSet.updateStateAndProcessingCount(dataSet, DataSetState.UPLOADED)
             try {
-              Indexing.deleteFromSolr(dataSet)
+              IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
             } catch {
               case _ => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR)
             }
@@ -330,7 +330,7 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case QUEUED | PROCESSING | ERROR | ENABLED =>
             val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, DataSetState.DISABLED)
-            Indexing.deleteFromSolr(updatedDataSet)
+            IndexingService.deleteBySpec(updatedDataSet.orgId, updatedDataSet.spec)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeDisabled"))
         }

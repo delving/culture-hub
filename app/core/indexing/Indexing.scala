@@ -16,16 +16,12 @@
 
 package core.indexing
 
-import com.mongodb.casbah.Imports._
 import eu.delving.sip.IndexDocument
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
-import org.apache.solr.client.solrj.response.UpdateResponse
 import eu.delving.sip.MappingEngine
-import scala.collection.JavaConverters._
 import models._
-import mongoContext.connection
-import play.api.{Play, Logger}
+import play.api.Logger
 import play.api.Play.current
 import util.Constants._
 import org.apache.commons.httpclient.methods.GetMethod
@@ -45,66 +41,6 @@ import org.apache.tika.parser.ParseContext
  */
 
 object Indexing extends SolrServer with controllers.ModelImplicits {
-
-  @throws(classOf[MappingNotFoundException])
-  @throws(classOf[SolrConnectionException])
-  def indexInSolr(dataSet: DataSet, metadataFormatForIndexing: String): (Int, Int) = {
-    
-    // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
-    val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
-
-    // only retrieve records that have a valid mapping for this metadata format
-    val records = DataSet.getRecords(dataSet).find(MongoDBObject("validOutputFormats" -> metadataFormatForIndexing))
-    DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INDEXING)
-    val mapping = dataSet.mappings.get(metadataFormatForIndexing)
-    if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + metadataFormatForIndexing)
-    val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel)
-    var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
-
-    if (state == DataSetState.INDEXING) {
-      records foreach {
-        record =>
-          if (records.numSeen % 100 == 0) {
-            DataSet.updateIndexingCount(dataSet, records.numSeen)
-            state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
-          }
-          val mapped: Option[IndexDocument] = Option(engine.toIndexDocument(record.getRawXmlString))
-
-          mapped match {
-            case Some(mappedDocument) =>
-              // refresh thumbnails of UGC objects
-              thumbnailLinks.get(record.hubId).foreach(_.foreach(link => {
-                val thumbnailUrl = mappedDocument.getMap.get(THUMBNAIL).get(0).toString
-                val collection = Link.hubTypeToCollection(link.from.hubType.get)
-                collection.get.update(MongoDBObject("_id" -> link.from.id.get), $set("thumbnail_url" -> thumbnailUrl))
-              }))
-              
-              val c: Map[String, List[String]] = mappedDocument
-              // cache the result of the mapping so that we can use it to present the record directly without re-running a mapping
-              connection(DataSet.getRecordsCollectionName(dataSet)).update(MongoDBObject("_id" -> record._id), $set ("mappedMetadata.%s".format(metadataFormatForIndexing) -> c))
-            case None => // do nothing
-          }
-
-          val res = indexOne(dataSet, record, mapped, metadataFormatForIndexing)
-          res match {
-            case Left(t) => throw t
-            case Right(ok) => // continue
-          }
-      }
-    }
-
-    state match {
-      case DataSetState.INDEXING =>
-        DataSet.updateState(dataSet, DataSetState.ENABLED)
-        getStreamingUpdateServer.commit()
-      case _ =>
-        //        getStreamingUpdateServer.rollback() // todo find out what this does
-        Logger("CultureHub").info("Deleting DataSet %s from SOLR".format(dataSet.spec))
-        deleteFromSolr(dataSet)
-    }
-    Logger("CultureHub").info(engine.toString)
-    (1, 0)
-  }
 
   def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Option[IndexDocument], metadataFormatForIndexing: String): Either[Throwable, String] = {
     mapped match {
@@ -137,12 +73,6 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         Logger("CultureHub").warn("Could not index MDR")
     }
 
-  }
-
-  def deleteFromSolr(dataSet: DataSet) {
-    val deleteResponse: UpdateResponse = getStreamingUpdateServer.deleteByQuery(SPEC + ":" + dataSet.spec)
-    deleteResponse.getStatus
-    getStreamingUpdateServer.commit
   }
 
   private def createSolrInputDocument(indexDoc: IndexDocument): SolrInputDocument = {

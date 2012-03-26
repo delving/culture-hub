@@ -66,9 +66,14 @@ object DataSetProcessor {
 
         var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
 
+        // drop previous index
+        if (indexingFormat == Some(format)) {
+          IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
+        }
+
+
         // loop over records
         log.info("Processing %s valid records for format %s".format(recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix)), format.prefix))
-
 
         try {
           records foreach {
