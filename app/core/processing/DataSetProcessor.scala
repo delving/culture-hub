@@ -10,7 +10,6 @@ import core.indexing.{IndexingService, Indexing}
 import play.api.{Logger, Play}
 import util.Constants._
 import com.mongodb.casbah.Imports._
-import core.search.SolrServer._
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -54,8 +53,10 @@ object DataSetProcessor {
         // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
         //    val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
 
+        val javaNamespaces = format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String].asJava
+
         // bring mapping engine to life
-        val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel)
+        val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
 
         // update processing state of DataSet
         DataSet.updateStateAndProcessingCount(dataSet, DataSetState.PROCESSING)

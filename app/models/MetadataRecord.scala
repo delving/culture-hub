@@ -105,7 +105,9 @@ object MetadataRecord {
   def transformDocument(prefix: String, dataSet: DataSet, record: MetadataRecord): String = {
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    MappingService.transformRecord(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), dataSet.namespaces)
+    
+    // FIXME - use dataSet.namespaces
+    MappingService.transformRecord(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), mapping.get.format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String])
   }
 
   def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {

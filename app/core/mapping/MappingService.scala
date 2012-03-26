@@ -53,7 +53,7 @@ object MappingService extends ModelImplicits {
   }
 
   def transformRecord(rawRecord: String, recordMapping: String, namespaces: Map[String, String]): String = {
-    val engine: MappingEngine = new MappingEngine(recordMapping, Play.classloader, recDefModel)
+    val engine: MappingEngine = new MappingEngine(recordMapping, Play.classloader, recDefModel, namespaces.asJava)
     val indexDocument: IndexDocument = engine.toIndexDocument(rawRecord)
     indexDocumentToXmlString(indexDocument)
   }
