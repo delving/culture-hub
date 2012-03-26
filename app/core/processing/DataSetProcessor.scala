@@ -25,7 +25,7 @@ object DataSetProcessor {
 
   val AFF = "aff"
 
-  val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, VISIBILITY, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL)
+  val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, VISIBILITY, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, DATA_PROVIDER, SPEC)
 
   def process(dataSet: DataSet) {
 
