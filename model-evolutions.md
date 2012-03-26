@@ -17,7 +17,7 @@
     use culturehub
     db.Datasets.find({}).forEach(function(ds) {
       if(ds.lockedBy != null) {
-        db.Datasets.update({_id: ds._id}, {$set: { lockedBy: userNamesLock[ds.lockedBy]})
+        db.Datasets.update({_id: ds._id}, {$set: { lockedBy: userNamesLock[ds.lockedBy]}})
       }
       db.Datasets.update({_id: ds._id}, {$set: { userName: userNames[ds.user_id]} } )
     })
