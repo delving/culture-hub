@@ -54,15 +54,15 @@ class ViewRenderSpec extends Specification {
         val rendered: String = template.render(args)
         val expected: String =
 """<div class="row">
-<div class="column" id="description">
+<div class="section" id="description">
 <div class="field">Description: This is a test record</div>
 </div>
-<div class="column" id="fields">
+<div class="section" id="fields">
     <div>A test hierarchical record, Wood</div>
 <div class="field">Purchase Price: 5000</div>
 <div class="field">metadata.icn.purchaseType: auction</div>
 </div>
-<div class="column" id="complexFields">
+<div class="section" id="complexFields">
 <div class="field">metadata.icn.placeName: Paris</div>
 <div class="field">metadata.icn.placeName: Berlin</div>
 <div class="field">metadata.icn.placeName: Amsterdam</div>
@@ -125,19 +125,19 @@ class ViewRenderSpec extends Specification {
   private def testHtmlViewDefinition =
     <view name="full">
       <row>
-        <column id="description">
+        <section id="description">
             <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
-        </column>
-        <column id="fields">
+        </section>
+        <section id="fields">
             <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
-        </column>
-        <column id="complexFields">
+        </section>
+        <section id="complexFields">
              <list path="/record/icn:places/icn:place">
                  <field path="@name" label="metadata.icn.placeName"/>
              </list>
-         </column>
+         </section>
       </row>
     </view>
 

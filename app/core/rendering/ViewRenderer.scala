@@ -159,7 +159,7 @@ object ViewRenderer {
               // ~~~ html helpers
 
               case "row" => enterAndAppendOne(n, dataNode, "row")
-              case "column" => enterAndAppendOne(n, dataNode, "column", 'id -> n.attr("id"))
+              case "section" => enterAndAppendOne(n, dataNode, "section", 'id -> n.attr("id"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)

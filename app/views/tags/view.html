@@ -18,8 +18,8 @@ case "row":}%
 break
 
 
-case "column":}%
-<div class="column" id="${_view.attr("id")}">
+case "section":}%
+<div class="section" id="${_view.attr("id")}">
 #{list items: _view.content(), as: 'i'}
 #{view view: i /}
 #{/list}

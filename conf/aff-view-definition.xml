@@ -3,19 +3,18 @@
 <views>
     <view name="full">
       <row>
-        <column id="general">
+        <section id="general">
             <field path="/record/thing/displayTitle" label="thing.title"/>
             <field path="/record/thing/displayDescription" label="thing.description"/>
-        </column>
+        </section>
       </row>
       <row>
-          <column id="events">
+          <section id="events">
               <list path="/record/events/event">
                   <field label="thing.title" path="displayEvent" />
                   <field label="thing.date" path="displayDate" />
               </list>
-          </column>
-
+          </section>
       </row>
     </view>
 </views>
