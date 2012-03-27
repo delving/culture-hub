@@ -107,6 +107,11 @@ object ViewRenderer {
 
               // ~~~ generic elements
 
+              case "auto-elem" =>
+                val current = XPath.selectNode(".", dataNode, namespaces.asJava)
+                val renderNode = RenderNode(current.getNodeName, Some(current.getTextContent))
+                appendNode(renderNode)
+
               case "elem" =>
 
                 if(hasAccess(roleList)) {

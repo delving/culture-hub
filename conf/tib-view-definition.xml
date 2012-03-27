@@ -1,0 +1,19 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+
+  <view name="xml">
+    <verbatim><![CDATA[<?xml version="1.0" encoding="iso-8859-1" ?>
+<result xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ese="http://www.europeana.eu/schemas/ese/" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:delving="http://www.delving.eu/schemas/" xmlns:tib="http://www.thuisinbrabant.nl/namespace">]]></verbatim>
+    <elem name="item">
+        <elem name="fields">
+          <list path="/root/*">
+              <auto-elem />
+          </list>
+        </elem>
+    </elem>
+    <verbatim><![CDATA[
+</record>]]></verbatim>
+  </view>
+
+</views>
