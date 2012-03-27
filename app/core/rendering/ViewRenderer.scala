@@ -93,16 +93,13 @@ object ViewRenderer {
               case "column" => enterOne(n, dataNode, "column", 'id -> n.attr("id"))
               case "field" =>
                 if (hasAccess(roleList)) {
-                  appendOne("field", 'label -> label, 'queryLink -> queryLink) {
-                    field =>
-                      val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                      field += RenderNode("text", values.headOption)
-                  }
+                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
+                  appendNode("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
                 }
               case "enumeration" =>
                 if (hasAccess(roleList)) {
 
-                  appendOne("enumeration", 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'separator -> n.attr("separator")) {
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'separator -> n.attr("separator")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -155,9 +152,15 @@ object ViewRenderer {
 
     }
 
+    /** appends a new RenderNode without content to the result tree and performs an operation on it **/
+    def appendSimple(nodeType: String, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
+      appendNode(nodeType, None, attr : _ *)(block)
+    }
+
+
     /** appends a new RenderNode to the result tree and performs an operation on it **/
-    def appendOne(nodeType: String, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
-      val newNode = RenderNode(nodeType)
+    def appendNode(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
+      val newNode = RenderNode(nodeType, text)
       attr foreach {
         newNode addAttr _
       }
