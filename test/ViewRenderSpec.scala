@@ -61,6 +61,7 @@ class ViewRenderSpec extends Specification {
     <div>A test hierarchical record, Wood</div>
 <div class="field">Purchase Price: 5000</div>
 <div class="field">metadata.icn.purchaseType: auction</div>
+<div class="link"><a href="http://foo.bar.com">Blablabla"></a></div>
 </div>
 <div class="section" id="complexFields">
 <div class="field">metadata.icn.placeName: Paris</div>
@@ -132,6 +133,7 @@ class ViewRenderSpec extends Specification {
             <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
+            <link url="/record/dc:data/dc:link" text="/record/dc:data/dc:name" />
         </section>
         <section id="complexFields">
              <list path="/record/icn:places/icn:place">
@@ -180,6 +182,8 @@ class ViewRenderSpec extends Specification {
         </delving:summaryFields>
         <dc:data>
           <dc:type>picture</dc:type>
+          <dc:name>Blablabla</dc:name>
+          <dc:link>http://foo.bar.com</dc:link>
         </dc:data>
         <icn:data>
           <icn:general>

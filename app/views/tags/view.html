@@ -32,6 +32,11 @@ case "field":}%
 %{
 break
 
+case "link":}%
+<div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}"></a></div>
+%{
+break
+
 case "enumeration":}%
 #{if _view.attr("type") == "ul"}
     <ul>

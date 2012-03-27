@@ -182,6 +182,16 @@ object ViewRenderer {
                   }
                 }
 
+              case "link" =>
+                val urlPath = n.attr("url")
+                val textPath = n.attr("text")
+
+                val urlValue = XPath.selectText(urlPath, dataNode, namespaces.asJava)
+                val textValue = XPath.selectText(textPath, dataNode, namespaces.asJava)
+
+                appendSimple("link", 'url -> urlValue, 'text -> textValue) { node => }
+
+
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 
 
