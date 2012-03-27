@@ -20,6 +20,7 @@ import io.Source
 import java.io.File
 import models.GrantType
 import org.specs2.mutable._
+import play.api.i18n.Lang
 import play.api.Play
 import play.api.Play.current
 import play.api.test._
@@ -40,7 +41,7 @@ class ViewRenderSpec extends Specification {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = core.rendering.ViewRenderer.renderView("icn", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
+        val view = core.rendering.ViewRenderer.renderView("icn", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"))
 
         RenderNode.visit(view)
 
@@ -85,7 +86,7 @@ class ViewRenderSpec extends Specification {
         val affViews = new File(Play.application.path, "conf/aff-view-definition.xml")
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val view = core.rendering.ViewRenderer.renderView(affViews, "full", affTestRecord, List.empty[GrantType], namespaces)
+        val view = core.rendering.ViewRenderer.renderView(affViews, "full", affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
@@ -109,7 +110,7 @@ class ViewRenderSpec extends Specification {
 
       val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-      val view = core.rendering.ViewRenderer.renderView("aff", testXmlViewDefinition, testRecord(), List.empty, namespaces)
+      val view = core.rendering.ViewRenderer.renderView("aff", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
 
       val xml = RenderNode.toXML(view)
 
@@ -160,7 +161,7 @@ class ViewRenderSpec extends Specification {
 
         val testRecord = "<root %s>%s</root>".format(namespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), legacyRecord())
 
-        val view = core.rendering.ViewRenderer.renderView(tibViews, "xml", testRecord, List.empty, namespaces)
+        val view = core.rendering.ViewRenderer.renderView(tibViews, "xml", testRecord, List.empty, namespaces, Lang("en"))
 
         println(RenderNode.toXML(view))
         println()

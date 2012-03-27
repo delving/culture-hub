@@ -27,6 +27,7 @@ import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.{ByteArrayInputStream, File}
+import play.api.i18n.{Messages, Lang}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -42,17 +43,17 @@ object ViewRenderer {
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderNode = {
     val prefix = viewDefinitionSource.getName.substring(0, viewDefinitionSource.getName.indexOf("-"))
     val xml = XML.loadFile(viewDefinitionSource)
     (xml \ "view").filter(v => (v \ "@name").text == view).headOption match {
       case Some(viewDefinition) =>
-        renderView(prefix, viewDefinition, record, userGrantTypes, namespaces)
+        renderView(prefix, viewDefinition, record, userGrantTypes, namespaces, lang)
       case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, viewDefinitionSource.getAbsolutePath))
     }
   }
 
-  def renderView(prefix: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String]): RenderNode = {
+  def renderView(prefix: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderNode = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -105,13 +106,24 @@ object ViewRenderer {
 
               case "attrs" => // this is handled by elem below
 
-              // ~~~ generic elements
+              // ~~~ legacy support
 
-              case "auto-elem" =>
+              case "auto-field" =>
                 val current = XPath.selectNode(".", dataNode, namespaces.asJava)
                 val renderNode = RenderNode(current.getNodeName, Some(current.getTextContent))
                 appendNode(renderNode)
 
+              case "auto-layout-field" =>
+                val current = XPath.selectNode(".", dataNode, namespaces.asJava)
+                val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
+
+                val renderNode = RenderNode("field", None)
+                renderNode += RenderNode("key", Some(Messages(internationalizationKey)))
+                renderNode += RenderNode("value", Some(current.getNodeName.replaceAll(":", "_")))
+                appendNode(renderNode)
+
+
+              // ~~~ generic elements
               case "elem" =>
 
                 if(hasAccess(roleList)) {
