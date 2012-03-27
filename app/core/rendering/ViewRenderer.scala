@@ -88,13 +88,82 @@ object ViewRenderer {
 
             n.label match {
 
-              case "view" => enterOne(n, dataNode, "root")
-              case "row" => enterOne(n, dataNode, "row")
-              case "column" => enterOne(n, dataNode, "column", 'id -> n.attr("id"))
+              // ~~~ common elements
+
+              case "view" => enterAndAppendOne(n, dataNode, "root")
+              case "list" =>
+                if(hasAccess(roleList)) {
+
+                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
+                    child =>
+                      enterNode(n, child)
+                  }
+                }
+
+              case "verbatim" =>
+                append("verbatim", Some(n.child.text)) { node => }
+
+              case "attrs" => // this is handled by elem below
+
+              // ~~~ generic elements
+
+              case "elem" =>
+
+                if(hasAccess(roleList)) {
+
+                  val name = n.attr("name")
+                  val prefix = n.attr("prefix")
+
+                  val elemName = if(prefix.isEmpty) name else prefix + ":" + name
+
+                  val attrDefinitions = n \ "attrs" \ "attr"
+                  
+                  val attrs: Map[String, String] = (for (a: Node <- attrDefinitions) yield {
+                    val name = a.attr("name")
+                    if(name.isEmpty) {
+                      throw new RuntimeException("Attribute must have a name")
+                    }
+                    val prefix = a.attr("prefix")
+
+                    val attrName = if(prefix.isEmpty) name else prefix + ":" + name
+                    val attrValue = if(!a.attr("expr").isEmpty) {
+                      XPath.selectText(a.attr("expr"), dataNode, namespaces.asJava)
+                    } else if(!a.attr("value").isEmpty) {
+                      a.attr("value")
+                    } else {
+                      throw new RuntimeException("Attribute %s without value or expr provided".format(name))
+                    }
+
+                    (attrName -> attrValue)
+                  }).toMap
+                  
+                  val elemValue = if(!n.attr("expr").isEmpty) {
+                    Some(XPath.selectText(n.attr("expr"), dataNode, namespaces.asJava))
+                  } else if(!n.attr("value").isEmpty) {
+                    Some(n.attr("value"))
+                  } else {
+                    None
+                  }
+                  
+                  val r = RenderNode(elemName, elemValue)
+                  r.addAttrs(attrs)
+
+                  if(elemValue.isDefined && n.child.isEmpty) {
+                    appendNode(r)
+                  } else if(!n.child.isEmpty) {
+                    enterAndAppendNode(n, dataNode, r)
+                  }
+
+                }
+
+              // ~~~ html helpers
+
+              case "row" => enterAndAppendOne(n, dataNode, "row")
+              case "column" => enterAndAppendOne(n, dataNode, "column", 'id -> n.attr("id"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  appendNode("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
+                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
                 }
               case "enumeration" =>
                 if (hasAccess(roleList)) {
@@ -113,18 +182,6 @@ object ViewRenderer {
                   }
                 }
 
-              case "list" =>
-                if(hasAccess(roleList)) {
-                  
-                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
-                    child =>
-                      enterOne(n, child, "list")
-                  }
-                  
-                  
-                  
-                }
-
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 
 
@@ -135,31 +192,46 @@ object ViewRenderer {
     }
 
     /** appends a new RenderNode to the result tree and walks one level deeper **/
-    def enterOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, attr: (Symbol, Any)*) {
-      log.debug("Entered " + viewDefinitionNode.label)
-      val entered = RenderNode(nodeType)
+    def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, attr: (Symbol, Any)*) {
+      val newRenderNode = RenderNode(nodeType)
       attr foreach {
-        entered addAttr _
+        newRenderNode addAttr _
       }
-      treeStack.head += entered
-      treeStack.push(entered)
+      enterAndAppendNode(viewDefinitionNode, dataNode, newRenderNode)
+    }
+
+    def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
+      log.debug("Entered " + viewDefinitionNode.label)
+      treeStack.head += renderNode
+      treeStack.push(renderNode)
       viewDefinitionNode.child foreach {
         n =>
           log.debug("Node " + n)
           walk(n, dataNode)
       }
       treeStack.pop()
+    }
+
+    /** enters a view definition node, but without appending a new node on the the current tree **/
+    def enterNode(viewDefinitionNode: Node, dataNode: WNode) {
+      log.debug("Entered " + viewDefinitionNode.label)
+      viewDefinitionNode.child foreach {
+        n =>
+          log.debug("Node " + n)
+          walk(n, dataNode)
+      }
 
     }
 
+
     /** appends a new RenderNode without content to the result tree and performs an operation on it **/
     def appendSimple(nodeType: String, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
-      appendNode(nodeType, None, attr : _ *)(block)
+      append(nodeType, None, attr : _ *)(block)
     }
 
 
     /** appends a new RenderNode to the result tree and performs an operation on it **/
-    def appendNode(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
+    def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType, text)
       attr foreach {
         newNode addAttr _
@@ -170,11 +242,16 @@ object ViewRenderer {
       treeStack.pop()
     }
 
+    /** simply appends a node to the current tree head **/
+    def appendNode(node: RenderNode) {
+      treeStack.head += node
+    }
+
     def hasAccess(roles: List[String]) = {
       roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
-    result
+    result.content.head
 
   }
 
@@ -208,20 +285,75 @@ case class RenderNode(nodeType: String, value: Option[String] = None) {
   def addAttr(element: (Symbol, Any)) {
     attributes += (element._1.name -> element._2)
   }
+  
+  def addAttrs(attrs: Map[String, String]) {
+    attributes ++= attrs
+  }
 
   def text: String = value.getOrElse("")
+  
+  def attributesAsXmlString: String = attributes.map(a => a._1 + "=\"" + a._2.toString + "\"").mkString(" ")
+
+  def isLeaf: Boolean = content.isEmpty
 
   override def toString = """[%s] - %s - %s""".format(nodeType, value, attributes.toString())
 }
 
 case object RenderNode {
 
-  def visit(n: RenderNode, level: Int = 0) {
-    for(i <- 0 to level) print(" ")
-    print(n.toString)
-    println()
+  def visit(n: RenderNode) {
+    val sb = new StringBuilder()
+    visit(n, 0, sb)
+    println(sb.toString())
+  }
+
+  def visit(n: RenderNode, level: Int = 0, sb: StringBuilder) {
+    for(i <- 0 to level) sb.append(" ")
+    sb.append(n.toString)
+    sb.append("\n")
     for(c <- n.content) {
-      visit(c, level + 1)
+      visit(c, level + 1, sb)
     }
   }
+
+  def toXML(n: RenderNode): String = {
+    val sb = new StringBuilder()
+    visitXml(n, 0, "", sb)
+    sb.toString()
+  }
+
+  def visitXml(n: RenderNode, level: Int = 0, indent: String = "", sb: StringBuilder) {
+    
+    if(n.nodeType == "root") {
+      for(c <- n.content) {
+        visitXml(c, level, "", sb)
+      }
+    } else if(n.nodeType == "verbatim") {
+      sb.append(n.text.stripMargin)
+      sb.append("\n")
+    } else {
+      val indentation: String = (for(i <- 0 to level) yield " ").mkString + indent
+
+      sb.append(indentation)
+      sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
+
+      if(n.isLeaf) {
+        sb.append(n.text)
+        sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
+      } else {
+        for(c <- n.content) {
+          sb.append("\n")
+          visitXml(c, level + 1, indentation, sb)
+        }
+        sb.append("\n")
+        sb.append(indentation)
+        sb.append("</%s>".format(n.nodeType))
+
+      }
+    }
+
+    
+
+  }
+
 }

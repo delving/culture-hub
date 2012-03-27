@@ -35,12 +35,12 @@ class ViewRenderSpec extends Specification {
 
   "The ViewRenderer" should {
 
-    "render a record" in {
+    "render a record as HTML" in {
       running(FakeApplication()) {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = core.rendering.ViewRenderer.renderView("icn", testViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
+        val view = core.rendering.ViewRenderer.renderView("icn", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces)
 
         RenderNode.visit(view)
 
@@ -76,7 +76,7 @@ class ViewRenderSpec extends Specification {
       }
     }
 
-    "render an AFF record" in {
+    "render an AFF record as HTML" in {
       running(FakeApplication()) {
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
@@ -104,11 +104,25 @@ class ViewRenderSpec extends Specification {
 
     }
 
+    "render a record as XML" in {
+
+      val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+
+      val view = core.rendering.ViewRenderer.renderView("aff", testXmlViewDefinition, testRecord(), List.empty, namespaces)
+
+      println(RenderNode.toXML(view))
+      println()
+
+
+      1 must equalTo(1)
+
+    }
+
 
 
   }
 
-  private def testViewDefinition =
+  private def testHtmlViewDefinition =
     <view name="full">
       <row>
         <column id="description">
@@ -125,6 +139,31 @@ class ViewRenderSpec extends Specification {
              </list>
          </column>
       </row>
+    </view>
+
+  private def testXmlViewDefinition =
+    <view name="xml">
+      <verbatim><![CDATA[<?xml version="1.0" encoding="iso-8859-1" ?>
+<record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">]]></verbatim>
+      <elem name="item">
+        <attrs>
+          <attr name="id" value="42" />
+        </attrs>
+        <elem name="title" prefix="dc" expr="/record/delving:summaryFields/delving:title" />
+        <elem name="description" prefix="delving" expr="/record/delving:summaryFields/delving:description" />
+        <elem name="places">
+          <list path="/record/icn:places/icn:place">
+              <elem name="place">
+                <attrs>
+                  <attr name="country" prefix="geo" expr="@country" />
+                </attrs>
+                <elem name="name" expr="@name" />
+              </elem>
+          </list>
+        </elem>
+      </elem>
+      <verbatim><![CDATA[
+</record>]]></verbatim>
     </view>
 
 
@@ -153,7 +192,7 @@ class ViewRenderSpec extends Specification {
         </icn:data>
         <icn:places>
           <icn:place name="Paris" country="France" />
-          <icn:place name="Berlin" country="German" />
+          <icn:place name="Berlin" country="Germany" />
           <icn:place name="Amsterdam" country="Netherlands" />
         </icn:places>
       </record>"""
