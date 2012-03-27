@@ -1,6 +1,7 @@
 package controllers.organization
 
 import controllers.DelvingController
+import controllers.OrganizationController
 import play.api.mvc._
 
 /**
@@ -8,9 +9,9 @@ import play.api.mvc._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SipCreator extends DelvingController {
+object SipCreator extends OrganizationController {
 
-  def index(orgId: String) = Root {
+  def index(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request => Ok(Template('orgId -> orgId))
     }

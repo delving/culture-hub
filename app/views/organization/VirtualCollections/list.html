@@ -19,8 +19,8 @@
     </div>
 
         <div class="data-grid">
-            <table class="list">
-                <caption>&{'thing.virtualCollections'}</caption>
+            <table class="table">
+                *{<caption>&{'thing.virtualCollections'}</caption>}*
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
@@ -34,14 +34,14 @@
                         <span>${vc.spec}</span>
                     </td>
                     <td>
-                        <a class="button" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
-                            <span class="icon icon145"></span>
-                            <span class="label">&{'ui.label.edit'}</span>
+                        #{if isOwner}
+                        <a class="btn btn-primary btn-prominent" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
+                            &{'ui.label.edit'}
                         </a>
-                        <a id="${vc.spec}" class="button beware delete" href="#">
-                            <span class="icon icon186"></span>
-                            <span class="label">&{'ui.label.delete'}</span>
+                        <a id="${vc.spec}" class="btn btn-danger pull-right" href="#">
+                            &{'ui.label.delete'}
                         </a>
+                        #{/if}
                     </td>
                 </tr>
                 #{/list}

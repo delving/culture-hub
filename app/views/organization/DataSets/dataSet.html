@@ -6,49 +6,26 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
-<div class="tab-content">
-    <div class="buttons">
-    #{if canEdit == true }
-        #{btnHref label:messages.get('ui.label.edit'), href:  "/organizations/" + orgId + "/dataset/" + dataSet.spec + "/update", extraClass: "action active", iconClass:"icon145", visible: canEdit /}
-    #{/if}
-        #{btnHref label: messages.get('organization.dataset.list'), href:"/organizations/"+orgId+"/dataset", extraClass:"action" /}
-    #{if isOwner == true }
-        #{btnHref label:messages.get('organization.dataset.create'), href:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete", visible: isOwner /}
-    #{/if}
-        #{btnHref label:messages.get('ui.label.sipcreator'), href:"/organizations/"+orgId+"/sip-creator" /}
+
+
+<div class="row">
+
+    <h3 class="span12">${dataSet.spec}</h3>
+
+    *{<div class="row">}*
+    <div class="span6">
+    <dl class="dl-horizontal">
+    #{list facts, as: 'facet'}
+        <dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>
+    #{/list}
+    #{else}
+        test
+    #{/else}
+    </dl>
+    
     </div>
-   <hr/>
-    <div class="row">
-
-            <h3>&{'thing.dataset'} <span>"${dataSet.spec}"</span></h3>
-
-            <div class="row">
-            <div class="g-1of2 alpha">
-            %{
-                for (i in 0..facts.size() - 1) {
-                def fact = facts.get(i);
-                }%
-                <div class="info-box">
-                    <span class="label">${fact.prompt}</span>
-
-            <span class="text">
-                ${fact.value}
-            </span>
-                </div>
-            #{if i == 4}
-            </div>
-            <div class="g-1of2 omega">
-            #{/if}
-            %{}}%
-                <div class="info-box">
-                    <span class="label">Indexing Mapping Record Definition</span>
-                    <span class="text">${views.Helpers.getOrElse(dataSet.indexingMappingPrefix, "Not defined")}</span>
-                </div>
-            </div>
-            </div>
-        </div>
-
 </div>
+
 
 
 

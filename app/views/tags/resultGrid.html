@@ -4,7 +4,7 @@
 <div class="row">
 #{/if}
     *{<div class="g-1of4 #{if counter == 1} alpha #{/if} #{if counter == 4} omega #{/if} ">}*
-    <div class="grid_3">
+    <div class="span3">
         <div class="draggable ${doc.getRecordType()} ">
             #{thingSummaryView data: doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
@@ -15,6 +15,7 @@
     %{ counter++ }%
 #{if counter > 4 || doc_isLast }
 </div><!-- end row -->
+<div class="clear"></div>
 %{ counter = 1 }%
 #{/if}
 #{/list}
