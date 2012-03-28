@@ -35,7 +35,7 @@ import play.api.libs.concurrent.Promise
 
 object ItinEndPoint extends DelvingController with ThemeAware {
 
-  def search =
+  def search = Themed {
     Action {
       implicit request =>
         if (!enabled) {
@@ -44,6 +44,7 @@ object ItinEndPoint extends DelvingController with ThemeAware {
           SearchService.getApiResult(request, theme)
         }
     }
+  }
 
   def store: Action[scala.xml.NodeSeq] = Action(parse.tolerantXml) {
     implicit request => {
