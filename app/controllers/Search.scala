@@ -68,7 +68,13 @@ object Search extends DelvingController {
             request.session
           }
 
-          val fullItemView = FullItemView(SolrBindingService.getFullDoc(queryResponse), queryResponse)
+          NotFound("Gonna be here by tomorrow")
+          // TODO
+          // if there's no AFF mapping for this record, tell the user 404
+          // otherwise call the view renderer, and render html
+
+
+          /*
           if (overlay) {
             Ok(Template("Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc))
           } else {
@@ -76,8 +82,8 @@ object Search extends DelvingController {
             val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
             Ok(Template("Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
           }.withSession(updatedSession)
+        */
         }
-
 
     }
   }

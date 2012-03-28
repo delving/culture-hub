@@ -17,12 +17,9 @@ package core.search
 
 import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.response. {FacetField, QueryResponse}
-import java.net.URL
-import xml. {NodeSeq, Elem, XML}
 import collection.immutable. {HashMap, Map => ImMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable. {ListBuffer, Map}
-import util.Constants._
 import org.apache.solr.common.SolrDocumentList
 import java.lang.{Boolean => JBoolean, Float => JFloat}
 import java.util.{Date, ArrayList, List => JList, Map => JMap}
@@ -38,38 +35,6 @@ object SolrBindingService {
 
   def stripDynamicFieldLabels(fieldName: String): String = {
     fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase)$","").replaceFirst("^(facet|sort|sort_all)_","")
-  }
-
-  def getFullDocFromOaiPmh(response : QueryResponse) : FullDocItem = {
-    val fullDoc = getFullDoc(response)
-    val pmhId = fullDoc.getFieldValue(PMH_ID)
-    getRecordFromOaiPmh(pmhId.getFirst)
-  }
-
-  private[search] def getRecordFromOaiPmh(recordId : String, metadataPrefix: String = "abm") : FullDocItem = {
-    val baseUrl = "http://localhost:8983/services/oai-pmh"
-    val record = XML.load(new URL(baseUrl + "?verb=GetRecords&metadataPrefix=" + metadataPrefix + "&identifier=" + recordId))
-    parseSolrDocumentFromGetRecordResponse(record)
-  }
-
-  def parseSolrDocumentFromGetRecordResponse(pmhResponse: Elem): FullDocItem = {
-    val metadataElements = pmhResponse \\ "metadata"
-    val recordElements: NodeSeq = metadataElements \\ "record"
-    val solrDoc = SolrResultDocument()
-    recordElements.foreach{
-      recordNode =>
-        val cleanNodes = recordNode.nonEmptyChildren.filterNot(node => node.label == "#PCDATA")
-        val cleanNodeList = for {
-          cleanNode <- cleanNodes
-          val fieldName: String = if (!cleanNode.prefix.isEmpty) cleanNode.prefix + "_" + cleanNode.label else cleanNode.label
-        } yield (FieldValueNode(fieldName, cleanNode.text, cleanNode.attributes.asAttrMap))
-        val fieldNames = for (cleanNode <- cleanNodeList) yield cleanNode.fieldName
-        fieldNames.toSet[String].foreach{
-          fieldName =>
-            solrDoc.add(fieldName, cleanNodeList.filter(node => node.fieldName == fieldName).toList)
-        }
-    }
-    FullDocItem(solrDoc)
   }
 
   def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
@@ -164,26 +129,6 @@ object SolrBindingService {
     docs
   }
 
-  def getFullDoc(queryResponse: QueryResponse): FullDocItem = {
-    val results = getFullDocs(queryResponse)
-    if (results.isEmpty) throw new RuntimeException("Full Doc not found") // todo change this to a better exception
-    results.head
-  }
-
-  def getFullDoc(sorlDocList: SolrDocumentList): FullDocItem = {
-    val results = getFullDocs(sorlDocList)
-    if (results.isEmpty) throw new RuntimeException("Full Doc not found") // todo change this to a better exception
-    results.head
-  }
-
-  def getFullDocs(queryResponse: QueryResponse): List[FullDocItem] = {
-    getSolrDocumentList(queryResponse).map(doc => FullDocItem(doc))
-  }
-
-  def getFullDocs(solrDocList: SolrDocumentList): List[FullDocItem] = {
-    getSolrDocumentList(solrDocList).map(doc => FullDocItem(doc))
-  }
-
   def createFacetMap(links : List[FacetQueryLinks]) = FacetMap(links.toList)
 
   def createFacetStatistics(facets: List[FacetField]) = FacetStatisticsMap(facets.toList)
@@ -259,7 +204,7 @@ case class SolrResultDocument(fieldMap : Map[String, List[FieldValueNode]] = Map
   }
 }
 
-case class FieldFormatted (key: String, values: Array[String]) {
+case class FieldFormatted(key: String, values: Array[String]) {
   def getKey : String = key
   def getKeyAsMessageKey = "_metadata.%s" format (key.replaceFirst("_", "."))
   def getValues : Array[String] = values
@@ -268,7 +213,7 @@ case class FieldFormatted (key: String, values: Array[String]) {
 
 }
 
-case class FieldValue (key: String, solrDocument: SolrResultDocument) {
+case class FieldValue(key: String, solrDocument: SolrResultDocument) {
 
   private val fieldValues = solrDocument.get(key)
   private val highLightValues: Option[List[String]] = solrDocument.highLightMap.get(key)
@@ -321,7 +266,7 @@ case class FieldValue (key: String, solrDocument: SolrResultDocument) {
 
 }
 
-case class FieldValueNode (fieldName : String, fieldValue: String, attributes: ImMap[String, String] = new HashMap[String, String]())  {
+case class FieldValueNode(fieldName : String, fieldValue: String, attributes: ImMap[String, String] = new HashMap[String, String]())  {
 
   def getFieldName = fieldName
 
@@ -362,24 +307,4 @@ case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAcces
     // debug and scoring information
     var score : Int = _
     var debugQuery : String = _
-}
-
-case class FullDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors {
-
-    override protected def assign(key: String) = solrDocument.getFirst(key)
-
-    def getAsArray(key: String) : Array[String] = solrDocument.get(key).asInstanceOf[List[String]].toArray
-
-    def getAsString(key: String) : String = assign(key)
-
-    def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
-
-    def getFieldValueList: List[FieldValue] = solrDocument.getFieldValueList
-
-    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
-
-    def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
-
-    def getConcatenatedList(key: String, fields: java.util.List[String]) : java.util.List[String] = mutableSeqAsJavaList(solrDocument.getConcatenatedArray(key, fields.toList).getValues)
-
 }

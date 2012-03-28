@@ -47,13 +47,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
   def getRawXmlString = rawMetadata("raw")
 
-  def getCachedTransformedRecord(metadataPrefix: String): String = {
-    if (rawMetadata.contains(metadataPrefix)) {
-      rawMetadata.get(metadataPrefix).get
-    } else {
-      throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
-    }
-  }
+  def getCachedTransformedRecord(metadataPrefix: String): Option[String] = rawMetadata.get(metadataPrefix)
 
   def getDefaultAccessor = {
     new SummaryFieldsMapMetadataAccessors(hubId, summaryFields)

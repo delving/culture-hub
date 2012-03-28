@@ -43,17 +43,27 @@ object ViewRenderer {
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderNode = {
+  
+  def getViewDefinition(format: String, viewName: String): Option[Node] = {
+    val definitionFile = new File("conf/view-definitions/%s-view-definition.xml".format(format))
+    if(!definitionFile.exists()) {
+      None
+    } else {
+      val xml = XML.loadFile(definitionFile)
+      (xml \ "view").filter(v => (v \ "@name").text == viewName).headOption
+    }
+  }
+  
+  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
     val prefix = viewDefinitionSource.getName.substring(0, viewDefinitionSource.getName.indexOf("-"))
-    val xml = XML.loadFile(viewDefinitionSource)
-    (xml \ "view").filter(v => (v \ "@name").text == view).headOption match {
+    getViewDefinition(prefix, view) match {
       case Some(viewDefinition) =>
-        renderView(prefix, viewDefinition, record, userGrantTypes, namespaces, lang)
+        renderView(prefix, view, viewDefinition, record, userGrantTypes, namespaces, lang)
       case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, viewDefinitionSource.getAbsolutePath))
     }
   }
 
-  def renderView(prefix: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderNode = {
+  def renderView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -309,7 +319,7 @@ object ViewRenderer {
       roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
-    result.content.head
+    RenderedView(viewName, prefix, result.content.head)
 
   }
 
@@ -320,6 +330,13 @@ object ViewRenderer {
     })
   }
 
+}
+
+case class RenderedView(viewName: String, formatName: String, viewTree: RenderNode) {
+
+  def toXml = RenderNode.toXML(viewTree)
+
+  def toJson = RenderNode.toJson(viewTree)
 }
 
 /**

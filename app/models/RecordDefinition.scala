@@ -32,7 +32,10 @@ case class RecordDefinition(prefix: String,
                             allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
                             roles: List[Role] = List.empty,  // roles that are described in the RecordDefinition
                             isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
-                            )
+                            ) {
+
+  def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
+}
 
 case class Namespace(prefix: String, uri: String, schema: String)
 
@@ -53,6 +56,8 @@ object RecordDefinition {
   val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
   def recordDefinitions = parseRecordDefinitions
+
+  def getRecordDefinition(prefix: String): Option[RecordDefinition] = recordDefinitions.find(_.prefix == prefix)
 
   def getRecordDefinitionFiles: Seq[File] = {
     enabledDefinitions.
