@@ -1,7 +1,6 @@
 <?xml version ="1.0" encoding="UTF-8"?>
 
 <views>
-
     <view name="xml">
         <elem name="result">
             <attrs>
@@ -24,5 +23,4 @@
             </elem>
         </elem>
     </view>
-
 </views>

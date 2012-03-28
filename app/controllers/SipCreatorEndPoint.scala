@@ -276,7 +276,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     writeEntry("fact-definition-list.xml", zipOut) {
       out =>
-        val c = MissingLibs.readContentAsString(new FileInputStream(new File("conf/fact-definition-list.xml")))
+        val c = MissingLibs.readContentAsString(new FileInputStream(new File("conf/record-definitions/global/fact-definition-list.xml")))
         IOUtils.write(c, out)
     }
 
@@ -289,12 +289,12 @@ object SipCreatorEndPoint extends ApplicationController {
       val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
       writeEntry(recordDefinition, zipOut) {
         out =>
-          writeContent(FileUtils.readFileToString(new File("conf/" + recordDefinition)), out)
+          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))), out)
       }
       val validationSchema = prefix + RecordDefinition.VALIDATION_SCHEMA_SUFFIX
       writeEntry(validationSchema, zipOut) {
         out =>
-          writeContent(FileUtils.readFileToString(new File("conf/" + validationSchema)), out)
+          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-validation.xsd".format(prefix, prefix))), out)
       }
     }
 

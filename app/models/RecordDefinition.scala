@@ -55,10 +55,9 @@ object RecordDefinition {
   def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinitionFiles: Seq[File] = {
-    val conf = new File(current.path.getAbsolutePath + "/conf/")
-    conf.listFiles()
-      .filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
-      .filter(f => enabledDefinitions.contains(f.getName.substring(0, f.getName.indexOf(RECORD_DEFINITION_SUFFIX))))
+    enabledDefinitions.
+      map(prefix => new File(current.path.getAbsolutePath + "/conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))).
+      filter(_.exists())
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {

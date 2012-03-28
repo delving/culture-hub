@@ -83,7 +83,7 @@ class ViewRenderSpec extends Specification {
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
-        val affViews = new File(Play.application.path, "conf/aff-view-definition.xml")
+        val affViews = new File(Play.application.path, "conf/view-definitions/aff-view-definition.xml")
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
         val view = core.rendering.ViewRenderer.renderView(affViews, "full", affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
@@ -145,15 +145,15 @@ class ViewRenderSpec extends Specification {
     "render a record as JSON" in {
 
       val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-
       val view = core.rendering.ViewRenderer.renderView("aff", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+      val json = RenderNode.toJson(view)
 
-      val xml = RenderNode.toJson(view)
-
-      println(xml)
+      println(json)
       println()
 
-      1 must equalTo (1)
+      val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
+
+      json must equalTo (expected)
 
     }
 
@@ -171,7 +171,7 @@ class ViewRenderSpec extends Specification {
           "tib" -> "http://www.thuisinbrabant.nl/namespace"
         )
 
-        val tibViews = new File(Play.application.path, "conf/tib-view-definition.xml")
+        val tibViews = new File(Play.application.path, "conf/view-definitions/tib-view-definition.xml")
 
         // wrap legacy record (as it would be in the mongo cache) in a root element with namespaces
 

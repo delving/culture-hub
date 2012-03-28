@@ -107,7 +107,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   lazy val factDefinitionList = parseFactDefinitionList
 
   def getFactDefinitionFile: File = {
-    val file = new File("conf/fact-definition-list.xml")
+    val file = new File("conf/record-definitions/global/fact-definition-list.xml")
     if (!file.exists()) throw ConfigurationException("Fact definition configuration file not found!")
     file
   }
