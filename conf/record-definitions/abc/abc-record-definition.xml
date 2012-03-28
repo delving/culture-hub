@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<record-definition prefix="abc" flat="true">
+
+    <namespaces>
+        <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+        <namespace prefix="dcterms" uri="http://purl.org/dc/terms/" schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+        <namespace prefix="europeana" uri="http://www.europeana.eu/schemas/ese/" schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"/>
+        <namespace prefix="abc" uri="http://www.ab-c.nl/" schema="http://www.ab-c.nl/schemas/ABC-V3.2.xsd"/>
+        <namespace prefix="delving" uri="http://schemas.delving.eu/" schema="delving-1.0.xsd"/>
+    </namespaces>
+
+    <root tag="record">
+        <!-- Category AB-C -->
+        <elem tag="abc:titel"/>
+        <elem tag="abc:birthDate"/>
+        <elem tag="abc:deathDate"/>
+        <elem tag="abc:beginjaar"/>
+        <elem tag="abc:eindjaar"/>
+        <elem tag="abc:objectId"/>
+        <elem tag="abc:dimensionValue"/>
+        <elem tag="abc:dimensionUnit"/>
+        <elem tag="abc:dimension"/>
+        <elem tag="abc:technique"/>
+        <elem tag="abc:material"/>
+        <elem tag="abc:deepzoomUrl"/>
+        <elem tag="abc:smallThumbnail"/>
+        <elem tag="abc:largeThumbnail"/>
+        <elem tag="abc:description"/>
+        <elem tag="abc:name"/>
+        <elem tag="abc:school"/>
+        <elem tag="abc:onderwerp"/>
+        <elem tag="abc:collection" />
+        <elem tag="abc:objectName" />
+        <elem tag="abc:kunstenaar"/>
+        <elem tag="abc:production" />
+
+        <!--  Vervaardiger Velden -->
+        <elem tag="abc:vName"/>
+        <elem tag="abc:vOccuppation"/>
+        <elem tag="abc:vNationality"/>
+        <elem tag="abc:vBirthDate"/>
+        <elem tag="abc:vBirthPlace"/>
+        <elem tag="abc:vDeathDate"/>
+        <elem tag="abc:vDeathPlace"/>
+        <elem tag="abc:vBiography"/>
+
+        <elem tag="europeana:isShownBy"/>
+        <elem tag="europeana:rights"/>
+        <elem tag="europeana:isShownAt"/>
+        <elem tag="europeana:unstored"/>
+        <elem tag="europeana:object"/>
+        <elem tag="europeana:provider"/>
+        <elem tag="europeana:dataProvider"/>
+        <elem tag="europeana:type"/>
+        <elem tag="europeana:uri"/>
+        <elem tag="europeana:language"/>
+        <elem tag="europeana:country"/>
+        <elem tag="europeana:collectionName"/>
+        <elem tag="europeana:collectionTitle"/>
+        <elem tag="europeana:source"/>
+        <elem tag="europeana:year"/>
+
+    </root>
+
+    <searchFields>
+        <searchField name="TITLE" path="/record/abc:titel"/>
+        <searchField name="THUMBNAIL" path="/record/abc:largeThumbnail"/>
+        <searchField name="DESCRIPTION" path="/record/abc:description"/>
+        <searchField name="CREATOR" path="/record/abc:kunstenaar"/>
+        <searchField name="SNIPPET" path="/record/europeana:collectionTitle"/>
+        <searchField name="OWNER" path="/record/europeana:dataProvider" fieldType="string"/>
+        <searchField name="THUMBNAIL" path="/record/europeana:isShownBy" fieldType="string"/>
+    </searchFields>
+
+    <facts>
+        <fact-ref name="spec" path="/record/europeana:collectionName"/>
+        <fact-ref name="name" path="/record/europeana:collectionTitle"/>
+        <fact-ref name="country" path="/record/europeana:country"/>
+        <fact-ref name="dataProvider" path="/record/europeana:dataProvider"/>
+        <fact-ref name="language" path="/record/europeana:language"/>
+        <fact-ref name="provider" path="/record/europeana:provider"/>
+        <fact-ref name="rights" path="/record/europeana:rights"/>
+        <fact-ref name="type" path="/record/europeana:type"/>
+    </facts>
+
+    <!--<converters>-->
+       <!--<converter multipleOutput="true" call=".extractYear()" path="/record/europeana:year"/>-->
+    <!--</converters>-->
+
+
+</record-definition>
+
+

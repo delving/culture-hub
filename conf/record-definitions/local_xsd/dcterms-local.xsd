@@ -1,0 +1,60 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://purl.org/dc/terms/" targetNamespace="http://purl.org/dc/terms/" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd"></xs:import>
+<xs:element name="title"/>
+<xs:element name="creator" />
+<xs:element name="subject" />
+<xs:element name="description"/>
+<xs:element name="publisher"/>
+<xs:element name="contributor"/>
+<xs:element name="date"/>
+<xs:element name="type"/>
+<xs:element name="format"/>
+<xs:element name="identifier"/>
+<xs:element name="source"/>
+<xs:element name="language"/>
+<xs:element name="relation"/>
+<xs:element name="coverage"/>
+<xs:element name="rights"/>
+<xs:element name="alternative"/>
+<xs:element name="tableOfContents"/>
+<xs:element name="abstract"/>
+<xs:element name="created"/>
+<xs:element name="valid"/>
+<xs:element name="available"/>
+<xs:element name="issued"/>
+<xs:element name="modified"/>
+<xs:element name="dateAccepted"/>
+<xs:element name="dateCopyrighted"/>
+<xs:element name="dateSubmitted"/>
+<xs:element name="extent"/>
+<xs:element name="medium"/>
+<xs:element name="isVersionOf"/>
+<xs:element name="hasVersion"/>
+<xs:element name="isReplacedBy"/>
+<xs:element name="replaces"/>
+<xs:element name="isRequiredBy"/>
+<xs:element name="requires"/>
+<xs:element name="isPartOf"/>
+<xs:element name="hasPart"/>
+<xs:element name="isReferencedBy"/>
+<xs:element name="references"/>
+<xs:element name="isFormatOf"/>
+<xs:element name="hasFormat"/>
+<xs:element name="conformsTo"/>
+<xs:element name="spatial"/>
+<xs:element name="temporal"/>
+<xs:element name="audience"/>
+<xs:element name="accrualMethod"/>
+<xs:element name="accrualPeriodicity"/>
+<xs:element name="accrualPolicy"/>
+<xs:element name="instructionalMethod"/>
+<xs:element name="provenance"/>
+<xs:element name="rightsHolder"/>
+<xs:element name="mediator"/>
+<xs:element name="educationLevel"/>
+<xs:element name="accessRights"/>
+<xs:element name="license"/>
+<xs:element name="bibliographicCitation"/>
+
+</xs:schema>

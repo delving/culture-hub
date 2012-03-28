@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:dcterms="http://purl.org/dc/terms/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns="http://www.europeana.eu/schemas/ese/"
+            targetNamespace="http://www.europeana.eu/schemas/ese/"
+            version="3.4"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Europeana Semantic Elements V3.4 XML Schema 
+      Version: 3.4
+      Date: 2011-03-31
+      Used to validate XML instances of Data Sets to be submitted to Europeana
+      
+      The following elements must be provided in the XML instances:
+              europeana:provider
+              europeana:dataProvider
+              europeana:rights
+              europeana:type
+              europeana:isShownBy and/or europeana:isShownAt
+              
+      In addition:
+              1) If "europeana:type" is TEXT then a valid value for "dc:language" must be provided.
+              2) The XML instances must include "dc:title" or "dc:description" (i.e. cannot be both null). 
+              3) The XML instances must provide, mandatory, values for one of the four elements: "dc:subject" or  "dc:type" or  "dc:coverage" or  "dcterms:spatial".
+      
+      The values for the following elements must be valid URI:
+              europeana:isShownBy
+              europeana:isShownAt
+              europeana:object 
+              europeana:rights
+      
+      The values for europeana:type element must be one of the following:
+              TEXT
+              IMAGE
+              SOUND
+              VIDEO
+              3D
+      
+      While DC elements can appear in a user preferred order, in the instances of documents, the Europena elements must appear after all DC elements and in the following order:
+              europeana:unstored
+              europeana:object
+              europeana:provider
+              europeana:type
+              europeana:rights
+              europeana:dataProvider
+              europeana:isShownBy
+              europeana:isShownAt
+
+      The europeana:isShownBy and europeana:isShownAt elements may appear in any order (one of the two is mandatory) after the europeana:type element.
+
+      The ESE v3.4 Schema doesn't accept the following elements (Europeana office is responsible for providing all these elements): 
+              europeana:country
+              europeana:language
+              europeana:uri
+              europeana:usertag
+              europeana:year
+              europeana:previewNoDistribute
+
+      Extra note on DC terms elements and ESE conformance: The XML schema checks for basic conformance to the "Europeana Semantic Elements specifications", 
+      document available at http://version1.europeana.eu/web/europeana-project/provide-content. 
+      Note however that it is an extension of the DC terms schema and will therefore accept all DC terms - even those that are not importable into the portal. 
+      Please include in your metadata only the elements defined in the specification.
+
+      Publisher: Europeana (http://www.europeana.eu)
+      
+      *** Comments, questions, and error reports should be sent to info@europeana.eu
+      with subject line: XMLSchema ***
+      
+      Editor:
+      Nicola Aloia 
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+    schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+  
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+    schemaLocation="http://www.dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+  
+  <xs:import namespace="http://purl.org/dc/terms/"
+    schemaLocation="http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd"/>
+
+  <xs:element name="isShownBy" type="xs:anyURI"/> 
+  <xs:element name="rights" type="xs:anyURI"/> 
+  <xs:element name="isShownAt" type="xs:anyURI"/>   
+  <xs:element name="unstored" type="xs:string"/>
+  <xs:element name="object" type="xs:anyURI"/>   
+  <xs:element name="provider" type="xs:string"/> 
+  <xs:element name="dataProvider" type="xs:string"/>
+  
+  <xs:element name="UGC">
+  	<xs:simpleType>
+  		<xs:restriction base="xs:string">
+  			<xs:enumeration value="TRUE"/>
+  			<xs:enumeration value="FALSE"/>
+  		</xs:restriction>
+  	</xs:simpleType>
+  </xs:element>
+
+
+  <xs:element name="type">
+    <xs:simpleType>      
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="TEXT"></xs:enumeration>
+        <xs:enumeration value="IMAGE"></xs:enumeration>
+        <xs:enumeration value="SOUND"></xs:enumeration>
+        <xs:enumeration value="VIDEO"></xs:enumeration>
+        <xs:enumeration value="3D"></xs:enumeration>
+      </xs:restriction>
+    </xs:simpleType>  
+  </xs:element>
+
+  
+  <xs:group name="dcGroup">
+    <xs:choice>
+      <xs:element ref="dc:title"/>
+      <xs:element ref="dc:creator"/>
+      <xs:element ref="dc:subject"/>
+      <xs:element ref="dc:description"/>
+      <xs:element ref="dc:publisher"/>
+      <xs:element ref="dc:contributor"/>
+      <xs:element ref="dc:date"/>
+      <xs:element ref="dc:type"/>
+      <xs:element ref="dc:format"/>
+      <xs:element ref="dc:identifier"/>
+      <xs:element ref="dc:source"/>
+      <xs:element ref="dc:language"/>
+      <xs:element ref="dc:relation"/>
+      <xs:element ref="dc:coverage"/>
+      <xs:element ref="dc:rights"/>
+      <xs:element ref="dcterms:provenance"/>       
+    </xs:choice>
+  </xs:group>
+  
+  <xs:element name="record">
+    <xs:complexType>      
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="dcGroup" />        
+        <xs:element ref="unstored" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="object" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="provider" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="type" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="rights" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="dataProvider" minOccurs="1" maxOccurs="1"/>
+        <xs:choice >
+          <xs:sequence>
+            <xs:element ref="isShownBy" minOccurs="1" maxOccurs="1" ></xs:element>
+            <xs:element ref="isShownAt" minOccurs="0" maxOccurs="1"></xs:element>              
+          </xs:sequence>
+          <xs:sequence>  
+            <xs:element ref="isShownAt" minOccurs="1" maxOccurs="1"></xs:element>  
+            <xs:element ref="isShownBy" minOccurs="0" maxOccurs="1" ></xs:element>
+          </xs:sequence>
+        </xs:choice>          
+	    <xs:element ref="UGC" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="metadata">
+    <xs:complexType>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="record"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

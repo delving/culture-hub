@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified"
+           elementFormDefault="qualified"
+           xmlns:aff="http://schemas.delving.eu/aff/"
+           targetNamespace="http://schemas.delving.eu/aff/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="record" type="aff:recordType"/>
+
+    <xs:complexType name="recordType">
+        <xs:sequence>
+            <xs:element type="aff:adminType" name="admin"  minOccurs="0" maxOccurs="1"/>
+            <xs:element type="aff:thingType" name="thing" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="aff:relationType" name="relations"  minOccurs="0" maxOccurs="1"/>
+            <xs:element type="aff:collectionType" name="collections"  minOccurs="0" maxOccurs="1"/>
+            <xs:element type="aff:classificationType" name="classifications" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="aff:subjectType" name="subjects" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="aff:materialType" name="materials" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="aff:techniqueType" name="techniques" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="aff:eventsType" name="events" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="aff:mediaType" name="medias" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="adminType">
+        <xs:sequence>
+            <xs:element name="dataOwnerUri"/>
+            <xs:element name="displayDataOwner"/>
+            <xs:element name="displayOwnerCountry"/>
+            <xs:element name="dataProviderUri"/>
+            <xs:element name="displayDataProvider"/>
+            <xs:element name="providerHubUri"/>
+            <xs:element name="displayProviderHub"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="collectionType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="collectionUri"/>
+            <xs:element type="xs:string" name="displayCollection"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="localId"/>
+        <xs:attribute type="xs:string" name="isPartOfLocalId"/>
+        <xs:attribute type="xs:string" name="isPartOfUri"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="thingType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="thingUri" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="displayWorkType" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="displayTitle" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="displayDescription" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="language" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="displayDimensions" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="displayYear" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="rights" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="landingPage" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="hubRecordId" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="xs:string" name="hubRecordUrl" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="localId"/>
+    </xs:complexType>
+
+    <xs:complexType name="collectionType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="collectionUri"/>
+            <xs:element type="xs:string" name="displayCollection"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="localId"/>
+        <xs:attribute type="xs:string" name="isPartOfLocalId"/>
+        <xs:attribute type="xs:string" name="isPartOfUri"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="subjectType">
+         <xs:sequence>
+             <xs:element type="xs:string" name="displaySubject"/>
+         </xs:sequence>
+         <xs:attribute type="xs:string" name="localId"/>
+         <xs:attribute type="xs:string" name="localUri"/>
+         <xs:attribute type="xs:string" name="sourceName"/>
+         <xs:attribute type="xs:string" name="sourceUri"/>
+     </xs:complexType>
+
+    <xs:complexType name="classificationType">
+         <xs:sequence>
+             <xs:element type="xs:string" name="displayClassification"/>
+         </xs:sequence>
+         <xs:attribute type="xs:string" name="localId"/>
+         <xs:attribute type="xs:string" name="localUri"/>
+         <xs:attribute type="xs:string" name="sourceName"/>
+         <xs:attribute type="xs:string" name="sourceUri"/>
+     </xs:complexType>
+
+    <xs:complexType name="materialType">
+         <xs:sequence>
+             <xs:element type="xs:string" name="displayMaterial"/>
+         </xs:sequence>
+         <xs:attribute type="xs:string" name="localId"/>
+         <xs:attribute type="xs:string" name="localUri"/>
+         <xs:attribute type="xs:string" name="sourceName"/>
+         <xs:attribute type="xs:string" name="sourceUri"/>
+     </xs:complexType>
+
+    <xs:complexType name="techniqueType">
+         <xs:sequence>
+             <xs:element type="xs:string" name="displayTechnique"/>
+         </xs:sequence>
+         <xs:attribute type="xs:string" name="localId"/>
+         <xs:attribute type="xs:string" name="localUri"/>
+         <xs:attribute type="xs:string" name="sourceName"/>
+         <xs:attribute type="xs:string" name="sourceUri"/>
+     </xs:complexType>
+
+    <xs:complexType name="eventsType">
+        <xs:sequence>
+            <xs:element type="aff:eventType" name="event"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="eventType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="eventTypeUri"/>
+            <xs:element type="xs:string" name="displayEventType"/>
+            <xs:element type="xs:string" name="displayEvent"/>
+            <xs:element type="xs:string" name="displayDate"/>
+            <xs:element type="aff:dateType" name="date"/>
+            <xs:element type="aff:eventPlaceType" name="eventPlace"/>
+            <xs:element type="aff:eventActorType" name="eventActor"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="eventActorType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="displayActorInRole"/>
+            <xs:element type="xs:string" name="actorInRoleUri"/>
+            <xs:element type="xs:string" name="displayActor"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="localId"/>
+        <xs:attribute type="xs:string" name="localUri"/>
+        <xs:attribute type="xs:string" name="sourceName"/>
+        <xs:attribute type="xs:string" name="sourceUri"/>
+    </xs:complexType>
+
+    <xs:complexType name="mediaType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="mediaURL"/>
+            <xs:element type="xs:string" name="mediaType"/>
+            <xs:element type="xs:string" name="mediaMimeType"/>
+            <!--<xs:element type="xs:string" name="delvingMediaURI"/> -->
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dateType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="earliestDate"/>
+            <xs:element type="xs:string" name="latestDate"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="placeAdminType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="displayAdmin1"/>
+            <xs:element type="xs:string" name="displayAdmin2"/>
+            <xs:element type="xs:string" name="displayAdmin3"/>
+            <xs:element type="xs:string" name="displayAdmin4"/>
+            <xs:element type="xs:string" name="displayCountry"/>
+            <xs:element type="xs:string" name="lat"/>
+            <xs:element type="xs:string" name="long"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="eventPlaceType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="displayPlaceInRole"/>
+            <xs:element type="xs:string" name="placeInRoleUri"/>
+            <xs:element type="xs:string" name="displayPlace"/>
+            <xs:element type="xs:string" name="displayPlaceType"/>
+            <xs:element type="aff:placeAdminType" name="displayPlaceAdmin"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="localId"/>
+        <xs:attribute type="xs:string" name="localUri"/>
+        <xs:attribute type="xs:string" name="sourceName"/>
+        <xs:attribute type="xs:string" name="sourceUri"/>
+    </xs:complexType>
+
+
+</xs:schema>

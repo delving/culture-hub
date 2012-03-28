@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:europeana="http://www.europeana.eu/schemas/ese/"
+           xmlns:abc="http://www.ab-c.nl/"
+           targetNamespace="http://www.ab-c.nl/"
+           blockDefault="#all">
+
+    <xs:import namespace="http://schemas.delving.eu/" schemaLocation="http://schemas.delving.eu/delving-V1.0.xsd"/>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+    <xs:import namespace="http://www.europeana.eu/schemas/ese/" schemaLocation="http://schemas.delving.eu/ese-local.xsd"/>
+    <xs:import namespace="http://www.europeana.eu/schemas/ese/" schemaLocation="http://schemas.delving.eu/ese-local.xsd"/>
+
+
+    <xs:group name="europeanaGroup">
+        <xs:sequence >
+            <xs:element ref="europeana:isShownBy" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:rights" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:isShownAt" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:unstored" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:object" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:provider" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:dataProvider" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:type" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:uri" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="europeana:language" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:country" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:collectionName" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:collectionTitle" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:source" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="europeana:year" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:element name="record" type="abc:recordType" block="substitution"/>
+
+    <xs:complexType name="recordType">
+        <xs:sequence>
+            <xs:element name="titel" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="birthDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="deathDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="beginjaar" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="eindjaar" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="objectId" minOccurs= "0" maxOccurs="unbounded"/>
+            <xs:element name="dimensionValue" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dimensionUnit" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dimension" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="technique" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="material" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="deepzoomUrl" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="smallThumbnail" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="largeThumbnail" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="description" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="name" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="school" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="onderwerp" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="collection" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="objectName" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="kunstenaar" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="production" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vName" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vOccuppation" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vNationality" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vBirthDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vBirthPlace" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vDeathDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vDeathPlace" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="vBiography" minOccurs="0" maxOccurs="unbounded"/>
+
+
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="abc:europeanaGroup" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

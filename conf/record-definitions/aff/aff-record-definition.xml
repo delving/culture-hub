@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<record-definition prefix="aff" flat="false">
+
+
+    <namespaces>
+        <namespace prefix="aff" uri="http://schemas.delving.eu/aff/"
+                   schema="http://schemas.delving.eu/aff/aff_1.0.xsd"/>
+    </namespaces>
+
+    <attrs>
+        <attr tag="localId"/>
+        <attr tag="localUri"/>
+        <attr tag="sourceUri"/>
+        <attr tag="sourceName"/>
+        <attr tag="relationTypeUri"/>
+        <attr tag="eventTypeUri"/>
+        <attr tag="conceptCategoryUri"/>
+        <attr tag="actorInRoleUri"/>
+        <attr tag="placeInRoleUri"/>
+        <attr tag="ResourceTypeUri"/>
+        <attr tag="isPartOfUri"/>
+        <attr tag="isPartOfLocalId"/>
+        <attr tag="ResourceTypeUri"/>
+        <attr tag="displayConceptType"/>
+        <attr tag="sequence"/>
+    </attrs>
+
+    <elems>
+        <elem tag="hubRecordId" systemElement="true"/>
+        <elem tag="hubRecordUrl" systemElement="true"/>
+        <elem tag="date" elems="earliestDate, latestDate"/>
+            <elem tag="earliestDate"/>
+            <elem tag="latestDate"/>
+        <elem tag="placeAdmin"
+            elems="displayAdmin1, displayAdmin2, displayAdmin3, displayAdmin4, displayCountry, lat, long"/>
+        <elem tag="displayAdmin1"/>
+        <elem tag="displayAdmin2"/>
+        <elem tag="displayAdmin3"/>
+        <elem tag="displayAdmin4"/>
+        <elem tag="displayCountry"/>
+        <elem tag="lat"/>
+        <elem tag="long"/>
+    </elems>
+
+    <root tag="record">
+        <elem tag="admin" singular="true">
+            <elem tag="dataOwnerUri"/>
+            <elem tag="displayDataOwner"/>
+            <elem tag="displayOwnerCountry"/>
+            <elem tag="dataProviderUri"/>
+            <elem tag="displayDataProvider"/>
+            <elem tag="providerHubUri"/>
+            <elem tag="displayProviderHub"/>
+        </elem>
+
+        <elem tag="collection" attrs="localId, isPartOfLocalId, isPartOfUri" singular="true">
+            <elem tag="collectionUri"/>
+            <elem tag="displayCollection"/>
+        </elem>
+
+        <elem tag="thing" elems="hubRecordId, hubRecordUrl" attrs="localId" singular="true">
+            <elem tag="thingUri"/>
+            <elem tag="displayWorkType"/>
+            <elem tag="displayTitle"/>
+            <elem tag="displayDescription"/>
+            <elem tag="language"/>
+            <elem tag="displayDimensions"/>
+            <elem tag="displayYear"/>
+            <elem tag="rights"/>
+            <elem tag="landingPage"/>
+        </elem>
+
+        <elem tag="relations" singular="true">
+            <elem tag="relation" attrs="relationTypeUri">
+                <elem tag="displayRelationType"/>
+                <elem tag="displayRelation" attrs="localId, localUri, sequence"/>
+                <elem tag="displayRelationSequence"/>
+            </elem>
+        </elem>
+        <elem tag="concepts" singular="true">
+            <elem tag="concept" attrs="conceptCategoryUri">
+                <elem tag="displayCategoryType"/>
+                <elem tag="displayConcept" attrs="localId, localUri, sourceName, sourceUri, displayConceptType"/>
+            </elem>
+        </elem>
+        <elem tag="events" singular="true">
+            <elem tag="event" elems="date" attrs="eventTypeUri">
+                <elem tag="displayEventType"/>
+                <elem tag="displayEvent"/>
+                <elem tag="displayDate"/>
+                <!-- make ADMIN1 -> 4 into options!!!!!!! -->
+                <elem tag="eventPlace" elems="placeAdmin" attrs="placeInRoleUri, localId, localUri, sourceName, sourceUri">
+                    <elem tag="displayPlaceInRole"/>
+                    <elem tag="displayPlace"/>
+                    <elem tag="displayPlaceType"/>
+                </elem>
+                <elem tag="eventActor" attrs="actorInRoleUri, localId, localUri, sourceName, sourceUri">
+                    <elem tag="displayActorInRole"/>
+                    <elem tag="displayActor"/>
+                </elem>
+            </elem>
+        </elem>
+        <elem tag="resources">
+            <elem tag="resource" attrs="ResourceTypeUri">
+                <elem tag="displayResourceType"/>
+                <elem tag="resourceURL"/>
+                <elem tag="resourceMimeType"/>
+                <elem tag="delvingMediaURI" systemElement="true"/>
+            </elem>
+        </elem>
+    </root>
+
+
+    <options>
+
+        <option-list path="/record/relations/relation" key="@relationTypeUri" value="displayRelationType">
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#isPartOf">Is part of</opt>
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#hasPart">Has part</opt>
+        </option-list>
+
+        <option-list path="/record/events/event" key="@eventTypeUri" value="displayEventType">
+            <opt default="true" key="http://www.cidoc-crm.org/rdfs/E12.Production">Production</opt>
+            <opt default="true" key="http://www.cidoc-crm.org/rdfs/E65.Creation">Creation</opt>
+            <opt default="true" key="http://www.cidoc-crm.org/rdfs/E8.Acquisition">Acquisition</opt>
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E16.Measurement">Measurement</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E67.Birth">Birth</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E69.Death">Death</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E6.Destruction">Destruction</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E9.Move">Move</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E10.Transfer_of_Custody">Transfer of Custody</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E14.Condition_Assessment">Condition Assessment</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E66.Formation">Formation</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E85.Joining">Joining</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/E86.Leaving">Leaving</opt>-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/F30.Publication Event">Publication Event</opt> &lt;!&ndash; FRBRoo &ndash;&gt;-->
+            <!--<opt key="http://www.cidoc-crm.org/rdfs/F31.Performance">Performance</opt> &lt;!&ndash; FRBRoo &ndash;&gt;-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Collecting">Collecting</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Commissioning">Commissioning</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Designing">Designing</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Excavation">Excavation</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Exhibition">Exhibition</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Finding">Finding</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Loss">Loss</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Provenance">Provenance</opt>-->
+            <!--<opt key="http://id.culturecloud.eu/events/#Use">Use</opt>-->
+        </option-list>
+
+        <option-list path="/record/concepts/concept" key="@conceptCategoryUri" value="displayCategoryType">
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#Classification">Classification</opt>
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#Subject">Subject</opt>
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#Material">Material</opt>
+            <opt default="true" key="http://id.culturecloud.eu/concepts/#Technique">Technique</opt>
+        </option-list>
+
+
+
+        <!--<option-list path="/record/resources/resource/resourceType" valuePath="/record/resources/resource/resourceType">-->
+            <!--<opt default="true" key="THUMBNAIL">Thumbnail</opt>-->
+            <!--<opt default="true" key="FULL_IMAGE">Full image</opt>-->
+            <!--<opt key="DEEP_ZOOM">Deep zoom image</opt>-->
+            <!--<opt key="DOCUMENT">Document</opt>-->
+            <!--<opt key="VIDEO">Video</opt>-->
+            <!--<opt key="SOUND">Sound</opt>-->
+        <!--</option-list>-->
+
+        <!--<option-list path="/record/medias/mediaMimeType">-->
+            <!--<opt key="jpeg">jpeg</opt>-->
+            <!--<opt key="tiff">TIFF</opt>-->
+            <!--<opt key="png">PNG</opt>-->
+        <!--</option-list>-->
+
+    </options>
+
+    <bookmarks>
+
+    </bookmarks>
+
+    <facts>
+        <fact-ref path="/record/admin/dataOwnerUri" name="dataOwnerUri"/>
+        <fact-ref path="/record/admin/displayDataOwner" name="displayDataOwner"/>
+        <fact-ref path="/record/admin/displayOwnerCountry" name="displayOwnerCountry"/>
+        <fact-ref path="/record/admin/dataProviderUri" name="dataProviderUri"/>
+        <fact-ref path="/record/admin/displayDataProvider" name="displayDataProvider"/>
+        <fact-ref path="/record/admin/providerHubUri" name="providerHubUri"/>
+        <fact-ref path="/record/admin/displayProviderHub" name="displayProviderHub"/>
+    </facts>
+
+</record-definition>
+
+
+        <!--<elem tag="classifications" attrs="localId, localUri, sourceName, sourceUri">-->
+            <!--<elem tag="displayClassification"/>-->
+        <!--</elem>-->
+
+        <!--<elem tag="subjects" attrs="localId, localUri, sourceName, sourceUri">-->
+            <!--<elem tag="displaySubject"/>-->
+        <!--</elem>-->
+
+        <!--<elem tag="materials" attrs="localId, localUri, sourceName, sourceUri">-->
+            <!--<elem tag="displayMaterial"/>-->
+        <!--</elem>-->
+
+        <!--<elem tag="techniques" attrs="localId, localUri, sourceName, sourceUri">-->
+            <!--<elem tag="displayTechnique"/>-->
+        <!--</elem>-->
