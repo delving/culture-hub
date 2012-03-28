@@ -5,60 +5,42 @@
 #{set bodyId: 'results' /}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/facets/facets.css')}"/>
+*{<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/facets/facets.css')}"/>}*
 #{/set}
 
 #{set 'moreScripts'}
 <script src="@{routes.Assets.at('/common/javascripts/results.js')}" type='text/javascript'></script>
 #{/set}
 
-<div class="grid_12">
-    #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
-</div>
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
+
 
 
 #{if briefDocs }
-    <div class="grid_12">
+
         <div class="item-count">
             &{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
-            *{<ul class="breadcrumb">}*
-                *{#{list pagination.getBreadcrumbs(), as: 'crumb'}}*
-                *{#{ifnot crumb_isLast}}*
-                *{<li><a href="@{controllers.routes.Search.index(params.get("query").apply(0), 1)}?${crumb.href()}"><span>${views.Helpers.shorten(crumb.value(), 50)}</span></a></li>}*
-                *{#{/ifnot}}*
-                *{#{else}}*
-                *{<li><span>${crumb.value()}</span></li>}*
-                *{#{/else}}*
-                *{#{/list}}*
-            *{</ul>}*
         </div>
-        *{<button onclick="$('#facets').show('slow')">Refine your search</button>}*
-    </div>
 
-<div class="grid_12">
     <div class="facets clearfix">
-        #{list items: themeFacets, as: 'tf'}
-            #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
-        #{/list}
+        <ul class="nav nav-pills pull-right">
+            #{list items: themeFacets, as: 'tf'}
+                #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
+            #{/list}
+        </ul>
     </div>
-</div>
 
-    <div class="grid_12" style="position: relative;">
-            #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-            <div class="pager mtm mbl">
-                #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-            </div>
-            #{/if}
-     </div>
+        #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
+            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
+        #{/if}
 
 
-            <div class="results" class="grid_12">
                 #{resultGrid results: briefDocs /}
-            </div>
+
             #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-            <div class="pager">
+
                 #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation() /}
-            </div>
+
             #{/if}
 
             *{#{if userName}}*

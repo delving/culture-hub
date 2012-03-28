@@ -25,7 +25,7 @@ switch (recordType) {
         <div class="ic_container">
             <a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">
                 #{if _data.getMimeType().contains('image/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
+                    <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
                 #{/}
                 #{elseif _data.getMimeType().contains('video/') }
                      <img src="@{routes.Assets.at('/common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
@@ -48,7 +48,7 @@ switch (recordType) {
                 <p class="ic_category">${recordType}</p>
                 <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
                 <p class="ic_text info-box small">
-                    <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
+                    <span>${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
                     #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
                 </p>
             </div>

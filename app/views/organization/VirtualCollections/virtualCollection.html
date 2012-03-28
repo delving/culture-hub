@@ -68,7 +68,7 @@
                 <div id="results" data-bind="foreach: items()">
                     <div class="resultItem media">
                         <div class="img clip clip-40">
-                            <img data-bind="attr: { src: delving_thumbnail }" width="40"/>
+                            <img data-bind="attr: { src: delving_thumbnail }" width="40" onerror="showDefaultImg(this);"/>
                         </div>
                         <div class="bd">
                             <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>

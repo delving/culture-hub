@@ -2,7 +2,7 @@
  * Initialize elements based on classes
  */
 function initializeElements() {
-
+//    $('.carousel').carousel();
 
 //    $("#page").height($(document).height());
     $('.extHelp').tipTip();
@@ -601,12 +601,12 @@ $(document).ready(function() {
 });
 
 // Close open dropdown slider by clicking elsewhwere on page
-$(document).bind('click', function (e) {
-    if (e.target.id != $('.dropdown').attr('class')) {
-        $('.dropdown-slider').slideUp();
-        $('span.toggle').removeClass('active');
-    }
-});
+//$(document).bind('click', function (e) {
+//    if (e.target.id != $('.dropdown').attr('class')) {
+//        $('.dropdown-slider').slideUp();
+//        $('span.toggle').removeClass('active');
+//    }
+//});
 
 
 /**

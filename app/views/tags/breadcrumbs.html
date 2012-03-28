@@ -71,10 +71,11 @@
     #{if _queryCrumbs}
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
             #{ifnot crumb_isLast}
-            <li><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a><span class="divider">/</span></li>
+            <li>
+                <span class="divider">/</span><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a></li>
             #{/ifnot}
             #{else}
-                <li>${crumb.value()}</li>
+                <li><span class="divider">/</span> ${crumb.value()}</li>
             #{/else}
         #{/list}
     #{/if}
