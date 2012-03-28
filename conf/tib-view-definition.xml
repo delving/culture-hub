@@ -6,18 +6,14 @@
         <verbatim><![CDATA[<?xml version="1.0" encoding="iso-8859-1" ?>
 <result xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ese="http://www.europeana.eu/schemas/ese/" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:delving="http://www.delving.eu/schemas/" xmlns:tib="http://www.thuisinbrabant.nl/namespace">]]></verbatim>
         <elem name="layout">
-            <elem name="fields">
-                <list path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
-                    <auto-layout-field/>
-                </list>
-            </elem>
+            <list name="fields" path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
+                <auto-layout-field/>
+            </list>
         </elem>
         <elem name="item">
-            <elem name="fields">
-                <list path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
-                    <auto-field/>
-                </list>
-            </elem>
+            <list name="fields" path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
+                <auto-field/>
+            </list>
         </elem>
         <verbatim><![CDATA[
 </record>]]></verbatim>

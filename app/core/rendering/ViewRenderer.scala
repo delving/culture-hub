@@ -22,7 +22,7 @@ import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
 import play.api.Logger
-import org.w3c.dom.{Document, Node => WNode}
+import org.w3c.dom.{Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -89,22 +89,80 @@ object ViewRenderer {
 
             n.label match {
 
-              // ~~~ common elements
+              // ~~~ generic elements
 
               case "view" => enterAndAppendOne(n, dataNode, "root")
-              case "list" =>
+
+              case "elem" =>
+
                 if(hasAccess(roleList)) {
+
+                  val name = n.attr("name")
+                  val prefix = n.attr("prefix")
+
+                  val elemName = if(prefix.isEmpty) name else prefix + ":" + name
+
+                  val attrs = fetchNestedAttributes(n, dataNode)
+
+                  val elemValue = if(!n.attr("expr").isEmpty) {
+                    Some(XPath.selectText(n.attr("expr"), dataNode, namespaces.asJava))
+                  } else if(!n.attr("value").isEmpty) {
+                    Some(n.attr("value"))
+                  } else {
+                    None
+                  }
+
+                  val r = RenderNode(elemName, elemValue)
+                  r.addAttrs(attrs)
+
+                  if(elemValue.isDefined && n.child.isEmpty) {
+                    appendNode(r)
+                  } else if(!n.child.isEmpty) {
+                    enterAndAppendNode(n, dataNode, r)
+                  }
+
+                }
+
+              case "list" =>
+
+                if(hasAccess(roleList)) {
+
+                  val name = n.attr("name")
+                  val prefix = n.attr("prefix")
+
+                  val listName = if(name.isEmpty && prefix.isEmpty) {
+                    "list"
+                  } else {
+                    if(prefix.isEmpty) {
+                      name
+                    } else {
+                      prefix + ":" + name
+                    }
+                  }
+
+                  val attrs = fetchNestedAttributes(n, dataNode)
+
+                  val r = RenderNode(listName)
+                  r.addAttrs(attrs)
+
+                  treeStack.head += r
+                  treeStack push r
 
                   XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
                     child =>
                       enterNode(n, child)
                   }
+
+                  treeStack.pop()
                 }
 
               case "verbatim" =>
                 append("verbatim", Some(n.child.text)) { node => }
 
               case "attrs" => // this is handled by elem below
+
+
+
 
               // ~~~ legacy support
 
@@ -123,55 +181,7 @@ object ViewRenderer {
                 appendNode(renderNode)
 
 
-              // ~~~ generic elements
-              case "elem" =>
 
-                if(hasAccess(roleList)) {
-
-                  val name = n.attr("name")
-                  val prefix = n.attr("prefix")
-
-                  val elemName = if(prefix.isEmpty) name else prefix + ":" + name
-
-                  val attrDefinitions = n \ "attrs" \ "attr"
-                  
-                  val attrs: Map[String, String] = (for (a: Node <- attrDefinitions) yield {
-                    val name = a.attr("name")
-                    if(name.isEmpty) {
-                      throw new RuntimeException("Attribute must have a name")
-                    }
-                    val prefix = a.attr("prefix")
-
-                    val attrName = if(prefix.isEmpty) name else prefix + ":" + name
-                    val attrValue = if(!a.attr("expr").isEmpty) {
-                      XPath.selectText(a.attr("expr"), dataNode, namespaces.asJava)
-                    } else if(!a.attr("value").isEmpty) {
-                      a.attr("value")
-                    } else {
-                      throw new RuntimeException("Attribute %s without value or expr provided".format(name))
-                    }
-
-                    (attrName -> attrValue)
-                  }).toMap
-                  
-                  val elemValue = if(!n.attr("expr").isEmpty) {
-                    Some(XPath.selectText(n.attr("expr"), dataNode, namespaces.asJava))
-                  } else if(!n.attr("value").isEmpty) {
-                    Some(n.attr("value"))
-                  } else {
-                    None
-                  }
-                  
-                  val r = RenderNode(elemName, elemValue)
-                  r.addAttrs(attrs)
-
-                  if(elemValue.isDefined && n.child.isEmpty) {
-                    appendNode(r)
-                  } else if(!n.child.isEmpty) {
-                    enterAndAppendNode(n, dataNode, r)
-                  }
-
-                }
 
               // ~~~ html helpers
 
@@ -218,6 +228,29 @@ object ViewRenderer {
       }
     }
 
+    def fetchNestedAttributes(n: Node, dataNode: WNode): Map[String, String] = {
+      val attrDefinitions = n \ "attrs" \ "attr"
+
+      (for (a: Node <- attrDefinitions) yield {
+        val name = a.attr("name")
+        if(name.isEmpty) {
+          throw new RuntimeException("Attribute must have a name")
+        }
+        val prefix = a.attr("prefix")
+
+        val attrName = if(prefix.isEmpty) name else prefix + ":" + name
+        val attrValue = if(!a.attr("expr").isEmpty) {
+          XPath.selectText(a.attr("expr"), dataNode, namespaces.asJava)
+        } else if(!a.attr("value").isEmpty) {
+          a.attr("value")
+        } else {
+          throw new RuntimeException("Attribute %s without value or expr provided".format(name))
+        }
+
+        (attrName -> attrValue)
+      }).toMap
+    }
+
     /** appends a new RenderNode to the result tree and walks one level deeper **/
     def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, attr: (Symbol, Any)*) {
       val newRenderNode = RenderNode(nodeType)
@@ -255,7 +288,6 @@ object ViewRenderer {
     def appendSimple(nodeType: String, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       append(nodeType, None, attr : _ *)(block)
     }
-
 
     /** appends a new RenderNode to the result tree and performs an operation on it **/
     def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {

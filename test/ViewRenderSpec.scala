@@ -213,16 +213,14 @@ class ViewRenderSpec extends Specification {
         </attrs>
         <elem name="title" prefix="dc" expr="/record/delving:summaryFields/delving:title" />
         <elem name="description" prefix="delving" expr="/record/delving:summaryFields/delving:description" />
-        <elem name="places">
-          <list path="/record/icn:places/icn:place">
-              <elem name="place">
-                <attrs>
-                  <attr name="country" prefix="geo" expr="@country" />
-                </attrs>
-                <elem name="name" expr="@name" />
-              </elem>
-          </list>
-        </elem>
+        <list name="places" path="/record/icn:places/icn:place">
+            <elem name="place">
+              <attrs>
+                <attr name="country" prefix="geo" expr="@country" />
+              </attrs>
+              <elem name="name" expr="@name" />
+            </elem>
+        </list>
       </elem>
       <verbatim><![CDATA[
 </record>]]></verbatim>
