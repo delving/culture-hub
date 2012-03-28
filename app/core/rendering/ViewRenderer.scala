@@ -57,7 +57,7 @@ object ViewRenderer {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
-    val result = RenderNode("root")
+    val result = RenderNode("root", None, true)
     val treeStack = Stack(result)
     val root = viewDefinition
     walk(root, record)
@@ -91,7 +91,7 @@ object ViewRenderer {
 
               // ~~~ generic elements
 
-              case "view" => enterAndAppendOne(n, dataNode, "root")
+              case "view" => enterAndAppendOne(n, dataNode, "root", true)
 
               case "elem" =>
 
@@ -101,6 +101,8 @@ object ViewRenderer {
                   val prefix = n.attr("prefix")
 
                   val elemName = if(prefix.isEmpty) name else prefix + ":" + name
+
+                  val isArray = n.attr("isArray") == "true"
 
                   val attrs = fetchNestedAttributes(n, dataNode)
 
@@ -112,7 +114,7 @@ object ViewRenderer {
                     None
                   }
 
-                  val r = RenderNode(elemName, elemValue)
+                  val r = RenderNode(elemName, elemValue, isArray)
                   r.addAttrs(attrs)
 
                   if(elemValue.isDefined && n.child.isEmpty) {
@@ -142,11 +144,11 @@ object ViewRenderer {
 
                   val attrs = fetchNestedAttributes(n, dataNode)
 
-                  val r = RenderNode(listName)
-                  r.addAttrs(attrs)
+                  val list = RenderNode(listName, None, true)
+                  list.addAttrs(attrs)
 
-                  treeStack.head += r
-                  treeStack push r
+                  treeStack.head += list
+                  treeStack push list
 
                   XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
                     child =>
@@ -185,8 +187,8 @@ object ViewRenderer {
 
               // ~~~ html helpers
 
-              case "row" => enterAndAppendOne(n, dataNode, "row")
-              case "section" => enterAndAppendOne(n, dataNode, "section", 'id -> n.attr("id"))
+              case "row" => enterAndAppendOne(n, dataNode, "row", true)
+              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
@@ -204,7 +206,7 @@ object ViewRenderer {
 
                       val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
                       values foreach {
-                        v => list += RenderNode("text", Some(v))
+                        v => list += RenderNode("_text_", Some(v))
                       }
                   }
                 }
@@ -252,8 +254,8 @@ object ViewRenderer {
     }
 
     /** appends a new RenderNode to the result tree and walks one level deeper **/
-    def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, attr: (Symbol, Any)*) {
-      val newRenderNode = RenderNode(nodeType)
+    def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, isArray: Boolean = false, attr: (Symbol, Any)*) {
+      val newRenderNode = RenderNode(nodeType, None, isArray)
       attr foreach {
         newRenderNode addAttr _
       }
@@ -326,16 +328,26 @@ object ViewRenderer {
 /**
  * A node used to hold the structure to be rendered
  */
-case class RenderNode(nodeType: String, value: Option[String] = None) {
+case class RenderNode(nodeType: String, value: Option[String] = None, isArray: Boolean = false) {
 
   private val contentBuffer = new ArrayBuffer[RenderNode]
   private val attributes = new HashMap[String, Any]
 
+
   def content: List[RenderNode] = contentBuffer.toList
 
   def +=(node: RenderNode) {
+    if(contentBuffer.exists(r =>
+      (r.nodeType == node.nodeType)
+        && !isArray
+        && node.nodeType != "verbatim"
+        && node.nodeType != "_text_")
+    ) {
+      throw new RuntimeException("In node %s: you cannot have child elements with the same name (%s) without explicitely declaring the container element to be an array!".format(nodeType, node.nodeType))
+    }
     contentBuffer += node
   }
+
 
   def attr(key: String) = attributes(key)
 
@@ -349,9 +361,10 @@ case class RenderNode(nodeType: String, value: Option[String] = None) {
     attributes ++= attrs
   }
 
-  def text: String = value.getOrElse("")
-  
   def attributesAsXmlString: String = attributes.map(a => a._1 + "=\"" + a._2.toString + "\"").mkString(" ")
+
+
+  def text: String = value.getOrElse("")
 
   def isLeaf: Boolean = content.isEmpty
 
@@ -410,9 +423,42 @@ case object RenderNode {
 
       }
     }
+  }
 
+  def toJson(n: RenderNode): String = {
+
+    import extensions.JJson._
     
+    val jsonTree = visitJson(n, HashMap.empty)
+    
+    generate(jsonTree)
+  }
 
+  def visitJson(n: RenderNode, json: HashMap[String, AnyRef]): HashMap[String, AnyRef] = {
+    
+    if(n.nodeType == "root") {
+      for(c <- n.content) {
+        visitJson(c, json)
+      }
+    } else {
+      if(n.isArray) {
+        val children = n.content.map {
+          child => visitJson(child, HashMap.empty)
+        }
+        json.put(n.nodeType, children.toList)
+      } else if(!n.isLeaf) {
+        val map = HashMap.empty[String, AnyRef]
+        for(c <- n.content) {
+          visitJson(c, map)
+        }
+        json.put(n.nodeType, map)
+      } else {
+        json.put(n.nodeType, n.text)
+      }
+    }
+    
+    json
+    
   }
 
 }
