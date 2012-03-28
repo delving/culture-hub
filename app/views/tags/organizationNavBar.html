@@ -1,12 +1,13 @@
 <h1>${_orgId}</h1>
 <ul class="nav nav-tabs">
-    
+    *{** OVERVIEW **}*
     <li class="${(_active == 'overview' ? 'active' : '')}"><a href="${'/organizations/' + _orgId }">Overview</a></li>
     #{if _isOwner == true}
+    *{** ADMIN **}*
     <li class="${(_active == 'administration' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/admin'}">${messages.get('ui.label.administration')}</a></li>
-
+    *{** GROUPS **}*
     <li class="${(_active == 'groups' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/groups'}">${messages.get('thing.groups')}</a></li>
-
+    *{** DATASETS **}*
     <li class="dropdown ${(_active == 'datasets' ? 'active' : '')}" id="datasets">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#datasets">
         ${messages.get('thing.datasets')}
@@ -17,11 +18,23 @@
             <li><a href="/organizations/${_orgId}/dataset/add">&{'organization.dataset.create'}</a></li>
         </ul>
     </li>
+    *{** VIRTUAL-COLLECTIONS **}*
+    <li class="dropdown ${(_active == 'virtual-collections' ? 'active' : '')}" id="virtual-collections">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#virtual-collections">
+        ${messages.get('thing.virtualCollections')}
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="/organizations/${_orgId}/virtualCollection">&{'organization.virtualCollection.list'}</a></li>
+            <li><a href="/organizations/${_orgId}/virtualCollection/add">&{'organization.virtualCollection.new'}</a></li>
+        </ul>
+    </li>
     #{/if}
     #{else}
     <li class="${(_active == 'datasets' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/dataset'}">${messages.get('thing.datasets')}</a></li>
-    #{/else}
     <li class="${(_active == 'virtualCollection' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/virtualCollection'}">${messages.get('thing.virtualCollections')}</a></li>
+    #{/else}
+
     <li class="${(_active == 'sipcreator' ? 'active' : '')}"><a href="/organizations/${_orgId}/sip-creator">${messages.get('ui.label.sipcreator')}</a></li>
     #{if _isOwner == true || isCMSAdmin == true }
     <li class="${(_active == 'site' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/site'}">${messages.get('org.cms')}</a></li>

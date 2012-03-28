@@ -4,21 +4,12 @@
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
+#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+
 <div class="row">
 
-    #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+    <div class="span12">
 
-<div class="tab-content">
-    <div class="buttons">
-
-    #{if isOwner == true}
-        #{btnHref label: messages.get('organization.virtualCollection.list'), extraClass: "on", iconClass:"icon140", href:"/organizations/"+orgId+"/virtualCollection" /}
-        #{btnHref label: messages.get('organization.virtualCollection.new'), iconClass:"icon68", href:"/organizations/"+orgId+"/virtualCollection/add" /}
-    #{/if}
-
-    </div>
-
-        <div class="data-grid">
             <table class="table">
                 *{<caption>&{'thing.virtualCollections'}</caption>}*
                 <thead>
@@ -47,7 +38,6 @@
                 #{/list}
                 </tbody>
             </table>
-        </div>
     </div>
 </div>
 

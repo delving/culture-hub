@@ -1,48 +1,44 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('thing.virtualCollections') /}
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
+<link rel="stylesheet" type="text/css" media="screen"
+      href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
 #{/set}
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
+#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin/}
+
+
 <div class="row">
-    #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
-</div>
-
-<div class="tab-content clearfix">
-
-    #{vcNavBar currentLanguage:currentLanguage, orgId: orgId, active: 'add' /}
-
-    <div class="row">
-    <div class="g-1of2">
+    <div class="span6">
 
         <h3>${messages.get('Virtual Collection Information')}</h3>
 
-        <form id="virtualCollectionForm" method="post" action="">
+        <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
 
-            #{textField name:"spec", form:virtualCollectionForm,
-            label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
-            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false /}
-            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: freeFormQuery", required: false /}
-            #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
-            <div class="buttons">
-                #{btnButton label: "Preview", extraClass:"action right", id:"previewButton", type:"button" /}
-            </div>
+        #{textField name:"spec", form:virtualCollectionForm,
+        label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
+        #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
+        #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false /}
+        #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: freeFormQuery", required: false /}
+        #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
             <hr/>
-            <div class="buttons">
-                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton beware", id:"cancelButton", type:"reset" /}
-                #{btnButton label: messages.get('ui.label.reset'), extraClass:"submit", type:"reset" /}
-                #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"action complete", id:"saveButton", type:"submit" /}
+        #{btnButton label: "Preview", extraClass:"btn-prominent btn-inverse", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
+
+            <hr/>
+            <div class="well">
+            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
+            #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
+            #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"btn-prominent btn-primary pull-right", id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
 
         </form>
     </div>
-    <div id="result" class="g-1of2">
+    <div id="result" class="span6">
         <h3>${messages.get('Virtual Collection Preview')}</h3>
 
         <div class="panel">
@@ -51,19 +47,23 @@
                     Query: <span data-bind="text: query.terms()"> </span>,
                     Results found: <span data-bind="text: query.numfound()"> </span>
                 </div>
-                <div id="resultPagination">
-                    <div id="links" class="pagination" data-bind="foreach: pagination.links()">
-                        <span data-bind="if: $data.isLinked()">
-                            <a href="#"
-                               data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
-                        </span>
-                        <span data-bind="ifnot: $data.isLinked()">
-                            <span class="current">
-                            <span data-bind="text: $data.pageNumber()"></span>
-                            </span>
-                        </span>
+
+
+                    <div class="pagination">
+                        <ul data-bind="foreach: pagination.links()">
+                            <!-- ko if: $data.isLinked() -->
+                            <li>
+                                <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
+                            </li>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data.isLinked() -->
+                            <li class="active">
+                                <a href="#" data-bind="text: $data.pageNumber()"></a>
+                            </li>
+                            <!-- /ko -->
+                        </ul>
                     </div>
-                </div>
+                    <hr/>
 
                 <div id="results" data-bind="foreach: items()">
                     <div class="resultItem media">
@@ -80,7 +80,6 @@
             </div>
         </div>
     </div>
-    </div>
 </div>
 
 
@@ -90,8 +89,8 @@
         var virtualCollectionModel = {};
         var resultModel = {
 
-            initialized: false,
-            paginate: function (start) {
+            initialized:false,
+            paginate:function (start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
             }
 
@@ -119,41 +118,41 @@
 
         function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
-            if(dataSets) {
+            if (dataSets) {
                 var dataSetList = dataSets.split(",");
-                $.each(dataSetList, function(index, el) {
-                    if(el.length > 0) {
+                $.each(dataSetList, function (index, el) {
+                    if (el.length > 0) {
                         var initial = dataSetCondition.length == 0;
-                        if(initial) {
+                        if (initial) {
                             dataSetCondition = dataSetCondition + '(';
                         }
                         dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim() + ' ';
-                        if(index == dataSetList.length - 1) {
+                        if (index == dataSetList.length - 1) {
                             dataSetCondition = dataSetCondition + ')';
                         }
                     }
                 });
             }
             var excludedIdentifiersCondition = "";
-            if(excludedIdentifiers) {
+            if (excludedIdentifiers) {
                 var excludedIdsList = excludedIdentifiers.split(",");
-                $.each(excludedIdsList, function(index, el) {
-                    if(el.length > 0) {
+                $.each(excludedIdsList, function (index, el) {
+                    if (el.length > 0) {
                         var initial = excludedIdentifiersCondition.length == 0;
-                        if(initial) {
+                        if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
                         excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + el.trim() + '"';
-                        if(index < excludedIdsList.length - 1) {
+                        if (index < excludedIdsList.length - 1) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + ' OR ';
                         }
-                        if(index == excludedIdsList.length - 1) {
+                        if (index == excludedIdsList.length - 1) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + ')';
                         }
                     }
                 });
             }
-            return (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '')  + freeFormQuery + (excludedIdentifiersCondition.length > 0 ? ' NOT ' + excludedIdentifiersCondition : '');
+            return (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '') + freeFormQuery + (excludedIdentifiersCondition.length > 0 ? ' NOT ' + excludedIdentifiersCondition : '');
         }
 
         function search(query, orgId, start) {
