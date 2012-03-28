@@ -17,9 +17,9 @@
 
 
     <xs:group name="dcGroup">
-        <xs:sequence >
+        <xs:choice >
+            <xs:element ref="dc:title" minOccurs="0" maxOccurs="unbounded" />
             <xs:element ref="dc:creator" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element ref="dc:title" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dc:subject" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dc:description" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dc:publisher" minOccurs="0" maxOccurs="unbounded"/>
@@ -33,12 +33,11 @@
             <xs:element ref="dc:relation" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dc:coverage" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dc:rights" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:group>
 
     <xs:group name="dctermsGroup">
         <xs:choice>
-            <xs:element ref="dcterms:conformsTo" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dcterms:created" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dcterms:extent" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="dcterms:hasFormat" minOccurs="0" maxOccurs="unbounded"/>
@@ -108,6 +107,9 @@
             <xs:element ref="delving:deepZoomUrl" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="delving:fullTextObjectUrl" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="delving:fullText" minOccurs="0" maxOccurs="unbounded"/>
+
+
+
         </xs:sequence>
     </xs:complexType>
 

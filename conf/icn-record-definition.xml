@@ -10,8 +10,8 @@
     </namespaces>
 
     <root tag="record">
-        <elem tag="icn:creatorYearOfBirth" fieldType="gumby"/>
-        <elem tag="icn:creatorYearOfDeath" summaryField="DESCRIPTION"/>
+        <elem tag="icn:creatorYearOfBirth"/>
+        <elem tag="icn:creatorYearOfDeath"/>
         <elem tag="icn:creatorRole"/>
         <elem tag="icn:technique"/>
         <elem tag="icn:material"/>
@@ -25,24 +25,22 @@
         <elem tag="icn:acquiredWithHelpFrom"/>
         <elem tag="icn:physicalState"/>
 
-        <elem tag="dc:contributor"/>            <!-- ESE 3.4 -->
-        <elem tag="dc:coverage"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:title"/>                  <!-- ESE 3.4 -->
         <elem tag="dc:creator"/>                <!-- ESE 3.4 -->
-        <elem tag="dc:date"/>                   <!-- ESE 3.4 -->
+        <elem tag="dc:subject"/>                <!-- ESE 3.4 -->
         <elem tag="dc:description"/>            <!-- ESE 3.4 -->
+        <elem tag="dc:publisher"/>              <!-- ESE 3.4 -->
+        <elem tag="dc:contributor"/>            <!-- ESE 3.4 -->
+        <elem tag="dc:date"/>                   <!-- ESE 3.4 -->
+        <elem tag="dc:type"/>                   <!-- ESE 3.4 -->
         <elem tag="dc:format"/>                 <!-- ESE 3.4 -->
         <elem tag="dc:identifier"/>             <!-- ESE 3.4 -->
-        <elem tag="dc:language"/>               <!-- ESE 3.4 -->
-        <elem tag="dc:publisher"/>              <!-- ESE 3.4 -->
-        <elem tag="dc:relation"/>               <!-- ESE 3.4 -->
-        <elem tag="dc:rights"/>                 <!-- ESE 3.4 -->
         <elem tag="dc:source"/>                 <!-- ESE 3.4 -->
-        <elem tag="dc:subject"/>                <!-- ESE 3.4 -->
-        <elem tag="dc:title"/>                  <!-- ESE 3.4 -->
-        <elem tag="dc:type"/>                   <!-- ESE 3.4 -->
+        <elem tag="dc:language"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:relation"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:coverage"/>               <!-- ESE 3.4 -->
+        <elem tag="dc:rights"/>                 <!-- ESE 3.4 -->
 
-        <elem tag="dcterms:alternative"/>       <!-- ESE 3.4 -->
-        <elem tag="dcterms:conformsTo"/>        <!-- ESE 3.4 -->
         <elem tag="dcterms:created"/>           <!-- ESE 3.4 -->
         <elem tag="dcterms:extent"/>            <!-- ESE 3.4 -->
         <elem tag="dcterms:hasFormat"/>         <!-- ESE 3.4 -->
@@ -56,30 +54,32 @@
         <elem tag="dcterms:isVersionOf"/>       <!-- ESE 3.4 -->
         <elem tag="dcterms:issued"/>            <!-- ESE 3.4 -->
         <elem tag="dcterms:medium"/>            <!-- ESE 3.4 -->
-        <elem tag="dcterms:provenance"/>        <!-- ESE 3.4 -->
         <elem tag="dcterms:references"/>        <!-- ESE 3.4 -->
         <elem tag="dcterms:replaces"/>          <!-- ESE 3.4 -->
         <elem tag="dcterms:requires"/>          <!-- ESE 3.4 -->
-        <elem tag="dcterms:spatial"/>           <!-- ESE 3.4 -->
         <elem tag="dcterms:tableOfContents"/>   <!-- ESE 3.4 -->
+        <elem tag="dcterms:alternative"/>       <!-- ESE 3.4 -->
+        <elem tag="dcterms:spatial"/>           <!-- ESE 3.4 -->
         <elem tag="dcterms:temporal"/>          <!-- ESE 3.4 -->
+        <elem tag="dcterms:provenance"/>        <!-- ESE 3.4 -->
         <elem tag="dcterms:rightsHolder"/>      <!-- NOT part of ESE 3.4 -->
 
-        <elem tag="europeana:dataProvider" summaryField="DATA_PROVIDER"/>    <!-- ESE 3.4 -->
-        <elem tag="europeana:isShownAt"/>       <!-- ESE 3.4 -->
+
         <elem tag="europeana:isShownBy"/>       <!-- ESE 3.4 -->
-        <elem tag="europeana:object"/>          <!-- ESE 3.4 -->
-        <elem tag="europeana:provider" summaryField="PROVIDER" />        <!-- ESE 3.4 -->
         <elem tag="europeana:rights"/>          <!-- ESE 3.4 -->
-        <elem tag="europeana:type"/>            <!-- ESE 3.4 -->
+        <elem tag="europeana:isShownAt"/>       <!-- ESE 3.4 -->
         <elem tag="europeana:unstored"/>        <!-- ESE 3.4 -->
+        <elem tag="europeana:object"/>          <!-- ESE 3.4 -->
+        <elem tag="europeana:provider"/>        <!-- ESE 3.4 -->
+        <elem tag="europeana:dataProvider"/>    <!-- ESE 3.4 -->
+        <elem tag="europeana:type"/>            <!-- ESE 3.4 -->
 
         <!-- moved from europeana to delving -->
         <elem tag="europeana:uri"/>             <!-- ESE 3.4, not accepted by the office and not part of the ESE XSD-->
         <elem tag="europeana:language"/>        <!-- ESE 3.4, not accepted by the office and not part of the ESE XSD -->
         <elem tag="europeana:country"/>         <!-- ESE 3.4,  not accepted by the office and not part of the ESE XSD -->
         <elem tag="europeana:collectionName"/>  <!-- NOT part of ESE 3.4 -->
-        <elem tag="europeana:collectionTitle" summaryField="SPEC"/> <!-- NOT part of ESE 3.4 -->
+        <elem tag="europeana:collectionTitle"/> <!-- NOT part of ESE 3.4 -->
         <elem tag="europeana:source"/>          <!-- NOT part of ESE 3.4 -->
 
         <!-- original delving namespace -->
@@ -92,61 +92,32 @@
     </root>
 
     <options>
-        <option-list path="/record/technique"> <!-- no keyPath needed in this definition, keys are dummys, Can be deleted but are needed in other rec-defs -->
-            <opt key="1">Schilderkunst</opt>
-            <opt key="2">Prentkunst</opt>
-            <opt key="3">Fotografie</opt>
-            <opt key="4">Tekeningen</opt>
-            <opt key="5">Beeldhouwkunst</opt>
-            <opt key="6">Textiel</opt>
-            <opt key="7">Film/Video/DVD</opt>
-            <opt key="8">Anders:</opt>
-        </option-list>
-        <option-list path="/record/acquisitionMeans">
-            <opt key="1">aankoop</opt>
-            <opt key="2">schenking</opt>
-            <opt key="3">bruikleen</opt>
-            <opt key="4">ruil</opt>
-            <opt key="5">opdracht</opt>
-            <opt key="6">opdracht derden</opt>
-            <opt key="7">opdracht museum</opt>
-            <opt key="8">legaat</opt>
-            <opt key="9">overdracht</opt>
-            <opt key="10">successieregeling</opt>
-            <opt key="11">vondst</opt>
-            <opt key="12">onbekend:</opt>
-        </option-list>
-        <option-list path="/record/collectionType">
-            <opt key="1">all</opt>
-            <opt key="2">portal</opt>
-            <opt key="3">mm</opt>
-        </option-list>
     </options>
 
-    <search>
-        <searchField name="CREATOR" path="/icn:creator"/>
-        <searchField name="TITLE" path="/icn:title"/>
-        <searchField name="DESCRIPTION" path="/icn:description"/>
-        <searchField name="OWNER" path="/icn:dataProvider"/>
-        <searchField name="LANDING_PAGE" path="/icn:isShownAt"/>
-        <searchField name="THUMBNAIL" path="/icn:object"/>
-        <searchField name="THUMBNAIL" path="/icn:thumbnail"/>
-        <searchField name="SNIPPET" path="/icn:fullText"/>
-        <searchField name="SNIPPET" path="/icn:subject"/>
-        <searchField name="SNIPPET" path="/icn:alternative"/>
-        <searchField name="SNIPPET" path="/icn:collectionTitle"/>
-    </search>
+    <searchFields>
+        <searchField name="CREATOR" path="/record/dc:creator"/>
+        <searchField name="TITLE" path="/record/dc:title"/>
+        <searchField name="DESCRIPTION" path="/record/dc:description"/>
+        <searchField name="OWNER" path="/record/europeana:dataProvider"/>
+        <searchField name="LANDING_PAGE" path="/record/europeana:isShownAt"/>
+        <searchField name="THUMBNAIL" path="/record/europeana:object"/>
+        <searchField name="THUMBNAIL" path="/record/delving:thumbnail"/>
+        <searchField name="SNIPPET" path="/record/delving:fullText"/>
+        <searchField name="SNIPPET" path="/record/dc:subject"/>
+        <searchField name="SNIPPET" path="/record/dcterms:alternative"/>
+        <searchField name="SNIPPET" path="/record/europeana:collectionTitle"/>
+    </searchFields>
 
-    <!--<facts>-->
-        <!--<fact name="spec" path="/icn:collectionName"/>-->
-        <!--<fact name="name" path="/icn:collectionTitle"/>-->
-        <!--<fact name="country" path="/icn:country"/>-->
-        <!--<fact name="dataProvider" path="/icn:dataProvider"/>-->
-        <!--<fact name="language" path="/icn:language"/>-->
-        <!--<fact name="provider" path="/icn:provider"/>-->
-        <!--<fact name="rights" path="/icn:rights"/>-->
-        <!--<fact name="type" path="/icn:type"/>-->
-    <!--</facts>-->
+    <facts>
+        <fact-ref name="spec" path="/record/europeana:collectionName"/>
+        <fact-ref name="name" path="/record/europeana:collectionTitle"/>
+        <fact-ref name="country" path="/record/europeana:country"/>
+        <fact-ref name="dataProvider" path="/record/europeana:dataProvider"/>
+        <fact-ref name="language" path="/record/europeana:language"/>
+        <fact-ref name="provider" path="/record/europeana:provider"/>
+        <fact-ref name="rights" path="/record/europeana:rights"/>
+        <fact-ref name="type" path="/record/europeana:type"/>
+    </facts>
 
     <!--<converters>-->
         <!--<converter multipleOutput="true" call=".extractYear()" path="/icn:creatorYearOfBirth"/>-->
