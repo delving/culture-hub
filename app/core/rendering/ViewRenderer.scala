@@ -158,9 +158,6 @@ object ViewRenderer {
                   treeStack.pop()
                 }
 
-              case "verbatim" =>
-                append("verbatim", Some(n.child.text)) { node => }
-
               case "attrs" => // this is handled by elem below
 
 
@@ -340,7 +337,6 @@ case class RenderNode(nodeType: String, value: Option[String] = None, isArray: B
     if(contentBuffer.exists(r =>
       (r.nodeType == node.nodeType)
         && !isArray
-        && node.nodeType != "verbatim"
         && node.nodeType != "_text_")
     ) {
       throw new RuntimeException("In node %s: you cannot have child elements with the same name (%s) without explicitely declaring the container element to be an array!".format(nodeType, node.nodeType))
@@ -390,6 +386,7 @@ case object RenderNode {
 
   def toXML(n: RenderNode): String = {
     val sb = new StringBuilder()
+    sb.append("<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>\n")
     visitXml(n, 0, "", sb)
     sb.toString()
   }
@@ -400,9 +397,6 @@ case object RenderNode {
       for(c <- n.content) {
         visitXml(c, level, "", sb)
       }
-    } else if(n.nodeType == "verbatim") {
-      sb.append(n.text.stripMargin)
-      sb.append("\n")
     } else {
       val indentation: String = (for(i <- 0 to level) yield " ").mkString + indent
 
