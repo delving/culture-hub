@@ -4,35 +4,28 @@
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
 
+<h2>${name}</h2>
 
-<div class="tab-content">
-
-#{vcNavBar currentLanguage:currentLanguage, orgId: orgId/}
-
-    <div class="row">
-        <h2>&{'thing.virtualCollection'} "${name}"</h2>
-
-        <div class="info-box">
-            <span class="label">&{'ui.label.identifier'}</span>
-            <span class="text">${spec}</span>
-        </div>
-        <div class="info-box">
-            <span class="label">&{'thing.name'}</span>
-            <span class="text">${name}</span>
-        </div>
-        <div class="info-box">
-            <span class="label">&{'thing.datasets'}</span>
-            <span class="text">#{list dataSets, as: 'ds'}<a
-                    href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a>#{/list}</span>
-        </div>
-        <div class="info-box">
-            <span class="label">&{'ui.label.nritems'}</span>
-            <span class="text">${recordCount}</span>
-        </div>
+<div class="row">
+    <div class="span6">
+        <dl>
+            <dt>&{'ui.label.identifier'}</dt>
+            <dd>${spec}</dd>
+            <dt>&{'thing.name'}</dt>
+            <dd>${name}</dd>
+            <dt>&{'thing.datasets'}</dt>
+            <dd><ul>
+                #{list dataSets, as: 'ds'}
+                    <li><a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a></li>
+                #{/list}
+            </ul>
+            </dd>
+            <dt>&{'ui.label.nritems'}</dt>
+            <dd>${recordCount}</dd>
+        </dl>
     </div>
-
 </div>
 
 

@@ -2,15 +2,17 @@
 *{<div class="navbar-inner">}*
 *{<div class="container">}*
 *{<div class="nav-collapse">}*
-<ul class="nav pull-right">
+<ul class="nav">
 #{if !_userName}
     <li><a href="/login" rel="nofollow" class="" tabindex="1">${messages.get('ui.label.login')}</a></li>
+    <li class="divider-vertical"></li>
     <li><a href="/registration" rel="nofollow" class="" tabindex="2">${messages.get('ui.label.register')}</a></li>
 #{/if}
 #{else}
-
     <li class="user"><a href="/${_userName}">#{gravatar.img _email, size:21 /}Hi ${_userName}</a></li>
+    <li class="divider-vertical"></li>
     <li><a href="/${_userName}">${messages.get('user.nav.yourprofile')}</a></li>
+    <li class="divider-vertical"></li>
     #{if _organizations.length() > 0}
         <li class="dropdown" id="orgs">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#orgs">
@@ -24,7 +26,9 @@
             </ul>
         </li>
     #{/if}
+    <li class="divider-vertical"></li>
     <li><a href="/logout">${messages.get('ui.label.logout')}</a></li>
+
 #{/else}
 </ul>
 *{</div>}*
