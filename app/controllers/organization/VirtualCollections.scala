@@ -133,6 +133,20 @@ object VirtualCollections extends OrganizationController {
     }
   }
 
+  def delete(orgId: String, spec: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
+          case Some(vc) =>
+            VirtualCollection.children.removeByParentId(vc._id)
+            VirtualCollection.remove(vc)
+            Ok
+          case None => NotFound
+        }
+
+    }
+  }
+
   private def composeQuery(dataSets: String, freeFormQuery: String, excludedIdentifiers: String) = {
     val specCondition = dataSets.split(",").filterNot(_.isEmpty).map(s => "delving_spec:" + s.trim + " ").mkString(" ")
     val excludedIdentifiersCondition = "NOT (" + excludedIdentifiers.split(",").map(s => "delving_hubId:\"" + s.trim + "\"").mkString(" OR ") + ")"
