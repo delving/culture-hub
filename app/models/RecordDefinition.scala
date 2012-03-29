@@ -52,6 +52,7 @@ object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
   val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
+  val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
   val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
@@ -63,6 +64,15 @@ object RecordDefinition {
     enabledDefinitions.
       map(prefix => new File(current.path.getAbsolutePath + "/conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))).
       filter(_.exists())
+  }
+
+  def getCrosswalkFiles(sourcePrefix: String): List[File] = {
+    val sourceDir = new File("conf/record-definitions/%s")
+    if(!sourceDir.isDirectory) {
+      List.empty
+    } else {
+      sourceDir.listFiles().filter(f => f.getName.startsWith(sourcePrefix) && f.getName.endsWith(CROSSWALK_SUFFIX)).toList
+    }
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {

@@ -10,6 +10,8 @@ import core.indexing.{IndexingService, Indexing}
 import play.api.{Logger, Play}
 import util.Constants._
 import com.mongodb.casbah.Imports._
+import io.Source
+import eu.delving.groovy.XmlSerializer
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -58,6 +60,13 @@ object DataSetProcessor {
         // bring mapping engine to life
         val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
 
+        // if there are crosswalks from the target format to another format, we for the moment will process them automatically
+        val crosswalkEngines = (RecordDefinition.getCrosswalkFiles(format.prefix).map {
+          f =>
+            val targetPrefix = f.getName.split("-")(1)
+            (targetPrefix -> new MappingEngine(Source.fromFile(f).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
+        }).toMap[String, MappingEngine]
+
         // update processing state of DataSet
         DataSet.updateStateAndProcessingCount(dataSet, DataSetState.PROCESSING)
 
@@ -86,23 +95,23 @@ object DataSetProcessor {
                 state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
               }
 
-              val mappingResult = if (format.isFlat) {
+              val mainMappingResult = if (format.isFlat) {
                 MappingResult(engine.toIndexDocument(record.getRawXmlString))
               } else {
                 MappingResult(engine.toNode(record.getRawXmlString))
               }
 
               // cache mapping result
-              DataSet.cacheMappedRecord(dataSet, record, format.prefix, mappingResult.xmlString)
+              DataSet.cacheMappedRecord(dataSet, record, format.prefix, mainMappingResult.xmlString)
 
               // if the current format is the to be indexed one, send the record out for indexing
-              if (indexingFormat == Some(format) && mappingResult.isIndexDocument) {
-                Indexing.indexOne(dataSet, record, mappingResult.indexDocument, indexingFormat.get.prefix)
+              if (indexingFormat == Some(format) && mainMappingResult.isIndexDocument) {
+                Indexing.indexOne(dataSet, record, mainMappingResult.indexDocument, indexingFormat.get.prefix)
               }
 
               // if this is a flat record definition, try to get some summary fields for the hub to show something
-              if (mappingResult.isIndexDocument) {
-                val indexDocument = mappingResult.indexDocument.get.getMap.asScala
+              if (mainMappingResult.isIndexDocument) {
+                val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
 
                 val summaryFieldsMap = (for (field <- summaryFields) yield {
                   val value = indexDocument.get(field)
@@ -116,6 +125,16 @@ object DataSetProcessor {
 
                 recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> summaryFieldsMap.asDBObject))
               }
+
+              // also cache the result of possible crosswalks
+              if(!crosswalkEngines.isEmpty) {
+                val firstPassRecord = XmlSerializer.toXml(engine.toNode(record.getRawXmlString))
+                for(c <- crosswalkEngines) {
+                  val transformed = c._2.toNode(firstPassRecord)
+                  DataSet.cacheMappedRecord(dataSet, record, c._1, XmlSerializer.toXml(transformed))
+                }
+              }
+
             }
           }
         } catch {
