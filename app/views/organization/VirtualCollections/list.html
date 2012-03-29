@@ -11,11 +11,11 @@
     <div class="span12">
 
             <table class="table table-striped">
-                *{<caption>&{'thing.virtualCollections'}</caption>}*
+                <caption>&{'thing.virtualCollections'}</caption>
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th>&{'thing.actions'}</th>
+                    <th width="25%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -59,7 +59,7 @@ $(document).ready(function () {
                 type: 'DELETE',
                 success: function() {
                     alert('foo');
-                    document.location = '/organizations/${orgId}/virtualCollection/list'
+                    document.location = '/organizations/${orgId}/virtualCollection'
                 }
             });
         });

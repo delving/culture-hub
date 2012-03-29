@@ -6,45 +6,47 @@
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
-<div class="tab-content">
-    <div class="buttons">
-    #{cmsNavBar active:'list', currentLanguage:currentLanguage, orgId: orgId/}
+<div class="row">
+
+    <div class="span12">
+        <form class="form-inline well">
+        <label for="language">&{'org.cms.list.languageSwitch'}</label>
+        <select id="language" name="language">
+        #{list languages, as: 'option'}
+            <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
+        #{/list}
+        </select>
+        </form>
     </div>
-    <hr/>
-    <label for="language">&{'org.cms.list.languageSwitch'}</label>
-    <select id="language" name="language">
-    #{list languages, as: 'option'}
-        <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
-    #{/list}
-    </select>
-    <hr/>
+
+    </div>
 
      <div class="row">
 
 
-            <table class="table table-striped">
+            <table class="table table-striped span12">
                 <caption>Site pages</caption>
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th>&{'thing.actions'}</th>
+                    <th width="25%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
                 <tbody data-bind="foreach: pages()">
                 <tr>
                     <td>
                         <span class="page-title" data-bind="text: title"></span>
+                        *{TODO: CREATE URL FOR THIS}*
+                        *{<a data-bind="attr: {href: '/page/' key}"><span class="page-title" data-bind="text: title"></span></a>}*
                     </td>
                     <td>
-                        <a class="button" href="#" data-bind="click: function() { $parent.editPage($data) }">
-                            <span class="icon icon145"></span>
-                            <span class="label">&{'ui.label.edit'}</span>
+                        <a class="btn btn-primary btn-prominent" href="#" data-bind="click: function() { $parent.editPage($data) }">
+                            &{'ui.label.edit'}
                         </a>
-                        <a class="button beware" href="#" data-bind="click: function() { $parent.deletePage($data) }">
-                            <span class="icon icon186"></span>
-                            <span class="label">&{'ui.label.delete'}</span>
+                        <a class="btn btn-danger pull-right" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                            &{'ui.label.delete'}
                         </a>
                     </td>
                 </tr>
@@ -55,7 +57,6 @@
     </div>
 
 
-</div>
 
 
 <div id="dialog-confirm-page-delete" title="&{'org.cms.list.deletePage'}" style="display: none;">

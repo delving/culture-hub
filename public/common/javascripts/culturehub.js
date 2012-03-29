@@ -531,7 +531,8 @@ Delving.wysiwyg = function (params) {
         height : "320",
         plugins: "advimage,autoresize",
         external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
-        extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]"
+        extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]",
+        width: "100%"
     };
 
     // Overwrite default params with user-passed ones.

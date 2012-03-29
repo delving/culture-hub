@@ -280,3 +280,18 @@
 /*.pagination-bottom {*/
 
 /*}*/
+
+/** BOOTSTRAP TABLE HELPER **/
+
+.table caption {
+    color: #888;
+    font-weight: bold;
+    padding: 0 0 8px 8px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.table.sortable th {
+    cursor: pointer;
+}
+
