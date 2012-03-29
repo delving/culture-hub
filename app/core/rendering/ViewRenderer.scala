@@ -152,6 +152,17 @@ object ViewRenderer {
                     }
                   }
 
+
+                  // if we have a list with a body, we render it as usual
+                  // otherwise, we give it a fake name so that elements get serialized directly when rendered as XML
+                  // but not so if rendered as JSON
+                  val usedListName = if(n.child.length > 1 || n.child.length == 1 && n.child.head.label != "attrs") {
+                    listName
+                  } else {
+                    "__LIST__"
+                  }
+
+
                   val attrs = fetchNestedAttributes(n, dataNode)
 
                   val list = RenderNode(listName, None, true)
@@ -166,6 +177,7 @@ object ViewRenderer {
                   }
 
                   treeStack.pop()
+
                 }
 
               case "attrs" => // this is handled by elem below
@@ -420,20 +432,30 @@ case object RenderNode {
       val indentation: String = (for(i <- 0 to level) yield " ").mkString + indent
 
       sb.append(indentation)
-      sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
 
-      if(n.isLeaf) {
-        sb.append(n.text)
-        sb.append("</%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
-      } else {
-        for(c <- n.content) {
-          sb.append("\n")
-          visitXml(c, level + 1, indentation, sb)
+      if(n.isArray && n.nodeType == "__LIST__") {
+        n.content.foreach {
+          c =>
+            sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
+            sb.append(n.text)
+            sb.append("</%s>".format(n.nodeType))
+            sb.append("\n")
         }
-        sb.append("\n")
-        sb.append(indentation)
-        sb.append("</%s>".format(n.nodeType))
+      } else {
+        sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
 
+        if(n.isLeaf) {
+          sb.append(n.text)
+          sb.append("</%s>".format(n.nodeType))
+        } else {
+          for(c <- n.content) {
+            sb.append("\n")
+            visitXml(c, level + 1, indentation, sb)
+          }
+          sb.append("\n")
+          sb.append(indentation)
+          sb.append("</%s>".format(n.nodeType))
+        }
       }
     }
   }

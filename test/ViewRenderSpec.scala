@@ -121,17 +121,17 @@ class ViewRenderSpec extends Specification {
 """<?xml version="1.0" encoding="iso-8859-1" ?>
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
-      <dc:title>A test hierarchical record<dc:title>
-      <delving:description>This is a test record<delving:description>
+      <dc:title>A test hierarchical record</dc:title>
+      <delving:description>This is a test record</delving:description>
       <places>
           <place geo:country="France">
-               <name>Paris<name>
+               <name>Paris</name>
           </place>
           <place geo:country="Germany">
-               <name>Berlin<name>
+               <name>Berlin</name>
           </place>
           <place geo:country="Netherlands">
-               <name>Amsterdam<name>
+               <name>Amsterdam</name>
           </place>
       </places>
    </item>
