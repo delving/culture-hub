@@ -334,7 +334,9 @@ object ViewRenderer {
 
 case class RenderedView(viewName: String, formatName: String, viewTree: RenderNode) {
 
-  def toXml = RenderNode.toXML(viewTree)
+  def toXml = XML.loadString(toXmlString)
+  
+  def toXmlString = RenderNode.toXMLString(viewTree)
 
   def toJson = RenderNode.toJson(viewTree)
 }
@@ -401,13 +403,13 @@ case object RenderNode {
     }
   }
 
-  def toXML(n: RenderNode): String = {
+  def toXMLString(n: RenderNode): String = {
     val sb = new StringBuilder()
     sb.append("<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>\n")
     visitXml(n, 0, "", sb)
     sb.toString()
   }
-
+  
   def visitXml(n: RenderNode, level: Int = 0, indent: String = "", sb: StringBuilder) {
     
     if(n.nodeType == "root") {

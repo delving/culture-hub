@@ -119,7 +119,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
-          case Some(rendered) => return Ok(rendered.toXml).as(XML)
+          case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
           case None => return NotFound
       }
       case _ =>
@@ -147,7 +147,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
         } else {
 
           // handle legacy formats
-          val legacyFormats = List("tib", "icn", "abm", "ese")
+          val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
           val viewDefinitionFormatName = if(legacyFormats.contains(prefix)) "legacy" else prefix
 
           // let's do some rendering

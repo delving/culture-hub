@@ -112,7 +112,7 @@ class ViewRenderSpec extends Specification {
 
       val view = core.rendering.ViewRenderer.renderView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
 
-      val xml = view.toXml
+      val xml = view.toXmlString
 
       println(xml)
       println()
@@ -179,7 +179,7 @@ class ViewRenderSpec extends Specification {
 
         val view = core.rendering.ViewRenderer.renderView(tibViews, "full", testRecord, List.empty, namespaces, Lang("en"))
 
-        println(view.toXml)
+        println(view.toXmlString)
         println()
 
         1 must equalTo(1)
