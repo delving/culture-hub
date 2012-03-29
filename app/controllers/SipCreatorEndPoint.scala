@@ -401,7 +401,9 @@ class ReceiveSource extends Actor {
           DataSet.updateState(dataSet, DataSetState.ERROR)
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case _ => // all is good
+        case _ =>
+        // all is good
+          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s".format(dataSet.spec, dataSet.orgId))
       }
     case _ => // nothing
   }

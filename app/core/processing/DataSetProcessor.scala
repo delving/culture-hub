@@ -32,7 +32,7 @@ object DataSetProcessor {
 
     val formats = dataSet.getPublishableMappingFormats
 
-    val flatIndexingMapping: Option[RecordDefinition] = formats.find(f => f.prefix == dataSet.getIndexingMappingPrefix && f.isFlat)
+    val flatIndexingMapping: Option[RecordDefinition] = formats.find(f => Some(f.prefix) == dataSet.getIndexingMappingPrefix && f.isFlat)
 
     val indexingFormat: Option[RecordDefinition] = if (formats.exists(_.prefix == AFF)) {
       // we have AFF, hence indexing via AFF is available. We use it instead of the selected one, since we don't
@@ -44,7 +44,9 @@ object DataSetProcessor {
       None
     }
 
-    log.info("Going to process formats %s".format(formats.map(_.prefix)))
+    val now = System.currentTimeMillis()
+
+    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(dataSet.spec, formats.map(_.prefix).mkString(", "), indexingFormat.map(_.prefix).getOrElse("NONE!")))
 
     formats foreach {
       format =>
@@ -83,7 +85,8 @@ object DataSetProcessor {
 
 
         // loop over records
-        log.info("Processing %s valid records for format %s".format(recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix)), format.prefix))
+        val recordCount = recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix))
+        log.info("Processing %s valid records for format %s".format(recordCount, format.prefix))
 
         try {
           records foreach {
@@ -93,6 +96,10 @@ object DataSetProcessor {
               if (records.numSeen % 100 == 0) {
                 DataSet.updateIndexingCount(dataSet, records.numSeen)
                 state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
+              }
+
+              if(records.numSeen % 2000 == 0) {
+                log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(dataSet.spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
               }
 
               val mainMappingResult = if (format.isFlat) {
@@ -148,14 +155,19 @@ object DataSetProcessor {
         // finally, update the processing state again
         state match {
           case DataSetState.PROCESSING =>
+            log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(dataSet.spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
             DataSet.updateState(dataSet, DataSetState.ENABLED)
             Indexing.commit()
           case _ =>
-            Logger.error("Failed to process DataSet %s".format(dataSet.spec))
-            Logger("CultureHub").info("Deleting DataSet %s from SOLR".format(dataSet.spec))
-            IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
+            log.error("Failed to process DataSet %s".format(dataSet.spec))
+            if(indexingFormat == Some(format.prefix)) {
+              log.info("Deleting DataSet %s from SOLR".format(dataSet.spec))
+              IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
+            }
         }
     }
+    log.info("Processing of DataSet %s finished, took %s ms".format(dataSet.spec, (System.currentTimeMillis() - now)))
+
   }
 
   case class MappingResult(xmlString: String, indexDocument: Option[IndexDocument], nodeTree: Option[Node]) {

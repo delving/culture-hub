@@ -138,11 +138,13 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
 
   def getRenderedFullView(viewName: String): Option[RenderedView] = {
     require(params._contains("id"))
-    val idType = params.getValueOrElse("idType", PMH_ID)
-    SolrQueryService.resolveHubIdAndFormat(params.getValue("id"), idType) match {
+    val id = params.getValue("id")
+    val idType = params.getValueOrElse("idType", HUB_ID)
+    SolrQueryService.resolveHubIdAndFormat(id, idType) match {
       case Some((hubId, prefix)) =>
         val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
         if(rawRecord.isEmpty) {
+          log.trace("Could not find record with format %s for hubId %s".format(prefix, hubId))
           None
         } else {
 
@@ -163,13 +165,19 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
                     // TODO see what to do with roles
                     Some(ViewRenderer.renderView(prefix, viewName, viewDefinition.get, wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
                 } catch {
-                  case _ => None
+                  case t =>
+                    log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
+                    None
                 }
             }
-            case None => None
+            case None =>
+              log.warn("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
+              None
           }
         }
-      case None => None
+      case None =>
+        log.trace("Could not find record with id %s and idType %s in SOLR".format(id, idType))
+        None
     }
 
 

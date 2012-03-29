@@ -97,14 +97,15 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
   def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataRecord, format: String) {
     import scala.collection.JavaConversions._
 
-    inputDoc.addField(PMH_ID, "%s_%s".format(dataSet.spec, record._id.toString))
+    inputDoc.addField(HUB_ID, record.hubId)
+    inputDoc.addField(ORG_ID, dataSet.orgId)
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(FORMAT, format)
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(VISIBILITY, dataSet.visibility.value)
-    val hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, record.localRecordKey)
-    inputDoc.addField(HUB_ID, hubId)
-    inputDoc.addField(ORG_ID, dataSet.orgId)
+
+    // for backwards-compatibility
+    inputDoc.addField(PMH_ID, record.hubId)
 
     // user collections
     inputDoc.addField(COLLECTIONS, record.linkedUserCollections.toArray)
@@ -156,7 +157,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     }
     
     if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
-    inputDoc.addField(ID, hubId)
+    inputDoc.addField(ID, record.hubId)
 
     val uriWithTypeSuffix = EUROPEANA_URI + "_string"
     if (inputDoc.containsKey(uriWithTypeSuffix)) {

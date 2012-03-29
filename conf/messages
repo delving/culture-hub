@@ -602,7 +602,7 @@ organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the
 user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
 
 dataSetState.incomplete=Incomplete
-dataSetState.uploaded=Uploaded and ready for indexing
+dataSetState.uploaded=Uploaded and ready for processing
 dataSetState.parsing=Parsing uploaded source data
 dataSetState.queued=queued for processing
 dataSetState.processing=Processing

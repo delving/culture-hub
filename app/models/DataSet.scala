@@ -131,7 +131,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
     val stateData = dataSetsCollection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
-      MongoDBObject("state" -> 1, "details" -> 1)).getOrElse(return (100, 100))
+      MongoDBObject("state" -> 1, "details" -> 1)
+    ).getOrElse(return (100, 100))
 
     val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
 
