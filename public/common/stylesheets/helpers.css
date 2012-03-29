@@ -295,3 +295,9 @@
     cursor: pointer;
 }
 
+/* addThis widgets */
+
+.addthis_toolbox {
+    display: inline-block;
+    float: left;
+}
