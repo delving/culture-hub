@@ -11,7 +11,7 @@
         <attr tag="localId"/>
         <attr tag="localUri"/>
         <attr tag="sourceUri"/>
-        <attr tag="sourceName"/>
+        <attr tag="displaySource"/>
         <attr tag="relationTypeUri"/>
         <attr tag="eventTypeUri"/>
         <attr tag="conceptCategoryUri"/>
@@ -20,7 +20,6 @@
         <attr tag="ResourceTypeUri"/>
         <attr tag="isPartOfUri"/>
         <attr tag="isPartOfLocalId"/>
-        <attr tag="ResourceTypeUri"/>
         <attr tag="displayConceptType"/>
         <attr tag="sequence"/>
     </attrs>
@@ -77,24 +76,26 @@
                 <elem tag="displayRelationSequence"/>
             </elem>
         </elem>
+
         <elem tag="concepts" singular="true">
             <elem tag="concept" attrs="conceptCategoryUri">
                 <elem tag="displayCategoryType"/>
-                <elem tag="displayConcept" attrs="localId, localUri, sourceName, sourceUri, displayConceptType"/>
+                <elem tag="displayConcept" attrs="displayConceptType, localId, localUri, displaySource, sourceUri"/>
             </elem>
         </elem>
+
         <elem tag="events" singular="true">
             <elem tag="event" elems="date" attrs="eventTypeUri">
                 <elem tag="displayEventType"/>
                 <elem tag="displayEvent"/>
                 <elem tag="displayDate"/>
                 <!-- make ADMIN1 -> 4 into options!!!!!!! -->
-                <elem tag="eventPlace" elems="placeAdmin" attrs="placeInRoleUri, localId, localUri, sourceName, sourceUri">
+                <elem tag="eventPlace" elems="placeAdmin" attrs="placeInRoleUri, localId, localUri, displaySource, sourceUri">
                     <elem tag="displayPlaceInRole"/>
                     <elem tag="displayPlace"/>
                     <elem tag="displayPlaceType"/>
                 </elem>
-                <elem tag="eventActor" attrs="actorInRoleUri, localId, localUri, sourceName, sourceUri">
+                <elem tag="eventActor" attrs="actorInRoleUri, localId, localUri, displaySource, sourceUri">
                     <elem tag="displayActorInRole"/>
                     <elem tag="displayActor"/>
                 </elem>
@@ -105,6 +106,7 @@
                 <elem tag="displayResourceType"/>
                 <elem tag="resourceURL"/>
                 <elem tag="resourceMimeType"/>
+                <elem tag="resourceRights"/>
                 <elem tag="delvingMediaURI" systemElement="true"/>
             </elem>
         </elem>
@@ -176,30 +178,14 @@
     </bookmarks>
 
     <facts>
-        <fact-ref path="/record/admin/dataOwnerUri" name="dataOwnerUri"/>
-        <fact-ref path="/record/admin/displayDataOwner" name="displayDataOwner"/>
-        <fact-ref path="/record/admin/displayOwnerCountry" name="displayOwnerCountry"/>
-        <fact-ref path="/record/admin/dataProviderUri" name="dataProviderUri"/>
-        <fact-ref path="/record/admin/displayDataProvider" name="displayDataProvider"/>
-        <fact-ref path="/record/admin/providerHubUri" name="providerHubUri"/>
-        <fact-ref path="/record/admin/displayProviderHub" name="displayProviderHub"/>
+        <!--<fact-ref path="/record/admin/dataOwnerUri" name="dataOwnerUri"/>-->
+        <fact-ref path="/record/admin/displayDataOwner" name="dataProvider"/>
+        <fact-ref path="/record/admin/displayOwnerCountry" name="country"/>
+        <!--<fact-ref path="/record/admin/dataProviderUri" name="dataProviderUri"/>-->
+        <fact-ref path="/record/admin/displayDataProvider" name="dataProvider"/>
+        <!--<fact-ref path="/record/admin/providerHubUri" name="providerHubUri"/>-->
+        <!--<fact-ref path="/record/admin/displayProviderHub" name="dataProvider"/>-->
     </facts>
 
 </record-definition>
 
-
-        <!--<elem tag="classifications" attrs="localId, localUri, sourceName, sourceUri">-->
-            <!--<elem tag="displayClassification"/>-->
-        <!--</elem>-->
-
-        <!--<elem tag="subjects" attrs="localId, localUri, sourceName, sourceUri">-->
-            <!--<elem tag="displaySubject"/>-->
-        <!--</elem>-->
-
-        <!--<elem tag="materials" attrs="localId, localUri, sourceName, sourceUri">-->
-            <!--<elem tag="displayMaterial"/>-->
-        <!--</elem>-->
-
-        <!--<elem tag="techniques" attrs="localId, localUri, sourceName, sourceUri">-->
-            <!--<elem tag="displayTechnique"/>-->
-        <!--</elem>-->
