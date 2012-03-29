@@ -424,7 +424,7 @@ case object RenderNode {
 
       if(n.isLeaf) {
         sb.append(n.text)
-        sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
+        sb.append("</%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
       } else {
         for(c <- n.content) {
           sb.append("\n")
