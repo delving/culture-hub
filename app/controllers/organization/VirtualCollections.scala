@@ -141,7 +141,7 @@ object VirtualCollections extends OrganizationController {
             VirtualCollection.children.removeByParentId(vc._id)
             VirtualCollection.remove(vc)
             Ok
-          case None => NotFound
+          case None => Results.NotFound
         }
 
     }
