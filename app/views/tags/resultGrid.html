@@ -1,29 +1,8 @@
-*{%{ def counter = 1 }%}*
-*{#{list _results, as: 'doc'}}*
-*{#{if counter == 1}}*
-*{<div class="row">}*
-*{#{/if}}*
-    *{<div class="g-1of4 #{if counter == 1} alpha #{/if} #{if counter == 4} omega #{/if} ">}*
-    *{<div class="span3">}*
-        *{<div class="draggable ${doc.getRecordType()} ">}*
-            *{#{thingSummaryView data: doc, iSize: 220 /}}*
-            *{<input type="hidden" name="idUri" value="${doc.getUri()}"/>}*
-            *{<input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>}*
-            *{<input type="hidden" name="title" value="${doc.getTitle()}"/>}*
-        *{</div>}*
-    *{</div>}*
-    *{%{ counter++ }%}*
-*{#{if counter > 4 || doc_isLast }}*
-*{</div><!-- end row -->}*
-*{<div class="clear"></div>}*
-*{%{ counter = 1 }%}*
-*{#{/if}}*
-*{#{/list}}*
-
-<ul class="thumbnails">
+%{ def counter = 1 }%
 #{list _results, as: 'doc'}
-
-*{<div class="g-1of4 #{if counter == 1} alpha #{/if} #{if counter == 4} omega #{/if} ">}*
+    #{if counter == 1}
+    <ul class="thumbnails">
+    #{/if}
     <li class="span3">
         <div class="thumbnail draggable ${doc.getRecordType()} ">
             #{thingSummaryView data: doc, iSize: 210 /}
@@ -32,6 +11,9 @@
             <input type="hidden" name="title" value="${doc.getTitle()}"/>
         </div>
     </li>
-
+    %{ counter++ }%
+    #{if counter > 4 || doc_isLast }
+    </ul>
+    %{ counter = 1 }%
+    #{/if}
 #{/list}
-</ul>

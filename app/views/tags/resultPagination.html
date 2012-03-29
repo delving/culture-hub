@@ -1,5 +1,5 @@
 #{if _pageLinks.getPageLinks().length() > 0}
-<div class="pagination">
+<div class="pagination ${_extraClass ? _extraClass : ''}">
  <ul>
     #{if _pageLinks.previous}
         <li><a rel="no-follow" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a></li>
