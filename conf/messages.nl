@@ -519,6 +519,7 @@ org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
 org.group.save=Groep bewaren
 org.group.create=Groep aanmaken
+org.group.list=Groep lijst
 
 org.cms=Website paginas
 org.cms.page.key=Pagina sleutel

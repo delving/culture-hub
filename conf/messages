@@ -546,6 +546,7 @@ org.group.grantType.modify=Dataset modification rights
 org.group.grantType.cms=Site content administration rights
 org.group.save=Save group
 org.group.create=Create group
+org.group.list=Group list
 
 org.cms=Website pages
 org.cms.page.update=Update page
