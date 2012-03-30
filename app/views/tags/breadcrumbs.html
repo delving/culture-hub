@@ -42,43 +42,45 @@
 }*
 
 #{if views.Breadcrumbs.crumble(_params, request, _theme).size() > 1}
-<div class="crumbs">
-    <ul class="breadcrumbs alt1">
+
+    <ul class="breadcrumb">
     #{list views.Breadcrumbs.crumble(_params, request, _theme), as: 'c'}
         <li>
         #{if c._2 == views.Breadcrumbs.crumble(_params, request, _theme).length() -1 && views.Breadcrumbs.crumble(_params, request, _theme).length() > 1}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
+            ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}
         #{if c._2 < views.Breadcrumbs.crumble(_params, request, _theme).length() -1 && views.Breadcrumbs.crumble(_params, request, _theme).length() > 1}
         #{if c._1._1 == "NOLINK"}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
+            ${views.Helpers.shorten(c._1._2, 50)}<span class="divider">/</span>
         #{/if}
         #{else}
-            <span><a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a></span>
+            <a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
         #{/else}
         #{/if}
         #{if c._2 < views.Breadcrumbs.crumble(_params, request, _theme).length() - 1 && views.Breadcrumbs.crumble(_params, request, _theme).length() == 1}
         #{if c._1._1 == "NOLINK"}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
+            ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}
         #{else}
-            <span><a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a></span>
+            <a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
         #{/else}
         #{/if}
+
         </li>
     #{/list}
     #{if _queryCrumbs}
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
             #{ifnot crumb_isLast}
-            <li><span><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a></span></li>
+            <li>
+                <span class="divider">/</span><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a></li>
             #{/ifnot}
             #{else}
-                <li><span>${crumb.value()}</span></li>
+                <li><span class="divider">/</span> ${crumb.value()}</li>
             #{/else}
         #{/list}
     #{/if}
     </ul>
-</div>
+
 #{/if}
 
 

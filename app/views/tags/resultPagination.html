@@ -1,28 +1,29 @@
 #{if _pageLinks.getPageLinks().length() > 0}
-<div class="pagination">
-
+<div class="pagination ${_extraClass ? _extraClass : ''}">
+ <ul>
     #{if _pageLinks.previous}
-        <a  class="prev" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a>
+        <li><a rel="no-follow" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a></li>
     #{/if}
     #{else}
-        <span class="prev disabled">${messages.get('ui.label.previous')}</span>
+        <li class="disabled"><a href="#">${messages.get('ui.label.previous')}</a></li>
     #{/else}
 
     #{list _pageLinks.getPageLinks(), as:'link'}
 
     #{if link.linked}
-       <a href="?${_pQuery}&amp;start=${link.start}">${link.display}</a>
+       <li><a href="?${_pQuery}&amp;start=${link.start}" rel="no-follow">${link.display}</a></li>
     #{/if}
     #{else}
-       <span class="current">${link.display}</span>
+       <li class="active"><a href="#" rel="no-follow">${link.display}</a></li>
     #{/else}
     #{/list}
 
     #{if _pageLinks.next}
-        <a class="next" href="?${_pQuery}&amp;start=${_pageLinks.nextPage}">${messages.get('ui.label.next')}</a>
+       <li class="next"><a href="?${_pQuery}&amp;start=${_pageLinks.nextPage}">${messages.get('ui.label.next')}</a></li>
     #{/if}
     #{else}
-        <span class="next disabled">${messages.get('ui.label.next')}</span>
+        <li class="disabled"><a href="#" rel="no-follow">${messages.get('ui.label.next')}</a> </li>
     #{/else}
+ </ul>
 </div>
 #{/if}

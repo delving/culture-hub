@@ -6,39 +6,52 @@
 
 #{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+#{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
-<div class="tab-content">
-    <div class="buttons">
-    #{cmsNavBar active:'image', currentLanguage:currentLanguage, orgId: orgId/}
-    </div>
-    <hr/>
-    <div class="panel">
+<div class="row">
+
+
+    <div class="span6">
         <p>&{'org.cms.upload.image.explain'}</p>
     </div>
-
-    <div class="row">
-
-
+    <div class="span6">
         <div id="fileupload">
-
-            <form action="#" method="post" enctype="multipart/form-data">
-                <div class="fileupload-buttonbar">
-                    <label class="fileinput-button">
-                        <span>&{'ui.label.filesadd'}</span>
-                        <input type="file" name="files[]" multiple="true"/>
-                    </label>
+            <form action="#" method="post" enctype="multipart/form-data" class="form-inline form-delving">
+                <div class="well">
+                    <div class="control-group">
+                        <label class="control-label" for="fileInput">&{'ui.label.filesadd'}</label>
+                        <div class="controls">
+                            <input type="file" name="files[]" id="fileInput" multiple="true" class="btn input-file" />
+                        </div>
+                    </div>
                 </div>
             </form>
-            <div class="fileupload-content">
-                <table class="files"></table>
-            </div>
-
         </div>
     </div>
 
-
 </div>
+<div class="row">
+    <div class="fileupload-content span12">
+        <table class="files table table-striped">
+            <caption>Uploaded files</caption>
+            <thead>
+                <th>Thumbnail</th>
+                <th>File name</th>
+                <th>File size</th>
+                <th colspan="2"></th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+
 
 
 <script type="text/javascript">
@@ -57,14 +70,14 @@
         var fu = $('#fileupload').data('fileupload');
         fu._adjustMaxNumberOfFiles(-files.length);
         fu._renderDownload(files)
-                .appendTo($('#fileupload .files'))
+                .appendTo($('.fileupload-content .files tbody'))
                 .fadeIn(function () {
                     // Fix for IE7 and lower:
                     $(this).show();
                 });
 
         $("body").css('visibility', 'visible');
-
+        $("table.files td.delete button").addClass("btn btn-danger");
 
     });
 

@@ -2,26 +2,29 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
     <meta charset="utf-8">
     <title>#{get 'title' /}</title>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/reset.css")}" />
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-960.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-zemmy.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/reset.css")}" />}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-960.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/grid/grid-zemmy.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/ui/jquery-ui-1.8.16.custom.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/spacing/space.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/forms/form-elements.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/breadcrumb/breadcrumb.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tiptip.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tables.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/jquery.fileupload-ui.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/pagination/pagination.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/spacing/space.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/forms/form-elements.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/breadcrumb/breadcrumb.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tiptip.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tables.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/jquery.fileupload-ui.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/pagination/pagination.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/buttons/buttons.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tabs/tabs.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/buttons/buttons.css")}"/>}*
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/tabs/tabs.css")}"/>}*
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/docs.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/helpers.css")}"/>
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>
@@ -34,8 +37,9 @@
         jsLabels.enlargeImage = "${messages.get('ui.label.enlargeImage')}";
     </script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-1.6.2.min.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-1.6.2.min.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/jquery.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.hoverIntent.minified.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-ui-1.8.16.custom.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.iframe-transport.js")}"></script>
@@ -61,6 +65,21 @@
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.ui.touch-punch.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/culturehub.js")}"></script>
+
+
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-transition.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-alert.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-modal.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-dropdown.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-scrollspy.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tab.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-button.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-carousel.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>}*
+
     #{get 'moreScripts' /}
     <script type="text/javascript">
       $(document).ready(function() {

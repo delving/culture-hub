@@ -1,43 +1,63 @@
-*{<div class="grid_12">}*
-
-<div>
-    <ul class="tabs left">
-        #{if _isOwner == true}
-        <li class="${(_active == 'administration' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/admin'}">${messages.get('ui.label.administration')}</a></li>
-        #{/if}
-        <li class="${(_active == 'groups' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/groups'}">${messages.get('thing.groups')}</a></li>
-        <li class="${(_active == 'datasets' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/dataset'}">${messages.get('thing.datasets')}</a></li>
-        <li class="${(_active == 'virtualCollection' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/virtualCollection'}">${messages.get('thing.virtualCollections')}</a></li>
-        #{if _isOwner == true || isCMSAdmin == true }
-            <li class="${(_active == 'site' ? 'current' : '')}"><a href="${'/organizations/' + _orgId + '/site'}">${messages.get('org.cms')}</a></li>
-        #{/if}
-    </ul>
-</div>
-
-
-
-*{<div class="toolbar">}*
-    *{<div class="buttons">}*
-    *{#{if _isOwner == true}}*
-    *{#{btnHref label: messages.get('ui.label.administration'), extraClass: (_active == 'administration' ? "on" : ""), iconClass:"icon23", href:"/organizations/" + _orgId + "/admin" /}}*
-    *{#{/if}}*
-    *{#{btnHref label: messages.get('thing.groups'), extraClass: (_active == 'groups' ? "on" : ""), iconClass:"icon204", href:"/organizations/" + _orgId + "/groups" /}}*
-    *{#{btnHref label: messages.get('thing.datasets'), extraClass: (_active == 'datasets' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/dataset" /}}*
-    *{#{btnHref label: messages.get('thing.virtualCollections'), extraClass: (_active == 'virtualCollection' ? "on" : "") , iconClass:"icon175", href:"/organizations/" + _orgId + "/virtualCollection" /}}*
-    *{#{btnHref label: messages.get('org.cms'), extraClass: (_active == 'site' ? "on" : "") , iconClass:"icon96", href:"/organizations/" + _orgId + "/site" /}}*
-    *{</div>}*
-    *{#{if _extraButtons}}*
-    *{<div class="sub-toolbar">}*
-        *{<div class="buttons">}*
-        *{#{list _extraButtons, as:'button'}}*
-            *{#{if _isOwner}}*
-                *{#{btnHref label: button.get('label'), href: button.get('url'), extraClass: (button.get('extraClass') ? button.get('extraClass') : ""), iconClass: ( button.get('iconClass') ? button.get('iconClass') : "" ) /}}*
-            *{#{/if}}*
-        *{#{/list}}*
-        *{</div>}*
-    *{</div>}*
-    *{#{/if}}*
-
-*{</div>}*
-
-*{</div>}*
+<h2 style="text-transform: uppercase; color: #888;">${_orgId}</h2>
+<ul class="nav nav-tabs">
+    *{** OVERVIEW **}*
+    <li class="${(_active == 'overview' ? 'active' : '')}"><a href="${'/organizations/' + _orgId }">Overview</a></li>
+    #{if _isOwner == true}
+    *{** ADMIN **}*
+    <li class="${(_active == 'administration' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/admin'}">${messages.get('ui.label.administration')}</a></li>
+    *{** GROUPS **}*
+    <li class="dropdown ${(_active == 'groups' ? 'active' : '')}" id="groups">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#groups">
+        ${messages.get('thing.groups')}
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="/organizations/${_orgId}/groups">&{'org.group.list'}</a></li>
+            <li><a href="/organizations/${_orgId}/groups/create">&{'org.group.create'}</a></li>
+        </ul>
+    </li>
+    *{** DATASETS **}*
+    <li class="dropdown ${(_active == 'datasets' ? 'active' : '')}" id="datasets">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#datasets">
+        ${messages.get('thing.datasets')}
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="/organizations/${_orgId}/dataset">&{'organization.dataset.list'}</a></li>
+            <li><a href="/organizations/${_orgId}/dataset/add">&{'organization.dataset.create'}</a></li>
+        </ul>
+    </li>
+    *{** VIRTUAL-COLLECTIONS **}*
+    <li class="dropdown ${(_active == 'virtual-collections' ? 'active' : '')}" id="virtual-collections">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#virtual-collections">
+        ${messages.get('thing.virtualCollections')}
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="/organizations/${_orgId}/virtualCollection">&{'organization.virtualCollection.list'}</a></li>
+            <li><a href="/organizations/${_orgId}/virtualCollection/add">&{'organization.virtualCollection.new'}</a></li>
+        </ul>
+    </li>
+    #{/if}
+    #{else}
+    <li class="${(_active == 'datasets' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/dataset'}">${messages.get('thing.datasets')}</a></li>
+    <li class="${(_active == 'virtualCollection' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/virtualCollection'}">${messages.get('thing.virtualCollections')}</a></li>
+    #{/else}
+    *{** SIP-CREATOR **}*
+    <li class="${(_active == 'sipcreator' ? 'active' : '')}"><a href="/organizations/${_orgId}/sip-creator">${messages.get('ui.label.sipcreator')}</a></li>
+    *{** CMS **}*
+    #{if _isOwner == true || isCMSAdmin == true }
+            <li class="dropdown ${(_active == 'site' ? 'active' : '')}" id="site">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#site">
+                ${messages.get('org.cms')}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/organizations/${_orgId}/site">${messages.get('org.cms.page.list')}</a></li>
+                <li><a href="/organizations/${_orgId}/site/${_currentLanguage}/page/add">${messages.get('org.cms.page.new')}</a></li>
+                <li><a href="/organizations/${_orgId}/site/upload">${messages.get('org.cms.upload.image')}</a></li>
+            </ul>
+        </li>
+    
+    #{/if}
+</ul>

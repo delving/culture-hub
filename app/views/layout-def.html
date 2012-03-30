@@ -1,66 +1,96 @@
+%{ def pageId = get 'pageId' }%
 
 #{include 'commonHeader.html' /}
 
 <div id="page-top">
-    <div class="container container_12">
-        <div class="grid_6" id="primary-branding">
-            *{<div class="site-branding">}*
-            <div class="site-logo"><a href="/"><img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/></a></div>
-                <h1 class="site-name"><a href="/">${themeInfo.displayName}</a></h1>
-                <h2 class="site-slogan">${themeInfo.get('siteSlogan').raw()}</h2>
+    <div class="container">
+
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container"  id="top-nav">
+                #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect')/}
+                <div class="nav-collapse">
+                    <form method="get" action="/search" class="navbar-search pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                        <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    </form>
+                </div>
+                *{<a class="brand pull-right" href="/">}*
+                *{${themeInfo.displayName}}*
+                *{</a>}*
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span6">
+                <div class="branding">
+                    <img class="site-logo pull-left" src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/>
+
+                    <h1 class="site-name pull-left"><a href="/" class="brand">${themeInfo.displayName}</a></h1>
+
+                    <h2 class="site-slogan pull-left">${themeInfo.get('siteSlogan').raw()}</h2>
+                </div>
+            </div>
+            <div class="span6">
+                <ul class="nav nav-pills bordered pull-right">
+                    <li class='${pageId == "home" ? "active" : "" }'><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                    <li class='${pageId == "ho" ? "active" : "" }'><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
+                    #{mainMenu menu:menu /}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+    *{<div class="container">}*
+    *{<div class="row">}*
+        *{<div class="span6">}*
+            *{<div class="branding">}*
+            *{<img class="site-logo pull-left" src='${themeInfo.path("images/logo-primary-small.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/>}*
+            *{<h1 class="site-name pull-left"><a href="/" class="brand">${themeInfo.displayName}</a></h1>}*
+            *{<h2 class="site-slogan pull-left">${themeInfo.get('siteSlogan').raw()}</h2>}*
             *{</div>}*
-        </div>
+         *{</div>}*
+        *{<div class="span6">}*
+            *{#{userNav}*
+            *{userName: userName,}*
+            *{email:email,}*
+            *{organizations:organizations,}*
+            *{navStyle:themeInfo.get('userNavStyle'),}*
+            *{showLang:themeInfo.get('userNavLangSelect')}*
+            *{/}}*
+        *{</div>}*
+    *{</div>}*
+    *{</div>}*
+</div>
 
-        <div class="secondary-branding" role="banner">
-            <a href="${themeInfo.get('secondaryBrandingURL')}" target="_blank" title="${themeInfo.get('secondaryBrandingName')}">
-                <img src='${themeInfo.path("images/logo-secondary.png")}' alt="" title=""/>
-            </a>
-        </div>
 
-        <div class="grid_6 user-nav" id="user-nav">
-            #{userNav
-            userName: userName,
-            email:email,
-            organizations:organizations,
-            navStyle:themeInfo.get('userNavStyle'),
-            showLang:themeInfo.get('userNavLangSelect')
-            /}
-        </div>
 
-        *{<div class="grid_12 site-nav" id="site-nav">}*
-            *{<ul>}*
-                *{<li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>}*
-                *{<li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>}*
+*{<div id="header" class="header">}*
+    *{<div class="container">}*
+    *{<div class="row">}*
+        *{<div class="span6">}*
+            *{<div id="search">}*
+                *{<form method="get" action="/search" class="form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">}*
+                    *{<input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>}*
+                    *{<input type="submit" value="&{'ui.label.search'}">}*
+                *{</form>}*
+            *{</div>}*
+        *{</div>}*
+        *{<div class="span12">}*
+            *{<div id="site-nav">}*
+            *{<ul class="nav nav-pills">}*
+                *{<li class='${pageId == "home" ? "active" : "" }'><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>}*
+                *{<li class='${pageId == "ho" ? "active" : "" }'><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>}*
                 *{#{mainMenu menu:menu /}}*
             *{</ul>}*
+            *{</div>}*
         *{</div>}*
-    </div>
-</div>
-
-<div id="header" class="header">
-    <div class="container_12">
-        <div class="grid_6">
-            <div id="search">
-                <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                    <input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
-                    <input type="submit" value="&{'ui.label.search'}">
-                </form>
-            </div>
-        </div>
-        <div class="grid_6">
-            <div id="site-nav">
-            <ul>
-                <li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
-            #{mainMenu menu:menu /}
-            </ul>
-            </div>
-        </div>
-    </div>
-</div>
+    *{</div>}*
+    *{</div>}*
+*{</div>}*
 
 <div id="content" role="main">
-    <div class="container_12">
+    <div class="container">
         #{doLayout /}
     </div>
 </div>

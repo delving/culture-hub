@@ -1,6 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('ui.label.welcome') /}
 #{set bodyId:'home' /}
+#{set pageId:'home'/}
 #{set 'moreCss'}
 
 #{/set}
@@ -9,8 +10,20 @@
 <script src='${themeInfo.path("javascripts/index.js")}' type='text/javascript'></script>
 #{/set}
 
+*{<div class="hero-unit">}*
+    *{<div class="row">}*
+        *{<div class="span6">}*
+            *{#{carousel results: recentMdrs, maxHeight: "400px" /}}*
+        *{</div>}*
+        *{<div class="span6">}*
+            *{<iframe src="http://player.vimeo.com/video/39327874?title=0&amp;byline=0&amp;portrait=0" width="533" height="300" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>}*
+        *{</div>}*
+    *{</div>}*
+
+*{</div>}*
+
 <div class="messages-container row">
-    <div class="messages grid_12">
+    <div class="messages span12">
         #{if flash.registrationSuccess}
         <p class="success">
             ${messages.get("ui.message.registration.success", flash.registrationSuccess)}
@@ -49,18 +62,19 @@
     </div>
 </div>
 
-<div class="row">
+
 
     #{if recentMdrs.size() > 0}
-        #{list recentMdrs, as: 'm'}
-        <div class="grid_3">
-            #{thingSummaryView data: m, iSize: 220 /}
-        </div>
-        #{/list}
+        #{resultGrid results: recentMdrs /}
+        *{#{list recentMdrs, as: 'm'}}*
+        *{<div class="span3">}*
+            *{#{thingSummaryView data: m, iSize: 220 /}}*
+        *{</div>}*
+        *{#{/list}}*
     #{/if}
     #{else}&#160;#{/else}
-    </div>
-</div>
+
+
 
 *{<div class="row">}*
     *{<div class="grid_3">}*
