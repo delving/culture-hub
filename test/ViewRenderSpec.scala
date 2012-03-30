@@ -123,7 +123,7 @@ class ViewRenderSpec extends Specification {
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
       <dc:title>A test hierarchical record</dc:title>
-      <delving:description>This is a test record<delving:description>
+      <delving:description>This is a test record</delving:description>
       <places>
           <place geo:country="France">
                <name>Paris</name>
@@ -177,7 +177,7 @@ class ViewRenderSpec extends Specification {
 
         val testRecord = "<root %s>%s</root>".format(namespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), legacyRecord())
 
-        val renderer = new ViewRenderer("tib", "full")
+        val renderer = new ViewRenderer("legacy", "full")
         val view = renderer.renderRecord(testRecord, List.empty, namespaces, Lang("en"))
 
         println(view.toXmlString)
