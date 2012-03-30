@@ -1,94 +1,50 @@
-@import url("http://fonts.googleapis.com/css?family=Arimo:400,700");
+body {
+    padding-top: 66px;
+}
 /*---------------------------------
-	COLORS
+	HEADINGS
 -----------------------------------*/
-@text: #444;
-@link: #336699;
-
-@base-dark: #336699;
-@base-medium: #6699cc;
-@base-light: #eaeaea;
-
-/*---------------------------------
-	FONT FAMILIES
------------------------------------*/
-@font1: "Trebuchet Ms", arial, verdana, sans-serif;
-@font2:  'Arimo', "Trebuchet MS", arial, verdana, sans-serif;
-
-@radius: 2px;
-.border-all (@radius) {
-  border-radius: @radius;
-  -moz-border-radius: @radius;
-  -webkit-border-radius: @radius;
+h1,h2,h3,h4,h5,h6{
+//color: lighten(@text, 25%);
+//font-family: @font1;
+font-weight:bold;
+line-height:140%;
 }
 
-.border-top (@radius) {
-  border-radius: @radius @radius 0 0;
-  -moz-border-radius: @radius @radius 0 0;
-  -webkit-border-radius: @radius @radius 0 0;
+h1{
+/*font-size:2.5em;*/
+margin:10px 0 10px 0;
 }
 
-.border-bot (@radius) {
-  border-radius: 0 0 @radius @radius;
-  -moz-border-radius: 0 0 @radius @radius;
-  -webkit-border-radius: 0 0 @radius @radius;
+h1.sep {
+    padding: 0 10px;
 }
 
-.border-tl (@radius) {
-  border-radius: @radius 0 0 0;
-  -moz-border-radius: @radius 0 0 0;
-  -webkit-border-radius: @radius 0 0 0;
+h2{
+/*font-size:2.0em;*/
+margin:10px 0 10px 0;
 }
 
-.border-tr (@radius) {
-  border-radius: 0 @radius 0 0;
-  -moz-border-radius: 0 @radius 0 0;
-  -webkit-border-radius: 0 @radius 0 0;
+h3{
+/*font-size:1.5em;*/
+margin:10px 0 10px 0;
+line-height:130%;
 }
 
-.box-shadow {
-    box-shadow: 0 1px 5px rgba(0,0,0,0.15);
-    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    -moz-box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+h4{
+/*font-size:1.25em;*/
+margin:10px 0 10px 0;
 }
 
-.panel {
-    padding: 20px 20px;
-    /*background: #efefef;*/
-    /*background: -moz-linear-gradient(top, #FFFFFF 0%, #F4F4F4 100%);*/
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(100%,#F4F4F4));*/
-//   background: @base-light url(/assets/common/images/bg-striped-3.png);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    -moz-box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-    margin: 0 0 20px 0;
+h5{
+/*font-size:1.1em;*/
+margin:10px 0 10px 0;
 }
 
-/*---------------------------------
-	HTML ELEMENTS
------------------------------------*/
-a{color:#4D99E0;outline:0;}
-a:active{color:inherit;}
-a:visited{}
-a:hover{}
-a img{border:0;}
-strong,b{color:#000;background:lightyellow;position:relative;top:0;left:0;padding:2px 5px;}
-strike{}
-em,i{}
-.hide{display:none;}
-.show{display:block;}
-
-
-/*---------------------------------
-	UTILITY
------------------------------------*/
-.center{text-align:center;}
-.left{text-align:left;}
-.right{text-align:right;}
-.pipe {
-    display: inline-block;
-    padding: 0 4px;
-    color: @text;
+h6{
+/*font-size:1em;*/
+margin:10px 0 0 0;
+line-height: 100%;
 }
 
 /*---------------------------------
@@ -98,357 +54,95 @@ hr{clear:both;border-bottom:0;border-top:1px dotted #ccc;border-right:0;border-l
 hr.alt1{border-style: solid;}
 hr.alt2{border-style: dashed;}
 
-/*---------------------------------
-	HTML5 ELEMENTS (shim)
------------------------------------*/
-article,aside,details,figcaption,figure,
-footer,header,hgroup,menu,nav,section {
-display:block;
+p {
+    margin: 11px 0;
 }
 
-/*---------------------------------
-	HEADINGS
------------------------------------*/
-h1,h2,h3,h4,h5,h6{
-color: lighten(@text, 25%);
-font-family: @font1;
-font-weight:bold;
-line-height:140%;
+.hero-unit {
+  padding: 30px;
+  margin-bottom: 30px;
+  background-color: #eeeeee;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
 }
 
-h1{
-font-size:2.5em;
-margin:10px 0 10px 0;
+.navbar-inner {
+      -webkit-border-radius: 0 0 4px 4px;
+      -moz-border-radius: 0 0 4px 4px;
+      border-radius: 0 0 4px 4px;
+      /*text-align: right;*/
 }
 
-h1.sep {
-    padding: 0 10px;
-}
+    .subnav-fixed {
+      position: fixed;
+      top: 40px;
+      /*left: 0;*/
+      /*right: 0;*/
+      z-index: 1020; /* 10 less than .navbar-fixed to prevent any overlap */
+      background: #fff;
+      width: 100%;
+      padding: 4px 0;
 
-h2{
-font-size:2.0em;
-margin:10px 0 10px 0;
-}
+      }
 
-h3{
-font-size:1.5em;
-margin:10px 0 10px 0;
-line-height:130%;
-}
 
-h4{
-font-size:1.25em;
-margin:10px 0 10px 0;
-}
-
-h5{
-font-size:1.1em;
-margin:10px 0 10px 0;
-}
-
-h6{
-font-size:1em;
-margin:10px 0 5px 0;
-}
 
 /*---------------------------------
-	PARAGRAPHS
+	#PAGE-TOP
 -----------------------------------*/
-p{
-line-height:150%;
-color:#666;
-margin:10px 0;
+
+#page-top {
+    height: 106px;
 }
+
+
 
 /*---------------------------------
-	BODY
------------------------------------*/
-body {
-background:#fff;
-color: @text;
-font:normal 0.9em/150% @font2;
-margin:0;
-padding:0;
-text-shadow: 0px 0px 1px transparent; /* google font pixelation fix */
-}
-
-/*---------------------------------
-	USER-BAR
+	BRANDING
 -----------------------------------*/
 
-
-#page-top .container_12 {
-    position: relative;
-    height: 144px;
+.branding .site-name {
+    padding: 0;
+    margin: 11px 0 0 10px;
+    line-height: 100%;
 }
 
-#page-top #primary-branding {
-    /*background: #ccc;*/
-    height: inherit;
-    position: relative;
+.branding .site-slogan {
+    font-size: 111%;
+    line-height: 100%;
+    margin: 4px 0 0 10px;
 }
 
-#page-top .site-logo {
-    position: absolute;
-    top: 20px;
-    left: 0px;
-}
 
-#page-top .site-name {
-    font-size: 150%;
-    position: absolute;
-    top: 40px;
-    left: 120px;
-}
+/* token input overrides */
 
-#page-top .site-name a {
-    text-decoration: none;
-    color: @text;
-}
-
-#page-top .site-slogan {
-    font-size: 100%;
-    position: absolute;
-    top: 70px;
-    left: 120px;
-}
-
-#page-top .secondary-branding {
-    display: none;
-}
-
-/*---------------------------------
-	USER-NAVI
------------------------------------*/
-
-.user-nav
-{
-    margin-top: 33px;
-    position: relative;
-    text-align: right;
-    /*top: 121px;*/
-    z-index: 1000;
-}
-
-.user-nav .buttons {
-    position: absolute;
-    right: 0px;
-    z-index: 1000;
-}
-
-.user-nav .actions {
-    margin-top: 10px;
-    text-align: right;
-}
-
-.user-name {
-    color: @text;
-    display: inline-block;
-    float: none;
-    font-weight: bold;
-}
-
-.user-name img {
-    margin-right: 8px;
-}
-
-.user-panel {
-    padding: 8px 14px;
-    background: @base-light url(/assets/common/images/bg-striped-3.png);
-    float: right;
-    margin: 0 -10px 0 0;
-    .box-shadow();
+ul.token-input-list {
+    border: none;
+    padding: 0;
     width: 100%;
 }
 
-
-
-/*---------------------------------
-	SITE-BAR
------------------------------------*/
-
-#site-nav {
-    /*position: absolute;*/
-    /*bottom: 0px;*/
-    /*right: 0px;*/
+li.token-input-token,
+div.token-input-dropdown ul li.token-input-selected-dropdown-item {
+    background: #08C;
+    color: #fff;
+    margin: 0 0 2px 0;
 }
 
-#site-nav ul {
-    margin: 0;
-    padding: 0;
-    float: right;
+li.token-input-token:hover {
+    background: #b2e0f0;
 }
 
-#site-nav ul li {
-    background: @base-dark url(/assets/common/images/bg-striped-1.png);
-    border-right: 1px solid #ccc;
-    display: inline;
-    float: left;
-    margin: 0;
-}
-
-#site-nav ul li:last-of-type {
-    border-right: none;
-}
-
-#site-nav ul li.current {
-    background:  @base-dark;
-}
-
-#site-nav ul a {
-    /*color: #fff;*/
-    display: block;
-    padding: 6px 12px;
-    /*text-decoration: none;*/
-
-}
-
-/*---------------------------------
-	HEADER
------------------------------------*/
-
-/*#header  {*/
-/*//    background: @base-light;*/
-    /*height: 44px;*/
-    /*position: relative;*/
-/*}*/
-
-#header .container_12  {
-    background: @base-light url(/assets/common/images/bg-striped-3.png);
-    height: 32px;
-    padding: 10px 0;
-    position: relative;
-//    .box-shadow();
-}
-
-/*---------------------------------
-	SEARCH
------------------------------------*/
-
-#search {
-    /*position: absolute;*/
-    /*left: 0px;*/
-    /*bottom: 0px;*/
-}
-
-#search form {
-    background: transparent;
-    border: none;
-}
-
-#search input[type=text] {
-    border:  1px solid  @base-medium;
-    padding: 7px;
-    width: 233px;
-}
-
-#search input[type="submit"]  {
-//    background: none repeat scroll 0 0 @base-dark;
-//    background: @base-dark url(/assets/common/images/bg-striped-2.png);
-
-        background: @base-medium;
-    border:  1px solid @base-dark;
-    color: @base-light;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 4px;
-    padding: 7px;
-    text-transform: uppercase;
-    width: 80px;
-}
-
-#search input[type="submit"]::-moz-focus-inner {
-    border:0;
-}
-
-
-
-/*---------------------------------
-	MAIN CONTENT
------------------------------------*/
-
-#content {
-    padding: 21px 0;
-
-}
-
-/*---------------------------------
-	BREADCRUMBS
------------------------------------*/
-ul.breadcrumbs {
-    margin: 0 0 21px 0;
-}
-
-/*---------------------------------
-	RESULTS
------------------------------------*/
-.thing_container {
-    background: @base-medium;
-}
-
-.ic_caption {
-    background-color: darken(@base-dark, 20%) !important;
-}
-
-.ic_category,
-.ic_text {
+li.token-input-token span {
     color: #fff;
 }
 
-//.info-box {
-//     background:  @base-light url(/assets/common/images/bg-striped-3.png);
-//    height: 100%;
-//}
-
-
-/*---------------------------------
-	FACETS
------------------------------------*/
-
-.facet-container {
-    background:  @base-light url(/assets/common/images/bg-striped-3.png);
+li.token-input-input-token {
+    background: #f1f1f1;
 }
 
-/*---------------------------------
-	FOOTER
------------------------------------*/
-#footer {
-    background: @base-dark;
-    min-height: 100px;
-    padding: 10px 0;
-}
-#footer .secondary-branding {
-    display: none;
-}
-
-/*---------------------------------
-	TOOLBAR
------------------------------------*/
-
-.toolbar {
-     background:  @base-light url(/assets/common/images/bg-striped-3.png);
-     border: none;
-//     .box-shadow();
-}
-
-div.panel {
-//     background:  @base-light url(/assets/common/images/bg-striped-3.png);
-}
-
-/*---------------------------------
-	AUTHENTICATION
------------------------------------*/
-
-#login form {
-    .panel();
-}
-
-/*---------------------------------
-	NOTICES / ERRORS / INFO
------------------------------------*/
-
-.notice {
-    padding: 6px;
-    background: #fffff0;
-    border: 1px solid #ffcc00;
-}
+li.token-input-input-token input[type='text'] {
+    background: transparent !important;
+    margin: 0 0 2px 0;
+} 
