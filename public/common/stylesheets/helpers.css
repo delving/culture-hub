@@ -323,6 +323,10 @@ li.user img {
 	BOOTSTRAP FORM HELPER
 -----------------------------------*/
 
+.error {
+    color: #b02222;
+}
+
 form.data-set {
     display: inline-block;
     *display: inline;
