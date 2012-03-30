@@ -112,12 +112,12 @@ object DataSetProcessor {
               DataSet.cacheMappedRecord(dataSet, record, format.prefix, mainMappingResult.xmlString)
 
               // if the current format is the to be indexed one, send the record out for indexing
-              if (indexingFormat == Some(format) && mainMappingResult.isIndexDocument) {
+              if (indexingFormat == Some(format) && mainMappingResult.isFlatDocument) {
                 Indexing.indexOne(dataSet, record, mainMappingResult.indexDocument, indexingFormat.get.prefix)
               }
 
               // if this is a flat record definition, try to get some summary fields for the hub to show something
-              if (mainMappingResult.isIndexDocument) {
+              if (mainMappingResult.isFlatDocument) {
                 val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
 
                 val mappedSummaryFields = (for (field <- summaryFields) yield {
@@ -180,7 +180,7 @@ object DataSetProcessor {
   }
 
   case class MappingResult(xmlString: String, indexDocument: Option[IndexDocument], nodeTree: Option[Node]) {
-    def isIndexDocument = indexDocument.isDefined
+    def isFlatDocument = indexDocument.isDefined
   }
 
   object MappingResult {

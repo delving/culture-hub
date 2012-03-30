@@ -28,6 +28,8 @@ abstract class MetadataAccessors extends Universal {
 
   protected def assign(key: String): String
 
+  protected def values(key: String): List[String]
+
   // TODO cleanup, unify, decide, conquer
 
   // ~~~ identifiers
@@ -54,7 +56,14 @@ abstract class MetadataAccessors extends Universal {
   def getVisibility: String = assign(VISIBILITY)
   def getUri : String = getRecordType match {
     case OBJECT | USERCOLLECTION | STORY => "/" + getHubId.replaceAll("_", "/")
-    case MDR => "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
+    case MDR =>
+      // only provide a link if there's something to show via AFF
+      val publicFormats = values(PUBLIC_FORMATS)
+      if(publicFormats.size > 0 && publicFormats.contains("aff")) {
+        "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
+      } else {
+        ""
+      }
     case _ => ""
   }
   def getLandingPage = getRecordType match {

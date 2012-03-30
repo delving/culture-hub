@@ -42,6 +42,7 @@ object Constants {
   val EUROPEANA_URI = "europeana_uri"
 
   val FORMAT = "delving_currentFormat"
+  val PUBLIC_FORMATS = "delving_publicFormats"
 
   // ~~~ special indexing fields
   val COLLECTIONS = "delving_userCollections"

@@ -291,6 +291,8 @@ case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAcces
 
     override protected def assign(key: String) = solrDocument.getFirst(key)
 
+    override protected def values(key: String): List[String] = getFieldValue(key).getValueAsArray.toList
+
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
     def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)

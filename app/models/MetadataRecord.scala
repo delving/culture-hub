@@ -123,11 +123,17 @@ object MetadataRecord {
 }
 
 class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, String]) extends MetadataAccessors {
+
   protected def assign(key: String) = {
     dbo.get(key) match {
       case Some(v) => v
       case None => ""
     }
+  }
+
+  protected def values(key: String): List[String] = dbo.get(key) match {
+    case Some(v) => List(v)
+    case None => List.empty
   }
 
   override def getHubId = hubId
