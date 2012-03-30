@@ -1,0 +1,3 @@
+[submodule "conf/record-definitions"]
+        path = conf/record-definitions
+        url = git@github.com:delving/definitions.git
