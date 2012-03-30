@@ -155,15 +155,15 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
           // let's do some rendering
           RecordDefinition.getRecordDefinition(prefix) match {
             case Some(definition) =>
-                val viewDefinition = ViewRenderer.getViewDefinition(viewDefinitionFormatName, viewName)
-                if(viewDefinition.isEmpty) {
+                val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+                if(viewRenderer.isEmpty) {
                   log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
                   None
                 } else {
                   try {
                     val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), rawRecord.get)
                     // TODO see what to do with roles
-                    Some(ViewRenderer.renderView(prefix, viewName, viewDefinition.get, wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+                    Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
                 } catch {
                   case t =>
                     log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)

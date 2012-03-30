@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import core.rendering.RenderNode
 import eu.delving.templates.Play2VirtualFile
 import io.Source
 import java.io.File
@@ -26,6 +25,7 @@ import play.api.Play.current
 import play.api.test._
 import play.api.test.Helpers._
 import play.templates.GenericTemplateLoader
+import core.rendering._
 
 /**
  *
@@ -41,7 +41,8 @@ class ViewRenderSpec extends Specification {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = core.rendering.ViewRenderer.renderView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"))
+        val renderer = new ViewRenderer("icn", "full")
+        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"))
 
         RenderNode.visit(view.viewTree)
 
@@ -83,10 +84,10 @@ class ViewRenderSpec extends Specification {
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
-        val affViews = new File(Play.application.path, "conf/view-definitions/aff-view-definition.xml")
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val view = core.rendering.ViewRenderer.renderView(affViews, "full", affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
+        val renderer = new ViewRenderer("aff", "full")
+        val view = renderer.renderRecord(affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
@@ -110,7 +111,7 @@ class ViewRenderSpec extends Specification {
 
       val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-      val view = core.rendering.ViewRenderer.renderView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+      val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
 
       val xml = view.toXmlString
 
@@ -122,7 +123,7 @@ class ViewRenderSpec extends Specification {
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
       <dc:title>A test hierarchical record</dc:title>
-      <delving:description>This is a test record</delving:description>
+      <delving:description>This is a test record<delving:description>
       <places>
           <place geo:country="France">
                <name>Paris</name>
@@ -145,7 +146,8 @@ class ViewRenderSpec extends Specification {
     "render a record as JSON" in {
 
       val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-      val view = core.rendering.ViewRenderer.renderView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+      val renderer = new ViewRenderer("aff", "xml")
+      val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
       val json = view.toJson
 
       println(json)
@@ -171,13 +173,12 @@ class ViewRenderSpec extends Specification {
           "tib" -> "http://www.thuisinbrabant.nl/namespace"
         )
 
-        val tibViews = new File(Play.application.path, "conf/view-definitions/legacy-view-definition.xml")
-
         // wrap legacy record (as it would be in the mongo cache) in a root element with namespaces
 
         val testRecord = "<root %s>%s</root>".format(namespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), legacyRecord())
 
-        val view = core.rendering.ViewRenderer.renderView(tibViews, "full", testRecord, List.empty, namespaces, Lang("en"))
+        val renderer = new ViewRenderer("tib", "full")
+        val view = renderer.renderRecord(testRecord, List.empty, namespaces, Lang("en"))
 
         println(view.toXmlString)
         println()

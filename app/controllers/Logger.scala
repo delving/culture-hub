@@ -81,24 +81,24 @@ trait Logging extends Secured { self: ApplicationController =>
   val CH = "CultureHub"
 
   def info(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(message).format(args : _ *))
+    Logger(CH).info(withContext(message.format(args : _ *)))
   }
   def info(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(message).format(args : _ *), e)
+    Logger(CH).info(withContext(message.format(args : _ *)), e)
   }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(message).format(args : _ *))
+    Logger(CH).warn(withContext(message.format(args : _ *)))
   }
   def warning(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(message).format(args : _ *), e)
+    Logger(CH).warn(withContext(message.format(args : _ *)), e)
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
-    Logger(CH).error(withContext(message).format(args : _ *))
+    Logger(CH).error(withContext(message.format(args : _ *)))
     reportError(request, if(message != null) message.format(args) else "", theme)
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
-    Logger(CH).error(withContext(message).format(args : _ *), e)
+    Logger(CH).error(withContext(message.format(args : _ *)), e)
     reportError(request, if(message != null) message.format(args) else "", theme)
   }
 

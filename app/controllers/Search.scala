@@ -7,6 +7,7 @@ import views.Helpers._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages
+import core.rendering.ViewRenderer
 
 /**
  *
@@ -14,6 +15,9 @@ import play.api.i18n.Messages
  */
 
 object Search extends DelvingController {
+  
+  // TODO move later
+  val affViewRenderer = ViewRenderer.fromDefinition("aff", "full")
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
@@ -52,39 +56,41 @@ object Search extends DelvingController {
     Action {
       implicit request =>
         val id = "%s_%s_%s".format(orgId, spec, recordId)
-        val idType = DelvingIdType(id, Params(request.queryString).all.getOrElse("idType", Seq("hubId")).head)
-        val chQuery = SolrQueryService.createCHQuery(request, theme, false)
-        val changedQuery = chQuery.copy(solrQuery = chQuery.solrQuery.setQuery("%s:\"%s\"".format(idType.idSearchField, idType.normalisedId)))
-        val queryResponse = SolrQueryService.getSolrResponseFromServer(changedQuery.solrQuery, true)
-        val response = CHResponse(Params(request.queryString), theme, queryResponse, changedQuery)
+        
+        MetadataRecord.getMDR(id) match {
+          case Some(mdr) =>
 
-        if (response.response.getResults.size() == 0) {
-          NotFound(id)
-        } else {
-          val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
-            // we're coming from someplace else then a search, remove the return to results cookie
-            request.session - (RETURN_TO_RESULTS)
-          } else {
-            request.session
-          }
+            if(mdr.getCachedTransformedRecord("aff").isDefined) {
+              val record = mdr.getCachedTransformedRecord("aff").get
+              if(!affViewRenderer.isDefined) {
+                logError("Could not find AFF view definition")
+                InternalServerError
+              } else {
+                val definition = RecordDefinition.getRecordDefinition("aff").get
+                val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), record)
+                // TODO
+                val grantTypes = List.empty
+                val renderResult = affViewRenderer.get.renderRecord(wrappedRecord, grantTypes, definition.getNamespaces, lang)
 
-          NotFound("Gonna be here by tomorrow")
-          // TODO
-          // if there's no AFF mapping for this record, tell the user 404
-          // otherwise call the view renderer, and render html
+                val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+                  // we're coming from someplace else then a search, remove the return to results cookie
+                  request.session - (RETURN_TO_RESULTS)
+                } else {
+                  request.session
+                }
 
+                val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+                val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-          /*
-          if (overlay) {
-            Ok(Template("Search/overlay.html", 'fullDoc -> fullItemView.getFullDoc))
-          } else {
-            val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-            val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
-            Ok(Template("Search/object.html", 'fullDoc -> fullItemView.getFullDoc, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
-          }.withSession(updatedSession)
-        */
+                Ok(Template("Search/object.html", 'summaryFields -> mdr.summaryFields, 'fullView -> renderResult.viewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+              }
+
+            } else {
+              NotFound(Messages("heritageObject.notViewable"))
+            }
+
+          case None => NotFound("Record was not found")
         }
-
     }
   }
 

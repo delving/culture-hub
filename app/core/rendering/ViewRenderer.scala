@@ -37,15 +37,17 @@ import play.api.i18n.{Messages, Lang}
 
 object ViewRenderer {
 
-  val log = Logger("CultureHub")
+  def fromDefinition(schema: String, viewName: String) = {
+    val definition = getViewDefinition(schema, viewName)
+    if(definition.isDefined) {
+      Some(new ViewRenderer(schema, viewName))
+    } else {
+      None
+    }
+  }
 
-  val dbFactory = DocumentBuilderFactory.newInstance
-  dbFactory.setNamespaceAware(true)
-  val dBuilder = dbFactory.newDocumentBuilder
-
-  
-  def getViewDefinition(format: String, viewName: String): Option[Node] = {
-    val definitionFile = new File("conf/view-definitions/%s-view-definition.xml".format(format))
+  def getViewDefinition(schema: String, viewName: String): Option[Node] = {
+    val definitionFile = new File("conf/view-definitions/%s-view-definition.xml".format(schema))
     if(!definitionFile.exists()) {
       None
     } else {
@@ -53,17 +55,28 @@ object ViewRenderer {
       (xml \ "view").filter(v => (v \ "@name").text == viewName).headOption
     }
   }
+
+}
+
+class ViewRenderer(schema: String, viewName: String) {
   
-  def renderView(viewDefinitionSource: File, view: String, record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
-    val prefix = viewDefinitionSource.getName.substring(0, viewDefinitionSource.getName.indexOf("-"))
-    getViewDefinition(prefix, view) match {
+  val log = Logger("CultureHub")
+
+  val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewName)
+
+  val dbFactory = DocumentBuilderFactory.newInstance
+  dbFactory.setNamespaceAware(true)
+  val dBuilder = dbFactory.newDocumentBuilder
+
+  def renderRecord(record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
+    viewDef match {
       case Some(viewDefinition) =>
-        renderView(prefix, view, viewDefinition, record, userGrantTypes, namespaces, lang)
-      case None => throw new RuntimeException("Could not find view definition '%s' in file '%s'".format(view, viewDefinitionSource.getAbsolutePath))
+        renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang)
+      case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewName, schema))
     }
   }
 
-  def renderView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
+  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
