@@ -42,16 +42,16 @@
 
 <div id="header">
     <div class="container">
-        <div class="grid_12">
+        *{<div class="grid_12">}*
             <h1>${themeInfo.displayName()}</h1>
             <h2>${themeInfo.get('siteSlogan').raw()}</h2>
-        </div>
+        *{</div>}*
     </div>
 </div>
 
 <div id="search" role="search">
     <div class="container">
-        <div class="grid_12">
+        <div class="span12">
             <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                 <input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                 <input type="submit" value="&{'ui.label.search'}">

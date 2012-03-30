@@ -36,6 +36,18 @@
                     </td>
                 </tr>
                 #{/list}
+                #{else}
+                <tr>
+                    <td>
+                        No virtual collections are defined
+                    </td>
+                    <td>
+                        #{if isOwner}
+                            <a class="btn btn-primary btn-prominent" href="/organizations/${orgId}/virtualCollection/add">&{'organization.virtualCollection.new'}</a>
+                        #{/if}
+                    </td>
+                </tr>
+                #{/else}
                 </tbody>
             </table>
     </div>
