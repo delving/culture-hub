@@ -3,7 +3,6 @@ package core.processing
 import play.api.Play.current
 import core.mapping.MappingService
 import collection.JavaConverters._
-import models.{DataSetState, RecordDefinition, DataSet}
 import eu.delving.sip.{IndexDocument, MappingEngine}
 import org.w3c.dom.Node
 import core.indexing.{IndexingService, Indexing}
@@ -12,6 +11,7 @@ import util.Constants._
 import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
+import models.{Visibility, DataSetState, RecordDefinition, DataSet}
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -26,7 +26,7 @@ object DataSetProcessor {
 
   val AFF = "aff"
 
-  val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, VISIBILITY, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, DATA_PROVIDER, SPEC)
+  val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, SPEC)
 
   def process(dataSet: DataSet) {
 
@@ -120,7 +120,7 @@ object DataSetProcessor {
               if (mainMappingResult.isIndexDocument) {
                 val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
 
-                val summaryFieldsMap = (for (field <- summaryFields) yield {
+                val mappedSummaryFields = (for (field <- summaryFields) yield {
                   val value = indexDocument.get(field)
                   val summaryFieldValue: String = if (value.isDefined) {
                     if (value.get.isEmpty) "" else value.get.get(0).toString
@@ -130,7 +130,16 @@ object DataSetProcessor {
                   (field -> summaryFieldValue)
                 }).toMap[String, String]
 
-                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> summaryFieldsMap.asDBObject))
+                // set SummaryFields required by the hub, result of processing
+                val hubSummaryFields = Map(
+                  SPEC -> dataSet.spec,
+                  RECORD_TYPE -> MDR,
+                  VISIBILITY -> Visibility.PUBLIC.value,
+                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+                  HAS_DIGITAL_OBJECT -> (indexDocument.get(THUMBNAIL).isDefined && indexDocument.get(THUMBNAIL).get.size() > 0 && indexDocument.get(THUMBNAIL).get.get(0).toString.length() > 0)
+                )
+
+                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (mappedSummaryFields ++ hubSummaryFields).asDBObject))
               }
 
               // also cache the result of possible crosswalks
