@@ -1,8 +1,4 @@
-*{<div class="navbar navbar-fixed-top">}*
-*{<div class="navbar-inner">}*
-*{<div class="container">}*
-*{<div class="nav-collapse">}*
-<ul class="nav">
+<ul class="nav ${_extraClass ? _extraClass : ''}">
 #{if !_userName}
     <li><a href="/login" rel="nofollow" class="" tabindex="1">${messages.get('ui.label.login')}</a></li>
     <li class="divider-vertical"></li>
@@ -31,8 +27,4 @@
 
 #{/else}
 </ul>
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
 

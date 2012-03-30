@@ -2,47 +2,46 @@
 #{include 'commonHeader.html'/}
 
 <div id="page-top">
-    <div class="container container_12">
-
-        <div class="grid_4" id="primary-branding">
-            <a href="@{controllers.routes.Application.index()}">
-                <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName()}" title="${themeInfo.displayName()}"/>
-            </a>
+    <div class="container">
+        <div class="row">
+            <div class="span6">
+                <div id="primary-branding">
+                    <a href="@{controllers.routes.Application.index()}">
+                        <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName()}" title="${themeInfo.displayName()}"/>
+                    </a>
+                </div>
+            </div>
+            <div class="span6">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="container">
+                        *{<div class="user-nav pull-right" id="user-nav">}*
+                            #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), extraClass:"pull-right" /}
+                        </div>
+                        *{</div>}*
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="secondary-branding" role="banner">
-            <a href="${themeInfo.get('secondaryBrandingURL')}" target="_blank" title="${themeInfo.get('secondaryBrandingName')}">
-                <img src='${themeInfo.path("images/logo-secondary.png")}' alt="" title=""/>
-            </a>
+        <div class="row">
+            <div class="span12">
+                <div class="pull-right" id="site-nav">
+                    <ul>
+                        <!--site nav-->
+                        <ul>
+                            <li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
+                            <li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
+                        #{mainMenu menu:menu /}
+                        </ul>
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <div class="grid_8 user-nav" id="user-nav">
-            #{userNav
-                userName: userName,
-                email:email,
-                organizations:organizations,
-                navStyle:themeInfo.get('userNavStyle'),
-                showLang:themeInfo.get('userNavLangSelect')
-            /}
-        </div>
-
-        <div class="grid_12" id="site-nav">
-            <ul>
-                <!--site nav-->
-                <ul>
-                    <li class=''><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                    <li class=''><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
-                    #{mainMenu menu:menu /}
-                </ul>
-            </ul>
-
-        </div>
-
     </div>
 </div>
 
 <div id="header">
-    <div class="container_12">
+    <div class="container">
         <div class="grid_12">
             <h1>${themeInfo.displayName()}</h1>
             <h2>${themeInfo.get('siteSlogan').raw()}</h2>
@@ -51,7 +50,7 @@
 </div>
 
 <div id="search" role="search">
-    <div class="container_12">
+    <div class="container">
         <div class="grid_12">
             <form method="get" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                 <input type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
@@ -62,13 +61,13 @@
 </div>
 
 <div id="content" role="main">
-    <div class="container_12">
+    <div class="container">
         #{doLayout /}
     </div>
 </div>
 
 <div id="footer">
-    <div class="container_12">
+    <div class="container">
         <div class="grid_6">
             <div class="poweredBy">
                 <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img src="@{routes.Assets.at('/common/images/powered-by-delving.png')}" alt="Powered by DELVING.EU" width="100"/></a>
