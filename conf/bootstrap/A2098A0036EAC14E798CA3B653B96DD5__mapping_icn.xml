@@ -1,28 +1,32 @@
 <rec-mapping prefix="icn">
   <facts>
     <entry>
-      <string>orgId</string>
-      <string>delving</string>
+      <string>spec</string>
+      <string>PrincesseofSample</string>
     </entry>
     <entry>
-      <string>spec</string>
-      <string>Princessehof</string>
+      <string>collectionType</string>
+      <string>all</string>
     </entry>
     <entry>
       <string>dataProvider</string>
-      <string>Prinecssehof</string>
+      <string>Sample Man</string>
     </entry>
     <entry>
       <string>name</string>
-      <string>Princessehof</string>
+      <string>Princessehof Sample Dataset</string>
     </entry>
     <entry>
       <string>rights</string>
       <string>http://creativecommons.org/publicdomain/mark/1.0/</string>
     </entry>
     <entry>
+      <string>namespacePrefix</string>
+      <string>raw</string>
+    </entry>
+    <entry>
       <string>provider</string>
-      <string>Princessehof</string>
+      <string>Sample Man</string>
     </entry>
     <entry>
       <string>language</string>
@@ -30,17 +34,87 @@
     </entry>
     <entry>
       <string>type</string>
-      <string>TEXT</string>
+      <string>IMAGE</string>
     </entry>
     <entry>
       <string>country</string>
       <string>netherlands</string>
     </entry>
   </facts>
-  <functions/>
+  <functions>
+    <mapping-function name="cleanAdlibImageReference">
+      <sample-input>
+        <string>..\..\..\Images PH\OKS 1989-001 [01].JPG</string>
+        <string>../../../Images PH/OKS 1989-001 [01].JPG</string>
+      </sample-input>
+      <documentation></documentation>
+      <groovy-code>
+        <string>it.replaceAll(&apos;; &apos;, &apos;_&apos;).replaceAll(&apos;JPG&apos;, &apos;jpg&apos;).replaceAll(&quot;.*?[\\\\|//]&quot;, &quot;&quot;).replaceAll(&quot; &quot;, &quot;%20&quot;).replaceAll(&quot;\\[&quot;, &quot;%5B&quot;).replaceAll(&quot;]&quot;, &quot;%5D&quot;)</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="cleanUrl">
+      <sample-input>
+        <string>sjoerd [0]</string>
+      </sample-input>
+      <documentation></documentation>
+      <groovy-code>
+        <string>it.replaceAll(&quot; &quot;, &quot;%20&quot;).replaceAll(&quot;\\[&quot;, &quot;%5B&quot;).replaceAll(&quot;]&quot;, &quot;%5D&quot;)</string>
+      </groovy-code>
+    </mapping-function>
+  </functions>
   <node-mappings>
-    <node-mapping inputPath="/input/creator" outputPath="/icn:record/dc:creator"/>
-    <node-mapping inputPath="/input/description" outputPath="/icn:record/dc:description"/>
+    <node-mapping inputPath="/input/creator.date_of_birth" outputPath="/icn:record/icn:creatorYearOfBirth"/>
+    <node-mapping inputPath="/input/creator.date_of_death" outputPath="/icn:record/icn:creatorYearOfDeath"/>
+    <node-mapping inputPath="/input/creator.role" outputPath="/icn:record/icn:creatorRole"/>
+    <node-mapping inputPath="/input/material" outputPath="/icn:record/icn:material"/>
+    <node-mapping inputPath="/input/institution.place" outputPath="/icn:record/icn:location"/>
+    <node-mapping inputPath="/input" outputPath="/icn:record/icn:province">
+      <groovy-code>
+        <string>&quot;Friesland&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/collection" outputPath="/icn:record/icn:collectionPart"/>
     <node-mapping inputPath="/input/title" outputPath="/icn:record/dc:title"/>
+    <node-mapping inputPath="/input/creator" outputPath="/icn:record/dc:creator"/>
+    <node-mapping inputPath="/input/object_name" outputPath="/icn:record/dc:subject"/>
+    <node-mapping inputPath="/input/description" outputPath="/icn:record/dc:description"/>
+    <node-mapping inputPath="/input/dimension.type" outputPath="/icn:record/dc:format">
+      <tuplePaths>
+        <path>/input/dimension.unit</path>
+        <path>/input/dimension.value</path>
+      </tuplePaths>
+    </node-mapping>
+    <node-mapping inputPath="/input/priref" outputPath="/icn:record/dc:identifier"/>
+    <node-mapping inputPath="/input/title.notes" outputPath="/icn:record/dcterms:alternative"/>
+    <node-mapping inputPath="/input/content.date.note" outputPath="/icn:record/dcterms:temporal"/>
+    <node-mapping inputPath="/input/copyright" outputPath="/icn:record/dcterms:rightsHolder">
+      <tuplePaths>
+        <path>/input/current_owner</path>
+      </tuplePaths>
+    </node-mapping>
+    <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/europeana:isShownBy">
+      <groovy-code>
+        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier_URL)}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/facts/rights" outputPath="/icn:record/europeana:rights"/>
+    <node-mapping inputPath="/input/object_number" outputPath="/icn:record/europeana:isShownAt">
+      <groovy-code>
+        <string>&quot;http://collectie.princessehof.nl/portal/object/${cleanUrl(_object_number)}.html&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/facts/provider" outputPath="/icn:record/europeana:provider"/>
+    <node-mapping inputPath="/facts/dataProvider" outputPath="/icn:record/europeana:dataProvider"/>
+    <node-mapping inputPath="/facts/type" outputPath="/icn:record/europeana:type"/>
+    <node-mapping inputPath="/input/object_number" outputPath="/icn:record/europeana:uri"/>
+    <node-mapping inputPath="/facts/language" outputPath="/icn:record/europeana:language"/>
+    <node-mapping inputPath="/facts/country" outputPath="/icn:record/europeana:country"/>
+    <node-mapping inputPath="/facts/spec" outputPath="/icn:record/europeana:collectionName"/>
+    <node-mapping inputPath="/facts/name" outputPath="/icn:record/europeana:collectionTitle"/>
+    <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/delving:thumbnail">
+      <groovy-code>
+        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier_URL)}&quot;</string>
+      </groovy-code>
+    </node-mapping>
   </node-mappings>
 </rec-mapping>
