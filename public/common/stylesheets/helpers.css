@@ -385,3 +385,10 @@ form.form-delving label.radio {
     margin: 0;
 }
 
+/*---------------------------------
+	BOOTSTRAP DROPDOWN HELPER
+-----------------------------------*/
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
