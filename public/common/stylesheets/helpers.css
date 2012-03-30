@@ -301,3 +301,83 @@
     display: inline-block;
     float: left;
 }
+
+/*---------------------------------
+	USER NAV
+-----------------------------------*/
+
+li.user a {
+    padding-left: 0 !important;
+}
+
+li.user img {
+    /*vertical-align: top;*/
+    margin: -3px 11px 0 0;
+}
+
+.nav.nav-pills.bordered > li > a {
+    border: 1px solid #f1f1f1;
+}
+
+/*---------------------------------
+	BOOTSTRAP FORM HELPER
+-----------------------------------*/
+
+form.data-set {
+    display: inline-block;
+    *display: inline;
+    /* IE7 inline-block hack */
+
+    *zoom: 1;
+    background:  transparent;
+    margin: 0;
+    margin: -23px 0 0 4px;
+    font-size: 13px;
+    /*line-height: 18px;*/
+    vertical-align: middle;
+    *margin-left: .3em;
+}
+
+
+form.form-delving label {
+    font-weight: bold;
+}
+
+form.form-delving .controls label,
+form.form-delving label.checkbox,
+form.form-delving label.radio {
+    font-weight: normal;
+    /*color: #444;*/
+}
+
+.help-inline {
+    color: #888;
+    font-style: italic;
+}
+
+/*.btn-group .btn:first-child:not([type='form']) {*/
+/*margin-left: 0;*/
+/*-webkit-border-top-left-radius: 4px;*/
+/*-moz-border-radius-topleft: 4px;*/
+/*border-top-left-radius: 4px;*/
+/*-webkit-border-bottom-left-radius: 4px;*/
+/*-moz-border-radius-bottomleft: 4px;*/
+/*border-bottom-left-radius: 4px;*/
+/*}*/
+
+/*---------------------------------
+	BOOTSTRAP BUTTON HELPER
+-----------------------------------*/
+
+.btn-prominent {
+    padding: 4px 21px 4px;
+}
+
+.btn-full-width {
+    width: 99.666%;
+}
+
+.btn-toolbar.nom {
+    margin: 0;
+}
+
