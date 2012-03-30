@@ -41,7 +41,6 @@ object Constants {
   val ORG_ID = "delving_orgId"
   val EUROPEANA_URI = "europeana_uri"
 
-  val SPEC = "delving_spec"
   val FORMAT = "delving_currentFormat"
   val RECORD_TYPE = "delving_recordType"
 
@@ -59,6 +58,9 @@ object Constants {
   val THUMBNAIL = SummaryField.THUMBNAIL.tag
   val LANDING_PAGE = SummaryField.LANDING_PAGE.tag
   val DEEP_ZOOM_URL = SummaryField.DEEP_ZOOM_URL.tag
+  val PROVIDER = SummaryField.PROVIDER.tag
+  val DATA_PROVIDER = SummaryField.DATA_PROVIDER.tag
+  val SPEC = SummaryField.SPEC.tag
 
 
   // TODO add to SummaryField??

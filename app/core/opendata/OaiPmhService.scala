@@ -220,10 +220,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
     }
-    val records: List[MetadataRecord] = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
+    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    val totalValidRecords = records.size
     // FIXME these head calls blow up if there are no records
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
@@ -309,7 +308,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
-    val recordAsString = "<record>%s</record>".format(record.getCachedTransformedRecord(metadataPrefix)).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val recordAsString = "<record>%s</record>".format(record.getCachedTransformedRecord(metadataPrefix).getOrElse("")).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML

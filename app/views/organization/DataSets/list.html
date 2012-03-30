@@ -98,7 +98,7 @@
                                 </form>
                             #{/if}
 
-                            #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.INDEXING().name()}
+                            #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.PROCESSING().name()}
 
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
                                     #{authenticityToken /}
@@ -154,43 +154,42 @@
                         </script>
 
                         #{if i.state.name() == models.DataSetState.QUEUED().name()}
-                            <script type="text/javascript">
-                                $('#description${i.spec}').smartupdater({
-                                    url:"/organizations/${orgId}/dataset/${i.spec}/state",
-                                    minTimeout:2000
-                                }, function (data) {
-                                    var d = $.parseJSON(data);
-                                    if (d.state == '${models.DataSetState.INDEXING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
-                                        // yadaaa
-                                        document.location = "/organizations/${orgId}/dataset";
-                                    }
-                                });
-                            </script>
-                        #{/if}
+                         <script type="text/javascript">
+                             $('#description${i.spec}').smartupdater({
+                                 url: "/organizations/${orgId}/dataset/${i.spec}/state",
+                                 minTimeout: 2000
+                             }, function (data) {
+                                 var d = $.parseJSON(data);
+                                 if (d.state == '${models.DataSetState.PROCESSING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
+                                     // yadaaa
+                                     document.location = "/organizations/${orgId}/dataset";
+                                 }
+                             });
+                         </script>
+                         #{/if}
 
-                        #{if i.state.name() == models.DataSetState.INDEXING().name()}
-
+                         #{if i.state.name() == models.DataSetState.PROCESSING().name()}
                             *{<div class="progress progress-striped active">}*
                                 <div class="progress"  id="indexCounter${i.spec}"></div>
                             *{</div>}*
-                            <script type="text/javascript">
-                                $('#indexCounter${i.spec}').progressbar();
-                                $('#indexCounter${i.spec}').smartupdater({
-                                    url:"/organizations/${orgId}/dataset/${i.spec}/indexingStatus",
-                                    minTimeout:2000
-                                }, function (data) {
-                                    var d = $.parseJSON(data);
-                                    if (d.status == 'DONE') {
-                                        $('#indexCounter${i.spec}').smartupdaterStop();
-                                        $('#indexCounter${i.spec}').progressbar("value", 100);
-                                        document.location = "/organizations/${orgId}/dataset";
-                                    }
-                                    else {
-                                        $('#indexCounter${i.spec}').progressbar("value", d.status);
-                                    }
-                                });
-                            </script>
-                        #{/if}
+                         <script type="text/javascript">
+                             $('#indexCounter${i.spec}').progressbar();
+                             $('#indexCounter${i.spec}').smartupdater({
+                                 url : "/organizations/${orgId}/dataset/${i.spec}/indexingStatus",
+                                 minTimeout: 2000
+                             }, function (data) {
+                                 var d = $.parseJSON(data);
+                                 if (d.status == 'DONE') {
+                                     $('#indexCounter${i.spec}').smartupdaterStop();
+                                     $('#indexCounter${i.spec}').progressbar("value", 100);
+                                     document.location = "/organizations/${orgId}/dataset";
+                                 }
+                                 else {
+                                     $('#indexCounter${i.spec}').progressbar("value", d.status);
+                                 }
+                             });
+                         </script>
+                         #{/if}
 
                         *{** INDEXING PROGRESS BAR **}*
                         *{<div id="#indexCounter${i.spec}"></div>}*

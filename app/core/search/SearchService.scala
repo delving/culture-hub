@@ -16,18 +16,18 @@ package core.search
  * limitations under the License.
  */
 
-import models.PortalTheme
 import util.Constants._
 import exceptions.AccessKeyException
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
-import play.api.mvc.{RequestHeader, Result}
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
 import xml.Elem
 import play.api.Logger
 import collection.immutable.ListMap
-import net.liftweb.json.JsonAST
+import play.api.mvc.{PlainResult, RequestHeader}
+import models.{RecordDefinition, MetadataRecord, PortalTheme}
+import core.rendering.{RenderedView, ViewRenderer}
 
 /**
  *
@@ -36,7 +36,7 @@ import net.liftweb.json.JsonAST
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): Result =
+  def getApiResult(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): PlainResult =
     new SearchService(request, theme, hiddenQueryFilters).getApiResult
 
 
@@ -51,6 +51,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
   import xml.PrettyPrinter
   import java.lang.String
 
+  val log = Logger("CultureHub")
+
   val prettyPrinter = new PrettyPrinter(200, 5)
   val params = Params(request.queryString)
   val format = params.getValueOrElse("format", "default")
@@ -60,7 +62,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
    * This function parses the response for with output format needs to be rendered
    */
 
-  def getApiResult: Result = {
+  def getApiResult: PlainResult = {
 
     val response = try {
       if (theme.apiWsKey) {
@@ -90,18 +92,17 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     response
   }
 
-  def getJSONResultResponse(authorized: Boolean = true, callback: String = ""): Result = {
+  def getJSONResultResponse(authorized: Boolean = true, callback: String = ""): PlainResult = {
 
-    import org.apache.solr.client.solrj.SolrQuery
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") =>
-        val fullItemView = getFullResultsFromSolr
-        val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "json"), response = fullItemView.response)
-        FullView(fullItemView, apiLanguage, response1).renderAsJSON(authorized)
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
+        case Some(rendered) => rendered.toJson
+        case None => return NotFound
+      }
       case _ =>
         val briefView = getBriefResultsFromSolr
         SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsJSON(authorized)
@@ -110,18 +111,17 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
 
   }
 
-  def getXMLResultResponse(authorized: Boolean = true): Result = {
+  def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
     import xml.Elem
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") =>
-        import org.apache.solr.client.solrj.SolrQuery
-        val fullItemView = getFullResultsFromSolr
-        val response1 = CHResponse(params = params, theme = theme, chQuery = CHQuery(solrQuery = new SolrQuery("*:*"), responseFormat = "xml"), response = fullItemView.response)
-        FullView(fullItemView, apiLanguage, response1).renderAsXML(authorized)
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
+          case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
+          case None => return NotFound
+      }
       case _ =>
         val briefView = getBriefResultsFromSolr
         SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsXML(authorized)
@@ -136,17 +136,55 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
-  private def getFullResultsFromSolr: FullItemView = {
+  def getRenderedFullView(viewName: String): Option[RenderedView] = {
     require(params._contains("id"))
-    val idType = params.getValueOrElse("idType", PMH_ID)
-    val response = if (params.hasKeyAndValue("mlt", "true")) SolrQueryService.getFullSolrResponseFromServer(params.getValue("id"), idType, true)
-    else SolrQueryService.getFullSolrResponseFromServer(params.getValue("id"), idType)
-    FullItemView(SolrBindingService.getFullDoc(response), response)
+    val id = params.getValue("id")
+    val idType = params.getValueOrElse("idType", HUB_ID)
+    SolrQueryService.resolveHubIdAndFormat(id, idType) match {
+      case Some((hubId, prefix)) =>
+        val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
+        if(rawRecord.isEmpty) {
+          log.trace("Could not find record with format %s for hubId %s".format(prefix, hubId))
+          None
+        } else {
+
+          // handle legacy formats
+          val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
+          val viewDefinitionFormatName = if(legacyFormats.contains(prefix)) "legacy" else prefix
+
+          // let's do some rendering
+          RecordDefinition.getRecordDefinition(prefix) match {
+            case Some(definition) =>
+                val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+                if(viewRenderer.isEmpty) {
+                  log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
+                  None
+                } else {
+                  try {
+                    val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), rawRecord.get)
+                    // TODO see what to do with roles
+                    Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+                } catch {
+                  case t =>
+                    log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
+                    None
+                }
+            }
+            case None =>
+              log.warn("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
+              None
+          }
+        }
+      case None =>
+        log.trace("Could not find record with id %s and idType %s in SOLR".format(id, idType))
+        None
+    }
+
+
   }
 
-
   def errorResponse(error: String = "Unable to respond to the API request",
-                    errorMessage: String = "Unable to determine the cause of the Failure", format: String = "xml"): Result = {
+                    errorMessage: String = "Unable to determine the cause of the Failure", format: String = "xml"): PlainResult = {
 
     def toXML: String = {
       val response =
@@ -176,26 +214,19 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     response
   }
 
-  def getSimileResultResponse(callback : String = "") : Result  = {
+  def getSimileResultResponse(callback : String = "") : PlainResult  = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.{Extraction, Printer}
     import collection.immutable.ListMap
     implicit val formats = net.liftweb.json.DefaultFormats
 
-    val filteredFields = Array("delving_title", "delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
-
     try {
       val output : ListMap[String, Any] = if (params.valueIsNonEmpty("id")) {
-        val recordMap = collection.mutable.ListMap[String, Any]()
-        val fullItemView: FullItemView = getFullResultsFromSolr
-        fullItemView.getFullDoc.getFieldValuesFiltered(false, filteredFields)
-          .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, fv.getValueAsArray))
-
-        ListMap("result" ->
-          ListMap("item" -> ListMap(recordMap.toSeq: _*))
-        )
+        // we just don't do SIMILE of full results yet
+        return BadRequest
+      } else {
+        ListMap("items" -> getBriefResultsFromSolr.getBriefDocs.map(doc => renderSimileRecord(doc)))
       }
-      else ListMap("items" -> getBriefResultsFromSolr.getBriefDocs.map(doc => renderSimileRecord(doc)))
 
       val outputJson = Printer.pretty(render(Extraction.decompose(output)))
 
@@ -379,79 +410,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
     outputJson
   }
 }
-
-
-case class FullView(fullResult: FullItemView, language: String = "en", chResponse: CHResponse) {
-  //
-
-  import xml.Elem
-
-  private val filteredFields = Array("delving_title", "delving_description", "delving_owner", "delving_creator", "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
-
-  val filterKeys = List("id", "timestamp", "score")
-  val uniqueKeyNames = fullResult.getFullDoc.solrDocument.getFieldNames.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).toList.sortWith(_ > _)
-
-
-  def renderAsXML(authorized: Boolean): Elem = {
-    val response: Elem =
-      <result xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
-              xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-              xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
-              xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
-        <layout>
-          <fields>
-            {uniqueKeyNames.map {
-            item =>
-              <field>
-                <key>{SearchService.localiseKey(item, language)}</key>
-                <value>{item}</value>
-              </field>
-          }}
-          </fields>
-        </layout>
-        <item>
-          <fields>
-            {for (field <- fullResult.getFullDoc.getFieldValuesFiltered(false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)) yield
-            SolrQueryService.renderXMLFields(field, chResponse)}
-          </fields>
-        </item>
-        {if (!fullResult.getRelatedItems.isEmpty)
-        <relatedItems>
-          {fullResult.getRelatedItems.map(item =>
-          <item>
-            <fields>
-              {item.getFieldValuesFiltered(false, Array()).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
-            </fields>
-          {if (item.getHighlights.isEmpty) <highlights/>
-          else
-            <highlights>
-              {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse))}
-            </highlights>}
-          </item>
-        )}
-        </relatedItems>}
-      </result>
-    response
-  }
-
-  def renderAsJSON(authorized: Boolean): String = {
-    import collection.immutable.ListMap
-    import net.liftweb.json.{JsonAST, Extraction, Printer}
-    implicit val formats = net.liftweb.json.DefaultFormats
-
-    val recordMap = collection.mutable.ListMap[String, Any]()
-    fullResult.getFullDoc.getFieldValuesFiltered(false, filteredFields)
-      .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKeyAsXml, fv.getValueAsArray))
-
-    val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
-      ListMap("result" ->
-        ListMap("item" -> ListMap(recordMap.toSeq: _*))
-      )
-    )))
-    outputJson
-  }
-}
-
 
 case class ExplainItem(label: String, options: List[String] = List(), description: String = "") {
 

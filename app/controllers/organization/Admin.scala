@@ -72,7 +72,7 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val reIndexable = DataSet.findByState(DataSetState.ENABLED).toList
-        reIndexable foreach { r => DataSet.updateStateAndIndexingCount(r, DataSetState.QUEUED)}
+        reIndexable foreach { r => DataSet.updateStateAndProcessingCount(r, DataSetState.QUEUED)}
         Ok("Queued %s DataSets for indexing".format(reIndexable.size))
     }
   }

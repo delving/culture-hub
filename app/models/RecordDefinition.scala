@@ -28,10 +28,14 @@ import play.api.Play.current
 
 case class RecordDefinition(prefix: String,
                             schema: String,
-                            namespace: String,              // the namespace of the format
-                            allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
-                            roles: List[Role] = List.empty  // roles that are described in the RecordDefinition
-                            )
+                            namespace: String,               // the namespace of the format
+                            allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
+                            roles: List[Role] = List.empty,  // roles that are described in the RecordDefinition
+                            isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
+                            ) {
+
+  def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
+}
 
 case class Namespace(prefix: String, uri: String, schema: String)
 
@@ -47,16 +51,28 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
 object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
+  val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
+  val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
   val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
   def recordDefinitions = parseRecordDefinitions
 
+  def getRecordDefinition(prefix: String): Option[RecordDefinition] = recordDefinitions.find(_.prefix == prefix)
+
   def getRecordDefinitionFiles: Seq[File] = {
-    val conf = new File(current.path.getAbsolutePath + "/conf/")
-    conf.listFiles()
-      .filter(f => f.isFile && f.getName.endsWith(RECORD_DEFINITION_SUFFIX))
-      .filter(f => enabledDefinitions.contains(f.getName.substring(0, f.getName.indexOf(RECORD_DEFINITION_SUFFIX))))
+    enabledDefinitions.
+      map(prefix => new File(current.path.getAbsolutePath + "/conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))).
+      filter(_.exists())
+  }
+
+  def getCrosswalkFiles(sourcePrefix: String): List[File] = {
+    val sourceDir = new File("conf/record-definitions/%s")
+    if(!sourceDir.isDirectory) {
+      List.empty
+    } else {
+      sourceDir.listFiles().filter(f => f.getName.startsWith(sourcePrefix) && f.getName.endsWith(CROSSWALK_SUFFIX)).toList
+    }
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {
@@ -66,6 +82,7 @@ object RecordDefinition {
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
+    val isFlat = node.attribute("flat").isDefined && (node \ "@flat" text).length > 0 && (node \ "@flat" text).toBoolean
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
 
     val allNamespaces = (node \ "namespaces" \ "namespace").map(
@@ -82,7 +99,8 @@ object RecordDefinition {
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
-        roles
+        roles,
+        isFlat
       )
     )
   }

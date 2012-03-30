@@ -5,7 +5,6 @@ import play.api.mvc._
 import models._
 import core.mapping.MappingService
 import play.api.Logger
-import eu.delving.metadata.{RecordMapping, MetadataModel}
 import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
@@ -17,6 +16,7 @@ import util.SimpleDataSetParser
 import play.libs.Akka
 import akka.actor.{Props, Actor}
 import core.HubServices
+import eu.delving.metadata.{RecMapping}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -28,7 +28,6 @@ import core.HubServices
 object SipCreatorEndPoint extends ApplicationController {
 
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
-  private val metadataModel: MetadataModel = MappingService.metadataModel
 
   val DOT_PLACEHOLDER = "--"
 
@@ -190,12 +189,12 @@ object SipCreatorEndPoint extends ApplicationController {
             val inputStream = if (request.contentType == Some("application/x-gzip")) new GZIPInputStream(new FileInputStream(request.body.file)) else new FileInputStream(request.body.file)
 
             val actionResult: Either[String, String] = kind match {
-              case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecordMapping.read(inputStream, metadataModel), spec, hash)
+              case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
               case "source" if extension == "xml.gz" => {
                 val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
                 receiveActor ! SourceStream(dataSet.get, theme, inputStream)
-                DataSet.updateState(dataSet.get, DataSetState.PROCESSING)
+                DataSet.updateState(dataSet.get, DataSetState.PARSING)
                 Right("Received it")
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
@@ -231,7 +230,7 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("All clear")
   }
 
-  private def receiveMapping(dataSet: DataSet, recordMapping: RecordMapping, spec: String, hash: String): Either[String, String] = {
+  private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
     if (!DataSet.canEdit(dataSet, connectedUser)) {
       Logger("CultureHub").warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
       throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
@@ -277,7 +276,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     writeEntry("fact-definition-list.xml", zipOut) {
       out =>
-        val c = MissingLibs.readContentAsString(new FileInputStream(new File("conf/fact-definition-list.xml")))
+        val c = MissingLibs.readContentAsString(new FileInputStream(new File("conf/record-definitions/global/fact-definition-list.xml")))
         IOUtils.write(c, out)
     }
 
@@ -290,7 +289,12 @@ object SipCreatorEndPoint extends ApplicationController {
       val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
       writeEntry(recordDefinition, zipOut) {
         out =>
-          writeContent(FileUtils.readFileToString(new File("conf/" + recordDefinition)), out)
+          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))), out)
+      }
+      val validationSchema = prefix + RecordDefinition.VALIDATION_SCHEMA_SUFFIX
+      writeEntry(validationSchema, zipOut) {
+        out =>
+          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-validation.xsd".format(prefix, prefix))), out)
       }
     }
 
@@ -397,7 +401,9 @@ class ReceiveSource extends Actor {
           DataSet.updateState(dataSet, DataSetState.ERROR)
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case _ => // all is good
+        case _ =>
+        // all is good
+          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s".format(dataSet.spec, dataSet.orgId))
       }
     case _ => // nothing
   }

@@ -55,7 +55,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var justLeftIdentifierElement = false
     var elementHasContent = false
     val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
-    val path = new Path()
+    val path = Path.empty()
 
     // the whole content of one record
     val recordXml = new StringBuilder()

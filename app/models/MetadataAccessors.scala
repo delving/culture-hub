@@ -40,8 +40,6 @@ abstract class MetadataAccessors extends Universal {
     case _ => ""
   }
 
-  def getDelvingId : String = assign(PMH_ID)
-
   // ~~~ institutional record IDs
   def getOrgId : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(0) else ""
   def getSpec : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(1) else ""

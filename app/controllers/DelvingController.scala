@@ -59,12 +59,18 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG, requestLanguage)
 
-          val r = action(request).asInstanceOf[PlainResult]
-          if (languageChanged) {
-            Logger("CultureHub").trace("Composing session after language change")
-            r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Time.parseDuration("30d")))
+          // ignore AsyncResults for these things for the moment
+          val res = action(request)
+          if(res.isInstanceOf[PlainResult]) {
+            val r = res.asInstanceOf[PlainResult]
+            if (languageChanged) {
+              Logger("CultureHub").trace("Composing session after language change")
+              r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Time.parseDuration("30d")))
+            } else {
+              r
+            }
           } else {
-            r
+            res
           }
         }
       }
@@ -231,9 +237,16 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           //                renderArgs += ("browsedOrgName", orgName)
           //            }
 
-          val r: PlainResult = action(request).asInstanceOf[PlainResult]
-          Logger("CultureHub").trace("DelvingController composing session with additional parameters " + additionalSessionParams.toMap)
-          composeSession(r, Session(additionalSessionParams.toMap))
+
+          // ignore AsyncResults for these things for the moment
+          val res = action(request)
+          if(res.isInstanceOf[PlainResult]) {
+            val r = res.asInstanceOf[PlainResult]
+            Logger("CultureHub").trace("DelvingController composing session with additional parameters " + additionalSessionParams.toMap)
+            composeSession(r, Session(additionalSessionParams.toMap))
+          } else {
+            res
+          }
         }
       }
     }

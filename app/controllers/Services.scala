@@ -22,6 +22,7 @@ import play.api.mvc.Action
 import core.search.{Params, SearchService}
 import core.opendata.OaiPmhService
 import play.api.libs.concurrent.Promise
+import collection.mutable.ListBuffer
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -30,16 +31,37 @@ import play.api.libs.concurrent.Promise
 
 object Services extends DelvingController with HTTPClient {
 
-  def searchApi(orgId: String) = Root {
+  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String]) = Root {
     Action {
       implicit request =>
-        orgId.isEmpty match {
-          case false => SearchService.getApiResult(request, theme, List("%s:%s".format(Constants.ORG_ID, orgId)))
-          case true => SearchService.getApiResult(request, theme)
-        }
+        
+      val hiddenQueryFilters = ListBuffer[String]()
+
+      if(!orgId.isEmpty)
+        hiddenQueryFilters += "%s:%s".format(Constants.ORG_ID, orgId)
+
+      if(provider.isDefined) {
+        hiddenQueryFilters += "%s:%s".format(Constants.PROVIDER, provider.get.replaceAll("_", " "))
+      }
+
+      if(dataProvider.isDefined) {
+        hiddenQueryFilters += "%s:%s".format(Constants.DATA_PROVIDER, dataProvider.get.replaceAll("_", " "))
+      }
+
+      val apiResult = SearchService.getApiResult(request, theme, hiddenQueryFilters.toList)
+
+      // CORS - see http://www.w3.org/TR/cors/
+      apiResult.withHeaders(
+        ("Access-Control-Allow-Origin" -> "*"),
+        ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+        ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+        ("Access-Control-Max-Age" -> "86400")
+      )
+
+
     }
   }
-  
+
   def solrSearchProxy = Root {
     Action {
       implicit request =>
@@ -81,11 +103,11 @@ object Services extends DelvingController with HTTPClient {
       }
   }
 
-//  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
-//      Action {
-//        implicit request =>
-//          val oaiPmhService = new OaiPmhService(request, accessKey)
-//          Ok(oaiPmhService.parseRequest).as(XML)
-//      }
-//  }
+  //  def oaipmhSecured(orgId: Option[String] = Some("delving"), accessKey: String)  = Root { // todo implement this properly in the routes
+  //      Action {
+  //        implicit request =>
+  //          val oaiPmhService = new OaiPmhService(request, accessKey)
+  //          Ok(oaiPmhService.parseRequest).as(XML)
+  //      }
+  //  }
 }

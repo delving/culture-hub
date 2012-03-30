@@ -1,33 +1,70 @@
+%{
+switch (_view.nodeType) {
+
+case "root":}%
 #{list items: _view.content(), as: 'row'}
+#{view view: row /}
+#{/list}
+%{
+break
+
+case "row":}%
 <div class="row">
-#{list items: row.content(), as: 'col'}
-%{System.out.println(col)}%
-  <div class="column" id="${col.attr("id")}">
-#{list items: col.content(), as: 'item'}
-#{if item.nodeType == 'field'}
-    <div class="field">${item.attr("label")}: ${item.content().head().text()}</div>
-#{/if}
-#{if item.nodeType == 'list'}
-#{if item.attr("type") == "ul"}
+#{list items: _view.content(), as: 'col'}
+#{view view: col /}
+#{/list}
+</div>
+%{
+break
+
+
+case "section":}%
+<div class="section" id="${_view.attr("id")}">
+#{list items: _view.content(), as: 'i'}
+#{view view: i /}
+#{/list}
+</div>
+%{
+break
+
+case "field":}%
+<div class="field">&{_view.attr("label")}: ${_view.text()}</div>
+%{
+break
+
+case "link":}%
+<div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}"></a></div>
+%{
+break
+
+case "enumeration":}%
+#{if _view.attr("type") == "ul"}
     <ul>
-#{list item.content(), as: 'e'}
+#{list _view.content(), as: 'e'}
       <li>${e.text()}</li>
 #{/list}
     </ul>
 #{/if}
-#{if item.attr("type") == "ol"}
+#{if _view.attr("type") == "ol"}
     <ol>
-#{list item.content(), as: 'e'}
+#{list _view.content(), as: 'e'}
       <li>${e.text()}</li>
 #{/list}
     </ol>
 #{/if}
-#{if item.attr("type") == "concatenated"}
-    #{list item.content(), as: 'e'}${e.text()}#{if !e_isLast}${item.attr("separator")}#{/if}#{/list}
+#{if _view.attr("type") == "concatenated"}
+    <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
 #{/if}
-#{/if}
+%{
+break
+
+case "list":}%
+#{list items: _view.content(), as: 'i'}
+#{view view: i /}
 #{/list}
-  </div>
-#{/list}
-</div>
-#{/list}
+%{
+break
+
+
+}
+}%

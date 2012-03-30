@@ -14,18 +14,22 @@ case class Collection(spec: String,
                       namespaces: Map[String, String]) {
 
 
-  def getRecords(metadataFormat: String, position: Int, limit: Int): List[MetadataRecord] = {
+  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataRecord], Int) = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
     if(dataSet.isDefined) {
-      DataSet.getRecords(orgId, spec).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt position) )).sort(MongoDBObject("transferIdx" -> 1)).limit(limit).toList
+      val records = DataSet.getRecords(orgId, spec).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt position) )).sort(MongoDBObject("transferIdx" -> 1)).limit(limit)
+      val totalSize = DataSet.getRecords(orgId, spec).count((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt position) ))
+      (records.toList, totalSize.toInt)
     } else {
       VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
         case Some(vc) =>
-          val references = VirtualCollection.children.find(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit).toList
-          references.groupBy(_.hubCollection).map {
+          val references = VirtualCollection.children.find(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit)
+          val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position))
+          val records = references.toList.groupBy(_.hubCollection).map {
             grouped => MetadataRecord.getMDRs(grouped._1, grouped._2.map(_.hubId))
           }.flatten.toList
-        case None => List.empty
+          (records, totalSize.toInt)
+        case None => (List.empty, 0)
       }
     }
   }

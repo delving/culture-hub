@@ -24,14 +24,13 @@ import models.mongoContext._
 import com.novus.salat.grater
 import util.Constants._
 import com.novus.salat.dao.SalatDAO
-import com.mongodb.{WriteConcern, BasicDBList}
-import core.search.{SolrBindingService}
+import com.mongodb.WriteConcern
 import core.mapping.MappingService
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
-                          rawMetadata: Map[String, String], // this is the raw xml data string
-                          mappedMetadata: Map[String, Map[String, List[String]]] = Map.empty,
+                          rawMetadata: Map[String, String], // this is the raw xml data string, in various mapped formats and in origin (as "raw")
+                          summaryFields: Map[String, String] = Map.empty, // the map containing the summary fields for this record, if available
                           modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
                           deleted: Boolean = false, // if the record has been deleted
@@ -48,49 +47,10 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
   def getRawXmlString = rawMetadata("raw")
 
-  def getCachedTransformedRecord(metadataPrefix: String): String = {
-    if (rawMetadata.contains(metadataPrefix)) {
-      rawMetadata.get(metadataPrefix).get
-    } else if (mappedMetadata.contains(metadataPrefix)) {
-
-      // welcome to the mad world of working around some mongo/casbah/salat limitation
-
-      // we store the mappings in a Map[String, Map[String, List[String]]]
-      // so for one prefix we should get back a Map[String, List[String]]
-      // but instead we get back a Map[String, BasicDBList]
-      // basically the first value of each list is the key, the second one the value (which is itself a BasicDBList, where the values are strings)
-      // thus the code below. don't touch.
-
-      import scala.collection.JavaConverters._
-
-      val map = mappedMetadata.asInstanceOf[Map[String, BasicDBList]]
-      val inner = map(metadataPrefix).asScala.map(entry => entry.asInstanceOf[BasicDBList])
-
-      inner.foldLeft("") {
-        (output: String, e: BasicDBList) => {
-          val entry = (e.get(0), e.get(1))
-          val unMungedKey = SolrBindingService.stripDynamicFieldLabels(entry._1.toString.replaceFirst("_", ":"))
-          val value = entry._2.asInstanceOf[BasicDBList].toList
-          if (!unMungedKey.startsWith("delving"))
-            output + value.map(v => "<%s>%s</%s>".format(unMungedKey, v, unMungedKey)).mkString("", "\n", "\n")
-          else
-            output
-        }
-      }
-    } else {
-      throw new RecordNotFoundException("Unable to find record with source metadata prefix: %s".format(metadataPrefix))
-    }
-  }
+  def getCachedTransformedRecord(metadataPrefix: String): Option[String] = rawMetadata.get(metadataPrefix)
 
   def getDefaultAccessor = {
-    val (prefix, map) = mappedMetadata.head
-    new MultiValueMapMetadataAccessors(hubId, map)
-  }
-
-  def getAccessor(prefix: String) = {
-    if (!mappedMetadata.contains(prefix)) new MultiValueMapMetadataAccessors(hubId, Map())
-    val map = mappedMetadata(prefix)
-    new MultiValueMapMetadataAccessors(hubId, map)
+    new SummaryFieldsMapMetadataAccessors(hubId, summaryFields)
   }
 
   // ~~~ linked meta-data
@@ -130,16 +90,18 @@ object MetadataRecord {
       record
     } else {
       val mappedRecord = record.get
-      val transformedDoc: Map[String, List[String]] = transformXml(metadataFormat, ds.get, mappedRecord)
+      val transformedDoc: String = transformDocument(metadataFormat, ds.get, mappedRecord)
 
-      Some(mappedRecord.copy(mappedMetadata = mappedRecord.mappedMetadata.updated(metadataFormat, transformedDoc)))
+      Some(mappedRecord.copy(rawMetadata = mappedRecord.rawMetadata.updated(metadataFormat, transformedDoc)))
     }
   }
 
-  def transformXml(prefix: String, dataSet: DataSet, record: MetadataRecord): Map[String, List[String]] = {
+  def transformDocument(prefix: String, dataSet: DataSet, record: MetadataRecord): String = {
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    MappingService.transformXml(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), dataSet.namespaces)
+    
+    // FIXME - use dataSet.namespaces
+    MappingService.transformRecord(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), mapping.get.format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String])
   }
 
   def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
@@ -150,19 +112,20 @@ object MetadataRecord {
   def getAccessors(hubCollection: String, hubIds: String*): List[_ <: MetadataAccessors] = {
     val mdrs: Iterator[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_))
     mdrs.map(mdr =>
-      if (!mdr.mappedMetadata.isEmpty) {
+      if (mdr.rawMetadata.size > 1) {
         Some(mdr.getDefaultAccessor)
       } else {
         None
       }).toList.flatten
   }
 
+
 }
 
-class MultiValueMapMetadataAccessors(hubId: String, dbo: Map[String, List[String]]) extends MetadataAccessors {
+class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, String]) extends MetadataAccessors {
   protected def assign(key: String) = {
     dbo.get(key) match {
-      case Some(v) => v.asInstanceOf[BasicDBList].toList.head.toString
+      case Some(v) => v
       case None => ""
     }
   }

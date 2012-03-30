@@ -181,7 +181,12 @@ POST        /:user/admin/profile                                              co
 # Organizations
 GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
 
-GET         /organizations/:orgId/search                                      controllers.Services.searchApi(orgId: String)
+GET         /organizations/:orgId/providers                                   controllers.organization.Organizations.providers(orgId)
+GET         /organizations/:orgId/providers/:provider/search                  controllers.Services.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None)
+GET         /organizations/:orgId/dataProviders                               controllers.organization.Organizations.dataProviders(orgId)
+GET         /organizations/:orgId/dataProviders/:dataProvider/search          controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String])
+
+GET         /organizations/:orgId/search                                      controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
 GET         /organizations/:orgId/proxy/list                                  controllers.organization.Proxy.list(orgId)

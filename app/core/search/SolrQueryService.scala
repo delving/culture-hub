@@ -276,6 +276,18 @@ object SolrQueryService extends SolrServer {
     SolrQueryService.getSolrResponseFromServer(query)
   }
 
+  def resolveHubIdAndFormat(id: String, idType: String): Option[(String, String)] = {
+    val t = DelvingIdType(id, idType)
+    val query = new SolrQuery("%s:\"%s\"".format(t.idSearchField, t.normalisedId))
+    val response = SolrQueryService.getSolrResponseFromServer(query)
+    if(response.getResults.size() == 0) {
+      None
+    } else {
+      val first = response.getResults.get(0)
+      Some(first.getFirstValue(HUB_ID).toString, first.getFirstValue(FORMAT).toString)
+    }
+  }
+
   def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
     import play.Logger
@@ -621,7 +633,6 @@ case class ResultPagination (chResponse: CHResponse) {
   def getLastViewablePage: Int = pager.totalPages
 }
 
-// implemented
 case class PresentationQuery(chResponse: CHResponse) {
 
   val requestQueryString = chResponse.chQuery.solrQuery.getQuery
@@ -670,22 +681,6 @@ case class BriefItemView(chResponse: CHResponse) {
   //  def getSpellCheck: SpellCheckResponse
   //
   //  def getFacetMap: FacetMap
-}
-
-case class FullItemView(fullItem: FullDocItem, response: QueryResponse) {
-
-  import org.apache.solr.common.SolrDocumentList
-
-  //case class FullItemView(pager: DocIdWindowPager, relatedItems: List[BriefDocItem], fullItem: FullDocItem) {
-
-  //  def getDocIdWindowPager: DocIdWindowPager = pager
-
-  private val matchDoc: SolrDocumentList = response.getResponse.get("match").asInstanceOf[SolrDocumentList]
-
-  // todo implement code here that checks if there are related items
-  def getRelatedItems: List[BriefDocItem] = if (matchDoc != null) SolrBindingService.getBriefDocsWithIndex(response) else List.empty
-
-  def getFullDoc: FullDocItem = if (matchDoc != null) SolrBindingService.getFullDoc(matchDoc) else fullItem
 }
 
 // todo implement the traits as case classes

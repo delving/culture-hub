@@ -57,12 +57,12 @@ object Global extends GlobalSettings {
     // ~~~ bootstrap jobs
 
     // DataSet indexing
-    val indexer = Akka.system.actorOf(Props[Indexer])
+    val indexer = Akka.system.actorOf(Props[Processor])
     Akka.system.scheduler.schedule(
       0 seconds,
       10 seconds,
       indexer,
-      IndexDataSets
+      ProcessDataSets
     )
 
     // token expiration
