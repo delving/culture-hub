@@ -30,7 +30,7 @@ object DataSetProcessor {
 
   def process(dataSet: DataSet) {
 
-    val formats = dataSet.getPublishableMappingFormats
+    val formats: List[RecordDefinition] = dataSet.getPublishableMappingFormats
 
     val flatIndexingMapping: Option[RecordDefinition] = formats.find(f => Some(f.prefix) == dataSet.getIndexingMappingPrefix && f.isFlat)
 
@@ -79,7 +79,7 @@ object DataSetProcessor {
         var state = DataSet.getStateBySpecAndOrgId(dataSet.spec, dataSet.orgId)
 
         // drop previous index
-        if (indexingFormat == Some(format)) {
+        if (indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix) {
           IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
         }
 
