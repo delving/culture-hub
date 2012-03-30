@@ -46,14 +46,14 @@
 
                 </div>
             <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
-                <label class="control-label" for="datasets">&{'thing.datasets'}</label>
+                <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
 
                 <div class="controls">
                 #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
+                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
                 #{/if}
                 #{else}
-                    #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
                 #{/else}
                 </div>
             </div>
