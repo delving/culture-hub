@@ -356,7 +356,7 @@ case class RenderedView(viewName: String, formatName: String, viewTree: RenderNo
 /**
  * A node used to hold the structure to be rendered
  */
-case class RenderNode(nodeType: String, value: Option[String] = None, isArray: Boolean = false) {
+case class RenderNode(nodeType: String, value: Option[String] = None, isArray: Boolean = false, isFlatArray: Boolean = false) {
 
   private val contentBuffer = new ArrayBuffer[RenderNode]
   private val attributes = new HashMap[String, Any]
@@ -433,7 +433,7 @@ case object RenderNode {
 
       sb.append(indentation)
 
-      if(n.isArray && n.nodeType == "__LIST__") {
+      if(n.isFlatArray) {
         n.content.foreach {
           c =>
             sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
@@ -481,6 +481,8 @@ case object RenderNode {
           child => visitJson(child, HashMap.empty)
         }
         json.put(n.nodeType, children.toList)
+      } else if(n.isFlatArray) {
+        json.put(n.nodeType, n.content.map(_.nodeType).toList)
       } else if(!n.isLeaf) {
         val map = HashMap.empty[String, AnyRef]
         for(c <- n.content) {
