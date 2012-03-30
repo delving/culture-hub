@@ -295,6 +295,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
         implicit request =>
           val orgName = HubServices.organizationService.getName(orgId, "en")
           renderArgs +=("browsedOrgName", orgName)
+          renderArgs +=("currentLanguage", getLang)
           action(request)
       }
     }

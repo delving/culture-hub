@@ -5,35 +5,35 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner /}
+#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, currentLanguage: currentLanguage /}
 
-<div class="tab-content">
 
-    <div class="buttons">
-        #{btnHref label: messages.get('organization.dataset.list'), href:"/organizations/"+orgId+"/dataset", extraClass:"action" /}
-        #{if isOwner == true }
-            #{btnHref label: messages.get('organization.dataset.create'), href:"/organizations/"+orgId+"/dataset/add", extraClass:"action" + spec.isEmpty() ? " on" : "" /}
-            #{btnHref label:messages.get('ui.label.sipcreator'), href:"/organizations/"+orgId+"/sip-creator" /}
-        #{/if}
-    </div>
 
-    <hr/>
+
     <div class="row">
+        <div class="span12">
+            <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
 
-            <h2 class="sep">${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
-
-            <form method="post" action="" id="collectionForm">
+            <form method="post" action="" id="collectionForm" class="form-delving">
                 <div class="row">
-                    <div class="g-1of2">
-                        <h4>&{'organization.dataset.info'}</h4>
-                        #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
-                        <div class="field">
-                            <label class="label">&{'ui.label.visibility'}</label>
+                    <div class="span6">
 
-                            <div class="inputs">
-                                <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.notpublic'}
-                                <br/>
-                                <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>&{'ui.label.visibility.public'}
+                        <h3>&{'organization.dataset.info'}</h3>
+
+                        #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+
+                        <div class="control-group">
+                            <label>&{'ui.label.visibility'}</label>
+
+                            <div class="controls">
+                                <label class="radio">
+                                    <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>
+                                    &{'ui.label.visibility.notpublic'}
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>
+                                    &{'ui.label.visibility.public'}
+                                </label>
                             </div>
                         </div>
 
@@ -49,11 +49,10 @@
 
                     %{ }}%
                     </div>
-                    <div class="g-1of2">
-                        <h4>Target Record Definitions</h4>
+                    <div class="span6">
+                        <h3>Target Record Definitions</h3>
 
-                        <div class="data-grid">
-                        <table>
+                        <table class="table">
                             <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
                             <tbody>
                             #{list recordDefinitions, as: 'recordDef'}
@@ -76,22 +75,22 @@
                             #{/list}
                             </tbody>
                         </table>
-                        </div>
-                        <h4>Indexing Mapping Record Definition</h4>
+
+                        <h3>Indexing Mapping Record Definition</h3>
                         <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
                         <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
                         <hr/>
-                        <div class="buttons">
-                        #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"action submit"/}
+                        <div class="well">
+                            #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-primary btn-prominent"/}
+                            <button type="reset" class="btn pull-right">Reset</button>
                         </div>
-                        <hr/>
                     </div>
                 </div>
 
             </form>
         </div>
+    </div>
 
-</div>
 <script type="text/javascript">
     $(document).ready(function() {
         var dataSetModel = {};

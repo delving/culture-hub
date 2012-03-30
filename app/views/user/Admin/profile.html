@@ -6,10 +6,10 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.limitChars.min.js")}"></script>
 #{/set}
 
-<h1 class="sep">Your profile</h1>
+<h1>Your profile</h1>
 
 <div class="row">
-    <div class="grid_8">
+    <div class="span8">
         <form id="profileForm" action="">
           #{textField name:"firstName", form:profileForm, label:messages.get('ui.label.firstname'), dataBind:"value: firstName", labelClass:"required", required: true /}
           #{textField name:"lastName", form:profileForm, label:messages.get('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}

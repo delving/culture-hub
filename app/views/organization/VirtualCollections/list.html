@@ -4,27 +4,18 @@
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
+#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+
 <div class="row">
 
-    #{organizationNavBar orgId: orgId, active:"virtualCollection", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
+    <div class="span12">
 
-<div class="tab-content">
-    <div class="buttons">
-
-    #{if isOwner == true}
-        #{btnHref label: messages.get('organization.virtualCollection.list'), extraClass: "on", iconClass:"icon140", href:"/organizations/"+orgId+"/virtualCollection" /}
-        #{btnHref label: messages.get('organization.virtualCollection.new'), iconClass:"icon68", href:"/organizations/"+orgId+"/virtualCollection/add" /}
-    #{/if}
-
-    </div>
-
-        <div class="data-grid">
-            <table class="list">
+            <table class="table table-striped">
                 <caption>&{'thing.virtualCollections'}</caption>
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th>&{'thing.actions'}</th>
+                    <th width="25%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -34,23 +25,23 @@
                         <span>${vc.spec}</span>
                     </td>
                     <td>
-                        <a class="button" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
-                            <span class="icon icon145"></span>
-                            <span class="label">&{'ui.label.edit'}</span>
+                        #{if isOwner}
+                        <a class="btn btn-primary btn-prominent" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
+                            &{'ui.label.edit'}
                         </a>
-                        <a id="${vc.spec}" class="button beware delete" href="#">
-                            <span class="icon icon186"></span>
-                            <span class="label">&{'ui.label.delete'}</span>
+                        <a id="${vc.spec}" class="btn btn-danger delete pull-right" href="#">
+                            &{'ui.label.delete'}
                         </a>
+                        #{/if}
                     </td>
                 </tr>
                 #{/list}
                 </tbody>
             </table>
-        </div>
     </div>
 </div>
 
+</div>
 <div id="dialog-confirm-collection-delete" title="&{'organization.virtualCollection.deleteCollection'}" style="display: none;">
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
@@ -59,20 +50,20 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
 
-        $('.delete').click(function(el) {
-                confirmDeletion('#dialog-confirm-collection-delete', function () {
-                    $.ajax({
-                        url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
-                        type: 'DELETE',
-                        success: function() {
-                            document.location = '/organizations/${orgId}/virtualCollection/list'
-                        }
-                    });
-                });
+$(document).ready(function () {
+    $('.delete').click(function(el) {
+        confirmDeletion('#dialog-confirm-collection-delete', function () {
+            $.ajax({
+                url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
+                type: 'DELETE',
+                success: function() {
+                    alert('foo');
+                    document.location = '/organizations/${orgId}/virtualCollection'
+                }
+            });
         });
-
-
     });
+});
+
 </script>

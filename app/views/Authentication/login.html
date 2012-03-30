@@ -2,21 +2,23 @@
 #{set title: messages.get('ui.label.login') /}
 #{set bodyId: 'authenticate' /}
 <div class="row">
-    <div id="login" class="grid_6 prefix_3">
-        <form method="POST" class="login" action="@{controllers.routes.Authentication.authenticate()}">
-            <h3>Login</h3>
+        <form method="POST" class="span4 offset4 well" action="@{controllers.routes.Authentication.authenticate()}">
+            <h2>Login</h2>
             #{if flash.error}
-            <p class="panel error pam">
+            <p class="alert alert-error">
+                <a class="close" data-dismiss="alert">x</a>
                 ${flash.error}
             </p>
             #{/if}
             #{if flash.success}
-            <p class="panel success pam">
+            <p class="alert alert-success">
+                <a class="close" data-dismiss="alert">x</a>
                 ${flash.success}
             </p>
             #{/if}
             #{if views.Helpers.hasErrors(loginForm)}
-            <div class="panel error pam">
+            <div class="alert alert-error">
+                <a class="close" data-dismiss="alert">x</a>
                 <ul>
                 #{list views.Helpers.listGlobalErrors(loginForm), as: 'e'}
                     <li>${e}</li>
@@ -25,23 +27,23 @@
             </div>
             #{/if}
 
-            #{textField name:"userName", label: messages.get("ui.label.username"), form: loginForm /}
-            #{passwordField name:"password", label: messages.get("ui.label.password"), form: loginForm /}
+            #{textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
+            #{passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
 
             <div class="field">
-                <label for="remember" class="label">&{'authentication.label.rememberme'}</label>
-                <div class="inputs">
-                  <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
-                </div>
+                <label for="remember" class="checkbox">
+                    <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
+                    &{'authentication.label.rememberme'}
+                </label>
             </div>
 
-            <div class="buttons">
-                #{btnButton label: messages.get("ui.label.login"), extraClass:"action prominent complete", type:"submit", id:"signin" /}
-                #{btnHref label: messages.get('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
-                #{btnHref label: messages.get('ui.label.cancel'), href:'#', id:"cancel", rel:"nofollow" /}
+            <div class="btn-group">
+                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-large span4", type:"submit", id:"signin" /}
             </div>
+            <p>
+                #{href label: messages.get('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
+            </p>
         </form>
-    </div>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {

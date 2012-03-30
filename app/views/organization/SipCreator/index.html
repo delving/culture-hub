@@ -4,30 +4,26 @@
 
 #{breadcrumbs/}
 
-#{organizationNavBar orgId: orgId, active:"datasets", extraButtons: [ [label: messages.get('organization.dataset.create'), url:"/organizations/"+orgId+"/dataset/add", extraClass:"action complete"] ], isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
-
-<div class="tab-content">
+#{organizationNavBar orgId: orgId, active:"sipcreator", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
 
-    <div class="buttons">
-    #{btnHref label: messages.get('organization.dataset.list'), href:"/organizations/"+orgId+"/dataset", extraClass:"action on" /}
-    #{btnHref label:messages.get('organization.dataset.create'), href:"/organizations/"+orgId+"/dataset/add", extraClass:"action"/}
-    #{btnHref label:messages.get('ui.label.sipcreator'), href:"/organizations/"+orgId+"/sip-creator", extraClass:"on" /}
+
+
+
+    <div class="row">
+        <div class="span5">
+            <img src="/assets/common/images/sip-creator-1.png" alt="logo"/>
+            <p>
+            <a class="btn" href="/${userName}/sip-creator.jnlp">
+                <i class="icon-download"></i>
+                Download
+             </a>
+            </p>
+        </div>
+        <div class="span7">
+            <h3>SIP-Creator</h3>
+             <p>&{'organization.sipcreator.p1'}</p>
+             <p>&{'organization.sipcreator.p2'}</p>
+        </div>
     </div>
 
-     <hr/>
-    <h2>SIP-Creator</h2>
-
-<div class="row">
-    <div class="g-3of12 grid_3">
-         <a href="/${userName}/sip-creator.jnlp">
-             <img src="@{routes.Assets.at('/sip-creator/sip-creator-logo.png')}" alt="logo"/>
-             Download
-         </a>
-    </div>
-    <div class="g-8of12 grid_8">
-         <p>&{'organization.sipcreator.p1'}</p>
-         <p>&{'organization.sipcreator.p2'}</p>
-    </div>
-</div>
-</div>

@@ -513,12 +513,13 @@ org.list.memberCount={0} member(s)
 org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
-org.list.dataSetCount={0} DataSet(s)
+org.list.dataSetCount={0} Dataset(s)
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
 org.group.save=Groep bewaren
 org.group.create=Groep aanmaken
+org.group.list=Groep lijst
 
 org.cms=Website paginas
 org.cms.page.key=Pagina sleutel
@@ -545,13 +546,13 @@ org.admin.index.owners=Eigenaren
 
 organization.dataset.title.create=Create new dataset for user {0}
 organization.dataset.title.update=Update dataset for user {0}
-organization.dataset.create=DataSet aanmaken
-organization.dataset.update=DataSet aanpassen
-organization.dataset.info=DataSet informatie
+organization.dataset.create=Dataset aanmaken
+organization.dataset.update=Dataset aanpassen
+organization.dataset.info=Dataset informatie
 organization.dataset.label.identifier=Identifier
-organization.dataset.help.identifier=The unique identifier of this DataSet
-organization.dataset.save=DataSet bewaren
-organization.dataset.list=DataSet lijst
+organization.dataset.help.identifier=The unique identifier of this Dataset
+organization.dataset.save=Dataset bewaren
+organization.dataset.list=Dataset lijst
 organization.members=Leden
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
@@ -582,7 +583,7 @@ user.dobjects.saveError=Error saving object {0}
 user.fileupload.removeError=Error removing file, invalid id {0}
 user.stories.storyNotFound=Story with id {0} was not found
 collections.invalidCollectionId=Invalid collection id {0}
-datasets.dataSetNotFound=DataSet {0} was not found
+datasets.dataSetNotFound=Dataset {0} was not found
 delvingcontroller.userNotFound=User {0} was not found
 
 listPageTitle.object.user=List of object for user {0}
@@ -628,10 +629,10 @@ organizations.group.cannotRemoveDataset=Dataset met {0} kon niet verwijderd word
 organizations.group.groupNotFound=Group met ID {0} kon niet gevonden worden
 organizations.group.cannotSaveGroup=Groep kon niet bewaard worden, probeer opnnieuw
 
-organization.datasets.dataSetNotFound=DataSet {0} was not found
-organization.datasets.cannotBeIndexed=DataSet cannot be indexed in the current state
-organization.datasets.cannotBeReIndexed=DataSet cannot be re-indexed in the current state
-organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
+organization.datasets.dataSetNotFound=Dataset {0} was not found
+organization.datasets.cannotBeIndexed=Dataset cannot be indexed in the current state
+organization.datasets.cannotBeReIndexed=Dataset cannot be re-indexed in the current state
+organization.datasets.cannotBeCancelled=Dataset indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=Dataset cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state

@@ -1,0 +1,6 @@
+%{ def isHref = _href != null ? _href : "#" }%
+<a class="${_extraClass?" "+_extraClass:""}#{if _extHelp} tip#{/if}"#{if _dataBind} data-bind="${_dataBind}"#{/if}#{if _id} id="${_id}"#{/if}#{if _name} name="${_name}"#{/if} href="${isHref}"#{if _rel} rel="${_rel}"#{/if}>
+    #{if _iconClass}<i class="${_iconClass}"></i>#{/if}
+    #{if _label}${_label}#{/if}
+</a>
+

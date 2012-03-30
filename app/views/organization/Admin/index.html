@@ -6,14 +6,11 @@
 
 #{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"administration", isOwner: isOwner /}
+#{organizationNavBar orgId: orgId, active:"administration", isOwner: isOwner, currentLanguage: currentLanguage /}
 
-<div class="tab-content">
+<div class="row">
 
-    <h1 class="sep">${orgId}</h1>
-
-    <div class="row">
-        <div class="g-1of2">
+        <div class="span4">
             <h3>&{'org.admin.index.owners'}</h3>
 
             <div>
@@ -22,7 +19,7 @@
                     <li class="token-input-token">
                         <p>${o}</p>
                     </li>
-                    #{/}
+                    #{/list}
                 </ul>
             </div>
             *{<p>}*
@@ -31,7 +28,7 @@
             *{</p>}*
 
         </div>
-        <div class="g-1of2">
+        <div class="span4">
             <h3>&{'org.admin.index.members'}</h3>
 
             <div>
@@ -42,6 +39,6 @@
             </div>
 
         </div>
-    </div>
+
 
 </div>

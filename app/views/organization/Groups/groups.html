@@ -1,4 +1,4 @@
-#{set 'visibility'}hidden#{/}
+#{set 'visibility'}hidden#{/set}
 #{extends themeInfo.get('themeLayout') /}
 
 #{set title: messages.get('thing.groups') /}
@@ -7,73 +7,69 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner, isCMSAdmin: isCMSAdmin /}
-
-<div class="tab-content">
+#{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
     <h3>&{'org.group.create'}</h3>
 
 
     <div class="row">
-        <form action="" id="groupForm" class="g-1of2">
-        #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
-            <div class="field" data-bind="visible: canChangeGrantType">
-                <label class="label" for="grantType">&{'thing.grantType'}</label>
+        <form action="" id="groupForm" class="form-delving">
+            <div class="span6">
+                #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+                <div class="control-group" data-bind="visible: canChangeGrantType">
+                    <label class="control-label" for="grantType">&{'thing.grantType'}</label>
 
-                <div class="inputs">
-                    <select id="grantType" name="grantType" data-bind="value: grantType">
-                    #{list grantTypes, as: 'gt'}
-                        <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
-                    #{/list}
-                    </select>
-                    <span class="error">${views.Helpers.showError('grantType', null)}</span>
-                    <span class="help"><strong>&{'ui.label.required'}</strong></span>
+                    <div class="controls">
+                        <select id="grantType" name="grantType" data-bind="value: grantType">
+                        #{list grantTypes, as: 'gt'}
+                            <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
+                        #{/list}
+                        </select>
+                        <span class="error">${views.Helpers.showError('grantType', null)}</span>
+                        <span class="help-inline"><strong>&{'ui.label.required'}</strong></span>
+                    </div>
                 </div>
             </div>
+            <div class="span6">
+                <div class="control-group">
+                    <label class="control-label" for="users">&{'thing.users'}</label>
 
-            <div class="field">
-                <label class="label" for="users">&{'thing.users'}</label>
+                    <div class="controls">
+                    #{if id.isDefined()}
+                        #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+                    #{/if}
+                    #{else}
+                        #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
+                    #{/else}
+                        <p>&{'org.admin.index.addMembers'}</p>
+                    </div>
 
-                <div class="inputs">
+                </div>
+            <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
+                <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
+
+                <div class="controls">
                 #{if id.isDefined()}
-                    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
                 #{/if}
                 #{else}
-                    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
-                #{/else}
-                    <p>&{'org.admin.index.addMembers'}</p>
-                </div>
-
-            </div>
-
-            <div class="field"
-                 data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
-                <label class="label" for="datasets">&{'thing.datasets'}</label>
-
-                <div class="inputs">
-                #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasets", name: "datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
-                #{/if}
-                #{else}
-                    #{boundAddRemoveTokenField id:"datasets", name:"datasets", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
                 #{/else}
                 </div>
             </div>
-            <hr/>
-            <div class="buttons">
-            #{btnButton label: messages.get('org.group.save'), extraClass:"submit action", id:"saveButton", type:"submit" /}
+            <div class="well">
+            #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary btn-promiment", id:"saveButton", type:"submit" /}
                 <div class="wait"></div>
             </div>
-
+            </div>
         </form>
     </div>
 
 
-</div>
-
 <script type="text/javascript">
     $(document).ready(function () {
         var groupModel = {};
+//        $("body").css('visibility', 'visible');
         load(${data.raw()}, groupModel, null, function () {
             $("body").css('visibility', 'visible');
         });
