@@ -291,8 +291,18 @@
     text-transform: uppercase;
 }
 
-.table.sortable th {
+.table.sortable th.sort {
+    background: transparent url(/assets/common/images/sortable.gif) 100% 50% no-repeat;
+    /*border-right: 1px solid #f1f1f1;*/
     cursor: pointer;
+}
+
+.table.sortable th.sort.headerSortUp{
+   background: #f1f1f1 url(/assets/common/images/sortable-asc.gif) 100% 50%  no-repeat;
+}
+
+.table.sortable th.sort.headerSortDown{
+    background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 100% 50%  no-repeat;
 }
 
 /* addThis widgets */
