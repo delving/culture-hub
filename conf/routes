@@ -179,7 +179,7 @@ GET         /:user/admin/profile/update                                       co
 POST        /:user/admin/profile                                              controllers.user.Admin.profileSubmit(user)
 
 # Organizations
-GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId)
+GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId, language: Option[String] = None)
 
 GET         /organizations/:orgId/providers                                   controllers.organization.Organizations.providers(orgId)
 GET         /organizations/:orgId/providers/:provider/search                  controllers.Services.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None)
