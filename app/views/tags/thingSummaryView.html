@@ -46,11 +46,12 @@ switch (recordType) {
                 #{/if}
             <div class="ic_caption">
                 <p class="ic_category">${recordType}</p>
-                <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
-                <p class="ic_text info-box small">
-                    <span>${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
-                    #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
-                </p>
+                <strong class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></strong>
+                <div class="ic_text">
+                    <p><strong>${messages.get('thing.owner')}: </strong><span class="text">${_data.getOwner()}</span></p>
+                    #{if _data.getDescription()}<p><strong>${messages.get('thing.description')}: </strong><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span></p>#{/if}
+
+                </div>
             </div>
         </div>
     </div>
@@ -85,7 +86,7 @@ switch (recordType) {
             <div class="metadata">
                 <span class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></span>
                 <div class="info-box small smaller">
-                    <span class="label">${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
+                    <span>${messages.get('thing.owner')}: </span><span class="text">${_data.getOwner()}</span>
                     #{if _data.getDescription()}<span class="label">${messages.get('thing.description')}: </span><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span>#{/if}
                 </div>
             </div>

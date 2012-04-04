@@ -10,6 +10,9 @@ function initializeElements() {
       e.preventDefault();
       document.location = document.referrer;
     });
+    $('input.search-query').tooltip({
+        placement: 'bottom'
+    });
 
     $.preloadImages (
         "/assets/common/images/spinner.gif"

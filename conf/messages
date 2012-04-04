@@ -313,8 +313,8 @@ search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
-#search.trail=You are looking at <strong>{0} - {0}</strong> of <strong>{0}</strong> results for:
-search.trail=You are looking at {0} - {0} of aproximately {0} results
+#search.trail=You are looking at <strong>{0} - {1}</strong> of <strong>{2}</strong> results for:
+search.trail=You are looking at {0} - {1} of aproximately {2} results
 search.viewInOriginalContext=View in original context
 search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
 

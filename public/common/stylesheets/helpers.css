@@ -1,3 +1,7 @@
+.center {
+    text-align: center;
+}
+
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
 
@@ -402,3 +406,12 @@ form.form-delving label.radio {
 .dropdown:hover .dropdown-menu {
     display: block;
 }
+
+/*---------------------------------
+	BOOTSTRAP JQUERY UI REPlacements
+-----------------------------------*/
+
+.ui-progressbar-value.ui-widget-header {
+    background: none;
+}
+
