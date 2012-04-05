@@ -13,6 +13,7 @@
 
 
 #{if briefDocs }
+
 <div class="row">
 
     <div class="item-count span6">
@@ -26,70 +27,71 @@
             #{/list}
         </ul>
     </div>
+
 </div>
 
 
 
 
-        #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-            #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
-        #{/if}
+    #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
+        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
+    #{/if}
 
 
-                #{resultGrid results: briefDocs /}
+    #{resultGrid results: briefDocs /}
 
-            #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
+    #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
 
-                #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
+        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
 
-            #{/if}
+    #{/if}
 
-            *{#{if userName}}*
-            *{<div id="dropbox" class="widget object">}*
-                *{<div class="hd"><h3>&{'search.addItemsToCollection'}</h3></div>}*
-                *{<div class="bd">}*
-                    *{<div id="dropbox-info"><p>&{'search.dragItems'}</p></div>}*
-                    *{<form action="" method="post" class="dropbox">}*
-                        *{<ul></ul>}*
-                        *{<div id="dropbox-actions">}*
-                            *{#{if collections}}*
-                                *{<select name="collection" id="dropbox-collection">}*
-                                 *{<option selected='selected'>&{'user.story.label.selectCollection'}</option>}*
-                                 *{#{list collections, as: 'col'}}*
-                                    *{<option value="${col.id}">${col.title}</option>}*
-                                 *{#{/list}}*
-                                *{</select>}*
-                                *{<hr/>}*
-                                *{<button id="addToCollectionButton" type="submit" class="button action submit">&{'search.addToCollection'}</button>}*
-                            *{#{/if}}*
-                            *{#{else}}*
-                                *{<hr>}*
-                                *{You have no collections. <a href="/${userName}/collection/add">Create a collection</a> so that you can save items into them.}*
-                            *{#{/else}}*
-                        *{</div>}*
-                    *{</form>}*
+*{#{if userName}}*
+*{<div id="dropbox" class="widget object">}*
+*{<div class="hd"><h3>&{'search.addItemsToCollection'}</h3></div>}*
+*{<div class="bd">}*
+*{<div id="dropbox-info"><p>&{'search.dragItems'}</p></div>}*
+*{<form action="" method="post" class="dropbox">}*
+*{<ul></ul>}*
+*{<div id="dropbox-actions">}*
+*{#{if collections}}*
+*{<select name="collection" id="dropbox-collection">}*
+*{<option selected='selected'>&{'user.story.label.selectCollection'}</option>}*
+*{#{list collections, as: 'col'}}*
+*{<option value="${col.id}">${col.title}</option>}*
+*{#{/list}}*
+*{</select>}*
+*{<hr/>}*
+*{<button id="addToCollectionButton" type="submit" class="button action submit">&{'search.addToCollection'}</button>}*
+*{#{/if}}*
+*{#{else}}*
+*{<hr>}*
+*{You have no collections. <a href="/${userName}/collection/add">Create a collection</a> so that you can save items into them.}*
+*{#{/else}}*
+*{</div>}*
+*{</form>}*
 
-                *{</div>}*
-            *{</div>}*
-            *{#{/if}}*
-                 <!-- commented out for now until functionality is there -->
-                *{<div class="dropdown">}*
-                    *{#{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}}*
-                    *{<div class="dropdown-slider">}*
-                        *{<a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>}*
-                        *{<a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>}*
-                    *{</div>}*
-                *{</div>}*
+*{</div>}*
+*{</div>}*
+*{#{/if}}*
+<!-- commented out for now until functionality is there -->
+*{<div class="dropdown">}*
+*{#{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}}*
+*{<div class="dropdown-slider">}*
+*{<a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>}*
+*{<a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>}*
+*{</div>}*
+*{</div>}*
 
-            *{</div>}*
-    </div>
+*{</div>}*
+</div>
 
 #{/if}
 
 #{else}
-    <div class="g-12of12 grid_12 centered pam">
-        &{'ui.message.nothingFound'}
-    </div>
+<div class="g-12of12 grid_12 centered pam">
+&{'ui.message.nothingFound'}
+</div>
 #{/else}
 
 <!-- overlayed element -->
@@ -99,7 +101,7 @@
 </div>
 
 <script type="text/javascript">
-  $(document).ready(function() {
+    $(document).ready(function () {
 
 //  $('#dropbox').dropbox();
 //
@@ -124,5 +126,5 @@
 //        });
 //      });
 
-  });
+    });
 </script>

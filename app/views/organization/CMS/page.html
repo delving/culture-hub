@@ -37,7 +37,7 @@
                 </div>
             </div>
             <hr/>
-             #{textArea name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+             #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
             <div class="well">
             #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-primary btn-prominent pull-right", id:"saveButton", type:"submit" /}
@@ -98,5 +98,6 @@
                 document.location = '/organizations/${orgId}/site/' + pageModel.lang();
             });
         });
+
     });
 </script>

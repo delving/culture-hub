@@ -2,6 +2,11 @@
     text-align: center;
 }
 
+#pbd {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
 
@@ -408,10 +413,12 @@ form.form-delving label.radio {
 }
 
 /*---------------------------------
-	BOOTSTRAP JQUERY UI REPlacements
+	TINY_MCE overrides
 -----------------------------------*/
-
-.ui-progressbar-value.ui-widget-header {
-    background: none;
+.defaultSkin table td.mceIframeContainer {
+    vertical-align: top;
 }
 
+#pageContent_ifr {
+    height: 400px !important;
+}

@@ -1,5 +1,11 @@
 #{extends themeInfo.get('themeLayout') /}
+
 #{set title: page.title /}
+
 #{set bodyId:'page' /}
+
+#{set pageId: page.key /}
+
+#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
 ${page.content.raw()}
