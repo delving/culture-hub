@@ -76,6 +76,7 @@ ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
 ui.label.search=Zoeken
+ui.label.search.help=Vul een zoekterm in en druk op de [ENTER] toets
 ui.label.share=Deel
 ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Begin upload
@@ -96,8 +97,8 @@ thing.label.freeText=Vrije-tekst label
 thing.label.placeName=Plaats-naam label
 thing.comment=Comment
 thing.comments=Comments
-thing.dataset=DataSet
-thing.datasets=DataSets
+thing.dataset=Dataset
+thing.datasets=Datasets
 thing.object=Object
 thing.objects=Objecten
 thing.object.user=Gebruikersobject
@@ -131,7 +132,7 @@ thing.actions=Acties
 thing.objectcount=Aantal objecten
 thing.collectioncount=Aantal collecties
 thing.storycount=Aantal verhalen
-thing.datasetcount=Aantal DataSets
+thing.datasetcount=Aantal Datasets
 thing.objects=Objecten
 thing.labels=Labels
 thing.addlabel=Label toevoegen
@@ -163,11 +164,11 @@ user.nav.yourprofile=Jouw profiel
 user.nav.yourobjects=Jouw objecten
 user.nav.yourcollections=Jouw collecties
 user.nav.yourstories=Jouw verhalen
-user.nav.yourdatasets=Jouw DataSets
+user.nav.yourdatasets=Jouw Datasets
 user.nav.newobject=Nieuw object
 user.nav.newcollection=Nieuwe collectie
 user.nav.newstory=Nieuw verhaal
-user.nav.newdataset=Nieuw DataSet
+user.nav.newdataset=Nieuw Dataset
 
 # Site navigation
 site.nav.home=Home
@@ -250,14 +251,14 @@ object.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
 ##Collections
 collection.confirmDeletion=Weet u zeker dat u deze collectie wilt verwijderen?
 
-##DataSets
+##Datasets
 dataset.index=Indexeren
 dataset.reindex=Opnieuw indexeren
 dataset.cancelindex=Annuleer indexeren
 dataset.disable=Uitschakelen
 dataset.enable=Inschakelen
-dataset.confirmDeletion=Verwijder deze DataSet?
-dataset.find=Vind een DataSet
+dataset.confirmDeletion=Verwijder deze Dataset?
+dataset.find=Vind een Dataset
 
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
@@ -447,7 +448,7 @@ user.collection.title.objectsList=Objecten in uw collectie
 user.collection.title.selectObjects=Object(en) selecteren
 user.collection.save=Bewaar collectie
 
-##DataSets
+##Datasets
 user.dataset.title.create=Dataset aanmaken voor gebruiker {0}
 user.dataset.title.update=Dataset bewerken voor gebruiker {0}
 user.dataset.create=Dataset aanmaken

@@ -77,6 +77,7 @@ ui.label.scope=Scope
 ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
 ui.label.search=Search
+ui.label.search.help=Enter a search term and press [ENTER] on your keyboard
 ui.label.share=Share
 ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Start upload
@@ -271,7 +272,7 @@ collection.confirmDeletion=Are you sure you want to remove this collection?
 ##HeritageObjects
 heritageObject.notViewable=Sorry, this object cannot be displayed
 
-##DataSets
+##Datasets
 dataset.index=Process
 dataset.reindex=Re-process
 dataset.cancelindex=Cancel processing
@@ -673,14 +674,14 @@ organizations.group.cannotRemoveDataset=Could not remove Dataset with ID {0} fro
 organizations.group.groupNotFound=Could not find group with ID {0}
 organizations.group.cannotSaveGroup=Could not save group, please try again
 
-organization.datasets.dataSetNotFound=DataSet {0} was not found
-organization.datasets.cannotBeProcessed=DataSet cannot be processed in the current state
-organization.datasets.cannotBeReProcessed=DataSet cannot be re-processed in the current state
-organization.datasets.cannotBeCancelled=DataSet indexing cannot be cancelled in the current state
-organization.datasets.cannotBeDisabled=DataSet cannot be disabled in the current state
-organization.datasets.cannotBeEnabled=DataSet cannot be enabled in the current state
-organization.datasets.cannotBeDeleted=DataSet cannot be deleted in the current state
-organization.datasets.cannotBeInvalidated=DataSet hashes cannot be reset in the current state
+organization.datasets.dataSetNotFound=Dataset {0} was not found
+organization.datasets.cannotBeProcessed=Dataset cannot be processed in the current state
+organization.datasets.cannotBeReProcessed=Dataset cannot be re-processed in the current state
+organization.datasets.cannotBeCancelled=Dataset indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDisabled=Dataset cannot be disabled in the current state
+organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current state
+organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
+organization.datasets.cannotBeInvalidated=Dataset hashes cannot be reset in the current state
 
 search.backendConnectionError=Cannot connect to the search backend
 
