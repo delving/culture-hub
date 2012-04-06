@@ -29,7 +29,7 @@
                               onsubmit="return checkSimpleSearchSubmit('query');">
                             <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query"
                                    name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'
-                                   rel="tooltip" title="Enter a search term and press [ENTER] on your keyboard"/>
+                                   rel="tooltip" title="&{'ui.label.search.help'}"/>
                         </form>
                     </div>
                 </div>
@@ -38,56 +38,6 @@
 
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-*{<div id="page-top">}*
-*{<div class="container">}*
-*{<div class="row">}*
-*{<div class="${userName ? 'span3' : 'span6'}">}*
-*{<div id="primary-branding">}*
-*{<a href="@{controllers.routes.Application.index()}">}*
-*{<img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName()}" title="${themeInfo.displayName()}"/>}*
-*{</a>}*
-*{</div>}*
-*{</div>}*
-*{<div class="${userName ?  'span9' : 'span6'}">}*
-*{<div class="navbar navbar-fixed-top">}*
-*{<div class="navbar-inner">}*
-*{<div class="container">}*
-*{#{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect')/}}*
-*{<div class="nav-collapse">}*
-*{<form method="get" action="/search" class="navbar-search pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">}*
-*{<input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query"  value='${params.get("query")? params.get("query").apply(0) : ""}' rel="tooltip" title="Enter a search term and press [ENTER] on your keyboard"/>}*
-*{<input type="submit" value="&{'ui.label.search'}" class="btn btn-mini">}*
-*{</form>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{<div class="row">}*
-*{<div class="span12">}*
-*{<div class="pull-right" id="site-nav">}*
-*{<!--site nav-->}*
-*{<ul class="nav nav-tabs">}*
-*{<li class='${pageId == "home" ? "active" : "" }'><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>}*
-*{<li class='${pageId == "ho" ? "active" : "" }'><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>}*
-*{#{mainMenu menu:menu /}}*
-*{</ul>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
 
 <div id="header">
     <div class="container">
@@ -100,38 +50,20 @@
     </div>
 </div>
 
-*{<div id="search" role="search">}*
-*{<div class="container">}*
-*{<div class="span12">}*
-*{<form method="get" class="center" action="/search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">}*
-*{<input type="text" class="search-query" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>}*
-*{<input type="submit" value="&{'ui.label.search'}">}*
-*{</form>}*
-*{</div>}*
-*{</div>}*
-*{</div>}*
-
 <div id="content" role="main">
     <div class="container">
-    #{doLayout /}
+        #{doLayout /}
     </div>
 </div>
 
 <div id="footer">
     <div class="container">
         <div class="row">
-            <div class="span6">
-                <div class="">
+            <div class="span12">
+                <div class="pull-right">
                     <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img
                             src="@{routes.Assets.at('/common/images/delving-small.png')}"
                             alt="Powered by DELVING.EU" id="pbd" />Powered by Delving</a>
-                </div>
-            </div>
-            <div class="span6">
-                <div class="secondary-branding" role="banner">
-                    <a href="${themeInfo.get('secondaryBrandingURL')}" target="_blank"
-                       title="${themeInfo.get('secondaryBrandingName')}"><img
-                            src='${themeInfo.path("images/logo-secondary.png")}' alt="" title="" align="absmiddle"/></a>
                 </div>
             </div>
         </div>
