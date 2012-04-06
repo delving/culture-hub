@@ -523,19 +523,22 @@ Delving.wysiwyg = function (params) {
         theme_advanced_toolbar_location: "top",
         force_br_newlines: false,
         forced_root_block: 'p', // Needed for 3.x
-        remove_linebreaks: true,
+        remove_linebreaks: false,
+        content_css : "/assets/common/stylesheets/bootstrap/bootstrap.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         valid_child_elements: "ul[li],ol[li]",
-        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code",
+        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code,template",
         theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
         theme_advanced_toolbar_align: "left",
         height : "320",
-        plugins: "advimage,autoresize",
+        plugins: "advimage,autoresize,template",
         external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]",
-        width: "100%"
+        template_external_list_url : themePath+"/javascripts/tiny-templates.js",
+        template_popup_width : 1000,
+        width: "942px"
     };
 
     // Overwrite default params with user-passed ones.
