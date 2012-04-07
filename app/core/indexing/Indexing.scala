@@ -69,7 +69,6 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
         val mapping = dataSet.mappings.get(dataSet.getIndexingMappingPrefix.getOrElse(""))
         if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"))
 
-        // FIXME - the dataSet namespaces map seems not to work (we use the NS from the recDef in other places)
         val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), play.api.Play.classloader, MappingService.recDefModel, dataSet.namespaces.asJava)
         val mapped = Option(engine.toIndexDocument(mdr.getRawXmlString))
         indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))

@@ -57,7 +57,7 @@ object DataSetProcessor {
         // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
         //    val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
 
-        val javaNamespaces = format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String].asJava
+        val javaNamespaces = (format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String] ++ dataSet.namespaces).asJava
 
         // bring mapping engine to life
         val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
@@ -169,6 +169,7 @@ object DataSetProcessor {
             Indexing.commit()
           case _ =>
             log.error("Failed to process DataSet %s".format(dataSet.spec))
+            DataSet.updateState(dataSet, DataSetState.ERROR)
             if(indexingFormat == Some(format.prefix)) {
               log.info("Deleting DataSet %s from SOLR".format(dataSet.spec))
               IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)

@@ -4,6 +4,7 @@ import com.mongodb.casbah.commons.TypeImports._
 import models.{MetadataRecord, Thing}
 import core.search.SolrServer
 import util.Constants
+import play.api.Logger
 
 /**
  * Indexing API for Controllers
@@ -92,7 +93,9 @@ object IndexingService extends SolrServer {
    * Deletes from the index by collection spec
    */
   def deleteBySpec(orgId: String, spec: String) {
-    val deleteResponse = getStreamingUpdateServer.deleteByQuery(Constants.SPEC + ":" + spec + " " + Constants.ORG_ID + ":" + orgId)
+    val deleteQuery = Constants.SPEC + ":" + spec + " " + Constants.ORG_ID + ":" + orgId
+    Logger.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
+    val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
     deleteResponse.getStatus
     getStreamingUpdateServer.commit
   }
