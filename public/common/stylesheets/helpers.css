@@ -315,6 +315,7 @@ li.token-input-token span {
 
 li.token-input-input-token {
     background: #f1f1f1;
+    border: 1px solid #ccc;
 }
 
 li.token-input-input-token input[type='text'] {
