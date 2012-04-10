@@ -1,4 +1,4 @@
-<div id="dCarousel" class="carousel" #{if _maxHeight} style="max-height: ${_maxHeight}; overflow-y: hidden;"#{/if}>
+<div id="dCarousel" class="carousel" #{if _maxHeight} style="max-height: ${_maxHeight}px; overflow-y: hidden;"#{/if}>
 <div class="carousel-inner">
 #{list _results, as: 'doc'}
         <div class="item" style="height: ${_maxHeight}">
