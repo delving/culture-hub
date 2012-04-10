@@ -2,10 +2,6 @@
 #{set title: messages.get('ui.label.welcome') /}
 #{set bodyId:'home' /}
 #{set pageId:'home'/}
-#{set 'moreCss'}
-
-#{/set}
-
 #{set 'moreScripts'}
 <script src='${themeInfo.path("javascripts/index.js")}' type='text/javascript'></script>
 #{/set}
@@ -50,70 +46,12 @@
     </div>
 </div>
 
-    #{if themeInfo.get('homepageRecentMdrs') == true && recentMdrs.size() > 0 }
-        #{resultGrid results: recentMdrs /}
-    #{/if}
-
-    *{#{carousel results: recentMdrs /}}*
-
-*{<div class="row">}*
-    *{<div class="grid_3">}*
-        *{<h3>&{'thing.objects.heritage'}</h3>}*
-        *{<p>&{'thing.objects.heritage.info'}</p>}*
-    *{</div>}*
-    *{<div class="grid_3">}*
-        *{<h3>&{'thing.objects.user'}</h3>}*
-        *{<p>&{'thing.objects.user.info'}</p>}*
-    *{</div>}*
-    *{<div class="grid_3">}*
-        *{<h3>&{'thing.collections'}</h3>}*
-        *{<p>&{'thing.collections.info'}</p>}*
-    *{</div>}*
-    *{<div class="grid_3">}*
-        *{<h3>&{'thing.stories'}</h3>}*
-        *{<p>&{'thing.stories.info'}</p>}*
-    *{</div>}*
-*{</div>}*
-*{<div class="row">}*
-    *{<div class="grid_3">}*
-    *{#{if recentMdrs.size() > 0}}*
-        *{#{list recentMdrs, as: 'm'}}*
-            *{#{thingSummaryView data: m, iSize: 220 /}}*
-        *{#{/list}}*
-    *{#{/if}}*
-    *{#{else}&#160;#{/else}}*
-    *{</div>}*
-
-    *{<div class="grid_3">}*
-    *{#{if recentObjects.size() > 0}}*
-        *{#{list recentObjects, as: 'o'}}*
-            *{#{thingSummaryView data: o, iSize: 220 /}}*
-        *{#{/list}}*
-    *{#{/if}}*
-    *{#{else}&#160;#{/else}}*
-    *{</div>}*
-
-    *{<div class="grid_3">}*
-    *{#{if recentCollections.size() > 0}}*
-        *{#{list recentCollections, as: 'c'}}*
-            *{#{thingSummaryView data: c, iSize: 220 /}}*
-        *{#{/list}}*
-    *{#{/if}#{else}&#160;#{/else}}*
-    *{</div>}*
-
-    *{<div class="grid_3">}*
-    *{#{if recentStories.size() > 0}}*
-        *{#{list recentStories, as: 's'}}*
-            *{#{thingSummaryView data: s, iSize: 220 /}}*
-        *{#{/list}}*
-    *{#{/if}#{else}&#160;#{/else}}*
-    *{</div>}*
-
-
-*{</div>}*
-
-
-
+#{if homepageCmsContent}
+    ${homepageCmsContent.content.raw()}
+#{/if}
+#{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
+    #{resultGrid results: recentMdrs /}
+#{/if}
 
 
 

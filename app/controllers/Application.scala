@@ -8,6 +8,7 @@ import util.Constants._
 
 object Application extends DelvingController {
 
+
   def index = Root {
     Action {
       implicit request =>
@@ -16,8 +17,12 @@ object Application extends DelvingController {
         val recentStories: List[ListItem] = Story.findRecent(themeInfo.themeProperty("recentStoriesCount", classOf[Int])).toList
         val recentObjects: List[ListItem] = DObject.findRecent(themeInfo.themeProperty("recentObjectsCount", classOf[Int])).toList
         val recentMdrs: List[ListItem] = Search.search(None, 1, theme, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
+        val homepageCmsContent =  CMSPage.find(MongoDBObject("key" -> "homepage", "lang" -> getLang, "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+          case None => NotFound("homepage")
+          case Some(homepageCmsContent) => homepageCmsContent
+        }
 
-        Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs))
+        Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs, 'homepageCmsContent -> homepageCmsContent))
     }
   }
 
