@@ -1,9 +1,11 @@
 #{include 'commonHeader.html'/}
 
-<div id="page-top" xmlns="http://www.w3.org/1999/html">
-    <div class="container">
-        <div class="row">
-            <div class="span4">
+
+
+        <div class="sitenav sitenav-fixed">
+            <div class="container">
+                <div class="row">
+                <div class="span4">
                 <div id="primary-branding">
                     <a href="@{controllers.routes.Application.index()}">
                         <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName()}" title="${themeInfo.displayName()}"/>
@@ -12,11 +14,13 @@
             </div>
             <div class="span8">
                 <div id="site-nav">
-                    <ul class="nav nav-pills">
+                    <ul class="nav nav-pills pull-right">
                         <li class='${pageId == "home" ? "active" : "" }'><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
                         <li class='${pageId == "ho" ? "active" : "" }'><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
                         #{mainMenu menu:menu /}
                     </ul>
+                </div>
+            </div>
                 </div>
             </div>
         </div>
@@ -36,8 +40,6 @@
             </div>
         </div>
 
-    </div>
-</div>
 
 <div id="header">
     <div class="container">
