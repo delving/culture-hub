@@ -1,7 +1,7 @@
 <h2 style="text-transform: uppercase; color: #888;">${_orgId}</h2>
 <ul class="nav nav-tabs">
     *{** OVERVIEW **}*
-    <li class="${(_active == 'overview' ? 'active' : '')}"><a href="${'/organizations/' + _orgId }">Overview</a></li>
+    <li class="${(_active == 'overview' ? 'active' : '')}"><a href="${'/organizations/' + _orgId }">${messages.get('ui.label.overview')}</a></li>
     #{if _isOwner == true}
     *{** ADMIN **}*
     <li class="${(_active == 'administration' ? 'active' : '')}"><a href="${'/organizations/' + _orgId + '/admin'}">${messages.get('ui.label.administration')}</a></li>
@@ -34,8 +34,8 @@
             <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
-            <li><a href="/organizations/${_orgId}/virtualCollection">&{'organization.virtualCollection.list'}</a></li>
-            <li><a href="/organizations/${_orgId}/virtualCollection/add">&{'organization.virtualCollection.new'}</a></li>
+            <li><a href="/organizations/${_orgId}/virtualCollection">&{'org.vc.list'}</a></li>
+            <li><a href="/organizations/${_orgId}/virtualCollection/add">&{'org.vc.new'}</a></li>
         </ul>
     </li>
     #{/if}

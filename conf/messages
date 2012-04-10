@@ -33,6 +33,7 @@ ui.label.disable=Disable
 ui.label.captcha=Enter the code you see here
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
+ui.label.content=Content
 ui.label.delete=Delete
 ui.label.edit=Edit
 ui.label.email=Email
@@ -62,6 +63,7 @@ ui.label.more=More
 ui.label.next=Next
 ui.label.nritems=Nr. of items
 ui.label.options=Options
+ui.label.overview=Overview
 ui.label.password=Password
 ui.label.passwordrepeat=Password (repeat)
 ui.label.places=Places
@@ -569,6 +571,36 @@ org.cms.upload.image=Upload image
 org.cms.upload.image.explain=Here you can upload images from your own computer and afterwards add them to a CMS page. These images will be added to a list which is made available when you create a new page or edit an existing page.
 org.cms.upload.save=Save files
 
+### CMS PAGE HELP ###
+org.cms.page.help.toggle=Help with website pages
+# FIELDS #
+org.cms.page.help.fields.tab=Fields explained
+org.cms.page.help.fields.key.info=Unique identifier for the page. This is used as the URL for the page.
+org.cms.page.help.fields.title.info=Used in the page's html <code>&lt;title&gt;&lt;/title&gt;</code> attribute and, if the page is added to a menu then this will appear as the link in the menu.
+org.cms.page.help.fields.theme.info=The Hub theme under which this page will be displayed.
+org.cms.page.help.fields.language.info=The language of this page's content. If language switching is active (i.e. you have your Hub available in multiple languages) then you should create a page for each language.
+org.cms.page.help.fields.menu.info=Select the menu you want to have the page link appear in.
+org.cms.page.help.fields.position.info=The position of your page link in the selected menu. The higher the number, the further to the right it will move.
+# IMAGES #
+org.cms.page.help.images.tab=Adding images
+org.cms.page.help.images.info=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list<em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
+# TEMPLATES #
+org.cms.page.help.templates.tab=Using templates
+org.cms.page.help.templates.info=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
+# HOMEPAGE #
+org.cms.page.help.homepage.tab=Creating homepage content
+org.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage<em></li><li>It cannot be added to a menu</li></ol>
+
+
+org.vc.list=Virtual collection list
+org.vc.new=New Virtual Collection
+org.vc.deleteCollection=Delete Virtual Collection
+org.vc.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
+org.vc.save=Save
+org.vc.query=Query
+org.vc.excludedIds=Excluded hubIds
+org.vc.spec=Identifier
+
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
 org.admin.index.editOwners=You can edit the owners of the organization at the
@@ -588,14 +620,7 @@ organization.dataset.save=Save Dataset
 organization.dataset.list=Dataset list
 organization.members=Members
 
-organization.virtualCollection.list=Virtual Collection list
-organization.virtualCollection.new=New Virtual Collection
-organization.virtualCollection.deleteCollection=Delete Virtual Collection
-organization.virtualCollection.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
-organization.virtualCollection.save=Save
-organization.virtualCollection.query=Query
-organization.virtualCollection.excludedIds=Excluded hubIds
-organization.virtualCollection.spec=Identifier
+
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
