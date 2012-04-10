@@ -18,6 +18,12 @@ hr.soften {
     border: 0;
 }
 
+hr.editorRule {
+    height: 1px;
+    margin: 0;
+    border: 0;
+}
+
 
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
@@ -486,4 +492,8 @@ form.form-delving label.radio {
 
 #pageContent_ifr {
     height: 400px !important;
+}
+
+#instructions .accordion-body {
+    background: #fffff0;
 }
