@@ -31,12 +31,14 @@
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", required: false /}
             #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
             <hr/>
-            #{btnButton label: "Preview", extraClass:"btn-prominent btn-inverse", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
+            <div class="row">
+                #{btnButton label: "Preview", extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
+            </div>
             <hr/>
             <div class="well">
             #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
-            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-prominent btn-primary pull-right", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
             </div>
         </form>

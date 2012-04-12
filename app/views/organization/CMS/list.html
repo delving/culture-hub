@@ -21,17 +21,17 @@
         </form>
 
 
-
-
             <table class="table table-striped">
                 <caption>Site pages</caption>
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th width="25%">&{'thing.actions'}</th>
+                    <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
+                <!-- ko if: pages().length > 0 -->
                 <tbody data-bind="foreach: pages()">
+
                 <tr>
                     <td>
                         <span class="page-title" data-bind="text: title"></span>
@@ -39,15 +39,28 @@
                         *{<a data-bind="attr: {href: '/page/' key}"><span class="page-title" data-bind="text: title"></span></a>}*
                     </td>
                     <td>
-                        <a class="btn btn-primary btn-prominent" href="#" data-bind="click: function() { $parent.editPage($data) }">
-                            &{'ui.label.edit'}
+                        <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }">
+                            <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
-                        <a class="btn btn-danger pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
-                            &{'ui.label.delete'}
+                        <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                            <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                         </a>
                     </td>
                 </tr>
                 </tbody>
+                <!-- /ko -->
+                <!-- ko if: !pages().length > 0 -->
+                <tbody>
+                    <tr>
+                        <td>
+                            No pages available
+                        </td>
+                        <td>
+                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add">${messages.get('org.cms.page.new')}</a>
+                        </td>
+                    </tr>
+                </tbody>
+                <!-- /ko -->
             </table>
 
     </div>

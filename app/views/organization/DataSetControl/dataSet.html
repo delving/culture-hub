@@ -91,8 +91,10 @@
 
                         <hr/>
                         <div class="well">
-                            #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-primary btn-prominent"/}
-                            <button type="reset" class="btn pull-right">Reset</button>
+                            <div class="row">
+                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success span4", iconClass:"icon-ok-circle icon-white"/}
+                                <button type="reset" class="btn pull-right">Reset</button>
+                            </div>
                         </div>
                     </div>
                 </div>

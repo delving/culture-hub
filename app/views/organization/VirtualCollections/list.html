@@ -15,7 +15,7 @@
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th width="25%">&{'thing.actions'}</th>
+                    <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -26,11 +26,11 @@
                     </td>
                     <td>
                         #{if isOwner}
-                        <a class="btn btn-primary btn-prominent" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
-                            &{'ui.label.edit'}
+                        <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
+                            <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
-                        <a id="${vc.spec}" class="btn btn-danger delete pull-right" href="#">
-                            &{'ui.label.delete'}
+                        <a id="${vc.spec}" class="btn btn-danger btn-mini delete pull-right" href="#">
+                            <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                         </a>
                         #{/if}
                     </td>
@@ -43,7 +43,7 @@
                     </td>
                     <td>
                         #{if isOwner}
-                            <a class="btn btn-primary btn-prominent" href="/organizations/${orgId}/virtualCollection/add">&{'org.vc.new'}</a>
+                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/add"><i class="icon-plus-sign icon-white"></i>&#160;&{'org.vc.new'}</a>
                         #{/if}
                     </td>
                 </tr>
