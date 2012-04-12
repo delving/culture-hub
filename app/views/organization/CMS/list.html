@@ -42,7 +42,7 @@
                         <a class="btn btn-primary btn-prominent" href="#" data-bind="click: function() { $parent.editPage($data) }">
                             &{'ui.label.edit'}
                         </a>
-                        <a class="btn btn-danger pull-right" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                        <a class="btn btn-danger pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
                             &{'ui.label.delete'}
                         </a>
                     </td>
@@ -59,7 +59,7 @@
 <div id="dialog-confirm-page-delete" title="&{'org.cms.list.deletePage'}" style="display: none;">
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-    &{'org.cms.list.deletePageConfirm'}
+        &{'org.cms.list.deletePageConfirm'}
     </p>
 </div>
 
