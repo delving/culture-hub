@@ -1,5 +1,10 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('thing.virtualCollections') /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>
+#{/set}
+
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" media="screen"
       href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
@@ -10,17 +15,19 @@
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
 
+#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
 
 <div class="row">
     <div class="span6">
 
         <h3>${messages.get('Virtual Collection Information')}</h3>
 
+
         <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true /}
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
-            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false /}
+            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true/}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", required: false /}
             #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
             <hr/>
@@ -117,6 +124,11 @@
         function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
             if (dataSets) {
+                // remove trailing comma and space (added by typeAhead functionality)
+                if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
+                    dataSets = dataSets.trim().slice(0, -1)
+                }
+
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -154,7 +166,7 @@
         }
 
         function search(query, orgId, start) {
-
+            //alert('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start);
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;

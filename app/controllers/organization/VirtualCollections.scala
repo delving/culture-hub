@@ -2,7 +2,6 @@ package controllers.organization
 
 import play.api.mvc._
 import org.bson.types.ObjectId
-import controllers.{ViewModel, OrganizationController}
 import play.api.data.Forms._
 import play.api.data.Form
 import extensions.JJson
@@ -11,6 +10,7 @@ import core.search._
 import play.api.Logger
 import models._
 import collection.mutable.ListBuffer
+import controllers.{AccessControl, ShortDataSet, ViewModel, OrganizationController}
 
 /**
  *
@@ -58,10 +58,26 @@ object VirtualCollections extends OrganizationController {
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
         }
 
+        val dataSets: List[ShortDataSet] =
+          DataSet.findAllCanSee(orgId, connectedUser).
+            filter(ds =>
+            ds.visibility == Visibility.PUBLIC ||
+              (
+                ds.visibility == Visibility.PRIVATE &&
+                  session.get(AccessControl.ORGANIZATIONS) != null &&
+                  request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId)
+                )
+          ).toList
+
         if (viewModel.isEmpty) {
           NotFound(spec.getOrElse(""))
         } else {
-          Ok(Template('id -> spec, 'data -> JJson.generate(viewModel.get), 'virtualCollectionForm -> VirtualCollectionViewModel.virtualCollectionForm))
+          Ok(Template(
+            'id -> spec,
+            'data -> JJson.generate(viewModel.get),
+            'virtualCollectionForm -> VirtualCollectionViewModel.virtualCollectionForm,
+            'dataSets -> dataSets
+          ))
         }
     }
   }
