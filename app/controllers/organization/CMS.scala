@@ -123,8 +123,8 @@ object CMS extends OrganizationController {
           pageModel => {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
 
-            if (pageModel.menu == MAIN_MENU && pageModel.published == true) {
-              MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang)
+            if (pageModel.menu == MAIN_MENU) {
+              MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
             } else if (pageModel.menu == NO_MENU) {
               MenuEntry.removePage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.lang)
             }

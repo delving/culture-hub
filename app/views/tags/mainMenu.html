@@ -17,6 +17,8 @@
 
 #{list _menu, as:'m'}
 *{<li class="#{if params.key == m.apply('page')}current#{/if}"><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>}*
+#{if m.apply("published") == true}
 <li class="#{if m.apply("page") == pageId}active#{/if}"><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>
+#{/if}
 #{/list}
 

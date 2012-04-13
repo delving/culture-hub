@@ -85,15 +85,15 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
    */
-  def addPage(orgId: String, theme: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String) {
+  def addPage(orgId: String, theme: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String, published: Boolean) {
     findByPageAndMenu(orgId, theme, menuKey, targetPageKey) match {
       case Some(existing) =>
-        val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title))
+        val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title), published = published)
         save(updatedEntry)
         // update position of siblings by shifting them to the right
-        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
+        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "published" -> published) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
       case None =>
-        val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title))
+        val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title), published = published)
         insert(newEntry)
     }
   }
