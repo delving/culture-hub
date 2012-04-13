@@ -26,6 +26,7 @@
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
+                    *{<th>&{'thing.status'}</th>}*
                     <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
@@ -38,9 +39,16 @@
                         *{TODO: CREATE URL FOR THIS}*
                         *{<a data-bind="attr: {href: '/page/' key}"><span class="page-title" data-bind="text: title"></span></a>}*
                     </td>
+                    *{
+                    *{<td>}*
+                        *{<span data-bind="text: published"></span>}*
+                    *{</td>}*
                     <td>
                         <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }">
                             <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
+                        </a>
+                        <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }">
+                            <i class="icon-eye-open icon-white"></i> &{'ui.label.preview'}
                         </a>
                         <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
                             <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
@@ -75,12 +83,17 @@
         &{'org.cms.list.deletePageConfirm'}
     </p>
 </div>
-
+*{${data.raw()}}*
 <script type="text/javascript">
     $(document).ready(function () {
         var pagesModel = {
             editPage:function (page) {
                 document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
+            },
+            previewPage:function (page) {
+                var newWindow = window.open("/organizations/${orgId}/site/" + page.lang() + "/page/preview/" + page.key())
+                newWindow.focus();
+                return false;
             },
             deletePage:function (page) {
                 confirmDeletion('#dialog-confirm-page-delete', function () {

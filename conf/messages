@@ -68,6 +68,7 @@ ui.label.password=Password
 ui.label.passwordrepeat=Password (repeat)
 ui.label.places=Places
 ui.label.poweredby=Powered by DELVING.EU
+ui.label.preview=Preview
 ui.label.previous=Previous
 ui.label.print=Print
 ui.label.register=Register
@@ -589,7 +590,7 @@ org.cms.page.help.templates.tab=Using templates
 org.cms.page.help.templates.info=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
 # HOMEPAGE #
 org.cms.page.help.homepage.tab=Creating homepage content
-org.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage<em></li><li>It cannot be added to a menu</li></ol>
+org.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
 
 
 org.vc.list=Virtual collection list

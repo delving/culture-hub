@@ -67,6 +67,7 @@ ui.label.password=Wachtwoord
 ui.label.passwordrepeat=Wachtwoord (herhalen)
 ui.label.places=Plaatsen
 ui.label.poweredby=Powered by DELVING.EU
+ui.label.preview=Voorbeeld
 ui.label.previous=Vorige
 ui.label.print=Print
 ui.label.register=Registreren

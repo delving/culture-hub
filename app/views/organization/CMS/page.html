@@ -97,6 +97,7 @@
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
+                #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published" /}
                 #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
                 #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
                 </div>
@@ -122,6 +123,7 @@
             <div style="position: relative; z-index: 2000;">
                 #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             </div>
+
             <hr/>
             <div class="well">
                 #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
@@ -168,6 +170,7 @@
                 pageModel.lang(version.lang());
                 pageModel.title(version.title());
                 pageModel.content(version.content());
+                pageModel.published(version.published())
             }
         };
         load(${page.raw()}, pageModel, document.getElementById('pageForm'), function () {

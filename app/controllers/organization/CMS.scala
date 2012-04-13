@@ -49,7 +49,7 @@ object CMS extends OrganizationController {
 
     val menu = if (MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key).isDefined) MAIN_MENU else NO_MENU
 
-    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, menuEntryPosition, menu)
+    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, p.published, menuEntryPosition, menu)
   }
 
   implicit def cmsPageListToViewModelList(l: List[CMSPage]) = l.map(cmsPageToViewModel(_))
@@ -99,7 +99,7 @@ object CMS extends OrganizationController {
         def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
 
         val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
-          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, menuEntries.length + 1, NO_MENU), List.empty)
+          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, false, menuEntries.length + 1, NO_MENU), List.empty)
           case Some(key) =>
             val versions = CMSPage.findByKey(orgId, key)
             if (versions.length == 0) {
@@ -123,12 +123,12 @@ object CMS extends OrganizationController {
           pageModel => {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
 
-            if (pageModel.menu == MAIN_MENU) {
+            if (pageModel.menu == MAIN_MENU && pageModel.published == true) {
               MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang)
             } else if (pageModel.menu == NO_MENU) {
               MenuEntry.removePage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.lang)
             }
-            val page: CMSPageViewModel = CMSPage.create(orgId, theme.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content)
+            val page: CMSPageViewModel = CMSPage.create(orgId, theme.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published)
 
             Json(page)
           }
@@ -148,6 +148,17 @@ object CMS extends OrganizationController {
     }
   }
 
+  def pagePreview(orgId: String, langauge: String, key: String) = Root {
+    Action {
+      implicit request =>
+      // TODO link the themes to the organization so this also works on multi-org hubs
+        CMSPage.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+          case None => NotFound(key)
+          case Some(pagePreview) => Ok(Template('page -> pagePreview))
+        }
+    }
+  }
+
   private def getThemes = if (Play.isDev || PortalTheme.findAll.length == 1) {
     PortalTheme.findAll.map(t => (t.name, t.name))
   } else {
@@ -164,6 +175,7 @@ case class CMSPageViewModel(dateCreated: Long,
                             title: String, // title of the page in this language
                             content: String, // actual page content (text)
                             isSnippet: Boolean = false, // is this a snippet in the welcome page or not
+                            published: Boolean,
                             position: Int,
                             menu: String,
                             errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
@@ -179,6 +191,7 @@ object CMSPageViewModel {
       "title" -> nonEmptyText,
       "content" -> text,
       "isSnippet" -> boolean,
+      "published" -> boolean,
       "position" -> number,
       "menu" -> text,
       "errors" -> of[Map[String, String]]
