@@ -323,7 +323,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {elem}
+          {if (metadataPrefix != "ese")
+            elem
+          else
+            <record>{elem.child.filterNot(_.prefix == "delving")}</record>
+            }
         </metadata>
       </record>
     } catch {
