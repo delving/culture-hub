@@ -326,7 +326,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {if (metadataPrefix != "ese")
             elem
           else
-            <record>{elem.child.filterNot(_.prefix == "delving")}</record>
+            <europeana:record>{elem.child.filterNot(_.prefix == "delving")}</europeana:record>
             }
         </metadata>
       </record>
