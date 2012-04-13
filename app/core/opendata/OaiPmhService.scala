@@ -315,7 +315,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // todo get the record separator for rendering from somewhere
     val response = try {
       import xml.XML
-      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString))
+      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1"))
       <record>
         <header>
           <identifier>{record.pmhId}</identifier>
@@ -332,7 +332,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       </record>
     } catch {
       case e: Exception =>
-        println (e.getMessage)
+        log.error("Unable to render record %s with format %s because of %s".format(record.hubId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
