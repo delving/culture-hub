@@ -467,9 +467,9 @@ form.form-delving label.radio {
 	BOOTSTRAP DROPDOWN HELPER
 -----------------------------------*/
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
+/*.dropdown:hover .dropdown-menu {*/
+    /*display: block;*/
+/*}*/
 
 /* bootstrap pagination: include spans for object list pages */
 
