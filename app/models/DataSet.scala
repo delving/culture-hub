@@ -380,7 +380,7 @@ object DataSetState {
   val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
 }
 
-case class RecordSep(pre: String, label: String, path: Path = Path.empty())
+case class RecordSep(pre: String, label: String, path: Path = Path.create())
 
 case class Mapping(recordMapping: Option[String] = None,
                    format: RecordDefinition,
