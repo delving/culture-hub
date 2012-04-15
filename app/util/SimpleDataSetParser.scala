@@ -98,7 +98,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           inIdentifierElement = false
           justLeftIdentifierElement = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
-          path.push(Tag.element(prefix, label))
+          path.extend(Tag.element(prefix, label, null))
           recordXml.append(elemStartToString(elemStart))
           elementHasContent = false;
         case EvText(text) if(inRecord && inIdentifierElement) =>
@@ -122,7 +122,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           } else {
             recordXml.append(elemEndToString(elemEnd))
           }
-          path.pop()
+          path.shorten()
           fieldValueXml.clear()
         case some@_ =>
       }
