@@ -8,6 +8,8 @@
 <script id='delving-wysiyg' src="@{routes.Assets.at('/common/javascripts/tiny_mce/tiny_mce.js')}" type='text/javascript'></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 #{/set}
+
+#{set 'moreCss'}
 <style>
     .mceIcon {
         display: inline-block;
@@ -25,13 +27,13 @@
         background-position:  -380px -0px;
     }
 </style>
+#{/set}
+
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
-*{<div class="row">}*
-    *{<div class="span12">}*
-        <div class="accordion" id="instructions">
+<div class="accordion" id="instructions">
             <div class="accordion-group">
                 <div class="accordion-heading  clearfix">
                     <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
@@ -88,8 +90,6 @@
                 </div>
             </div>
         </div>
-    *{</div>}*
-*{</div>}*
 
 <div class="row">
     <div class="span12">
@@ -97,7 +97,6 @@
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
-                #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published" /}
                 #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
                 #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
                 </div>
@@ -119,11 +118,9 @@
                 #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
+            #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
-            <div style="position: relative; z-index: 2000;">
-                #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
-            </div>
-
+            #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published", help: "Selecting this option will make this content visible" /}
             <hr/>
             <div class="well">
                 #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
