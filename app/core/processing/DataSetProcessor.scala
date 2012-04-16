@@ -10,7 +10,11 @@ import util.Constants._
 import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
-import models.{DataSetState, RecordDefinition, DataSet}
+import collection.mutable.{MultiMap, HashMap}
+import play.libs.XPath
+import scala.collection
+import org.w3c.dom.Node
+import models._
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -41,6 +45,12 @@ object DataSetProcessor {
       flatIndexingMapping
     } else {
       None
+    }
+
+    val summaryFormat: Option[RecordDefinition] = if(indexingFormat.isDefined) {
+      indexingFormat
+    } else {
+      formats.headOption
     }
 
     val now = System.currentTimeMillis()
@@ -105,37 +115,52 @@ object DataSetProcessor {
                 // cache mapping result
                 DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
 
-                // if the current format is the to be indexed one, send the record out for indexing
-                if (indexingFormat == Some(format)) {
-                  Indexing.indexOne(dataSet, record, Some(engine.toIndexDocument(record.getRawXmlString)), format.prefix)
+                // extract summary fields
+                val summaryFields = summaryFormat.map { sf => extractSearchFields(sf, mainMappingResult, javaNamespaces) }
+
+                // cache summary fields in mongo for the hub
+                if(summaryFields.isDefined) {
+                  val mappedSummaryFields = summaryFields.get
+
+                  // set SummaryFields required by the hub, result of processing
+                  val hubSummaryFields = Map(
+                    SPEC -> dataSet.spec,
+                    RECORD_TYPE -> MDR,
+                    VISIBILITY -> Visibility.PUBLIC.value,
+                    MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+                    HAS_DIGITAL_OBJECT -> (mappedSummaryFields.get(THUMBNAIL).isDefined && mappedSummaryFields.get(THUMBNAIL).get.size > 0 && mappedSummaryFields.get(THUMBNAIL).get.head.length > 0)
+                  )
+
+                  // use only the first value for the moment
+                  val singleMappedSummaryFields = mappedSummaryFields.map(f => (f._1, f._2.headOption.getOrElse("")))
+
+                  recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (singleMappedSummaryFields ++ hubSummaryFields).asDBObject))
                 }
 
-                // TODO re-work the summary field extraction
-                // if this is a flat record definition, try to get some summary fields for the hub to show something
-                //              if (mainMappingResult.isFlatDocument) {
-                //                val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
-                //
-                //                val mappedSummaryFields = (for (field <- summaryFields) yield {
-                //                  val value = indexDocument.get(field)
-                //                  val summaryFieldValue: String = if (value.isDefined) {
-                //                    if (value.get.isEmpty) "" else value.get.get(0).toString
-                //                  } else {
-                //                    ""
-                //                  }
-                //                  (field -> summaryFieldValue)
-                //                }).toMap[String, String]
-                //
-                //                // set SummaryFields required by the hub, result of processing
-                //                val hubSummaryFields = Map(
-                //                  SPEC -> dataSet.spec,
-                //                  RECORD_TYPE -> MDR,
-                //                  VISIBILITY -> Visibility.PUBLIC.value,
-                //                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                //                  HAS_DIGITAL_OBJECT -> (indexDocument.get(THUMBNAIL).isDefined && indexDocument.get(THUMBNAIL).get.size() > 0 && indexDocument.get(THUMBNAIL).get.get(0).toString.length() > 0)
-                //                )
-                //
-                //                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (mappedSummaryFields ++ hubSummaryFields).asDBObject))
-                //              }
+                // if the current format is the to be indexed one, send the record out for indexing
+                if (indexingFormat == Some(format)) {
+                  val indexDocument = engine.toIndexDocument(record.getRawXmlString)
+
+                  // append summary fields
+                  if(summaryFields.isDefined) {
+                    summaryFields.get.foreach {
+                      sf => sf._2.foreach {
+                        value => indexDocument.put(sf._1, value)
+                      }
+                    }
+                  }
+
+                  // append search fields
+                  val searchFields = extractSearchFields(format, mainMappingResult, javaNamespaces)
+                  searchFields.foreach {
+                    sf => sf._2.foreach {
+                      value => indexDocument.put(sf._1, value)
+                    }
+                  }
+
+                  Indexing.indexOne(dataSet, record, Some(indexDocument), format.prefix)
+                }
+
 
                 // also cache the result of possible crosswalks
                 if (!crosswalkEngines.isEmpty) {
@@ -178,5 +203,24 @@ object DataSetProcessor {
     log.info("Processing of DataSet %s finished, took %s ms".format(dataSet.spec, (System.currentTimeMillis() - now)))
 
   }
+
+  private def extractSummaryFields(sf: RecordDefinition, node: Node, javaNamespaces: java.util.Map[String, String]) = {
+    val extractedSummaryFields = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
+    for (summaryField: SummaryField <- sf.summaryFields.filter(_.isValid)) {
+      val value = XPath.selectText(summaryField.xpath, node, javaNamespaces)
+      extractedSummaryFields.put(summaryField.tag, value)
+    }
+    extractedSummaryFields
+  }
+
+  private def extractSearchFields(sf: RecordDefinition, node: Node, javaNamespaces: java.util.Map[String, String]) = {
+    val extractedSearchFields = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
+    for (searchField: SearchField <- sf.searchFields) {
+      val value = XPath.selectText(searchField.xpath, node, javaNamespaces)
+      extractedSearchFields.put(searchField.tag, value)
+    }
+    extractedSearchFields
+  }
+
 
 }

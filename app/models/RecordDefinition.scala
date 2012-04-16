@@ -31,6 +31,8 @@ case class RecordDefinition(prefix: String,
                             namespace: String,               // the namespace of the format
                             allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
                             roles: List[Role] = List.empty,  // roles that are described in the RecordDefinition
+                            summaryFields: List[SummaryField] = List.empty, // summary fields
+                            searchFields: List[SearchField] = List.empty, // search fields
                             isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
                             ) {
 
@@ -47,6 +49,20 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
   def isProtectedAccess = accessType == "protected"
   def isNoAccess = accessType == "none"
 }
+
+case class SummaryField(name: String, xpath: String) {
+
+  def isValid = try {
+    eu.delving.metadata.SummaryField.valueOf(name)
+    true
+  } catch {
+    case _ => false
+  }
+
+  def tag = "delving_" + name.toLowerCase
+}
+
+case class SearchField(name: String, xpath: String)
 
 object RecordDefinition {
 
@@ -93,6 +109,9 @@ object RecordDefinition {
       )).toList
 
     val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
+    val summaryFields = (node \ "summaryFields" \ "summaryField").map(sf => SummaryField((sf \ "@name").text, (sf \ "@xpath").text)).toList
+    val searchFields = (node \ "searchFields" \ "searchField").map(sf => SearchField((sf \ "@name").text, (sf \ "@xpath").text)).toList
+
     Some(
       RecordDefinition(
         recordDefinitionNamespace \ "@prefix" text,
@@ -100,6 +119,8 @@ object RecordDefinition {
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
         roles,
+        summaryFields,
+        searchFields,
         isFlat
       )
     )
