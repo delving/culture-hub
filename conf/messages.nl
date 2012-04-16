@@ -32,6 +32,7 @@ ui.label.cancel=Annuleer
 ui.label.captcha=Vul de code hier in
 ui.label.collectionSelect=Selecteer een collectie
 ui.label.choose=Kiezen...
+ui.label.content=Inhoud
 ui.label.create=Aanmaken
 ui.label.delete=Verwijder
 ui.label.disable=Uitschakelen
@@ -60,11 +61,13 @@ ui.label.memberSince=Lid sinds
 ui.label.more=Meer
 ui.label.next=Volgende
 ui.label.nritems=Aantal items
+ui.label.overview=Overzicht
 ui.label.options=Opties
 ui.label.password=Wachtwoord
 ui.label.passwordrepeat=Wachtwoord (herhalen)
 ui.label.places=Plaatsen
 ui.label.poweredby=Powered by DELVING.EU
+ui.label.preview=Voorbeeld
 ui.label.previous=Vorige
 ui.label.print=Print
 ui.label.register=Registreren
@@ -76,10 +79,12 @@ ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
 ui.label.search=Zoeken
+ui.label.search.help=Vul een zoekterm in en druk op de [ENTER] toets
 ui.label.share=Deel
 ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Begin upload
 ui.label.status=Status
+ui.label.theme=Website thema
 ui.label.uploadcancel=Annuleer upload
 ui.label.username=Gerbruikersnaam
 ui.label.visibility=Zichtbaarheid
@@ -96,8 +101,8 @@ thing.label.freeText=Vrije-tekst label
 thing.label.placeName=Plaats-naam label
 thing.comment=Comment
 thing.comments=Comments
-thing.dataset=DataSet
-thing.datasets=DataSets
+thing.dataset=Dataset
+thing.datasets=Datasets
 thing.object=Object
 thing.objects=Objecten
 thing.object.user=Gebruikersobject
@@ -108,6 +113,8 @@ thing.objects.heritage=Erfgoedobjecten
 thing.objects.heritage.info=Erfgoedobjecten komen uit rijke collecties waarvoor diverse erfgoed instanties verantwoordelijkheid dragen, en die door de organisaties zelf worden bijgehouden. Op deze site kunnen wij erfgoedobjecten gebruiken als een beginpunt, en wellicht als inspiratiebron, en wij kunnen eruit kiezen om ons eigen collecties en verhalen te bouwen.
 thing.collection=Collectie
 thing.collections=Collecties
+thing.virtualCollection=Virtuele collectie
+thing.virtualCollections=Virtuele collecties
 thing.collections.info=Iedereen heeft zijn of haar favoriete onderwerpen, en deze site biedt mogelijkheden om erfgoedobjecten te vinden en in facetten te navigeren, maar wij kunnen ook gevonden schatten slepen naar ons eigen collecties.  Een collectie die wij maken en online zetten wordt geplaatst onder een unieke URL die wij makkelijk kunnen doorgeven aan anderen.
 thing.story=Verhaal
 thing.stories=Verhalen
@@ -131,7 +138,7 @@ thing.actions=Acties
 thing.objectcount=Aantal objecten
 thing.collectioncount=Aantal collecties
 thing.storycount=Aantal verhalen
-thing.datasetcount=Aantal DataSets
+thing.datasetcount=Aantal Datasets
 thing.objects=Objecten
 thing.labels=Labels
 thing.addlabel=Label toevoegen
@@ -143,6 +150,7 @@ thing.browse=Ontdek {0}
 thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
+
 
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
@@ -163,11 +171,11 @@ user.nav.yourprofile=Jouw profiel
 user.nav.yourobjects=Jouw objecten
 user.nav.yourcollections=Jouw collecties
 user.nav.yourstories=Jouw verhalen
-user.nav.yourdatasets=Jouw DataSets
+user.nav.yourdatasets=Jouw Datasets
 user.nav.newobject=Nieuw object
 user.nav.newcollection=Nieuwe collectie
 user.nav.newstory=Nieuw verhaal
-user.nav.newdataset=Nieuw DataSet
+user.nav.newdataset=Nieuw Dataset
 
 # Site navigation
 site.nav.home=Home
@@ -250,14 +258,14 @@ object.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
 ##Collections
 collection.confirmDeletion=Weet u zeker dat u deze collectie wilt verwijderen?
 
-##DataSets
+##Datasets
 dataset.index=Indexeren
 dataset.reindex=Opnieuw indexeren
 dataset.cancelindex=Annuleer indexeren
 dataset.disable=Uitschakelen
 dataset.enable=Inschakelen
-dataset.confirmDeletion=Verwijder deze DataSet?
-dataset.find=Vind een DataSet
+dataset.confirmDeletion=Verwijder deze Dataset?
+dataset.find=Vind een Dataset
 
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
@@ -287,8 +295,8 @@ search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
-#search.trail=U bekijkt resultaten <strong>{0} - {0}</strong> van <strong>{0}</strong> voor:
-search.trail=U bekijkt resultaten {0} - {0} van ongeveer {0}
+#search.trail=U bekijkt resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong> voor:
+search.trail=U bekijkt resultaten {0} - {1} van ongeveer {2}
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 ##Story
 story.pages=Pagina's
@@ -447,7 +455,7 @@ user.collection.title.objectsList=Objecten in uw collectie
 user.collection.title.selectObjects=Object(en) selecteren
 user.collection.save=Bewaar collectie
 
-##DataSets
+##Datasets
 user.dataset.title.create=Dataset aanmaken voor gebruiker {0}
 user.dataset.title.update=Dataset bewerken voor gebruiker {0}
 user.dataset.create=Dataset aanmaken
@@ -535,6 +543,39 @@ org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies va
 org.cms.upload=Bestand uploaden
 org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
+
+
+### CMS PAGE HELP ###
+org.cms.page.help.toggle=Hulp met website paginas
+# FIELDS #
+org.cms.page.help.fields.tab=Invoer velden
+org.cms.page.help.fields.key.info=Unieke <em>identifier</em> for de pagina. Dit wordt gebruikt als de URL voor de pagina.
+org.cms.page.help.fields.title.info=Dit wordt gebruikt in de broncode van de html voor de <code>&lt;title&gt;&lt;/title&gt;</code> attribuut. Als de pagina ook aan een menu toegevoegd wordt dan zal dit veld in zichtbaar in de menulijst zijn.
+org.cms.page.help.fields.theme.info=Hub-thema waaronder de pagina gebruikt mag worden.
+org.cms.page.help.fields.language.info=De taal van de indhoud van de pagina. Als meertaligheid is ingeschakeld voor deze Hub, dan kan er per taal een aparte pagina worden gemaakt.
+org.cms.page.help.fields.menu.info=Kies hier het menu waar de pagina aan toegevoegd moet worden.
+org.cms.page.help.fields.position.info=De positie van de pagina link in de gekozen menu. Hoe hoger het nummer, hoe verder naar rechts in het menu.
+# IMAGES #
+org.cms.page.help.images.tab=Afbeeldingen toevoegen
+org.cms.page.help.images.info=Plaatjes kunnen toegevoegd worden op twee manieren: <ol><li><strong>Uploaden van een computer:</strong> dit kan via de <a href="/organizations/{0}/site/upload">Afbeelding uploaden</a> pagina. Wanneer de afbeelding is bewaard kan deze in de pagina gebruikt worden door op het <span class="mceIcon mceImage"></span> ikoontje te klikken en de afbeelding uit de <em>Image list</em> te kiezen</li><li><strong>Direct vanaf het internet:</strong> klik op het <span class="mceIcon mceImage"></span> ikoontje en type of plak de URL van de afbeelding in het <em>Image URL</em> veld</li></ol>
+# TEMPLATES #
+org.cms.page.help.templates.tab=Templates gebruiken
+org.cms.page.help.templates.info=Het gebruik van <strong>Templates</strong> is een snelle manier om met de inhoud van een pagina te beginnen. Door op het <span class="mceIcon mceTemplate"></span> ikoontje te klikken verschijnt er een venster waarmee templates bekeken en gekozen kunnen worden
+# HOMEPAGE #
+org.cms.page.help.homepage.tab=Inhoud voor de "Home" pagina
+org.cms.page.help.homepage.info=Inhoud aanmaken voor de "Home" pagina werkt precies als het aanmaken van een gewone pagina, behalve moeten de volgenden punten geacht worden: <ol><li>De <strong>Pagina sleutel</strong> moet <em>homepage</em> zijn</li><li>Pagina mag niet aan een menu toegevoegd worden</li>
+
+
+org.vc.list=Virtuele collectie lijst
+org.vc.new=Nieuwe virtuele collectie
+org.vc.deleteCollection=Virtuele collectie verwijderen
+org.vc.deleteCollectionConfirm=Weet u zeker dat u deze virtuele collectie wil verwijderen?
+org.vc.save=Bewaren
+org.vc.query=Zoekterm
+org.vc.excludedIds=Excluded hubIds
+org.vc.spec=Identifier
+
+
 
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?

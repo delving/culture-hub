@@ -59,7 +59,7 @@ object MappingService extends ModelImplicits {
   }
 
   def indexDocumentToXmlString(indexDocument: IndexDocument): String = {
-    indexDocument.getMap.asScala.foldLeft("") {
+    val innerRecord = indexDocument.getMap.asScala.foldLeft("") {
       (output: String, e: (String, java.util.List[IndexDocument#Value])) => {
         val unMungedKey = stripDynamicFieldLabels(e._1.toString.replaceFirst("_", ":"))
         output + {
@@ -68,9 +68,18 @@ object MappingService extends ModelImplicits {
         }
       }
     }
+    "<record>%s</record>".format(innerRecord)
   }
 
-  def nodeTreeToXmlString(node: Node): String = XmlSerializer.toXml(node)
+  def nodeTreeToXmlString(node: Node): String = {
+    val serialized = XmlSerializer.toXml(node)
+    // chop of the XML prefix. kindof a hack
+    if(serialized.startsWith("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n""")) {
+      serialized.substring("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n""".length)
+    } else {
+      serialized
+    }
+  }
 
   // duplicated here so as to avoid a dependency on the SolrBindingService
   private def stripDynamicFieldLabels(fieldName: String): String = {

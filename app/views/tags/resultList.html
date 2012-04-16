@@ -4,26 +4,26 @@
 <div class="row">
     <div class="media thing">
         <!-- TODO: get url to item page -->
-        <a href="#" class="clip"><img src="${doc.getThumbnailUri()}" class="img"/></a>
+        <a href="#" class="clip"><img src="${doc.getThumbnailUri()}" class="img" width="210"/></a>
         <div class="bd">
             <div class="mod">
                 <div class="inner">
                     <div class="hd title">
-                        <a href="#">${doc.getTitle().shorten(100)}</a>
+                        <a href="#">${doc.getTitle()}</a>
                     </div>
                     <div class="bd">
-                        #{if doc.getDescription()}
-                             <p>${doc.getDescription().shorten(180)}</p>
-                        #{/}
-                        #{if doc.getYear()}
-                           ${doc.getYear()} |
-                        #{/}
-                        #{if doc.getCreator()}
-                            ${doc.getCreator()} |
-                        #{/}
-                        #{if doc.getProvider()}
-                            ${doc.getProvider()}
-                        #{/}
+                        *{#{if doc.getDescription()}}*
+                             *{<p>${doc.getDescription().shorten(180)}</p>}*
+                        *{#{/}}*
+                        *{#{if doc.getYear()}}*
+                           *{${doc.getYear()} |}*
+                        *{#{/}}*
+                        *{#{if doc.getCreator()}}*
+                            *{${doc.getCreator()} |}*
+                        *{#{/}}*
+                        *{#{if doc.getProvider()}}*
+                            *{${doc.getProvider()}}*
+                        *{#{/}}*
                     </div>
                 </div>
             </div>

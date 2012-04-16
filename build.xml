@@ -11,7 +11,7 @@
     <!-- You need to adjust the path to play here -->
     <property name="testcommand" value="${play.path}/play auto-test -Duser=test -Xss4m"/>
 
-    <property name="sip-creator.version" value="1.0.0-SNAPSHOT"/>
+    <property name="sip-creator.version" value="1.0.1-SNAPSHOT"/>
     <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">

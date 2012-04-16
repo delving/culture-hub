@@ -1,9 +1,9 @@
-<div id="dCarousel" class="carousel" #{if _maxHeight} style="max-height: ${_maxHeight}; overflow-y: hidden;"#{/if}>
+<div id="dCarousel" class="carousel" #{if _maxHeight} style="max-height: ${_maxHeight}px; overflow-y: hidden;"#{/if}>
 <div class="carousel-inner">
 #{list _results, as: 'doc'}
         <div class="item" style="height: ${_maxHeight}">
-            <a href="${doc.getUri()}" title="${doc.getTitle()}"">
-            <img src='${doc.getThumbnailUri()}' alt="${doc.getTitle()}" onerror="showDefaultImg(this)"/>
+            <a href="${doc.getUri()}" title="${doc.getTitle()}">
+            <img src='${doc.getThumbnailUri()}' alt="${doc.getTitle()}" onerror="showDefaultImg(this)" width="470" style="max-width: 100%;"/>
             </a>
             <div class="carousel-caption">
                 <h4>${doc.getTitle()}</h4>

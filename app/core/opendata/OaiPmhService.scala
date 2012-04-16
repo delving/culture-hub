@@ -23,7 +23,7 @@ import exceptions._
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
-import xml.{PrettyPrinter, Elem}
+import xml.{PrettyPrinter, Elem, XML}
 import org.apache.commons.lang.StringEscapeUtils
 import models.{Namespace, RecordDefinition, MetadataRecord}
 
@@ -229,6 +229,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
           {currentDate}
@@ -246,6 +247,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
     else {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>{currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
@@ -287,6 +289,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
           {currentDate}
@@ -308,11 +311,14 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
 
-    val recordAsString = "<record>%s</record>".format(record.getCachedTransformedRecord(metadataPrefix).getOrElse("")).replaceAll("<[/]{0,1}(br|BR)>", "<br/>").replaceAll("&((?!amp;))","&amp;$1")
+    val cachedString = record.getCachedTransformedRecord(metadataPrefix).getOrElse("")
+    val recordAsString = if (cachedString.contains("record>"))
+        "%s".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
+      else
+        "<record>%s</record>".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
     // todo get the record separator for rendering from somewhere
     val response = try {
-      import xml.XML
-      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString))
+      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
           <identifier>{record.pmhId}</identifier>
@@ -320,12 +326,16 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {elem}
+          {if (metadataPrefix != "ese")
+            elem
+          else
+            <europeana:record>{elem.child.filterNot(_.prefix == "delving")}</europeana:record>
+            }
         </metadata>
       </record>
     } catch {
       case e: Exception =>
-        println (e.getMessage)
+        log.error("Unable to render record %s with format %s because of %s".format(record.hubId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response

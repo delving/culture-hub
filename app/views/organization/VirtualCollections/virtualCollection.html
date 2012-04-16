@@ -1,5 +1,10 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('thing.virtualCollections') /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>
+#{/set}
+
 #{set 'moreCss'}
 <link rel="stylesheet" type="text/css" media="screen"
       href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
@@ -10,32 +15,32 @@
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
 
+#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
 
 <div class="row">
     <div class="span6">
 
         <h3>${messages.get('Virtual Collection Information')}</h3>
 
+
         <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
-
-        #{textField name:"spec", form:virtualCollectionForm,
-        label:messages.get('organization.virtualCollection.spec'), dataBind:"value: spec", required: true /}
-        #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
-        #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false /}
-        #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.query'), dataBind:"value: freeFormQuery", required: false /}
-        #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('organization.virtualCollection.excludedIds'), dataBind:"value: excludedIdentifiers", required: false /}
+            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true /}
+            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
+            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
+            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
+            #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false/}
             <hr/>
-        #{btnButton label: "Preview", extraClass:"btn-prominent btn-inverse", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
-
+            <div class="row">
+                #{btnButton label: messages.get('ui.label.preview'), extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
+            </div>
             <hr/>
             <div class="well">
             #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
-            #{btnButton label: messages.get('organization.virtualCollection.save'), extraClass:"btn-prominent btn-primary pull-right", id:"saveButton", type:"submit" /}
-                <div class="wait"></div>
+            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+            <div class="wait"></div>
             </div>
-
         </form>
     </div>
     <div id="result" class="span6">
@@ -69,7 +74,7 @@
                     <div class="resultItem media">
                         <div class="img clip clip-40">
                             <!-- ko if: typeof delving_thumbnail !== 'undefined' -->
-                            <img data-bind="attr: { src: delving_thumbnail }" width="40" onerror="showDefaultImg(this);/>
+                            <img data-bind="attr: { src: delving_thumbnail }" width="40" onerror="showDefaultImg(this);"/>
                             <!-- /ko -->
                         </div>
                         <div class="bd">
@@ -121,6 +126,11 @@
         function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
             if (dataSets) {
+                // remove trailing comma and space (added by typeAhead functionality)
+                if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
+                    dataSets = dataSets.trim().slice(0, -1)
+                }
+
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -158,7 +168,7 @@
         }
 
         function search(query, orgId, start) {
-
+            //alert('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start);
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;

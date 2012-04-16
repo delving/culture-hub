@@ -8,16 +8,23 @@ import util.Constants._
 
 object Application extends DelvingController {
 
+
   def index = Root {
     Action {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
         val recentCollections: List[ListItem] = UserCollection.findRecent(themeInfo.themeProperty("recentCollectionsCount", classOf[Int])).toList
-        val recentStories: List[ListItem] = Story.findRecent(themeInfo.themeProperty("recentStoriesCount", classOf[Int])).toList
+        val recentStories: List[Story] = Story.findRecent(themeInfo.themeProperty("recentStoriesCount", classOf[Int])).toList
         val recentObjects: List[ListItem] = DObject.findRecent(themeInfo.themeProperty("recentObjectsCount", classOf[Int])).toList
         val recentMdrs: List[ListItem] = Search.search(None, 1, theme, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
+        val homepageCmsContent =  CMSPage.find(MongoDBObject("key" -> "homepage", "lang" -> getLang, "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
 
-        Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs))
+        homepageCmsContent match {
+        case None =>
+          Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs))
+        case Some(cmsContent) =>
+          Ok(Template('recentCollections -> recentCollections, 'recentStories -> recentStories, 'recentObjects -> recentObjects, 'recentMdrs -> recentMdrs, 'homepageCmsContent -> cmsContent))
+        }
     }
   }
 

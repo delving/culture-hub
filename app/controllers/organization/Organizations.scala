@@ -13,28 +13,22 @@ import core.HubServices
 
 object Organizations extends DelvingController {
 
-  def index(orgId: String) = Root {
+  def index(orgId: String, language: Option[String]) = Root {
     Action {
       implicit request =>
         if(HubServices.organizationService.exists(orgId)) {
             val members: List[ListItem] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
-            val dataSets: List[ShortDataSet] =
-              DataSet.findAllCanSee(orgId, connectedUser).
-                filter(ds =>
-                  ds.visibility == Visibility.PUBLIC ||
-                  (
-                    ds.visibility == Visibility.PRIVATE &&
-                    session.get(AccessControl.ORGANIZATIONS) != null &&
-                    request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId)
-                  )
-            ).toList
+            val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(AccessControl.ORGANIZATIONS))
+            val lang = language.getOrElse(getLang)
             Ok(Template(
               'orgId -> orgId,
               'orgName -> HubServices.organizationService.getName(orgId, "en").getOrElse(orgId),
               'isMember -> HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
               'members -> members,
               'dataSets -> dataSets,
-              'isOwner -> HubServices.organizationService.isAdmin(orgId, connectedUser)
+              'isOwner -> HubServices.organizationService.isAdmin(orgId, connectedUser),
+              'currentLanguage -> lang
+
             ))
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))

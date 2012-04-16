@@ -7,51 +7,53 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, currentLanguage: currentLanguage /}
 
-
-
-
     <div class="row">
         <div class="span12">
+            <div class="page-header">
             <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
-
+            </div>
             <form method="post" action="" id="collectionForm" class="form-delving">
                 <div class="row">
                     <div class="span6">
 
-                        <h3>&{'organization.dataset.info'}</h3>
-
+                        *{<h3>&{'organization.dataset.info'}</h3>}*
                         #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
-                        <div class="control-group">
-                            <label>&{'ui.label.visibility'}</label>
 
+                        %{for(i in 0..factDefinitions.size() - 1) {
+                            def factDef = factDefinitions.apply(i);
+                        }%
+
+                        #{if factDef.hasOptions()}
+                            #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                        #{/if}
+                        #{else}
+                            #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                        #{/else}
+
+                        %{ }}%
+
+                        <div class="control-group">
+                            <label class="control-label">&{'ui.label.visibility'}</label>
                             <div class="controls">
                                 <label class="radio">
                                     <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>
-                                    &{'ui.label.visibility.notpublic'}
+                                &{'ui.label.visibility.notpublic'}
                                 </label>
                                 <label class="radio">
                                     <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>
-                                    &{'ui.label.visibility.public'}
+                                &{'ui.label.visibility.public'}
                                 </label>
                             </div>
                         </div>
 
-                    %{for(i in 0..factDefinitions.size() - 1) {
-                        def factDef = factDefinitions.apply(i);
-                        }%
-                    #{if factDef.hasOptions()}
-                        #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
-                    #{/if}
-                    #{else}
-                        #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
-                    #{/else}
-
-                    %{ }}%
                     </div>
                     <div class="span6">
-                        <h3>Target Record Definitions</h3>
+                        *{<h3>Target Record Definitions</h3>}*
+                            <div class="control-group">
+                                <label class="control-label">Target Record Definitions</label>
 
+                            <div class="controls">
                         <table class="table">
                             <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
                             <tbody>
@@ -75,14 +77,24 @@
                             #{/list}
                             </tbody>
                         </table>
+                            </div>
+                            </div>
+                        *{<h3>Indexing Mapping Record Definition</h3>}*
 
-                        <h3>Indexing Mapping Record Definition</h3>
-                        <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
-                        <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                        <div class="control-group">
+                            <label class="control-label">Indexing Mapping Record Definition</label>
+                            <div class="controls">
+                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
+                                <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                            </div>
+                        </div>
+
                         <hr/>
                         <div class="well">
-                            #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-primary btn-prominent"/}
-                            <button type="reset" class="btn pull-right">Reset</button>
+                            <div class="row">
+                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success span4", iconClass:"icon-ok-circle icon-white"/}
+                                <button type="reset" class="btn pull-right">Reset</button>
+                            </div>
                         </div>
                     </div>
                 </div>

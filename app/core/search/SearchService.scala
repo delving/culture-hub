@@ -101,7 +101,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
         case Some(rendered) => rendered.toJson
-        case None => return NotFound
+        case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -120,7 +120,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
           case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
-          case None => return NotFound
+          case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -171,7 +171,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
                 }
             }
             case None =>
-              log.warn("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
+              log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
               None
           }
         }
@@ -482,6 +482,7 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
     ExplainItem("id", List("any valid europeana_uri identifier"), "Will output a full-view"),
     ExplainItem("idType", List("solr", "mongo", "pmh", "drupal", "datasetId", "legacy"), "//todo complete this"),
+    ExplainItem("schema", List("any schema defined in the delving:publicSchemas"), "This parameter is only available when the id is specified as well. It defines the output format for the Full-View. By default the current schema that is used for indexing is rendered."),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
     ExplainItem("facetBoolType", List("AND", "OR", "Default is OR"), "Will determine how the Facet Multiselect functionality is handled within a facet. Between facets it is always AND."),

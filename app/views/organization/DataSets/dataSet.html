@@ -9,20 +9,27 @@
 
 
 <div class="row">
+    *{<div class="span12">}*
+        *{<h3 class="page-header">${dataSet.spec}</h3>}*
+    *{</div>}*
 
-    <h3 class="span12">${dataSet.spec}</h3>
-
-    *{<div class="row">}*
     <div class="span6">
-    <dl class="dl-horizontal">
-    #{list facts, as: 'facet'}
-        <dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>
-    #{/list}
-    #{else}
-        test
-    #{/else}
-    </dl>
-    
+        <dl class="dl">
+            #{list facts, as: 'facet'}
+                <dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>
+                #{if facet.prompt() == 'Dataset Spec'}#{set 'spec'}${facet.value()}#{/set}#{/if}
+            #{/list}
+        </dl>
+    </div>
+    <div class="span6">
+        #{if isOwner == true}
+        <div class="well">
+            #{if get('spec')}
+            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${get('spec')}/update">${messages.get('ui.label.edit')}</a>
+            #{/if}
+            <a class="btn btn-mini" href="/organizations/${orgId}/dataset">&{'organization.dataset.list'}</a>
+        </div>
+        #{/if}
     </div>
 </div>
 
