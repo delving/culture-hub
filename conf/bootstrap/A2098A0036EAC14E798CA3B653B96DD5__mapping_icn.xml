@@ -79,18 +79,18 @@
     <node-mapping inputPath="/input/object_name" outputPath="/icn:record/dc:subject"/>
     <node-mapping inputPath="/input/description" outputPath="/icn:record/dc:description"/>
     <node-mapping inputPath="/input/dimension.type" outputPath="/icn:record/dc:format">
-      <tuplePaths>
+      <siblings>
         <path>/input/dimension.unit</path>
         <path>/input/dimension.value</path>
-      </tuplePaths>
+      </siblings>
     </node-mapping>
     <node-mapping inputPath="/input/priref" outputPath="/icn:record/dc:identifier"/>
     <node-mapping inputPath="/input/title.notes" outputPath="/icn:record/dcterms:alternative"/>
     <node-mapping inputPath="/input/content.date.note" outputPath="/icn:record/dcterms:temporal"/>
     <node-mapping inputPath="/input/copyright" outputPath="/icn:record/dcterms:rightsHolder">
-      <tuplePaths>
+      <siblings>
         <path>/input/current_owner</path>
-      </tuplePaths>
+      </siblings>
     </node-mapping>
     <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/europeana:isShownBy">
       <groovy-code>
