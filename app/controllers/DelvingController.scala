@@ -226,7 +226,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
           // Menu entries
           val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
             "title" -> e.title(getLang),
-            "page" -> e.targetPageKey.getOrElse("")))
+            "page" -> e.targetPageKey.getOrElse(""),
+            "published" -> e.published))
           ).toList
           renderArgs +=("menu", mainMenuEntries)
 

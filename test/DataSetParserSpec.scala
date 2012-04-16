@@ -14,11 +14,12 @@ import play.api.test.Helpers._
 
 class DataSetParserSpec extends Specification with TestData {
 
+
   "The DataSetParser" should {
 
     "parse an input stream" in {
 
-      running(FakeApplication()) {
+      withTestContext {
         val buffer = parseStream
         buffer.length must be equalTo (2)
       }
@@ -27,15 +28,13 @@ class DataSetParserSpec extends Specification with TestData {
 
     "properly assign valid metadata formats" in {
 
-      running(FakeApplication()) {
+      withTestContext {
         val buffer = parseStream
         buffer(1).validOutputFormats should not contain ("icn")
       }
 
     }
   }
-
-  step(cleanup)
 
   def parseStream = {
     val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get

@@ -2,15 +2,11 @@
 
 #{set title: page.title /}
 
-#{set bodyId:'page' /}
+#{set bodyId:'page-preview' /}
 
 #{set pageId: page.key /}
 
 #{breadcrumbs request: request, theme: themeInfo.getTheme() /}
 
-#{if page.published == true}
-    ${page.content.raw()}
-#{/if}
-#{else}
-        This page is not published.
-#{/else}
+${page.content.raw()}
+

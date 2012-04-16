@@ -10,6 +10,9 @@ function initializeElements() {
       e.preventDefault();
       document.location = document.referrer;
     });
+    $('input.search-query').tooltip({
+        placement: 'bottom'
+    });
 
     $.preloadImages (
         "/assets/common/images/spinner.gif"
@@ -513,26 +516,31 @@ Delving.wysiwyg = function (params) {
     // Default parameters
     initParams = {
         convert_urls: false,
+        doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         mode: "textareas", // All textareas
         theme: "advanced",
         editor_selector : "mceEditor",
         editor_deselector : "mceNoEditor",
         theme_advanced_toolbar_location: "top",
-        force_br_newlines: false,
+        force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
-        remove_linebreaks: true,
+        remove_linebreaks: false,
+        content_css : "/assets/common/stylesheets/bootstrap/bootstrap.css",
         fix_content_duplication: false,
         fix_list_elements: true,
+        cleanup_on_startup : true,
         valid_child_elements: "ul[li],ol[li]",
-        theme_advanced_buttons1 : "|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source",
+        theme_advanced_buttons1 : "cleanup,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code,template",
         theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
         theme_advanced_toolbar_align: "left",
         height : "320",
-        plugins: "advimage,autoresize",
+        plugins: "advimage,autoresize,template",
         external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
-        extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick]",
-        width: "100%"
+        extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick|class]",
+        template_external_list_url : "/assets/common/javascripts/tiny-templates.js",
+        template_popup_width : 1000,
+        width: "944px"
     };
 
     // Overwrite default params with user-passed ones.

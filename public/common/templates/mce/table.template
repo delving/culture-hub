@@ -1,0 +1,31 @@
+<table class="table">
+<thead>
+  <tr>
+    <th>#</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Username</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>1</td>
+    <td>Bob</td>
+    <td>Dobbs</td>
+    <td>@subgenius</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>Jimmy</td>
+    <td>Hendrix</td>
+    <td>@axman</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>Dan</td>
+    <td>Brown</td>
+    <td>@blue</td>
+  </tr>
+</tbody>
+</table>
+<hr class="editorRule"/>

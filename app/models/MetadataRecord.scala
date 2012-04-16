@@ -99,7 +99,7 @@ object MetadataRecord {
   def transformDocument(prefix: String, dataSet: DataSet, record: MetadataRecord): String = {
     val mapping = dataSet.mappings.get(prefix)
     if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + prefix)
-    
+
     MappingService.transformRecord(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), dataSet.namespaces)
   }
 

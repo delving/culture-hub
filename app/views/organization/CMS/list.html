@@ -19,41 +19,59 @@
         #{/list}
         </select>
         </form>
-    </div>
-
-    </div>
-
-     <div class="row">
 
 
-            <table class="table table-striped span12">
+            <table class="table table-striped">
                 <caption>Site pages</caption>
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    <th width="25%">&{'thing.actions'}</th>
+                    *{<th>&{'thing.status'}</th>}*
+                    <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
+                <!-- ko if: pages().length > 0 -->
                 <tbody data-bind="foreach: pages()">
+
                 <tr>
                     <td>
                         <span class="page-title" data-bind="text: title"></span>
                         *{TODO: CREATE URL FOR THIS}*
                         *{<a data-bind="attr: {href: '/page/' key}"><span class="page-title" data-bind="text: title"></span></a>}*
                     </td>
+                    *{
+                    *{<td>}*
+                        *{<span data-bind="text: published"></span>}*
+                    *{</td>}*
                     <td>
-                        <a class="btn btn-primary btn-prominent" href="#" data-bind="click: function() { $parent.editPage($data) }">
-                            &{'ui.label.edit'}
+                        <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }">
+                            <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
-                        <a class="btn btn-danger pull-right" href="#" data-bind="click: function() { $parent.deletePage($data) }">
-                            &{'ui.label.delete'}
+                        <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }">
+                            <i class="icon-eye-open icon-white"></i> &{'ui.label.preview'}
+                        </a>
+                        <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                            <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                         </a>
                     </td>
                 </tr>
                 </tbody>
+                <!-- /ko -->
+                <!-- ko if: !pages().length > 0 -->
+                <tbody>
+                    <tr>
+                        <td>
+                            No pages available
+                        </td>
+                        <td>
+                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add">${messages.get('org.cms.page.new')}</a>
+                        </td>
+                    </tr>
+                </tbody>
+                <!-- /ko -->
             </table>
 
-
+    </div>
     </div>
 
 
@@ -62,15 +80,20 @@
 <div id="dialog-confirm-page-delete" title="&{'org.cms.list.deletePage'}" style="display: none;">
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-    &{'org.cms.list.deletePageConfirm'}
+        &{'org.cms.list.deletePageConfirm'}
     </p>
 </div>
-
+*{${data.raw()}}*
 <script type="text/javascript">
     $(document).ready(function () {
         var pagesModel = {
             editPage:function (page) {
                 document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
+            },
+            previewPage:function (page) {
+                var newWindow = window.open("/organizations/${orgId}/site/" + page.lang() + "/page/preview/" + page.key())
+                newWindow.focus();
+                return false;
             },
             deletePage:function (page) {
                 confirmDeletion('#dialog-confirm-page-delete', function () {

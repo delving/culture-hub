@@ -1,26 +1,108 @@
 #{extends themeInfo.get('themeLayout') /}
 
-<script id='delving-wysiyg' src="@{routes.Assets.at('/common/javascripts/tiny_mce/tiny_mce.js')}" type='text/javascript'></script>
-
 #{set title: messages.get('thing.pages') /}
 
 #{set bodyId: 'organization' /}
 
+#{set 'moreScripts'}
+<script id='delving-wysiyg' src="@{routes.Assets.at('/common/javascripts/tiny_mce/tiny_mce.js')}" type='text/javascript'></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
+#{/set}
+
+#{set 'moreCss'}
+<style>
+    .mceIcon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: url(/assets//common/javascripts/tiny_mce/themes/advanced/img/icons.gif) no-repeat;
+        vertical-align: middle;
+    }
+
+    .mceTemplate {
+        background-position:  -820px -20px;
+    }
+
+    .mceImage {
+        background-position:  -380px -0px;
+    }
+</style>
+#{/set}
+
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+
+<div class="accordion" id="instructions">
+            <div class="accordion-group">
+                <div class="accordion-heading  clearfix">
+                    <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
+                        <i class="icon-question-sign"></i> &{'org.cms.page.help.toggle'}
+                    </a>
+                </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                    <div class="accordion-inner">
+
+                        <div class="tabbable">
+
+                            <ul class="nav nav-pills">
+                                <li class="active"><a href="#fields" data-toggle="tab">&{'org.cms.page.help.fields.tab'}</a></li>
+                                <li><a href="#images" data-toggle="tab">&{'org.cms.page.help.images.tab'}</a></li>
+                                <li><a href="#templates" data-toggle="tab">&{'org.cms.page.help.templates.tab'}</a></li>
+                                <li><a href="#homepage" data-toggle="tab">&{'org.cms.page.help.homepage.tab'}</a></li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="fields">
+                                    <dl>
+                                        <dt>&{'org.cms.page.key'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.key.info'}</dd>
+                                        <dt>&{'thing.title'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.title.info'}</dd>
+                                        <dt>&{'ui.label.theme'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.theme.info'}</dd>
+                                        <dt>&{'ui.label.language'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.language.info'}</dd>
+                                        <dt>&{'org.cms.page.menu.add'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.menu.info'}</dd>
+                                        <dt>&{'org.cms.page.menu.position'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.position.info'}</dd>
+                                    </dl>
+                                </div>
+                                <div class="tab-pane" id="images">
+                                    <p>
+                                        &{'org.cms.page.help.images.info', orgId}
+                                    </p>
+                                </div>
+                                <div class="tab-pane" id="templates">
+                                    <p>
+                                        &{'org.cms.page.help.templates.info'}
+                                    </p>
+                                </div>
+                                <div class="tab-pane" id="homepage">
+                                    <p>
+                                    &{'org.cms.page.help.homepage.info'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <div class="row">
     <div class="span12">
         <form id="pageForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
-                    #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
-                    #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
+                #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
+                #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
                 </div>
                 <div class="span4">
-                    #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
-                    #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
+                #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
+                #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
                 </div>
 
                 <div class="span4">
@@ -33,17 +115,18 @@
                             </select>
                         </div>
                     </div>
-                    #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+                #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
+            #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
-             #{textArea name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('thing.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+            #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published", help: "Selecting this option will make this content visible" /}
             <hr/>
             <div class="well">
-            #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-primary btn-prominent pull-right", id:"saveButton", type:"submit" /}
-            #{btnButton label: messages.get('ui.label.cancel'), extraClass:"btn-warning cancelButton", id:"cancelButton", type:"reset" /}
-            #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
-            <div class="wait"></div>
+                #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+                #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
+                <div class="wait"></div>
             </div>
         </form>
 
@@ -62,8 +145,7 @@
                     <span class="page-title" data-bind="text: title"></span>
                 </td>
                 <td>
-                    <span class="page-title"
-                          data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
+                    <span class="page-title" data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
                 </td>
                 <td>
                     <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }">
@@ -75,6 +157,7 @@
         </table>
     </div>
 </div>
+
 <script type="text/javascript">
     $(document).ready(function () {
         var pageModel = {};
@@ -84,6 +167,7 @@
                 pageModel.lang(version.lang());
                 pageModel.title(version.title());
                 pageModel.content(version.content());
+                pageModel.published(version.published())
             }
         };
         load(${page.raw()}, pageModel, document.getElementById('pageForm'), function () {
@@ -91,12 +175,13 @@
                 $("body").css('visibility', 'visible');
             });
         });
-
         $('#saveButton').click(function (event) {
             event.preventDefault();
             handleSubmit('/organizations/${orgId}/site/page', pageModel, '#pageForm', null, function () {
                 document.location = '/organizations/${orgId}/site/' + pageModel.lang();
             });
         });
+
+        $(".collapse").collapse({toggle: false});
     });
 </script>

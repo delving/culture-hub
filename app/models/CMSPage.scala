@@ -35,7 +35,8 @@ case class CMSPage(_id: ObjectId = new ObjectId(),
                    lang: String, // 2-letters ISO code of the page language
                    title: String, // title of the page in this language
                    content: String, // actual page content (text)
-                   isSnippet: Boolean = false // is this a snippet in the welcome page or not
+                   isSnippet: Boolean = false, // is this a snippet in the welcome page or not
+                   published: Boolean = false
                   )
 
 case class MenuEntry(_id: ObjectId = new ObjectId(),
@@ -47,7 +48,8 @@ case class MenuEntry(_id: ObjectId = new ObjectId(),
                      title: Map[String, String], // title of this menu entry, per language
                      targetPageKey: Option[String] = None, // key of the page this menu entry links to, if any
                      targetUrl: Option[String] = None, // URL this menu entry links to, if any
-                     targetAnchor: Option[String] = None // id of the target HTML anchor, if any
+                     targetAnchor: Option[String] = None, // id of the target HTML anchor, if any
+                     published: Boolean = false
                     )
 
 
@@ -59,8 +61,8 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
 
   def findByKeyAndLanguage(key: String, lang: String): List[CMSPage] = find(MongoDBObject("key" -> key, "lang" -> lang)).$orderby(MongoDBObject("_id" -> -1)).toList
   
-  def create(orgId: String, theme: String, key: String, lang: String, userName: String, title: String, content: String): CMSPage = {
-    val page = CMSPage(orgId = orgId, theme = theme, key = key, userName = userName, title = title, content = content, isSnippet = false, lang = lang)
+  def create(orgId: String, theme: String, key: String, lang: String, userName: String, title: String, content: String, published: Boolean): CMSPage = {
+    val page = CMSPage(orgId = orgId, theme = theme, key = key, userName = userName, title = title, content = content, isSnippet = false, lang = lang, published = published)
     val inserted = CMSPage.insert(page)
     page.copy(_id = inserted.get)
   }
@@ -83,15 +85,15 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
    */
-  def addPage(orgId: String, theme: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String) {
+  def addPage(orgId: String, theme: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String, published: Boolean) {
     findByPageAndMenu(orgId, theme, menuKey, targetPageKey) match {
       case Some(existing) =>
-        val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title))
+        val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title), published = published)
         save(updatedEntry)
         // update position of siblings by shifting them to the right
-        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
+        update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "published" -> published) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
       case None =>
-        val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title))
+        val newEntry = MenuEntry(orgId = orgId, theme = theme, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title), published = published)
         insert(newEntry)
     }
   }
