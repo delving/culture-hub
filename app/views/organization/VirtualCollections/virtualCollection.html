@@ -172,8 +172,7 @@
         }
 
         function search(query, orgId, start) {
-            alert(query);
-            //alert('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start);
+
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;
