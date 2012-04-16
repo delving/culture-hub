@@ -138,7 +138,10 @@
                         if (initial) {
                             dataSetCondition = dataSetCondition + '(';
                         }
-                        dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim() + ' ';
+                        dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim();
+                        if (index < dataSetList.length -1) {
+                            dataSetCondition = dataSetCondition + ' OR '
+                        }
                         if (index == dataSetList.length - 1) {
                             dataSetCondition = dataSetCondition + ')';
                         }
@@ -151,6 +154,7 @@
                 $.each(excludedIdsList, function (index, el) {
                     if (el.length > 0) {
                         var initial = excludedIdentifiersCondition.length == 0;
+
                         if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
@@ -168,6 +172,7 @@
         }
 
         function search(query, orgId, start) {
+            alert(query);
             //alert('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start);
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
