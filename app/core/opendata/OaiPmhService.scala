@@ -23,7 +23,7 @@ import exceptions._
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
-import xml.{PrettyPrinter, Elem}
+import xml.{PrettyPrinter, Elem, XML}
 import org.apache.commons.lang.StringEscapeUtils
 import models.{Namespace, RecordDefinition, MetadataRecord}
 
@@ -318,7 +318,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         "<record>%s</record>".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
     // todo get the record separator for rendering from somewhere
     val response = try {
-      import xml.XML
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
