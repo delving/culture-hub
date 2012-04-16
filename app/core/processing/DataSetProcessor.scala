@@ -30,7 +30,7 @@ object DataSetProcessor {
 
   def process(dataSet: DataSet) {
 
-    val formats: List[RecordDefinition] = dataSet.getPublishableMappingFormats
+    val formats: List[RecordDefinition] = dataSet.getAllMappingFormats
 
     val flatIndexingMapping: Option[RecordDefinition] = formats.find(f => Some(f.prefix) == dataSet.getIndexingMappingPrefix && f.isFlat)
 

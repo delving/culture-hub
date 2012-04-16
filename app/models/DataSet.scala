@@ -79,19 +79,16 @@ case class DataSet(_id: ObjectId = new ObjectId,
   
   def getIndexingMappingPrefix = idxMappings.headOption
 
-  def getPublishableMappingFormats = mappings.
-    map(mapping => mapping._2.format).
+  /** all mapping formats **/
+  def getAllMappingFormats = mappings.map(mapping => mapping._2.format).toList
+
+  def getPublishableMappingFormats = getAllMappingFormats.
     filter(format => formatAccessControl.get(format.prefix).isDefined).
     filter(format => formatAccessControl(format.prefix).isPublicAccess || formatAccessControl(format.prefix).isProtectedAccess).
     toList
 
-  def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
-
-  def hasDetails: Boolean = details != null
-
-  def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
-
-  def getAllMetadataFormats = details.metadataFormat :: mappings.map(mapping => mapping._2.format).toList
+  /** all metadata formats, including raw **/
+  def getAllMetadataFormats = details.metadataFormat :: getAllMappingFormats
 
   def getVisibleMetadataFormats(accessKey: Option[String] = None): List[RecordDefinition] = {
     getAllMetadataFormats.
@@ -99,6 +96,12 @@ case class DataSet(_id: ObjectId = new ObjectId,
       filter(format => formatAccessControl(format.prefix).hasAccess(accessKey)
     )
   }
+
+  def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
+
+  def hasDetails: Boolean = details != null
+
+  def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
 
 }
 
