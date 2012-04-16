@@ -148,7 +148,7 @@ object CMS extends OrganizationController {
     }
   }
 
-  def pagePreview(orgId: String, langauge: String, key: String) = Root {
+  def pagePreview(orgId: String, langauge: String, key: String) = CMSAction(orgId) {
     Action {
       implicit request =>
       // TODO link the themes to the organization so this also works on multi-org hubs

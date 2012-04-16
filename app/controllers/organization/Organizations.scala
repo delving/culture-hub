@@ -18,16 +18,7 @@ object Organizations extends DelvingController {
       implicit request =>
         if(HubServices.organizationService.exists(orgId)) {
             val members: List[ListItem] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
-            val dataSets: List[ShortDataSet] =
-              DataSet.findAllCanSee(orgId, connectedUser).
-                filter(ds =>
-                  ds.visibility == Visibility.PUBLIC ||
-                  (
-                    ds.visibility == Visibility.PRIVATE &&
-                    session.get(AccessControl.ORGANIZATIONS) != null &&
-                    request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId)
-                  )
-            ).toList
+            val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(AccessControl.ORGANIZATIONS))
             val lang = language.getOrElse(getLang)
             Ok(Template(
               'orgId -> orgId,

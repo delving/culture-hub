@@ -183,6 +183,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
   }
 
+  // FIXME this one makes no sense, since findAllCanSee only returns public datasets anyway
+  // i.e. re-think & streamline the visibility concept for DataSets
+  def findAllVisible(orgId: String, userName: String, organizations: String) = findAllCanSee(orgId, userName).filter(ds =>
+    ds.visibility == Visibility.PUBLIC ||
+      (
+        ds.visibility == Visibility.PRIVATE &&
+        organizations != null && organizations.split(",").contains(orgId)
+      )
+    ).toList
+
   def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
   // ~~~ access control

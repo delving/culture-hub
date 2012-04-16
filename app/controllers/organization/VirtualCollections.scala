@@ -58,16 +58,7 @@ object VirtualCollections extends OrganizationController {
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
         }
 
-        val dataSets: List[ShortDataSet] =
-          DataSet.findAllCanSee(orgId, connectedUser).
-            filter(ds =>
-            ds.visibility == Visibility.PUBLIC ||
-              (
-                ds.visibility == Visibility.PRIVATE &&
-                  session.get(AccessControl.ORGANIZATIONS) != null &&
-                  request.session(AccessControl.ORGANIZATIONS).split(",").contains(orgId)
-                )
-          ).toList
+        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(AccessControl.ORGANIZATIONS))
 
         if (viewModel.isEmpty) {
           NotFound(spec.getOrElse(""))
