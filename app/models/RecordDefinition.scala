@@ -59,7 +59,7 @@ case class SummaryField(name: String, xpath: String) {
     case _ => false
   }
 
-  def tag = "delving_" + name.toLowerCase
+  def tag = "delving_" + eu.delving.metadata.SummaryField.valueOf(name).tag
 }
 
 case class SearchField(name: String, xpath: String)
