@@ -83,7 +83,6 @@ object DataSetProcessor {
           IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
         }
 
-
         // loop over records
         val recordCount = recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix))
         log.info("Processing %s valid records for format %s".format(recordCount, format.prefix))
@@ -102,45 +101,42 @@ object DataSetProcessor {
                 log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(dataSet.spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
               }
 
-              val mainMappingResult = if (format.isFlat) {
-                MappingResult(engine.toIndexDocument(record.getRawXmlString))
-              } else {
-                MappingResult(engine.toNode(record.getRawXmlString))
-              }
+              val mainMappingResult = engine.toNode(record.getRawXmlString)
 
               // cache mapping result
-              DataSet.cacheMappedRecord(dataSet, record, format.prefix, mainMappingResult.xmlString)
+              DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
 
               // if the current format is the to be indexed one, send the record out for indexing
-              if (indexingFormat == Some(format) && mainMappingResult.isFlatDocument) {
-                Indexing.indexOne(dataSet, record, mainMappingResult.indexDocument, indexingFormat.get.prefix)
+              if (indexingFormat == Some(format) && format.isFlat) {
+                Indexing.indexOne(dataSet, record, Some(engine.toIndexDocument(record.getRawXmlString)), format.prefix)
               }
 
+              // TODO re-work the summary field extraction
               // if this is a flat record definition, try to get some summary fields for the hub to show something
-              if (mainMappingResult.isFlatDocument) {
-                val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
-
-                val mappedSummaryFields = (for (field <- summaryFields) yield {
-                  val value = indexDocument.get(field)
-                  val summaryFieldValue: String = if (value.isDefined) {
-                    if (value.get.isEmpty) "" else value.get.get(0).toString
-                  } else {
-                    ""
-                  }
-                  (field -> summaryFieldValue)
-                }).toMap[String, String]
-
-                // set SummaryFields required by the hub, result of processing
-                val hubSummaryFields = Map(
-                  SPEC -> dataSet.spec,
-                  RECORD_TYPE -> MDR,
-                  VISIBILITY -> Visibility.PUBLIC.value,
-                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                  HAS_DIGITAL_OBJECT -> (indexDocument.get(THUMBNAIL).isDefined && indexDocument.get(THUMBNAIL).get.size() > 0 && indexDocument.get(THUMBNAIL).get.get(0).toString.length() > 0)
-                )
-
-                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (mappedSummaryFields ++ hubSummaryFields).asDBObject))
-              }
+//              if (mainMappingResult.isFlatDocument) {
+//                val indexDocument = mainMappingResult.indexDocument.get.getMap.asScala
+//
+//                val mappedSummaryFields = (for (field <- summaryFields) yield {
+//                  val value = indexDocument.get(field)
+//                  val summaryFieldValue: String = if (value.isDefined) {
+//                    if (value.get.isEmpty) "" else value.get.get(0).toString
+//                  } else {
+//                    ""
+//                  }
+//                  (field -> summaryFieldValue)
+//                }).toMap[String, String]
+//
+//                // set SummaryFields required by the hub, result of processing
+//                val hubSummaryFields = Map(
+//                  SPEC -> dataSet.spec,
+//                  RECORD_TYPE -> MDR,
+//                  VISIBILITY -> Visibility.PUBLIC.value,
+//                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+//                  HAS_DIGITAL_OBJECT -> (indexDocument.get(THUMBNAIL).isDefined && indexDocument.get(THUMBNAIL).get.size() > 0 && indexDocument.get(THUMBNAIL).get.get(0).toString.length() > 0)
+//                )
+//
+//                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (mappedSummaryFields ++ hubSummaryFields).asDBObject))
+//              }
 
               // also cache the result of possible crosswalks
               if(!crosswalkEngines.isEmpty) {
@@ -179,17 +175,5 @@ object DataSetProcessor {
     log.info("Processing of DataSet %s finished, took %s ms".format(dataSet.spec, (System.currentTimeMillis() - now)))
 
   }
-
-  case class MappingResult(xmlString: String, indexDocument: Option[IndexDocument], nodeTree: Option[Node]) {
-    def isFlatDocument = indexDocument.isDefined
-  }
-
-  object MappingResult {
-
-    def apply(indexDocument: IndexDocument): MappingResult = MappingResult(MappingService.indexDocumentToXmlString(indexDocument), Some(indexDocument), None)
-
-    def apply(nodeTree: Node): MappingResult = MappingResult(MappingService.nodeTreeToXmlString(nodeTree), None, Some(nodeTree))
-  }
-
 
 }

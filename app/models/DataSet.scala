@@ -316,6 +316,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
     recordCollection.ensureIndex(MongoDBObject("hubId" -> 1))
     recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
+    recordCollection.ensureIndex(MongoDBObject("validOutputFormats" -> 1))
     object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
     CollectionMDR
   }
