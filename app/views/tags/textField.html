@@ -4,7 +4,7 @@
     <div class="controls">
         <input
                 type="text"
-                class="textinput #{if views.Helpers.showError(_name, _form)}required #{/if}"
+                class="#{if _inputClass}${_inputClass}#{/if}#{if views.Helpers.showError(_name, _form)}required #{/if}"
                 id="${_name}"
                 name="${_name}"
                 value="${views.Helpers.showValue(_name, _form)}"
@@ -13,7 +13,7 @@
                 data-validate="${views.Helpers.printValidationRules(_form, _name)}"
                 ${isDisabled}
                 #{if _placeholder}placeholder="${_placeholder}"#{/if}
-                #{if _dataSource}data-source="${_dataSource}" data-items="4" data-provide="typeahead" #{if _multiple}data-mode="multiple"#{/if}#{/if}
+                #{if _dataSource}data-source="${_dataSource}" data-items="7" data-provide="typeahead" #{if _multiple}data-mode="multiple"#{/if}#{/if}
                 />
         <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
         <span class="help-inline">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help}</span>
