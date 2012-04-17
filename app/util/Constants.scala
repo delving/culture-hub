@@ -41,8 +41,8 @@ object Constants {
   val ORG_ID = "delving_orgId"
   val EUROPEANA_URI = "europeana_uri"
 
-  val FORMAT = "delving_currentFormat"
-  val PUBLIC_FORMATS = "delving_publicFormats"
+  val SCHEMA = "delving_currentSchema"
+  val PUBLIC_SCHEMAS = "delving_publicSchemas"
 
   // ~~~ special indexing fields
   val COLLECTIONS = "delving_userCollections"

@@ -286,8 +286,8 @@ object SolrQueryService extends SolrServer {
       val first = response.getResults.get(0)
       Some(
         first.getFirstValue(HUB_ID).toString,
-        first.getFirstValue(FORMAT).toString,
-        first.getFieldValues(PUBLIC_FORMATS).asScala.map(_.toString).toSeq
+        first.getFirstValue(SCHEMA).toString,
+        first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
       )
     }
   }
