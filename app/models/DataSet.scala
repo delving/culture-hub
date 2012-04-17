@@ -130,6 +130,18 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     )
   }
 
+  def getState(orgId: String, spec: String): DataSetState = {
+
+    val stateData = dataSetsCollection.findOne(
+      MongoDBObject("orgId" -> orgId, "spec" -> spec),
+      MongoDBObject("state" -> 1)
+    ).getOrElse(return DataSetState.ERROR)
+
+    val name = stateData.getAs[DBObject]("state").get("name").toString
+
+    DataSetState(name)
+  }
+
   def getIndexingState(orgId: String, spec: String): (Int, Int) = {
 
     val stateData = dataSetsCollection.findOne(
@@ -322,8 +334,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   // ~~~ indexing control
-
-  def getStateBySpecAndOrgId(spec: String, orgId: String) = DataSet.findBySpecAndOrgId(spec, orgId).get.state
 
   def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get

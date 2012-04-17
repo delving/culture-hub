@@ -74,8 +74,8 @@ object MappingService extends ModelImplicits {
   def nodeTreeToXmlString(node: Node): String = {
     val serialized = XmlSerializer.toXml(node)
     // chop of the XML prefix. kindof a hack
-    if(serialized.startsWith("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n""")) {
-      serialized.substring("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n""".length)
+    if(serialized.startsWith("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""")) {
+      serialized.substring("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""".length)
     } else {
       serialized
     }
