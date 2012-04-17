@@ -1,6 +1,8 @@
 %{ def isDisabled = _disabled != null && _disabled ? "disabled" : "" }%
 <div class="control-group">
-    #{if _label}<label class="${_labelClass}" for="${_name}">${_label}</label>#{/if}
+    #{if _label}
+        <label class="${_labelClass}" for="${_name}">${_label}</label>
+    #{/if}
     <div class="controls">
         <input
                 type="text"
@@ -11,12 +13,14 @@
                 size="40"
                 data-bind="${_dataBind}"
                 data-validate="${views.Helpers.printValidationRules(_form, _name)}"
-                ${isDisabled}
+                #{if _disabled}disabled="true"#{/if}
                 #{if _placeholder}placeholder="${_placeholder}"#{/if}
                 #{if _dataSource}data-source="${_dataSource}" data-items="7" data-provide="typeahead" #{if _multiple}data-mode="multiple"#{/if}#{/if}
                 />
-        <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
         <span class="help-inline">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help}</span>
-        #{if _extHelp}<p class="help-block" title="${_extHelp}"></p>#{/if}
+        <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
+        *{<span class="error">tess</span>}*
+    #{if _extHelp}<p class="help-block" title="${_extHelp}"></p>#{/if}
+        #{if _extHtml && !_disabled}${_extHtml.raw()}#{/if}
     </div>
 </div>

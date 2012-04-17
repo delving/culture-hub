@@ -6,16 +6,17 @@
 #{/set}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen"
-      href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
 #{/set}
+
 #{set bodyId: 'organization' /}
+
+*{** Create a comma separated list of available Datasets to use for typeAhead **}*
+#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
-
-#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
 
 <div class="row">
     <div class="span6">
