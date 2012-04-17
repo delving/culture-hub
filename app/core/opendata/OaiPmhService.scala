@@ -348,7 +348,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
     val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
 
-    val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filter(_.prefix == "xsi")
+    val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filterNot(_.prefix == "xsi")
 
     for (ns <- namespaces) {
       import xml.{Null, UnprefixedAttribute}
