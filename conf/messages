@@ -592,6 +592,8 @@ org.cms.page.help.templates.info=When creating page content the use of a templat
 org.cms.page.help.homepage.tab=Creating homepage content
 org.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
 
+org.cms.page.keyauto.button=Auto-generate page key
+org.cms.page.keyauto.error=Title mandatory for page key generation.
 
 org.vc.list=Virtual collection list
 org.vc.new=New Virtual Collection

@@ -565,6 +565,8 @@ org.cms.page.help.templates.info=Het gebruik van <strong>Templates</strong> is e
 org.cms.page.help.homepage.tab=Inhoud voor de "Home" pagina
 org.cms.page.help.homepage.info=Inhoud aanmaken voor de "Home" pagina werkt precies als het aanmaken van een gewone pagina, behalve moeten de volgenden punten geacht worden: <ol><li>De <strong>Pagina sleutel</strong> moet <em>homepage</em> zijn</li><li>Pagina mag niet aan een menu toegevoegd worden</li>
 
+org.cms.page.keyauto.button=Pagina sleutel aanmaken.
+org.cms.page.keyauto.error=Titel verplicht om pagina sleutel te kunnen aanmaken.
 
 org.vc.list=Virtuele collectie lijst
 org.vc.new=Nieuwe virtuele collectie
