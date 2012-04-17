@@ -59,7 +59,7 @@ object DataSetProcessor {
         val javaNamespaces = (format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String] ++ dataSet.namespaces).asJava
 
         // bring mapping engine to life
-        if (!mapping.recordMapping.isDefined) {
+        if (mapping.recordMapping.isDefined) {
           val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
 
           // if there are crosswalks from the target format to another format, we for the moment will process them automatically
