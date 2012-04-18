@@ -1,10 +1,10 @@
 package controllers.organization
 
-import play.api.mvc.Action
-import models.{Visibility, DataSet, HubUser}
 import play.api.i18n.Messages
 import controllers._
 import core.HubServices
+import play.api.mvc.Action
+import models.{Visibility, DataSet, HubUser}
 
 /**
  *
@@ -77,6 +77,30 @@ object Organizations extends DelvingController {
               </dataProvider>
               }
             </dataProviders>
+
+          Ok(xmlResponse)
+
+        } else {
+          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+        }
+    }
+  }
+
+  def collections(orgId: String) = Root {
+    Action {
+      implicit request =>
+        if(HubServices.organizationService.exists(orgId)) {
+          val collections = models.DataSet.findAllByOrgId(orgId).filter(_.visibility == Visibility.PUBLIC)
+
+          val xmlResponse =
+            <collections>
+              {for (c <- collections) yield
+              <collection>
+                <id>{toIdentifier(c.spec)}</id>
+                <name>{c.name}</name>
+              </collection>
+              }
+            </collections>
 
           Ok(xmlResponse)
 

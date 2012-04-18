@@ -31,7 +31,7 @@ import collection.mutable.ListBuffer
 
 object Services extends DelvingController with HTTPClient {
 
-  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String]) = Root {
+  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = Root {
     Action {
       implicit request =>
         
@@ -46,6 +46,10 @@ object Services extends DelvingController with HTTPClient {
 
       if(dataProvider.isDefined) {
         hiddenQueryFilters += "%s:%s".format(Constants.OWNER, dataProvider.get.replaceAll("_", " "))
+      }
+
+      if(collection.isDefined) {
+        hiddenQueryFilters += "%s:%s".format(Constants.SPEC, collection.get)
       }
 
       val apiResult = SearchService.getApiResult(request, theme, hiddenQueryFilters.toList)
