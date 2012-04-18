@@ -13,6 +13,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.{Logger, Play}
 import core.{HubServices, ThemeAware}
 import play.libs.Time
+import scala.Predef._
 
 /**
  *
@@ -58,6 +59,16 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG, requestLanguage)
+
+
+          // Menu entries
+          val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
+            "title" -> e.title(getLang),
+            "page" -> e.targetPageKey.getOrElse(""),
+            "published" -> e.published))
+          ).toList
+          renderArgs +=("menu", mainMenuEntries)
+
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
@@ -222,14 +233,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               additionalSessionParams += (AccessControl.GROUPS -> u.groups.mkString(","))
             }
           }
-
-          // Menu entries
-          val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
-            "title" -> e.title(getLang),
-            "page" -> e.targetPageKey.getOrElse(""),
-            "published" -> e.published))
-          ).toList
-          renderArgs +=("menu", mainMenuEntries)
 
           // TODO
           //        Option(params.get("orgId")).map {

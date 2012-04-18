@@ -3,14 +3,13 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import eu.delving.templates.scala.GroovyTemplates
 import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
 import java.util.Date
 import core.indexing.IndexingService
-import core.{HubServices, ThemeAware}
+import core.HubServices
 import models.{HubUser, Visibility, UserCollection}
 
 /**
@@ -18,7 +17,7 @@ import models.{HubUser, Visibility, UserCollection}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Authentication extends Controller with GroovyTemplates with ThemeAware {
+object Authentication extends ApplicationController {
 
   val USERNAME = "userName"
   val REMEMBER_COOKIE = "rememberme"
@@ -35,7 +34,7 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
       case (u, p, r) => HubServices.authenticationService.connect(u, p)
     }))
 
-  def login = Themed {
+  def login = ApplicationAction {
     Action {
       implicit request =>
         if(session.get("userName").isDefined) {
@@ -55,8 +54,8 @@ object Authentication extends Controller with GroovyTemplates with ThemeAware {
   /**
    * Handle login form submission.
    */
-  def authenticate: Action[AnyContent] = Themed {Action {
-    implicit request =>
+  def authenticate: Action[AnyContent] = ApplicationAction {
+    Action { implicit request =>
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
         user => {
