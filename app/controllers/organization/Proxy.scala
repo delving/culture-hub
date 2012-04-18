@@ -4,8 +4,8 @@ import play.api.mvc._
 import controllers.DelvingController
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
-import xml.{TopScope, Elem}
 import play.api.libs.ws.{Response, WS}
+import xml.{NodeSeq, TopScope, Elem}
 
 /**
  *
@@ -24,16 +24,13 @@ object Proxy extends DelvingController {
             {proxies.map {
             proxy =>
               <item>
-                <id>
-                  {proxy.key}
-                </id>
-                <url>
-                  {proxy.searchUrl}
-                </url>
+                <id>{proxy.key}</id>
+                <url>{proxy.searchUrl}</url>
               </item>
           }}
           </explain>
-        Ok(list)
+
+        DOk(list, "item")
     }
   }
 
@@ -45,7 +42,7 @@ object Proxy extends DelvingController {
             WS.
               url(proxy.searchUrl).
               withQueryString(getWSQueryString(request, proxy): _*).
-              get().map(proxy.handleSearchResponse)
+              get().map(r => DOk(proxy.handleSearchResponse(r), "item"))
 
         }.getOrElse {
           Promise.pure(NotFound("Proxy with key '%s' not found".format(proxyKey)))
@@ -63,7 +60,7 @@ object Proxy extends DelvingController {
             WS.
               url(proxy.itemUrl + itemKey).
               withQueryString(getWSQueryString(request, proxy): _*).
-              get().map(proxy.handleItemResponse)
+              get().map(r => DOk(proxy.handleItemResponse(r)))
 
         }.getOrElse {
           Promise.pure(NotFound("Proxy with key '%s' not found".format(proxyKey)))
@@ -114,9 +111,11 @@ object Proxy extends DelvingController {
     searchUrl = "http://lokalhistoriewiki.no/api.php",
     itemUrl = "http://lokalhistoriewiki.no/index.php/") {
 
-    override def handleSearchResponse(response: Response): Result = {
+    override def handleSearchResponse(response: Response) = {
       // the MediaWiki is an old version and the API returns nothing but JSON, and incomplete that is
-      Ok(response.json)
+      import net.liftweb.json._
+
+      Xml.toXml(net.liftweb.json.parse(response.json.toString()))
     }
   }
 
@@ -128,11 +127,9 @@ class ProxyConfiguration(val key: String,
                          val constantQueryString: Map[String, Seq[String]],
                          val queryRemapping: Map[String, String]) {
 
-  import play.api.mvc.Results._
-
   def getItems(xml: Elem) = xml \\ "item"
 
-  def handleSearchResponse(response: play.api.libs.ws.Response): Result = {
+  def handleSearchResponse(response: play.api.libs.ws.Response): NodeSeq = {
     val xml = response.xml
 
     val processed: Elem =
@@ -156,10 +153,10 @@ class ProxyConfiguration(val key: String,
         </items>
       </results>
 
-    Ok(processed)
+    processed
   }
 
-  def handleItemResponse(response: play.api.libs.ws.Response): Result = Ok(response.xml)
+  def handleItemResponse(response: play.api.libs.ws.Response): NodeSeq = response.xml
 
 }
 

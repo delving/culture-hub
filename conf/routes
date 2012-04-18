@@ -178,22 +178,36 @@ GET          /:user/sip-creator.jnlp                                          co
 GET         /:user/admin/profile/update                                       controllers.user.Admin.profile(user)
 POST        /:user/admin/profile                                              controllers.user.Admin.profileSubmit(user)
 
-# Organizations
-GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId, language: Option[String] = None)
 
-GET         /organizations/:orgId/providers                                   controllers.organization.Organizations.providers(orgId)
-GET         /organizations/:orgId/providers/:provider/search                  controllers.Services.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/dataProviders                               controllers.organization.Organizations.dataProviders(orgId)
-GET         /organizations/:orgId/dataProviders/:dataProvider/search          controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
-GET         /organizations/:orgId/collections                                 controllers.organization.Organizations.collections(orgId)
-GET         /organizations/:orgId/collections/:collection/search              controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
+# Organizations API
 
+GET         /organizations/:orgId/api/search                                  controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
+
+GET         /organizations/:orgId/api/oai-pmh                                 controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
+
+GET         /organizations/:orgId/api/proxy/list                              controllers.organization.Proxy.list(orgId)
+GET         /organizations/:orgId/api/proxy/:proxyKey/search                  controllers.organization.Proxy.query(orgId, proxyKey)
+GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey           controllers.organization.Proxy.item(orgId, proxyKey, itemKey)
+
+GET         /organizations/:orgId/api/providers                               controllers.organization.Organizations.providers(orgId)
+GET         /organizations/:orgId/api/providers/:provider/search              controllers.Services.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
+GET         /organizations/:orgId/api/dataProviders                           controllers.organization.Organizations.dataProviders(orgId)
+GET         /organizations/:orgId/api/dataProviders/:dataProvider/search      controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
+GET         /organizations/:orgId/api/collections                             controllers.organization.Organizations.collections(orgId)
+GET         /organizations/:orgId/api/collections/:collection/search          controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
+
+## Legacy routes support
 GET         /organizations/:orgId/search                                      controllers.Services.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
 GET         /organizations/:orgId/proxy/list                                  controllers.organization.Proxy.list(orgId)
 GET         /organizations/:orgId/proxy/:proxyKey/search                      controllers.organization.Proxy.query(orgId, proxyKey)
 GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey               controllers.organization.Proxy.item(orgId, proxyKey, itemKey)
+
+
+# Organizations UI
+GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId, language: Option[String] = None)
 
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)

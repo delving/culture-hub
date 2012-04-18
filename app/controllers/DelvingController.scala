@@ -10,10 +10,11 @@ import org.bson.types.ObjectId
 import models._
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
-import play.api.{Logger, Play}
+import play.api.Logger
 import core.{HubServices, ThemeAware}
 import play.libs.Time
 import scala.Predef._
+import xml.{NodeSeq, Elem, Node}
 
 /**
  *
@@ -127,6 +128,39 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
     val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
 
     Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
+  }
+
+  // ~~~ API rendering helpers
+
+  def wantsJson(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("json") ||
+    request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/json")
+
+  /**
+   * Turns a scala XML node into a JSON string
+   *
+   * @param xml the input xml document
+   * @param sequences field names that are sequences, and should be generated as array even when there's only a single element
+   * @return a string formatted as JSON
+   */
+  def toJson(xml: NodeSeq, sequences: Seq[String] = List.empty): String = {
+    import net.liftweb.json._
+    val json = Xml.toJson(xml) map {
+        case JField(name: String, x: JObject) =>
+          if(sequences.contains(name))
+            JField("dataProvider", JArray(x :: Nil))
+          else
+            x
+        case x => x
+    }
+    Printer.pretty(render(json))
+  }
+
+  def DOk(xml: NodeSeq, sequences: String*)(implicit request: RequestHeader): Result = {
+    if(wantsJson) {
+      Ok(toJson(xml, sequences)).as(JSON)
+    } else {
+      Ok(xml)
+    }
   }
 
 }
