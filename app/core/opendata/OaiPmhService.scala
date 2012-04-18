@@ -18,14 +18,13 @@ package core.opendata
 
 import java.text.SimpleDateFormat
 import java.util.Date
-import models._
 import exceptions._
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
-import xml.{PrettyPrinter, Elem, XML}
 import org.apache.commons.lang.StringEscapeUtils
-import models.{Namespace, RecordDefinition, MetadataRecord}
+import models._
+import xml.{Elem, PrettyPrinter, XML}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -405,7 +404,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 
-    val recordsReturned = 250
+    val recordsReturned = responseListSize
 
     private val ResumptionTokenExtractor = """(.+?):(.+?):(.+?):(.+?):(.+)""".r
 
@@ -463,4 +462,5 @@ trait MetaConfig {
   val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
   val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
   val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
+  val responseListSize: Int = Play.configuration.getInt("services.pmh.responseListSize").getOrElse(250)
 }
