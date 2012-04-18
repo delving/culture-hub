@@ -276,7 +276,7 @@ object SolrQueryService extends SolrServer {
     SolrQueryService.getSolrResponseFromServer(query)
   }
 
-  def resolveHubIdAndFormat(id: String, idType: String): Option[(String, String)] = {
+  def resolveHubIdAndFormat(id: String, idType: String): Option[(String, String, Seq[String])] = {
     val t = DelvingIdType(id, idType)
     val query = new SolrQuery("%s:\"%s\"".format(t.idSearchField, t.normalisedId))
     val response = SolrQueryService.getSolrResponseFromServer(query)
@@ -284,7 +284,11 @@ object SolrQueryService extends SolrServer {
       None
     } else {
       val first = response.getResults.get(0)
-      Some(first.getFirstValue(HUB_ID).toString, first.getFirstValue(FORMAT).toString)
+      Some(
+        first.getFirstValue(HUB_ID).toString,
+        first.getFirstValue(SCHEMA).toString,
+        first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
+      )
     }
   }
 
@@ -531,6 +535,8 @@ case class Params(queryString: Map[String, Seq[String]]) {
   def _contains(key: String) = params.contains(key)
 
   def valueIsNonEmpty(key: String) = _contains(key) && !getValue(key).isEmpty
+
+  def getFirst(key: String) = getValues(key).headOption
 
   def getValue(key: String) = getValues(key).head
 
