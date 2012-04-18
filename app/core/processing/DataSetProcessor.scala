@@ -116,7 +116,7 @@ object DataSetProcessor {
                 DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
 
                 // extract summary fields
-                val summaryFields = summaryFormat.map { sf => extractSearchFields(sf, mainMappingResult, javaNamespaces) }
+                val summaryFields = summaryFormat.map { sf => extractSummaryFields(sf, mainMappingResult, javaNamespaces) }
 
                 // cache summary fields in mongo for the hub
                 if(summaryFields.isDefined) {
@@ -139,6 +139,7 @@ object DataSetProcessor {
 
                 // if the current format is the to be indexed one, send the record out for indexing
                 if (indexingFormat == Some(format)) {
+
                   val indexDocument = engine.toIndexDocument(record.getRawXmlString)
 
                   // append summary fields
@@ -159,6 +160,7 @@ object DataSetProcessor {
                   }
 
                   Indexing.indexOne(dataSet, record, Some(indexDocument), format.prefix)
+
                 }
 
 
