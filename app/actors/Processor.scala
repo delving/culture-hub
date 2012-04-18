@@ -21,7 +21,7 @@ class Processor extends Actor {
           DataSetProcessor.process(dataSet.get)
         } catch {
           case t => {
-            Logger("CultureHub").error("Error while processing DataSet %s".format(dataSet.spec), t)
+            Logger("CultureHub").error("Error while processing DataSet %s".format(dataSet.get.spec), t)
             // TODO organization --> theme
             // ErrorReporter.reportError(getClass.getName, t, "Error during indexing of DataSet")
             DataSet.updateState(dataSet.get, DataSetState.ERROR)

@@ -3,7 +3,7 @@ package core.mapping
 import models.{RecordDefinition, DataSet}
 import play.api.{Play, Logger}
 import play.api.Play.current
-import eu.delving.sip.{IndexDocument, MappingEngine}
+import eu.delving.sip.MappingEngine
 import controllers.ModelImplicits
 import eu.delving.metadata._
 import java.io.FileInputStream
@@ -54,21 +54,8 @@ object MappingService extends ModelImplicits {
 
   def transformRecord(rawRecord: String, recordMapping: String, namespaces: Map[String, String]): String = {
     val engine: MappingEngine = new MappingEngine(recordMapping, Play.classloader, recDefModel, namespaces.asJava)
-    val indexDocument: IndexDocument = engine.toIndexDocument(rawRecord)
-    indexDocumentToXmlString(indexDocument)
-  }
-
-  def indexDocumentToXmlString(indexDocument: IndexDocument): String = {
-    val innerRecord = indexDocument.getMap.asScala.foldLeft("") {
-      (output: String, e: (String, java.util.List[IndexDocument#Value])) => {
-        val unMungedKey = stripDynamicFieldLabels(e._1.toString.replaceFirst("_", ":"))
-        output + {
-          val list: List[IndexDocument#Value] = e._2.asScala.toList
-          list.map(v => "<%s>%s</%s>".format(unMungedKey, v.toString, unMungedKey)).mkString("", "\n", "\n")
-        }
-      }
-    }
-    "<record>%s</record>".format(innerRecord)
+    val nodeTree = engine.toNode(rawRecord)
+    nodeTreeToXmlString(nodeTree)
   }
 
   def nodeTreeToXmlString(node: Node): String = {
@@ -79,11 +66,6 @@ object MappingService extends ModelImplicits {
     } else {
       serialized
     }
-  }
-
-  // duplicated here so as to avoid a dependency on the SolrBindingService
-  private def stripDynamicFieldLabels(fieldName: String): String = {
-    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase)$", "").replaceFirst("^(facet|sort|sort_all)_", "")
   }
 
 }
