@@ -97,11 +97,12 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: String = params match {
-      case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
+      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
         case Some(rendered) => rendered.toJson
-        case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
+        case None if x.getFirst("schema").isEmpty => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
+        case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "json")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -118,9 +119,10 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full") match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
           case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
-          case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
+          case None if x.getFirst("schema").isEmpty => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
+          case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -136,51 +138,63 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String): Option[RenderedView] = {
+  def getRenderedFullView(viewName: String, schema: Option[String] = None): Option[RenderedView] = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
     SolrQueryService.resolveHubIdAndFormat(id, idType) match {
-      case Some((hubId, prefix)) =>
-        val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
-        if(rawRecord.isEmpty) {
-          log.trace("Could not find record with format %s for hubId %s".format(prefix, hubId))
+      case Some((hubId, defaultSchema, publicSchemas)) =>
+        val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
+          Some(schema.get)
+        } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
+          log.debug("Schema %s not available for hubId %s".format(schema.get, hubId))
           None
         } else {
+          Some(defaultSchema)
+        }
 
-          // handle legacy formats
-          val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
-          val viewDefinitionFormatName = if(legacyFormats.contains(prefix)) "legacy" else prefix
+        if(maybePrefix.isEmpty) {
+          None
+        } else {
+          val prefix = maybePrefix.get
+          val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
+          if(rawRecord.isEmpty) {
+            log.trace("Could not find record with format %s for hubId %s".format(prefix, hubId))
+            None
+          } else {
 
-          // let's do some rendering
-          RecordDefinition.getRecordDefinition(prefix) match {
-            case Some(definition) =>
-                val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
-                if(viewRenderer.isEmpty) {
-                  log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
-                  None
-                } else {
-                  try {
-                    val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), rawRecord.get)
-                    // TODO see what to do with roles
-                    Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
-                } catch {
-                  case t =>
-                    log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
+            // handle legacy formats
+            val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
+            val viewDefinitionFormatName = if(legacyFormats.contains(prefix)) "legacy" else prefix
+
+            // let's do some rendering
+            RecordDefinition.getRecordDefinition(prefix) match {
+              case Some(definition) =>
+                  val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+                  if(viewRenderer.isEmpty) {
+                    log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
                     None
-                }
+                  } else {
+                    try {
+                      val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), rawRecord.get)
+                      // TODO see what to do with roles
+                      Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+                  } catch {
+                    case t =>
+                      log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
+                      None
+                  }
+              }
+              case None =>
+                log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
+                None
             }
-            case None =>
-              log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
-              None
           }
         }
       case None =>
         log.trace("Could not find record with id %s and idType %s in SOLR".format(id, idType))
         None
     }
-
-
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
