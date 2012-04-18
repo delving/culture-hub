@@ -62,7 +62,7 @@ case class SummaryField(name: String, xpath: String) {
   def tag = "delving_" + eu.delving.metadata.SummaryField.valueOf(name).tag
 }
 
-case class SearchField(name: String, xpath: String)
+case class SearchField(name: String, xpath: String, dataType: String)
 
 object RecordDefinition {
 
@@ -110,7 +110,7 @@ object RecordDefinition {
 
     val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
     val summaryFields = (node \ "summaryFields" \ "summaryField").map(sf => SummaryField((sf \ "@name").text, (sf \ "@xpath").text)).toList
-    val searchFields = (node \ "searchFields" \ "searchField").map(sf => SearchField((sf \ "@name").text, (sf \ "@xpath").text)).toList
+    val searchFields = (node \ "searchFields" \ "searchField").map(sf => SearchField((sf \ "@name").text, (sf \ "@xpath").text, (if(sf.attribute("dataType").isDefined) (sf \ "@dataType").text else "string"))).toList
 
     Some(
       RecordDefinition(
