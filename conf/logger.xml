@@ -27,7 +27,7 @@
   <logger name="CulutureHub" level="INFO" />
   <logger name="Search" level="DEBUG" />
 
-    <logger name="routes" level="INFO">
+    <logger name="routes" level="INFO" additivity="false">
         <appender-ref ref="ROUTEACCESS" />
     </logger>
     
