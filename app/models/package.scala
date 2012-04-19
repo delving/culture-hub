@@ -22,6 +22,7 @@ import com.mongodb.casbah.{MongoCollection}
 import com.mongodb.DBObject
 import play.api.Play.current
 import extensions.ConfigurationException
+import models.mongoContext._
 
 // TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
@@ -111,5 +112,22 @@ package object mongoContext extends models.MongoContext {
 
   lazy val routeAccessCollection = connection("RouteAccess")
 
+  val statisticsIndexes = Seq(
+    MongoDBObject("orgId" -> 1, "key" -> 1)
+  )
+
+  lazy val providerStatisticsCollection = connection("ProviderStatistics")
+  addIndexes(providerStatisticsCollection, statisticsIndexes)
+
+  lazy val dataProviderStatisticsCollection = connection("DataProviderStatistics")
+  addIndexes(dataProviderStatisticsCollection, statisticsIndexes)
+
+  lazy val organizationStatisticsCollection = connection("OrganizationStatistics")
+  addIndexes(organizationStatisticsCollection, statisticsIndexes)
+
+  lazy val collectionStatisticsCollection = connection("CollectionStatistics")
+  addIndexes(collectionStatisticsCollection, statisticsIndexes)
+
+  lazy val statisticsRunCollection = connection("StatisticsRun")
 
 }

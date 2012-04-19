@@ -20,8 +20,8 @@ class RouteLogger extends Actor {
   def receive = {
 
     case RouteRequest(request) =>
-      fileLog.info("%s %s".format(request.uri, request.rawQueryString))
-      mongoLogBuffer += RouteAccess(uri = request.uri, queryString = request.queryString)
+      fileLog.info("%s %s".format(request.path, request.rawQueryString))
+      mongoLogBuffer += RouteAccess(uri = request.path, queryString = request.queryString)
 
     case PersistRouteAccess =>
       mongoLogBuffer.foreach {

@@ -101,6 +101,15 @@ object Global extends GlobalSettings {
       PersistRouteAccess
     )
 
+    // statistics computation
+    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      1 minutes, // TODO increase later on!!!
+      statsLogger,
+      ComputeStatistics
+    )
+
 
 
 
@@ -143,9 +152,9 @@ object Global extends GlobalSettings {
     val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
 
     // log route access, for API calls
-    val apiRoute = """^/organizations/[A-Za-z0-9-]+/api/(.)*""".r
+    val apiRouteMatcher = """^/organizations/[A-Za-z0-9-]+/api/(.)*""".r
 
-    if(apiRoute.pattern.matcher(request.uri).matches()) {
+    if(apiRouteMatcher.pattern.matcher(request.uri).matches()) {
       routeLogger ! RouteRequest(request)
     }
 

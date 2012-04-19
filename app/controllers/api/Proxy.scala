@@ -1,4 +1,4 @@
-package controllers.organization
+package controllers.api
 
 import play.api.mvc._
 import controllers.DelvingController
