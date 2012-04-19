@@ -11,7 +11,7 @@ import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
-import mvc.RequestHeader
+import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
 
@@ -126,5 +126,18 @@ object Global extends GlobalSettings {
       super.onHandlerNotFound(request)
     }
 
+  }
+
+  override def onRouteRequest(request: RequestHeader): Option[Handler] = {
+    val routeLogger = Akka.system.actorOf(Props[RouteLogger])
+
+    // log route access, for API calls
+    val apiRoute = """^/organizations/[A-Za-z0-9-]+/api/(.)*""".r
+
+    if(apiRoute.pattern.matcher(request.uri).matches()) {
+      routeLogger ! RouteRequest(request)
+    }
+
+    super.onRouteRequest(request)
   }
 }

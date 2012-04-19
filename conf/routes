@@ -79,20 +79,6 @@ GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(
 GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-
-
-
-
-# Backwards compatibility with the old services module
-#GET         /services/                                                       Services.index
-#GET          /services/api/solr/select                                        controllers.Services.solrSearchProxy
-#GET          /services/api/search                                             controllers.Services.searchApi
-#GET         /services/api/{spec}:{id}                                        controllers.Services.retrieveRecord
-#GET         /services/api/open-search                                        controllers.Services.index
-#GET         /services/api/open-search.xml                                    controllers.Services.index
-#GET          /services/oai-pmh                                                controllers.Services.oaipmh
-#GET         /services/oai-pmh/{accessKey}                                    controllers.Services.oaipmhSecured
-
 # Custom Controllers and Functionality for customers
 GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
 POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store

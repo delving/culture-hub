@@ -105,10 +105,11 @@ package object mongoContext extends models.MongoContext {
   cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1))
   cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1))
 
-  lazy val harvestStepsCollection = connection("HarvestSteps")
-
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
 
   lazy val CoRefCollecion = connection("coRefs")
+
+  lazy val routeAccessCollection = connection("routeAccess")
+
 
 }

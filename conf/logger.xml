@@ -1,6 +1,6 @@
 <configuration>
 
-  <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel" />
+    <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel"/>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
      <file>${application.home}/logs/application.log</file>
@@ -9,17 +9,29 @@
      </encoder>
    </appender>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
-    </encoder>
-  </appender>
+    <appender name="ROUTEACCESS" class="ch.qos.logback.core.FileAppender">
+        <file>${application.home}/logs/routeAccess.log</file>
+        <encoder>
+            <pattern>%date - %message%n</pattern>
+        </encoder>
+    </appender>
 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
+        </encoder>
+    </appender>
+    
   <logger name="play" level="INFO" />
   <logger name="application" level="INFO" />
   <logger name="CulutureHub" level="INFO" />
   <logger name="Search" level="DEBUG" />
 
+    <logger name="routes" level="INFO">
+        <appender-ref ref="ROUTEACCESS" />
+    </logger>
+    
+    
   <root level="INFO">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
