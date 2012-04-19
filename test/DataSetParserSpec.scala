@@ -66,8 +66,7 @@ class DataSetParserSpec extends Specification with TestData {
   val sampleDataSet =
     """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
-<input>
-<_id>1</_id>
+<input id="1">
 <priref>1</priref>
 <edit.source>collect>intern</edit.source>
 <edit.source>photo</edit.source>
@@ -148,8 +147,7 @@ class DataSetParserSpec extends Specification with TestData {
 <percentD>2.6</percentD>
 <percentC>24.3</percentC>
 </input>
-<input>
-<_id>2</_id>
+<input id="2">
 <priref>2</priref>
 <edit.source>collect>intern</edit.source>
 <edit.source>photo</edit.source>

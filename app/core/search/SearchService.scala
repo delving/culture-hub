@@ -101,8 +101,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
         case Some(rendered) => rendered.toJson
-        case None if x.getFirst("schema").isEmpty => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
         case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "json")
+        case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -121,8 +121,8 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
           case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
-          case None if x.getFirst("schema").isEmpty => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
           case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "xml")
+          case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr

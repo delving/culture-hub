@@ -4,11 +4,10 @@ import exceptions.{UnauthorizedException, AccessKeyException}
 import play.api.mvc._
 import models._
 import core.mapping.MappingService
-import play.api.Logger
 import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
-import org.apache.commons.io.{FileUtils, IOUtils}
+import org.apache.commons.io.IOUtils
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
@@ -16,7 +15,10 @@ import util.SimpleDataSetParser
 import play.libs.Akka
 import akka.actor.{Props, Actor}
 import core.HubServices
-import eu.delving.metadata.{RecMapping}
+import eu.delving.metadata.RecMapping
+import play.api.{Play, Logger}
+import play.api.Play.current
+import scala.Option
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -276,7 +278,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     writeEntry("fact-definition-list.xml", zipOut) {
       out =>
-        val c = MissingLibs.readContentAsString(new FileInputStream(new File("conf/record-definitions/global/fact-definition-list.xml")))
+        val c = MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/global/fact-definition-list.xml"))
         IOUtils.write(c, out)
     }
 
@@ -289,12 +291,12 @@ object SipCreatorEndPoint extends ApplicationController {
       val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
       writeEntry(recordDefinition, zipOut) {
         out =>
-          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))), out)
+          writeContent(MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix))), out)
       }
       val validationSchema = prefix + RecordDefinition.VALIDATION_SCHEMA_SUFFIX
       writeEntry(validationSchema, zipOut) {
         out =>
-          writeContent(FileUtils.readFileToString(new File("conf/record-definitions/%s/%s-validation.xsd".format(prefix, prefix))), out)
+          writeContent(MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/%s/%s-validation.xsd".format(prefix, prefix))), out)
       }
     }
 

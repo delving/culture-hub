@@ -73,10 +73,10 @@ object DataSetProcessor {
           val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
 
           // if there are crosswalks from the target format to another format, we for the moment will process them automatically
-          val crosswalkEngines = (RecordDefinition.getCrosswalkFiles(format.prefix).map {
-            f =>
-              val targetPrefix = f.getName.split("-")(1)
-              (targetPrefix -> new MappingEngine(Source.fromFile(f).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
+          val crosswalkEngines = (RecordDefinition.getCrosswalkResources(format.prefix).map {
+            r =>
+              val targetPrefix = r.getPath.substring(r.getPath.indexOf(format.prefix + "-")).split("-")(0)
+              (targetPrefix -> new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
           }).toMap[String, MappingEngine]
 
           // update processing state of DataSet

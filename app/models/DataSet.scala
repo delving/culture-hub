@@ -24,14 +24,16 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat._
 import com.novus.salat.dao._
 import com.mongodb.{BasicDBObject, WriteConcern}
-import java.io.File
 import xml.{Node, XML}
-import com.mongodb.casbah.{MongoCollection}
-import exceptions.{MetaRepoSystemException}
+import com.mongodb.casbah.MongoCollection
+import exceptions.MetaRepoSystemException
 import controllers.ModelImplicits
-import play.api.i18n.{Messages}
+import play.api.i18n.Messages
 import core.HubServices
 import eu.delving.metadata.{RecMapping, Path}
+import play.api.Play
+import play.api.Play.current
+import java.net.URL
 
 /**
  * DataSet model
@@ -109,14 +111,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   lazy val factDefinitionList = parseFactDefinitionList
 
-  def getFactDefinitionFile: File = {
-    val file = new File("conf/record-definitions/global/fact-definition-list.xml")
-    if (!file.exists()) throw ConfigurationException("Fact definition configuration file not found!")
-    file
+  def getFactDefinitionResource: URL = {
+    val r = Play.resource(("definitions/global/fact-definition-list.xml"))
+    if (!r.isDefined) throw ConfigurationException("Fact definition configuration file not found!")
+    r.get
   }
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
-    val xml = XML.loadFile(getFactDefinitionFile)
+    val xml = XML.load(getFactDefinitionResource)
     for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
   }
 

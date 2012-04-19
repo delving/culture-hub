@@ -6,7 +6,6 @@ import play.api.Play.current
 import eu.delving.sip.MappingEngine
 import controllers.ModelImplicits
 import eu.delving.metadata._
-import java.io.FileInputStream
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
@@ -25,23 +24,17 @@ object MappingService extends ModelImplicits {
     try {
       Logger("CultureHub").info("Initializing MappingService")
 
-      val recordDefinitions = RecordDefinition.getRecordDefinitionFiles
+      val recordDefinitions = RecordDefinition.getRecordDefinitionResources
       recordDefinitions.foreach {
-        definition => Logger("CultureHub").info("Loading record definition: " + definition.getAbsolutePath)
+        definition => Logger("CultureHub").info("Loading record definition: " + definition.getPath)
       }
 
       recDefModel = new RecDefModel {
         def createRecDef(prefix: String): RecDefTree = {
           RecDefTree.create(
-            RecDef.read(new FileInputStream(
-              recordDefinitions.find(f => f.getName.startsWith(prefix)).getOrElse(throw new RuntimeException("Cannot find Record Definition with prefix " + prefix))
-            ))
+            RecDef.read(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
           )
         }
-
-        def getFactDefinitions: java.util.List[FactDefinition] = FactDefinition.read(DataSet.getFactDefinitionFile)
-
-        def getPrefixes: java.util.Set[String] = recordDefinitions.map(_.getName.split("-").head).toSet.asJava
       }
 
     } catch {

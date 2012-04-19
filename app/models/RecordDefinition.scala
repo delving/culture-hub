@@ -20,6 +20,7 @@ import java.io.File
 import xml.{Node, XML}
 import play.api.Play
 import play.api.Play.current
+import java.net.URL
 
 /**
  *
@@ -72,27 +73,22 @@ object RecordDefinition {
 
   val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
 
+  val enabledCrosswalks = Play.configuration.getString("cultureHub.crossWalks").getOrElse("").split(",").map(_.trim())
+
   def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinition(prefix: String): Option[RecordDefinition] = recordDefinitions.find(_.prefix == prefix)
 
-  def getRecordDefinitionFiles: Seq[File] = {
-    enabledDefinitions.
-      map(prefix => new File(current.path.getAbsolutePath + "/conf/record-definitions/%s/%s-record-definition.xml".format(prefix, prefix))).
-      filter(_.exists())
+  def getRecordDefinitionResources = {
+    enabledDefinitions.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
   }
 
-  def getCrosswalkFiles(sourcePrefix: String): List[File] = {
-    val sourceDir = new File("conf/record-definitions/%s")
-    if(!sourceDir.isDirectory) {
-      List.empty
-    } else {
-      sourceDir.listFiles().filter(f => f.getName.startsWith(sourcePrefix) && f.getName.endsWith(CROSSWALK_SUFFIX)).toList
-    }
+  def getCrosswalkResources(sourcePrefix: String): Seq[URL] = {
+    enabledCrosswalks.filter(_.startsWith(sourcePrefix)).flatMap(prefix => Play.resource("definitions/%s/%s-crosswalk.xml".format(sourcePrefix, prefix))).toSeq
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {
-    val definitionContent = getRecordDefinitionFiles.map { f => XML.loadFile(f) }
+    val definitionContent = getRecordDefinitionResources.map { r => XML.load(r) }
     definitionContent.flatMap(parseRecordDefinition(_)).toList
   }
 

@@ -1,6 +1,5 @@
 package controllers.organization
 
-import controllers.DelvingController
 import controllers.OrganizationController
 import play.api.mvc._
 
@@ -21,7 +20,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val sipCreatorVersion = "1.0.0"
+        val sipCreatorVersion = "1.0.2"
         val host = request.domain + ":9000"
         val home = "http://" + host + "/" + user + "/"
         val codebase = "http://" + host + "/assets/sip-creator/"
