@@ -109,7 +109,7 @@ package object mongoContext extends models.MongoContext {
 
   lazy val CoRefCollecion = connection("coRefs")
 
-  lazy val routeAccessCollection = connection("routeAccess")
+  lazy val routeAccessCollection = connection("RouteAccess")
 
 
 }

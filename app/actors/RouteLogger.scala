@@ -3,6 +3,8 @@ package actors
 import akka.actor.Actor
 import play.api.mvc.RequestHeader
 import play.api.Logger
+import collection.mutable.ArrayBuffer
+import models.RouteAccess
 
 /**
  *
@@ -13,10 +15,20 @@ class RouteLogger extends Actor {
 
   val fileLog = Logger("routes")
 
+  val mongoLogBuffer = new ArrayBuffer[RouteAccess]()
+
   def receive = {
 
     case RouteRequest(request) =>
       fileLog.info("%s %s".format(request.uri, request.rawQueryString))
+      mongoLogBuffer += RouteAccess(uri = request.uri, queryString = request.queryString)
+
+    case PersistRouteAccess =>
+      mongoLogBuffer.foreach {
+        access => RouteAccess.insert(access)
+      }
+      mongoLogBuffer.clear()
+
 
     case _ => // do nothing
 
@@ -25,3 +37,5 @@ class RouteLogger extends Actor {
 }
 
 case class RouteRequest(request: RequestHeader)
+
+case object PersistRouteAccess

@@ -92,6 +92,17 @@ object Global extends GlobalSettings {
       CacheSolrFields
     )
 
+    // routes access logger
+    val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      1 minutes, // increase later on?
+      routeLogger,
+      PersistRouteAccess
+    )
+
+
+
 
     // ~~~ load test data
 
@@ -129,7 +140,7 @@ object Global extends GlobalSettings {
   }
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
-    val routeLogger = Akka.system.actorOf(Props[RouteLogger])
+    val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
 
     // log route access, for API calls
     val apiRoute = """^/organizations/[A-Za-z0-9-]+/api/(.)*""".r
