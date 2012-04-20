@@ -29,8 +29,6 @@ import org.apache.commons.lang.StringEscapeUtils
 import scala.Predef._
 import scala._
 import collection.immutable.{List, Map}
-import core.search.Pager
-import core.search.PresentationQuery._
 
 /**
  *
