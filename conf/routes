@@ -167,7 +167,12 @@ POST        /:user/admin/profile                                              co
 
 # Organizations API
 
+GET         /organizations/:orgId/api                                         controllers.api.Api.api(orgId)
+
 GET         /organizations/:orgId/api/search                                  controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
+GET         /organizations/:orgId/api/search/provider/:provider               controllers.api.Search.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
+GET         /organizations/:orgId/api/search/dataProvider/:dataProvider       controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
+GET         /organizations/:orgId/api/search/collection/:collection           controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
 
 GET         /organizations/:orgId/api/oai-pmh                                 controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
@@ -179,10 +184,6 @@ GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey           co
 GET         /organizations/:orgId/api/providers                               controllers.api.Organization.providers(orgId)
 GET         /organizations/:orgId/api/dataProviders                           controllers.api.Organization.dataProviders(orgId)
 GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
-
-GET         /organizations/:orgId/api/providers/:provider/search              controllers.api.Search.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/api/dataProviders/:dataProvider/search      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
-GET         /organizations/:orgId/api/collections/:collection/search          controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
 
 ## Legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
