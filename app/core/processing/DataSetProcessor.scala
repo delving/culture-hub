@@ -32,6 +32,8 @@ object DataSetProcessor {
   val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, SPEC)
 
   def process(dataSet: DataSet) {
+    val spec = dataSet.spec
+    val orgId = dataSet.orgId
 
     val formats: List[RecordDefinition] = dataSet.getAllMappingFormats
 
@@ -55,10 +57,10 @@ object DataSetProcessor {
 
     val now = System.currentTimeMillis()
 
-    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(dataSet.spec, formats.map(_.prefix).mkString(", "), indexingFormat.map(_.prefix).getOrElse("NONE!")))
+    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formats.map(_.prefix).mkString(", "), indexingFormat.map(_.prefix).getOrElse("NONE!")))
 
-    formats foreach {
-      format =>
+    for(format <- formats) {
+      format: RecordDefinition =>
 
         val mapping = dataSet.mappings(format.prefix)
 
@@ -80,40 +82,37 @@ object DataSetProcessor {
           }).toMap[String, MappingEngine]
 
           // update processing state of DataSet
-          DataSet.updateStateAndProcessingCount(dataSet, DataSetState.PROCESSING)
-
-          var state = DataSet.getState(dataSet.spec, dataSet.orgId)
+          val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, DataSetState.PROCESSING)
 
           // drop previous index
           if (indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix) {
-            IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
+            IndexingService.deleteBySpec(orgId, spec)
           }
 
           // loop over records
-          val recordsCollection = DataSet.getRecords(dataSet)
+          val recordsCollection = DataSet.getRecords(updatedDataSet)
           val recordCount = recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix))
           val records = recordsCollection.find(MongoDBObject("validOutputFormats" -> format.prefix))
 
           log.info("Processing %s valid records for format %s".format(recordCount, format.prefix))
 
           try {
-            records foreach {
-              record => {
+            for(record <- records) {
+              record: MetadataRecord => {
 
                 // update state
                 if (records.numSeen % 100 == 0) {
-                  DataSet.updateIndexingCount(dataSet, records.numSeen)
-                  state = DataSet.getState(dataSet.spec, dataSet.orgId)
+                  DataSet.updateIndexingCount(updatedDataSet, records.numSeen)
                 }
 
                 if (records.numSeen % 2000 == 0) {
-                  log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(dataSet.spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
+                  log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
                 }
 
                 val mainMappingResult = engine.toNode(record.getRawXmlString)
 
                 // cache mapping result
-                DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
+                DataSet.cacheMappedRecord(updatedDataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
 
                 // extract summary fields
                 val summaryFields = summaryFormat.map { sf => extractSummaryFields(sf, mainMappingResult, javaNamespaces) }
@@ -124,7 +123,7 @@ object DataSetProcessor {
 
                   // set SummaryFields required by the hub, result of processing
                   val hubSummaryFields = Map(
-                    SPEC -> dataSet.spec,
+                    SPEC -> spec,
                     RECORD_TYPE -> MDR,
                     VISIBILITY -> Visibility.PUBLIC.value,
                     MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
@@ -159,7 +158,7 @@ object DataSetProcessor {
                     }
                   }
 
-                  Indexing.indexOne(dataSet, record, Some(indexDocument), format.prefix)
+                  Indexing.indexOne(updatedDataSet, record, Some(indexDocument), format.prefix)
 
                 }
 
@@ -169,7 +168,7 @@ object DataSetProcessor {
                   val firstPassRecord = XmlSerializer.toXml(engine.toNode(record.getRawXmlString))
                   for (c <- crosswalkEngines) {
                     val transformed = c._2.toNode(firstPassRecord)
-                    DataSet.cacheMappedRecord(dataSet, record, c._1, XmlSerializer.toXml(transformed))
+                    DataSet.cacheMappedRecord(updatedDataSet, record, c._1, XmlSerializer.toXml(transformed))
                   }
                 }
 
@@ -178,23 +177,24 @@ object DataSetProcessor {
           } catch {
             case t =>
               t.printStackTrace()
-              log.error("Error during processing of DataSet %s".format(dataSet.spec), t)
-              DataSet.updateState(dataSet, DataSetState.ERROR)
+              log.error("Error during processing of DataSet %s".format(spec), t)
+              DataSet.updateState(updatedDataSet, DataSetState.ERROR)
 
 
           }
           // finally, update the processing state again
-          state match {
+          DataSet.getState(spec, orgId) match {
             case DataSetState.PROCESSING =>
-              log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(dataSet.spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-              DataSet.updateState(dataSet, DataSetState.ENABLED)
+              log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
+              DataSet.updateIndexingCount(updatedDataSet, records.numSeen)
+              DataSet.updateState(updatedDataSet, DataSetState.ENABLED)
               Indexing.commit()
-            case _ =>
-              log.error("Failed to process DataSet %s".format(dataSet.spec))
-              DataSet.updateState(dataSet, DataSetState.ERROR)
+            case s@_ =>
+              log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
+              DataSet.updateState(updatedDataSet, DataSetState.ERROR)
               if (indexingFormat == Some(format.prefix)) {
-                log.info("Deleting DataSet %s from SOLR".format(dataSet.spec))
-                IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
+                log.info("Deleting DataSet %s from SOLR".format(spec))
+                IndexingService.deleteBySpec(orgId, spec)
               }
           }
 
@@ -202,7 +202,7 @@ object DataSetProcessor {
           log.warn("No mapping found for format %s, skipping its processing".format(format.prefix))
         }
     }
-    log.info("Processing of DataSet %s finished, took %s ms".format(dataSet.spec, (System.currentTimeMillis() - now)))
+    log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
 
   }
 
