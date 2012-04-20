@@ -179,18 +179,19 @@ object DataSetProcessor {
             log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
 
           } catch {
-            case t =>
+            case t => {
               t.printStackTrace()
               log.error("Error while processing records for format %s of DataSet %s".format(format.prefix, spec), t)
               DataSet.updateState(dataSet, DataSetState.ERROR)
+            }
           }
         } else {
           log.warn("No mapping found for format %s, skipping its processing".format(format.prefix))
         }
 
         // finally, update the processing state again
-        DataSet.getState(spec, orgId) match {
-          case DataSetState.PROCESSING =>
+        DataSet.getState(spec, orgId).name match {
+          case DataSetState.PROCESSING.name =>
             DataSet.updateState(dataSet, DataSetState.ENABLED)
             Indexing.commit()
           case s@_ =>
