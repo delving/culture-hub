@@ -3,27 +3,27 @@ package controllers.api
 import controllers.DelvingController
 import play.api.mvc._
 import extensions.JJson
-import xml.Elem
-import collection.immutable.ListMap
+import scala.xml.Elem
 import scala.Predef._
+import scala._
+import collection.immutable.ListMap
 
 /**
  * The API documentation
+ *
+ * TODO document all APIs
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object Api extends DelvingController {
 
-  /** routes to the appropriate explain response **/
-  def explainPath(orgId: String, path: String): Action[AnyContent] = {
-    val apiPath = path.substring(("/organizations/" + orgId + "/api").length)
-    apiPath match {
+  def explanations(orgId: String, path: String) = path.split("/").drop(1).toList match {
+    case Nil => Api.api(orgId)
+    case "proxy" :: Nil => renderExplanation(Proxy.explainProxy)
+    case "proxy" :: proxyKey :: "search" :: Nil => renderExplanation(Proxy.explainProxySearch)
 
-      case "" => Api.api(orgId)
-      case "/proxy" => renderExplanation(Proxy.explain(orgId))
-      case _ => noDocumentation(orgId, path)
-    }
+    case _ => noDocumentation(orgId, path)
   }
 
   /**
@@ -41,15 +41,15 @@ object Api extends DelvingController {
         )
 
         val apis = List(
-          ApiDescription("search", "Search API", "search?explain=true"),
-          ApiDescription("search/provider", "Search API by provider", "search/provider/delving?query=test"),
-          ApiDescription("search/dataProvider", "Search API by dataProvider", "search/dataProvider/delving?query=test"),
-          ApiDescription("search/collection", "Search API by collection", "search/collection/delving?query=test"),
-          ApiDescription("oai-pmh", "OAI-PMH access point", "oai-pmh?verb=Identify"),
-          ApiDescription("proxy", "Search proxy"),
-          ApiDescription("providers", "Providers list"),
-          ApiDescription("dataProviders", "Data Providers list"),
-          ApiDescription("collections", "Collections list")
+          ApiItem("search", "Search API", "search?explain=true"),
+          ApiItem("search/provider", "Search API by provider", "search/provider/delving?query=test"),
+          ApiItem("search/dataProvider", "Search API by dataProvider", "search/dataProvider/delving?query=test"),
+          ApiItem("search/collection", "Search API by collection", "search/collection/delving?query=test"),
+          ApiItem("oai-pmh", "OAI-PMH access point", "oai-pmh?verb=Identify"),
+          ApiItem("proxy", "Search proxy"),
+          ApiItem("providers", "Providers list"),
+          ApiItem("dataProviders", "Data Providers list"),
+          ApiItem("collections", "Collections list")
         )
 
         if(wantsXml) {
@@ -74,6 +74,12 @@ object Api extends DelvingController {
     implicit request => explainPath(orgId, request.path)(request)
   }
 
+  /** routes to the appropriate explain response **/
+  def explainPath(orgId: String, path: String): Action[AnyContent] = {
+    val apiPath = path.substring(("/organizations/" + orgId + "/api").length)
+    explanations(orgId, apiPath)
+  }
+
   def noDocumentation(orgId: String, path: String) = Action {
     implicit request =>
       val sorry = "Sorry, no documentation found for path " + path
@@ -87,31 +93,56 @@ object Api extends DelvingController {
   }
 
 
-  private def renderExplanation(explanation: List[ApiDescription]) = Action {
+  private def renderExplanation(explanation: ApiDescription) = Action {
     implicit request =>
       if(wantsXml) {
-        val xml = <explain>
-          <api-list>
-            {explanation.map {
-            a => a.toXml}}
-          </api-list>
-        </explain>
-        Ok(xml)
+        Ok(explanation.toXml)
       } else {
-        val json = Map(
-          "api-list" -> explanation.map(_.toJson)
-        )
-        Ok(JJson.generate(json)).as(JSON)
+        Ok(JJson.generate(explanation.toJson)).as(JSON)
+      }
+  }
+
+  private def renderExplanation(explanation: ApiCallDescription) = Action {
+    implicit request =>
+      if(wantsXml) {
+        Ok(explanation.toXml)
+      } else {
+        Ok(JJson.generate(explanation.toJson)).as(JSON)
       }
   }
 
 
 }
 
+case class ApiDescription(description: String, apiItems: List[ApiItem]) {
+  def toXml(implicit request: RequestHeader) = <explain>
+                <description>{description}</description>
+                <api-list>{apiItems.map(_.toXml)}</api-list>
+              </explain>
+
+  def toJson(implicit request: RequestHeader) = Map(
+    "description" -> description,
+    "api-list" -> apiItems.map(_.toJson)
+  )
+}
+
+case class ApiCallDescription(description: String, explainItems: List[ExplainItem]) {
+  def toXml(implicit request: RequestHeader) = <explain>
+                <description>{description}</description>
+                <parameters>{explainItems.map(_.toXml)}</parameters>
+              </explain>
+
+  def toJson(implicit request: RequestHeader) = Map(
+    "description" -> description,
+    "parameters" -> explainItems.map(_.toJson)
+  )
+
+}
+
 /**
  * Describes an API path
  */
-case class ApiDescription(path: String, description: String, example: String = "") {
+case class ApiItem(path: String, description: String, example: String = "") {
 
   def url(implicit request: RequestHeader) = "http://" + request.host + request.path + "/" + path
   def exampleUrl(implicit request: RequestHeader) = "http://" + request.host + request.path + "/" + example
