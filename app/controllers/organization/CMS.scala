@@ -185,7 +185,7 @@ object CMSPageViewModel {
   val pageForm = Form(
     mapping(
       "dateCreated" -> of[Long],
-      "key" -> text.verifying(pattern("^[-a-z0-9]{3,15}$".r, error = Messages("org.cms.page.keyInvalid"))),
+      "key" -> text.verifying(pattern("^[-a-z0-9]{3,35}$".r, error = Messages("org.cms.page.keyInvalid"))),
       "theme" -> nonEmptyText,
       "lang" -> nonEmptyText,
       "title" -> nonEmptyText,
