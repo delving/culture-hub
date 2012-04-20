@@ -190,7 +190,7 @@ object DataSetProcessor {
         }
 
         // finally, update the processing state again
-        DataSet.getState(spec, orgId).name match {
+        DataSet.getState(orgId, spec).name match {
           case DataSetState.PROCESSING.name =>
             DataSet.updateState(dataSet, DataSetState.ENABLED)
             Indexing.commit()
