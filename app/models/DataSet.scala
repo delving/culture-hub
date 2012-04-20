@@ -347,8 +347,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def updateState(dataSet: DataSet, state: DataSetState) {
-    val sdbo: MongoDBObject = grater[DataSetState].asDBObject(state)
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("state" -> sdbo)), false, false, new WriteConcern())
+    update(MongoDBObject("_id" -> dataSet._id), $set ("state.name" -> state.name))
   }
 
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
