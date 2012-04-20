@@ -8,6 +8,7 @@ import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 
 /**
+ * FIXME adjust namespace rendering in proxy responses. Also support JSON.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -15,6 +16,12 @@ import xml.{NodeSeq, TopScope, Elem}
 object Proxy extends DelvingController {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn)
+
+  def explain(orgId: String) = List(
+          ApiDescription("list", "Lists all available proxies"),
+          ApiDescription("<proxyKey>/search", "Search via the selected proxy", "proxy/wikipedia.en/search?query=test"),
+          ApiDescription("<proxyKey>/item/<itemKey>", "Retrieve an item by identifier via the selected proxy", "proxy/wikipedia.en/item/bla")
+        )
 
   def list(orgId: String) = Root {
     Action {

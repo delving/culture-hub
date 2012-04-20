@@ -28,6 +28,7 @@ import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import models.{RecordDefinition, MetadataRecord, PortalTheme}
 import core.rendering.{RenderedView, ViewRenderer}
+import controllers.api.ExplainItem
 
 /**
  *
@@ -427,33 +428,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 }
 
-case class ExplainItem(label: String, options: List[String] = List(), description: String = "") {
-
-  import xml.Elem
-  import collection.immutable.ListMap
-
-  def toXML: Elem = {
-    <element>
-      <label>{label}</label>
-      {if (!options.isEmpty)
-      <options>
-        {options.map(option => <option>{option}</option>)}
-      </options>}
-      {if (!description.isEmpty) <description>{description}</description>}
-    </element>
-  }
-
-  def toJson: ListMap[String, Any] = {
-    if (!options.isEmpty && !description.isEmpty)
-      ListMap("label" -> label, "options" -> options.toSeq, "description" -> description)
-    else if (!options.isEmpty)
-      ListMap("label" -> label, "options" -> options.toSeq)
-    else
-      ListMap("label" -> label)
-  }
-
-}
-
 case class FacetAutoComplete(params: Params) {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
@@ -530,7 +504,7 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
       <api>
         { if (!explainType.equalsIgnoreCase("light"))
         <parameters>
-          {paramOptions.map(param => param.toXML)}
+          {paramOptions.map(param => param.toXml)}
         </parameters>
         }
         <solr-dynamic>

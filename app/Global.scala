@@ -150,12 +150,17 @@ object Global extends GlobalSettings {
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
     val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
+    val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+    val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
-    // log route access, for API calls
-    val apiRouteMatcher = """^/organizations/[A-Za-z0-9-]+/api/(.)*""".r
-
-    if(apiRouteMatcher.pattern.matcher(request.uri).matches()) {
+    if(matcher.matches()) {
+      // log route access, for API calls
       routeLogger ! RouteRequest(request)
+
+      if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+        // redirect to the standard explain response
+        return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+      }
     }
 
     super.onRouteRequest(request)
