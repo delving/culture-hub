@@ -341,8 +341,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
-    val mappings = dataSetLatest.mappings.transform((key, map) => map.copy(rec_indexed = 0))
-    val updatedDataSet = dataSetLatest.copy(state = state, mappings = mappings)
+    val updatedDataSet = dataSetLatest.copy(state = state)
     DataSet.save(updatedDataSet)
     updatedDataSet
   }
@@ -412,7 +411,6 @@ case class RecordSep(pre: String, label: String, path: Path = Path.create())
 
 case class Mapping(recordMapping: Option[String] = None,
                    format: RecordDefinition,
-                   rec_indexed: Int = 0,
                    errorMessage: Option[String] = Some(""),
                    indexed: Boolean = false)
 
