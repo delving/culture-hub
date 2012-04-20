@@ -19,15 +19,18 @@ package core.search
 import models.PortalTheme
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
-import util.Constants._
-import collection.JavaConverters._
+import _root_.util.Constants._
+import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
-import util.Constants
-import collection.immutable.{Map, List}
+import _root_.util.Constants
 import org.apache.commons.lang.StringEscapeUtils
 import scala.Predef._
+import scala._
+import collection.immutable.{List, Map}
+import core.search.Pager
+import core.search.PresentationQuery._
 
 /**
  *
@@ -37,7 +40,7 @@ import scala.Predef._
 
 object SolrQueryService extends SolrServer {
 
-  import xml.Elem
+  import scala.xml.Elem
   import java.net.URLEncoder
 
   val FACET_PROMPT: String = "&qf="
@@ -48,7 +51,7 @@ object SolrQueryService extends SolrServer {
     field.getValueAsArray.map(value =>
     {
       try {
-        import xml.XML
+        import scala.xml.XML
         val normalisedValue = if (field.getKeyAsXml.endsWith("_text")) "<![CDATA[%s]]>".format(value) else value
         XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(normalisedValue), field, response), keyAsXml))
       }
@@ -64,7 +67,7 @@ object SolrQueryService extends SolrServer {
   def renderHighLightXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     field.getHighLightValuesAsArray.map(value =>
       try {
-        import xml.XML
+        import scala.xml.XML
         XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(value), field, response), field.getKeyAsXml))
       }
       catch {
@@ -285,10 +288,12 @@ object SolrQueryService extends SolrServer {
       None
     } else {
       val first = response.getResults.get(0)
+      val currentFormat = if(first.getFirstValue(SCHEMA) == null) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString
+      val publicFormats = if(first.getFieldValues(PUBLIC_SCHEMAS) == null) first.getFieldValues("delving_publicFormats").asScala.map(_.toString).toSeq else first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
       Some(
         first.getFirstValue(HUB_ID).toString,
-        if(first.getFirstValue(SCHEMA) == null) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString, // legacy support
-        first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
+        currentFormat, // legacy support
+        publicFormats
       )
     }
   }
@@ -330,7 +335,7 @@ object SolrQueryService extends SolrServer {
   def createRandomSortKey : String = "random_%d".format(createRandomNumber)
 
   def createBreadCrumbList(chQuery: CHQuery) : List[BreadCrumb] = {
-    import collection.mutable.ListBuffer
+    import scala.collection.mutable.ListBuffer
     val solrQueryString = chQuery.solrQuery.getQuery
     val hrefBuilder = new ListBuffer[String]()
     hrefBuilder append (QUERY_PROMPT + encode(solrQueryString))
