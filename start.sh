@@ -8,5 +8,4 @@ echo ==========================================
 echo
 echo
 export _JAVA_OPTIONS="-Dconfig.file=`pwd`/conf/production.conf -Xms256M -Xmx1024M"
-../play-2.0/play clean
 ../play-2.0/play start &
