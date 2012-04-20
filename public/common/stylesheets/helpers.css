@@ -420,6 +420,11 @@ form.data-set {
     margin-left: -17px;
 }
 
+label .label {
+    margin-left: 5px;
+    vertical-align: baseline;
+    font-weight: normal;
+}
 
 form.form-delving label {
     font-weight: bold;
