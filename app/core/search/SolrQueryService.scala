@@ -27,6 +27,7 @@ import play.api.mvc.RequestHeader
 import util.Constants
 import collection.immutable.{Map, List}
 import org.apache.commons.lang.StringEscapeUtils
+import scala.Predef._
 
 /**
  *
@@ -286,7 +287,7 @@ object SolrQueryService extends SolrServer {
       val first = response.getResults.get(0)
       Some(
         first.getFirstValue(HUB_ID).toString,
-        first.getFirstValue(SCHEMA).toString,
+        if(first.getFirstValue(SCHEMA).toString.isEmpty) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString, // legacy support
         first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
       )
     }
