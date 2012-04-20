@@ -11,10 +11,9 @@ import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
 import collection.mutable.{MultiMap, HashMap}
-import play.libs.XPath
-import scala.collection
 import org.w3c.dom.Node
 import models._
+import play.libs.XPath
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -49,18 +48,22 @@ object DataSetProcessor {
       None
     }
 
-    val summaryFormat: Option[RecordDefinition] = if(indexingFormat.isDefined) {
+    val summaryFormat: Option[RecordDefinition] = if (indexingFormat.isDefined) {
       indexingFormat
     } else {
       formats.headOption
     }
 
+    // update processing state of DataSet
+    DataSet.updateState(dataSet, DataSetState.PROCESSING)
+
     val now = System.currentTimeMillis()
 
     log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formats.map(_.prefix).mkString(", "), indexingFormat.map(_.prefix).getOrElse("NONE!")))
 
-    for(format <- formats) {
+    for (format <- formats) {
 
+      if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
         val mapping = dataSet.mappings(format.prefix)
 
         // TODO re-introduce later
@@ -80,9 +83,6 @@ object DataSetProcessor {
               (targetPrefix -> new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
           }).toMap[String, MappingEngine]
 
-          // update processing state of DataSet
-          DataSet.updateState(dataSet, DataSetState.PROCESSING)
-
           // drop previous index
           if (indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix) {
             IndexingService.deleteBySpec(orgId, spec)
@@ -96,110 +96,115 @@ object DataSetProcessor {
           log.info("Processing %s valid records for format %s".format(recordCount, format.prefix))
 
           try {
-            for(record <- records) {
+            for (record <- records) {
 
-                // update state
-                if (records.numSeen % 100 == 0) {
-                  DataSet.updateIndexingCount(dataSet, records.numSeen)
-                }
+              // update state
+              if (records.numSeen % 100 == 0) {
+                DataSet.updateIndexingCount(dataSet, records.numSeen)
+              }
 
-                if (records.numSeen % 2000 == 0) {
-                  log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-                }
+              if (records.numSeen % 2000 == 0) {
+                log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
+              }
 
-                val mainMappingResult = engine.toNode(record.getRawXmlString)
+              val mainMappingResult = engine.toNode(record.getRawXmlString)
 
-                // cache mapping result
-                DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
+              // cache mapping result
+              DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult))
 
-                // extract summary fields
-                val summaryFields = summaryFormat.map { sf => extractSummaryFields(sf, mainMappingResult, javaNamespaces) }
+              // extract summary fields
+              val summaryFields = summaryFormat.map {
+                sf => extractSummaryFields(sf, mainMappingResult, javaNamespaces)
+              }
 
-                // cache summary fields in mongo for the hub
-                if(summaryFields.isDefined) {
-                  val mappedSummaryFields = summaryFields.get
+              // cache summary fields in mongo for the hub
+              if (summaryFields.isDefined) {
+                val mappedSummaryFields = summaryFields.get
 
-                  // set SummaryFields required by the hub, result of processing
-                  val hubSummaryFields = Map(
-                    SPEC -> spec,
-                    RECORD_TYPE -> MDR,
-                    VISIBILITY -> Visibility.PUBLIC.value,
-                    MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                    HAS_DIGITAL_OBJECT -> (mappedSummaryFields.get(THUMBNAIL).isDefined && mappedSummaryFields.get(THUMBNAIL).get.size > 0 && mappedSummaryFields.get(THUMBNAIL).get.head.length > 0)
-                  )
+                // set SummaryFields required by the hub, result of processing
+                val hubSummaryFields = Map(
+                  SPEC -> spec,
+                  RECORD_TYPE -> MDR,
+                  VISIBILITY -> Visibility.PUBLIC.value,
+                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+                  HAS_DIGITAL_OBJECT -> (mappedSummaryFields.get(THUMBNAIL).isDefined && mappedSummaryFields.get(THUMBNAIL).get.size > 0 && mappedSummaryFields.get(THUMBNAIL).get.head.length > 0)
+                )
 
-                  // use only the first value for the moment
-                  val singleMappedSummaryFields = mappedSummaryFields.map(f => (f._1, f._2.headOption.getOrElse("")))
+                // use only the first value for the moment
+                val singleMappedSummaryFields = mappedSummaryFields.map(f => (f._1, f._2.headOption.getOrElse("")))
 
-                  recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (singleMappedSummaryFields ++ hubSummaryFields).asDBObject))
-                }
+                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("summaryFields" -> (singleMappedSummaryFields ++ hubSummaryFields).asDBObject))
+              }
 
-                // if the current format is the to be indexed one, send the record out for indexing
-                if (indexingFormat == Some(format)) {
+              // if the current format is the to be indexed one, send the record out for indexing
+              if (indexingFormat == Some(format)) {
 
-                  val indexDocument = engine.toIndexDocument(record.getRawXmlString)
+                val indexDocument = engine.toIndexDocument(record.getRawXmlString)
 
-                  // append summary fields
-                  if(summaryFields.isDefined) {
-                    summaryFields.get.foreach {
-                      sf => sf._2.foreach {
-                        value => indexDocument.put(sf._1, value)
-                      }
-                    }
-                  }
-
-                  // append search fields
-                  val searchFields = extractSearchFields(format, mainMappingResult, javaNamespaces)
-                  searchFields.foreach {
+                // append summary fields
+                if (summaryFields.isDefined) {
+                  summaryFields.get.foreach {
                     sf => sf._2.foreach {
                       value => indexDocument.put(sf._1, value)
                     }
                   }
-
-                  Indexing.indexOne(dataSet, record, Some(indexDocument), format.prefix)
-
                 }
 
-
-                // also cache the result of possible crosswalks
-                if (!crosswalkEngines.isEmpty) {
-                  val firstPassRecord = XmlSerializer.toXml(engine.toNode(record.getRawXmlString))
-                  for (c <- crosswalkEngines) {
-                    val transformed = c._2.toNode(firstPassRecord)
-                    DataSet.cacheMappedRecord(dataSet, record, c._1, XmlSerializer.toXml(transformed))
+                // append search fields
+                val searchFields = extractSearchFields(format, mainMappingResult, javaNamespaces)
+                searchFields.foreach {
+                  sf => sf._2.foreach {
+                    value => indexDocument.put(sf._1, value)
                   }
+                }
+
+                Indexing.indexOne(dataSet, record, Some(indexDocument), format.prefix)
+
+              }
+
+
+              // also cache the result of possible crosswalks
+              if (!crosswalkEngines.isEmpty) {
+                val firstPassRecord = XmlSerializer.toXml(engine.toNode(record.getRawXmlString))
+                for (c <- crosswalkEngines) {
+                  val transformed = c._2.toNode(firstPassRecord)
+                  DataSet.cacheMappedRecord(dataSet, record, c._1, XmlSerializer.toXml(transformed))
+                }
               }
             }
+
+            if (indexingFormat == Some(format)) {
+              DataSet.updateIndexingCount(dataSet, records.numSeen)
+            }
+            log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
+
           } catch {
             case t =>
               t.printStackTrace()
-              log.error("Error during processing of DataSet %s".format(spec), t)
+              log.error("Error while processing records for format %s of DataSet %s".format(format.prefix, spec), t)
               DataSet.updateState(dataSet, DataSetState.ERROR)
-
-
           }
-          // finally, update the processing state again
-          DataSet.getState(spec, orgId) match {
-            case DataSetState.PROCESSING =>
-              log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-              DataSet.updateIndexingCount(dataSet, records.numSeen)
-              DataSet.updateState(dataSet, DataSetState.ENABLED)
-              Indexing.commit()
-            case s@_ =>
-              log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
-              DataSet.updateState(dataSet, DataSetState.ERROR)
-              if (indexingFormat == Some(format.prefix)) {
-                log.info("Deleting DataSet %s from SOLR".format(spec))
-                IndexingService.deleteBySpec(orgId, spec)
-              }
-          }
-
         } else {
           log.warn("No mapping found for format %s, skipping its processing".format(format.prefix))
         }
-    }
-    log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
 
+        // finally, update the processing state again
+        DataSet.getState(spec, orgId) match {
+          case DataSetState.PROCESSING =>
+            DataSet.updateState(dataSet, DataSetState.ENABLED)
+            Indexing.commit()
+          case s@_ =>
+            log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
+            DataSet.updateState(dataSet, DataSetState.ERROR)
+            if (indexingFormat == Some(format.prefix)) {
+              log.info("Deleting DataSet %s from SOLR".format(spec))
+              IndexingService.deleteBySpec(orgId, spec)
+            }
+        }
+      }
+    }
+
+    log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
   }
 
   private def extractSummaryFields(sf: RecordDefinition, node: Node, javaNamespaces: java.util.Map[String, String]) = {

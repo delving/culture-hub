@@ -44,7 +44,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       case _ => throw new RuntimeException("Should not be here")
     }
     try {
-      callInvocation.await.fold(t => None, r => { println(path + " " + r.status); Some(r) })
+      callInvocation.await.fold(t => None, r => Some(r))
     } catch {
       case timeout: TimeoutException =>
         // retry
