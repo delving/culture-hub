@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.DelvingController
+import controllers._
 import play.api.mvc._
 import extensions.JJson
 import scala.xml.Elem
@@ -18,12 +18,20 @@ import collection.immutable.ListMap
 
 object Api extends DelvingController {
 
-  def explanations(orgId: String, path: String) = path.split("/").drop(1).toList match {
-    case Nil => Api.api(orgId)
-    case "proxy" :: Nil => renderExplanation(Proxy.explainProxy)
-    case "proxy" :: proxyKey :: "search" :: Nil => renderExplanation(Proxy.explainProxySearch)
-
-    case _ => noDocumentation(orgId, path)
+  def explanations(orgId: String, path: String): Action[AnyContent] = {
+    val pathList = path.split("/").drop(1).toList
+    if(pathList.isEmpty) {
+      api(orgId)
+    } else {
+      val explanation = pathList(0) match {
+        case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
+        case _ => return noDocumentation(orgId, path)
+      }
+      explanation match {
+        case Some(e) => renderExplanation(e)
+        case None => noDocumentation(orgId, path)
+      }
+    }
   }
 
   /**
@@ -93,7 +101,7 @@ object Api extends DelvingController {
   }
 
 
-  private def renderExplanation(explanation: ApiDescription) = Action {
+  private def renderExplanation(explanation: Description) = Action {
     implicit request =>
       if(wantsXml) {
         Ok(explanation.toXml)
@@ -101,24 +109,20 @@ object Api extends DelvingController {
         Ok(JJson.generate(explanation.toJson)).as(JSON)
       }
   }
-
-  private def renderExplanation(explanation: ApiCallDescription) = Action {
-    implicit request =>
-      if(wantsXml) {
-        Ok(explanation.toXml)
-      } else {
-        Ok(JJson.generate(explanation.toJson)).as(JSON)
-      }
-  }
-
 
 }
 
-case class ApiDescription(description: String, apiItems: List[ApiItem]) {
-  def toXml(implicit request: RequestHeader) = <explain>
-                <description>{description}</description>
-                <api-list>{apiItems.map(_.toXml)}</api-list>
-              </explain>
+abstract class Description {
+  def toXml(implicit request: RequestHeader)
+  def toJson(implicit request: RequestHeader)
+}
+
+case class ApiDescription(description: String, apiItems: List[ApiItem]) extends Description {
+  def toXml(implicit request: RequestHeader) =
+    <explain>
+      <description>{description}</description>
+      <api-list>{apiItems.map(_.toXml)}</api-list>
+    </explain>
 
   def toJson(implicit request: RequestHeader) = Map(
     "description" -> description,
@@ -126,11 +130,12 @@ case class ApiDescription(description: String, apiItems: List[ApiItem]) {
   )
 }
 
-case class ApiCallDescription(description: String, explainItems: List[ExplainItem]) {
-  def toXml(implicit request: RequestHeader) = <explain>
-                <description>{description}</description>
-                <parameters>{explainItems.map(_.toXml)}</parameters>
-              </explain>
+case class ApiCallDescription(description: String, explainItems: List[ExplainItem]) extends Description {
+  def toXml(implicit request: RequestHeader) =
+    <explain>
+      <description>{description}</description>
+      <parameters>{explainItems.map(_.toXml)}</parameters>
+    </explain>
 
   def toJson(implicit request: RequestHeader) = Map(
     "description" -> description,

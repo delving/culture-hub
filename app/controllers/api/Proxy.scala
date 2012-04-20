@@ -1,11 +1,12 @@
 package controllers.api
 
-import play.api.mvc._
 import controllers.DelvingController
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
+import controllers.api.Api._
+import play.api.mvc._
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.
@@ -17,15 +18,21 @@ object Proxy extends DelvingController {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn)
 
-  def explainProxy = ApiDescription("The Proxy API provides a uniform API for querying accross various search APIs", List(
-    ApiItem("list", "Lists all available proxies"),
-    ApiItem("<proxyKey>/search", "Search via the selected proxy", "wikipedia.en/search?query=test"),
-    ApiItem("<proxyKey>/item/<itemKey>", "Retrieve an item by identifier via the selected proxy", "wikipedia.en/item/bla")
-  ))
-
-  def explainProxySearch = ApiCallDescription("Runs a search using a specific proxy", List(
-    ExplainItem("query", List("a string") , "the search term")
-  ))
+  def explain(path: List[String]) = path match {
+    case "proxy" :: Nil =>
+      Some(
+        ApiDescription("The Proxy API provides a uniform API for querying accross various search APIs", List(
+          ApiItem("list", "Lists all available proxies"),
+          ApiItem("<proxyKey>/search", "Search via the selected proxy", "wikipedia.en/search?query=test"),
+          ApiItem("<proxyKey>/item/<itemKey>", "Retrieve an item by identifier via the selected proxy", "wikipedia.en/item/bla")
+        )))
+    case "proxy" :: proxyKey :: "search" :: Nil => Some(
+      ApiCallDescription("Runs a search using a specific proxy", List(
+          ExplainItem("query", List("a string") , "the search term")
+      ))
+    )
+    case _ => None
+  }
 
   def list(orgId: String) = Root {
     Action {
