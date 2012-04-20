@@ -287,7 +287,7 @@ object SolrQueryService extends SolrServer {
       val first = response.getResults.get(0)
       Some(
         first.getFirstValue(HUB_ID).toString,
-        if(first.getFirstValue(SCHEMA).toString.isEmpty) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString, // legacy support
+        if(first.getFirstValue(SCHEMA) == null) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString, // legacy support
         first.getFieldValues(PUBLIC_SCHEMAS).asScala.map(_.toString).toSeq
       )
     }
