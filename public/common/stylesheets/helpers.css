@@ -488,6 +488,34 @@ form.form-delving label.radio {
     border-left-width: 0;
 }
 
+/* bootstrap labels extra */
+
+/*.label {*/
+    /*padding: 1px 4px 2px;*/
+    /*font-size: 10.998px;*/
+    /*font-weight: bold;*/
+    /*line-height: 13px;*/
+    /*color: #ffffff;*/
+    /*vertical-align: middle;*/
+    /*white-space: nowrap;*/
+    /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);*/
+    /*background-color: #999999;*/
+    /*-webkit-border-radius: 3px;*/
+    /*-moz-border-radius: 3px;*/
+    /*border-radius: 3px;*/
+/*}*/
+/*.label:hover {*/
+    /*color: #ffffff;*/
+    /*text-decoration: none;*/
+/*}*/
+.label-contrast {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #000;
+    text-shadow: none;
+    vertical-align: baseline;
+}
+
 /*---------------------------------
 	TINY_MCE overrides
 -----------------------------------*/

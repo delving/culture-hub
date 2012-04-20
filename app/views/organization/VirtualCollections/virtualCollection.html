@@ -3,6 +3,7 @@
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 #{/set}
 
 #{set 'moreCss'}
@@ -18,6 +19,50 @@
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
 
+<div class="accordion" id="instructions">
+    <div class="accordion-group">
+        <div class="accordion-heading  clearfix">
+            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
+                <i class="icon-question-sign"></i> &{'org.vc.help.toggle'}
+            </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse">
+            <div class="accordion-inner">
+
+                <div class="tabbable">
+
+                    <ul class="nav nav-pills">
+                        <li class="active"><a href="#fields" data-toggle="tab">&{'org.vc.help.fields.tab'}</a></li>
+                        <li><a href="#queries" data-toggle="tab">&{'org.vc.help.queries.tab'}</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="fields">
+                            <dl>
+                                <dt>&{'thing.name'}</dt>
+                                <dd>&{'org.vc.help.fields.name.info'}</dd>
+                                <dt>&{'org.vc.spec'}</dt>
+                                <dd>&{'org.vc.help.fields.identifier.info'}</dd>
+                                <dt>&{'thing.datasets'}</dt>
+                                <dd>&{'org.vc.help.fields.datasets.info'}</dd>
+                                <dt>&{'org.vc.query'}</dt>
+                                <dd>&{'org.vc.help.fields.query.info'}</dd>
+                                <dt>&{'org.vc.excludedIds'}</dt>
+                                <dd>&{'org.vc.help.fields.excludedHubIds.info'}</dd>
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="queries">
+                            <p>
+                            &{'org.vc.help.queries.info'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="span6">
 
@@ -26,8 +71,9 @@
 
         <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
-            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true /}
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
+            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
+                extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
             #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false/}
@@ -39,7 +85,7 @@
             <div class="well">
             #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
-            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success btn-large pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
             </div>
         </form>
@@ -75,13 +121,15 @@
                     <div class="resultItem media">
                         <div class="img clip clip-40">
                             <!-- ko if: typeof delving_thumbnail !== 'undefined' -->
-                            <img data-bind="attr: { src: delving_thumbnail }" width="40" onerror="showDefaultImg(this);"/>
+                            <img data-bind="attr: { src: delving_thumbnail }" width="60" onerror="showDefaultImg(this);"/>
                             <!-- /ko -->
                         </div>
+
                         <div class="bd">
                             <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>
                             <strong>Provider:</strong> <span data-bind="text: delving_spec"></span><br/>
-                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span>
+                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span><br/>
+                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
                         </div>
                     </div>
                 </div>
@@ -100,9 +148,14 @@
             initialized:false,
             paginate:function (start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
+            },
+            exclude:function (excludeMe) {
+                $('#excludedIdentifiers').val($('#excludedIdentifiers').val() + ',' +excludeMe);
             }
 
         };
+
+
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
@@ -117,6 +170,7 @@
                 search(query, '${orgId}', 1);
             }
             $("body").css('visibility', 'visible');
+
         });
 
         $('#previewButton').click(function (event) {
@@ -187,6 +241,27 @@
                 }
             });
         }
+
+        $('.autoGen').click(function(){
+            var source = $(this).attr('data-source');
+            var destination = $(this).attr('data-destination');
+            var genError = $(this).attr('data-error');
+            $(this).next('.error').html("");
+            var keyFromTitle = $(source).val().trim().replace(/\s+/g, '-').toLowerCase();
+            if (keyFromTitle == '') {
+                $(this).next('.error').html(genError);
+            }
+            $(destination).val(keyFromTitle);
+        });
+
+//        function exclude() {
+//            alert('foo');
+//        }
+//
+//        $("a.exclude").click(function (event){
+//            alert('foo');
+////            alert($(this).attr('data-exclude'));
+//        });
 
     });
 </script>
