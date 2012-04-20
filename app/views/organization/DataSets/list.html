@@ -157,7 +157,7 @@
                          <script type="text/javascript">
                              $('#description${i.spec}').smartupdater({
                                  url: "/organizations/${orgId}/dataset/${i.spec}/state",
-                                 minTimeout: 2000
+                                 minTimeout: 5000
                              }, function (data) {
                                  var d = $.parseJSON(data);
                                  if (d.state == '${models.DataSetState.PROCESSING().name()}' || d.state == '${models.DataSetState.ERROR().name()}') {
