@@ -137,7 +137,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val stateData = dataSetsCollection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
       MongoDBObject("state" -> 1)
-    ).getOrElse(return DataSetState.ERROR)
+    ).getOrElse(return DataSetState.NOTFOUND)
 
     val name = stateData.getAs[DBObject]("state").get("name").toString
 
@@ -401,9 +401,10 @@ object DataSetState {
   val ENABLED = DataSetState("enabled")
   val DISABLED = DataSetState("disabled")
   val ERROR = DataSetState("error")
+  val NOTFOUND = DataSetState("notfound")
   def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
   def valid(name: String) = values.contains(DataSetState(name))
-  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR)
+  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR, NOTFOUND)
 }
 
 case class RecordSep(pre: String, label: String, path: Path = Path.create())
