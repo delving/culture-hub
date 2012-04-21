@@ -221,7 +221,7 @@ object DataSetProcessor {
     val extractedSearchFields = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
     for (searchField: SearchField <- sf.searchFields) {
       val value = XPath.selectText(searchField.xpath, node, javaNamespaces)
-      extractedSearchFields.put(searchField.name + "_" + searchField.dataType, value)
+      extractedSearchFields.put(searchField.name + "_" + searchField.fieldType, value)
     }
     extractedSearchFields
   }
