@@ -280,17 +280,19 @@ object SolrQueryService extends SolrServer {
 
   def resolveHubIdAndFormat(id: String, idType: String): Option[(String, String, Seq[String])] = {
     val t = DelvingIdType(id, idType)
-    val query = new SolrQuery("%s:\"%s\"".format(t.idSearchField, t.normalisedId))
+    val solrQuery = "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
+    val query = new SolrQuery(solrQuery)
     val response = SolrQueryService.getSolrResponseFromServer(query)
     if(response.getResults.size() == 0) {
+      Logger("Search").info("Didn't find record for query %s".format(solrQuery))
       None
     } else {
       val first = response.getResults.get(0)
       val currentFormat = if(first.getFirstValue(SCHEMA) == null) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString
-      val publicFormats = if(first.getFieldValues(ALL_SCHEMAS) == null) first.getFieldValues("delving_publicFormats").asScala.map(_.toString).toSeq else first.getFieldValues(ALL_SCHEMAS).asScala.map(_.toString).toSeq
+      val publicFormats = if(first.getFieldValues(ALL_SCHEMAS) == null) first.getFieldValues("delving_allFormats").asScala.map(_.toString).toSeq else first.getFieldValues(ALL_SCHEMAS).asScala.map(_.toString).toSeq
       Some(
         first.getFirstValue(HUB_ID).toString,
-        currentFormat, // legacy support
+        currentFormat,
         publicFormats
       )
     }

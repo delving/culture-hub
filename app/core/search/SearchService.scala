@@ -28,6 +28,7 @@ import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import models.{RecordDefinition, MetadataRecord, PortalTheme}
 import core.rendering.{RenderedView, ViewRenderer}
+import core.search.CHQuery
 
 /**
  *
@@ -147,19 +148,20 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
         val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           Some(schema.get)
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
-          log.debug("Schema %s not available for hubId %s".format(schema.get, hubId))
+          Logger("Search").debug("Schema %s not available for hubId %s".format(schema.get, hubId))
           None
         } else {
           Some(defaultSchema)
         }
 
         if(maybePrefix.isEmpty) {
+          Logger("Search").debug("Could not find prefix for rendering of full view of record %s".format(hubId))
           None
         } else {
           val prefix = maybePrefix.get
           val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
           if(rawRecord.isEmpty) {
-            log.trace("Could not find record with format %s for hubId %s".format(prefix, hubId))
+            Logger("Search").debug("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
             None
           } else {
 
@@ -194,7 +196,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
           }
         }
       case None =>
-        log.trace("Could not find record with id %s and idType %s in SOLR".format(id, idType))
+        Logger("Search").debug("Could not find record with id %s and idType %s in SOLR".format(id, idType))
         None
     }
   }

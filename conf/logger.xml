@@ -18,6 +18,7 @@
   <logger name="play" level="INFO" />
   <logger name="application" level="INFO" />
   <logger name="CulutureHub" level="INFO" />
+  <logger name="Search" level="DEBUG" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />
