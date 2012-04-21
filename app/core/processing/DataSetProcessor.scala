@@ -127,7 +127,7 @@ object DataSetProcessor {
                   RECORD_TYPE -> MDR,
                   VISIBILITY -> Visibility.PUBLIC.value,
                   MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                  HAS_DIGITAL_OBJECT -> (mappedSummaryFields.get(THUMBNAIL).isDefined && mappedSummaryFields.get(THUMBNAIL).get.size > 0 && mappedSummaryFields.get(THUMBNAIL).get.head.length > 0)
+                  HAS_DIGITAL_OBJECT -> (mappedSummaryFields.get(THUMBNAIL).isDefined && mappedSummaryFields.get(THUMBNAIL).get.size > 0)
                 )
 
                 // use only the first value for the moment
