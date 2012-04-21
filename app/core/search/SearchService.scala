@@ -28,7 +28,6 @@ import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import models.{RecordDefinition, MetadataRecord, PortalTheme}
 import core.rendering.{RenderedView, ViewRenderer}
-import core.search.CHQuery
 
 /**
  *
@@ -37,8 +36,8 @@ import core.search.CHQuery
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): PlainResult =
-    new SearchService(request, theme, hiddenQueryFilters).getApiResult
+  def getApiResult(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): PlainResult =
+    new SearchService(orgId, request, theme, hiddenQueryFilters).getApiResult
 
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
@@ -47,7 +46,7 @@ object SearchService {
   }
 }
 
-class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
+class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
 
   import xml.PrettyPrinter
   import java.lang.String
@@ -143,7 +142,7 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
-    SolrQueryService.resolveHubIdAndFormat(id, idType) match {
+    SolrQueryService.resolveHubIdAndFormat(orgId, id, idType) match {
       case Some((hubId, defaultSchema, publicSchemas)) =>
         val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           Some(schema.get)

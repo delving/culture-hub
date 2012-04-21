@@ -41,7 +41,7 @@ object ItinEndPoint extends DelvingController with ThemeAware {
         if (!enabled) {
           Status(NOT_FOUND)
         } else {
-          SearchService.getApiResult(request, theme)
+          SearchService.getApiResult(None, request, theme)
         }
     }
   }

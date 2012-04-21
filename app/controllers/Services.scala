@@ -52,7 +52,7 @@ object Services extends DelvingController with HTTPClient {
         hiddenQueryFilters += "%s:%s".format(Constants.SPEC, collection.get)
       }
 
-      val apiResult = SearchService.getApiResult(request, theme, hiddenQueryFilters.toList)
+      val apiResult = SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
 
       // CORS - see http://www.w3.org/TR/cors/
       apiResult.withHeaders(

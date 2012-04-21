@@ -17,7 +17,6 @@ package core.search
  */
 
 import models.PortalTheme
-import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import _root_.util.Constants._
 import scala.collection.JavaConverters._
@@ -29,6 +28,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import scala.Predef._
 import scala._
 import collection.immutable.{List, Map}
+import org.apache.solr.client.solrj.SolrQuery
 
 /**
  *
@@ -278,9 +278,13 @@ object SolrQueryService extends SolrServer {
     SolrQueryService.getSolrResponseFromServer(query)
   }
 
-  def resolveHubIdAndFormat(id: String, idType: String): Option[(String, String, Seq[String])] = {
+  def resolveHubIdAndFormat(orgId: Option[String], id: String, idType: String): Option[(String, String, Seq[String])] = {
     val t = DelvingIdType(id, idType)
-    val solrQuery = "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
+    val solrQuery = if(orgId.isDefined) {
+      "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, orgId.get)
+    } else {
+      "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
+    }
     val query = new SolrQuery(solrQuery)
     val response = SolrQueryService.getSolrResponseFromServer(query)
     if(response.getResults.size() == 0) {
