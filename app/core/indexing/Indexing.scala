@@ -159,9 +159,15 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     inputDoc.addField(ID, record.hubId)
 
     val uriWithTypeSuffix = EUROPEANA_URI + "_string"
+    val uriWithTextSuffix = EUROPEANA_URI + "_text"
     if (inputDoc.containsKey(uriWithTypeSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTypeSuffix)
+      inputDoc.addField(EUROPEANA_URI, uriValue)
+    }
+    else if (inputDoc.contains(uriWithTextSuffix)) {
+      val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
+      inputDoc.remove(uriWithTextSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
 
