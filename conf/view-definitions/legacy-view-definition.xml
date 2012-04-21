@@ -18,12 +18,12 @@
                 <attr prefix="xmlns" name="itin" value="http://www.itin.nl/namespace" />
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
+                <list name="fields" path="//*[local-name()='record']/*">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/root/*[namespace-uri() != 'http://www.delving.eu/schemas/']">
+                <list name="fields" path="//*[local-name()='record']/*">
                     <auto-field/>
                 </list>
             </elem>
