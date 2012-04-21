@@ -56,7 +56,7 @@ object SolrServer {
   // allowCompression defaults to false.
   // Server side must support gzip or deflate for this to have any effect.
   solrServer.setAllowCompression(false)
-  solrServer.setMaxRetries(0)
+  solrServer.setMaxRetries(1)
   // defaults to 0.  > 1 not recommended.
 
   private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
@@ -66,7 +66,7 @@ object SolrServer {
   streamingUpdateServer.setMaxTotalConnections(100)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(0) // defaults to 0.  > 1 not recommended.
+  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
   def deleteFromSolrById(id: ObjectId): UpdateResponse = {
