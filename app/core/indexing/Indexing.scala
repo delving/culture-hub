@@ -171,7 +171,8 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
 
-    val hasDigitalObject: Boolean = !inputDoc.entrySet().filter(entry => (entry.getKey.startsWith(THUMBNAIL) || entry.getKey.equalsIgnoreCase("europeana_object")) && !entry.getValue.isEmpty).isEmpty //inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
+    val hasDigitalObject: Boolean = !inputDoc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL) && !entry.getValue.isEmpty).isEmpty //inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
+    if (inputDoc.containsKey(HAS_DIGITAL_OBJECT)) inputDoc.remove(HAS_DIGITAL_OBJECT)
     inputDoc.addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
 
     if (hasDigitalObject) inputDoc.setDocumentBoost(1.4.toFloat)
