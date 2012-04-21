@@ -180,7 +180,7 @@
                              }, function (data) {
                                  var d = $.parseJSON(data);
                                  if (d.status == 'DONE') {
-                                     $('#indexCounter${i.spec}').smartupdaterStop();
+                                     $('#indexCounter${i.spec}').smartupdater('stop');
                                      $('#indexCounter${i.spec}').progressbar("value", 100);
                                      document.location = "/organizations/${orgId}/dataset";
                                  }
