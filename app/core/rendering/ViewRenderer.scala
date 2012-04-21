@@ -430,7 +430,7 @@ case object RenderNode {
 
   def toXMLString(n: RenderNode): String = {
     val sb = new StringBuilder()
-    sb.append("<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>\n")
+    sb.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n")
     visitXml(n, 0, "", sb)
     sb.toString()
   }

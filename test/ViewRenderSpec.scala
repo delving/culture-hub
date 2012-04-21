@@ -119,7 +119,7 @@ class ViewRenderSpec extends Specification {
       println()
 
       val expected =
-"""<?xml version="1.0" encoding="iso-8859-1" ?>
+"""<?xml version="1.0" encoding="utf-8" ?>
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
       <dc:title>A test hierarchical record</dc:title>
@@ -249,7 +249,7 @@ class ViewRenderSpec extends Specification {
   private def testRecord(): String = {
 
     // test record, hierarchical
-      """<?xml version="1.0" encoding="iso-8859-1" ?>
+      """<?xml version="1.0" encoding="utf-8" ?>
       <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:icn="http://www.icn.nl/schemas/ICN-V3.2.xsd">
         <delving:summaryFields>
           <delving:title>A test hierarchical record</delving:title>
