@@ -308,7 +308,7 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         Async {
-          Promise.pure(DataSet.getState(spec, orgId).name).map {
+          Promise.pure(DataSet.getState(orgId, spec).name).map {
             response => Json(Map("state" -> response))
           }
         }
