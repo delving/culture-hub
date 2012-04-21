@@ -147,20 +147,20 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
         val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           Some(schema.get)
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
-          Logger("Search").debug("Schema %s not available for hubId %s".format(schema.get, hubId))
+          Logger("Search").info("Schema %s not available for hubId %s".format(schema.get, hubId))
           None
         } else {
           Some(defaultSchema)
         }
 
         if(maybePrefix.isEmpty) {
-          Logger("Search").debug("Could not find prefix for rendering of full view of record %s".format(hubId))
+          Logger("Search").info("Could not find prefix for rendering of full view of record %s".format(hubId))
           None
         } else {
           val prefix = maybePrefix.get
           val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
           if(rawRecord.isEmpty) {
-            Logger("Search").debug("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
+            Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
             None
           } else {
 
@@ -195,7 +195,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
           }
         }
       case None =>
-        Logger("Search").debug("Could not find record with id %s and idType %s in SOLR".format(id, idType))
         None
     }
   }

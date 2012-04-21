@@ -288,7 +288,7 @@ object SolrQueryService extends SolrServer {
     val query = new SolrQuery(solrQuery)
     val response = SolrQueryService.getSolrResponseFromServer(query)
     if(response.getResults.size() == 0) {
-      Logger("Search").info("Didn't find record for query %s".format(solrQuery))
+      Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
       None
     } else {
       val first = response.getResults.get(0)
