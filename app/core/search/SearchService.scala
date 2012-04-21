@@ -176,7 +176,9 @@ class SearchService(request: RequestHeader, theme: PortalTheme, hiddenQueryFilte
                     None
                   } else {
                     try {
-                      val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), rawRecord.get)
+                      val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
+                      log.debug(cleanRawRecord)
+                      val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
                       // TODO see what to do with roles
                       Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
                   } catch {
