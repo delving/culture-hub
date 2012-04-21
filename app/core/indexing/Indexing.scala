@@ -170,8 +170,9 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
 
     if (hasDigitalObject) inputDoc.setDocumentBoost(1.4.toFloat)
 
-    dataSet.getVisibleMetadataFormats().foreach(format => inputDoc.addField(PUBLIC_SCHEMAS, format.prefix))
-    dataSet.getAllMetadataFormats.foreach(format => inputDoc.addField("delving_allSchemas", format.prefix))
+     // FIXME some day
+//    dataSet.getVisibleMetadataFormats().foreach(format => inputDoc.addField(PUBLIC_SCHEMAS, format.prefix))
+    dataSet.getAllMetadataFormats.foreach(format => inputDoc.addField(ALL_SCHEMAS, format.prefix))
 
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 

@@ -43,6 +43,7 @@ object Constants {
 
   val SCHEMA = "delving_currentSchema"
   val PUBLIC_SCHEMAS = "delving_publicSchemas"
+  val ALL_SCHEMAS = "delving_allSchemas"
 
   // ~~~ special indexing fields
   val COLLECTIONS = "delving_userCollections"
