@@ -4,60 +4,45 @@
 
 #{breadcrumbs /}
 
-
-
-
-    <h1>&{'profile.title'}: <span>${user.userName()}</span></h1>
-    <div class="row">
-        <div class="span3">
-          #{gravatar.img user.email, size:200 /}
-        </div>
-        <div class="span3">
-                <dl>
-                    <dt>&{'ui.label.username'}:</dt>
-                    <dd>${user.userName}</dd>
-                    #{if isVisible}
-                    <dt>&{'ui.label.fullname'}:</dt>
-                    <dd>${user.fullname()}</dd>
-                    <dt>&{'profile.activesince'}:</dt>
-                    <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
-                    #{ifnot user.userProfile.description().isEmpty()}
-                    <dt>&{'user.profile.aboutYou'}:</dt>
-                    <dd>${user.userProfile.description().get()}</dd>
-                    #{/ifnot}
-                    #{/if}
-                </dl>
-        </div>
-        #{if isVisible}
-        <div class="span3">
-                *{<span class="label">&{'thing.objectcount'}:</span><span class="text"><a href="/${user.userName}/object"> ${objectsCount}</a></span>}*
-                *{<span class="label">&{'thing.collectioncount'}:</span><span class="text"><a href="/${user.userName}/collection">${collectionsCount}</a></span>}*
-                *{<span class="label">&{'thing.storycount'}:</span><span class="text"><a href="/${user.userName}/story">${storiesCount}</a></span>}*
-                <dl>
-                #{ifnot user.userProfile.funFact().isEmpty()}
-                <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
-                #{/ifnot}
-                #{ifnot user.userProfile.twitter().isEmpty()}
-                <dt>Twitter:</dt><dd><a href="http://twitter.com/${user.userProfile.twitter().get()}">${user.userProfile.twitter().get()}</a></dd>
-                #{/ifnot}
-                #{ifnot user.userProfile.linkedIn().isEmpty()}
-                <dt>LinkedIn:</dt><dd><a href="http://at.linkedin.com/in/${user.userProfile.linkedIn().get()}"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
-                #{/ifnot}
-                </dl>
-        </div>
-        #{/if}
-
-        <div class="span3">
-            #{if user.userName == userName}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary btn-prominent pull-right", href: "/" + user.userName + "/admin/profile/update" /}
-            #{/if}
-        </div>
-        *{<div class="grid_12">}*
-            *{#{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}}*
-        *{</div>}*
+<div class="row">
+    <div class="span2">
+      <p>#{gravatar.img user.email, size:200 /}</p>
+      #{if user.userName == userName}
+        <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update" /}</p>
+      #{/if}
     </div>
-
+    <div class="span9 offset1">
+        <dl class="dl-horizontal">
+            <dt>&{'ui.label.username'}:</dt>
+            <dd>${user.userName}</dd>
+            #{if isVisible}
+            <dt>&{'ui.label.fullname'}:</dt>
+            <dd>${user.fullname()}</dd>
+            <dt>&{'profile.activesince'}:</dt>
+            <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
+            #{ifnot user.userProfile.funFact().isEmpty()}
+                <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
+            #{/ifnot}
+            #{ifnot user.userProfile.twitter().isEmpty()}
+                <dt>Twitter:</dt><dd><a href="http://twitter.com/${user.userProfile.twitter().get()}">${user.userProfile.twitter().get()}</a></dd>
+            #{/ifnot}
+            #{ifnot user.userProfile.linkedIn().isEmpty()}
+                <dt>LinkedIn:</dt><dd><a href="http://at.linkedin.com/in/${user.userProfile.linkedIn().get()}"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
+            #{/ifnot}
+            #{ifnot user.userProfile.description().isEmpty()}
+                <dt>&{'user.profile.aboutYou'}:</dt>
+                <dd>${user.userProfile.description().get()}</dd>
+            #{/ifnot}
+            #{/if}
+        </dl>
+    </div>
+</div>
+*{
     #{if false}
+    <div class="grid_12">
+    #{censorship canCensor:isNodeAdmin, type:"user", userName: user.userName /}
+    </div>
+    </div>
     <div class="row">
         <div class="span4">
             <div class="widget">
@@ -109,4 +94,4 @@
         </div>
     </div>
     #{/if}
-
+}*

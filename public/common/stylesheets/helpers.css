@@ -426,13 +426,13 @@ label .label {
     font-weight: normal;
 }
 
-form.form-delving label {
+form label {
     font-weight: bold;
 }
 
-form.form-delving .controls label,
-form.form-delving label.checkbox,
-form.form-delving label.radio {
+form .controls label,
+form label.checkbox,
+form label.radio {
     font-weight: normal;
     /*color: #444;*/
 }
