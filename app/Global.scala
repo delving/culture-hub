@@ -11,7 +11,7 @@ import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
-import mvc.RequestHeader
+import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
 
@@ -92,6 +92,26 @@ object Global extends GlobalSettings {
       CacheSolrFields
     )
 
+    // routes access logger
+    val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
+    Akka.system.scheduler.schedule(
+      0 seconds,
+      3 minutes, // TODO we may have to see what is the optimal value for this
+      routeLogger,
+      PersistRouteAccess
+    )
+
+    // LATER: statistics computation
+//    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
+//    Akka.system.scheduler.schedule(
+//      0 seconds,
+//      1 minutes, // TODO increase later on!!!
+//      statsLogger,
+//      ComputeStatistics
+//    )
+
+
+
 
     // ~~~ load test data
 
@@ -126,5 +146,23 @@ object Global extends GlobalSettings {
       super.onHandlerNotFound(request)
     }
 
+  }
+
+  override def onRouteRequest(request: RequestHeader): Option[Handler] = {
+    val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
+    val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+    val matcher = apiRouteMatcher.pattern.matcher(request.uri)
+
+    if(matcher.matches()) {
+      // log route access, for API calls
+      routeLogger ! RouteRequest(request)
+
+      if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+        // redirect to the standard explain response
+        return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+      }
+    }
+
+    super.onRouteRequest(request)
   }
 }
