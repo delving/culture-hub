@@ -119,7 +119,7 @@
                 </div>
             </div>
             <hr/>
-            #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+            #{textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
             #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published", help: "Selecting this option will make this content visible" /}
             <hr/>
