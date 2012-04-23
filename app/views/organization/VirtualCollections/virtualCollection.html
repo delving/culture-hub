@@ -122,12 +122,26 @@
                             <img data-bind="attr: { src: delving_thumbnail }" width="60" onerror="showDefaultImg(this);"/>
                             <!-- /ko -->
                         </div>
-
                         <div class="bd">
+                            <!-- ko if: typeof delving_title !== 'undefined' -->
                             <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_creator !== 'undefined' -->
+                            <strong>Creator:</strong> <span data-bind="text: delving_creator"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_description !== 'undefined' -->
+                            <strong>Description:</strong> <span data-bind="text: delving_description"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_provider !== 'undefined' -->
                             <strong>Provider:</strong> <span data-bind="text: delving_spec"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_landingPage !== 'undefined' -->
+                            <strong>Landingpage:</strong> <span data-bind="text: delving_landingPage"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_hubId !== 'undefined' -->
                             <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span><br/>
                             <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
+                            <!-- /ko -->
                         </div>
                     </div>
                 </div>
@@ -153,6 +167,7 @@
                 } else {
                     virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers()  + excludeMe);
                 }
+                // make nice list of excluded hubIds
                 $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
             }
         };
@@ -170,7 +185,6 @@
                 search(query, '${orgId}', 1);
             }
             $("body").css('visibility', 'visible');
-
         });
 
         $('#previewButton').click(function (event) {
@@ -185,7 +199,6 @@
                 if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
                     dataSets = dataSets.trim().slice(0, -1)
                 }
-
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -227,7 +240,6 @@
         }
 
         function search(query, orgId, start) {
-
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;
@@ -253,6 +265,7 @@
             }
             $(destination).val(keyFromTitle);
         });
+        // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });
 </script>
