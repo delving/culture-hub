@@ -16,7 +16,7 @@ object SystemField {
 
   val values = List(TITLE, DESCRIPTION, OWNER, CREATOR, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, SPEC)
 
-  def valueOf(name: String) = values.find(v => v.name == name).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
+  def valueOf(name: String) = values.find(v => v.name.toUpperCase == name.toUpperCase.replaceAll("_", "")).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
 
   object TITLE extends SystemField("title")
   object DESCRIPTION extends SystemField("description")
