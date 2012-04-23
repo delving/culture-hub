@@ -568,7 +568,7 @@ Delving.wysiwyg = function (params) {
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
-        cleanup_callback : "cmsCleanUp",
+//        cleanup_callback : "cmsCleanUp",
         valid_child_elements: "ul[li],ol[li]",
         theme_advanced_buttons1 : "cleanup,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code,template",
         theme_advanced_buttons2: "",
