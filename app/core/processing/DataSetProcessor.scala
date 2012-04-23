@@ -134,7 +134,10 @@ object DataSetProcessor {
               // if the current format is the to be indexed one, send the record out for indexing
               if (isIndexingFormat) {
                 val fields: Map[String, List[Any]] = mainMappingResult.allFields()
-                Indexing.indexOne(dataSet, record, fields ++ renamedSystemFields, format.prefix)
+                // remove the SystemFields that have the wrong name
+                val filteredFields = fields.filterNot(f => mainMappingResult.systemFields().keySet().contains(f._1))
+
+                Indexing.indexOne(dataSet, record, filteredFields ++ renamedSystemFields, format.prefix)
               }
 
 
