@@ -3,10 +3,10 @@ package controllers.api
 import controllers._
 import play.api.mvc._
 import extensions.JJson
-import scala.xml.Elem
 import scala.Predef._
 import scala._
 import collection.immutable.ListMap
+import xml.{NodeSeq, Elem}
 
 /**
  * The API documentation
@@ -113,8 +113,8 @@ object Api extends DelvingController {
 }
 
 abstract class Description {
-  def toXml(implicit request: RequestHeader)
-  def toJson(implicit request: RequestHeader)
+  def toXml(implicit request: RequestHeader): NodeSeq
+  def toJson(implicit request: RequestHeader): Map[String, Any]
 }
 
 case class ApiDescription(description: String, apiItems: List[ApiItem]) extends Description {
