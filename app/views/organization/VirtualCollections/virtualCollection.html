@@ -75,7 +75,7 @@
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
-            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
+            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
             #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
             <div class="row">
@@ -96,8 +96,8 @@
         <div class="panel">
             <div id="previewList" style="visibility: hidden">
                 <div id="querySummary">
-                    Query: <span data-bind="text: query.terms()"> </span>,
-                    Results found: <span data-bind="text: query.numfound()"> </span>
+                    *{Query: <span data-bind="text: query.terms()"> </span>,}*
+                    <h6>Results found: <span data-bind="text: query.numfound()"> </span></h6>
                 </div>
                 <div class="pagination">
                     <ul data-bind="foreach: pagination.links()">
