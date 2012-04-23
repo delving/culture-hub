@@ -355,17 +355,18 @@ li.token-input-input-token input[type='text'] {
 }
 
 .table.sortable th.sort {
-    background: url(/assets/common/images/sortable.gif) 100% 50% no-repeat;
+    background: url(/assets/common/images/sortable.gif) 0% 50% no-repeat;
     /*border-right: 1px solid #f1f1f1;*/
     cursor: pointer;
+    padding-left: 21px;
 }
 
 .table.sortable th.sort.headerSortUp{
-   background: #f1f1f1 url(/assets/common/images/sortable-asc.gif) 100% 50%  no-repeat;
+   background: #f1f1f1 url(/assets/common/images/sortable-asc.gif) 0% 50%  no-repeat;
 }
 
 .table.sortable th.sort.headerSortDown{
-    background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 100% 50%  no-repeat;
+    background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 0% 50%  no-repeat;
 }
 
 /* addThis widgets */
