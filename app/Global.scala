@@ -96,19 +96,19 @@ object Global extends GlobalSettings {
     val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
     Akka.system.scheduler.schedule(
       0 seconds,
-      1 minutes, // increase later on?
+      3 minutes, // TODO we may have to see what is the optimal value for this
       routeLogger,
       PersistRouteAccess
     )
 
-    // statistics computation
-    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      1 minutes, // TODO increase later on!!!
-      statsLogger,
-      ComputeStatistics
-    )
+    // LATER: statistics computation
+//    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
+//    Akka.system.scheduler.schedule(
+//      0 seconds,
+//      1 minutes, // TODO increase later on!!!
+//      statsLogger,
+//      ComputeStatistics
+//    )
 
 
 
