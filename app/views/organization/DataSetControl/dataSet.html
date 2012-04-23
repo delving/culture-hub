@@ -16,9 +16,7 @@
                 <div class="row">
                     <div class="span6">
 
-                        *{<h3>&{'organization.dataset.info'}</h3>}*
                         #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
-
 
                         %{for(i in 0..factDefinitions.size() - 1) {
                             def factDef = factDefinitions.apply(i);
@@ -49,15 +47,13 @@
 
                     </div>
                     <div class="span6">
-                        *{<h3>Target Record Definitions</h3>}*
-                            <div class="control-group">
-                                <label class="control-label">Target Record Definitions</label>
-
+                        <div class="control-group">
+                            <label class="control-label">Target Record Definitions</label>
                             <div class="controls">
-                        <table class="table">
-                            <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
-                            <tbody>
-                            #{list recordDefinitions, as: 'recordDef'}
+                                <table class="table">
+                                <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
+                                <tbody>
+                                #{list recordDefinitions, as: 'recordDef'}
                             <tr>
                                 <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
                                 <td align="left">
@@ -75,12 +71,10 @@
                                 </td>
                             </tr>
                             #{/list}
-                            </tbody>
-                        </table>
+                                </tbody>
+                                </table>
                             </div>
-                            </div>
-                        *{<h3>Indexing Mapping Record Definition</h3>}*
-
+                        </div>
                         <div class="control-group">
                             <label class="control-label">Indexing Mapping Record Definition</label>
                             <div class="controls">
@@ -92,7 +86,7 @@
                         <hr/>
                         <div class="well">
                             <div class="row">
-                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success span4", iconClass:"icon-ok-circle icon-white"/}
+                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white"/}
                                 <button type="reset" class="btn pull-right">Reset</button>
                             </div>
                         </div>

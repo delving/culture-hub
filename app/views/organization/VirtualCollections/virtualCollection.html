@@ -3,19 +3,65 @@
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 #{/set}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen"
-      href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
 #{/set}
+
 #{set bodyId: 'organization' /}
+
+*{** Create a comma separated list of available Datasets to use for typeAhead **}*
+#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
 
-#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
+<div class="accordion" id="instructions">
+    <div class="accordion-group">
+        <div class="accordion-heading  clearfix">
+            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
+                <i class="icon-question-sign"></i> &{'org.vc.help.toggle'}
+            </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse">
+            <div class="accordion-inner">
+
+                <div class="tabbable">
+
+                    <ul class="nav nav-pills">
+                        <li class="active"><a href="#fields" data-toggle="tab">&{'org.vc.help.fields.tab'}</a></li>
+                        <li><a href="#queries" data-toggle="tab">&{'org.vc.help.queries.tab'}</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="fields">
+                            <dl>
+                                <dt>&{'thing.name'}</dt>
+                                <dd>&{'org.vc.help.fields.name.info'}</dd>
+                                <dt>&{'org.vc.spec'}</dt>
+                                <dd>&{'org.vc.help.fields.identifier.info'}</dd>
+                                <dt>&{'thing.datasets'}</dt>
+                                <dd>&{'org.vc.help.fields.datasets.info'}</dd>
+                                <dt>&{'org.vc.query'}</dt>
+                                <dd>&{'org.vc.help.fields.query.info'}</dd>
+                                <dt>&{'org.vc.excludedIds'}</dt>
+                                <dd>&{'org.vc.help.fields.excludedHubIds.info'}</dd>
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="queries">
+                            <p>
+                            &{'org.vc.help.queries.info'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="span6">
@@ -25,11 +71,12 @@
 
         <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
-            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true /}
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", required: true /}
+            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
+                extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
-            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
-            #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false/}
+            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
+            #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
             <div class="row">
                 #{btnButton label: messages.get('ui.label.preview'), extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
@@ -38,7 +85,7 @@
             <div class="well">
             #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
-            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success btn-large pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
             </div>
         </form>
@@ -49,38 +96,52 @@
         <div class="panel">
             <div id="previewList" style="visibility: hidden">
                 <div id="querySummary">
-                    Query: <span data-bind="text: query.terms()"> </span>,
-                    Results found: <span data-bind="text: query.numfound()"> </span>
+                    *{Query: <span data-bind="text: query.terms()"> </span>,}*
+                    <h6>Results found: <span data-bind="text: query.numfound()"> </span></h6>
                 </div>
-
-
-                    <div class="pagination">
-                        <ul data-bind="foreach: pagination.links()">
-                            <!-- ko if: $data.isLinked() -->
-                            <li>
-                                <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
-                            </li>
-                            <!-- /ko -->
-                            <!-- ko ifnot: $data.isLinked() -->
-                            <li class="active">
-                                <a href="#" data-bind="text: $data.pageNumber()"></a>
-                            </li>
-                            <!-- /ko -->
-                        </ul>
-                    </div>
-                    <hr/>
+                <div class="pagination">
+                    <ul data-bind="foreach: pagination.links()">
+                        <!-- ko if: $data.isLinked() -->
+                        <li>
+                            <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
+                        </li>
+                        <!-- /ko -->
+                        <!-- ko ifnot: $data.isLinked() -->
+                        <li class="active">
+                            <a href="#" data-bind="text: $data.pageNumber()"></a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+                <hr/>
 
                 <div id="results" data-bind="foreach: items()">
                     <div class="resultItem media">
-                        <div class="img clip clip-40">
+                        <div class="img">
                             <!-- ko if: typeof delving_thumbnail !== 'undefined' -->
-                            <img data-bind="attr: { src: delving_thumbnail }" width="40" onerror="showDefaultImg(this);"/>
+                            <img data-bind="attr: { src: delving_thumbnail }" width="60" onerror="showDefaultImg(this);"/>
                             <!-- /ko -->
                         </div>
                         <div class="bd">
+                            <!-- ko if: typeof delving_title !== 'undefined' -->
                             <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_creator !== 'undefined' -->
+                            <strong>Creator:</strong> <span data-bind="text: delving_creator"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_description !== 'undefined' -->
+                            <strong>Description:</strong> <span data-bind="text: delving_description"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_provider !== 'undefined' -->
                             <strong>Provider:</strong> <span data-bind="text: delving_spec"></span><br/>
-                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_landingPage !== 'undefined' -->
+                            <strong>Landingpage:</strong> <span data-bind="text: delving_landingPage"></span><br/>
+                            <!-- /ko -->
+                            <!-- ko if: typeof delving_hubId !== 'undefined' -->
+                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span><br/>
+                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
+                            <!-- /ko -->
                         </div>
                     </div>
                 </div>
@@ -95,12 +156,20 @@
 
         var virtualCollectionModel = {};
         var resultModel = {
-
             initialized:false,
             paginate:function (start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
+            },
+            exclude:function (excludeMe) {
+                var exList = $('#excludedIdentifiers');
+                if (!isEmpty(exList.val())){
+                    virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers() + ", " + excludeMe);
+                } else {
+                    virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers()  + excludeMe);
+                }
+                // make nice list of excluded hubIds
+                $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
             }
-
         };
 
         $('#saveButton').click(function (event) {
@@ -130,7 +199,6 @@
                 if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
                     dataSets = dataSets.trim().slice(0, -1)
                 }
-
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -138,7 +206,10 @@
                         if (initial) {
                             dataSetCondition = dataSetCondition + '(';
                         }
-                        dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim() + ' ';
+                        dataSetCondition = dataSetCondition + 'delving_spec:' + el.trim();
+                        if (index < dataSetList.length -1) {
+                            dataSetCondition = dataSetCondition + ' OR '
+                        }
                         if (index == dataSetList.length - 1) {
                             dataSetCondition = dataSetCondition + ')';
                         }
@@ -151,6 +222,7 @@
                 $.each(excludedIdsList, function (index, el) {
                     if (el.length > 0) {
                         var initial = excludedIdentifiersCondition.length == 0;
+
                         if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
@@ -168,7 +240,6 @@
         }
 
         function search(query, orgId, start) {
-            //alert('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start);
             $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;
@@ -183,5 +254,18 @@
             });
         }
 
+        $('.autoGen').click(function(){
+            var source = $(this).attr('data-source');
+            var destination = $(this).attr('data-destination');
+            var genError = $(this).attr('data-error');
+            $(this).next('.error').html("");
+            var keyFromTitle = $(source).val().trim().replace(/\s+/g, '-').toLowerCase();
+            if (keyFromTitle == '') {
+                $(this).next('.error').html(genError);
+            }
+            $(destination).val(keyFromTitle);
+        });
+        // make nice list of excluded hubIds
+        $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });
 </script>

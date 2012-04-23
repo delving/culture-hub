@@ -55,8 +55,8 @@ case class MenuEntry(_id: ObjectId = new ObjectId(),
 
 object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
 
-  def list(orgId: String, lang: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "lang" -> lang)).toList.groupBy(_.key).map(m => m._2.sortBy(_._id.getTime).head).toList
-  
+  def list(orgId: String, lang: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "lang" -> lang)).toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
+
   def findByKey(orgId: String, key: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "key" -> key)).$orderby(MongoDBObject("_id" -> -1)).toList
 
   def findByKeyAndLanguage(key: String, lang: String): List[CMSPage] = find(MongoDBObject("key" -> key, "lang" -> lang)).$orderby(MongoDBObject("_id" -> -1)).toList

@@ -22,7 +22,7 @@
                 #{list virtualCollections, as: 'vc'}
                 <tr>
                     <td>
-                        <span>${vc.spec}</span>
+                        <span>${vc.name}</span>
                     </td>
                     <td>
                         #{if isOwner}
@@ -70,7 +70,6 @@ $(document).ready(function () {
                 url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
                 type: 'DELETE',
                 success: function() {
-                    alert('foo');
                     document.location = '/organizations/${orgId}/virtualCollection'
                 }
             });

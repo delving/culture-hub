@@ -52,7 +52,7 @@ object VirtualCollections extends OrganizationController {
 
         val viewModel = spec match {
           case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
-            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(", "), vc.query.excludeHubIds.mkString(","), vc.query.freeFormQuery))
+            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(", "), vc.query.freeFormQuery, vc.query.excludeHubIds.mkString(",")))
             case None => None
           }
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
@@ -234,8 +234,8 @@ case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
                                       dataSets: String, // comma-separated list of spec names
-                                      excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
                                       freeFormQuery: String,
+                                      excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
 object VirtualCollectionViewModel {
@@ -246,8 +246,8 @@ object VirtualCollectionViewModel {
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
       "dataSets" -> text,
-      "excludedIdentifiers" -> text,
       "freeFormQuery" -> text,
+      "excludedIdentifiers" -> text,
       "errors" -> of[Map[String, String]]
     )(VirtualCollectionViewModel.apply)(VirtualCollectionViewModel.unapply)
   )

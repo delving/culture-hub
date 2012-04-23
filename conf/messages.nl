@@ -565,15 +565,31 @@ org.cms.page.help.templates.info=Het gebruik van <strong>Templates</strong> is e
 org.cms.page.help.homepage.tab=Inhoud voor de "Home" pagina
 org.cms.page.help.homepage.info=Inhoud aanmaken voor de "Home" pagina werkt precies als het aanmaken van een gewone pagina, behalve moeten de volgenden punten geacht worden: <ol><li>De <strong>Pagina sleutel</strong> moet <em>homepage</em> zijn</li><li>Pagina mag niet aan een menu toegevoegd worden</li>
 
+org.cms.page.keyauto.button=Pagina sleutel aanmaken.
+org.cms.page.keyauto.error=Titel verplicht om pagina sleutel te kunnen aanmaken.
 
 org.vc.list=Virtuele collectie lijst
 org.vc.new=Nieuwe virtuele collectie
 org.vc.deleteCollection=Virtuele collectie verwijderen
 org.vc.deleteCollectionConfirm=Weet u zeker dat u deze virtuele collectie wil verwijderen?
 org.vc.save=Bewaren
-org.vc.query=Zoekterm
-org.vc.excludedIds=Excluded hubIds
+org.vc.query=Zoekopdracht
+org.vc.excludedIds=Uitsluiten
 org.vc.spec=Identifier
+
+### VC HELP ###
+org.vc.help.toggle=Hulp met virtuele collecties
+# FIELDS #
+org.vc.help.fields.tab=Invoer velden
+org.vc.help.fields.name.info=De getoonde naam van de virtuele collectie.
+org.vc.help.fields.identifier.info=systeem naam van de virtuele collectie.
+org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie. Meerdere datasets mogen worden toegevoegd door deze te scheiden met een komma <code>dataset1, dataset2</code>.
+org.vc.help.fields.query.info=De zoek-term(en) waarmee de virtuele collectie opgebouwd wordt.
+org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma.
+# QUERIES #
+org.vc.help.queries.tab=Zoekopdracht schrijven
+org.vc.help.queries.info=<h6>Simplele zoekopdracht</h6><p>Een zoekopdracht kan zoiets simpels als een <em>plaats</em> of <em>persoon</em> naam zijn.</p><h6>Complexe zoekopdracht</h6><p>Complexe zoekopdrachten kunnen ook aangemaakt worden door zoektermen te combineren met <code>AND</code> <code>NOT</code> en <code>OR</code>. Een voorbeeld hiervan zo zijn: <code>schets OR tekening NOT houtskool</code>.</p><h6>Individuele resultaten uitsluiten</h6><p>Probeer de zoekopdracht zodanig te forumuleren dat ongewenste resultaten uitgesloten blijven. Mocht dit echter niet volledig lukken dan is het mogelijk om individuele resulaten uit te sluiten door het desbetreffende <span class="label label-contrast">hubId</span> toe te voegen aan het <span class="label label-contrast">Uitsluiten</span> veld.</p><h6>Betere resultaten</h6><p>Om de kans op resultaten met digitale objecten (plaatjes) te verbeteren voeg <code>AND delving_hasDigitalObject_facet:true</code> aan het eind van de zoekopdracht toe in het <span class="label label-contrast">Zoekopdracht</span> veld.</p>
+
 
 
 

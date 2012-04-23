@@ -55,10 +55,10 @@
                             <div class="tab-content">
                                 <div class="tab-pane active" id="fields">
                                     <dl>
-                                        <dt>&{'org.cms.page.key'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.key.info'}</dd>
                                         <dt>&{'thing.title'}</dt>
                                         <dd>&{'org.cms.page.help.fields.title.info'}</dd>
+                                        <dt>&{'org.cms.page.key'}</dt>
+                                        <dd>&{'org.cms.page.help.fields.key.info'}</dd>
                                         <dt>&{'ui.label.theme'}</dt>
                                         <dd>&{'org.cms.page.help.fields.theme.info'}</dd>
                                         <dt>&{'ui.label.language'}</dt>
@@ -97,8 +97,8 @@
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
-                #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, enabled: !isNew /}
-                #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", required: true /}
+                #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", maxLength: 35, required: true /}
+                #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("org.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
                 </div>
                 <div class="span4">
                 #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
@@ -118,7 +118,8 @@
                 #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
-            #{textArea id: "editor", name:"pageContent", form: pageForm, extraClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+            <hr/>
+            #{textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
             #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published", help: "Selecting this option will make this content visible" /}
             <hr/>
@@ -149,7 +150,7 @@
                 </td>
                 <td>
                     <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }">
-                        <span class="label">&{'ui.label.load'}</span>
+                        <span class="badge badge-info">&{'ui.label.load'}</span>
                     </a>
                 </td>
             </tr>
@@ -182,6 +183,13 @@
             });
         });
 
-        $(".collapse").collapse({toggle: false});
+        $('#createKey').click(function(){
+            $(this).next('.error').html("");
+           var keyFromTitle = $('input#title').val().trim().replace(/\s+/g, '-').toLowerCase();
+           if (keyFromTitle == '') {
+               $(this).next('.error').html("&{'org.cms.page.keyauto.error'}");
+           }
+           $('input#key').val(keyFromTitle);
+        });
     });
 </script>

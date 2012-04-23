@@ -2,18 +2,14 @@
  * Initialize elements based on classes
  */
 function initializeElements() {
-//    $('.carousel').carousel();
-
-//    $("#page").height($(document).height());
-    $('.extHelp').tipTip();
     $('.cancelButton').click(function(e) {
       e.preventDefault();
       document.location = document.referrer;
     });
+    $('.extHelp').tooltip();
     $('input.search-query').tooltip({
         placement: 'bottom'
     });
-
     $.preloadImages (
         "/assets/common/images/spinner.gif"
     );
@@ -504,6 +500,49 @@ ko.bindingHandlers.jqMultiSelect = {
         }
     }
 };
+/*
+function cmsCleanUp(type, value) {
+    switch (type) {
+        case "get_from_editor":
+            //alert("get_from_editor Value HTML string: " + value);
+            myRegEx = /#<span[^>]*(?:/>|>(?:\s|&nbsp;)*</span>)#im/;
+ //           value = value.replace('', '');
+            // regex empty rows
+//            $("*").filter(function()
+//            {
+//                return $.trim($(value).html()).length > 0;
+//            }).remove();
+            // Do custom cleanup code here
+            break;
+//        case "insert_to_editor":
+//            alert("insert_to_editor Value HTML string: " + value);
+//            // Do custom cleanup code here
+//            break;
+//        case "submit_content":
+//            alert("submit_content Value HTML Element: " + value);
+//            // Do custom cleanup code here
+//            break;
+//        case "get_from_editor_dom":
+//            alert("get_from_editor_dom Value DOM Element " + value);
+//            // Do custom cleanup code here
+//            break;
+//        case "insert_to_editor_dom":
+//            alert("insert_to_editor_dom Value DOM Element: " + value);
+//            // Do custom cleanup code here
+//            break;
+//        case "setup_content_dom":
+//            alert("setup_content_dom Value DOM Element: " + value);
+//            // Do custom cleanup code here
+//            break;
+//        case "submit_content_dom":
+//            alert("submit_content_dom Value DOM Element: " + value);
+//            // Do custom cleanup code here
+//            break;
+    }
+
+    return value;
+}
+*/
 
 /**
  * Add the TinyMCE WYSIWG editor to a page.
@@ -529,6 +568,7 @@ Delving.wysiwyg = function (params) {
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
+//        cleanup_callback : "cmsCleanUp",
         valid_child_elements: "ul[li],ol[li]",
         theme_advanced_buttons1 : "cleanup,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code,template",
         theme_advanced_buttons2: "",
@@ -553,6 +593,8 @@ Delving.wysiwyg = function (params) {
 
     tinyMCE.init(initParams);
 };
+
+
 
 /**
  * Helper to preload images
