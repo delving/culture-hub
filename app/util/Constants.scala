@@ -16,7 +16,7 @@
 
 package util
 
-import eu.delving.metadata.SummaryField
+import core.SystemField
 
 /**
  * Constants, used across several building blocks
@@ -55,17 +55,17 @@ object Constants {
   // and the other part by the hub at processing time
 
   // mapping-time SummaryFields
-  val TITLE = SummaryField.TITLE.tag
-  val DESCRIPTION = SummaryField.DESCRIPTION.tag
-  val OWNER = SummaryField.OWNER.tag
-  val CREATOR = SummaryField.CREATOR.tag
-  val THUMBNAIL = SummaryField.THUMBNAIL.tag
-  val LANDING_PAGE = SummaryField.LANDING_PAGE.tag
-  val DEEP_ZOOM_URL = SummaryField.DEEP_ZOOM_URL.tag
-  val PROVIDER = SummaryField.PROVIDER.tag
+  val TITLE = SystemField.TITLE.tag
+  val DESCRIPTION = SystemField.DESCRIPTION.tag
+  val OWNER = SystemField.OWNER.tag
+  val CREATOR = SystemField.CREATOR.tag
+  val THUMBNAIL = SystemField.THUMBNAIL.tag
+  val LANDING_PAGE = SystemField.LANDING_PAGE.tag
+  val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
+  val PROVIDER = SystemField.PROVIDER.tag
 
   // processing-time SummaryFields
-  val SPEC = SummaryField.SPEC.tag
+  val SPEC = SystemField.SPEC.tag
   val VISIBILITY = "delving_visibility"
   val RECORD_TYPE = "delving_recordType"
   val MIMETYPE = "delving_mimeType"

@@ -11,6 +11,7 @@ import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
 import models._
+import core.SystemField
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -113,7 +114,7 @@ object DataSetProcessor {
               // fix naming of the system fields
               val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
                 val name = try {
-                  eu.delving.metadata.SummaryField.valueOf(sf._1).tag
+                  SystemField.valueOf(sf._1).tag
                 } catch {
                   case _ => sf._1
                 }
