@@ -9,45 +9,39 @@
 
 #{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
-    <h3>&{'org.group.create'}</h3>
+<h3>&{'org.group.create'}</h3>
 
-
-    <div class="row">
-        <form action="" id="groupForm" class="form-delving">
-            <div class="span6">
-                #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
-                <div class="control-group" data-bind="visible: canChangeGrantType">
-                    <label class="control-label" for="grantType">&{'thing.grantType'}</label>
-
-                    <div class="controls">
-                        <select id="grantType" name="grantType" data-bind="value: grantType">
-                        #{list grantTypes, as: 'gt'}
-                            <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
-                        #{/list}
-                        </select>
-                        <span class="error">${views.Helpers.showError('grantType', null)}</span>
-                        <span class="help-inline"><strong>&{'ui.label.required'}</strong></span>
-                    </div>
+<div class="row">
+    <form action="" id="groupForm" class="form-delving">
+        <div class="span6">
+            #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+            <div class="control-group" data-bind="visible: canChangeGrantType">
+                <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
+                <div class="controls">
+                    <select id="grantType" name="grantType" data-bind="value: grantType" class="span4">
+                    #{list grantTypes, as: 'gt'}
+                        <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
+                    #{/list}
+                    </select>
+                    <span class="error">${views.Helpers.showError('grantType', null)}</span>
                 </div>
             </div>
-            <div class="span6">
-                <div class="control-group">
-                    <label class="control-label" for="users">&{'thing.users'}</label>
-
-                    <div class="controls">
-                    #{if id.isDefined()}
-                        #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
-                    #{/if}
-                    #{else}
-                        #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
-                    #{/else}
-                        <p>&{'org.admin.index.addMembers'}</p>
-                    </div>
-
+        </div>
+        <div class="span6">
+            <div class="control-group">
+                <label class="control-label" for="users">&{'thing.users'}</label>
+                <div class="controls">
+                #{if id.isDefined()}
+                    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
+                #{/if}
+                #{else}
+                    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
+                #{/else}
+                    <p>&{'org.admin.index.addMembers'}</p>
                 </div>
+            </div>
             <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
                 <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
-
                 <div class="controls">
                 #{if id.isDefined()}
                     #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
@@ -59,11 +53,11 @@
             </div>
             <div class="well">
             #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary btn-promiment", id:"saveButton", type:"submit" /}
-                <div class="wait"></div>
+            <div class="wait"></div>
             </div>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 
 
 <script type="text/javascript">
