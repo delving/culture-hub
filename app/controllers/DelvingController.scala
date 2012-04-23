@@ -133,7 +133,11 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   // ~~~ API rendering helpers
 
   def wantsJson(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("json") ||
-    request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/json")
+    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/json")
+
+  def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
+    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
+
 
   /**
    * Turns a scala XML node into a JSON string

@@ -4,7 +4,7 @@ import play.api.i18n.Messages
 import controllers._
 import core.HubServices
 import play.api.mvc.Action
-import models.{Visibility, DataSet, HubUser}
+import models.{DataSet, HubUser}
 
 /**
  *
@@ -36,92 +36,5 @@ object Organizations extends DelvingController {
         }
     }
   }
-
-  def providers(orgId: String) = Root {
-    Action {
-      implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-
-          val providers = getFactAlternatives(orgId, "provider")
-
-          val xmlResponse =
-            <providers>
-              {for (p <- providers) yield
-              <provider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
-              </provider>}
-            </providers>
-
-          DOk(xmlResponse, "provider")
-
-        } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
-        }
-    }
-  }
-
-  def dataProviders(orgId: String) = Root {
-    Action {
-      implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-
-          val dataProviders = getFactAlternatives(orgId, "dataProvider")
-
-          val xmlResponse =
-            <dataProviders>
-              {for (p <- dataProviders) yield
-              <dataProvider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
-              </dataProvider>}
-            </dataProviders>
-
-          DOk(xmlResponse, "dataProvider")
-
-        } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
-        }
-    }
-  }
-
-  def collections(orgId: String) = Root {
-    Action {
-      implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-          val collections = models.DataSet.findAllByOrgId(orgId).filter(_.visibility == Visibility.PUBLIC)
-
-          val xmlResponse =
-            <collections>
-              {for (c <- collections) yield
-              <collection>
-                <id>
-                  {toIdentifier(c.spec)}
-                </id>
-                <name>
-                  {c.name}
-                </name>
-              </collection>}
-            </collections>
-
-          DOk(xmlResponse, "collection")
-
-        } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
-        }
-    }
-  }
-
-  private def getFactAlternatives(orgId: String, fact: String) = DataSet.findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
-
-  private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 
 }
