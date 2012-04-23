@@ -355,17 +355,18 @@ li.token-input-input-token input[type='text'] {
 }
 
 .table.sortable th.sort {
-    background: url(/assets/common/images/sortable.gif) 100% 50% no-repeat;
+    background: url(/assets/common/images/sortable.gif) 0% 50% no-repeat;
     /*border-right: 1px solid #f1f1f1;*/
     cursor: pointer;
+    padding-left: 21px;
 }
 
 .table.sortable th.sort.headerSortUp{
-   background: #f1f1f1 url(/assets/common/images/sortable-asc.gif) 100% 50%  no-repeat;
+   background: #f1f1f1 url(/assets/common/images/sortable-asc.gif) 0% 50%  no-repeat;
 }
 
 .table.sortable th.sort.headerSortDown{
-    background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 100% 50%  no-repeat;
+    background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 0% 50%  no-repeat;
 }
 
 /* addThis widgets */
@@ -420,14 +421,19 @@ form.data-set {
     margin-left: -17px;
 }
 
+label .label {
+    margin-left: 5px;
+    vertical-align: baseline;
+    font-weight: normal;
+}
 
-form.form-delving label {
+form label {
     font-weight: bold;
 }
 
-form.form-delving .controls label,
-form.form-delving label.checkbox,
-form.form-delving label.radio {
+form .controls label,
+form label.checkbox,
+form label.radio {
     font-weight: normal;
     /*color: #444;*/
 }
@@ -481,6 +487,34 @@ form.form-delving label.radio {
     text-decoration: none;
     border: 1px solid #ddd;
     border-left-width: 0;
+}
+
+/* bootstrap labels extra */
+
+/*.label {*/
+    /*padding: 1px 4px 2px;*/
+    /*font-size: 10.998px;*/
+    /*font-weight: bold;*/
+    /*line-height: 13px;*/
+    /*color: #ffffff;*/
+    /*vertical-align: middle;*/
+    /*white-space: nowrap;*/
+    /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);*/
+    /*background-color: #999999;*/
+    /*-webkit-border-radius: 3px;*/
+    /*-moz-border-radius: 3px;*/
+    /*border-radius: 3px;*/
+/*}*/
+/*.label:hover {*/
+    /*color: #ffffff;*/
+    /*text-decoration: none;*/
+/*}*/
+.label-contrast {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #000;
+    text-shadow: none;
+    vertical-align: baseline;
 }
 
 /*---------------------------------

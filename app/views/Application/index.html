@@ -46,7 +46,7 @@
     </div>
 </div>
 
-#{if homepageCmsContent}
+#{if homepageCmsContent && homepageCmsContent.published == true}
     ${homepageCmsContent.content.raw()}
 #{/if}
 #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }

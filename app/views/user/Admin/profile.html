@@ -5,30 +5,34 @@
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.limitChars.min.js")}"></script>
 #{/set}
-
-<h1>Your profile</h1>
-
+<div class="page-header">
+    <h1>Your profile</h1>
+</div>
+<form id="profileForm" action="" class="form delving-form">
 <div class="row">
-    <div class="span8">
-        <form id="profileForm" action="">
+       <div class="span6">
           #{textField name:"firstName", form:profileForm, label:messages.get('ui.label.firstname'), dataBind:"value: firstName", labelClass:"required", required: true /}
           #{textField name:"lastName", form:profileForm, label:messages.get('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}
           #{textField name:"email", form:profileForm, label:messages.get('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('user.admin.profile.gravatarHelp').raw() /}
-          #{textArea name:"description", form:profileForm, label:messages.get('user.profile.aboutYou'), dataBind:"value: description", help:messages.get('user.admin.profile.help.aboutYou'), dataMaxChars:"400" /}
-          #{textField name:"funFact", form:profileForm, label:messages.get('user.profile.funFact'), dataBind:"value: funFact" /}
-          #{textField name:"twitter", form:profileForm, label:"Twitter", dataBind:"value: twitter", help: messages.get('user.admin.profile.help.twitter') /}
-          #{textField name:"linkedIn", form:profileForm, label:"LinkedIn", dataBind:"value: linkedIn", help: messages.get('user.admin.profile.help.linkedIn') /}
+          <hr class="soften"/>
           #{checkboxField name:"isPublic", form:profileForm, label:messages.get('ui.label.visibility.public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
-
+       </div>
+    <div class="span6">
+          #{textArea name:"description", form:profileForm, label:messages.get('user.profile.aboutYou'), dataBind:"value: description", extHelp:messages.get('user.admin.profile.help.aboutYou'), dataMaxChars:"400", inputClass:"span5" /}
+          #{textField name:"funFact", form:profileForm, label:messages.get('user.profile.funFact'), dataBind:"value: funFact" /}
+          #{textField name:"twitter", form:profileForm, label:"Twitter", dataBind:"value: twitter", extHelp: messages.get('user.admin.profile.help.twitter') /}
+          #{textField name:"linkedIn", form:profileForm, label:"LinkedIn", dataBind:"value: linkedIn", extHelp: messages.get('user.admin.profile.help.linkedIn') /}
+        </div>
+</div>
+<div class="row">
+    <div class="span12 well">
           <div class="buttons">
             #{btnButton label:messages.get('user.admin.profile.save'), id:"saveButton", extraClass:"blue", type:"submit"  /}
             <div class="wait"></div>
           </div>
-
-        </form>
     </div>
 </div>
-
+</form>
 
 <script type="text/javascript">
   $(document).ready(function() {
