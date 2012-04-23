@@ -76,7 +76,7 @@
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
-            #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"html: excludedIdentifiers", inputClass:"span5", required: false/}
+            #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
             <div class="row">
                 #{btnButton label: messages.get('ui.label.preview'), extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
@@ -99,23 +99,21 @@
                     Query: <span data-bind="text: query.terms()"> </span>,
                     Results found: <span data-bind="text: query.numfound()"> </span>
                 </div>
-
-
-                    <div class="pagination">
-                        <ul data-bind="foreach: pagination.links()">
-                            <!-- ko if: $data.isLinked() -->
-                            <li>
-                                <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
-                            </li>
-                            <!-- /ko -->
-                            <!-- ko ifnot: $data.isLinked() -->
-                            <li class="active">
-                                <a href="#" data-bind="text: $data.pageNumber()"></a>
-                            </li>
-                            <!-- /ko -->
-                        </ul>
-                    </div>
-                    <hr/>
+                <div class="pagination">
+                    <ul data-bind="foreach: pagination.links()">
+                        <!-- ko if: $data.isLinked() -->
+                        <li>
+                            <a href="#" data-bind="click: function() { $root.paginate($data.start()); }, text: $data.pageNumber()"></a>
+                        </li>
+                        <!-- /ko -->
+                        <!-- ko ifnot: $data.isLinked() -->
+                        <li class="active">
+                            <a href="#" data-bind="text: $data.pageNumber()"></a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+                <hr/>
 
                 <div id="results" data-bind="foreach: items()">
                     <div class="resultItem media">
@@ -155,6 +153,7 @@
                 } else {
                     virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers()  + excludeMe);
                 }
+                $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
             }
         };
 
@@ -254,6 +253,6 @@
             }
             $(destination).val(keyFromTitle);
         });
-        //$('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
+        $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });
 </script>
