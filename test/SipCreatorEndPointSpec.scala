@@ -2,19 +2,19 @@ import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecMapping
 import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
-import java.util.zip.{GZIPInputStream, ZipInputStream}
+import java.util.zip.{GZIPInputStream}
 import org.specs2.mutable._
 import collection.JavaConverters._
-
-import play.api.libs.iteratee.{Enumeratee, Iteratee}
+import scala.xml.Utility.trim
 import play.api.test._
 import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
+import xml.XML
 
-class SipCreatorEndPointSpec extends Specification with TestData {
+class SipCreatorEndPointSpec extends Specification with TestContext {
 
   step(cleanup)
   step(loadStandalone)
@@ -107,17 +107,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         val uploadedRecordMapping = RecMapping.read(uploaded, MappingService.recDefModel)
 
 
-        /*
-                for (i <- 0 to original.length) {
-                  if (original(i) != uploaded(i)) {
-                    println(i + " ORIG           " + original(i))
-                    println(i + " UPLO           " + uploaded(i))
-                  }
-                }
-        */
-
-        // TODO fix this...
-        //        RecordMapping.toXml(originalRecordMapping).hashCode() must equalTo(RecordMapping.toXml(uploadedRecordMapping).hashCode())
+        // FIXME what is wrong with this!?
+//        trim(XML.loadString(originalRecordMapping.toString)) must equalTo(trim(XML.loadString(uploadedRecordMapping.toString)))
 
         1 must equalTo(1)
       }

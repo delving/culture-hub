@@ -117,10 +117,10 @@ abstract class Description {
   def toJson(implicit request: RequestHeader): Map[String, Any]
 }
 
-case class ApiDescription(description: String, apiItems: List[ApiItem]) extends Description {
+case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{description}</description>
+      <description><![CDATA[{description}]]></description>
       <api-list>{apiItems.map(_.toXml)}</api-list>
     </explain>
 
@@ -130,10 +130,10 @@ case class ApiDescription(description: String, apiItems: List[ApiItem]) extends 
   )
 }
 
-case class ApiCallDescription(description: String, explainItems: List[ExplainItem]) extends Description {
+case class ApiCallDescription(description: String, explainItems: List[ExplainItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{description}</description>
+      <description><![CDATA[{description}]]></description>
       <parameters>{explainItems.map(_.toXml)}</parameters>
     </explain>
 

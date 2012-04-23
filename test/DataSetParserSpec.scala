@@ -12,7 +12,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetParserSpec extends Specification with TestData {
+class DataSetParserSpec extends Specification with TestContext {
 
 
   "The DataSetParser" should {

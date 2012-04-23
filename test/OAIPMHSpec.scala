@@ -14,9 +14,7 @@ import xml.XML
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAIPMHSpec extends Specification with TestData {
-
-  def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
+class OAIPMHSpec extends Specification with TestContext {
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 

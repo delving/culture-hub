@@ -5,7 +5,6 @@ import play.api.libs.concurrent.Promise
 import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
-import controllers.api.Api._
 import play.api.mvc._
 
 /**
