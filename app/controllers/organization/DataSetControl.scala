@@ -236,8 +236,6 @@ object DataSetControl extends OrganizationController {
                         "http://delving.eu/namespaces/raw/schema.xsd",
                         List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
                         List.empty,
-                        List.empty,
-                        List.empty,
                         true
                       )
                     ),

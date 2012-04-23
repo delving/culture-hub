@@ -47,7 +47,7 @@ object MappingService extends ModelImplicits {
 
   def transformRecord(rawRecord: String, recordMapping: String, namespaces: Map[String, String]): String = {
     val engine: MappingEngine = new MappingEngine(recordMapping, Play.classloader, recDefModel, namespaces.asJava)
-    val nodeTree = engine.toNode(rawRecord)
+    val nodeTree = engine.execute(rawRecord).root
     nodeTreeToXmlString(nodeTree)
   }
 

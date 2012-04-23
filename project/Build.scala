@@ -18,8 +18,8 @@ object ApplicationBuild extends Build {
     "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
-    "eu.delving"                %  "sip-core"                        % "1.0.2-SNAPSHOT",
-    "eu.delving"                %  "sip-creator"                     % "1.0.2-SNAPSHOT",
+    "eu.delving"                %  "sip-core"                        % "1.0.3-SNAPSHOT",
+    "eu.delving"                %  "sip-creator"                     % "1.0.3-SNAPSHOT",
     "eu.delving"                %% "play2-extensions"                % "1.0-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",

@@ -16,11 +16,8 @@
 
 package core.indexing
 
-import eu.delving.sip.IndexDocument
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
-import eu.delving.sip.MappingEngine
-import models._
 import play.api.Logger
 import play.api.Play.current
 import util.Constants._
@@ -29,10 +26,10 @@ import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
-import exceptions.{SolrConnectionException, MappingNotFoundException}
-import core.mapping.MappingService
+import exceptions.SolrConnectionException
 import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
+import models._
 
 
 /**
@@ -42,17 +39,13 @@ import org.apache.tika.parser.ParseContext
 
 object Indexing extends SolrServer with controllers.ModelImplicits {
 
-  def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Option[IndexDocument], metadataFormatForIndexing: String): Either[Throwable, String] = {
-    mapped match {
-      case Some(indexDoc) =>
-        val doc = createSolrInputDocument(indexDoc)
-        addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
-        try {
-          getStreamingUpdateServer.add(doc)
-        } catch {
-          case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
-        }
-      case None => // do nothing
+  def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
+    val doc = createSolrInputDocument(mapped)
+    addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
+    try {
+      getStreamingUpdateServer.add(doc)
+    } catch {
+      case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
     }
     Right("ok")
   }
@@ -61,31 +54,13 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     getStreamingUpdateServer.commit
   }
 
-  def indexOneInSolr(orgId: String, spec: String, mdr: MetadataRecord) = {
-    import collection.JavaConverters._
-
-    DataSet.findBySpecAndOrgId(spec, orgId) match {
-      case Some(dataSet) =>
-        val mapping = dataSet.mappings.get(dataSet.getIndexingMappingPrefix.getOrElse(""))
-        if (mapping == None) throw new MappingNotFoundException("Unable to find mapping for " + dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"))
-
-        val engine: MappingEngine = new MappingEngine(mapping.get.recordMapping.getOrElse(""), play.api.Play.classloader, MappingService.recDefModel, dataSet.namespaces.asJava)
-        val mapped = Option(engine.toIndexDocument(mdr.getRawXmlString))
-        indexOne(dataSet, mdr, mapped, dataSet.getIndexingMappingPrefix.getOrElse(""))
-      case None =>
-        Logger("CultureHub").warn("Could not index MDR")
-    }
-
-  }
-
-  private def createSolrInputDocument(indexDoc: IndexDocument): SolrInputDocument = {
-    import scala.collection.JavaConversions._
+  private def createSolrInputDocument(indexDoc: Map[String, List[Any]]): SolrInputDocument = {
 
     val doc = new SolrInputDocument
-    indexDoc.getMap.entrySet().foreach {
+    indexDoc.foreach {
       entry =>
-        val unMungedKey = entry.getKey // todo later unmunge the key with namespaces.replaceAll("_", ":")
-        entry.getValue.foreach(
+        val unMungedKey = entry._1
+        entry._2.foreach(
           value =>
             doc.addField(unMungedKey, value.toString)
         )

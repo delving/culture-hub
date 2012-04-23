@@ -1,7 +1,7 @@
 package core.indexing
 
 import com.mongodb.casbah.commons.TypeImports._
-import models.{MetadataRecord, Thing}
+import models.Thing
 import core.search.SolrServer
 import util.Constants
 import play.api.Logger
@@ -24,22 +24,6 @@ object IndexingService extends SolrServer {
    */
   def stageForIndexing(t: Thing) {
     SolrServer.indexSolrDocument(t.toSolrDocument)
-  }
-
-  /**
-   * Indexes one MDR
-   */
-  def index(mdr: MetadataRecord) {
-    stageForIndexing(mdr)
-    getStreamingUpdateServer.commit()
-  }
-
-  /**
-   * Stages one MDR for indexing
-   */
-  def stageForIndexing(mdr: MetadataRecord) {
-    val Array(orgId, spec, localRecordKey) = mdr.hubId.split("_")
-    Indexing.indexOneInSolr(orgId, spec, mdr)
   }
 
   /**

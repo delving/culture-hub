@@ -17,7 +17,7 @@
 package models
 
 import com.mongodb.casbah.Imports._
-import exceptions.{MappingNotFoundException, InvalidIdentifierException, RecordNotFoundException}
+import exceptions.{MappingNotFoundException, InvalidIdentifierException}
 import org.bson.types.ObjectId
 import java.util.Date
 import models.mongoContext._
@@ -30,7 +30,7 @@ import core.mapping.MappingService
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
                           rawMetadata: Map[String, String], // this is the raw xml data string, in various mapped formats and in origin (as "raw")
-                          summaryFields: Map[String, String] = Map.empty, // the map containing the summary fields for this record, if available
+                          systemFields: Map[String, List[String]] = Map.empty, // the map containing the system fields for this record, if available
                           modified: Date = new Date(),
                           validOutputFormats: List[String] = List.empty[String], // valid formats this records can be mapped to
                           deleted: Boolean = false, // if the record has been deleted
@@ -49,9 +49,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
   def getCachedTransformedRecord(metadataPrefix: String): Option[String] = rawMetadata.get(metadataPrefix)
 
-  def getDefaultAccessor = {
-    new SummaryFieldsMapMetadataAccessors(hubId, summaryFields)
-  }
+  def getDefaultAccessor = new SummaryFieldsMapMetadataAccessors(hubId, systemFields)
 
   // ~~~ linked meta-data
 
@@ -121,17 +119,17 @@ object MetadataRecord {
 
 }
 
-class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, String]) extends MetadataAccessors {
+class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, List[String]]) extends MetadataAccessors {
 
   protected def assign(key: String) = {
     dbo.get(key) match {
-      case Some(v) => v
+      case Some(v) => v.head
       case None => ""
     }
   }
 
   protected def values(key: String): List[String] = dbo.get(key) match {
-    case Some(v) => List(v)
+    case Some(v) => v
     case None => List.empty
   }
 

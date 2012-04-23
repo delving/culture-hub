@@ -273,8 +273,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             ns.get.namespace,
             ns.get.allNamespaces,
             ns.get.roles,
-            ns.get.summaryFields,
-            ns.get.searchFields,
             ns.get.isFlat
           )
         )
