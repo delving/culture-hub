@@ -70,7 +70,6 @@ $(document).ready(function () {
                 url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
                 type: 'DELETE',
                 success: function() {
-                    alert('foo');
                     document.location = '/organizations/${orgId}/virtualCollection'
                 }
             });

@@ -76,7 +76,7 @@
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
             #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5", required: true /}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true /}
-            #{textField name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false/}
+            #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"html: excludedIdentifiers", inputClass:"span5", required: false/}
             <hr/>
             <div class="row">
                 #{btnButton label: messages.get('ui.label.preview'), extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}
@@ -144,18 +144,19 @@
 
         var virtualCollectionModel = {};
         var resultModel = {
-
             initialized:false,
             paginate:function (start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
             },
             exclude:function (excludeMe) {
-                $('#excludedIdentifiers').val($('#excludedIdentifiers').val() + ',' +excludeMe);
+                var exList = $('#excludedIdentifiers');
+                if (!isEmpty(exList.val())){
+                    virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers() + ", " + excludeMe);
+                } else {
+                    virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers()  + excludeMe);
+                }
             }
-
         };
-
-
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
@@ -253,15 +254,6 @@
             }
             $(destination).val(keyFromTitle);
         });
-
-//        function exclude() {
-//            alert('foo');
-//        }
-//
-//        $("a.exclude").click(function (event){
-//            alert('foo');
-////            alert($(this).attr('data-exclude'));
-//        });
-
+        //$('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });
 </script>
