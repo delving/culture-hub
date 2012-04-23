@@ -28,6 +28,7 @@ import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.{ByteArrayInputStream, File}
 import play.api.i18n.{Messages, Lang}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -450,7 +451,7 @@ case object RenderNode {
         n.content.foreach {
           c =>
             sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
-            sb.append(n.text)
+            sb.append(StringEscapeUtils.escapeXml(n.text))
             sb.append("</%s>".format(n.nodeType))
             sb.append("\n")
         }
@@ -458,7 +459,7 @@ case object RenderNode {
         sb.append("<%s%s>".format(n.nodeType, if(n.attributesAsXmlString.isEmpty) "" else " " + n.attributesAsXmlString))
 
         if(n.isLeaf) {
-          sb.append(n.text)
+          sb.append(StringEscapeUtils.escapeXml(n.text))
           sb.append("</%s>".format(n.nodeType))
         } else {
           for(c <- n.content) {
