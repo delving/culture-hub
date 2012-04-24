@@ -7,6 +7,8 @@ import scala.Predef._
 import scala._
 import collection.immutable.ListMap
 import xml.{NodeSeq, Elem}
+import org.apache.commons.lang.StringEscapeUtils
+import core.rendering.RenderNode._
 
 /**
  * The API documentation
@@ -25,6 +27,7 @@ object Api extends DelvingController {
     } else {
       val explanation = pathList(0) match {
         case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
+        case "index" => controllers.api.Index.explain(pathList.drop(1))
         case _ => return noDocumentation(orgId, path)
       }
       explanation match {
@@ -117,10 +120,10 @@ abstract class Description {
   def toJson(implicit request: RequestHeader): Map[String, Any]
 }
 
-case class ApiDescription(description: String, apiItems: List[ApiItem]) extends Description {
+case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{description}</description>
+      <description>{StringEscapeUtils.escapeXml(description)}</description>
       <api-list>{apiItems.map(_.toXml)}</api-list>
     </explain>
 
@@ -130,10 +133,10 @@ case class ApiDescription(description: String, apiItems: List[ApiItem]) extends 
   )
 }
 
-case class ApiCallDescription(description: String, explainItems: List[ExplainItem]) extends Description {
+case class ApiCallDescription(description: String, explainItems: List[ExplainItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{description}</description>
+      <description>{StringEscapeUtils.escapeXml(description)}</description>
       <parameters>{explainItems.map(_.toXml)}</parameters>
     </explain>
 

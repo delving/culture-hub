@@ -186,6 +186,10 @@ GET         /organizations/:orgId/api/providers                               co
 GET         /organizations/:orgId/api/dataProviders                           controllers.api.Organization.dataProviders(orgId)
 GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
 
+GET         /organizations/:orgId/api/index                                   controllers.api.Index.status(orgId)
+POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
+
+
 ## Legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
@@ -203,6 +207,8 @@ POST        /organizations/:orgId/admin/users/add                             co
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
+
+GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
 GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")

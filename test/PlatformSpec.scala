@@ -11,7 +11,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class PlatformSpec extends Specification with TestData {
+class PlatformSpec extends Specification with TestContext {
 
   val themeHandler = ThemeHandler
 

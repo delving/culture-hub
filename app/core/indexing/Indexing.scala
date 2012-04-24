@@ -76,6 +76,7 @@ object Indexing extends SolrServer with controllers.ModelImplicits {
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(SCHEMA, format)
     inputDoc.addField(RECORD_TYPE, MDR)
+    inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
     inputDoc.addField(VISIBILITY, dataSet.visibility.value)
 
     // for backwards-compatibility

@@ -16,13 +16,10 @@
 
 package controllers
 
-import util.Constants
 import extensions.HTTPClient
 import play.api.mvc.Action
-import core.search.{Params, SearchService}
 import core.opendata.OaiPmhService
 import play.api.libs.concurrent.Promise
-import collection.mutable.ListBuffer
 
 /**
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
@@ -30,37 +27,6 @@ import collection.mutable.ListBuffer
  */
 
 object Services extends DelvingController with HTTPClient {
-
-  def solrSearchProxy = Root {
-    Action {
-      implicit request =>
-        import org.apache.commons.httpclient.methods.GetMethod
-        import org.apache.commons.httpclient.{HttpClient, HttpMethod}
-        import play.api.Play
-        import play.api.Play.current
-
-        val solrQueryString: String = request.rawQueryString
-        val params = Params(request.queryString)
-
-        val solrServerUrl: String = String.format("%s/select?%s", Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2"), solrQueryString)
-        val method: HttpMethod = new GetMethod(solrServerUrl)
-
-        val httpClient: HttpClient = getHttpClient
-        httpClient executeMethod (method)
-
-        val responseContentType: String = method.getResponseHeader("Content-Type").getValue
-        val solrResponseType = params.getValueOrElse("wt", "xml")
-
-        val responseString: String = method.getResponseBodyAsString
-
-        solrResponseType match {
-          // case "javabin" => Ok(method.getResponseBodyAsStream).as(BINARY) todo enable this again , "solrResult", responseContentType, false todo test if this still works
-          case "json" => Ok(responseString).as(JSON)
-          case "xml" => Ok(responseString).as(XML)
-          case _ => Ok(responseString).as(XML)
-        }
-    }
-  }
 
   def oaipmh(orgId: String, accessKey: Option[String]) = Action {
     implicit request =>

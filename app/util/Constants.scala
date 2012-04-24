@@ -41,20 +41,29 @@ object Constants {
   val ORG_ID = "delving_orgId"
   val EUROPEANA_URI = "europeana_uri"
 
+
+  // ~~~ housekeeping fields
   val SCHEMA = "delving_currentSchema"
   val PUBLIC_SCHEMAS = "delving_publicSchemas"
   val ALL_SCHEMAS = "delving_allSchemas"
 
+  val SYSTEM_TYPE = "delving_systemType"
+
+  // ~~~ system types
+  val INDEX_API_ITEM = "indexApiItem"
+  val HUB_ITEM = "hubItem"
+
+
   // ~~~ special indexing fields
   val COLLECTIONS = "delving_userCollections"
 
-  // ~~~ SummaryFields
+  // ~~~ SystemFields
 
   // This is the smallest set of fields that should be set for one
   // displayable record in the CultureHub. Part of them is set at mapping time
   // and the other part by the hub at processing time
 
-  // mapping-time SummaryFields
+  // mapping-time SystemFields
   val TITLE = SystemField.TITLE.tag
   val DESCRIPTION = SystemField.DESCRIPTION.tag
   val OWNER = SystemField.OWNER.tag
@@ -64,14 +73,13 @@ object Constants {
   val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
   val PROVIDER = SystemField.PROVIDER.tag
 
-  // processing-time SummaryFields
+  // processing-time SystemFields
   val SPEC = SystemField.SPEC.tag
   val VISIBILITY = "delving_visibility"
   val RECORD_TYPE = "delving_recordType"
   val MIMETYPE = "delving_mimeType"
   val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
 
-  // TODO add to SummaryField??
   val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
 
   // ~~~ link value fields
