@@ -22,13 +22,15 @@ import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
-import xml.Elem
 import play.api.Logger
 import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
-import models.{RecordDefinition, MetadataRecord, PortalTheme}
-import core.rendering.{RenderedView, ViewRenderer}
 import controllers.api.ExplainItem
+import scala.Boolean
+import java.lang.String
+import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
+import xml.{NodeSeq, Elem}
+import core.rendering.{RenderNode, RenderedView, ViewRenderer}
 
 /**
  *
@@ -158,45 +160,62 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
           Logger("Search").info("Could not find prefix for rendering of full view of record %s".format(hubId))
           None
         } else {
-          val prefix = maybePrefix.get
-          val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
-          if(rawRecord.isEmpty) {
-            Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
-            None
+          if(idType == "indexItem") {
+            renderIndexItem(id)
           } else {
-
-            // handle legacy formats
-            val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
-            val viewDefinitionFormatName = if(legacyFormats.contains(prefix)) "legacy" else prefix
-
-            // let's do some rendering
-            RecordDefinition.getRecordDefinition(prefix) match {
-              case Some(definition) =>
-                  val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
-                  if(viewRenderer.isEmpty) {
-                    log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
-                    None
-                  } else {
-                    try {
-                      val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
-                      log.debug(cleanRawRecord)
-                      val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
-                      // TODO see what to do with roles
-                      Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
-                  } catch {
-                    case t =>
-                      log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
-                      None
-                  }
-              }
-              case None =>
-                log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
-                None
-            }
+            renderMetadataRecord(maybePrefix.get, hubId, viewName)
           }
         }
       case None =>
         None
+    }
+  }
+
+  private def renderIndexItem(id: String) = IndexItem.findOneById(id).map {
+    indexItem =>
+      new RenderedView {
+        def toXmlString: String = indexItem.rawXml
+        def toJson: String = "JSON rendering not supported"
+        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.rawXml)
+        def toViewTree: RenderNode = null
+      }
+  }
+
+  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
+    val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
+    if (rawRecord.isEmpty) {
+      Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
+      None
+    } else {
+
+      // handle legacy formats
+      val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
+      val viewDefinitionFormatName = if (legacyFormats.contains(prefix)) "legacy" else prefix
+
+      // let's do some rendering
+      RecordDefinition.getRecordDefinition(prefix) match {
+        case Some(definition) =>
+          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+          if (viewRenderer.isEmpty) {
+            log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
+            None
+          } else {
+            try {
+              val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
+              log.debug(cleanRawRecord)
+              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
+              // TODO see what to do with roles
+              Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+            } catch {
+              case t =>
+                log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
+                None
+            }
+          }
+        case None =>
+          log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
+          None
+      }
     }
   }
 

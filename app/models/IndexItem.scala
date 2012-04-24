@@ -23,15 +23,6 @@ case class IndexItem(_id: ObjectId = new ObjectId,
   def toSolrDocument: SolrInputDocument = {
     val doc = new SolrInputDocument
 
-    // mandatory fields
-    doc.addField(ID, "%s_%s_%s".format(orgId, itemType, itemId))
-    doc.addField(ORG_ID, orgId)
-    if (!doc.containsKey(VISIBILITY)) {
-      doc addField(VISIBILITY, "10") // set to public by default
-    }
-    doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
-    doc.addField(RECORD_TYPE, itemType) // TODO should we really set the record-type to this or do we want to also set an additional flag so that we can find the documents back in solr???
-
     val document = XML.loadString(rawXml).nonEmptyChildren
     val fields = document.filter(_.label == "field")
 
@@ -72,12 +63,35 @@ case class IndexItem(_id: ObjectId = new ObjectId,
           doc.addField(indexFieldName, field.text)
         }
     }
+
+    // mandatory fields
+    val id = "%s_%s_%s".format(orgId, itemType, itemId)
+    doc.addField(ID, id)
+    doc.addField(HUB_ID, id)
+    doc.addField(ORG_ID, orgId)
+    if (!doc.containsKey(VISIBILITY)) {
+      doc addField(VISIBILITY, "10") // set to public by default
+    }
+    doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
+    doc.addField(RECORD_TYPE, itemType)
+
+
+
     doc
   }
 
 }
 
 object IndexItem extends SalatDAO[IndexItem, ObjectId](collection = indexItemsCollection) {
+
+  def findOneById(id: String) = {
+    if(id.split("_").length != 3) {
+      None
+    } else {
+      val Array(orgId, itemType, itemId) = id.split("_")
+      findOne(MongoDBObject("orgId" -> orgId, "itemType" -> itemType, "itemId" -> itemId))
+    }
+  }
 
   def remove(itemId: String, orgId: String, itemType: String) {
     remove(MongoDBObject("orgId" -> orgId, "itemId" -> itemId, "itemType" -> itemType))

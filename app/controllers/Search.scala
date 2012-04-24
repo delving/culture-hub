@@ -82,7 +82,7 @@ object Search extends DelvingController {
                 val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                 val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-                Ok(Template("Search/object.html", 'summaryFields -> mdr.systemFields, 'fullView -> renderResult.viewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+                Ok(Template("Search/object.html", 'summaryFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
               }
 
             } else {
