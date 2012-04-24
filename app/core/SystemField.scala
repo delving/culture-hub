@@ -21,7 +21,7 @@ object SystemField {
   object TITLE extends SystemField("title")
   object DESCRIPTION extends SystemField("description")
   object OWNER extends SystemField("owner")
-  object CREATOR extends SystemField("create")
+  object CREATOR extends SystemField("creator")
   object THUMBNAIL extends SystemField("thumbnail")
   object LANDING_PAGE extends SystemField("landingPage")
   object DEEP_ZOOM_URL extends SystemField("deepZoomUrl")
