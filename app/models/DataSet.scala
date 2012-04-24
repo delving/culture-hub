@@ -144,22 +144,22 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSetState(name)
   }
 
-  def getIndexingState(orgId: String, spec: String): (Int, Int) = {
+  def getProcessingState(orgId: String, spec: String): (Int, Int) = {
 
     val stateData = dataSetsCollection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
       MongoDBObject("state" -> 1, "details" -> 1)
-    ).getOrElse(return (100, 100))
+    ).getOrElse(return (0, 0))
 
     val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
 
     val totalRecords = details.getAsOrElse[Int]("total_records", 0)
-    val indexingCount = details.getAsOrElse[Int]("indexing_count", 0)
+    val processingCount = details.getAsOrElse[Int]("indexing_count", 0)
     val invalidRecords = details.getAsOrElse[Int]("invalid_records", 0)
 
     if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
 
-    (indexingCount, totalRecords - invalidRecords)
+    (processingCount, totalRecords - invalidRecords)
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
