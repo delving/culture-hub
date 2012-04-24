@@ -22,6 +22,9 @@ import core.SystemField
 
 object DataSetProcessor {
 
+  type MultiMap = Map[String, List[Any]]
+
+
   val log = Logger("CultureHub")
 
   val AFF = "aff"
@@ -107,36 +110,17 @@ object DataSetProcessor {
                 // cache mapping result
                 DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
 
-                // extract system fields
-                val systemFields: Map[String, List[Any]] = mainMappingResult.systemFields()
-
-                // fix naming of the system fields
-                val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
-                  val name = try {
-                    SystemField.valueOf(sf._1).tag
-                  } catch {
-                    case _ => sf._1
-                  }
-                  (name -> sf._2)
-                })
-
-                val hubSystemFields: Map[String, List[Any]] = Map(
-                  SPEC -> spec,
-                  RECORD_TYPE -> MDR,
-                  VISIBILITY -> Visibility.PUBLIC.value.toString,
-                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                  HAS_DIGITAL_OBJECT -> (renamedSystemFields.contains(THUMBNAIL) && renamedSystemFields.get(THUMBNAIL).size > 0)
-                ).map(v => (v._1, List(v._2))).toMap
-
-                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (renamedSystemFields ++ hubSystemFields).asDBObject))
+                // handle systemFields
+                val systemFields = getSystemFields(mainMappingResult)
+                val enrichedSystemFields = enrichSystemFields(systemFields, spec)
+                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
 
                 // if the current format is the to be indexed one, send the record out for indexing
                 if (isIndexingFormat) {
                   val fields: Map[String, List[Any]] = mainMappingResult.fields()
                   val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
-                  Indexing.indexOne(dataSet, record, fields ++ searchFields ++ renamedSystemFields, format.prefix)
+                  Indexing.indexOne(dataSet, record, fields ++ searchFields ++ systemFields, format.prefix)
                 }
-
 
                 // also cache the result of possible crosswalks
                 if (!crosswalkEngines.isEmpty) {
@@ -182,6 +166,30 @@ object DataSetProcessor {
 
     log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
   }
+
+  private def getSystemFields(mappingResult: MappingEngine.Result) = {
+    val systemFields: Map[String, List[Any]] = mappingResult.systemFields()
+    val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
+      val name = try {
+        SystemField.valueOf(sf._1).tag
+      } catch {
+        case _ => sf._1
+      }
+      (name -> sf._2)
+    })
+    renamedSystemFields
+  }
+
+  private def enrichSystemFields(systemFields: MultiMap, spec: String): MultiMap = {
+    systemFields ++ Map(
+      SPEC -> spec,
+      RECORD_TYPE -> MDR,
+      VISIBILITY -> Visibility.PUBLIC.value.toString,
+      MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+      HAS_DIGITAL_OBJECT -> (systemFields.contains(THUMBNAIL) && systemFields.get(THUMBNAIL).size > 0)
+    ).map(v => (v._1, List(v._2))).toMap
+  }
+
 
 
 }
