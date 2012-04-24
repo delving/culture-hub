@@ -24,7 +24,6 @@ object DataSetProcessor {
 
   type MultiMap = Map[String, List[Any]]
 
-
   val log = Logger("CultureHub")
 
   val AFF = "aff"
@@ -54,114 +53,100 @@ object DataSetProcessor {
 
     val now = System.currentTimeMillis()
 
-    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formats.map(_.prefix).mkString(", "), indexingFormat.map(_.prefix).getOrElse("NONE!")))
+    val formatsString = formats.map(_.prefix).mkString(", ")
+    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formatsString, indexingFormat.map(_.prefix).getOrElse("NONE!")))
 
-    for (format <- formats) {
+    // initialize context
+    val processingFormats = formats.map(ProcessingFormat(_, dataSet))
+    processingFormats.partition(!_.hasMapping)._1 foreach {
+      f => log.warn("No mapping found for format %s, skipping its processing".format(f.prefix))
+    }
 
-      val isIndexingFormat = indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix
+    // drop previous index
+    if (indexingFormat.isDefined) {
+      IndexingService.deleteBySpec(orgId, spec)
+    }
 
-      if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
-        val mapping = dataSet.mappings(format.prefix)
+    // loop over records
+    val recordsCollection = DataSet.getRecords(dataSet)
+    val recordCount = recordsCollection.count(MongoDBObject())
+    val records = recordsCollection.find(MongoDBObject())
 
-        // TODO re-introduce later
-        // find all user objects that use records as their thumbnail. we need this in case the thumbnail URL changed
-        //    val thumbnailLinks: Map[String, List[Link]] = Link.find(MongoDBObject("linkType" -> Link.LinkType.THUMBNAIL)).toList.groupBy(_.to.hubAlternativeId.get).toMap
+    var indexedRecords: Int = 0
 
-        val javaNamespaces = (format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String] ++ dataSet.namespaces).asJava
+    try {
+      for (record <- records) {
+        if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
 
-        // bring mapping engine to life
-        if (mapping.recordMapping.isDefined) {
-          val engine: MappingEngine = new MappingEngine(mapping.recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
-
-          // if there are crosswalks from the target format to another format, we for the moment will process them automatically
-          val crosswalkEngines = (RecordDefinition.getCrosswalkResources(format.prefix).map {
-            r =>
-              val targetPrefix = r.getPath.substring(r.getPath.indexOf(format.prefix + "-")).split("-")(0)
-              (targetPrefix -> new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
-          }).toMap[String, MappingEngine]
-
-          // drop previous index
-          if (isIndexingFormat) {
-            IndexingService.deleteBySpec(orgId, spec)
+          // update state
+          if (records.numSeen % 100 == 0) {
+            DataSet.updateIndexingCount(dataSet, records.numSeen)
           }
 
-          // loop over records
-          val recordsCollection = DataSet.getRecords(dataSet)
-          val recordCount = recordsCollection.count(MongoDBObject("validOutputFormats" -> format.prefix))
-          val records = recordsCollection.find(MongoDBObject("validOutputFormats" -> format.prefix))
+          if (records.numSeen % 2000 == 0) {
+            log.info("%s: processed %s of %s records, for formats '%s'".format(spec, records.numSeen, recordCount, formatsString))
+          }
 
-          log.info("Processing %s valid records for format %s".format(recordCount, format.prefix))
+          for(format <- processingFormats; if(format.hasMapping && format.recordIsValid(record))) {
+            val isIndexingFormat = indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix
 
-          try {
-            for (record <- records) {
-              if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
+            val mainMappingResult = format.engine.execute(record.getRawXmlString)
 
-                // update state
-                if (records.numSeen % 100 == 0) {
-                  DataSet.updateIndexingCount(dataSet, records.numSeen)
-                }
+            // cache mapping result
+            DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
 
-                if (records.numSeen % 2000 == 0) {
-                  log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-                }
+            // handle systemFields
+            val systemFields = getSystemFields(mainMappingResult)
+            val enrichedSystemFields = enrichSystemFields(systemFields, spec)
+            recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
 
-                val mainMappingResult = engine.execute(record.getRawXmlString)
+            // if the current format is the to be indexed one, send the record out for indexing
+            if (isIndexingFormat) {
+              val fields: Map[String, List[Any]] = mainMappingResult.fields()
+              val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
+              Indexing.indexOne(dataSet, record, fields ++ searchFields ++ systemFields, format.prefix)
+              indexedRecords += 1
+            }
 
-                // cache mapping result
-                DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
-
-                // handle systemFields
-                val systemFields = getSystemFields(mainMappingResult)
-                val enrichedSystemFields = enrichSystemFields(systemFields, spec)
-                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
-
-                // if the current format is the to be indexed one, send the record out for indexing
-                if (isIndexingFormat) {
-                  val fields: Map[String, List[Any]] = mainMappingResult.fields()
-                  val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
-                  Indexing.indexOne(dataSet, record, fields ++ searchFields ++ systemFields, format.prefix)
-                }
-
-                // also cache the result of possible crosswalks
-                if (!crosswalkEngines.isEmpty) {
-                  val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
-                  for (c <- crosswalkEngines) {
-                    val transformed = c._2.execute(firstPassRecord).root()
-                    DataSet.cacheMappedRecord(dataSet, record, c._1, MappingService.nodeTreeToXmlString(transformed))
-                  }
-                }
+            // also cache the result of possible crosswalks
+            if (!format.crosswalkEngines.isEmpty) {
+              val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
+              for (c <- format.crosswalkEngines) {
+                val transformed = c._2.execute(firstPassRecord).root()
+                DataSet.cacheMappedRecord(dataSet, record, c._1, MappingService.nodeTreeToXmlString(transformed))
               }
             }
-            if (isIndexingFormat) {
-              DataSet.updateIndexingCount(dataSet, records.numSeen)
-            }
-            log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-          } catch {
-            case t => {
-              t.printStackTrace()
-              log.error("Error while processing records for format %s of DataSet %s".format(format.prefix, spec), t)
-              DataSet.updateState(dataSet, DataSetState.ERROR)
-            }
           }
-        } else {
-          log.warn("No mapping found for format %s, skipping its processing".format(format.prefix))
-        }
-
-        // finally, update the processing state again
-        DataSet.getState(orgId, spec).name match {
-          case DataSetState.PROCESSING.name =>
-            DataSet.updateState(dataSet, DataSetState.ENABLED)
-            Indexing.commit()
-          case DataSetState.UPLOADED.name => // do nothing
-          case s@_ =>
-            log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
-            DataSet.updateState(dataSet, DataSetState.ERROR)
-            if (isIndexingFormat) {
-              log.info("Deleting DataSet %s from SOLR".format(spec))
-              IndexingService.deleteBySpec(orgId, spec)
-            }
         }
       }
+
+      if(indexingFormat.isDefined) {
+        DataSet.updateIndexingCount(dataSet, indexedRecords)
+      }
+
+    } catch {
+      case t => {
+        t.printStackTrace()
+        log.error("Error while processing records of DataSet %s".format(spec), t)
+        DataSet.updateState(dataSet, DataSetState.ERROR)
+      }
+    }
+
+    // finally, update the processing state again
+    DataSet.getState(orgId, spec).name match {
+      case DataSetState.PROCESSING.name =>
+        if(indexingFormat.isDefined) {
+          Indexing.commit()
+        }
+        DataSet.updateState(dataSet, DataSetState.ENABLED)
+      case DataSetState.UPLOADED.name => // do nothing, this processing was cancelled
+      case s@_ =>
+        log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
+        DataSet.updateState(dataSet, DataSetState.ERROR)
+        if (indexingFormat.isDefined) {
+          log.info("Deleting DataSet %s from SOLR".format(spec))
+          IndexingService.deleteBySpec(orgId, spec)
+        }
     }
 
     log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
@@ -169,13 +154,14 @@ object DataSetProcessor {
 
   private def getSystemFields(mappingResult: MappingEngine.Result) = {
     val systemFields: Map[String, List[Any]] = mappingResult.systemFields()
-    val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
-      val name = try {
-        SystemField.valueOf(sf._1).tag
+    val renamedSystemFields: Map[String, List[Any]] = systemFields.flatMap(sf => {
+      try {
+        Some(SystemField.valueOf(sf._1).tag -> sf._2)
       } catch {
-        case _ => sf._1
+        case _ =>
+          // we boldly ignore any fields that do not match the system fields
+          None
       }
-      (name -> sf._2)
     })
     renamedSystemFields
   }
@@ -190,6 +176,24 @@ object DataSetProcessor {
     ).map(v => (v._1, List(v._2))).toMap
   }
 
+}
 
+case class ProcessingFormat(format: RecordDefinition, dataSet: DataSet) {
+
+  val prefix = format.prefix
+
+  val javaNamespaces = (format.allNamespaces.map(ns => (ns.prefix -> ns.uri)).toMap[String, String] ++ dataSet.namespaces).asJava
+
+  val hasMapping: Boolean = dataSet.mappings.contains(format.prefix) && dataSet.mappings(format.prefix).recordMapping.isDefined
+
+  val engine: MappingEngine = new MappingEngine(dataSet.mappings(format.prefix).recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
+
+  val crosswalkEngines = (RecordDefinition.getCrosswalkResources(format.prefix).map {
+    r =>
+      val targetPrefix = r.getPath.substring(r.getPath.indexOf(format.prefix + "-")).split("-")(0)
+      (targetPrefix -> new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
+    }).toMap[String, MappingEngine]
+
+  def recordIsValid(record: MetadataRecord) = record.validOutputFormats.contains(format.prefix)
 
 }
