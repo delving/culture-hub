@@ -44,14 +44,14 @@ class ViewRenderSpec extends Specification {
         val renderer = new ViewRenderer("icn", "full")
         val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"))
 
-        RenderNode.visit(view.viewTree)
+        RenderNode.visit(view.toViewTree)
 
         println()
         println()
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
-        args.put("view", view.viewTree)
+        args.put("view", view.toViewTree)
         args.put("lang", "en")
         val rendered: String = template.render(args)
         val expected: String =
@@ -91,11 +91,11 @@ class ViewRenderSpec extends Specification {
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
-        args.put("view", view.viewTree)
+        args.put("view", view.toViewTree)
         args.put("lang", "en")
         val rendered: String = template.render(args)
 
-        RenderNode.visit(view.viewTree)
+        RenderNode.visit(view.toViewTree)
 
         println()
         println()

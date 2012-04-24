@@ -16,8 +16,6 @@
 
 package core.rendering
 
-import scala.xml.Node
-import xml.XML
 import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
@@ -29,6 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import java.io.{ByteArrayInputStream, File}
 import play.api.i18n.{Messages, Lang}
 import org.apache.commons.lang.StringEscapeUtils
+import xml.{NodeSeq, Node, XML}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -345,7 +344,7 @@ class ViewRenderer(schema: String, viewName: String) {
       roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
-    RenderedView(viewName, prefix, result.content.head)
+    NodeRenderedView(viewName, prefix, result.content.head)
 
   }
 
@@ -358,13 +357,22 @@ class ViewRenderer(schema: String, viewName: String) {
 
 }
 
-case class RenderedView(viewName: String, formatName: String, viewTree: RenderNode) {
+abstract class RenderedView {
+  def toXml: NodeSeq
+  def toXmlString: String
+  def toJson: String
+  def toViewTree: RenderNode
+}
+
+case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode) extends RenderedView {
 
   def toXml = XML.loadString(toXmlString)
   
   def toXmlString = RenderNode.toXMLString(viewTree)
 
   def toJson = RenderNode.toJson(viewTree)
+
+  def toViewTree = viewTree
 }
 
 /**

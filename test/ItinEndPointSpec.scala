@@ -13,10 +13,8 @@ import xml.XML
  * @since 3/15/12 8:40 AM  
  */
 
-class ItinEndPointSpec extends Specification with TestData {
+class ItinEndPointSpec extends Specification with TestContext {
 
-  def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
-  
   "ItinEndPoint" should {
 
     "Store XML post" in {

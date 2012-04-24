@@ -292,8 +292,8 @@ object SolrQueryService extends SolrServer {
       None
     } else {
       val first = response.getResults.get(0)
-      val currentFormat = if(first.getFirstValue(SCHEMA) == null) first.getFirstValue("delving_currentFormat").toString else first.getFirstValue(SCHEMA).toString
-      val publicFormats = if(first.getFieldValues(ALL_SCHEMAS) == null) first.getFieldValues("delving_allFormats").asScala.map(_.toString).toSeq else first.getFieldValues(ALL_SCHEMAS).asScala.map(_.toString).toSeq
+      val currentFormat = if(first.containsKey(SCHEMA)) first.getFirstValue(SCHEMA).toString else ""
+      val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allFormats").asScala.map(_.toString).toSeq else Seq.empty
       Some(
         first.getFirstValue(HUB_ID).toString,
         currentFormat,
@@ -499,11 +499,11 @@ case class DocId(solrIdentifier: String)  {
 case class DelvingIdType(id: String, idType: String) {
   lazy val idSearchField = idType match {
     case "solr" => ID
-    //case "mongo" => "delving"
     case "pmh" => PMH_ID
     case "drupal" => "id" // maybe later drup_id
     case "dataSetId" => HUB_ID
     case "hubId" => HUB_ID
+    case "indexItem" => ID
     case "legacy" => EUROPEANA_URI
     case _ => PMH_ID
   }

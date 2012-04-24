@@ -5,6 +5,7 @@ import models.Thing
 import core.search.SolrServer
 import util.Constants
 import play.api.Logger
+import org.apache.solr.common.SolrInputDocument
 
 /**
  * Indexing API for Controllers
@@ -24,6 +25,13 @@ object IndexingService extends SolrServer {
    */
   def stageForIndexing(t: Thing) {
     SolrServer.indexSolrDocument(t.toSolrDocument)
+  }
+
+  /**
+   * Stages a SOLR InputDocument for indexing
+   */
+  def stageForIndexing(doc: SolrInputDocument) {
+    getStreamingUpdateServer.add(doc)
   }
 
   /**
