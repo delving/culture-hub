@@ -26,8 +26,6 @@ object DataSetProcessor {
 
   val AFF = "aff"
 
-  val summaryFields = List(TITLE, DESCRIPTION, OWNER, CREATOR, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, SPEC)
-
   private implicit def listMapToScala(map: java.util.Map[String, java.util.List[String]]) = map.asScala.map(v => (v._1, v._2.asScala.toList)).toMap
 
   def process(dataSet: DataSet) {
@@ -93,67 +91,67 @@ object DataSetProcessor {
 
           try {
             for (record <- records) {
+              if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
 
-              // update state
-              if (records.numSeen % 100 == 0) {
-                DataSet.updateIndexingCount(dataSet, records.numSeen)
-              }
-
-              if (records.numSeen % 2000 == 0) {
-                log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-              }
-
-              val mainMappingResult = engine.execute(record.getRawXmlString)
-
-              // cache mapping result
-              DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
-
-              // extract system fields
-              val systemFields: Map[String, List[Any]] = mainMappingResult.systemFields()
-
-              // fix naming of the system fields
-              val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
-                val name = try {
-                  SystemField.valueOf(sf._1).tag
-                } catch {
-                  case _ => sf._1
+                // update state
+                if (records.numSeen % 100 == 0) {
+                  DataSet.updateIndexingCount(dataSet, records.numSeen)
                 }
-                (name -> sf._2)
-              })
 
-              val hubSystemFields: Map[String, List[Any]] = Map(
-                SPEC -> spec,
-                RECORD_TYPE -> MDR,
-                VISIBILITY -> Visibility.PUBLIC.value.toString,
-                MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-                HAS_DIGITAL_OBJECT -> (renamedSystemFields.contains(THUMBNAIL) && renamedSystemFields.get(THUMBNAIL).size > 0)
-              ).map(v => (v._1, List(v._2))).toMap
+                if (records.numSeen % 2000 == 0) {
+                  log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
+                }
 
-              recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (renamedSystemFields ++ hubSystemFields).asDBObject))
+                val mainMappingResult = engine.execute(record.getRawXmlString)
 
-              // if the current format is the to be indexed one, send the record out for indexing
-              if (isIndexingFormat) {
-                val fields: Map[String, List[Any]] = mainMappingResult.fields()
-                val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
-                Indexing.indexOne(dataSet, record, fields ++ searchFields ++ renamedSystemFields, format.prefix)
-              }
+                // cache mapping result
+                DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
+
+                // extract system fields
+                val systemFields: Map[String, List[Any]] = mainMappingResult.systemFields()
+
+                // fix naming of the system fields
+                val renamedSystemFields: Map[String, List[Any]]  = systemFields.map(sf => {
+                  val name = try {
+                    SystemField.valueOf(sf._1).tag
+                  } catch {
+                    case _ => sf._1
+                  }
+                  (name -> sf._2)
+                })
+
+                val hubSystemFields: Map[String, List[Any]] = Map(
+                  SPEC -> spec,
+                  RECORD_TYPE -> MDR,
+                  VISIBILITY -> Visibility.PUBLIC.value.toString,
+                  MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
+                  HAS_DIGITAL_OBJECT -> (renamedSystemFields.contains(THUMBNAIL) && renamedSystemFields.get(THUMBNAIL).size > 0)
+                ).map(v => (v._1, List(v._2))).toMap
+
+                recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (renamedSystemFields ++ hubSystemFields).asDBObject))
+
+                // if the current format is the to be indexed one, send the record out for indexing
+                if (isIndexingFormat) {
+                  val fields: Map[String, List[Any]] = mainMappingResult.fields()
+                  val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
+                  Indexing.indexOne(dataSet, record, fields ++ searchFields ++ renamedSystemFields, format.prefix)
+                }
 
 
-              // also cache the result of possible crosswalks
-              if (!crosswalkEngines.isEmpty) {
-                val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
-                for (c <- crosswalkEngines) {
-                  val transformed = c._2.execute(firstPassRecord).root()
-                  DataSet.cacheMappedRecord(dataSet, record, c._1, MappingService.nodeTreeToXmlString(transformed))
+                // also cache the result of possible crosswalks
+                if (!crosswalkEngines.isEmpty) {
+                  val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
+                  for (c <- crosswalkEngines) {
+                    val transformed = c._2.execute(firstPassRecord).root()
+                    DataSet.cacheMappedRecord(dataSet, record, c._1, MappingService.nodeTreeToXmlString(transformed))
+                  }
                 }
               }
             }
-
             if (isIndexingFormat) {
               DataSet.updateIndexingCount(dataSet, records.numSeen)
             }
             log.info("%s: processed %s of %s records, for main format '%s' and crosswalks '%s'".format(spec, records.numSeen, recordCount, format.prefix, crosswalkEngines.keys.mkString(", ")))
-
           } catch {
             case t => {
               t.printStackTrace()
@@ -170,6 +168,7 @@ object DataSetProcessor {
           case DataSetState.PROCESSING.name =>
             DataSet.updateState(dataSet, DataSetState.ENABLED)
             Indexing.commit()
+          case DataSetState.UPLOADED.name => // do nothing
           case s@_ =>
             log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
             DataSet.updateState(dataSet, DataSetState.ERROR)
