@@ -182,7 +182,7 @@ class IndexApiSpec extends Specification with TestContext {
       val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
 
       queryByHasDigitalObject.getResults.size() must equalTo (1)
-      queryByHasDigitalObject.getResults.get(0).getFirstValue("title_string") must equalTo ("FooBar")
+      queryByHasDigitalObject.getResults.get(0).getFirstValue("custom_title_string") must equalTo ("FooBar")
     }
   }
 
