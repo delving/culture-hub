@@ -35,7 +35,7 @@ case class IndexItem(_id: ObjectId = new ObjectId,
 
         val indexFieldName = "%s_%s".format(name, dataType)
 
-        doc.addField(indexFieldName, field.text)
+        doc.addField("custom_%s".format(indexFieldName), field.text)
 
         if(isFacet) {
           doc.addField(indexFieldName + "_facet", field.text)
@@ -55,8 +55,10 @@ case class IndexItem(_id: ObjectId = new ObjectId,
           if(doc.containsKey(HAS_DIGITAL_OBJECT) && !thumbnailEmpty) {
             doc.remove(HAS_DIGITAL_OBJECT)
             doc.addField(HAS_DIGITAL_OBJECT, true)
+            doc.addField(HAS_DIGITAL_OBJECT + "_facet", true)
           } else if(!doc.containsKey(HAS_DIGITAL_OBJECT)) {
             doc.addField(HAS_DIGITAL_OBJECT, thumbnailEmpty)
+            doc.addField(HAS_DIGITAL_OBJECT + "_facet", thumbnailEmpty)
           }
         } else {
           val indexFieldName = "delving_%s_%s".format(name, "string")
@@ -74,6 +76,7 @@ case class IndexItem(_id: ObjectId = new ObjectId,
     }
     doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
     doc.addField(RECORD_TYPE, itemType)
+    doc.addField(RECORD_TYPE + "_facet", itemType)
 
 
 
