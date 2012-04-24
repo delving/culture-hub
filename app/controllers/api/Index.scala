@@ -27,18 +27,37 @@ object Index extends DelvingController {
         |
         | An item contains one or more field elements that describe the data to be indexed. A field must provide a name attribute,
         | and can optionally specify:
-        | - a fieldType attribute which is used during indexing (default value: "text")
+        | - a fieldType attribute which is used by the indexing mechanism (default value: "text")
         | - a facet attribute which means that the field is to be made available as a facet (default value: false)
         |
+        | The possible values for fieldType are: string, location, int, single, text, date, link
         |
         | For example:
         |
         | <indexRequest>
         |   <indexItem itemId="123" itemType="book">
-        |     <field name="title" dataType="string">The Hitchhiker's Guide to the Galaxy</field>
+        |     <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
         |     <field name="author" fieldType="string" facet="true">Douglas Adams</field>
         |   </indexItem>
         | </indexRequest>
+        |
+        |
+        | It is possible to remove existing items by specifying the delete flag:
+        |
+        | <indexRequest>
+        |   <indexItem itemId="123" itemType="book" delete="true" />
+        | </indexRequest>
+        |
+        |
+        | Additionally, there is a number of optional system fields that can be specified, and that help to trigger additional functionality:
+        |
+        | <indexRequest>
+        |   <indexItem itemId="123" itemType="book">
+        |     <systemField name="thumbnail">http://path/to/thumbnail</field>
+        |   </indexItem>
+        | </indexRequest>
+        |
+        | The possible systemField names are: collection, thumbnail, landingPage, provider, dataProvider
         """.stripMargin)
       )
     case _ => None
@@ -65,7 +84,7 @@ object Index extends DelvingController {
             item =>
               if(item.deleted) {
                 IndexItem.remove(item.orgId, item.itemId, item.itemType)
-                IndexingService.deleteByQuery("""delving_orgId:%s id:%s delving_recordType:%s""".format())
+                IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                 deleted += 1
               } else {
                 IndexItem.save(item)
@@ -110,7 +129,7 @@ object Index extends DelvingController {
         if(itemType == MDR) {
           invalidItems += item
         } else {
-          val deleted = item.attribute("deleted").map(_ == "true").getOrElse(false)
+          val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
 
           // TODO check the field syntax
 

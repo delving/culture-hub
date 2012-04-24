@@ -24,14 +24,16 @@ case class IndexItem(_id: ObjectId = new ObjectId,
     val doc = new SolrInputDocument
 
     // mandatory fields
-    doc.addField(ID, itemId)
+    doc.addField(ID, "%s_%s_%s".format(orgId, itemType, itemId))
     doc.addField(ORG_ID, orgId)
     if (!doc.containsKey(VISIBILITY)) {
       doc addField(VISIBILITY, "10") // set to public by default
     }
+    doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
     doc.addField(RECORD_TYPE, itemType) // TODO should we really set the record-type to this or do we want to also set an additional flag so that we can find the documents back in solr???
 
-    val fields = XML.loadString(rawXml).nonEmptyChildren.filter(_.label == "field")
+    val document = XML.loadString(rawXml).nonEmptyChildren
+    val fields = document.filter(_.label == "field")
 
     // content fields
     fields.filter(_.attribute("name").isDefined).foreach {
@@ -49,12 +51,34 @@ case class IndexItem(_id: ObjectId = new ObjectId,
         }
     }
 
+    // system fields
+    val allowedSystemFields = List("collection", "thumbnail", "landingPage", "provider", "dataProvider")
+
+    val systemFields = document.filter(_.label == "systemField")
+    systemFields.filter(f => f.attribute("name").isDefined && allowedSystemFields.contains(f.attribute("name").get.text)).foreach {
+      field =>
+        val name = (field \ "@name").text
+
+        if(name == "thumbnail") {
+          val thumbnailEmpty = field.text.isEmpty
+          if(doc.containsKey(HAS_DIGITAL_OBJECT) && !thumbnailEmpty) {
+            doc.remove(HAS_DIGITAL_OBJECT)
+            doc.addField(HAS_DIGITAL_OBJECT, true)
+          } else if(!doc.containsKey(HAS_DIGITAL_OBJECT)) {
+            doc.addField(HAS_DIGITAL_OBJECT, thumbnailEmpty)
+          }
+        } else {
+          val indexFieldName = "delving_%s_%s".format(name, "string")
+          doc.addField(indexFieldName, field.text)
+        }
+    }
     doc
   }
 
 }
 
 object IndexItem extends SalatDAO[IndexItem, ObjectId](collection = indexItemsCollection) {
+
   def remove(itemId: String, orgId: String, itemType: String) {
     remove(MongoDBObject("orgId" -> orgId, "itemId" -> itemId, "itemType" -> itemType))
   }
