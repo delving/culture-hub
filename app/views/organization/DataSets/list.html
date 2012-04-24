@@ -55,13 +55,7 @@
             <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
             <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
             <td id="description${i.spec}" width="150">
-            *{todo enable this again after classloader fix}*
-                            *{#{if i.state.name() == models.DataSetState.ERROR().name()}}*
-                                *{<span class="error">${i.state.description()}</span>}*
-                            *{#{/if}}*
-                            *{#{else}}*
-                                ${i.state.description()}
-                            *{#{/else}}*
+                ${i.state.description()}
             </td>
             <td width="550">
                 #{if isOwner}
@@ -138,14 +132,15 @@
                             <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'dataset.confirmDeletion'}
                             </p>
                         </div>
+
                         <script type="text/javascript">
                             $(document).ready(function () {
                                 remove('#remove${i.spec}', '#removeConfirmation', '/organizations/${orgId}/dataset/${i.spec}/remove', '/organizations/${orgId}/dataset');
                                 $('#unlock${i.spec}').click(function () {
                                     $.ajax({
-                                        url:'/organizations/${orgId}/dataset/${i.spec}/forceUnlock',
-                                        type:'POST',
-                                        complete:function () {
+                                        url: '/organizations/${orgId}/dataset/${i.spec}/forceUnlock',
+                                        type: 'POST',
+                                        complete: function () {
                                             document.location = "/organizations/${orgId}/dataset";
                                         }
                                     });
@@ -169,9 +164,7 @@
                          #{/if}
 
                          #{if i.state.name() == models.DataSetState.PROCESSING().name()}
-                            *{<div class="progress progress-striped active">}*
-                                <div class="progress"  id="indexCounter${i.spec}"></div>
-                            *{</div>}*
+                         <div class="progress"  id="indexCounter${i.spec}"></div>
                          <script type="text/javascript">
                              $('#indexCounter${i.spec}').progressbar();
                              $('#indexCounter${i.spec}').smartupdater({
@@ -183,18 +176,14 @@
                                      $('#indexCounter${i.spec}').smartupdater('stop');
                                      $('#indexCounter${i.spec}').progressbar("value", 100);
                                      document.location = "/organizations/${orgId}/dataset";
-                                 }
-                                 else {
+                                 } else if(d.status == 'STARTING') {
+                                     // just wait
+                                 } else {
                                      $('#indexCounter${i.spec}').progressbar("value", d.status);
                                  }
                              });
                          </script>
                          #{/if}
-
-                        *{** INDEXING PROGRESS BAR **}*
-                        *{<div id="#indexCounter${i.spec}"></div>}*
-
-
                 #{/if}
 
             </div>
