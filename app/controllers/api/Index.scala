@@ -17,7 +17,7 @@ import core.indexing.IndexingService
 object Index extends DelvingController {
 
   def explain(path: List[String]) = path match {
-    case "proxy" :: Nil =>
+    case Nil =>
       Some(
         ApiDescription("""The Index API makes it possible to send custom items to be indexed.
         |

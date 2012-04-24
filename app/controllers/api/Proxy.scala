@@ -18,14 +18,14 @@ object Proxy extends DelvingController {
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn)
 
   def explain(path: List[String]) = path match {
-    case "proxy" :: Nil =>
+    case Nil =>
       Some(
         ApiDescription("The Proxy API provides a uniform API for querying accross various search APIs", List(
           ApiItem("list", "Lists all available proxies"),
           ApiItem("<proxyKey>/search", "Search via the selected proxy", "wikipedia.en/search?query=test"),
           ApiItem("<proxyKey>/item/<itemKey>", "Retrieve an item by identifier via the selected proxy", "wikipedia.en/item/bla")
         )))
-    case "proxy" :: proxyKey :: "search" :: Nil => Some(
+    case proxyKey :: "search" :: Nil => Some(
       ApiCallDescription("Runs a search using a specific proxy", List(
           ExplainItem("query", List("a string") , "the search term")
       ))
