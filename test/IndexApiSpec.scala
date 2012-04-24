@@ -20,10 +20,12 @@ class IndexApiSpec extends Specification with TestContext {
                       <indexItem itemId="123" itemType="book">
                         <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
                         <field name="author" fieldType="string" facet="true">Douglas Adams</field>
+                        <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/b/bd/H2G2_UK_front_cover.jpg</systemField>
                       </indexItem>
                       <indexItem itemId="456" itemType="movie">
                         <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
                         <field name="director" fieldType="string" facet="true">Garth Jennings</field>
+                        <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/7/7a/Hitchhikers_guide_to_the_galaxy.jpg</systemField>
                       </indexItem>
                     </indexRequest>
 
