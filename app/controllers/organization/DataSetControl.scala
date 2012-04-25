@@ -316,8 +316,9 @@ object DataSetControl extends OrganizationController {
   def indexingStatus(orgId: String, spec: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val state = DataSet.getIndexingState(orgId, spec) match {
-          case (a, b) if a == b => "DONE"
+        val state = DataSet.getProcessingState(orgId, spec) match {
+          case (a, b) if a == b && a == 100 => "DONE"
+          case (a, b) if a == b && a == 0 => "STARTING"
           case (a, b) => ((a.toDouble / b) * 100).round
         }
         Json(Map("status" -> state))
