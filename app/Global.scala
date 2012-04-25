@@ -6,12 +6,13 @@
 import actors._
 import com.mongodb.casbah.MongoConnection
 import core.HubServices
+import eu.delving.culturehub.core.CultureHubPlugin
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
-import mvc.{Handler, RequestHeader}
+import mvc.{Action, Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
 
@@ -139,6 +140,7 @@ object Global extends GlobalSettings {
   }
 
   override def onHandlerNotFound(request: RequestHeader) = {
+
     if(Play.isProd) {
       import play.api.mvc.Results._
       InternalServerError(views.html.errors.notFound(request, "", None))
@@ -147,6 +149,9 @@ object Global extends GlobalSettings {
     }
 
   }
+
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
+  lazy val routes = hubPlugins.flatMap(_.routes)
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
     val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
@@ -163,6 +168,24 @@ object Global extends GlobalSettings {
       }
     }
 
-    super.onRouteRequest(request)
+    // poor man's modular routing, based on CultureHub plugins
+
+    val matches = routes.flatMap(r => {
+      val matcher = r._1.pattern.matcher(request.path)
+      if(matcher.matches()) {
+        val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
+        Some((pathElems.toList, r._2))
+      } else {
+        None
+      }
+    })
+
+    if(matches.headOption.isDefined) {
+      val handlerCall = matches.head
+      val handler = handlerCall._2(handlerCall._1)
+      Some(handler)
+    } else {
+      super.onRouteRequest(request)
+    }
   }
 }
