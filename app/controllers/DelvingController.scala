@@ -1,6 +1,5 @@
 package controllers
 
-import organization.CMS
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
 import play.api.mvc._
@@ -11,9 +10,9 @@ import models._
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.api.Logger
-import core.{HubServices, ThemeAware}
 import play.libs.Time
 import xml.NodeSeq
+import core.{CultureHubPlugin, HubServices, ThemeAware, RequestContext}
 
 /**
  *
@@ -22,6 +21,10 @@ import xml.NodeSeq
 
 
 trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging with Extensions {
+
+  protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
+
+  private val onApplicationRequestHandlers: Seq[RequestContext => Unit] = hubPlugins.map(_.onApplicationRequest)
 
   // ~~~ i18n
 
@@ -60,15 +63,8 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG, requestLanguage)
 
-
-          // Menu entries
-          val mainMenuEntries = MenuEntry.findEntries(theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(getLang)).map(e => (Map(
-            "title" -> e.title(getLang),
-            "page" -> e.targetPageKey.getOrElse(""),
-            "published" -> e.published))
-          ).toList
-          renderArgs +=("menu", mainMenuEntries)
-
+          // apply plugin handlers
+          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, theme, renderArgs, getLang)))
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)

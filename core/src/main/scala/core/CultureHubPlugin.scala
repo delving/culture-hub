@@ -1,8 +1,10 @@
-package eu.delving.culturehub.core
+package core
 
 import scala.util.matching.Regex
-import play.api.mvc.Handler
 import play.api._
+import models.PortalTheme
+import mvc.{RequestHeader, Handler}
+import eu.delving.templates.scala.RenderArgs
 
 
 /**
@@ -19,4 +21,9 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   val routes: Map[Regex, List[String] => Handler] = Map.empty
 
+  val onApplicationRequest: RequestContext => Unit = { request => }
+
 }
+
+case class RequestContext(request: RequestHeader, theme: PortalTheme, renderArgs: RenderArgs, lang: String)
+

@@ -1,6 +1,6 @@
 package plugins
 
-import eu.delving.culturehub.core.CultureHubPlugin
+import core.CultureHubPlugin
 import play.api.mvc.Handler
 import scala.util.matching.Regex
 import play.api.Application
