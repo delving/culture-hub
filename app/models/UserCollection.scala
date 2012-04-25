@@ -18,7 +18,7 @@ package models
 
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import _root_.util.Constants._
+import core.Constants._
 import mongoContext._
 import java.util.Date
 import com.mongodb.casbah.Imports._

@@ -22,10 +22,10 @@ import org.bson.types.ObjectId
 import java.util.Date
 import models.mongoContext._
 import com.novus.salat.grater
-import util.Constants._
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.WriteConcern
 import core.mapping.MappingService
+import core.Constants._
 
 case class MetadataRecord(_id: ObjectId = new ObjectId,
                           hubId: String,
@@ -135,7 +135,7 @@ class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, List[Str
 
   override def getHubId = hubId
 
-  override def getRecordType = _root_.util.Constants.MDR
+  override def getRecordType = core.Constants.MDR
 }
 
 trait MDRCollection {

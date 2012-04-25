@@ -16,8 +16,8 @@ package core.search
  * limitations under the License.
  */
 
-import util.Constants._
 import exceptions.AccessKeyException
+import core.Constants._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
@@ -26,7 +26,6 @@ import play.api.Logger
 import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import controllers.api.ExplainItem
-import scala.Boolean
 import java.lang.String
 import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
 import xml.{NodeSeq, Elem}

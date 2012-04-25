@@ -16,7 +16,7 @@
 
 package models {
 
-import _root_.util.Constants._
+import core.Constants._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import java.util.Date

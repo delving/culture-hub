@@ -19,7 +19,7 @@ package models
 import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import salat.dao.{SalatMongoCursor, SalatDAO}
+import salat.dao.SalatDAO
 
 /**
  * Common trait to be used with the companion object of a Thing
@@ -52,42 +52,4 @@ trait Commons[A <: Thing] { self: AnyRef with SalatDAO[A, ObjectId] =>
     case Some(dbo) => dbo.get("name").toString
   }
 
-}
-
-object Commons {
-
-  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false, "blocked" -> false)
-
-}
-
-trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
-
-  import views.Helpers.PAGE_SIZE
-
-  /**
-   * Returns a page and the total object count
-   * @param page the page number
-   * @param pageSize optional size of the page, defaults to PAGE_SIZE
-   */
-  implicit def listWithPage(list: List[A]) = new {
-    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
-      val p = if(page == 0) 1 else page
-      val c = list.slice((p - 1) * pageSize, (p - 1) * pageSize + pageSize)
-      (c, list.size)
-    }
-  }
-
-  implicit def cursorWithPage(cursor: SalatMongoCursor[A]) = new {
-
-    /**
-     * Returns a page and the total object count
-     * @param page the page number
-     * @param pageSize optional size of the page, defaults to PAGE_SIZE
-     */
-    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
-      val p = if(page == 0) 1 else page
-      val c = cursor.skip((p - 1) * pageSize).limit(pageSize)
-      (c.toList, c.count)
-    }
-  }
 }

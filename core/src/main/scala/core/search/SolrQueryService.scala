@@ -18,17 +18,17 @@ package core.search
 
 import models.PortalTheme
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
-import _root_.util.Constants._
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
-import _root_.util.Constants
+import core.Constants._
 import org.apache.commons.lang.StringEscapeUtils
 import scala.Predef._
 import scala._
 import collection.immutable.{List, Map}
 import org.apache.solr.client.solrj.SolrQuery
+import core.Constants
 
 /**
  *
@@ -106,7 +106,7 @@ object SolrQueryService extends SolrServer {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
-    query setRows views.Helpers.PAGE_SIZE
+    query setRows core.Constants.PAGE_SIZE
     query setStart 0
     query setFacet true
     query setFacetMinCount (1)
@@ -594,7 +594,7 @@ case class BreadCrumb(href: String, display: String, field: String = "", localis
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
-case class Pager(numFound: Int, start: Int = 1, rows: Int = views.Helpers.PAGE_SIZE) {
+case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_SIZE) {
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7

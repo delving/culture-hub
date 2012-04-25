@@ -23,7 +23,7 @@ import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils
-import models._
+import models.{RecordDefinition, MetadataRecord, Collection, Namespace}
 import xml.{Elem, PrettyPrinter, XML}
 
 /**

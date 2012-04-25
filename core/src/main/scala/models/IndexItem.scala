@@ -1,7 +1,7 @@
 package models
 
 import mongoContext._
-import util.Constants._
+import core.Constants._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.Imports._

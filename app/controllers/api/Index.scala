@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Promise
 import models.IndexItem
 import scala.xml._
 import collection.mutable.ListBuffer
-import util.Constants._
+import core.Constants._
 import core.indexing.IndexingService
 
 /**

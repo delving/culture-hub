@@ -37,9 +37,9 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
 
   def findByUsername(userName: String, active: Boolean = true): Option[HubUser] = HubUser.findOne(MongoDBObject("userName" -> userName))
 
-  def findBookmarksCollection(userName: String): Option[UserCollection] = {
-    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
-  }
+//  def findBookmarksCollection(userName: String): Option[UserCollection] = {
+//    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
+//  }
 
   // ~~~ organizations
 

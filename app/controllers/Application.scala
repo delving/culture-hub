@@ -2,9 +2,9 @@ package controllers
 
 import play.api.mvc._
 import models._
-import core.ThemeInfo
 import com.mongodb.casbah.Imports._
-import util.Constants._
+import core.ThemeInfo
+import core.Constants._
 
 object Application extends DelvingController {
 

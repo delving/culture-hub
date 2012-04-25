@@ -7,10 +7,8 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
-import java.util.Date
-import core.indexing.IndexingService
 import core.HubServices
-import models.{HubUser, Visibility, UserCollection}
+import models.HubUser
 
 /**
  *
@@ -86,26 +84,28 @@ object Authentication extends ApplicationController {
             }
          }
 
-          HubUser.findBookmarksCollection(user._1) match {
-            case None =>
-              // create default bookmarks collection
-              val bookmarksCollection = UserCollection(
-                TS_update = new Date(),
-                userName = user._1,
-                name = "Bookmarks",
-                description = "Bookmarks",
-                visibility = Visibility.PRIVATE,
-                thumbnail_id = None,
-                thumbnail_url = None,
-                isBookmarksCollection = Some(true))
-              val userCollectionId = UserCollection.insert(bookmarksCollection)
-              try {
-                IndexingService.index(bookmarksCollection.copy(_id = userCollectionId.get))
-              } catch {
-                case t => ErrorReporter.reportError(this.getClass.getName, t, "Could not index Bookmarks collection %s for newly created user %s".format(userCollectionId.get.toString), theme)
-              }
-            case Some(bookmarks) => // it's ok
-          }
+
+// FIXME re-introduce this later
+//          HubUser.findBookmarksCollection(user._1) match {
+//            case None =>
+//              // create default bookmarks collection
+//              val bookmarksCollection = UserCollection(
+//                TS_update = new Date(),
+//                userName = user._1,
+//                name = "Bookmarks",
+//                description = "Bookmarks",
+//                visibility = Visibility.PRIVATE,
+//                thumbnail_id = None,
+//                thumbnail_url = None,
+//                isBookmarksCollection = Some(true))
+//              val userCollectionId = UserCollection.insert(bookmarksCollection)
+//              try {
+//                // IndexingService.index(bookmarksCollection.copy(_id = userCollectionId.get))
+//              } catch {
+//                case t => ErrorReporter.reportError(this.getClass.getName, t, "Could not index Bookmarks collection %s for newly created user %s".format(userCollectionId.get.toString), theme)
+//              }
+//            case Some(bookmarks) => // it's ok
+//          }
 
           val action = (request.session.get("uri") match {
             case Some(uri) => Redirect(uri)

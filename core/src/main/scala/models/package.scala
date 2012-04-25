@@ -18,11 +18,10 @@ package models
 
 import play.Play
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.{MongoCollection}
+import com.mongodb.casbah.MongoCollection
 import com.mongodb.DBObject
 import play.api.Play.current
 import extensions.ConfigurationException
-import models.mongoContext._
 
 // TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
