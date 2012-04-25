@@ -58,8 +58,8 @@ abstract class MetadataAccessors extends Universal {
     case OBJECT | USERCOLLECTION | STORY => "/" + getHubId.replaceAll("_", "/")
     case MDR =>
       // only provide a link if there's something to show via AFF
-      val allFormats = values(ALL_SCHEMAS)
-      if(allFormats.size > 0 && allFormats.contains("aff")) {
+      val allSchemas = values(ALL_SCHEMAS)
+      if(allSchemas.size > 0 && allSchemas.contains("aff")) {
         "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
       } else {
         ""

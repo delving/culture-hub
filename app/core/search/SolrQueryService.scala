@@ -293,7 +293,7 @@ object SolrQueryService extends SolrServer {
     } else {
       val first = response.getResults.get(0)
       val currentFormat = if(first.containsKey(SCHEMA)) first.getFirstValue(SCHEMA).toString else ""
-      val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allFormats").asScala.map(_.toString).toSeq else Seq.empty
+      val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allSchemas").asScala.map(_.toString).toSeq else Seq.empty
       Some(
         first.getFirstValue(HUB_ID).toString,
         currentFormat,

@@ -287,8 +287,8 @@ class ViewRenderSpec extends Specification {
   <dc:publisher>De Brabantse Leeuw</dc:publisher>
   <dc:title>GESLACHT RULO</dc:title>
   <dcterms:hasVersion>JAARGANG XIV 1 9 6 5</dcterms:hasVersion>
-  <delving:allFormats>raw</delving:allFormats>
-  <delving:allFormats>tib</delving:allFormats>
+  <delving:allSchemas>raw</delving:allSchemas>
+  <delving:allSchemas>tib</delving:allSchemas>
   <delving:currentFormat>tib</delving:currentFormat>
   <delving:hasDigitalObject>true</delving:hasDigitalObject>
   <delving:hubId>thuisinbrabant_de-brabantse-leeuw_3967</delving:hubId>
@@ -297,7 +297,7 @@ class ViewRenderSpec extends Specification {
   </delving:landingPage>
   <delving:orgId>thuisinbrabant</delving:orgId>
   <delving:pmhId>de-brabantse-leeuw_4ef0fdfb0cf21d42ad667346</delving:pmhId>
-  <delving:publicFormats>raw</delving:publicFormats>
+  <delving:publicSchemas>raw</delving:publicSchemas>
   <delving:recordType>mdr</delving:recordType>
   <delving:spec>de-brabantse-leeuw</delving:spec>
   <delving:thumbnail>
