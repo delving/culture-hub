@@ -1,10 +1,9 @@
 package core.mapping
 
-import models.{RecordDefinition, DataSet}
+import models.RecordDefinition
 import play.api.{Play, Logger}
 import play.api.Play.current
 import eu.delving.sip.MappingEngine
-import controllers.ModelImplicits
 import eu.delving.metadata._
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node
@@ -16,7 +15,7 @@ import eu.delving.groovy.XmlSerializer
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object MappingService extends ModelImplicits {
+object MappingService {
 
   var recDefModel: RecDefModel = null
 

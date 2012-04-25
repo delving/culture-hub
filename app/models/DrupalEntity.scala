@@ -3,7 +3,7 @@ package models
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import org.apache.solr.common.SolrInputDocument
-import util.Constants._
+import core.Constants._
 import core.search.SolrServer
 import java.util.Date
 import xml.NodeSeq

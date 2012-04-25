@@ -13,8 +13,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.Logger
 import core.{HubServices, ThemeAware}
 import play.libs.Time
-import scala.Predef._
-import xml.{NodeSeq, Elem, Node}
+import xml.NodeSeq
 
 /**
  *

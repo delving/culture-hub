@@ -20,7 +20,7 @@ import com.novus.salat.dao.SalatDAO
 import com.novus.salat
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import models.Commons.FilteredMDO
+import Resolver.FilteredMDO
 
 /**
  *
@@ -44,5 +44,10 @@ trait Resolver[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =
       case objectId => findOne(FilteredMDO("_id" -> new ObjectId(id)) ++ $or("userName" -> userName))
     }
   }
+
+}
+
+object Resolver {
+  def FilteredMDO[A <: String, B](elems : Tuple2[A, B]*) = MongoDBObject(elems.toList) ++ MongoDBObject("deleted" -> false, "blocked" -> false)
 
 }

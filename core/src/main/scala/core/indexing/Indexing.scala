@@ -19,8 +19,7 @@ package core.indexing
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
-import play.api.Play.current
-import util.Constants._
+import core.Constants._
 import org.apache.commons.httpclient.methods.GetMethod
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
@@ -29,7 +28,7 @@ import org.apache.tika.parser.pdf.PDFParser
 import exceptions.SolrConnectionException
 import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
-import models._
+import models.{MetadataRecord, DataSet}
 
 
 /**
@@ -37,7 +36,7 @@ import models._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Indexing extends SolrServer with controllers.ModelImplicits {
+object Indexing extends SolrServer {
 
   def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)

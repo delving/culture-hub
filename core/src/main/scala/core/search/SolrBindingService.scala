@@ -19,7 +19,7 @@ import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.response. {FacetField, QueryResponse}
 import collection.immutable. {HashMap, Map => ImMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
-import collection.mutable. {ListBuffer, Map}
+import collection.mutable.{ListBuffer, Map}
 import org.apache.solr.common.SolrDocumentList
 import java.lang.{Boolean => JBoolean, Float => JFloat}
 import java.util.{Date, ArrayList, List => JList, Map => JMap}

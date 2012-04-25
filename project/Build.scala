@@ -18,20 +18,17 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
-    "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
-
-    "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
-    "eu.delving"                %  "sip-core"                        % "1.0.3-SNAPSHOT",
-    "eu.delving"                %  "sip-creator"                     % "1.0.3-SNAPSHOT",
-    "eu.delving"                %% "play2-extensions"                % "1.0-SNAPSHOT",
-
-    "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",
-    "org.apache.tika"           %  "tika-parsers"                    % "1.0"
-
+    "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4"
   )
 
   val coreDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT"
+    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
+
+    "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
+    "eu.delving"                %  "sip-core"                        % "1.0.3-SNAPSHOT",
+
+    "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",
+    "org.apache.tika"           %  "tika-parsers"                    % "1.0"
   )
 
   val core = Project("culturehub-core", file("core/"), Seq.empty).settings(

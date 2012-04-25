@@ -1,3 +1,5 @@
+package core
+
 /*
  * Copyright 2011 Delving B.V.
  *
@@ -14,10 +16,6 @@
  * limitations under the License.
  */
 
-package util
-
-import core.SystemField
-
 /**
  * Constants, used across several building blocks
  *
@@ -32,7 +30,7 @@ object Constants {
   val STORY = "story"
   val USER = "user"
   val MDR = "mdr"
-  val DATASET ="dataSet"
+  val DATASET = "dataSet"
 
   // ~~~ identifier fields
   val ID = "id"
@@ -93,5 +91,9 @@ object Constants {
   val MDR_LOCAL_ID: String = "localRecordKey"
   val MDR_HUB_ID = "hubId"
   val MDR_HUBCOLLECTION = "hubCollection"
+
+
+  // TODO move to conf?
+  val PAGE_SIZE: Int = 12
 
 }

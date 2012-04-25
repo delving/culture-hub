@@ -2,8 +2,7 @@ package controllers
 
 import play.api.mvc._
 import models._
-import util.Constants._
-import views.Helpers._
+import core.Constants._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages

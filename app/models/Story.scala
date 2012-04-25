@@ -21,7 +21,7 @@ import com.novus.salat.dao.SalatDAO
 import mongoContext._
 import org.bson.types.ObjectId
 import java.util.Date
-import util.Constants._
+import core.Constants._
 import core.indexing.IndexingService
 import controllers.{ModelImplicits, ShortObjectModel}
 

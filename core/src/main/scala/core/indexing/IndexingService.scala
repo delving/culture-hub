@@ -1,9 +1,8 @@
 package core.indexing
 
 import com.mongodb.casbah.commons.TypeImports._
-import models.Thing
 import core.search.SolrServer
-import util.Constants
+import core.Constants._
 import play.api.Logger
 import org.apache.solr.common.SolrInputDocument
 
@@ -11,21 +10,6 @@ import org.apache.solr.common.SolrInputDocument
  * Indexing API for Controllers
  */
 object IndexingService extends SolrServer {
-
-  /**
-   * Indexes one Thing
-   */
-  def index(t: Thing) {
-    stageForIndexing(t)
-    getStreamingUpdateServer.commit()
-  }
-
-  /**
-   * Stages one Thing for indexing
-   */
-  def stageForIndexing(t: Thing) {
-    SolrServer.indexSolrDocument(t.toSolrDocument)
-  }
 
   /**
    * Stages a SOLR InputDocument for indexing
@@ -85,7 +69,7 @@ object IndexingService extends SolrServer {
    * Deletes from the index by collection spec
    */
   def deleteBySpec(orgId: String, spec: String) {
-    val deleteQuery = Constants.SPEC + ":" + spec + " " + Constants.ORG_ID + ":" + orgId
+    val deleteQuery = SPEC + ":" + spec + " " + ORG_ID + ":" + orgId
     Logger.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
     val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
     deleteResponse.getStatus

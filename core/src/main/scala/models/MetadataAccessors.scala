@@ -16,9 +16,9 @@
 
 package models
 
-import util.Constants._
+import core.Constants._
 import org.bson.types.ObjectId
-import views.Helpers._
+import views.Helpers.thumbnailUrl
 
 /**
  *

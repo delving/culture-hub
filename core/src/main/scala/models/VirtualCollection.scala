@@ -1,6 +1,5 @@
 package models
 
-import controllers.ModelImplicits
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
@@ -52,7 +51,7 @@ case class MDRReference(_id: ObjectId = new ObjectId,
                         validOutputFormats: List[String]) // cache of valid output formats
 
 
-object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) with ModelImplicits {
+object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) {
 
   val children = new ChildCollection[MDRReference, ObjectId](collection = virtualCollectionsRecordsCollection, parentIdField = "parentId") {}
 

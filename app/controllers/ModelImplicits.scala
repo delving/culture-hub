@@ -21,7 +21,7 @@ import models._
 import com.mongodb.casbah.Imports._
 import views.Helpers.thumbnailUrl
 import eu.delving.sip.IndexDocument
-import util.Constants._
+import core.Constants._
 
 /**
  * Implicits for conversion between backend models and view models
@@ -50,7 +50,7 @@ trait ModelImplicits {
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, util.Constants.OBJECT, o.files, o.getMimeType)
+  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, OBJECT, o.files, o.getMimeType)
   implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
   implicit def mdrAccessorToShortObjectModel[T <: MetadataAccessors](record: T) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)

@@ -6,12 +6,12 @@ import collection.JavaConverters._
 import eu.delving.sip.MappingEngine
 import core.indexing.{IndexingService, Indexing}
 import play.api.{Logger, Play}
-import util.Constants._
+import core.SystemField
+import core.Constants._
 import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
-import models._
-import core.SystemField
+import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and

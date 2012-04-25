@@ -21,13 +21,11 @@ import java.util.Date
 import org.bson.types.ObjectId
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
-import com.novus.salat._
 import com.novus.salat.dao._
 import com.mongodb.{BasicDBObject, WriteConcern}
 import xml.{Node, XML}
 import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
-import controllers.ModelImplicits
 import play.api.i18n.Messages
 import core.HubServices
 import eu.delving.metadata.{RecMapping, Path}
@@ -107,7 +105,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] with ModelImplicits {
+object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] {
 
   lazy val factDefinitionList = parseFactDefinitionList
 

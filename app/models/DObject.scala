@@ -22,9 +22,9 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import controllers.dos.StoredFile
 import java.util.Date
-import util.Constants._
+import core.Constants._
 import views.Helpers.DEFAULT_THUMBNAIL
-import Commons.FilteredMDO
+import Resolver.FilteredMDO
 import core.indexing.IndexingService
 
 /**
