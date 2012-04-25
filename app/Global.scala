@@ -4,15 +4,13 @@
  */
 
 import actors._
-import com.mongodb.casbah.MongoConnection
-import core.HubServices
-import eu.delving.culturehub.core.CultureHubPlugin
+import core.{CultureHubPlugin, HubServices}
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
-import mvc.{Action, Handler, RequestHeader}
+import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
 
