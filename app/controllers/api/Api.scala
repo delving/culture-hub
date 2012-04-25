@@ -7,8 +7,10 @@ import scala.Predef._
 import scala._
 import collection.immutable.ListMap
 import xml.{NodeSeq, Elem}
+import javax.xml.transform.TransformerFactory
+import java.io.{ByteArrayOutputStream, ByteArrayInputStream}
+import javax.xml.transform.stream.{StreamResult, StreamSource}
 import org.apache.commons.lang.StringEscapeUtils
-import core.rendering.RenderNode._
 
 /**
  * The API documentation
@@ -28,6 +30,8 @@ object Api extends DelvingController {
       val explanation = pathList(0) match {
         case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
         case "index" => controllers.api.Index.explain(pathList.drop(1))
+        case "search" => return controllers.api.Search.searchApi(orgId, None, None, None)
+        case "oai-pmh" => controllers.api.OpenData.explain(pathList.drop(1))
         case _ => return noDocumentation(orgId, path)
       }
       explanation match {
@@ -60,24 +64,12 @@ object Api extends DelvingController {
           ApiItem("proxy", "Search proxy"),
           ApiItem("providers", "Providers list"),
           ApiItem("dataProviders", "Data Providers list"),
-          ApiItem("collections", "Collections list")
+          ApiItem("collections", "Collections list"),
+          ApiItem("index", "Custom item indexing")
         )
 
-        if(wantsXml) {
-          val xml = <explain>
-            <description>{apiDescription}</description>
-            <global-parameters>{globalParams.map(_.toXml)}</global-parameters>
-            <api-list>{apis.map(_.toXml)}</api-list>
-          </explain>
-          Ok(xml)
-        } else {
-          val json = Map(
-            "description" -> apiDescription,
-            "global-parameters" -> globalParams.map(_.toJson),
-            "api-list" -> apis.map(_.toJson)
-          )
-          Ok(JJson.generate(json)).as(JSON)
-        }
+        val description = ApiDescription(apiDescription, apis, globalParams, true, false)
+        renderExplanation(description)(request)
     }
   }
 
@@ -106,7 +98,9 @@ object Api extends DelvingController {
 
   private def renderExplanation(explanation: Description) = Action {
     implicit request =>
-      if(wantsXml) {
+      if(wantsHtml) {
+        Ok(explanation.toHtml).as(HTML)
+      } else if(wantsXml) {
         Ok(explanation.toXml)
       } else {
         Ok(JJson.generate(explanation.toJson)).as(JSON)
@@ -116,27 +110,120 @@ object Api extends DelvingController {
 }
 
 abstract class Description {
+
+  def toHtml(implicit request: RequestHeader): String = {
+
+    val xmlSource = new StreamSource(new ByteArrayInputStream(toHtmlXml.toString().getBytes("utf-8")))
+    val xsltSource = new StreamSource(new ByteArrayInputStream(toHtmlXslt.toString().getBytes("utf-8")))
+
+    val transFact = TransformerFactory.newInstance()
+    val trans = transFact.newTransformer(xsltSource)
+
+    val baos = new ByteArrayOutputStream()
+
+    trans.transform(xmlSource, new StreamResult(baos))
+
+    baos.toString("utf-8")
+  }
+
   def toXml(implicit request: RequestHeader): NodeSeq
   def toJson(implicit request: RequestHeader): Map[String, Any]
+
+  protected def toHtmlXml(implicit request: RequestHeader): NodeSeq
+  protected def toHtmlXslt: NodeSeq
 }
 
-case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty) extends Description {
+case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty, globalParameters: List[ExplainItem] = List.empty, linkUrl: Boolean = false, renderExample: Boolean = true) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{StringEscapeUtils.escapeXml(description)}</description>
-      <api-list>{apiItems.map(_.toXml)}</api-list>
+      <description>{description}</description>{if(!apiItems.isEmpty){
+      <global-params>{globalParameters.map(_.toXml)}</global-params>}}{if(!apiItems.isEmpty){
+      <api-list>{apiItems.map(_.toXml)}</api-list>}}
     </explain>
 
   def toJson(implicit request: RequestHeader) = Map(
     "description" -> description,
+    "global-params" -> globalParameters.map(_.toJson),
     "api-list" -> apiItems.map(_.toJson)
   )
+
+
+  protected def toHtmlXml(implicit request: RequestHeader): NodeSeq =
+    <explain>
+      <description>{StringEscapeUtils.escapeXml(description).replaceAll("\n", "<br/>").replaceAll(" ", "&nbsp;")}</description>{if(!apiItems.isEmpty){
+      <global-params>{globalParameters.map(_.toXml)}</global-params>}}{if(!apiItems.isEmpty){
+      <api-list>{apiItems.map(_.toXml)}</api-list>}}
+    </explain>
+
+
+  def toHtmlXslt: NodeSeq =
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:template match="/">
+      <html>
+      <body>
+        <h2>Description</h2>
+        <p><xsl:value-of select="explain/description" disable-output-escaping="yes"/></p>
+        <xsl:if test="explain/global-parameters">
+          <h2>Global parameters</h2>
+          <table border="1">
+            <tr>
+              <th>Label</th>
+              <th>Description</th>
+              <th>Options</th>
+            </tr>
+            <xsl:for-each select="explain/global-parameters-list/element">
+            <tr>
+              <td><xsl:value-of select="label"/></td>
+              <td><xsl:value-of select="description"/></td>
+              <td>
+                <ul>
+                  <xsl:for-each select="options">
+                    <li><xsl:value-of select="option"/></li>
+                  </xsl:for-each>
+                </ul>
+              </td>
+            </tr>
+            </xsl:for-each>
+          </table>
+        </xsl:if>
+        <xsl:if test="explain/api-list">
+          <h2>API Paths</h2>
+          <table border="1">
+            <tr>
+              <th>URL</th>
+              <th>Description</th>
+              {if(renderExample) {
+              <th>Example</th>
+              }}
+            </tr>
+            <xsl:for-each select="explain/api-list/api">
+            <tr>
+              <td>{if(linkUrl) {
+                <a><xsl:attribute name="href"><xsl:value-of select="url"/>?explain=true</xsl:attribute><xsl:value-of select="url"/></a>
+              } else {
+                  <xsl:value-of select="url"/>
+              }}</td>
+              <td><xsl:value-of select="description"/></td>
+              {if(renderExample) {
+              <td><a><xsl:attribute name="href"><xsl:value-of select="example"/></xsl:attribute><xsl:value-of select="example"/></a></td>
+              }}
+            </tr>
+            </xsl:for-each>
+          </table>
+        </xsl:if>
+      </body>
+      </html>
+    </xsl:template>
+    </xsl:stylesheet>
+
+
 }
 
 case class ApiCallDescription(description: String, explainItems: List[ExplainItem] = List.empty) extends Description {
+
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{StringEscapeUtils.escapeXml(description)}</description>
+      <description>{description}</description>
       <parameters>{explainItems.map(_.toXml)}</parameters>
     </explain>
 
@@ -145,6 +232,48 @@ case class ApiCallDescription(description: String, explainItems: List[ExplainIte
     "parameters" -> explainItems.map(_.toJson)
   )
 
+
+  protected def toHtmlXml(implicit request: RequestHeader): NodeSeq =
+    <explain>
+      <description>{StringEscapeUtils.escapeXml(description).replaceAll("\n", "<br/>").replaceAll(" ", "&nbsp;")}</description>
+      <parameters>{explainItems.map(_.toXml)}</parameters>
+    </explain>
+
+
+  def toHtmlXslt: NodeSeq =
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:template match="/">
+      <html>
+      <body>
+        <h2>Description</h2>
+        <p><xsl:value-of select="explain/description" disable-output-escaping="true"/></p>
+        <xsl:if test="explain/parameters">
+          <h2>Parameters</h2>
+          <table border="1">
+            <tr>
+              <th>Label</th>
+              <th>Description</th>
+              <th>Options</th>
+            </tr>
+            <xsl:for-each select="explain/parameters/element">
+            <tr>
+              <td><xsl:value-of select="label"/></td>
+              <td><xsl:value-of select="description"/></td>
+              <td>
+                <ul>
+                  <xsl:for-each select="options">
+                    <li><xsl:value-of select="option"/></li>
+                  </xsl:for-each>
+                </ul>
+              </td>
+            </tr>
+            </xsl:for-each>
+          </table>
+        </xsl:if>
+      </body>
+      </html>
+    </xsl:template>
+    </xsl:stylesheet>
 }
 
 /**
