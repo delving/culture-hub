@@ -9,8 +9,11 @@ object ApplicationBuild extends Build {
 
   val dosVersion = "1.5"
 
+  val coreVersion = "1.0-SNAPSHOT"
+
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/groups/public"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+  def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
 
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
@@ -27,6 +30,23 @@ object ApplicationBuild extends Build {
 
   )
 
+  val coreDependencies = Seq(
+    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT"
+  )
+
+  val core = Project("culturehub-core", file("core/"), Seq.empty).settings(
+    libraryDependencies := coreDependencies,
+    organization := "eu.delving",
+    version := coreVersion,
+    resolvers += delvingSnapshots,
+    resolvers += delvingReleases,
+    resolvers +="repo.novus rels" at "http://repo.novus.com/releases/",
+    resolvers += "repo.novus snaps" at "http://repo.novus.com/snapshots/",
+    publishTo := Some(delvingRepository(coreVersion)),
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
+    publishMavenStyle := true
+  )
+
   val dosDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
     "com.thebuzzmedia"          %  "imgscalr-lib"                     % "3.2"
@@ -38,6 +58,17 @@ object ApplicationBuild extends Build {
     resolvers += delvingReleases
   )
 
+  // for later
+  val musipDependencies = Seq(
+    "eu.delving"               %% "culturehub-core"                   % "1.0-SNAPSHOT"
+  )
+
+  // TODO move to its own source repo once we have something stable
+  val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
+    resolvers += delvingSnapshots,
+    resolvers += delvingReleases
+  ).dependsOn(core)
+
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
 
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
@@ -48,6 +79,6 @@ object ApplicationBuild extends Build {
 
     routesImport += "extensions.Binders._"
 
-  ).dependsOn(dos)
+  ).dependsOn(core, dos, musip)
 
 }
