@@ -25,7 +25,7 @@ import collection.JavaConverters._
 import play.api.Logger
 import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
-import controllers.api.ExplainItem
+import core.ExplainItem
 import java.lang.String
 import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
 import xml.{NodeSeq, Elem}
