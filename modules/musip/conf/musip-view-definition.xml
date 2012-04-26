@@ -2,11 +2,40 @@
 
 <views>
     <view name="museum">
-      <row>
-        <section id="general">
-            <field path="/musip:actor/musip:name" label="thing.title"/>
-            <field path="/musip:actor/musip:description" label="thing.description"/>
-        </section>
-      </row>
+        <row>
+            <section id="general">
+                <field path="/musip:actor/musip:name" label="thing.title"/>
+                <field path="/musip:actor/musip:description" label="thing.description"/>
+                <field path="/musip:actor/musip:addresss" label="thing.address"/>
+                <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
+                <field path="/musip:actor/musip:place" label="thing.place"/>
+                <field path="/musip:actor/musip:municipality" label="thing.municipality"/>
+                <field path="/musip:actor/musip:province" label="thing.province"/>
+                <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea"/>
+                <field path="/musip:actor/musip:fax" label="thing.fax"/>
+                <field path="/musip:actor/musip:email" label="thing.email"/>
+                <field path="/musip:actor/musip:url" label="thing.url"/>
+                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
+            </section>
+            <section>
+                <list type="concatenated" separator=", " label="Collections" path="/musip:actor/musip:collections/musip:collection">
+                    <field label="Collection" path="."/>
+                </list>
+            </section>
+
+            <section>
+                <list path="/musip:actor/musip:collections/musip:collection">
+                    <field label="Collection" path="."/>
+                </list>
+            </section>
+
+            <section>
+                <list path="/musip:actor/musip:contatcs/musip:contact">
+                    <field label="Contact name" path="musip:name"/>
+                    <link textValue="Contact email" urlExpr="musip:email"/>
+                </list>
+            </section>
+
+        </row>
     </view>
 </views>

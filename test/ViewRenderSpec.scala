@@ -211,7 +211,7 @@ class ViewRenderSpec extends Specification {
             <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
-            <link url="/record/dc:data/dc:link" text="/record/dc:data/dc:name" />
+            <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name" />
         </section>
         <section id="complexFields">
              <list path="/record/icn:places/icn:place">
