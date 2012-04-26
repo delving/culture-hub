@@ -3,36 +3,43 @@
 <views>
     <view name="museum">
         <row>
-            <section id="general">
-                <field path="/musip:actor/musip:name" label="thing.title"/>
-                <field path="/musip:actor/musip:description" label="thing.description"/>
-                <field path="/musip:actor/musip:addresss" label="thing.address"/>
-                <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
-                <field path="/musip:actor/musip:place" label="thing.place"/>
-                <field path="/musip:actor/musip:municipality" label="thing.municipality"/>
-                <field path="/musip:actor/musip:province" label="thing.province"/>
-                <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea"/>
-                <field path="/musip:actor/musip:fax" label="thing.fax"/>
-                <field path="/musip:actor/musip:email" label="thing.email"/>
-                <field path="/musip:actor/musip:url" label="thing.url"/>
-                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
+            <section id="general" type="dl">
+                <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
+                <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
+                <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
+                <field path="/musip:actor/musip:postal_code" label="thing.postalCode" type="di"/>
+                <field path="/musip:actor/musip:place" label="thing.place" type="di"/>
+                <field path="/musip:actor/musip:municipality" label="thing.municipality" type="di"/>
+                <field path="/musip:actor/musip:province" label="thing.province" type="di"/>
+                <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea" type="di"/>
+                <field path="/musip:actor/musip:fax" label="thing.fax" type="di"/>
+                <field path="/musip:actor/musip:email" label="thing.email" type="di"/>
+                <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
+                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
             </section>
-            <section>
-                <list type="concatenated" separator=", " label="Collections" path="/musip:actor/musip:collections/musip:collection">
-                    <field label="Collection" path="."/>
+
+            <section id="collections">
+                <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
+                    <field type="li" path="."/>
                 </list>
             </section>
 
-            <section>
-                <list path="/musip:actor/musip:collections/musip:collection">
-                    <field label="Collection" path="."/>
-                </list>
-            </section>
+            <!--<section id="collections">-->
+                <!--<list type="concatenated" separator=", " label="thing.collections" path="/musip:actor/musip:collections/musip:collection">-->
+                    <!--<field label="thing.collections" path="."/>-->
+                <!--</list>-->
+            <!--</section>-->
+
+            <!--<section>-->
+                <!--<list path="/musip:actor/musip:collections/musip:collection">-->
+                    <!--<field label="thing.collection" path="."/>-->
+                <!--</list>-->
+            <!--</section>-->
 
             <section>
                 <list path="/musip:actor/musip:contatcs/musip:contact">
-                    <field label="Contact name" path="musip:name"/>
-                    <link textValue="Contact email" urlExpr="musip:email"/>
+                    <field label="thing.contactName" path="musip:name"/>
+                    <link textValue="thing.contactEmail" urlExpr="musip:email"/>
                 </list>
             </section>
 

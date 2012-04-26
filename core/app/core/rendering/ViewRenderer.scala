@@ -219,7 +219,7 @@ class ViewRenderer(schema: String, viewName: String) {
               // ~~~ html helpers
 
               case "row" => enterAndAppendOne(n, dataNode, "row", true, 'class -> n.attr("class"))
-              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"))
+              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'type -> n.attr("type"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
