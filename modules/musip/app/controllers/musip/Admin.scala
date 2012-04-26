@@ -37,6 +37,7 @@ object Admin extends OrganizationController {
             // indexing
             val name = (actor \ "name").text.trim
             val description = (actor \ "description").text.trim
+            val thumbnail = (actor \ "image").text.trim
 
             val doc = new SolrInputDocument()
 
@@ -47,6 +48,7 @@ object Admin extends OrganizationController {
             doc.addField(SYSTEM_TYPE, HUB_ITEM)
             doc.addField(TITLE, name)
             doc.addField(DESCRIPTION, description)
+            doc.addField(THUMBNAIL, thumbnail)
             doc.addField(HUB_URI, "/%s/museum/%s".format(orgId, localId))
 
             IndexingService.stageForIndexing(doc)
