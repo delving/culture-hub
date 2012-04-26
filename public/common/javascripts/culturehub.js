@@ -184,23 +184,66 @@ function updateViewModel(data, viewModel, scope) {
     }
 }
 
-function remove(buttonId, dialogId, removeUrl, redirectUrl) {
-    $(buttonId).click(function(e) {
-      e.preventDefault();
-      confirmDeletion(dialogId, function() {
-          $.ajax({
-            url: removeUrl,
-            type: 'DELETE',
-            complete: function() {
-              document.location = redirectUrl;
-            }
-          });
-      });
-    });
-
-}
+//function remove(buttonId, dialogId, removeUrl, redirectUrl) {
+//    $(buttonId).click(function(e) {
+//      e.preventDefault();
+//      confirmDeletion(dialogId, function() {
+//          $.ajax({
+//            url: removeUrl,
+//            type: 'DELETE',
+//            complete: function() {
+//              document.location = redirectUrl;
+//            }
+//          });
+//      });
+//    });
+//
+//}
 
 // ~~~ common dialogs
+
+/* depends on bootbox.js (bootstrap extension) */
+
+function bootboxConfirm( options ) {
+    var default_args = {
+        'action_url'        : "",
+        'cancel_callback'   : "",
+        'cancel_message'    : "",
+        'error_callback'    : "",
+        'message'           : "Are you sure?",
+        'success_callback'  : "",
+        'success_url'       : "",
+        'type'              : 'GET'
+    };
+    for ( var index in default_args ) {
+        if ( typeof options[index] == "undefined" ) options[index] = default_args[index];
+    }
+    bootbox.confirm(options["message"], function(result){
+        if(result) {
+            $.ajax({
+                url: options["action_url"],
+                type: options["type"],
+                success: function() {
+                    if ( options["success_url"].length > 0) {
+                        document.location = options["success_url"];
+                    }
+                    if(typeof options["success_callback"] == 'function') {
+                        options["success_callback"].apply()
+                    }
+                },
+                error: function() {
+                    if(typeof options["error_callback"] == 'function') {
+                        options["error_callback"].apply()
+                    }
+                }
+            });
+        } else {
+            if(typeof options["cancel_callback"] == 'function') {
+                options["cancel_callback"].apply()
+            }
+        }
+    })
+}
 
 function confirmationDialog(elementId, onConfirm, message, title) {
     var id = '#' + elementId + 'ConfirmationDialog';
@@ -216,21 +259,21 @@ function confirmationDialog(elementId, onConfirm, message, title) {
  * i18n version. Labels are set in the commonHeader.html
  * If no labels are found default englsih texts 'Delete' and 'Cancel' are used
  */
-function confirmDeletion(elementSelector, onDelete, onCancel) {
-    var btnDelete, btnCancel;
-    btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
-    btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
-    var btnOptions = {};
-    btnOptions[btnDelete] = function() { if (typeof onDelete === 'function') onDelete.call(); $(this).dialog("close"); }
-    btnOptions[btnCancel] = function() { if (typeof onCancel === 'function') onCancel.call(); $(this).dialog("close"); }
-    $(elementSelector).dialog({
-        autoOpen: true,
-        resizable: false,
-        minHeight: 150,
-        modal: true,
-        buttons: btnOptions
-    });
-}
+//function confirmDeletion(elementSelector, onDelete, onCancel) {
+//    var btnDelete, btnCancel;
+//    btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
+//    btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
+//    var btnOptions = {};
+//    btnOptions[btnDelete] = function() { if (typeof onDelete === 'function') onDelete.call(); $(this).dialog("close"); }
+//    btnOptions[btnCancel] = function() { if (typeof onCancel === 'function') onCancel.call(); $(this).dialog("close"); }
+//    $(elementSelector).dialog({
+//        autoOpen: true,
+//        resizable: false,
+//        minHeight: 150,
+//        modal: true,
+//        buttons: btnOptions
+//    });
+//}
 
 
 // ~~~ object handling functions
