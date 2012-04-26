@@ -1,16 +1,16 @@
 package controllers
 
-import play.api.Play.current
-import eu.delving.templates.scala.GroovyTemplates
+import play.api.Logger
 import play.api.mvc._
+import play.api.Play.current
+import play.api.data.Form
+import play.api.i18n.{Lang, Messages}
+import play.libs.Time
+import eu.delving.templates.scala.GroovyTemplates
 import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
-import models._
-import play.api.data.Form
-import play.api.i18n.{Lang, Messages}
-import play.api.Logger
-import play.libs.Time
+import models.{Group, HubUser}
 import xml.NodeSeq
 import core.{CultureHubPlugin, HubServices, ThemeAware, RequestContext}
 
@@ -268,14 +268,6 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               additionalSessionParams += (AccessControl.GROUPS -> u.groups.mkString(","))
             }
           }
-
-          // TODO
-          //        Option(params.get("orgId")).map {
-          //              orgId =>
-          //                val orgName = Organization.fetchName(orgId)
-          //                renderArgs += ("browsedOrgName", orgName)
-          //            }
-
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
