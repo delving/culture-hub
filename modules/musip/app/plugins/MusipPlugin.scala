@@ -16,7 +16,10 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override val routes: Map[Regex, List[String] => Handler] = Map(
     """^/([A-Za-z0-9-]+)/collection/([A-Za-z0-9-]+)$""".r -> {
-      pathArgs: List[String] => controllers.musip.Collection.collection(pathArgs(0), pathArgs(1))
+      pathArgs: List[String] => controllers.musip.Show.collection(pathArgs(0), pathArgs(1))
+    },
+    """^/([A-Za-z0-9-]+)/museum/([A-Za-z0-9-]+)$""".r -> {
+      pathArgs: List[String] => controllers.musip.Show.museum(pathArgs(0), pathArgs(1))
     },
     """^/organizations/([A-Za-z0-9-]+)/admin/musip/synchronize$""".r -> {
       pathArgs: List[String] => controllers.musip.Admin.synchronize(pathArgs(0))

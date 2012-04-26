@@ -88,7 +88,7 @@ object Index extends DelvingController {
                 IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                 deleted += 1
               } else {
-                IndexItem.update(MongoDBObject("itemId" -> item.itemId, "orgId" -> orgId, "itemType" -> item.itemType), IndexItem._grater.asDBObject(item))
+                IndexItem.update(MongoDBObject("itemId" -> item.itemId, "orgId" -> orgId, "itemType" -> item.itemType), IndexItem._grater.asDBObject(item), true)
                 IndexingService.stageForIndexing(item.toSolrDocument)
                 indexed += 1
               }

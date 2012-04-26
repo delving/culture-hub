@@ -85,8 +85,8 @@ case class Page(title: String, text: String, objects: List[PageObject]) extends 
       val Array(orgId, spec, localRecordKey) = id.split("_")
       (orgId, spec)
     })
-    val heritageObjects: List[ShortObjectModel] = groupedIds.map(g => MetadataRecord.getAccessors(g._1, g._2 : _ *)).toList.flatten
-    userObjects ++ heritageObjects
+//    val heritageObjects: List[ShortObjectModel] = groupedIds.map(g => MetadataRecord.getAccessors(g._1, g._2 : _ *)).toList.flatten
+    userObjects //heritageObjects
   }
 
 }

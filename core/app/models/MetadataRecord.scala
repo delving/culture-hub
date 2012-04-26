@@ -49,8 +49,6 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 
   def getCachedTransformedRecord(metadataPrefix: String): Option[String] = rawMetadata.get(metadataPrefix)
 
-  def getDefaultAccessor = new SummaryFieldsMapMetadataAccessors(hubId, systemFields)
-
   // ~~~ linked meta-data
 
   def linkedUserCollections: Seq[String] = links.filter(_.linkType == Link.LinkType.PARTOF).map(_.value(USERCOLLECTION_ID))
@@ -101,41 +99,6 @@ object MetadataRecord {
     MappingService.transformRecord(record.getRawXmlString, mapping.get.recordMapping.getOrElse(""), dataSet.namespaces)
   }
 
-  def getAccessors(orgIdSpec: Tuple2[String, String], hubIds: String*): List[_ <: MetadataAccessors] = {
-    val collectionName = DataSet.getRecordsCollectionName(orgIdSpec._1, orgIdSpec._2)
-    getAccessors(collectionName, hubIds: _ *)
-  }
-
-  def getAccessors(hubCollection: String, hubIds: String*): List[_ <: MetadataAccessors] = {
-    val mdrs: Iterator[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_))
-    mdrs.map(mdr =>
-      if (mdr.rawMetadata.size > 1) {
-        Some(mdr.getDefaultAccessor)
-      } else {
-        None
-      }).toList.flatten
-  }
-
-
-}
-
-class SummaryFieldsMapMetadataAccessors(hubId: String, dbo: Map[String, List[String]]) extends MetadataAccessors {
-
-  protected def assign(key: String) = {
-    dbo.get(key) match {
-      case Some(v) => v.head
-      case None => ""
-    }
-  }
-
-  protected def values(key: String): List[String] = dbo.get(key) match {
-    case Some(v) => v
-    case None => List.empty
-  }
-
-  override def getHubId = hubId
-
-  override def getRecordType = core.Constants.MDR
 }
 
 trait MDRCollection {

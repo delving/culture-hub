@@ -20,9 +20,10 @@ object SystemField {
 
   object TITLE extends SystemField("title")
   object DESCRIPTION extends SystemField("description")
+  object THUMBNAIL extends SystemField("thumbnail")
+
   object OWNER extends SystemField("owner")
   object CREATOR extends SystemField("creator")
-  object THUMBNAIL extends SystemField("thumbnail")
   object LANDING_PAGE extends SystemField("landingPage")
   object DEEP_ZOOM_URL extends SystemField("deepZoomUrl")
   object PROVIDER extends SystemField("provider")

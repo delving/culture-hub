@@ -64,10 +64,11 @@ object Constants {
   // mapping-time SystemFields
   val TITLE = SystemField.TITLE.tag
   val DESCRIPTION = SystemField.DESCRIPTION.tag
+  val THUMBNAIL = SystemField.THUMBNAIL.tag
+  val EXTERNAL_LANDING_PAGE = SystemField.LANDING_PAGE.tag
+
   val OWNER = SystemField.OWNER.tag
   val CREATOR = SystemField.CREATOR.tag
-  val THUMBNAIL = SystemField.THUMBNAIL.tag
-  val LANDING_PAGE = SystemField.LANDING_PAGE.tag
   val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
   val PROVIDER = SystemField.PROVIDER.tag
 
@@ -77,6 +78,8 @@ object Constants {
   val RECORD_TYPE = "delving_recordType"
   val MIMETYPE = "delving_mimeType"
   val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
+
+  val HUB_URI = "delving_hubUrl"
 
   val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
 
@@ -95,7 +98,6 @@ object Constants {
 
   // TODO move to conf?
   val PAGE_SIZE: Int = 12
-
 
   // ~~~ ACCESS CONTROL
 

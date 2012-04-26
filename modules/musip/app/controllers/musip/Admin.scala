@@ -31,16 +31,12 @@ object Admin extends OrganizationController {
           for (actor <- actors) {
             val localId = (actor \ "@localId").text
 
-            println(localId)
-
             val item = MusipItem(rawXml = actor.toString(), orgId = orgId, itemId = localId, itemType = "museum")
             MusipItem.saveOrUpdate(item, orgId, "museum")
 
             // indexing
-            val name = (actor \ "name").text
-            val description = (actor \ "description").text
-
-            println(name)
+            val name = (actor \ "name").text.trim
+            val description = (actor \ "description").text.trim
 
             val doc = new SolrInputDocument()
 
@@ -50,11 +46,10 @@ object Admin extends OrganizationController {
             doc.addField(VISIBILITY, "10")
             doc.addField(SYSTEM_TYPE, HUB_ITEM)
             doc.addField(TITLE, name)
-            doc.addField(TITLE +"_string", name)
             doc.addField(DESCRIPTION, description)
+            doc.addField(HUB_URI, "/%s/museum/%s".format(orgId, localId))
 
             IndexingService.stageForIndexing(doc)
-
           }
 
           IndexingService.commit()

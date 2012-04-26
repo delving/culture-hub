@@ -51,15 +51,7 @@ case class IndexItem(_id: ObjectId = new ObjectId,
         val name = (field \ "@name").text
 
         if(name == "thumbnail") {
-          val thumbnailEmpty = field.text.isEmpty
-          if(doc.containsKey(HAS_DIGITAL_OBJECT) && !thumbnailEmpty) {
-            doc.remove(HAS_DIGITAL_OBJECT)
-            doc.addField(HAS_DIGITAL_OBJECT, true)
-            doc.addField(HAS_DIGITAL_OBJECT + "_facet", true)
-          } else if(!doc.containsKey(HAS_DIGITAL_OBJECT)) {
-            doc.addField(HAS_DIGITAL_OBJECT, thumbnailEmpty)
-            doc.addField(HAS_DIGITAL_OBJECT + "_facet", thumbnailEmpty)
-          }
+          doc.addField(THUMBNAIL, field.text)
         } else {
           val indexFieldName = "delving_%s_%s".format(name, "string")
           doc.addField(indexFieldName, field.text)
@@ -71,14 +63,9 @@ case class IndexItem(_id: ObjectId = new ObjectId,
     doc.addField(ID, id)
     doc.addField(HUB_ID, id)
     doc.addField(ORG_ID, orgId)
-    if (!doc.containsKey(VISIBILITY)) {
-      doc addField(VISIBILITY, "10") // set to public by default
-    }
+
     doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
     doc.addField(RECORD_TYPE, itemType)
-    doc.addField(RECORD_TYPE + "_facet", itemType)
-
-
 
     doc
   }

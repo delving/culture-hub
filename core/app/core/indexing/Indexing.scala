@@ -23,12 +23,12 @@ import core.Constants._
 import org.apache.commons.httpclient.methods.GetMethod
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
-import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
 import exceptions.SolrConnectionException
 import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import models.{MetadataRecord, DataSet}
+import org.apache.tika.metadata.Metadata
 
 
 /**
@@ -42,7 +42,7 @@ object Indexing extends SolrServer {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
     try {
-      getStreamingUpdateServer.add(doc)
+      IndexingService.stageForIndexing(doc)
     } catch {
       case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
     }
@@ -50,7 +50,7 @@ object Indexing extends SolrServer {
   }
 
   def commit() {
-    getStreamingUpdateServer.commit
+    IndexingService.commit
   }
 
   private def createSolrInputDocument(indexDoc: Map[String, List[Any]]): SolrInputDocument = {
@@ -70,19 +70,18 @@ object Indexing extends SolrServer {
   def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataRecord, format: String) {
     import scala.collection.JavaConversions._
 
-    inputDoc.addField(HUB_ID, record.hubId)
+    // mandatory fields
     inputDoc.addField(ORG_ID, dataSet.orgId)
-    inputDoc.addField(SPEC, "%s".format(dataSet.spec))
-    inputDoc.addField(SCHEMA, format)
+    inputDoc.addField(VISIBILITY, dataSet.visibility.value)
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
-    inputDoc.addField(VISIBILITY, dataSet.visibility.value)
+
+    inputDoc.addField(HUB_ID, record.hubId)
+    inputDoc.addField(SPEC, "%s".format(dataSet.spec))
+    inputDoc.addField(SCHEMA, format)
 
     // for backwards-compatibility
     inputDoc.addField(PMH_ID, record.hubId)
-
-    // user collections
-    inputDoc.addField(COLLECTIONS, record.linkedUserCollections.toArray)
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
@@ -145,12 +144,6 @@ object Indexing extends SolrServer {
       inputDoc.remove(uriWithTextSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
-
-    val hasDigitalObject: Boolean = !inputDoc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL) && !entry.getValue.isEmpty).isEmpty //inputDoc.containsKey(THUMBNAIL) && !inputDoc.get(THUMBNAIL).getValues.isEmpty
-    if (inputDoc.containsKey(HAS_DIGITAL_OBJECT)) inputDoc.remove(HAS_DIGITAL_OBJECT)
-    inputDoc.addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
-
-    if (hasDigitalObject) inputDoc.setDocumentBoost(1.4.toFloat)
 
      // FIXME some day
 //    dataSet.getVisibleMetadataFormats().foreach(format => inputDoc.addField(PUBLIC_SCHEMAS, format.prefix))

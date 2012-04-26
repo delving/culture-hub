@@ -108,17 +108,17 @@ class ViewRenderSpec extends Specification {
     }
 
     "render a record as XML" in {
+      running(FakeApplication()) {
+        val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-      val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+        val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
 
-      val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+        val xml = view.toXmlString
 
-      val xml = view.toXmlString
+        println(xml)
+        println()
 
-      println(xml)
-      println()
-
-      val expected =
+        val expected =
 """<?xml version="1.0" encoding="utf-8" ?>
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
@@ -138,24 +138,25 @@ class ViewRenderSpec extends Specification {
    </item>
  </record>"""
 
-      xml must equalTo(expected)
-
+        xml must equalTo(expected)
+      }
     }
 
 
     "render a record as JSON" in {
+      running(FakeApplication()) {
+        val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+        val renderer = new ViewRenderer("aff", "xml")
+        val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+        val json = view.toJson
 
-      val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-      val renderer = new ViewRenderer("aff", "xml")
-      val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
-      val json = view.toJson
+        println(json)
+        println()
 
-      println(json)
-      println()
+        val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
 
-      val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
-
-      json must equalTo (expected)
+        json must equalTo (expected)
+      }
 
     }
 

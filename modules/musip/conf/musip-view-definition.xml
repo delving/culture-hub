@@ -1,0 +1,12 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="museum">
+      <row>
+        <section id="general">
+            <field path="/musip:actor/musip:name" label="thing.title"/>
+            <field path="/musip:actor/musip:description" label="thing.description"/>
+        </section>
+      </row>
+    </view>
+</views>
