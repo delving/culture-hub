@@ -26,23 +26,24 @@
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
-                    *{<th>&{'thing.status'}</th>}*
+                    <th>&{'ui.label.status'}</th>
                     <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
                 <!-- ko if: pages().length > 0 -->
                 <tbody data-bind="foreach: pages()">
-
-                <tr>
+               <tr>
                     <td>
                         <span class="page-title" data-bind="text: title"></span>
-                        *{TODO: CREATE URL FOR THIS}*
-                        *{<a data-bind="attr: {href: '/page/' key}"><span class="page-title" data-bind="text: title"></span></a>}*
                     </td>
-                    *{
-                    *{<td>}*
-                        *{<span data-bind="text: published"></span>}*
-                    *{</td>}*
+                    <td>
+                        <!-- ko if: published() -->
+                        <i class="icon-eye-open"></i>
+                        <!-- /ko -->
+                        <!-- ko if: !published() -->
+                        <i class="icon-eye-close"></i>
+                        <!-- /ko -->
+                    </td>
                     <td>
                         <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }">
                             <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
@@ -74,16 +75,6 @@
     </div>
     </div>
 
-
-
-
-<div id="dialog-confirm-page-delete" title="&{'org.cms.list.deletePage'}" style="display: none;">
-    <p>
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-        &{'org.cms.list.deletePageConfirm'}
-    </p>
-</div>
-*{${data.raw()}}*
 <script type="text/javascript">
     $(document).ready(function () {
         var pagesModel = {
@@ -96,17 +87,16 @@
                 return false;
             },
             deletePage:function (page) {
-                confirmDeletion('#dialog-confirm-page-delete', function () {
-                    $.ajax({
-                        url:'/organizations/${orgId}/site/' + page.lang() + '/page/' + page.key(),
-                        type:'DELETE',
-                        success:function () {
-                            var idx;
-                            pagesModel.pages.remove(function (item) {
-                                return item.key === page.key;
-                            });
-                        }
-                    });
+                bootboxConfirm({
+                    'type': 'DELETE',
+                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'org.cms.list.deletePageConfirm'}',
+                    'action_url' : '/organizations/${orgId}/site/' + page.lang() + '/page/' + page.key(),
+                    'success_callback' : function () {
+                        pagesModel.pages.remove(function (item) {
+                            return item.key === page.key;
+                        });
+                    }
+
                 });
             }
         };
