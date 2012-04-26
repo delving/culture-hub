@@ -16,12 +16,10 @@
 
 package controllers
 
-import org.bson.types.ObjectId
-import models._
-import com.mongodb.casbah.Imports._
+import dos.StoredFile
 import views.Helpers.thumbnailUrl
-import eu.delving.sip.IndexDocument
 import core.Constants._
+import models._
 
 /**
  * Implicits for conversion between backend models and view models
@@ -29,71 +27,25 @@ import core.Constants._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait ModelImplicits {
+trait ModelImplicits extends CoreImplicits {
 
   // ~~~ View models
-
-  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), Some(embeddedLink.linkType), Some(embeddedLink.value))
-  implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
-
-  implicit def dataSetToShort(ds: DataSet) = ShortDataSet(
-    id = Option(ds._id),
-    spec = ds.spec,
-    total_records = ds.details.total_records,
-    state = ds.state,
-    facts = ds.getFacts,
-    recordDefinitions = ds.mappings.keySet.toList,
-    indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
-    orgId = ds.orgId,
-    userName = ds.getCreator.userName,
-    lockedBy = ds.lockedBy)
-
-  implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
-
-  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, OBJECT, o.files, o.getMimeType)
-  implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
+  case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String, files: Seq[StoredFile] = Seq.empty[StoredFile], mimeType: String = "unknown/unknown")
 
   implicit def mdrAccessorToShortObjectModel[T <: MetadataAccessors](record: T) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)
   implicit def mdrAccessorListToSOMList[T <: MetadataAccessors](records: List[T]) = records.map(mdrAccessorToShortObjectModel(_))
+
+  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, OBJECT, o.files, o.getMimeType)
+  implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
 
   // ~~ ListItems
 
   implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, OBJECT, o.name, o.description, Some(o._id), None, o.getMimeType, o.userName, o.visibility == Visibility.PRIVATE, o.url)
   implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, c.thumbnail_url, "unknown/unknown", c.userName, c.visibility == Visibility.PRIVATE, c.url)
   implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, s.thumbnail_url, "unknown/unknown", s.userName, s.visibility == Visibility.PRIVATE, s.url)
-  implicit def userToListItem(u: HubUser) = ListItem(u._id, USER, u.fullname, u.email, None, None, "unknown/unknown", u.userName, false, "/" + u.userName)
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, "unknown/unknown", ds.getCreator.userName, false, "/nope")
 
   implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
   implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }
   implicit def storyListToListItemList(l: List[Story]) = l.map { storyToListItem(_) }
-  implicit def userListToListItemList(l: List[HubUser]) = l.map { userToListItem(_) }
-  implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
-
-  // ~~~ ObjectId
-
-  implicit def oidToString(oid: ObjectId): String = oid.toString
-
-  implicit def oidOptionToString(oid: Option[ObjectId]): String = oid match {
-    case Some(id) => id.toString
-    case None => ""
-  }
-
-  implicit def stringToOidOption(id: String): Option[ObjectId] = ObjectId.isValid(id) match {
-    case true => Some(new ObjectId(id))
-    case false => None
-  }
-
-  // ~~~ Misc.
-
-  implicit def toMultiMap(indexDocument: IndexDocument): Map[String, List[String]] = {
-    val m = indexDocument.getMap
-    import scala.collection.JavaConverters._
-    val values: Map[String, List[String]] = (m.keySet().asScala.map { key =>
-    val value: java.util.List[IndexDocument#Value] = m.get(key)
-      (key, value.asScala.map(_.toString).toList)
-    }).toMap
-    values
-  }
 
 }

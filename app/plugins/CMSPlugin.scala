@@ -1,9 +1,9 @@
 package plugins
 
 import play.api.Application
+import controllers.organization.CMS
 import core.{RequestContext, CultureHubPlugin}
 import models.MenuEntry
-import controllers.organization.CMS
 
 /**
  *
@@ -15,7 +15,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "cms"
 
   override val onApplicationRequest: RequestContext => Unit = {
-    context => {
+    context =>
+
       // Menu entries
       val mainMenuEntries = MenuEntry.findEntries(context.theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(context.lang)).map(e => (Map(
         "title" -> e.title(context.lang),
@@ -23,7 +24,5 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         "published" -> e.published))
       ).toList
       context.renderArgs.put("menu", mainMenuEntries)
-    }
-
   }
 }

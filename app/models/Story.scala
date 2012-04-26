@@ -23,7 +23,7 @@ import org.bson.types.ObjectId
 import java.util.Date
 import core.Constants._
 import core.indexing.IndexingService
-import controllers.{ModelImplicits, ShortObjectModel}
+import controllers.{ModelImplicits}
 
 /**
  *

@@ -16,12 +16,14 @@
 
 package controllers
 
-import notifiers.Mails
 import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
 import play.api.mvc.{RequestHeader, Results, Result}
 import models.PortalTheme
+import extensions.Email
+import core.ThemeInfo
+import util.Quotes
 
 /**
  * Unified logging for controllers
@@ -40,10 +42,6 @@ trait Logging extends Secured { self: ApplicationController =>
   def Forbidden(why: String)(implicit request: RequestHeader)                                            = {
     warning(why)
     Results.Forbidden(why)
-  }
-  def NotFound(implicit request: RequestHeader)                                                          = {
-    info("Not found")
-    Results.NotFound(views.html.errors.notFound(request, "Not found", None))
   }
   def NotFound(why: String)(implicit request: RequestHeader)                                             = {
     info(why)
@@ -104,7 +102,7 @@ trait Logging extends Secured { self: ApplicationController =>
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
     Logger(CH).error("Attempted security breach: " + message)
-    Mails.reportError(securitySubject, toReport(message, request), theme)
+    ErrorReporter.reportError(securitySubject, toReport(message, request), theme)
   }
 
   private def withContext(msg: String)(implicit request: RequestHeader) = "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown"), request.method, request.uri, msg)
@@ -117,14 +115,18 @@ trait Logging extends Secured { self: ApplicationController =>
 object ErrorReporter {
 
   def reportError(request: RequestHeader, message: String, theme: PortalTheme) {
-    Mails.reportError(subject(request), toReport(message, request), theme)
+    reportError(subject(request), toReport(message, request), theme)
   }
   def reportError(request: RequestHeader, e: Throwable, message: String, theme: PortalTheme) {
-    Mails.reportError(subject(request), toReport(message, e, request), theme)
+    reportError(subject(request), toReport(message, e, request), theme)
   }
 
   def reportError(job: String, t: Throwable, message: String, theme: PortalTheme) {
-    Mails.reportError("[CultureHub] An error occured on node %s".format(current.configuration.getString("culturehub.nodeName")), toReport(job, message, t), theme)
+    reportError("[CultureHub] An error occured on node %s".format(current.configuration.getString("culturehub.nodeName")), toReport(job, message, t), theme)
+  }
+
+  def reportError(subject: String, report: String, theme: PortalTheme) {
+    Email(theme.emailTarget.systemFrom, subject).to(theme.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(theme)).send()
   }
 
   private def getUser(request: RequestHeader) = request.session.get("userName").getOrElse("Unknown")

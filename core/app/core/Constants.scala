@@ -96,4 +96,11 @@ object Constants {
   // TODO move to conf?
   val PAGE_SIZE: Int = 12
 
+
+  // ~~~ ACCESS CONTROL
+
+  val USERNAME = "userName"
+  val ORGANIZATIONS = "organizations"
+  val GROUPS = "groups"
+
 }
