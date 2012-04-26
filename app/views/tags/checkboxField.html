@@ -5,6 +5,6 @@
         ${_label}
     </label>
     <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
-    <span class="help-inline">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help}</span>
+    <span class="help-inline">#{if _required}<strong>&{'ui.label.required'}#{/if}</strong> ${_help.raw()}</span>
     *{</div>}*
 *{</div>}*
