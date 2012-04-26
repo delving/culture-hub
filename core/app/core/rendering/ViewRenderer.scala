@@ -29,6 +29,8 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
+import scala.Predef._
+import xml.Node._
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -245,11 +247,21 @@ class ViewRenderer(schema: String, viewName: String) {
                 }
 
               case "link" =>
-                val urlPath = n.attr("url")
-                val textPath = n.attr("text")
+                val urlValue = if(n.attribute("linkExpr").isDefined) {
+                  XPath.selectText(n.attr("urlExpr"), dataNode, namespaces.asJava)
+                } else if(n.attribute("linkValue").isDefined) {
+                  n.attr("linkValue")
+                } else {
+                  ""
+                }
 
-                val urlValue = XPath.selectText(urlPath, dataNode, namespaces.asJava)
-                val textValue = XPath.selectText(textPath, dataNode, namespaces.asJava)
+                val textValue = if(n.attribute("textExpr").isDefined) {
+                  XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
+                } else if(n.attribute("textValue").isDefined) {
+                  n.attr("textValue")
+                } else {
+                  ""
+                }
 
                 appendSimple("link", 'url -> urlValue, 'text -> textValue) { node => }
 
