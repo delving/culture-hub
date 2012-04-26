@@ -176,6 +176,8 @@ thing.fax=Fax
 thing.email=Email
 thing.url=URL
 thing.missionStatement=Mission statement
+thing.contactName=Contact name
+think.contactEmail=Contact email
 
 
 # Account registration and activation messages
