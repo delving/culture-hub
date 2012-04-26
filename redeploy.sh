@@ -1,5 +1,7 @@
 #!/bin/sh
 
+LOGFILE=logs/application.log
+
 echo
 echo
 echo =============================================
@@ -13,4 +15,8 @@ git pull
 ant downloadSipCreator
 ../play-2.0/play clean
 ../play-2.0/play compile
-../play-2.0/play start &
+../play-2.0/play start & $!>SBT_PID
+while ! (tail $LOGFILE | grep -qi Listening); do
+  sleep 1
+done
+kill -9 `cat SBT_PID` && rm SBT_PID
