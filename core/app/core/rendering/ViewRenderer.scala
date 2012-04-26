@@ -23,14 +23,13 @@ import org.w3c.dom.{Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
-import java.io.{ByteArrayInputStream, File}
+import java.io.ByteArrayInputStream
 import play.api.i18n.{Messages, Lang}
 import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
 import scala.Predef._
-import xml.Node._
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -158,6 +157,11 @@ class ViewRenderer(schema: String, viewName: String) {
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
 
+                  // for html lists
+                  val listType = n.attr("type")
+                  val separator = n.attr("separator")
+                  val label = n.attr("label")
+
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
                   } else {
@@ -168,21 +172,13 @@ class ViewRenderer(schema: String, viewName: String) {
                     }
                   }
 
-
-                  // if we have a list with a body, we render it as usual
-                  // otherwise, we give it a fake name so that elements get serialized directly when rendered as XML
-                  // but not so if rendered as JSON
-                  val usedListName = if(n.child.length > 1 || n.child.length == 1 && n.child.head.label != "attrs") {
-                    listName
-                  } else {
-                    "__LIST__"
-                  }
-
-
                   val attrs = fetchNestedAttributes(n, dataNode)
 
                   val list = RenderNode(listName, None, true)
                   list.addAttrs(attrs)
+                  list.addAttr('label -> label)
+                  list.addAttr('separator -> separator)
+                  list.addAttr('type -> listType)
 
                   treeStack.head += list
                   treeStack push list
@@ -222,12 +218,12 @@ class ViewRenderer(schema: String, viewName: String) {
 
               // ~~~ html helpers
 
-              case "row" => enterAndAppendOne(n, dataNode, "row", true)
-              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"))
+              case "row" => enterAndAppendOne(n, dataNode, "row", true, 'class -> n.attr("class"))
+              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"))
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
+                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type")) { renderNode => }
                 }
               case "enumeration" =>
                 if (hasAccess(roleList)) {
@@ -263,7 +259,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   ""
                 }
 
-                appendSimple("link", 'url -> urlValue, 'text -> textValue) { node => }
+                appendSimple("link", 'url -> urlValue, 'text -> textValue, 'class -> n.attr("class")) { node => }
 
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
