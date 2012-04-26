@@ -19,10 +19,19 @@ switch (_view.nodeType) {
 
 
     case "section":}%
-        <div class="section" id="${_view.attr("id")}">
+        <div class="section" id="${_view.attr("id")}" >
+        #{if _view.attr("type") == "dl"}
+        <dl class="dl">
             #{list items: _view.content(), as: 'i'}
                 #{view view: i /}
             #{/list}
+        </dl>
+        #{/if}
+        #{else}
+            #{list items: _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        #{/else}
         </div>
     %{
     break
