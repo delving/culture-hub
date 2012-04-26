@@ -18,4 +18,6 @@ object MusipItem extends SalatDAO[MusipItem, ObjectId](collection = musipItemsCo
     MusipItem.update(MongoDBObject("orgId" -> orgId, "itemId" -> item.itemId, "itemType" -> itemType), _grater.asDBObject(item), true)
   }
 
+  def find(orgId: String, itemId: String, itemType: String) = findOne(MongoDBObject("orgId" -> orgId, "itemId" -> itemId, "itemType" -> itemType))
+
 }

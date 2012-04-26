@@ -54,6 +54,8 @@ abstract class MetadataAccessors extends Universal {
   def getOwner: String = assign(OWNER)
   def getCreator: String = assign(CREATOR)
   def getVisibility: String = assign(VISIBILITY)
+
+  // TODO add plugin mechanism
   def getUri : String = getRecordType match {
     case OBJECT | USERCOLLECTION | STORY => "/" + getHubId.replaceAll("_", "/")
     case MDR =>
@@ -64,11 +66,12 @@ abstract class MetadataAccessors extends Universal {
       } else {
         ""
       }
-    case _ => ""
+
+    case _ => assign(HUB_URI)
   }
   def getLandingPage = getRecordType match {
     case OBJECT | USERCOLLECTION | STORY => getUri
-    case MDR => assign(LANDING_PAGE)
+    case MDR => assign(EXTERNAL_LANDING_PAGE)
     case _ => ""
   }
   def getThumbnailUri: String = getThumbnailUri(180)

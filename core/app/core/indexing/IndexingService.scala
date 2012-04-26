@@ -7,14 +7,30 @@ import play.api.Logger
 import org.apache.solr.common.SolrInputDocument
 
 /**
- * Indexing API for Controllers
+ * Indexing API
  */
 object IndexingService extends SolrServer {
 
   /**
-   * Stages a SOLR InputDocument for indexing
+   * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
    */
   def stageForIndexing(doc: SolrInputDocument) {
+    import scala.collection.JavaConversions._
+
+    val hasDigitalObject: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL) && !entry.getValue.isEmpty).isEmpty
+    if (doc.containsKey(HAS_DIGITAL_OBJECT)) doc.remove(HAS_DIGITAL_OBJECT)
+    doc.addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
+
+    if (hasDigitalObject) doc.setDocumentBoost(1.4.toFloat)
+
+    if (!doc.containsKey(VISIBILITY)) {
+      doc addField(VISIBILITY, "10") // set to public by default
+    }
+
+    // standard facets
+    doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
+    doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+
     getStreamingUpdateServer.add(doc)
   }
 
@@ -36,7 +52,7 @@ object IndexingService extends SolrServer {
    * Deletes from the index by string ID
    */
   def deleteById(id: String) {
-    SolrServer.deleteFromSolrById(id)
+    getStreamingUpdateServer.deleteById(id)
     commit()
   }
 
@@ -45,15 +61,6 @@ object IndexingService extends SolrServer {
    */
   def deleteById(id: ObjectId) {
     SolrServer.deleteFromSolrById(id)
-    commit()
-  }
-
-  /**
-   * Deletes a List of ObjectIds
-   */
-  def deleteById(ids: List[ObjectId]) {
-    import scala.collection.JavaConversions._
-    getStreamingUpdateServer.deleteById(ids.map(_.toString))
     commit()
   }
 

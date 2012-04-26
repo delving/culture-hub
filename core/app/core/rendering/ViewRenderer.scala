@@ -19,7 +19,6 @@ package core.rendering
 import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
-import play.api.Logger
 import org.w3c.dom.{Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
@@ -28,6 +27,8 @@ import java.io.{ByteArrayInputStream, File}
 import play.api.i18n.{Messages, Lang}
 import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
+import play.api.{Play, Logger}
+import play.api.Play.current
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -47,11 +48,11 @@ object ViewRenderer {
   }
 
   def getViewDefinition(schema: String, viewName: String): Option[Node] = {
-    val definitionFile = new File("conf/view-definitions/%s-view-definition.xml".format(schema))
-    if(!definitionFile.exists()) {
+    val definitionResource = Play.application.resource("/%s-view-definition.xml".format(schema))
+    if(!definitionResource.isDefined) {
       None
     } else {
-      val xml = XML.loadFile(definitionFile)
+      val xml = XML.load(definitionResource.get)
       (xml \ "view").filter(v => (v \ "@name").text == viewName).headOption
     }
   }

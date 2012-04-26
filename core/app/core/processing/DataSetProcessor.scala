@@ -5,13 +5,13 @@ import core.mapping.MappingService
 import collection.JavaConverters._
 import eu.delving.sip.MappingEngine
 import core.indexing.{IndexingService, Indexing}
-import play.api.{Logger, Play}
 import core.SystemField
 import core.Constants._
 import com.mongodb.casbah.Imports._
 import io.Source
 import eu.delving.groovy.XmlSerializer
 import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
+import play.api.{Play, Logger}
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -47,6 +47,16 @@ object DataSetProcessor {
     } else {
       None
     }
+
+    val renderingFormat: Option[RecordDefinition] = if(formats.exists(_.prefix == AFF)) {
+      formats.find(_.prefix == AFF)
+    } else if(indexingFormat.isDefined) {
+      indexingFormat
+    } else {
+      formats.headOption
+    }
+
+
 
     // update processing state of DataSet
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
@@ -89,6 +99,7 @@ object DataSetProcessor {
 
           for(format <- processingFormats; if(format.hasMapping && format.recordIsValid(record))) {
             val isIndexingFormat = indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix
+            val isRenderingFormat = renderingFormat.isDefined && renderingFormat.get.prefix == format.prefix
 
             val mainMappingResult = format.engine.execute(record.getRawXmlString)
 
@@ -96,15 +107,17 @@ object DataSetProcessor {
             DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
 
             // handle systemFields
-            val systemFields = getSystemFields(mainMappingResult)
-            val enrichedSystemFields = enrichSystemFields(systemFields, spec)
-            recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
+            if(isRenderingFormat) {
+              val systemFields = getSystemFields(mainMappingResult)
+              val enrichedSystemFields = enrichSystemFields(systemFields, record.hubId, format.prefix)
+              recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
+            }
 
             // if the current format is the to be indexed one, send the record out for indexing
             if (isIndexingFormat) {
               val fields: Map[String, List[Any]] = mainMappingResult.fields()
               val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
-              Indexing.indexOne(dataSet, record, fields ++ searchFields ++ systemFields, format.prefix)
+              Indexing.indexOne(dataSet, record, fields ++ searchFields ++ getSystemFields(mainMappingResult), format.prefix)
               indexedRecords += 1
             }
 
@@ -166,13 +179,15 @@ object DataSetProcessor {
     renamedSystemFields
   }
 
-  private def enrichSystemFields(systemFields: MultiMap, spec: String): MultiMap = {
+  private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
+    val Array(orgId, spec, localRecordKey) = hubId.split("_")
     systemFields ++ Map(
       SPEC -> spec,
       RECORD_TYPE -> MDR,
       VISIBILITY -> Visibility.PUBLIC.value.toString,
       MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-      HAS_DIGITAL_OBJECT -> (systemFields.contains(THUMBNAIL) && systemFields.get(THUMBNAIL).size > 0)
+      HAS_DIGITAL_OBJECT -> (systemFields.contains(THUMBNAIL) && systemFields.get(THUMBNAIL).size > 0),
+      HUB_URI -> (if(currentFormatPrefix == AFF) "/%s/object/%s/%s".format(orgId, spec, localRecordKey) else "")
     ).map(v => (v._1, List(v._2))).toMap
   }
 
