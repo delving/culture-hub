@@ -1,4 +1,4 @@
-package controllers.api
+package core
 
 import xml.Elem
 import collection.immutable.ListMap
