@@ -1,71 +1,81 @@
 %{
 switch (_view.nodeType) {
 
-case "root":}%
-#{list items: _view.content(), as: 'row'}
-#{view view: row /}
-#{/list}
-%{
-break
+    case "root":}%
+        #{list items: _view.content(), as: 'row'}
+            #{view view: row /}
+        #{/list}
+    %{
+    break
 
-case "row":}%
-<div class="row">
-#{list items: _view.content(), as: 'col'}
-#{view view: col /}
-#{/list}
-</div>
-%{
-break
+    case "row":}%
+        <div class="row">
+        #{list items: _view.content(), as: 'col'}
+            #{view view: col /}
+        #{/list}
+        </div>
+    %{
+    break
 
 
-case "section":}%
-<div class="section" id="${_view.attr("id")}">
-<dl class="dl dl-horizontal">
-#{list items: _view.content(), as: 'i'}
-#{view view: i /}
-#{/list}
-</dl>
-</div>
-%{
-break
+    case "section":}%
+        <div class="section" id="${_view.attr("id")}">
+            #{list items: _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        </div>
+    %{
+    break
 
-case "field": if (_view.text()){ }%
-<dt>&{_view.attr("label")}</dt><dd>${_view.text()} &#160;</dd>
-%{ }
-break
+    case "field": if (_view.text()){ }%
+        #{if _view.attr("type") == "li"}
+            <li>${_view.text()}</li>
+        #{/if}
+        #{if _view.attr("type") == "di"}
+            <dt>&{_view.attr("label")}</dt><dd>${_view.text()}</dd>
+        #{/if}
+        #{ifnot _view.attr("type")}
+            &{_view.attr("label")}: ${_view.text()}
+        #{/ifnot}
+    %{ }
+    break
 
-case "link":}%
-<div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
-%{
-break
+    case "link": if (_view.text()){ }%
+        <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
+    %{ }
+    break
 
-case "enumeration":}%
-#{if _view.attr("type") == "ul"}
-    <ul>
-#{list _view.content(), as: 'e'}
-      <li>${e.text()}</li>
-#{/list}
-    </ul>
-#{/if}
-#{if _view.attr("type") == "ol"}
-    <ol>
-#{list _view.content(), as: 'e'}
-      <li>${e.text()}</li>
-#{/list}
-    </ol>
-#{/if}
-#{if _view.attr("type") == "concatenated"}
-    <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
-#{/if}
-%{
-break
+    case "enumeration":}%
+        #{if _view.attr("type") == "ul"}
+            <ul>
+            #{list _view.content(), as: 'e'}
+                  <li>${e.text()}</li>
+            #{/list}
+            </ul>
+        #{/if}
+        #{if _view.attr("type") == "ol"}
+            <ol>
+            #{list _view.content(), as: 'e'}
+                  <li>${e.text()}</li>
+            #{/list}
+            </ol>
+        #{/if}
+        #{if _view.attr("type") == "concatenated"}
+            <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
+        #{/if}
+    %{
+    break
 
-case "list":}%
-#{list items: _view.content(), as: 'i'}
-#{view view: i /}
-#{/list}
-%{
-break
+    case "list":}%
+        #{if _view.attr("type") == "ul"}
+        <ul>
+            #{list _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        </ul>
+        #{/if}
+    %{
+    break
 
 
 }
