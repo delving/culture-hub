@@ -493,7 +493,7 @@ user.admin.index.title=Account space
 user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
-user.admin.profile.help.twitter=Your twitter username, e.g. johndoe
+user.admin.profile.help.twitter=Your twitter username, e.g. #johndoe
 user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
@@ -616,8 +616,11 @@ org.cms.page.help.homepage.info=Creating content for the homepage works exactly 
 org.cms.page.keyauto.button=Auto-generate page key
 org.cms.page.keyauto.error=Title mandatory for page key generation.
 
+
+
 org.vc.list=Virtual collection list
 org.vc.new=New Virtual Collection
+org.vc.update=Edit virtual Collection
 org.vc.deleteCollection=Delete Virtual Collection
 org.vc.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
 org.vc.save=Save
@@ -641,7 +644,7 @@ org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple searc
 
 # AUTO-GEN PAGE KEY #
 org.vc.keyauto.button=Auto-generate identifier
-org.vc.keyauto.error=Title mandatory for identifier generation.
+org.vc.keyauto.error=Name field mandatory for identifier generation.
 
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?

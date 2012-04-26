@@ -456,7 +456,9 @@ user.admin.index.title=Account space
 user.admin.profile.title=Jouw profiel
 user.admin.profile.help.aboutYou=Vertel wat over jezelf
 user.admin.profile.save=Bewaar profiel
-user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
+user.admin.profile.help.twitter=Twitter gebruikersnaam, e.g. #johndoe
+user.admin.profile.help.linkedIn=LinkedIn publieke profiel naam
+user.admin.profile.help.public=Wanneer dit is aangevinkt is dit profiel ook zichtbaar voor niet-ingelogde gebruikers.
 user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
 ##Collections
@@ -609,7 +611,9 @@ org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de vi
 org.vc.help.queries.tab=Zoekopdracht schrijven
 org.vc.help.queries.info=<h6>Simplele zoekopdracht</h6><p>Een zoekopdracht kan zoiets simpels als een <em>plaats</em> of <em>persoon</em> naam zijn.</p><h6>Complexe zoekopdracht</h6><p>Complexe zoekopdrachten kunnen ook aangemaakt worden door zoektermen te combineren met <code>AND</code> <code>NOT</code> en <code>OR</code>. Een voorbeeld hiervan zo zijn: <code>schets OR tekening NOT houtskool</code>.</p><h6>Individuele resultaten uitsluiten</h6><p>Probeer de zoekopdracht zodanig te forumuleren dat ongewenste resultaten uitgesloten blijven. Mocht dit echter niet volledig lukken dan is het mogelijk om individuele resulaten uit te sluiten door het desbetreffende <span class="label label-contrast">hubId</span> toe te voegen aan het <span class="label label-contrast">Uitsluiten</span> veld.</p><h6>Betere resultaten</h6><p>Om de kans op resultaten met digitale objecten (plaatjes) te verbeteren voeg <code>AND delving_hasDigitalObject_facet:true</code> aan het eind van de zoekopdracht toe in het <span class="label label-contrast">Zoekopdracht</span> veld.</p>
 
-
+# AUTO-GEN PAGE KEY #
+org.vc.keyauto.button=Identifier automatisch genereren.
+org.vc.keyauto.error=Naam veld moet eerst ingevuld worden
 
 
 org.admin.index.title=Organisatie administratie
