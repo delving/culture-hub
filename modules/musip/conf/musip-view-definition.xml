@@ -3,7 +3,7 @@
 <views>
     <view name="museum">
         <row>
-            <section id="general">
+            <section id="general" type="dl">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
                 <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
