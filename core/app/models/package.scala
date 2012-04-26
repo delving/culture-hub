@@ -134,4 +134,8 @@ package object mongoContext extends models.MongoContext {
   addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
 
 
+  lazy val musipItemsCollection = connection("MusipItems")
+  addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
+
+
 }

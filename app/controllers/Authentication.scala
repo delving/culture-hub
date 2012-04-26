@@ -7,8 +7,8 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
-import core.HubServices
 import models.HubUser
+import core.{Constants, HubServices}
 
 /**
  *
@@ -17,7 +17,6 @@ import models.HubUser
 
 object Authentication extends ApplicationController {
 
-  val USERNAME = "userName"
   val REMEMBER_COOKIE = "rememberme"
   val AT_KEY = "___AT" // authenticity token
 
@@ -111,10 +110,10 @@ object Authentication extends ApplicationController {
             case Some(uri) => Redirect(uri)
             case None => Redirect(controllers.routes.Application.index)
           }).withSession(
-            USERNAME -> user._1,
+            Constants.USERNAME -> user._1,
             "connectedUserId" -> u.get._id.toString,
-            AccessControl.ORGANIZATIONS -> u.get.organizations.mkString(","),
-            AccessControl.GROUPS -> u.get.groups.mkString(","),
+            Constants.ORGANIZATIONS -> u.get.organizations.mkString(","),
+            Constants.GROUPS -> u.get.groups.mkString(","),
             AT_KEY -> authenticityToken)
 
           if (user._3) {
@@ -132,13 +131,5 @@ object Authentication extends ApplicationController {
   }
 
   private def authenticityToken = Crypto.sign(MissingLibs.UUID)
-
-}
-
-
-object AccessControl {
-
-  val ORGANIZATIONS = "organizations"
-  val GROUPS = "groups"
 
 }

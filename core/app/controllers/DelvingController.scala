@@ -10,9 +10,9 @@ import eu.delving.templates.scala.GroovyTemplates
 import extensions.{Extensions, ConfigurationException}
 import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
-import models.{Group, HubUser}
 import xml.NodeSeq
-import core.{CultureHubPlugin, HubServices, ThemeAware, RequestContext}
+import core._
+import models.{GrantType, Group, HubUser}
 
 /**
  *
@@ -84,7 +84,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
     }
   }
 
-  def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY)
+  //def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY)
 
 
   // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
@@ -209,7 +209,7 @@ trait OrganizationController extends DelvingController with Secured {
             if (orgId == null || orgId.isEmpty) {
               Error("How did you even get here?")
             }
-            val organizations = request.session.get(AccessControl.ORGANIZATIONS).getOrElse("")
+            val organizations = request.session.get(Constants.ORGANIZATIONS).getOrElse("")
             if (organizations == null || organizations.isEmpty) {
               Forbidden(Messages("user.secured.noAccess"))
             } else if (!organizations.split(",").contains(orgId)) {
@@ -226,11 +226,11 @@ trait OrganizationController extends DelvingController with Secured {
   }
 }
 
-trait DelvingController extends ApplicationController with ModelImplicits {
+trait DelvingController extends ApplicationController with CoreImplicits {
 
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
-  def userName(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).getOrElse(null)
+  def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
   def Root[A](action: Action[A]): Action[A] = {
     ApplicationAction {
@@ -264,8 +264,8 @@ trait DelvingController extends ApplicationController with ModelImplicits {
               renderArgs +=("email", u.email)
 
               // refresh session parameters
-              additionalSessionParams += (AccessControl.ORGANIZATIONS -> u.organizations.mkString(","))
-              additionalSessionParams += (AccessControl.GROUPS -> u.groups.mkString(","))
+              additionalSessionParams += (Constants.ORGANIZATIONS -> u.organizations.mkString(","))
+              additionalSessionParams += (Constants.GROUPS -> u.groups.mkString(","))
             }
           }
 
@@ -345,7 +345,7 @@ trait DelvingController extends ApplicationController with ModelImplicits {
     }
   }
 
-  def isConnected(implicit request: RequestHeader) = request.session.get(Authentication.USERNAME).isDefined
+  def isConnected(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).isDefined
 
   def connectedUser(implicit request: RequestHeader) = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
 

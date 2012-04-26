@@ -1,6 +1,7 @@
 import sbt._
-import Keys._
 import PlayProject._
+import sbt.Keys._
+import scala._
 
 object ApplicationBuild extends Build {
 
@@ -14,6 +15,14 @@ object ApplicationBuild extends Build {
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/groups/public"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
   def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
+
+  val commonResolvers = Seq(
+    "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+    "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
+    delvingSnapshots,
+    delvingReleases
+
+  )
 
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
@@ -31,17 +40,14 @@ object ApplicationBuild extends Build {
     "org.apache.tika"           %  "tika-parsers"                    % "1.0"
   )
 
-  val core = Project("culturehub-core", file("core/"), Seq.empty).settings(
-    libraryDependencies := coreDependencies,
+  val core = PlayProject("culturehub-core", coreVersion, coreDependencies, file("core/")).settings(
     organization := "eu.delving",
     version := coreVersion,
-    resolvers += delvingSnapshots,
-    resolvers += delvingReleases,
-    resolvers +="repo.novus rels" at "http://repo.novus.com/releases/",
-    resolvers += "repo.novus snaps" at "http://repo.novus.com/snapshots/",
     publishTo := Some(delvingRepository(coreVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
-    publishMavenStyle := true
+    publishMavenStyle := true,
+    resolvers ++= commonResolvers
+
   )
 
   val dosDependencies = Seq(
@@ -51,8 +57,7 @@ object ApplicationBuild extends Build {
 
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
     resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
-    resolvers += delvingSnapshots,
-    resolvers += delvingReleases
+    resolvers ++= commonResolvers
   )
 
   // for later
@@ -62,17 +67,14 @@ object ApplicationBuild extends Build {
 
   // TODO move to its own source repo once we have something stable
   val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
-    resolvers += delvingSnapshots,
-    resolvers += delvingReleases
+    resolvers ++= commonResolvers
   ).dependsOn(core)
 
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
 
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-    resolvers += "jahia" at "http://maven.jahia.org/maven2",
+    resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
-    resolvers += delvingSnapshots,
-    resolvers += delvingReleases,
 
     routesImport += "extensions.Binders._"
 

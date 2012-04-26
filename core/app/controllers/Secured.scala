@@ -2,8 +2,8 @@ package controllers
 
 import play.api.mvc._
 import Results._
+import core.Constants.USERNAME
 import play.api.libs.Crypto
-import Authentication.USERNAME
 import play.api.i18n.Messages
 
 /**
@@ -15,7 +15,7 @@ trait Secured {
 
   private def onUnauthorized(request: RequestHeader): Result = {
 
-    request.cookies.get(Authentication.REMEMBER_COOKIE) map {
+    request.cookies.get("rememberme") map {
       remember =>
         val sign = remember.value.substring(0, remember.value.indexOf("-"))
         val username = remember.value.substring(remember.value.indexOf("-") + 1)
@@ -23,14 +23,14 @@ trait Secured {
           val authenticateSession = request.session +(USERNAME, username)
           val action = request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
-            case None => Redirect(controllers.routes.Application.index)
+            case None => Redirect("/")
           }
           return action.withSession(authenticateSession)
         }
     }
 
     val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
-    Redirect(routes.Authentication.login).withSession(session).flashing(("error" -> Messages("authentication.error")))
+    Redirect("/login").withSession(session).flashing(("error" -> Messages("authentication.error")))
   }
 
   /**
@@ -46,7 +46,7 @@ trait Secured {
       implicit request => {
         if(username(request).isEmpty) {
           val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
-          Redirect(routes.Authentication.login).withSession(session)
+          Redirect("/login").withSession(session)
         } else {
           action(request)
         }

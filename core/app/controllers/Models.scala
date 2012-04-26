@@ -16,10 +16,9 @@
 
 package controllers
 
-import dos.StoredFile
 import org.bson.types.ObjectId
-import models._
 import views.Helpers.getThumbnailUrl
+import models.{Visibility, Universal, DataSetState}
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -37,8 +36,6 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         visibility: Int = 0)
 
 case class Fact(name: String, prompt: String, value: String)
-
-case class ShortLabel(labelType: String, value: String)
 
 case class Token(id: String,
                  name: String,
@@ -78,12 +75,6 @@ case class ListItem(id: String,
   def getMimeType = mimeType
   def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }
-
-case class ShortObjectModel(id: String, url: String, thumbnail: String, title: String, hubType: String, files: Seq[StoredFile] = Seq.empty[StoredFile], mimeType: String = "unknown/unknown")
-
-// ~~ reference objects
-
-case class CollectionReference(id: String, name: String)
 
 abstract class ViewModel {
   val errors: Map[String, String]
