@@ -166,6 +166,18 @@ thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
 
+thing.address=Adres
+thing.postalCode=Postal code
+thing.place=Place
+thing.municipality=Municipality
+thing.province=Province
+thing.geographicArea=Geographical area
+thing.fax=Fax
+thing.email=Email
+thing.url=URL
+thing.missionStatement=Mission statement
+
+
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to {0} for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: {0}

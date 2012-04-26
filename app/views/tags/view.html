@@ -20,16 +20,18 @@ break
 
 case "section":}%
 <div class="section" id="${_view.attr("id")}">
+<dl class="dl dl-horizontal">
 #{list items: _view.content(), as: 'i'}
 #{view view: i /}
 #{/list}
+</dl>
 </div>
 %{
 break
 
-case "field":}%
-<div class="field">&{_view.attr("label")}: ${_view.text()}</div>
-%{
+case "field": if (_view.text()){ }%
+<dt>&{_view.attr("label")}</dt><dd>${_view.text()} &#160;</dd>
+%{ }
 break
 
 case "link":}%
