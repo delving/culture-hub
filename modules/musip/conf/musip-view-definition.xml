@@ -3,9 +3,7 @@
 <views>
     <view name="museum">
         <row>
-            <section>
-                <image path="/musip:actor/musip:image" />
-            </section>
+
             <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
@@ -19,15 +17,23 @@
                 <field path="/musip:actor/musip:email" label="thing.email" type="di"/>
                 <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
+
             </section>
-            <section id="collections" class="span6">
+            <section class="span6">
+                <image path="/musip:actor/musip:image" />
+
                 <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
                     <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                 </list>
             </section>
+            <!--<section id="collections" class="span6">-->
+                <!--<list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">-->
+                    <!--<link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>-->
+                <!--</list>-->
+            <!--</section>-->
         </row>
         <row>
-            <section>
+            <section class="span6">
                 <list path="/musip:actor/musip:contatcs/musip:contact">
                     <field label="thing.contactName" path="musip:name"/>
                     <link textValue="thing.contactEmail" urlExpr="musip:email"/>
@@ -39,10 +45,8 @@
     <view name="collection">
 
         <row>
-            <section>
-                <image path="/musip:collection/musip:images[1]/musip:url" />
-            </section>
-            <section id="general" type="dl">
+
+            <section id="general" type="dl" class="span6">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
                 <field path="/musip:collection/musip:strength" label="collection.strength" type="di"/>
@@ -50,7 +54,8 @@
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
                 <enumeration label="thing.keywords" type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
             </section>
-            <section>
+            <section class="span6">
+                <image path="/musip:collection/musip:images[1]/musip:url" />
                 <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
