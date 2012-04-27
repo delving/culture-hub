@@ -18,7 +18,7 @@
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
             </section>
 
-            <section id="collections">
+            <section id="collections" label="thing.collections">
                 <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
                     <field type="li" path="."/>
                 </list>
