@@ -40,7 +40,7 @@
 
         <row>
             <section>
-                <image path="/musip:collection/musip:images[0]/musip:url" />
+                <image path="/musip:collection/musip:images[1]/musip:url" />
             </section>
             <section id="general" type="dl">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
