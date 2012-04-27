@@ -70,15 +70,15 @@ class ViewRenderer(schema: String, viewName: String) {
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
+  def renderRecord(record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
-        renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang)
+        renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang, parameters)
       case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewName, schema))
     }
   }
 
-  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang): RenderedView = {
+  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -243,15 +243,17 @@ class ViewRenderer(schema: String, viewName: String) {
                 }
 
               case "link" =>
-                val urlValue = if(n.attribute("linkExpr").isDefined) {
-                  XPath.selectText(n.attr("urlExpr"), dataNode, namespaces.asJava)
-                } else if(n.attribute("linkValue").isDefined) {
-                  n.attr("linkValue")
-                } else {
-                  ""
-                }
+                val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
+                val urlValue = n.attr("urlValue")
 
-                val textValue = if(n.attribute("textExpr").isDefined) {
+                val enhancedUrlValue = """$\{([.^\}]*)\}""".r.replaceAllIn(urlValue, m => parameters.get(m.group(1)).getOrElse {
+                  log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
+                  ""
+                })
+
+                val url = enhancedUrlValue + urlExpr.getOrElse("")
+
+                val text = if(n.attribute("textExpr").isDefined) {
                   XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
                 } else if(n.attribute("textValue").isDefined) {
                   n.attr("textValue")
@@ -259,7 +261,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   ""
                 }
 
-                appendSimple("link", 'url -> urlValue, 'text -> textValue, 'class -> n.attr("class")) { node => }
+                appendSimple("link", 'url -> url, 'text -> text, 'class -> n.attr("class")) { node => }
 
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
