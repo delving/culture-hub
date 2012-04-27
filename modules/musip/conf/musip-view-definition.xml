@@ -19,18 +19,13 @@
                 <field path="/musip:actor/musip:email" label="thing.email" type="di"/>
                 <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
+                <list label="thing.contact" path="/musip:actor/musip:contacts/musip:contact" type="ul">
+                    <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
+                </list>
             </section>
             <section id="collections" class="span6">
                 <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
                     <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
-                </list>
-            </section>
-        </row>
-        <row>
-            <section>
-                <list path="/musip:actor/musip:contatcs/musip:contact">
-                    <field label="thing.contactName" path="musip:name"/>
-                    <link textValue="thing.contactEmail" urlExpr="musip:email"/>
                 </list>
             </section>
         </row>
@@ -45,13 +40,13 @@
             <section id="general" type="dl">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
-                <field path="/musip:collection/musip:strength" label="collection.strength" type="di"/>
+                <field path="/musip:collection/musip:strength" label="metadata.collection.strength" type="di"/>
                 <field path="/musip:collection/musip:startYear" label="thing.startYear" type="di"/>
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
                 <enumeration label="thing.keywords" type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
             </section>
             <section>
-                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
+                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
             </section>
