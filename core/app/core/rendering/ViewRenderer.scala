@@ -223,7 +223,7 @@ class ViewRenderer(schema: String, viewName: String) {
               case "image" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type")) { renderNode => }
+                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
                 }
               case "field" =>
                 if (hasAccess(roleList)) {
