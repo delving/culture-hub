@@ -10,7 +10,7 @@ import com.mongodb.casbah.commons.MongoDBObject
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class MusipItem(_id: ObjectId = new ObjectId, rawXml: String, orgId: String, itemId: String, itemType: String)
+case class MusipItem(_id: ObjectId = new ObjectId, rawXml: String, orgId: String, itemId: String, itemType: String, systemFields: Map[String, List[String]] = Map.empty)
 
 object MusipItem extends SalatDAO[MusipItem, ObjectId](collection = musipItemsCollection) {
 
