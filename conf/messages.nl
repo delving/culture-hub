@@ -151,6 +151,24 @@ thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
 
+thing.address=Adress
+thing.postalCode=Postcode
+thing.place=Plaats
+thing.municipality=Gemeente
+thing.province=Provincie
+thing.geographicArea=Geografisch gebied
+thing.fax=Fax
+thing.email=Email
+thing.contact=Contact
+thing.url=URL
+thing.missionStatement=Mission statement
+thing.contactName=Contact naam
+think.contactEmail=Contact email
+thing.startYear=Start jaar
+thing.endYear=Eind jaar
+thing.keyword=Trefwoord
+thing.keywords=Trefwoorden
+
 
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren

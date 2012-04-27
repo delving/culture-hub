@@ -3,9 +3,6 @@
 <views>
     <view name="museum">
         <row>
-            <section>
-                <image path="/musip:actor/musip:image" />
-            </section>
             <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
@@ -31,12 +28,19 @@
                 </list>
             </section>
         </row>
+        <row>
+            <section class="span6">
+                <list path="/musip:actor/musip:contatcs/musip:contact">
+                    <field label="thing.contactName" path="musip:name"/>
+                    <link textValue="thing.contactEmail" urlExpr="musip:email"/>
+                </list>
+            </section>
+        </row>
     </view>
 
     <view name="collection">
 
         <row>
-
             <section id="general" type="dl" class="span6">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
@@ -45,8 +49,9 @@
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
                 <enumeration label="thing.keywords" type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
             </section>
-            <section>
-                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators">
+            <section class="span6">
+                <image path="/musip:collection/musip:images[1]/musip:url" />
+                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
             </section>
