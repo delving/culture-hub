@@ -3,6 +3,9 @@
 <views>
     <view name="museum">
         <row>
+            <section>
+                <image path="/musip:actor/musip:image" />
+            </section>
             <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
@@ -17,7 +20,7 @@
                 <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
             </section>
-            <section id="collections" label="thing.collections" class="span6">
+            <section id="collections" class="span6">
                 <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
                     <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                 </list>
@@ -36,6 +39,9 @@
     <view name="collection">
 
         <row>
+            <section>
+                <image path="/musip:collection/musip:images[0]/musip:url" />
+            </section>
             <section id="general" type="dl">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
