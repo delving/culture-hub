@@ -57,8 +57,10 @@
                 <field path="/musip:collection/musip:startYear" label="thing.startYear" type="di"/>
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
+            </section>
+            <section>
                 <list path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
-                    <link textExpr="@actorId" linkValue="${orgId}/museum/" linkExpr="text()"/>
+                    <link textExpr="@actorId" urlValue="${orgId}/museum/" urlExpr="."/>
                 </list>
             </section>
         </row>

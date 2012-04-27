@@ -79,18 +79,18 @@ switch (_view.nodeType) {
     break
 
     case "list":}%
-Ê Ê Ê Ê#{if _view.attr("type") == "ul"}
-Ê Ê Ê Ê<ul>
-    Ê Ê Ê Ê Ê Ê#{list _view.content(), as: 'i'}
-    Ê Ê Ê Ê Ê Ê Ê Ê#{view view: i /}
-    Ê Ê Ê Ê Ê Ê#{/list}
-    Ê Ê Ê Ê</ul>
-Ê Ê Ê Ê#{/if}
-Ê Ê Ê Ê#{ifnot _view.attr("type")}
-Ê Ê Ê Ê Ê Ê#{list _view.content(), as: 'i'}
-    Ê Ê Ê Ê Ê Ê Ê Ê#{view view: i /}
-    Ê Ê Ê Ê Ê Ê#{/list}
-Ê Ê Ê Ê#{/ifnot}
+        #{if _view.attr("type") == "ul"}
+        <ul>
+            #{list _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        </ul>
+        #{/if}
+        #{ifnot _view.attr("type")}
+            #{list _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        #{/ifnot}
     %{
     break
 
