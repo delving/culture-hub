@@ -52,7 +52,7 @@ switch (_view.nodeType) {
     %{ }
     break
 
-    case "link": if (_view.text()){ }%
+    case "link": if (_view.attr("text")){ }%
         <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
     %{ }
     break
@@ -79,13 +79,18 @@ switch (_view.nodeType) {
     break
 
     case "list":}%
-        #{if _view.attr("type") == "ul"}
-        <ul>
-            #{list _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        </ul>
-        #{/if}
+Ê Ê Ê Ê#{if _view.attr("type") == "ul"}
+Ê Ê Ê Ê<ul>
+    Ê Ê Ê Ê Ê Ê#{list _view.content(), as: 'i'}
+    Ê Ê Ê Ê Ê Ê Ê Ê#{view view: i /}
+    Ê Ê Ê Ê Ê Ê#{/list}
+    Ê Ê Ê Ê</ul>
+Ê Ê Ê Ê#{/if}
+Ê Ê Ê Ê#{ifnot _view.attr("type")}
+Ê Ê Ê Ê Ê Ê#{list _view.content(), as: 'i'}
+    Ê Ê Ê Ê Ê Ê Ê Ê#{view view: i /}
+    Ê Ê Ê Ê Ê Ê#{/list}
+Ê Ê Ê Ê#{/ifnot}
     %{
     break
 
