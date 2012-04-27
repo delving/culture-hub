@@ -20,6 +20,9 @@ switch (_view.nodeType) {
 
     case "section":}%
         <div class="section" id="${_view.attr("id")}" >
+        #{if _view.attr("label")}
+            <h5>&{_view.attr("label")}</h5>
+        #{/if}
         #{if _view.attr("type") == "dl"}
         <dl class="dl">
             #{list items: _view.content(), as: 'i'}
