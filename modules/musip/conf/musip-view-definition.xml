@@ -51,7 +51,7 @@
             </section>
             <section class="span6">
                 <image path="/musip:collection/musip:images[1]/musip:url" />
-                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
+                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
             </section>
