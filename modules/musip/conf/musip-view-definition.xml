@@ -56,11 +56,11 @@
                 <field path="/musip:collection/musip:strength" label="collection.strength" type="di"/>
                 <field path="/musip:collection/musip:startYear" label="thing.startYear" type="di"/>
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
-                <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
+                <enumeration type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
             </section>
             <section>
                 <list path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
-                    <link textExpr="@actorId" urlValue="${orgId}/museum/" urlExpr="."/>
+                    <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
             </section>
         </row>
