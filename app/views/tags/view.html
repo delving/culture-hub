@@ -57,6 +57,11 @@ switch (_view.nodeType) {
     %{ }
     break
 
+    case "image": if (_view.text()){ }%
+        <div class="image"><img src="${_view.text()}" title="${_view.attr("title")}"/></div>
+    %{ }
+    break
+
     case "enumeration":}%
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>

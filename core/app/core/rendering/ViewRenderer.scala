@@ -220,6 +220,11 @@ class ViewRenderer(schema: String, viewName: String) {
 
               case "row" => enterAndAppendOne(n, dataNode, "row", true, 'class -> n.attr("class"))
               case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'type -> n.attr("type"), 'title -> n.attr("title"), 'label -> n.attr("label"))
+              case "image" =>
+                if (hasAccess(roleList)) {
+                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
+                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type")) { renderNode => }
+                }
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
