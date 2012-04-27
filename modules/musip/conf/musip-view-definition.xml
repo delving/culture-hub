@@ -3,9 +3,6 @@
 <views>
     <view name="museum">
         <row>
-            <section>
-                <image path="/musip:actor/musip:image" />
-            </section>
             <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
@@ -44,10 +41,7 @@
     <view name="collection">
 
         <row>
-            <section>
-                <image path="/musip:collection/musip:images[1]/musip:url" />
-            </section>
-            <section id="general" type="dl">
+            <section id="general" type="dl" class="span6">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
                 <field path="/musip:collection/musip:strength" label="metadata.collection.strength" type="di"/>
