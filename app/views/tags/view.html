@@ -19,7 +19,7 @@ switch (_view.nodeType) {
 
 
     case "section":}%
-        <div class="section" id="${_view.attr("id")}" >
+        <div id="${_view.attr("id")}" class="${_view.attr("class")}">
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}

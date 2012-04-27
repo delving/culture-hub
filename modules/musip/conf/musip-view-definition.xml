@@ -3,7 +3,7 @@
 <views>
     <view name="museum">
         <row>
-            <section id="general" type="dl">
+            <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
                 <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
                 <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
@@ -18,12 +18,13 @@
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
             </section>
 
-            <section id="collections" label="thing.collections">
+            <section id="collections" label="thing.collections" class="span6">
                 <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
                     <field type="li" path="."/>
                 </list>
             </section>
-
+        </row>
+        <row>
             <!--<section id="collections">-->
                 <!--<list type="concatenated" separator=", " label="thing.collections" path="/musip:actor/musip:collections/musip:collection">-->
                     <!--<field label="thing.collections" path="."/>-->
@@ -59,7 +60,6 @@
                 <list path="/musip:collection/musip:administrators/musip:actor" label="collection.administrators">
                     <link textExpr="@actorId" linkValue="${orgId}/museum/" linkExpr="text()"/>
                 </list>
-
             </section>
         </row>
 
