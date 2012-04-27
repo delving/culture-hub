@@ -246,7 +246,7 @@ class ViewRenderer(schema: String, viewName: String) {
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
-                val enhancedUrlValue = """$\{([.^\}]*)\}""".r.replaceAllIn(urlValue, m => parameters.get(m.group(1)).getOrElse {
+                val enhancedUrlValue = """\$\{(.*)\}""".r.replaceAllIn(urlValue, m => parameters.get(m.group(1)).getOrElse {
                   log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
                   ""
                 })
