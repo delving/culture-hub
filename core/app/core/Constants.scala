@@ -26,7 +26,7 @@ object Constants {
 
   // ~~~ hub types, used in view as itemName and otherwise for links and search recordTypes
   val OBJECT = "object"
-  val USERCOLLECTION = "collection"
+  val USERCOLLECTION = "userCollection"
   val STORY = "story"
   val USER = "user"
   val MDR = "mdr"

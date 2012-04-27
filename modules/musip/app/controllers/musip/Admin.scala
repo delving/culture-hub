@@ -36,7 +36,7 @@ object Admin extends OrganizationController {
             Map(
                 TITLE -> List((collection \ "name").text.trim),
                 DESCRIPTION -> List((collection \ "description").text.trim),
-                THUMBNAIL -> List((collection \ "image").text.trim)
+                THUMBNAIL -> (collection \ "images" \ "url").map(_.text.trim).toList
                )
         })).getOrElse(0)
 
@@ -51,11 +51,7 @@ object Admin extends OrganizationController {
       val xml = i.toString()
 
       // extract system fields
-      val systemFields = Map(
-        TITLE -> List((i \ "name").text.trim),
-        DESCRIPTION -> List((i \ "description").text.trim),
-        THUMBNAIL -> List((i \ "image").text.trim)
-      )
+      val systemFields = extractSystemFields(i)
 
       val item = MusipItem(rawXml = xml, orgId = orgId, itemId = localId, itemType = itemType, systemFields = systemFields)
       MusipItem.saveOrUpdate(item, orgId, itemType)
@@ -63,7 +59,7 @@ object Admin extends OrganizationController {
       val doc = new SolrInputDocument()
 
       systemFields.foreach {
-        sf => doc.addField(sf._1, sf._2)
+        sf => sf._2.foreach(v => doc.addField(sf._1, v))
       }
 
       doc.addField(ID, "%s_%s_%s".format(orgId, itemType, localId))
