@@ -42,7 +42,7 @@
         <row>
             <section id="general" type="dl" class="span6">
                 <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
-                <field path="/musip:collection/musip:description" label="thing.description" type="di"/>
+                <field path="/musip:collection/musip:description" label="thing.description" type="di" class="truncate"/>
                 <field path="/musip:collection/musip:strength" label="metadata.collection.strength" type="di"/>
                 <field path="/musip:collection/musip:startYear" label="thing.startYear" type="di"/>
                 <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>

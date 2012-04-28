@@ -31,7 +31,6 @@
         height: auto;
         max-width: 100%;
     }
-
 </style>
 
 <div class="page-header">
@@ -48,7 +47,9 @@
         $('.truncate').expander({
             slicePoint: 600,
             expandText: "&{'ui.label.more'}",
-            userCollapseText: "&{'ui.label.collapse'}"
+            userCollapseText: "&{'ui.label.less'}"
         });
+        $('.read-more a, .read-less a').addClass("badge badge-info");
+//        $('.read-more a').addClass("btn btn-primary btn-mini");
     })
 </script>

@@ -55,6 +55,7 @@ ui.label.language=Language
 ui.label.languageSelect=Choose a language
 ui.label.last=Last
 ui.label.lastname=Last name
+ui.label.less=Less
 ui.label.location=Location
 ui.label.login=Login
 ui.label.logout=Logout
