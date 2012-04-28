@@ -4,7 +4,7 @@
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.min.js")}"></script>
 #{/set}
 
 <style>
@@ -43,7 +43,7 @@
     $(document).ready(function(){
         $('ul.split').easyListSplitter({
             colNumber: 2,
-            direction: 'horizontal'
+            direction: 'vertical'
         });
         $('.truncate').expander({
             slicePoint: 600,
