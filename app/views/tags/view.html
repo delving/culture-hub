@@ -91,11 +91,18 @@ switch (_view.nodeType) {
             <h5>&{_view.attr("label")}</h5>
         #{/if}
         #{if _view.attr("type") == "ul"}
-        <ul>
+        <ul class="${_view.attr("class")}">
             #{list _view.content(), as: 'i'}
                 <li>#{view view: i /}</li>
             #{/list}
         </ul>
+        #{/if}
+        #{if _view.attr("type") == "ol"}
+        <ol class="test">
+            #{list _view.content(), as: 'i'}
+                <li>#{view view: i /}</li>
+            #{/list}
+        </ol>
         #{/if}
         #{ifnot _view.attr("type")}
             #{list _view.content(), as: 'i'}

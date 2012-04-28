@@ -21,9 +21,8 @@
                 </list>
             </section>
             <section class="span6">
-                <image path="/musip:actor/musip:image" />
-
-                <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection">
+                <image path="/musip:actor/musip:image" class="img"/>
+                <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection" class="split">
                     <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                 </list>
             </section>
@@ -51,7 +50,7 @@
             </section>
             <section class="span6">
                 <image path="/musip:collection/musip:images[1]/musip:url" />
-                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators">
+                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators" class="col2">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
             </section>

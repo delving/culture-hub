@@ -2,6 +2,10 @@
 
 #{set title: systemFields.apply("delving_title").get(0) /}
 
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
+#{/set}
+
 <style>
     h5 {
         margin-bottom: 0;
@@ -9,9 +13,27 @@
     dl {
         margin-top: 0;
     }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    ul.split {
+        display: inline-block;
+        width: 44%;
+        vertical-align: top;
+    }
+
 </style>
 <div class="page-header">
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
-    #{view view: view /}
+#{view view: view /}
 
+<script>
+    $(document).ready(function(){
+        $('ul.split').easyListSplitter({
+            colNumber: 2,
+            direction: 'horizontal'
+        });
+    })
+</script>
