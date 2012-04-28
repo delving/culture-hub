@@ -161,6 +161,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   val listType = n.attr("type")
                   val separator = n.attr("separator")
                   val label = n.attr("label")
+                  val hClass = n.attr("class")
 
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
@@ -179,6 +180,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   list.addAttr('label -> label)
                   list.addAttr('separator -> separator)
                   list.addAttr('type -> listType)
+                  list.addAttr('class -> hClass)
 
                   treeStack.head += list
                   treeStack push list
@@ -187,9 +189,7 @@ class ViewRenderer(schema: String, viewName: String) {
                     child =>
                       enterNode(n, child)
                   }
-
                   treeStack.pop()
-
                 }
 
               case "attrs" => // this is handled by elem below
