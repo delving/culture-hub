@@ -228,7 +228,7 @@ class ViewRenderer(schema: String, viewName: String) {
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type")) { renderNode => }
+                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
                 }
               case "enumeration" =>
                 if (hasAccess(roleList)) {
@@ -267,7 +267,6 @@ class ViewRenderer(schema: String, viewName: String) {
                 }
 
                 appendSimple("link", 'url -> url, 'text -> text, 'class -> n.attr("class")) { node => }
-
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 

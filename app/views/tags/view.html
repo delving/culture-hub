@@ -44,7 +44,7 @@ switch (_view.nodeType) {
             <li>${_view.text()}</li>
         #{/if}
         #{if _view.attr("type") == "di"}
-            <dt>&{_view.attr("label")}</dt><dd>${_view.text()}</dd>
+            <dt>&{_view.attr("label")}</dt><dd #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>${_view.text()}</dd>
         #{/if}
         #{ifnot _view.attr("type")}
             &{_view.attr("label")}: ${_view.text()}
@@ -58,7 +58,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image"><img src="${_view.text()}" title="${_view.attr("title")}"/></div>
+        <div class="image"><img src="${_view.text()}" #{if _view.attr("class")}class="${_view.attr("class")}"#{/if} #{if _view.attr("title")}title="${_view.attr("title")}"#{/if}/></div>
     %{ }
     break
 
@@ -91,7 +91,7 @@ switch (_view.nodeType) {
             <h5>&{_view.attr("label")}</h5>
         #{/if}
         #{if _view.attr("type") == "ul"}
-        <ul class="${_view.attr("class")}">
+        <ul #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
             #{list _view.content(), as: 'i'}
                 <li>#{view view: i /}</li>
             #{/list}

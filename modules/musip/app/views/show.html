@@ -4,14 +4,15 @@
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.js")}"></script>
 #{/set}
 
 <style>
     h5 {
-        margin-bottom: 0;
+        margin: 0;
     }
     dl {
-        margin-top: 0;
+        margin: 0;
     }
     img {
         max-width: 100%;
@@ -22,8 +23,17 @@
         width: 44%;
         vertical-align: top;
     }
+    div.image {
+        margin-bottom: 21px;
+        text-align: center;
+    }
+    img.img {
+        height: auto;
+        max-width: 100%;
+    }
 
 </style>
+
 <div class="page-header">
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
@@ -34,6 +44,11 @@
         $('ul.split').easyListSplitter({
             colNumber: 2,
             direction: 'horizontal'
+        });
+        $('.truncate').expander({
+            slicePoint: 600,
+            expandText: "&{'ui.label.more'}",
+            userCollapseText: "&{'ui.label.collapse'}"
         });
     })
 </script>
