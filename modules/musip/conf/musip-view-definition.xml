@@ -5,7 +5,7 @@
         <row>
             <section id="general" type="dl" class="span6">
                 <field path="/musip:actor/musip:name" label="thing.title" type="di"/>
-                <field path="/musip:actor/musip:description" label="thing.description" type="di"/>
+                <field path="/musip:actor/musip:description" label="thing.description" type="di" class="truncate"/>
                 <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
                 <field path="/musip:actor/musip:postal_code" label="thing.postalCode" type="di"/>
                 <field path="/musip:actor/musip:place" label="thing.place" type="di"/>
@@ -15,7 +15,7 @@
                 <field path="/musip:actor/musip:fax" label="thing.fax" type="di"/>
                 <field path="/musip:actor/musip:email" label="thing.email" type="di"/>
                 <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
-                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di"/>
+                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di" class="truncate"/>
                 <list label="thing.contact" path="/musip:actor/musip:contacts/musip:contact" type="ul">
                     <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
                 </list>
@@ -49,7 +49,7 @@
                 <enumeration label="thing.keywords" type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
             </section>
             <section class="span6">
-                <image path="/musip:collection/musip:images[1]/musip:url" />
+                <image path="/musip:collection/musip:images[1]/musip:url" class="img"/>
                 <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators" class="col2">
                     <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                 </list>
