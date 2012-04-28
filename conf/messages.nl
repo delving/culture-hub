@@ -54,6 +54,7 @@ ui.label.language=Taal
 ui.label.languageSelect=Kies een taal
 ui.label.last=Laatste
 ui.label.lastname=Achternaam
+ui.label.less=Minder
 ui.label.location=Plaats
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
