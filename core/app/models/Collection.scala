@@ -33,16 +33,16 @@ case class Collection(spec: String,
       }
     }
   }
-  
+
 }
 
 object Collection {
 
-  def findAll(orgId: String, accessKey: Option[String] = None): List[Collection] = {
+  def findAllNonEmpty(orgId: String, accessKey: Option[String] = None): List[Collection] = {
 
     // TODO implement accessKey lookup
-    val dataSets: List[Collection] = DataSet.findAll(orgId)
-    val virtualCollections: List[Collection] = VirtualCollection.findAll(orgId)
+    val dataSets: List[Collection] = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
+    val virtualCollections: List[Collection] = VirtualCollection.findAllNonEmpty(orgId)
 
     dataSets ++ virtualCollections
   }

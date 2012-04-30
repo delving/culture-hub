@@ -57,6 +57,8 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
 
   def findAll(orgId: String): List[VirtualCollection] = VirtualCollection.find(MongoDBObject("orgId" -> orgId)).toList
 
+  def findAllNonEmpty(orgId: String): List[VirtualCollection] = findAll(orgId).filterNot(vc => children.countByParentId(vc._id, MongoDBObject()) == 0)
+
   def findBySpecAndOrgId(spec: String, orgId: String) = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
 }

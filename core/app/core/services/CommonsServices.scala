@@ -7,6 +7,7 @@ import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
+import java.net.URLEncoder
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -63,7 +64,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def connect(userName: String, password: String): Boolean = {
     val hashedPassword = MissingLibs.passwordHash(password, MissingLibs.HashType.SHA512)
     val hash = Crypto.sign(hashedPassword, userName.getBytes("utf-8"))
-    get("/user/authenticate/" + hash).map {
+    get("/user/authenticate/" + URLEncoder.encode(hash, "utf-8")).map {
       response => response.status == OK
     }.getOrElse(false)
   }

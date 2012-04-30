@@ -68,9 +68,13 @@ object MetadataRecord {
   def getMDRs(hubCollection: String, hubIds: Seq[String]): List[MetadataRecord] = connection(hubCollection).find(MDR_HUB_ID $in hubIds).map(grater[MetadataRecord].asObject(_)).toList
 
   def getMDR(hubId: String, metadataFormat: String, accessKey: Option[String]): Option[MetadataRecord] = {
-    if (hubId.split(":").length != 3)
-      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId:spec:localIdentifier".format(hubId))
-    val Array(orgId, spec, localRecordKey) = hubId.split(":")
+    if (hubId.split("_").length < 3)
+      throw new InvalidIdentifierException("Invalid record identifier %s, should be of the form orgId_spec_localIdentifier".format(hubId))
+    val idParts = hubId.split("_")
+    val spec = idParts(1)
+    val orgId = idParts(0)
+    val localRecordKey = idParts.drop(2).mkString("_")
+
     val ds: Option[DataSet] = DataSet.findBySpecAndOrgId(spec, orgId)
     if (ds == None) return None
 

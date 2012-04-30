@@ -25,6 +25,7 @@ import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils
 import models.{RecordDefinition, MetadataRecord, Collection, Namespace}
 import xml.{Elem, PrettyPrinter, XML}
+import java.net.{URLDecoder, URLEncoder}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -147,7 +148,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
     // todo add checking for accessKeys and see if is valid
-    val collections = models.Collection.findAll(orgId, None)
+    val collections = models.Collection.findAllNonEmpty(orgId, None)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -182,7 +183,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     // if no identifier present list all formats
     val identifier = pmhRequestEntry.pmhRequestItem.identifier
-    val identifierSpec = identifier.split(":").head
+    val identifierSpec = identifier.split("_").head
 
     // otherwise only list the formats available for the identifier
     val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
@@ -279,12 +280,12 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val metadataFormat = pmhRequest.metadataPrefix
 
     val record: MetadataRecord = {
-      val mdRecord = MetadataRecord.getMDR(identifier, metadataFormat, accessKey)
+      val mdRecord = MetadataRecord.getMDR(URLDecoder.decode(identifier, "utf-8"), metadataFormat, accessKey)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
 
-    val collection = models.Collection.findBySpecAndOrgId(identifier.split(":")(1), identifier.split(":")(0)).get
+    val collection = models.Collection.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -298,7 +299,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {requestURL}
         </request>
         <GetRecord>
-          {renderRecord(record, metadataFormat, identifier.split(":")(1))}
+          {renderRecord(record, metadataFormat, identifier.split("_")(1))}
         </GetRecord>
       </OAI-PMH>
 
@@ -320,7 +321,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
-          <identifier>{record.pmhId}</identifier>
+          <identifier>{URLEncoder.encode(record.hubId, "utf-8")}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
