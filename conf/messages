@@ -55,6 +55,7 @@ ui.label.language=Language
 ui.label.languageSelect=Choose a language
 ui.label.last=Last
 ui.label.lastname=Last name
+ui.label.less=Less
 ui.label.location=Location
 ui.label.login=Login
 ui.label.logout=Logout
@@ -165,6 +166,24 @@ thing.browse.of=Browse {0} of
 thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
+
+thing.address=Adress
+thing.postalCode=Postal code
+thing.place=Place
+thing.municipality=Municipality
+thing.province=Province
+thing.geographicArea=Geographical area
+thing.fax=Fax
+thing.email=Email
+thing.contact=Contact
+thing.url=URL
+thing.missionStatement=Mission statement
+thing.contactName=Contact name
+think.contactEmail=Contact email
+thing.startYear=Start year
+thing.endYear=End year
+thing.keyword=Keyword
+thing.keywords=Keywords
 
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to {0} for activation
@@ -443,6 +462,8 @@ metadata.tib.formatted=Formatted
 metadata.tib.vindplaats=Physical Location
 
 
+metadata.collection.strength=Strength
+metadata.collection.administrators=Administrators
 
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type

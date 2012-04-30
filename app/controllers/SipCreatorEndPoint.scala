@@ -14,11 +14,11 @@ import extensions.MissingLibs
 import util.SimpleDataSetParser
 import play.libs.Akka
 import akka.actor.{Props, Actor}
-import core.HubServices
 import eu.delving.metadata.RecMapping
 import play.api.{Play, Logger}
 import play.api.Play.current
 import scala.Option
+import core.{Constants, HubServices}
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -47,7 +47,7 @@ object SipCreatorEndPoint extends ApplicationController {
           Unauthorized("Access Key %s not accepted".format(accessToken.get))
         } else {
           connectedUserObject = OAuth2TokenEndpoint.getUserByToken(accessToken.get)
-          val updatedSession = session + (Authentication.USERNAME -> connectedUserObject.get.userName)
+          val updatedSession = session + (Constants.USERNAME -> connectedUserObject.get.userName)
           val r: PlainResult = action(request).asInstanceOf[PlainResult]
           r.withSession(updatedSession)
         }

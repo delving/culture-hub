@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc._
-import util.Constants._
+import core.Constants._
 
 /**
  *

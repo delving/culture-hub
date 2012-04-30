@@ -16,7 +16,6 @@
 
 package controllers
 
-import extensions.HTTPClient
 import play.api.mvc.Action
 import core.opendata.OaiPmhService
 import play.api.libs.concurrent.Promise
@@ -26,7 +25,7 @@ import play.api.libs.concurrent.Promise
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Services extends DelvingController with HTTPClient {
+object Services extends DelvingController {
 
   def oaipmh(orgId: String, accessKey: Option[String]) = Action {
     implicit request =>

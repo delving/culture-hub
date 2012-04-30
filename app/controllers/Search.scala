@@ -2,8 +2,7 @@ package controllers
 
 import play.api.mvc._
 import models._
-import util.Constants._
-import views.Helpers._
+import core.Constants._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages
@@ -32,13 +31,13 @@ object Search extends DelvingController {
         try {
           val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
           val briefItemView = BriefItemView(response)
-          val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
+      //    val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
           Ok(Template("/Search/index.html",
             'briefDocs -> briefItemView.getBriefDocs,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-            'collections -> userCollections,
+    //        'collections -> userCollections,
             'themeFacets -> theme.getFacets,
             'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(

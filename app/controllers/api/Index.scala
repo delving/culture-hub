@@ -6,8 +6,9 @@ import play.api.libs.concurrent.Promise
 import models.IndexItem
 import scala.xml._
 import collection.mutable.ListBuffer
-import util.Constants._
+import core.Constants._
 import core.indexing.IndexingService
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -87,7 +88,7 @@ object Index extends DelvingController {
                 IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                 deleted += 1
               } else {
-                IndexItem.save(item)
+                IndexItem.update(MongoDBObject("itemId" -> item.itemId, "orgId" -> orgId, "itemType" -> item.itemType), IndexItem._grater.asDBObject(item), true)
                 IndexingService.stageForIndexing(item.toSolrDocument)
                 indexed += 1
               }

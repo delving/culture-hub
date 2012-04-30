@@ -10,7 +10,8 @@ import core.search._
 import play.api.Logger
 import models._
 import collection.mutable.ListBuffer
-import controllers.{AccessControl, ShortDataSet, ViewModel, OrganizationController}
+import controllers.{ShortDataSet, ViewModel, OrganizationController}
+import core.Constants
 
 /**
  *
@@ -58,7 +59,7 @@ object VirtualCollections extends OrganizationController {
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
         }
 
-        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(AccessControl.ORGANIZATIONS))
+        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(Constants.ORGANIZATIONS))
 
         if (viewModel.isEmpty) {
           NotFound(spec.getOrElse(""))

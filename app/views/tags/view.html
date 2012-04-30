@@ -1,69 +1,116 @@
 %{
 switch (_view.nodeType) {
 
-case "root":}%
-#{list items: _view.content(), as: 'row'}
-#{view view: row /}
-#{/list}
-%{
-break
+    case "root":}%
+        #{list items: _view.content(), as: 'row'}
+            #{view view: row /}
+        #{/list}
+    %{
+    break
 
-case "row":}%
-<div class="row">
-#{list items: _view.content(), as: 'col'}
-#{view view: col /}
-#{/list}
-</div>
-%{
-break
+    case "row":}%
+        <div class="row">
+        #{list items: _view.content(), as: 'col'}
+            #{view view: col /}
+        #{/list}
+        </div>
+    %{
+    break
 
 
-case "section":}%
-<div class="section" id="${_view.attr("id")}">
-#{list items: _view.content(), as: 'i'}
-#{view view: i /}
-#{/list}
-</div>
-%{
-break
+    case "section":}%
+        <div id="${_view.attr("id")}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>
+        #{if _view.attr("label")}
+            <h5>&{_view.attr("label")}</h5>
+        #{/if}
+        #{if _view.attr("type") == "dl"}
+        <dl class="dl">
+            #{list items: _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        </dl>
+        #{/if}
+        #{else}
+            #{list items: _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        #{/else}
+        </div>
+    %{
+    break
 
-case "field":}%
-<div class="field">&{_view.attr("label")}: ${_view.text()}</div>
-%{
-break
+    case "field": if (_view.text()){ }%
+        #{if _view.attr("type") == "li"}
+            <li>${_view.text()}</li>
+        #{/if}
+        #{if _view.attr("type") == "di"}
+            <dt>&{_view.attr("label")}</dt><dd #{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>${_view.text()}</dd>
+        #{/if}
+        #{ifnot _view.attr("type")}
+            &{_view.attr("label")}: ${_view.text()}
+        #{/ifnot}
+    %{ }
+    break
 
-case "link":}%
-<div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}"></a></div>
-%{
-break
+    case "link": if (_view.attr("text")){ }%
+        <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
+    %{ }
+    break
 
-case "enumeration":}%
-#{if _view.attr("type") == "ul"}
-    <ul>
-#{list _view.content(), as: 'e'}
-      <li>${e.text()}</li>
-#{/list}
-    </ul>
-#{/if}
-#{if _view.attr("type") == "ol"}
-    <ol>
-#{list _view.content(), as: 'e'}
-      <li>${e.text()}</li>
-#{/list}
-    </ol>
-#{/if}
-#{if _view.attr("type") == "concatenated"}
-    <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
-#{/if}
-%{
-break
+    case "image": if (_view.text()){ }%
+        <div class="image"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}#{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
+    %{ }
+    break
 
-case "list":}%
-#{list items: _view.content(), as: 'i'}
-#{view view: i /}
-#{/list}
-%{
-break
+    case "enumeration":}%
+        #{if _view.attr("label")}
+            <h5>&{_view.attr("label")}</h5>
+        #{/if}
+        #{if _view.attr("type") == "ul"}
+            <ul>
+            #{list _view.content(), as: 'e'}
+                  <li>${e.text()}</li>
+            #{/list}
+            </ul>
+        #{/if}
+        #{if _view.attr("type") == "ol"}
+            <ol>
+            #{list _view.content(), as: 'e'}
+                  <li>${e.text()}</li>
+            #{/list}
+            </ol>
+        #{/if}
+        #{if _view.attr("type") == "concatenated"}
+            <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
+        #{/if}
+    %{
+    break
+
+    case "list":}%
+        #{if _view.attr("label")}
+            <h5>&{_view.attr("label")}</h5>
+        #{/if}
+        #{if _view.attr("type") == "ul"}
+        <ul #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
+            #{list _view.content(), as: 'i'}
+                <li>#{view view: i /}</li>
+            #{/list}
+        </ul>
+        #{/if}
+        #{if _view.attr("type") == "ol"}
+        <ol class="test">
+            #{list _view.content(), as: 'i'}
+                <li>#{view view: i /}</li>
+            #{/list}
+        </ol>
+        #{/if}
+        #{ifnot _view.attr("type")}
+            #{list _view.content(), as: 'i'}
+                #{view view: i /}
+            #{/list}
+        #{/ifnot}
+    %{
+    break
 
 
 }
