@@ -15,66 +15,64 @@
         <p>&{'org.cms.upload.image.explain'}</p>
     </div>
     <div class="span6">
-        <div id="fileupload">
-            <form action="#" method="post" enctype="multipart/form-data" class="form-inline form-delving">
-                <div class="well">
-                    <div class="control-group">
-                        <label class="control-label" for="fileInput">&{'ui.label.filesadd'}</label>
-                        <div class="controls">
-                            <input type="file" name="files[]" id="fileInput" multiple="true" class="btn input-file" />
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+            <form id="fileupload" action="#" method="POST" enctype="multipart/form-data">
+                   <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+                   <div class="row fileupload-buttonbar">
+                       <div class="span7">
+                           <!-- The fileinput-button span is used to style the file input field as button -->
+                           <span class="btn btn-success fileinput-button">
+                               <i class="icon-plus icon-white"></i>
+                               <span>Add files...</span>
+                               <input type="file" name="files[]" multiple>
+                           </span>
+                           <button type="submit" class="btn btn-primary start">
+                               <i class="icon-upload icon-white"></i>
+                               <span>Start upload</span>
+                           </button>
+                           <button type="reset" class="btn btn-warning cancel">
+                               <i class="icon-ban-circle icon-white"></i>
+                               <span>Cancel upload</span>
+                           </button>
+                           <button type="button" class="btn btn-danger delete">
+                               <i class="icon-trash icon-white"></i>
+                               <span>Delete</span>
+                           </button>
+                           <input type="checkbox" class="toggle">
+                       </div>
+                       <div class="span5">
+                           <!-- The global progress bar -->
+                           <div class="progress progress-success progress-striped active fade">
+                               <div class="bar" style="width:0%;"></div>
+                           </div>
+                       </div>
+                   </div>
+                   <!-- The loading indicator is shown during file processing -->
+                   <div class="fileupload-loading"></div>
+                   <br>
+                   <!-- The table listing the files available for upload/download -->
+                   <table class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
+               </form>
     </div>
 
 </div>
-<div class="row">
-    <div class="fileupload-content span12">
-        <table class="files table table-striped">
-            <caption>Uploaded files</caption>
-            <thead>
-                <th>Thumbnail</th>
-                <th>File name</th>
-                <th>File size</th>
-                <th colspan="2"></th>
-                <th>Actions</th>
-            </thead>
-            <tbody>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-
-
-
-
-
-
 
 <script type="text/javascript">
     $(document).ready(function () {
 
-        initUploadWidget(false);
-
         $('#fileupload').fileupload({
-            url:'@{controllers.user.routes.FileUpload.uploadFile(uid)}',
-            autoUpload:true
+            url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+            autoUpload: true,
+            uploadTemplate: _renderUploadTemplate,
+            downloadTemplate: _renderDownloadTemplate
         }).bind('fileuploaddone', function (e, data) {
                     $.post('/organizations/${orgId}/site/upload/${uid}');
                 });
 
         var files = ${files.raw()};
-        var fu = $('#fileupload').data('fileupload');
-        fu._adjustMaxNumberOfFiles(-files.length);
-        fu._renderDownload(files)
-                .appendTo($('.fileupload-content .files tbody'))
-                .fadeIn(function () {
-                    // Fix for IE7 and lower:
-                    $(this).show();
-                });
+        $('#fileupload').each(function () {
+            var that = this;
+            $(that).fileupload('option', 'done').call(that, null, {result: files});
+        });
 
         $("body").css('visibility', 'visible');
         $("table.files td.delete button").addClass("btn btn-danger");
