@@ -29,6 +29,7 @@ import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import models.{MetadataRecord, DataSet}
 import org.apache.tika.metadata.Metadata
+import java.net.URLEncoder
 
 
 /**
@@ -76,12 +77,12 @@ object Indexing extends SolrServer {
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
 
-    inputDoc.addField(HUB_ID, record.hubId)
+    inputDoc.addField(HUB_ID, URLEncoder.encode(record.hubId, "utf-8"))
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(SCHEMA, format)
 
     // for backwards-compatibility
-    inputDoc.addField(PMH_ID, record.hubId)
+    inputDoc.addField(PMH_ID, URLEncoder.encode(record.hubId, "utf-8"))
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"

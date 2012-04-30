@@ -280,12 +280,6 @@ object SipCreatorEndPoint extends ApplicationController {
         IOUtils.write(dataSet.details.getFactsAsText, out)
     }
 
-    writeEntry("fact-definition-list.xml", zipOut) {
-      out =>
-        val c = MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/global/fact-definition-list.xml"))
-        IOUtils.write(c, out)
-    }
-
     writeEntry("hints.txt", zipOut) {
       out =>
         IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)

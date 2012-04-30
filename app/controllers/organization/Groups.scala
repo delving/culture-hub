@@ -188,13 +188,12 @@ case class GroupViewModel(id: Option[ObjectId] = None,
 
 object GroupViewModel {
 
-  // the prefix thing is a workaround, in theory Play should be doing this for us
-  def tokenListMapping(prefix: String) = list(
+  def tokenListMapping = list(
     mapping(
-      prefix + "." + "id" -> text,
-      prefix + "." + "name" -> text,
-      prefix + "." + "tokenType" -> optional(text),
-      prefix + "." + "data" -> optional(of[Map[String, String]])
+      "id" -> text,
+      "name" -> text,
+      "tokenType" -> optional(text),
+      "data" -> optional(of[Map[String, String]])
       )(Token.apply)(Token.unapply)
     )
 
@@ -204,8 +203,8 @@ object GroupViewModel {
       "name" -> nonEmptyText,
       "grantType" -> nonEmptyText,
       "canChangeGrantType" -> boolean,
-      "users" -> tokenListMapping("users"),
-      "dataSets" -> tokenListMapping("dataSets"),
+      "users" -> tokenListMapping,
+      "dataSets" -> tokenListMapping,
       "errors" -> of[Map[String, String]]
     )(GroupViewModel.apply)(GroupViewModel.unapply)
   )
