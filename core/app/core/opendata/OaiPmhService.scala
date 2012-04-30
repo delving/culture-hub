@@ -182,7 +182,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     // if no identifier present list all formats
     val identifier = pmhRequestEntry.pmhRequestItem.identifier
-    val identifierSpec = identifier.split(":").head
+    val identifierSpec = identifier.split("_").head
 
     // otherwise only list the formats available for the identifier
     val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
@@ -284,7 +284,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       else mdRecord.get
     }
 
-    val collection = models.Collection.findBySpecAndOrgId(identifier.split(":")(1), identifier.split(":")(0)).get
+    val collection = models.Collection.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -298,7 +298,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {requestURL}
         </request>
         <GetRecord>
-          {renderRecord(record, metadataFormat, identifier.split(":")(1))}
+          {renderRecord(record, metadataFormat, identifier.split("_")(1))}
         </GetRecord>
       </OAI-PMH>
 
@@ -320,7 +320,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
-          <identifier>{record.pmhId}</identifier>
+          <identifier>{record.hubId}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
