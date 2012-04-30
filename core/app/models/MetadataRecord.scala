@@ -75,8 +75,6 @@ object MetadataRecord {
     val orgId = idParts(0)
     val localRecordKey = idParts.drop(2).mkString("_")
 
-    println(localRecordKey)
-
     val ds: Option[DataSet] = DataSet.findBySpecAndOrgId(spec, orgId)
     if (ds == None) return None
 

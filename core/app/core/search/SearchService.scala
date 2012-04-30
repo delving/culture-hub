@@ -30,6 +30,7 @@ import java.lang.String
 import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
 import xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
+import java.net.URLDecoder
 
 /**
  *
@@ -181,7 +182,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
-    val rawRecord: Option[String] = MetadataRecord.getMDR(hubId).flatMap(_.getCachedTransformedRecord(prefix))
+    val rawRecord: Option[String] = MetadataRecord.getMDR(URLDecoder.decode(hubId, "utf-8")).flatMap(_.getCachedTransformedRecord(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       None

@@ -25,6 +25,7 @@ import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils
 import models.{RecordDefinition, MetadataRecord, Collection, Namespace}
 import xml.{Elem, PrettyPrinter, XML}
+import java.net.{URLDecoder, URLEncoder}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -279,7 +280,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val metadataFormat = pmhRequest.metadataPrefix
 
     val record: MetadataRecord = {
-      val mdRecord = MetadataRecord.getMDR(identifier, metadataFormat, accessKey)
+      val mdRecord = MetadataRecord.getMDR(URLDecoder.decode(identifier, "utf-8"), metadataFormat, accessKey)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -320,7 +321,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
-          <identifier>{record.hubId}</identifier>
+          <identifier>{URLEncoder.encode(record.hubId, "utf-8")}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
