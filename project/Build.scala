@@ -34,7 +34,7 @@ object ApplicationBuild extends Build {
     "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
-    "eu.delving"                %  "sip-core"                        % "1.0.3-SNAPSHOT",
+    "eu.delving"                %  "sip-core"                        % "1.0.5-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",
     "org.apache.tika"           %  "tika-parsers"                    % "1.0"
