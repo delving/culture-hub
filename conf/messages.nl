@@ -285,6 +285,7 @@ dataset.disable=Uitschakelen
 dataset.enable=Inschakelen
 dataset.confirmDeletion=Verwijder deze Dataset?
 dataset.find=Vind een Dataset
+dataset.disableDatasetForDeletion=Dataset eerst uitschakelen om te kunnen verwijderen
 
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link

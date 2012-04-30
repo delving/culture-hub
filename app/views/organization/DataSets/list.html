@@ -88,7 +88,7 @@
                                     #{authenticityToken /}
                                     <button class="btn btn-mini">&{'dataset.reindex'}</button>
                                 </form>
-                                <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set">
+                                <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set data-set-disable">
                                     #{authenticityToken /}
                                     <button class="btn btn-mini">&{'dataset.disable'}</button>
                                 </form>
@@ -200,36 +200,31 @@
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
-                $("#dataset-table").tablesorter();
+        $("#dataset-table").tablesorter();
+        var theTable = $('#dataset-table')
+        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
+            $(this).prev().find(":checkbox").click()
+        });
+        $("#filter").keyup(function () {
+            $.uiTableFilter(theTable, this.value);
+        });
+        $('#filter-form').submit(
+                function () {
+                    theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+                    return false;
+                }).focus(); //Give focus to input field
 
-                var theTable = $('#dataset-table')
-
-                theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
-                    $(this).prev().find(":checkbox").click()
-                });
-
-                $("#filter").keyup(function () {
-                    $.uiTableFilter(theTable, this.value);
-                })
-
-                $('#filter-form').submit(
-                        function () {
-                            theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-                            return false;
-                        }).focus(); //Give focus to input field
-
-                $('.delete').click(function() {
-                    var ds = $(this).attr('data-remove');
-                    bootboxConfirm({
-                        'type': 'DELETE',
-                        'message' : '<h3 class="shout">'+ds+'</h3>&{'dataset.confirmDeletion'}',
-                        'action_url':'/organizations/${orgId}/dataset/'+ ds + '/remove',
-                        'success_url':'/organizations/${orgId}/dataset'
-                    });
-                });
-
-            }
-
-
-    );
+        $('.delete:not(.disabled)').click(function() {
+            var ds = $(this).attr('data-remove');
+            bootboxConfirm({
+                'type': 'DELETE',
+                'message' : '<h3 class="shout">'+ds+'</h3>&{'dataset.confirmDeletion'}',
+                'action_url':'/organizations/${orgId}/dataset/'+ ds + '/remove',
+                'success_url':'/organizations/${orgId}/dataset'
+            });
+        });
+        $('.delete.disabled').click(function(){
+            bootbox.alert("&{'dataset.disableDatasetForDeletion'}");
+        });
+    });
 </script>
