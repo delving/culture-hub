@@ -82,7 +82,7 @@ object Indexing extends SolrServer {
     inputDoc.addField(SCHEMA, format)
 
     // for backwards-compatibility
-    inputDoc.addField(PMH_ID, record.hubId)
+    inputDoc.addField(PMH_ID, URLEncoder.encode(record.hubId, "utf-8"))
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
