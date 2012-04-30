@@ -147,7 +147,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
     // todo add checking for accessKeys and see if is valid
-    val collections = models.Collection.findAll(orgId, None)
+    val collections = models.Collection.findAllNonEmpty(orgId, None)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
