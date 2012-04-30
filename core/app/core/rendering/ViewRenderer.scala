@@ -177,10 +177,12 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val list = RenderNode(listName, None, true)
                   list.addAttrs(attrs)
-                  list.addAttr('label -> label)
-                  list.addAttr('separator -> separator)
-                  list.addAttr('type -> listType)
-                  list.addAttr('class -> hClass)
+
+                  // for html lists
+                  if(!label.isEmpty) list.addAttr('label -> label)
+                  if(!separator.isEmpty) list.addAttr('separator -> separator)
+                  if(!listType.isEmpty) list.addAttr('type -> listType)
+                  if(!hClass.isEmpty) list.addAttr('class -> hClass)
 
                   treeStack.head += list
                   treeStack push list
@@ -413,16 +415,22 @@ case class RenderNode(nodeType: String, value: Option[String] = None, isArray: B
   }
 
 
-  def attr(key: String) = attributes(key)
+  def attr(key: String) = if(attributes.contains(key)) attributes(key) else ""
 
-  def addAttr(key: String, value: AnyRef) = attributes + (key -> value)
+  def addAttr(key: String, value: AnyRef) = {
+    if(!value.toString.trim.isEmpty) {
+      attributes + (key -> value)
+    }
+  }
 
   def addAttr(element: (Symbol, Any)) {
-    attributes += (element._1.name -> element._2)
+    if(!element._2.toString.trim.isEmpty) {
+      attributes += (element._1.name -> element._2)
+    }
   }
   
   def addAttrs(attrs: Map[String, String]) {
-    attributes ++= attrs
+    attributes ++= attrs.filterNot(_._2.isEmpty)
   }
 
   def attributesAsXmlString: String = attributes.map(a => a._1 + "=\"" + a._2.toString + "\"").mkString(" ")

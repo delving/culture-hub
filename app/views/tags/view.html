@@ -19,7 +19,7 @@ switch (_view.nodeType) {
 
 
     case "section":}%
-        <div id="${_view.attr("id")}" class="${_view.attr("class")}">
+        <div id="${_view.attr("id")}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
@@ -44,7 +44,7 @@ switch (_view.nodeType) {
             <li>${_view.text()}</li>
         #{/if}
         #{if _view.attr("type") == "di"}
-            <dt>&{_view.attr("label")}</dt><dd #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>${_view.text()}</dd>
+            <dt>&{_view.attr("label")}</dt><dd #{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>${_view.text()}</dd>
         #{/if}
         #{ifnot _view.attr("type")}
             &{_view.attr("label")}: ${_view.text()}
@@ -58,7 +58,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image"><img src="${_view.text()}" #{if _view.attr("class")}class="${_view.attr("class")}"#{/if} #{if _view.attr("title")}title="${_view.attr("title")}"#{/if}/></div>
+        <div class="image"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}#{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
     %{ }
     break
 

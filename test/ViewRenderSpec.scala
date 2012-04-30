@@ -53,22 +53,23 @@ class ViewRenderSpec extends Specification {
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view.toViewTree)
         args.put("lang", "en")
-        val rendered: String = template.render(args)
+        val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
         val expected: String =
 """<div class="row">
-<div class="section" id="description">
-<div class="field">Description: This is a test record</div>
+<div id="description">
+Description: This is a test record
 </div>
-<div class="section" id="fields">
-    <div>A test hierarchical record, Wood</div>
-<div class="field">Purchase Price: 5000</div>
-<div class="field">metadata.icn.purchaseType: auction</div>
-<div class="link"><a href="http://foo.bar.com">Blablabla"></a></div>
+<div id="fields">
+<h5>random</h5>
+<div>A test hierarchical record, Wood</div>
+Purchase Price: 5000
+metadata.icn.purchaseType: auction
+<div class="link"><a href="http://foo.bar.com">Blablabla</a></div>
 </div>
-<div class="section" id="complexFields">
-<div class="field">metadata.icn.placeName: Paris</div>
-<div class="field">metadata.icn.placeName: Berlin</div>
-<div class="field">metadata.icn.placeName: Amsterdam</div>
+<div id="complexFields">
+metadata.icn.placeName: Paris
+metadata.icn.placeName: Berlin
+metadata.icn.placeName: Amsterdam
 </div>
 </div>
 """
@@ -93,7 +94,7 @@ class ViewRenderSpec extends Specification {
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view.toViewTree)
         args.put("lang", "en")
-        val rendered: String = template.render(args)
+        val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
 
         RenderNode.visit(view.toViewTree)
 
