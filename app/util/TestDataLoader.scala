@@ -5,6 +5,10 @@ import org.joda.time.DateTime
 import org.bson.types.ObjectId
 import java.util.Date
 import models._
+import eu.delving.metadata._
+import play.api.Play
+import play.api.Play.current
+import io.Source
 
 /**
  * Test data
@@ -137,7 +141,10 @@ object TestDataLoader {
       lastUploaded = new Date(0),
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
-      mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head)),
+      mappings = Map("icn" -> Mapping(
+        format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head,
+        recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
+      )),
       formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "public"), "icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
