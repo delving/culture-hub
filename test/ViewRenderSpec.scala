@@ -42,7 +42,7 @@ class ViewRenderSpec extends Specification {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val renderer = new ViewRenderer("icn", "full")
-        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"))
+        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"), Map.empty)
 
         RenderNode.visit(view.toViewTree)
 
@@ -53,22 +53,23 @@ class ViewRenderSpec extends Specification {
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view.toViewTree)
         args.put("lang", "en")
-        val rendered: String = template.render(args)
+        val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
         val expected: String =
 """<div class="row">
-<div class="section" id="description">
-<div class="field">Description: This is a test record</div>
+<div id="description">
+Description: This is a test record
 </div>
-<div class="section" id="fields">
-    <div>A test hierarchical record, Wood</div>
-<div class="field">Purchase Price: 5000</div>
-<div class="field">metadata.icn.purchaseType: auction</div>
-<div class="link"><a href="http://foo.bar.com">Blablabla"></a></div>
+<div id="fields">
+<h5>random</h5>
+<div>A test hierarchical record, Wood</div>
+Purchase Price: 5000
+metadata.icn.purchaseType: auction
+<div class="link"><a href="http://foo.bar.com">Blablabla</a></div>
 </div>
-<div class="section" id="complexFields">
-<div class="field">metadata.icn.placeName: Paris</div>
-<div class="field">metadata.icn.placeName: Berlin</div>
-<div class="field">metadata.icn.placeName: Amsterdam</div>
+<div id="complexFields">
+metadata.icn.placeName: Paris
+metadata.icn.placeName: Berlin
+metadata.icn.placeName: Amsterdam
 </div>
 </div>
 """
@@ -93,7 +94,7 @@ class ViewRenderSpec extends Specification {
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
         args.put("view", view.toViewTree)
         args.put("lang", "en")
-        val rendered: String = template.render(args)
+        val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
 
         RenderNode.visit(view.toViewTree)
 
@@ -108,17 +109,17 @@ class ViewRenderSpec extends Specification {
     }
 
     "render a record as XML" in {
+      running(FakeApplication()) {
+        val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-      val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+        val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
 
-      val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
+        val xml = view.toXmlString
 
-      val xml = view.toXmlString
+        println(xml)
+        println()
 
-      println(xml)
-      println()
-
-      val expected =
+        val expected =
 """<?xml version="1.0" encoding="utf-8" ?>
  <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
    <item id="42">
@@ -138,24 +139,25 @@ class ViewRenderSpec extends Specification {
    </item>
  </record>"""
 
-      xml must equalTo(expected)
-
+        xml must equalTo(expected)
+      }
     }
 
 
     "render a record as JSON" in {
+      running(FakeApplication()) {
+        val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
+        val renderer = new ViewRenderer("aff", "xml")
+        val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
+        val json = view.toJson
 
-      val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-      val renderer = new ViewRenderer("aff", "xml")
-      val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"))
-      val json = view.toJson
+        println(json)
+        println()
 
-      println(json)
-      println()
+        val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
 
-      val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
-
-      json must equalTo (expected)
+        json must equalTo (expected)
+      }
 
     }
 
@@ -210,7 +212,7 @@ class ViewRenderSpec extends Specification {
             <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
             <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
-            <link url="/record/dc:data/dc:link" text="/record/dc:data/dc:name" />
+            <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name" />
         </section>
         <section id="complexFields">
              <list path="/record/icn:places/icn:place">

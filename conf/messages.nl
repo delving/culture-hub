@@ -54,6 +54,7 @@ ui.label.language=Taal
 ui.label.languageSelect=Kies een taal
 ui.label.last=Laatste
 ui.label.lastname=Achternaam
+ui.label.less=Minder
 ui.label.location=Plaats
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
@@ -150,6 +151,24 @@ thing.browse=Ontdek {0}
 thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
+
+thing.address=Adress
+thing.postalCode=Postcode
+thing.place=Plaats
+thing.municipality=Gemeente
+thing.province=Provincie
+thing.geographicArea=Geografisch gebied
+thing.fax=Fax
+thing.email=Email
+thing.contact=Contact
+thing.url=URL
+thing.missionStatement=Mission statement
+thing.contactName=Contact naam
+think.contactEmail=Contact email
+thing.startYear=Start jaar
+thing.endYear=Eind jaar
+thing.keyword=Trefwoord
+thing.keywords=Trefwoorden
 
 
 # Account registration and activation messages

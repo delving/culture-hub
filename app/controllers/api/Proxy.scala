@@ -6,6 +6,7 @@ import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
+import core.ExplainItem
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.

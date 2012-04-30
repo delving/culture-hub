@@ -1,0 +1,55 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title: systemFields.apply("delving_title").get(0) /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.min.js")}"></script>
+#{/set}
+
+<style>
+    h5 {
+        margin: 0;
+    }
+    dl {
+        margin: 0;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    ul.split {
+        display: inline-block;
+        width: 44%;
+        vertical-align: top;
+    }
+    div.image {
+        margin-bottom: 21px;
+        text-align: center;
+    }
+    img.img {
+        height: auto;
+        max-width: 100%;
+    }
+</style>
+
+<div class="page-header">
+    <h1>${systemFields.apply("delving_title").get(0)}</h1>
+</div>
+#{view view: view /}
+
+<script>
+    $(document).ready(function(){
+        $('ul.split').easyListSplitter({
+            colNumber: 2,
+            direction: 'vertical'
+        });
+        $('.truncate').expander({
+            slicePoint: 600,
+            expandText: "&{'ui.label.more'}",
+            userCollapseText: "&{'ui.label.less'}"
+        });
+        $('.read-more a, .read-less a').addClass("badge badge-info");
+//        $('.read-more a').addClass("btn btn-primary btn-mini");
+    })
+</script>

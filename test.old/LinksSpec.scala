@@ -1,6 +1,7 @@
 import collection.immutable.List
 import controllers.{ListItem, Search}
 import controllers.user.DObjects
+import core.Constants
 import java.io.File
 import models.{UserCollection, DataSet, Link, DObject}
 import org.scalatest.matchers.ShouldMatchers

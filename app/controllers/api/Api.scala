@@ -5,10 +5,9 @@ import play.api.mvc._
 import extensions.JJson
 import scala.Predef._
 import scala._
-import collection.immutable.ListMap
-import xml.{NodeSeq, Elem}
+import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
-import core.rendering.RenderNode._
+import core.ExplainItem
 
 /**
  * The API documentation
@@ -172,32 +171,3 @@ case class ApiItem(path: String, description: String, example: String = "") {
 
 }
 
-/**
- * Describes an API parameter
- */
-case class ExplainItem(label: String, options: List[String] = List(), description: String = "") {
-
-  def toXml: Elem = {
-    <element>
-      <label>
-        {label}
-      </label>{if (!options.isEmpty)
-      <options>
-        {options.map(option => <option>
-        {option}
-      </option>)}
-      </options>}{if (!description.isEmpty) <description>
-      {description}
-    </description>}
-    </element>
-  }
-
-  def toJson: ListMap[String, Any] = {
-    if (!options.isEmpty && !description.isEmpty)
-      ListMap("label" -> label, "options" -> options.toSeq, "description" -> description)
-    else if (!options.isEmpty)
-      ListMap("label" -> label, "options" -> options.toSeq)
-    else
-      ListMap("label" -> label)
-  }
-}

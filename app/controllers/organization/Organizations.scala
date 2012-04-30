@@ -2,9 +2,9 @@ package controllers.organization
 
 import play.api.i18n.Messages
 import controllers._
-import core.HubServices
 import play.api.mvc.Action
 import models.{DataSet, HubUser}
+import core.{Constants, HubServices}
 
 /**
  *
@@ -19,7 +19,7 @@ object Organizations extends DelvingController {
       implicit request =>
         if (HubServices.organizationService.exists(orgId)) {
           val members: List[ListItem] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
-          val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(AccessControl.ORGANIZATIONS))
+          val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(Constants.ORGANIZATIONS))
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,

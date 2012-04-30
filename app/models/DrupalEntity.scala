@@ -3,11 +3,12 @@ package models
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import org.apache.solr.common.SolrInputDocument
-import util.Constants._
+import core.Constants._
 import core.search.SolrServer
 import java.util.Date
 import xml.NodeSeq
 import models.mongoContext._
+import core.indexing.IndexingService
 
 case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: DrupalEntityId, enrichments: Map[String, Array[String]] = Map.empty, deleted: Boolean = false) {
 
@@ -72,7 +73,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
 
 case class DrupalEntityId(id: String, nodeId: String, nodeType: String, bundle: String)
 
-object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) with SolrServer {
+object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) {
 
   import xml.{Elem, Node}
 
@@ -80,7 +81,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
     update(MongoDBObject("id.nodeId" -> entity.id.nodeId), entity, true, false, new WriteConcern())
-    if (!entity.deleted) getStreamingUpdateServer.add(entity.toSolrDocument) else getStreamingUpdateServer.deleteById(entity.id.nodeId)
+    if (!entity.deleted) IndexingService.stageForIndexing(entity.toSolrDocument) else IndexingService.deleteById(entity.id.nodeId)
   }
 
   def createDrupalEntityId(attributes: Map[String, String]): DrupalEntityId = {
@@ -137,12 +138,12 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
           (counter._1 + 1, counter._2 + coRefs.length)
         }
       }
-      getStreamingUpdateServer.commit
+      IndexingService.commit()
       StoreResponse(records.length, recordCounter._2)
     }
     catch {
       case ex: Exception =>
-        getStreamingUpdateServer.rollback()
+        IndexingService.rollback()
         StoreResponse(0, 0, false, ex.getMessage)
     }
   }

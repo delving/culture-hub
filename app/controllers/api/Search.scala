@@ -2,7 +2,7 @@ package controllers.api
 
 import controllers.DelvingController
 import play.api.mvc.Action
-import util.Constants
+import core.Constants._
 import core.search.SearchService
 import collection.mutable.ListBuffer
 
@@ -21,18 +21,18 @@ object Search extends DelvingController {
       val hiddenQueryFilters = ListBuffer[String]()
 
       if(!orgId.isEmpty)
-        hiddenQueryFilters += "%s:%s".format(Constants.ORG_ID, orgId)
+        hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
 
       if(provider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(Constants.PROVIDER, provider.get.replaceAll("_", " "))
+        hiddenQueryFilters += "%s:%s".format(PROVIDER, provider.get.replaceAll("_", " "))
       }
 
       if(dataProvider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(Constants.OWNER, dataProvider.get.replaceAll("_", " "))
+        hiddenQueryFilters += "%s:%s".format(OWNER, dataProvider.get.replaceAll("_", " "))
       }
 
       if(collection.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(Constants.SPEC, collection.get)
+        hiddenQueryFilters += "%s:%s".format(SPEC, collection.get)
       }
 
       val apiResult = SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
