@@ -3,7 +3,8 @@ package core.processing
 import play.api.Play.current
 import core.mapping.MappingService
 import collection.JavaConverters._
-import eu.delving.sip.MappingEngine
+import eu.delving.MappingEngine
+import eu.delving.MappingResult
 import core.indexing.{IndexingService, Indexing}
 import core.SystemField
 import core.Constants._
@@ -165,7 +166,7 @@ object DataSetProcessor {
     log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
   }
 
-  private def getSystemFields(mappingResult: MappingEngine.Result) = {
+  private def getSystemFields(mappingResult: MappingResult) = {
     val systemFields: Map[String, List[Any]] = mappingResult.systemFields()
     val renamedSystemFields: Map[String, List[Any]] = systemFields.flatMap(sf => {
       try {

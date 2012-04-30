@@ -3,7 +3,7 @@ package core.mapping
 import models.RecordDefinition
 import play.api.{Play, Logger}
 import play.api.Play.current
-import eu.delving.sip.MappingEngine
+import eu.delving.MappingEngine
 import eu.delving.metadata._
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node

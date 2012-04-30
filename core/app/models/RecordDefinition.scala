@@ -20,6 +20,7 @@ import xml.{Node, XML}
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
+import core.SystemField
 
 /**
  *
@@ -51,13 +52,13 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
 case class SummaryField(name: String, xpath: String) {
 
   def isValid = try {
-    eu.delving.metadata.SummaryField.valueOf(name)
+    SystemField.valueOf(name)
     true
   } catch {
     case _ => false
   }
 
-  def tag = "delving_" + eu.delving.metadata.SummaryField.valueOf(name).tag
+  def tag = "delving_" + SystemField.valueOf(name).tag
 }
 
 case class SearchField(name: String, xpath: String, fieldType: String)
