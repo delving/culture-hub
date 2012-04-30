@@ -113,7 +113,7 @@
     <node-mapping inputPath="/facts/name" outputPath="/icn:record/europeana:collectionTitle"/>
     <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/delving:thumbnail">
       <groovy-code>
-        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier_URL)}&quot;</string>
+        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier__URL)}&quot;</string>
       </groovy-code>
     </node-mapping>
   </node-mappings>

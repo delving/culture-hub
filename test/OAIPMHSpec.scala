@@ -1,7 +1,8 @@
 import controllers.SipCreatorEndPoint
+import core.processing.DataSetProcessor
 import java.io.{File, FileInputStream}
 import java.util.zip.GZIPInputStream
-import models.DataSet
+import models.{DataSetState, DataSet}
 import org.specs2.mutable._
 import play.api.mvc.{Result, AsyncResult}
 import play.api.test._
@@ -20,9 +21,13 @@ class OAIPMHSpec extends Specification with TestContext {
 
   step {
     running(FakeApplication()) {
+      // initially load the test data for this whole spec
+      // we do it before and after all, since we won't modify any data here, just read
       load
       val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
       SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+      DataSet.updateState(dataSet, DataSetState.QUEUED)
+      DataSetProcessor.process(dataSet)
     }
   }
 
@@ -82,11 +87,9 @@ class OAIPMHSpec extends Specification with TestContext {
 
         status(response) must equalTo(OK)
 
-          // TODO this doesn't work in test mode yet since there are no cached values of the transformed records available
-
-//        val xml = contentAsXML(response)
-//        val error = xml \ "error"
-//        error.length must equalTo(0)
+        val xml = contentAsXML(response)
+        val error = xml \ "error"
+        error.length must equalTo(0)
 
       }
 
