@@ -11,14 +11,14 @@ import org.apache.commons.io.IOUtils
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import util.SimpleDataSetParser
 import play.libs.Akka
 import akka.actor.{Props, Actor}
 import eu.delving.metadata.RecMapping
 import play.api.{Play, Logger}
 import play.api.Play.current
-import scala.Option
 import core.{Constants, HubServices}
+import scala.{Either, Option}
+import util.SimpleDataSetParser
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -200,6 +200,10 @@ object SipCreatorEndPoint extends ApplicationController {
                 Right("Received it")
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
+              case x if x.startsWith("stats-") =>
+                // politely consume the stream and say goodbye
+                Stream.continually(inputStream.read).takeWhile(-1 !=)
+                Right("All done")
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
                 Left(msg)

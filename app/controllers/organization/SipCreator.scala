@@ -20,7 +20,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val sipCreatorVersion = "1.0.3"
+        val sipCreatorVersion = "1.0.5"
         val host = request.domain + ":9000"
         val home = "http://" + host + "/" + user + "/"
         val codebase = "http://" + host + "/assets/sip-creator/"
