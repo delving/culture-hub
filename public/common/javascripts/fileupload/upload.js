@@ -34,7 +34,7 @@ function _renderDownloadTemplate(o) {
                 '<td class="preview"></td>' +
                     '<td class="name"><a></a></td>' +
                     '<td class="size"></td><td colspan="2"></td>'
-                ) + '<td class="delete"><button>Delete</button> ' +
+                ) + '<td class="delete"><button class="btn btn-danger">Delete</button> ' +
             '<input type="checkbox" name="delete" value="1"></td></tr>');
         row.find('.size').text(o.formatFileSize(file.size));
         if (file.error) {
