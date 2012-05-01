@@ -1,3 +1,19 @@
+window.locale = {
+    "fileupload": {
+        "errors": {
+            "maxFileSize": "File is too big",
+            "minFileSize": "File is too small",
+            "acceptFileTypes": "Filetype not allowed",
+            "maxNumberOfFiles": "Max number of files exceeded",
+            "uploadedBytes": "Uploaded bytes exceed file size",
+            "emptyResult": "Empty file upload result"
+        },
+        "error": "Error",
+        "start": "Start",
+        "cancel": "Cancel",
+        "destroy": "Delete"
+    }
+};
 /**
  * Initialize the jQuery File Upload widget:
  */
@@ -34,7 +50,7 @@ function _renderDownloadTemplate(o) {
                 '<td class="preview"></td>' +
                     '<td class="name"><a></a></td>' +
                     '<td class="size"></td><td colspan="2"></td>'
-                ) + '<td class="delete"><button class="btn btn-danger">Delete</button> ' +
+                ) + '<td class="delete"><button class="btn btn-danger deleteFile">Delete</button> ' +
             '<input type="checkbox" name="delete" value="1"></td></tr>');
         row.find('.size').text(o.formatFileSize(file.size));
         if (file.error) {

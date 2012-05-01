@@ -58,7 +58,6 @@
            </div>
            <!-- The loading indicator is shown during file processing -->
            <div class="fileupload-loading"></div>
-
     <div class="row">
         <div class="span12">
            <!-- The table listing the files available for upload/download -->
@@ -82,13 +81,11 @@
             url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
             autoUpload: false,
             uploadTemplate: _renderUploadTemplate,
-            downloadTemplate: _renderDownloadTemplate
+            downloadTemplate: _renderDownloadTemplate,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
         })
         .bind('fileuploaddone', function (e, data) {
             $.post('/organizations/${orgId}/site/upload/${uid}');
-        })
-        .bind('fileuploadfail', function (e, data) {
-            $('.progress .bar').css('width', '0%');
         });
 
         var files = ${files.raw()};
