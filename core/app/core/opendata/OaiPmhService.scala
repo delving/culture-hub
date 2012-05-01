@@ -52,7 +52,7 @@ object OaiPmhService {
 class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, accessKey: Option[String]) extends MetaConfig {
 
   private val log = Logger("CultureHub")
-  val prettyPrinter = new PrettyPrinter(200, 5)
+  val prettyPrinter = new PrettyPrinter(300, 5)
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
@@ -90,7 +90,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       case ii   : InvalidIdentifierException => createErrorResponse("idDoesNotExist")
       case e    : Exception => createErrorResponse("badArgument", e)
     }
-    prettyPrinter.format(response)
+//    prettyPrinter.format(response) // todo enable pretty printing later again
+    response.toString()
   }
 
   def isLegalPmhRequest(params: Params) : Boolean = {
@@ -231,13 +232,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>
-          {currentDate}
-        </responseDate>
-        <request verb="ListRecords" from={from} until={to}
-                 metadataPrefix={metadataFormat}>
-          {requestURL}
-        </request>
+        <responseDate>{currentDate}</responseDate>
+        <request verb="ListRecords" from={from} until={to} metadataPrefix={metadataFormat}>{requestURL}</request>
         <ListRecords>
           {for (record <- recordList) yield
           renderRecord(record, metadataFormat, setName)}
