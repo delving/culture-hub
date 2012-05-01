@@ -39,9 +39,11 @@
                     <td>
                         <!-- ko if: published() -->
                         <i class="icon-eye-open"></i>
+                    &{'org.cms.page.published'}
                         <!-- /ko -->
                         <!-- ko if: !published() -->
                         <i class="icon-eye-close"></i>
+                    &{'org.cms.page.notPublished'}
                         <!-- /ko -->
                     </td>
                     <td>
@@ -61,7 +63,7 @@
                 <!-- ko if: !pages().length > 0 -->
                 <tbody>
                     <tr>
-                        <td>
+                        <td colspan="2">
                             No pages available
                         </td>
                         <td>
