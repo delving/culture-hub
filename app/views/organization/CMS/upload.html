@@ -26,20 +26,26 @@
     </div>
 </div>
 <form id="fileupload" action="#" method="POST" enctype="multipart/form-data">
-<div class="row">
-        <div class="span12">
            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
            <div class="row fileupload-buttonbar">
                <div class="span7">
                    <!-- The fileinput-button span is used to style the file input field as button -->
                    <span class="btn btn-success fileinput-button">
                        <i class="icon-plus icon-white"></i>
-                       <span>&{'org.cms.upload.image'}</span>
+                       <span>&{'org.cms.upload.chooseFile'}</span>
                        <input type="file" name="files[]" multiple >
                    </span>
+                   <button type="submit" class="btn btn-primary start">
+                       <i class="icon-upload icon-white"></i>
+                       <span>&{'org.cms.upload.start'}</span>
+                   </button>
+                   <button type="reset" class="btn btn-warning cancel">
+                       <i class="icon-ban-circle icon-white"></i>
+                       <span>&{'org.cms.upload.cancel'}</span>
+                   </button>
                    <button type="button" class="btn btn-danger delete">
                        <i class="icon-trash icon-white"></i>
-                       <span>Delete</span>
+                       <span>&{'ui.label.delete'}</span>
                    </button>
                    <input type="checkbox" class="toggle">
                </div>
@@ -52,8 +58,7 @@
            </div>
            <!-- The loading indicator is shown during file processing -->
            <div class="fileupload-loading"></div>
-        </div>
-</div>
+
     <div class="row">
         <div class="span12">
            <!-- The table listing the files available for upload/download -->
@@ -75,12 +80,16 @@
 
         $('#fileupload').fileupload({
             url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
-            autoUpload: true,
+            autoUpload: false,
             uploadTemplate: _renderUploadTemplate,
             downloadTemplate: _renderDownloadTemplate
-        }).bind('fileuploaddone', function (e, data) {
-                    $.post('/organizations/${orgId}/site/upload/${uid}');
-                });
+        })
+        .bind('fileuploaddone', function (e, data) {
+            $.post('/organizations/${orgId}/site/upload/${uid}');
+        })
+        .bind('fileuploadfail', function (e, data) {
+            $('.progress .bar').css('width', '0%');
+        });
 
         var files = ${files.raw()};
         $('#fileupload').each(function () {

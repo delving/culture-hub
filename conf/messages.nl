@@ -565,7 +565,9 @@ org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies va
 org.cms.upload=Bestand uploaden
 org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
-
+org.cms.upload.chooseFile=Bestand kiezen
+org.cms.upload.start=Upload starten
+org.cms.upload.cancel=Upload annuleren
 
 ### CMS PAGE HELP ###
 org.cms.page.help.toggle=Hulp met website paginas

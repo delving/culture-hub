@@ -593,6 +593,9 @@ org.cms.upload=Upload file
 org.cms.upload.image=Upload image
 org.cms.upload.image.explain=Here you can upload images from your own computer and afterwards add them to a CMS page. These images will be added to a list which is made available when you create a new page or edit an existing page.
 org.cms.upload.save=Save files
+org.cms.upload.chooseFile=Choose file
+org.cms.upload.start=Start upload
+org.cms.upload.cancel=Cancel upload
 
 ### CMS PAGE HELP ###
 org.cms.page.help.toggle=Help with website pages

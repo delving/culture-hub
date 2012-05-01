@@ -11,8 +11,8 @@ function _renderUploadTemplate(o) {
             (file.error ? '<td class="error" colspan="2"></td>' :
                 '<td><div class="progress">' +
                     '<div class="bar" style="width:0%;"></div></div></td>' +
-                    '<td class="start"><button>Start</button></td>'
-                ) + '<td class="cancel"><button>Cancel</button></td></tr>');
+                    '<td class="start"><button class="btn btn-primary"><i class="icon-upload icon-white"></i><span>Start</span></button></td>'
+                ) + '<td class="cancel"><button class="btn btn-warning"><i class="icon-ban-circle icon-white"></i><span>Cancel</span></button></td></tr>');
         row.find('.name').text(file.name);
         row.find('.size').text(o.formatFileSize(file.size));
         if (file.error) {
