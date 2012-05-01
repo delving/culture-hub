@@ -109,6 +109,7 @@ thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
 thing.datasets=Datasets
+thing.landingPage=Landingpage
 thing.object=Object
 thing.objects=Objects
 thing.object.user=User object
