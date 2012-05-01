@@ -15,7 +15,7 @@
         display: inline-block;
         width: 20px;
         height: 20px;
-        background: url(/assets//common/javascripts/tiny_mce/themes/advanced/img/icons.gif) no-repeat;
+        background: url(/assets/common/javascripts/tiny_mce/themes/advanced/img/icons.gif) no-repeat;
         vertical-align: middle;
     }
 
@@ -104,7 +104,6 @@
                 #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
                 #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
                 </div>
-
                 <div class="span4">
                     <div class="control-group">
                         <label>&{'org.cms.page.menu.add'}</label>
@@ -115,7 +114,7 @@
                             </select>
                         </div>
                     </div>
-                #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+                    #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
             <hr/>
