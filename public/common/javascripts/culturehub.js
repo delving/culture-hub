@@ -213,7 +213,8 @@ function bootboxConfirm( options ) {
         'message'           : "Are you sure?",
         'success_callback'  : "",
         'success_url'       : "",
-        'type'              : 'GET'
+        'type'              : 'GET',
+        'data'              : ""
     };
     for ( var index in default_args ) {
         if ( typeof options[index] == "undefined" ) options[index] = default_args[index];
@@ -223,6 +224,7 @@ function bootboxConfirm( options ) {
             $.ajax({
                 url: options["action_url"],
                 type: options["type"],
+                data: options["data"],
                 success: function() {
                     if ( options["success_url"].length > 0) {
                         document.location = options["success_url"];
@@ -259,21 +261,21 @@ function confirmationDialog(elementId, onConfirm, message, title) {
  * i18n version. Labels are set in the commonHeader.html
  * If no labels are found default englsih texts 'Delete' and 'Cancel' are used
  */
-//function confirmDeletion(elementSelector, onDelete, onCancel) {
-//    var btnDelete, btnCancel;
-//    btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
-//    btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
-//    var btnOptions = {};
-//    btnOptions[btnDelete] = function() { if (typeof onDelete === 'function') onDelete.call(); $(this).dialog("close"); }
-//    btnOptions[btnCancel] = function() { if (typeof onCancel === 'function') onCancel.call(); $(this).dialog("close"); }
-//    $(elementSelector).dialog({
-//        autoOpen: true,
-//        resizable: false,
-//        minHeight: 150,
-//        modal: true,
-//        buttons: btnOptions
-//    });
-//}
+function confirmDeletion(elementSelector, onDelete, onCancel) {
+    var btnDelete, btnCancel;
+    btnDelete = (jsLabels.remove) ? jsLabels.remove : "Delete";
+    btnCancel = (jsLabels.cancel) ? jsLabels.cancel : "Cancel";
+    var btnOptions = {};
+    btnOptions[btnDelete] = function() { if (typeof onDelete === 'function') onDelete.call(); $(this).dialog("close"); }
+    btnOptions[btnCancel] = function() { if (typeof onCancel === 'function') onCancel.call(); $(this).dialog("close"); }
+    $(elementSelector).dialog({
+        autoOpen: true,
+        resizable: false,
+        minHeight: 150,
+        modal: true,
+        buttons: btnOptions
+    });
+}
 
 
 // ~~~ object handling functions
