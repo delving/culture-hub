@@ -23,11 +23,11 @@
         <div class="row">
             <div class="span6">
                 <div class="branding">
-                    <img class="site-logo pull-left" src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.displayName}" title="${themeInfo.displayName}"/>
-
-                    <h1 class="site-name pull-left"><a href="/" class="brand">${themeInfo.displayName}</a></h1>
-
-                    <h2 class="site-slogan pull-left">${themeInfo.get('siteSlogan').raw()}</h2>
+                    <img class="site-logo pull-left" src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName}" title="${themeInfo.siteName}"/>
+                    <div class="pull-left">
+                        <h1 class="site-name"><a href="/" class="brand">${themeInfo.siteName}</a></h1>
+                        <h2 class="site-slogan">${themeInfo.siteSlogan}</h2>
+                    </div>
                 </div>
             </div>
             <div class="span6">
