@@ -123,6 +123,7 @@ object ThemeHandler {
         name             = (theme \ "@name").text,
         subdomain        = Some((theme \ "subdomain").text),
         themeDir         = (theme \ "themeDir").text,
+        displayName      = if(((theme \ "displayName").text).isEmpty) Some("Delving CultureHub") else Some((theme \ "displayName").text),
         defaultLanguage  = (theme \ "defaultLanguage").text,
         solrSelectUrl    = (theme \ "solrSelectUrl").text,
         facets           = Some((theme \ "facets").text),

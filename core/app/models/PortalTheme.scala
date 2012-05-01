@@ -29,6 +29,7 @@ case class PortalTheme(_id:                                 ObjectId = new Objec
                        subdomain:                           Option[String] = None,
                        themeDir:                            String,
                        defaultLanguage:                     String = "en",
+                       displayName:                         Option[String],
                        solrSelectUrl:                       String = "http://localhost:8983/solr",
                        cacheUrl:                            String = "http://localhost:8983/services/image?",
                        emailTarget:                         EmailTarget = EmailTarget(),
