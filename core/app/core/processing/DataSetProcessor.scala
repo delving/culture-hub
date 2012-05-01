@@ -2,14 +2,14 @@ package core.processing
 
 import play.api.Play.current
 import core.mapping.MappingService
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import eu.delving.MappingEngine
 import eu.delving.MappingResult
 import core.indexing.{IndexingService, Indexing}
 import core.SystemField
 import core.Constants._
 import com.mongodb.casbah.Imports._
-import io.Source
+import scala.io.Source
 import eu.delving.groovy.XmlSerializer
 import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
 import play.api.{Play, Logger}
@@ -57,8 +57,6 @@ object DataSetProcessor {
       formats.headOption
     }
 
-
-
     // update processing state of DataSet
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
 
@@ -72,6 +70,19 @@ object DataSetProcessor {
     processingFormats.partition(!_.hasMapping)._1 foreach {
       f => log.warn("No mapping found for format %s, skipping its processing".format(f.prefix))
     }
+
+    // check that required output formats are there
+    val allOutputPrefixes: Seq[String] = processingFormats.map(f => f.crossWalks.map(_._1) ++ Seq(f.prefix)).flatten
+
+    def checkOutputFormats(name: String, f: Option[RecordDefinition]) {
+      if(f.isDefined && !allOutputPrefixes.contains(f.get.prefix)) {
+        log.warn("%s format is %s, but it could not be found amongst the output formats (direct and derived) %s".format(name, f.get.prefix, allOutputPrefixes.mkString(", ")))
+      }
+    }
+
+    checkOutputFormats("Rendering", renderingFormat)
+    checkOutputFormats("Indexing", indexingFormat)
+
 
     // drop previous index
     if (indexingFormat.isDefined) {
@@ -98,40 +109,35 @@ object DataSetProcessor {
             log.info("%s: processed %s of %s records, for formats '%s'".format(spec, records.numSeen, recordCount, formatsString))
           }
 
-          for(format <- processingFormats; if(format.hasMapping && format.recordIsValid(record))) {
-            val isIndexingFormat = indexingFormat.isDefined && indexingFormat.get.prefix == format.prefix
-            val isRenderingFormat = renderingFormat.isDefined && renderingFormat.get.prefix == format.prefix
+          val mappingResults: Map[String, MappingResult] = (for(format <- processingFormats; if(format.hasMapping && format.recordIsValid(record))) yield {
+            val mainMappingResult: MappingResult = format.engine.execute(record.getRawXmlString)
+            val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
+            val crosswalkResults: Seq[(String, MappingResult)] = format.crossWalks.map(e => (e._1 -> e._2.execute(firstPassRecord))).toSeq
 
-            val mainMappingResult = format.engine.execute(record.getRawXmlString)
+            crosswalkResults ++ Seq(format.prefix -> mainMappingResult)
+          }).flatten.toMap
 
-            // cache mapping result
-            DataSet.cacheMappedRecord(dataSet, record, format.prefix, MappingService.nodeTreeToXmlString(mainMappingResult.root()))
+            // cache mapping results
+            for(r <- mappingResults) {
+              DataSet.cacheMappedRecord(dataSet, record, r._1, MappingService.nodeTreeToXmlString(r._2.root()))
+            }
 
             // handle systemFields
-            if(isRenderingFormat) {
-              val systemFields = getSystemFields(mainMappingResult)
-              val enrichedSystemFields = enrichSystemFields(systemFields, record.hubId, format.prefix)
+            if(renderingFormat.isDefined && mappingResults.contains(renderingFormat.get.prefix)) {
+              val systemFields = getSystemFields(mappingResults(renderingFormat.get.prefix))
+              val enrichedSystemFields = enrichSystemFields(systemFields, record.hubId, renderingFormat.get.prefix)
               recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
             }
 
             // if the current format is the to be indexed one, send the record out for indexing
-            if (isIndexingFormat) {
-              val fields: Map[String, List[Any]] = mainMappingResult.fields()
-              val searchFields: Map[String, List[Any]] = mainMappingResult.searchFields()
-              Indexing.indexOne(dataSet, record, fields ++ searchFields ++ getSystemFields(mainMappingResult), format.prefix)
+            if (indexingFormat.isDefined && mappingResults.contains(indexingFormat.get.prefix)) {
+              val r = mappingResults(indexingFormat.get.prefix)
+              val fields: Map[String, List[Any]] = r.fields()
+              val searchFields: Map[String, List[Any]] = r.searchFields()
+              Indexing.indexOne(dataSet, record, fields ++ searchFields ++ getSystemFields(r), indexingFormat.get.prefix)
               indexedRecords += 1
             }
-
-            // also cache the result of possible crosswalks
-            if (!format.crosswalkEngines.isEmpty) {
-              val firstPassRecord = XmlSerializer.toXml(mainMappingResult.root())
-              for (c <- format.crosswalkEngines) {
-                val transformed = c._2.execute(firstPassRecord).root()
-                DataSet.cacheMappedRecord(dataSet, record, c._1, MappingService.nodeTreeToXmlString(transformed))
-              }
-            }
           }
-        }
       }
 
       if(indexingFormat.isDefined) {
@@ -204,11 +210,11 @@ case class ProcessingFormat(format: RecordDefinition, dataSet: DataSet) {
 
   val engine: MappingEngine = new MappingEngine(dataSet.mappings(format.prefix).recordMapping.getOrElse(""), Play.classloader, MappingService.recDefModel, javaNamespaces)
 
-  val crosswalkEngines = (RecordDefinition.getCrosswalkResources(format.prefix).map {
-    r =>
+  val crossWalks: Map[String, MappingEngine] = (for(r <- RecordDefinition.getCrosswalkResources(format.prefix)) yield {
       val targetPrefix = r.getPath.substring(r.getPath.indexOf(format.prefix + "-")).split("-")(0)
-      (targetPrefix -> new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces))
-    }).toMap[String, MappingEngine]
+      val engine: MappingEngine = new MappingEngine(Source.fromURL(r).getLines().mkString("\n"), Play.classloader, MappingService.recDefModel, javaNamespaces)
+      (targetPrefix -> engine)
+    }).toMap
 
   def recordIsValid(record: MetadataRecord) = record.validOutputFormats.contains(format.prefix)
 
