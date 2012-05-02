@@ -5,6 +5,7 @@ import play.api.mvc.Action
 import core.Constants._
 import core.search.SearchService
 import collection.mutable.ListBuffer
+import play.api.libs.concurrent.Promise
 
 /**
  * Search API
@@ -17,35 +18,38 @@ object Search extends DelvingController {
   def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = Root {
     Action {
       implicit request =>
+        Async {
+          Promise.pure {
+            val hiddenQueryFilters = ListBuffer[String]()
 
-      val hiddenQueryFilters = ListBuffer[String]()
+            if (!orgId.isEmpty)
+              hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
 
-      if(!orgId.isEmpty)
-        hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
+            if (provider.isDefined) {
+              hiddenQueryFilters += "%s:%s".format(PROVIDER, provider.get.replaceAll("_", " "))
+            }
 
-      if(provider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(PROVIDER, provider.get.replaceAll("_", " "))
-      }
+            if (dataProvider.isDefined) {
+              hiddenQueryFilters += "%s:%s".format(OWNER, dataProvider.get.replaceAll("_", " "))
+            }
 
-      if(dataProvider.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(OWNER, dataProvider.get.replaceAll("_", " "))
-      }
+            if (collection.isDefined) {
+              hiddenQueryFilters += "%s:%s".format(SPEC, collection.get)
+            }
 
-      if(collection.isDefined) {
-        hiddenQueryFilters += "%s:%s".format(SPEC, collection.get)
-      }
+            SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
 
-      val apiResult = SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
+          } map {
+            // CORS - see http://www.w3.org/TR/cors/
+            result => result.withHeaders(
+              ("Access-Control-Allow-Origin" -> "*"),
+              ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+              ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+              ("Access-Control-Max-Age" -> "86400")
 
-      // CORS - see http://www.w3.org/TR/cors/
-      apiResult.withHeaders(
-        ("Access-Control-Allow-Origin" -> "*"),
-        ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
-        ("Access-Control-Allow-Headers" -> "X-Requested-With"),
-        ("Access-Control-Max-Age" -> "86400")
-      )
-
-
+            )
+          }
+        }
     }
   }
 
