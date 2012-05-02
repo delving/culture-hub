@@ -29,7 +29,7 @@
                         <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
                             <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
-                        <a id="${vc.spec}" class="btn btn-danger btn-mini delete pull-right" href="#">
+                        <a id="${vc.spec}" data-remove="${vc.spec}" class="btn btn-danger btn-mini delete pull-right" href="#">
                             <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                         </a>
                         #{/if}
@@ -53,26 +53,15 @@
     </div>
 </div>
 
-</div>
-<div id="dialog-confirm-collection-delete" title="&{'org.vc.deleteCollection'}" style="display: none;">
-    <p>
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-        &{'org.vc.deleteCollectionConfirm'}
-    </p>
-</div>
-
 <script type="text/javascript">
 
 $(document).ready(function () {
     $('.delete').click(function(el) {
-        confirmDeletion('#dialog-confirm-collection-delete', function () {
-            $.ajax({
-                url: '/organizations/${orgId}/virtualCollection/' + el.target.id,
-                type: 'DELETE',
-                success: function() {
-                    document.location = '/organizations/${orgId}/virtualCollection'
-                }
-            });
+        bootboxConfirm({
+            'type': 'DELETE',
+            'message' :  '<h3 class="shout">'+  el.target.id +'</h3>&{'org.vc.deleteCollectionConfirm'}',
+            'action_url' : '/organizations/${orgId}/virtualCollection/' + el.target.id,
+            'success_url': '/organizations/${orgId}/virtualCollection'
         });
     });
 });

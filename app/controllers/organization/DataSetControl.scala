@@ -155,7 +155,7 @@ object DataSetControl extends OrganizationController {
           'spec -> spec,
           'data -> data,
           'dataSetForm -> DataSetViewModel.dataSetForm,
-          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic).toList,
+          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
           'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix)
         ))
     }

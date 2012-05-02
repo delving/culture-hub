@@ -36,6 +36,7 @@ class ThemeInfo(theme: PortalTheme) {
 
   def path(path: String) = "/assets/themes/%s/%s".format(theme.themeDir, path)
 
-  val displayName = theme.displayName.getOrElse("Delving CultureHub")
+  val siteName = theme.siteName.getOrElse("Delving CultureHub")
+  val siteSlogan = theme.siteSlogan.getOrElse("")
 
 }

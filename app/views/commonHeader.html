@@ -8,7 +8,6 @@
     <link rel="shortcut icon" href="${themeInfo.path("images/favicon.ico")}" >
     <meta charset="utf-8">
     <title>#{get 'title' /}</title>
-    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/ui/jquery-ui-1.8.16.custom.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>
@@ -27,42 +26,41 @@
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/jquery.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.hoverIntent.minified.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tmpl.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-ui-1.8.16.custom.min.js")}"></script>
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.iframe-transport.js")}"></script>}*
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload.js")}"></script>}*
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload-fp.js")}"></script>}*
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload-ui.js")}"></script>}*
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/upload.js")}"></script>}*
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.cookie.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.metadata.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.validate.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/knockout-2.0.0.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/knockout.mapping-latest.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.form.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.delving.spinner.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tokeninput.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.min.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.filter.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tools.min.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tiptip.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.capSlide.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.ui.touch-punch.min.js")}"></script>
-    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/culturehub.js")}"></script>
-
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootbox.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-transition.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-alert.js")}"></script>
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-modal.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-modal.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-dropdown.js")}"></script>
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-scrollspy.js")}"></script>}*
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tab.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>}*
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-button.js")}"></script>
+    *{ UNUSED JS FILES }*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.hoverIntent.minified.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tmpl.min.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.iframe-transport.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload-fp.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.fileupload-ui.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/upload.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.form.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.min.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.multiselect.filter.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tools.min.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tiptip.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.ui.touch-punch.min.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-scrollspy.js")}"></script>}*
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>}*
     *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>}*
     *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-carousel.js")}"></script>}*
     *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-typeahead.js")}"></script>}*
@@ -75,5 +73,4 @@
       });
     </script>
 </head>
-
 <body id="#{get 'bodyId' /}" style="visibility: ${play.templates.BaseTemplate.layoutData.get().get('visibility') ? play.templates.BaseTemplate.layoutData.get().get('visibility') : 'visible'}">

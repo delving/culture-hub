@@ -3,7 +3,8 @@
     <theme name="default">
         <subdomain>default</subdomain>
         <themeDir>default</themeDir>
-        <displayName>Delving CultureHub</displayName>
+        <siteName>Delving CultureHub</siteName>
+        <siteSlogan>Opensource solutions for Cultural Heritage</siteSlogan>
         <defaultLanguage>en</defaultLanguage>
         <solrSelectUrl>http://localhost:8989/solr/core2</solrSelectUrl>
         <emailTarget>

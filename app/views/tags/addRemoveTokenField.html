@@ -30,6 +30,8 @@
       },
       onDelete: function(item) {
         if(removeConfirmationDialog) {
+
+
           confirmDeletion(removeConfirmationDialog, function() {
             $.ajax({
               type: 'DELETE',
@@ -40,7 +42,8 @@
               $(id).tokenInput('add', {id: item.id, name: item.name});
               }
             });
-          }, function() {
+          }
+          , function() {
               $(id).tokenInput('add', {id: item.id, name: item.name});
           });
         } else {

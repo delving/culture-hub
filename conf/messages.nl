@@ -55,6 +55,7 @@ ui.label.languageSelect=Kies een taal
 ui.label.last=Laatste
 ui.label.lastname=Achternaam
 ui.label.less=Minder
+ui.label.load=Laden
 ui.label.location=Plaats
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
@@ -70,6 +71,7 @@ ui.label.places=Plaatsen
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.preview=Voorbeeld
 ui.label.previous=Vorige
+ui.label.previousVersions=Oudere versies
 ui.label.print=Print
 ui.label.register=Registreren
 ui.label.remove=Verwijder
@@ -285,7 +287,8 @@ dataset.disable=Uitschakelen
 dataset.enable=Inschakelen
 dataset.confirmDeletion=Verwijder deze Dataset?
 dataset.find=Vind een Dataset
-
+dataset.disableDatasetForDeletion=Dataset eerst uitschakelen om te kunnen verwijderen
+dataset.filter.beginTypeing=Type hier een dataset naam
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
 mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor {0} opnieuw in te stellen
@@ -456,7 +459,9 @@ user.admin.index.title=Account space
 user.admin.profile.title=Jouw profiel
 user.admin.profile.help.aboutYou=Vertel wat over jezelf
 user.admin.profile.save=Bewaar profiel
-user.admin.profile.help.linkedIn=URL van je linkedIn profiel pagina
+user.admin.profile.help.twitter=Twitter gebruikersnaam, e.g. #johndoe
+user.admin.profile.help.linkedIn=LinkedIn publieke profiel naam
+user.admin.profile.help.public=Wanneer dit is aangevinkt is dit profiel ook zichtbaar voor niet-ingelogde gebruikers.
 user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
 ##Collections
@@ -554,7 +559,11 @@ org.cms.page.new=Nieuwe pagina
 org.cms.page.save=Bewaar pagina
 org.cms.page.menu.add=Voeg toe aan menu
 org.cms.page.menu.position=Positie in menu
-org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 3 tot 15 characters lang.
+org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 4 tot 35 characters lang.
+org.cms.page.publish=Publiceer
+org.cms.page.publish.help=Aanvinken om inhoud zichtbaar te maken
+org.cms.page.published=Gepubliceerd
+org.cms.page.notPublished=Niet gepubliceerd
 org.cms.page.list=Pagina lijst
 org.cms.list.languageSwitch=Bekijk paginas in
 org.cms.list.deletePage=Verwijder pagina
@@ -562,6 +571,15 @@ org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies va
 org.cms.upload=Bestand uploaden
 org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
+org.cms.upload.chooseFile=Bestand kiezen
+org.cms.upload.start=Upload starten
+org.cms.upload.cancel=Upload annuleren
+
+org.cms.upload.help.toggle=Hulp met bestanden uploaden
+org.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>
+org.cms.upload.help.startUpload=<p>De plaatsen worden toegevoegd aan de lijst en zijn klaar voor uploaden.</p><ul><li>Klik op <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Upload starten</span> om alle plaatjes tegelijkertijd te uploaden</li><li>Klik de <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> knop om plaatjes afzonderlijk van elkaar te uploaden</li></ul>
+org.cms.upload.help.ready=Klaar voor gebruik
+org.cms.upload.help.ready.info=<p>Eenmaal klaar, ga terug naar de <a href="/organizations/{0}/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/organizations/{0}/site/{1}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
 
 
 ### CMS PAGE HELP ###
@@ -609,7 +627,9 @@ org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de vi
 org.vc.help.queries.tab=Zoekopdracht schrijven
 org.vc.help.queries.info=<h6>Simplele zoekopdracht</h6><p>Een zoekopdracht kan zoiets simpels als een <em>plaats</em> of <em>persoon</em> naam zijn.</p><h6>Complexe zoekopdracht</h6><p>Complexe zoekopdrachten kunnen ook aangemaakt worden door zoektermen te combineren met <code>AND</code> <code>NOT</code> en <code>OR</code>. Een voorbeeld hiervan zo zijn: <code>schets OR tekening NOT houtskool</code>.</p><h6>Individuele resultaten uitsluiten</h6><p>Probeer de zoekopdracht zodanig te forumuleren dat ongewenste resultaten uitgesloten blijven. Mocht dit echter niet volledig lukken dan is het mogelijk om individuele resulaten uit te sluiten door het desbetreffende <span class="label label-contrast">hubId</span> toe te voegen aan het <span class="label label-contrast">Uitsluiten</span> veld.</p><h6>Betere resultaten</h6><p>Om de kans op resultaten met digitale objecten (plaatjes) te verbeteren voeg <code>AND delving_hasDigitalObject_facet:true</code> aan het eind van de zoekopdracht toe in het <span class="label label-contrast">Zoekopdracht</span> veld.</p>
 
-
+# AUTO-GEN PAGE KEY #
+org.vc.keyauto.button=Identifier automatisch genereren.
+org.vc.keyauto.error=Naam veld moet eerst ingevuld worden
 
 
 org.admin.index.title=Organisatie administratie

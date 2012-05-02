@@ -7,6 +7,7 @@
 #{set 'moreScripts'}
 <script id='delving-wysiyg' src="@{routes.Assets.at('/common/javascripts/tiny_mce/tiny_mce.js')}" type='text/javascript'></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>
 #{/set}
 
 #{set 'moreCss'}
@@ -15,7 +16,7 @@
         display: inline-block;
         width: 20px;
         height: 20px;
-        background: url(/assets//common/javascripts/tiny_mce/themes/advanced/img/icons.gif) no-repeat;
+        background: url(/assets/common/javascripts/tiny_mce/themes/advanced/img/icons.gif) no-repeat;
         vertical-align: middle;
     }
 
@@ -34,66 +35,66 @@
 #{organizationNavBar orgId: orgId, active:"site", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
 <div class="accordion" id="instructions">
-            <div class="accordion-group">
-                <div class="accordion-heading  clearfix">
-                    <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
-                        <i class="icon-question-sign"></i> &{'org.cms.page.help.toggle'}
-                    </a>
-                </div>
-                <div id="collapseOne" class="accordion-body collapse">
-                    <div class="accordion-inner">
+    <div class="accordion-group">
+        <div class="accordion-heading  clearfix">
+            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
+                <i class="icon-question-sign"></i> &{'org.cms.page.help.toggle'}
+            </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse">
+            <div class="accordion-inner">
 
-                        <div class="tabbable">
+                <div class="tabbable">
 
-                            <ul class="nav nav-pills">
-                                <li class="active"><a href="#fields" data-toggle="tab">&{'org.cms.page.help.fields.tab'}</a></li>
-                                <li><a href="#images" data-toggle="tab">&{'org.cms.page.help.images.tab'}</a></li>
-                                <li><a href="#templates" data-toggle="tab">&{'org.cms.page.help.templates.tab'}</a></li>
-                                <li><a href="#homepage" data-toggle="tab">&{'org.cms.page.help.homepage.tab'}</a></li>
-                            </ul>
+                    <ul class="nav nav-pills">
+                        <li class="active"><a href="#fields" data-toggle="tab">&{'org.cms.page.help.fields.tab'}</a></li>
+                        <li><a href="#images" data-toggle="tab">&{'org.cms.page.help.images.tab'}</a></li>
+                        <li><a href="#templates" data-toggle="tab">&{'org.cms.page.help.templates.tab'}</a></li>
+                        <li><a href="#homepage" data-toggle="tab">&{'org.cms.page.help.homepage.tab'}</a></li>
+                    </ul>
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="fields">
-                                    <dl>
-                                        <dt>&{'thing.title'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.title.info'}</dd>
-                                        <dt>&{'org.cms.page.key'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.key.info'}</dd>
-                                        <dt>&{'ui.label.theme'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.theme.info'}</dd>
-                                        <dt>&{'ui.label.language'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.language.info'}</dd>
-                                        <dt>&{'org.cms.page.menu.add'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.menu.info'}</dd>
-                                        <dt>&{'org.cms.page.menu.position'}</dt>
-                                        <dd>&{'org.cms.page.help.fields.position.info'}</dd>
-                                    </dl>
-                                </div>
-                                <div class="tab-pane" id="images">
-                                    <p>
-                                        &{'org.cms.page.help.images.info', orgId}
-                                    </p>
-                                </div>
-                                <div class="tab-pane" id="templates">
-                                    <p>
-                                        &{'org.cms.page.help.templates.info'}
-                                    </p>
-                                </div>
-                                <div class="tab-pane" id="homepage">
-                                    <p>
-                                    &{'org.cms.page.help.homepage.info'}
-                                    </p>
-                                </div>
-                            </div>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="fields">
+                            <dl>
+                                <dt>&{'thing.title'}</dt>
+                                <dd>&{'org.cms.page.help.fields.title.info'}</dd>
+                                <dt>&{'org.cms.page.key'}</dt>
+                                <dd>&{'org.cms.page.help.fields.key.info'}</dd>
+                                <dt>&{'ui.label.theme'}</dt>
+                                <dd>&{'org.cms.page.help.fields.theme.info'}</dd>
+                                <dt>&{'ui.label.language'}</dt>
+                                <dd>&{'org.cms.page.help.fields.language.info'}</dd>
+                                <dt>&{'org.cms.page.menu.add'}</dt>
+                                <dd>&{'org.cms.page.help.fields.menu.info'}</dd>
+                                <dt>&{'org.cms.page.menu.position'}</dt>
+                                <dd>&{'org.cms.page.help.fields.position.info'}</dd>
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="images">
+                            <p>
+                                &{'org.cms.page.help.images.info', orgId}
+                            </p>
+                        </div>
+                        <div class="tab-pane" id="templates">
+                            <p>
+                                &{'org.cms.page.help.templates.info'}
+                            </p>
+                        </div>
+                        <div class="tab-pane" id="homepage">
+                            <p>
+                            &{'org.cms.page.help.homepage.info'}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="span12">
-        <form id="pageForm" method="post" action="" class="form-delving">
+        <form id="pageForm" method="POST" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
@@ -104,7 +105,6 @@
                 #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
                 #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
                 </div>
-
                 <div class="span4">
                     <div class="control-group">
                         <label>&{'org.cms.page.menu.add'}</label>
@@ -115,13 +115,13 @@
                             </select>
                         </div>
                     </div>
-                #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+                    #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
             <hr/>
             #{textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
-            #{checkboxField name: "published", label: "Publish", value: "true", dataBind: "checked: published", help: "Selecting this option will make this content visible" /}
+            #{checkboxField name: "published", label: messages.get('org.cms.page.publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('org.cms.page.publish.help') /}
             <hr/>
             <div class="well">
                 #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
@@ -132,7 +132,7 @@
         </form>
 
         <table class="table table-striped" id="versions">
-            <caption>Previous versions</caption>
+            <caption>&{'ui.label.previousVersions'}</caption>
             <thead>
             <tr>
                 <th>&{'thing.title'}</th>
@@ -189,7 +189,8 @@
            if (keyFromTitle == '') {
                $(this).next('.error').html("&{'org.cms.page.keyauto.error'}");
            }
-           $('input#key').val(keyFromTitle);
+           $('input#key').attr("value", keyFromTitle);
+           pageModel.key(keyFromTitle);
         });
     });
 </script>
