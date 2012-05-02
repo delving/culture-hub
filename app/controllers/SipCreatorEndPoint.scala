@@ -364,7 +364,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
     var uploadedRecords = 0
 
-    val records = DataSet.getRecords(dataSet)
+    val records = MetadataCache.get(dataSet.orgId)
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
@@ -373,15 +373,7 @@ object SipCreatorEndPoint extends ApplicationController {
       val maybeNext = parser.nextRecord
       if (maybeNext != None) {
         uploadedRecords += 1
-        val record = maybeNext.get
-
-        val toInsert = record.copy(modified = new Date(), deleted = false)
-        records.findOne(MongoDBObject("localRecordKey" -> toInsert.localRecordKey)) match {
-          case Some(existing) =>
-            records.update(MongoDBObject("_id" -> existing._id), records._grater.asDBObject(existing.copy(rawMetadata = (existing.rawMetadata ++ toInsert.rawMetadata))))
-          case None =>
-            records.insert(toInsert)
-        }
+        records.saveOrUpdate(maybeNext.get)
       } else {
         continue = false
       }

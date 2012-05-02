@@ -105,19 +105,3 @@ object MetadataRecord {
 
 }
 
-trait MDRCollection {
-  self: SalatDAO[MetadataRecord, ObjectId] =>
-
-  def existsByLocalRecordKey(key: String) = {
-    count(MongoDBObject("localRecordKey" -> key)) > 0
-  }
-
-  def findByLocalRecordKey(key: String) = {
-    findOne(MongoDBObject("localRecordKey" -> key))
-  }
-
-  def upsertByLocalKey(updatedRecord: MetadataRecord) {
-    update(MongoDBObject("localRecordKey" -> updatedRecord.localRecordKey), updatedRecord, true, false, new WriteConcern())
-  }
-}
-

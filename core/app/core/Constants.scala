@@ -106,5 +106,10 @@ object Constants {
   val GROUPS = "groups"
 
 
+  // ~~~ MetadataItem types
+
+  val ITEM_TYPE_MDR = "mdr"
+
   val HubId = """^(.*?)_(.*?)_(.*)$""".r
+
 }

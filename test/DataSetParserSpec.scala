@@ -1,6 +1,6 @@
 import collection.mutable.ListBuffer
 import java.io.ByteArrayInputStream
-import models.{MetadataRecord, DataSet}
+import models.{MetadataItem, DataSet}
 import org.specs2.execute.Error
 import org.specs2.mutable.Specification
 import util.SimpleDataSetParser
@@ -26,11 +26,11 @@ class DataSetParserSpec extends Specification with TestContext {
 
     }
 
-    "properly assign valid metadata formats" in {
+    "properly assign invalid metadata formats" in {
 
       withTestContext {
         val buffer = parseStream
-        buffer(1).validOutputFormats should not contain ("icn")
+        buffer(1).invalidTargetSchemas.contains("icn") must equalTo (true)
       }
 
     }
@@ -41,7 +41,7 @@ class DataSetParserSpec extends Specification with TestContext {
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
-    val buffer = ListBuffer[MetadataRecord]()
+    val buffer = ListBuffer[MetadataItem]()
 
     try {
 

@@ -321,16 +321,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     count.toInt
   }
 
-  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] with MDRCollection = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
+  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
 
   // TODO should we cache the constructions of these objects?
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
+  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId]  = {
     val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
     recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
     recordCollection.ensureIndex(MongoDBObject("hubId" -> 1))
     recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
     recordCollection.ensureIndex(MongoDBObject("validOutputFormats" -> 1))
-    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
+    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
     CollectionMDR
   }
 
