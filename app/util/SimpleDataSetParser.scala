@@ -22,8 +22,9 @@ import xml.pull._
 import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
 import eu.delving.metadata.{Hasher, Tag, Path}
-import models.{MetadataRecord, DataSet}
 import scala.collection.JavaConverters._
+import models.{MetadataItem, DataSet}
+import core.Constants._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -35,7 +36,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
 
   val parser = new XMLEventReader(Source.fromInputStream(is))
   val hasher = new Hasher
-  var recordCounter = 0
+  var recordCounter: Int = 0
 
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
   val invalidRecords = dataSet.invalidRecords.map(valid => {
@@ -47,7 +48,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     (key, value)
   }).toMap[String, Set[Int]]
 
-  def nextRecord: Option[MetadataRecord] = {
+  def nextRecord: Option[MetadataItem] = {
 
     var hasParsedOne = false
     var inRecord = false
@@ -63,7 +64,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     // the value of one field
     val fieldValueXml = new StringBuilder()
 
-    var record: MetadataRecord = null
+    var record: MetadataItem = null
     var recordId: String = null
 
     while (!hasParsedOne) {
@@ -80,14 +81,15 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           if(mayId != None) recordId = mayId.get.text
         case EvElemEnd(_, "input") =>
           inRecord = false
-          record = MetadataRecord(
-            hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
-            rawMetadata = Map("raw" -> recordXml.toString()),
-            validOutputFormats = getValidMappings(dataSet, recordCounter),
-            transferIdx = Some(recordCounter),
-            localRecordKey = recordId,
-            globalHash = hasher.getHashString(recordXml.toString()),
-            hash = createHashToPathMap(valueMap))
+          record = MetadataItem(
+            collection = dataSet.spec,
+            schemaPrefix = "raw",
+            itemType = ITEM_TYPE_MDR,
+            itemId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
+            rawXml = recordXml.toString(),
+            invalidTargetSchemas = getInvalidMappings(dataSet, recordCounter),
+            insertionIndex = recordCounter
+          )
           recordXml.clear()
           recordId = null
           recordCounter += 1
@@ -130,7 +132,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     Option(record)
   }
 
-  private def getValidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(valid => if(valid._2.contains(index)) None else Some(valid._1)).toList
+  private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if(invalid._2.contains(index)) Some(invalid._1) else None).toList
 
 
   private def elemStartToString(start: EvElemStart): String = {
@@ -151,16 +153,4 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     extractNamespaces(ns.parent, namespaces)
   }
 
-  private def createHashToPathMap(valueMap: MultiMap[String, String]): Map[String, String] = {
-    val bits: Iterable[collection.mutable.Set[(String, String)]] = for (path <- valueMap.keys) yield {
-      var index: Int = 0
-      val innerBits: collection.mutable.Set[(String, String)] = for (value <- valueMap.get(path).get) yield {
-        val foo: String = if (index == 0) path else "%s_%d".format(path, index)
-        index += 1
-        (hasher.getHashString(value), foo)
-      }
-      innerBits
-    }
-    bits.flatten.toMap
-  }
 }
