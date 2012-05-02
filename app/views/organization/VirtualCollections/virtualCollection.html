@@ -124,19 +124,19 @@
                         </div>
                         <div class="bd">
                             <!-- ko if: typeof delving_title !== 'undefined' -->
-                            <strong>Title:</strong> <span data-bind="text: delving_title"></span><br/>
+                            <strong>&{'thing.title'}:</strong> <span data-bind="text: delving_title"></span><br/>
                             <!-- /ko -->
                             <!-- ko if: typeof delving_creator !== 'undefined' -->
-                            <strong>Creator:</strong> <span data-bind="text: delving_creator"></span><br/>
+                            <strong>&{'metadata.dc.creator'}:</strong> <span data-bind="text: delving_creator"></span><br/>
                             <!-- /ko -->
                             <!-- ko if: typeof delving_description !== 'undefined' -->
-                            <strong>Description:</strong> <span data-bind="text: delving_description"></span><br/>
+                            <strong>&{'metadata.dc.description'}:</strong> <span data-bind="text: delving_description"></span><br/>
                             <!-- /ko -->
                             <!-- ko if: typeof delving_provider !== 'undefined' -->
-                            <strong>Provider:</strong> <span data-bind="text: delving_spec"></span><br/>
+                            <strong>&{'metadata.dc.provider'}:</strong> <span data-bind="text: delving_spec"></span><br/>
                             <!-- /ko -->
                             <!-- ko if: typeof delving_landingPage !== 'undefined' -->
-                            <strong>Landingpage:</strong> <span data-bind="text: delving_landingPage"></span><br/>
+                            <strong>&{'thing.landingPage'}:</strong> <span data-bind="text: delving_landingPage"></span><br/>
                             <!-- /ko -->
                             <!-- ko if: typeof delving_hubId !== 'undefined' -->
                             <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span><br/>
