@@ -79,6 +79,8 @@ object ApplicationBuild extends Build {
     resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
 
+    watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
+
     routesImport += "extensions.Binders._"
 
   ).dependsOn(core, dos, musip)
