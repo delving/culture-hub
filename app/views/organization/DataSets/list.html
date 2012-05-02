@@ -26,7 +26,8 @@
 
     <form id="filter-form" class="form-inline well">
         <label>&{'dataset.find'}: </label>
-        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="Begin typing a dataset name"/>
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="&{'dataset.filter.beginTypeing'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
     </form>
 
 
@@ -228,4 +229,8 @@
             bootbox.alert("&{'dataset.disableDatasetForDeletion'}");
         });
     });
+    function resetFilter(){
+        $.uiTableFilter($('#dataset-table'), '');
+        $('input#filter').val('');
+    }
 </script>

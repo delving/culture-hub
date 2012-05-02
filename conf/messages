@@ -306,6 +306,7 @@ dataset.confirmDeletion=Are you sure you want to remove this Dataset?
 dataset.find=Find a Dataset
 dataset.invalidate=Reset hashes
 dataset.disableDatasetForDeletion=You need to disable the dataset before it can be deleted
+dataset.filter.beginTypeing=Begin typing a dataset name
 
 ##Mails
 mail.message.activateaccount=Your account for {0} has been created. In order to activate it, please click the link below
