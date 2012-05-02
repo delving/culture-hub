@@ -414,7 +414,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
     def createJsonRecord(doc: BriefDocItem): ListMap[String, Any] = {
       val recordMap = collection.mutable.ListMap[String, Any]();
       doc.getFieldValuesFiltered(false, Array())
-        .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, SolrQueryService.encodeUrl(fv.getValueAsArray, fv.getKey, chResponse)))
+        .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, fv.getValueAsArray))
       ListMap(recordMap.toSeq: _*)
     }
 

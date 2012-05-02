@@ -16,7 +16,6 @@ package core.search
  * limitations under the License.
  */
 
-import models.PortalTheme
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
@@ -24,11 +23,13 @@ import play.api.Logger
 import play.api.mvc.RequestHeader
 import core.Constants._
 import org.apache.commons.lang.StringEscapeUtils
-import scala.Predef._
-import scala._
 import collection.immutable.{List, Map}
+import models.PortalTheme
+import scala.xml.XML
+import scala.xml.Elem
+import java.net.URLEncoder
 import org.apache.solr.client.solrj.SolrQuery
-import core.Constants
+import org.apache.commons.validator.UrlValidator
 
 /**
  *
@@ -38,20 +39,28 @@ import core.Constants
 
 object SolrQueryService extends SolrServer {
 
-  import scala.xml.Elem
-  import java.net.URLEncoder
 
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
+
+  val urlValidator = new UrlValidator()
 
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
     {
       try {
-        import scala.xml.XML
-        val normalisedValue = if (field.getKeyAsXml.endsWith("_text")) "<![CDATA[%s]]>".format(value) else value
-        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(normalisedValue), field, response), keyAsXml))
+        if(field.getKeyAsXml.endsWith("_text")) {
+          XML.loadString("<%s><![CDATA[%s]]><%s>\n".format(keyAsXml, StringEscapeUtils.unescapeHtml(value)))
+        } else {
+          val encodedValue = if(value.startsWith("http")) {
+            if(!urlValidator.isValid(value)) encodeUrl(value) else value
+          } else {
+            value
+          }
+          val escaped = StringEscapeUtils.escapeXml(encodedValue)
+          XML.loadString("<%s>%s</%s>\n".format(keyAsXml, escaped, keyAsXml))
+        }
       }
       catch {
         case ex: Exception =>
@@ -65,8 +74,7 @@ object SolrQueryService extends SolrServer {
   def renderHighLightXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     field.getHighLightValuesAsArray.map(value =>
       try {
-        import scala.xml.XML
-        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, encodeUrl(StringEscapeUtils.unescapeHtml(value), field, response), field.getKeyAsXml))
+        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml))
       }
       catch {
         case ex : Exception =>
@@ -76,37 +84,13 @@ object SolrQueryService extends SolrServer {
     ).toSeq
   }
 
-  def encode(text: String): String = URLEncoder.encode(text, "utf-8")
-
-  def encodeUrl(field: FieldValue, request: RequestHeader, response: CHResponse): String = {
-    import java.net.URLEncoder
-    if (response.useCacheUrl && field.getKey == "europeana_object")
-      response.theme.cacheUrl + URLEncoder.encode(field.getFirst, "utf-8")
-    else field.getFirst
-  }
-
-  def encodeUrl(fields: Array[String], label: String, response: CHResponse): Array[String] = {
-    if (response.useCacheUrl && label == "europeana_object")
-      fields.map(fieldEntry => response.theme.cacheUrl + URLEncoder.encode(fieldEntry, "utf-8"))
-    else fields
-  }
-
-  def encodeUrl(content: String, field: FieldValue, response: CHResponse): String = {
-    import java.net.URLEncoder
-    if (response.useCacheUrl && field.getKey == "europeana_object")
-      response.theme.cacheUrl + URLEncoder.encode(content, "utf-8")
-    else if (content.startsWith("http://")) content.replaceAll("&", "&amp;")
-    else content.replaceAll(" & ", "&amp;")
-  }
-
-  import org.apache.solr.client.solrj.SolrQuery
-  import models.PortalTheme
+  def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
 
   def getSolrQueryWithDefaults: SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
-    query setRows core.Constants.PAGE_SIZE
+    query setRows PAGE_SIZE
     query setStart 0
     query setFacet true
     query setFacetMinCount (1)
@@ -274,7 +258,7 @@ object SolrQueryService extends SolrServer {
   def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false): QueryResponse = {
     val r = DelvingIdType(id, idType)
     val query = new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId))
-    if (relatedItems) query.setQueryType(Constants.MORE_LIKE_THIS)
+    if (relatedItems) query.setQueryType(MORE_LIKE_THIS)
     SolrQueryService.getSolrResponseFromServer(query)
   }
 
@@ -342,7 +326,7 @@ object SolrQueryService extends SolrServer {
     import scala.collection.mutable.ListBuffer
     val solrQueryString = chQuery.solrQuery.getQuery
     val hrefBuilder = new ListBuffer[String]()
-    hrefBuilder append (QUERY_PROMPT + encode(solrQueryString))
+    hrefBuilder append (QUERY_PROMPT + encodeUrl(solrQueryString))
     val breadCrumbs = List[BreadCrumb](
       BreadCrumb(
         href = hrefBuilder.mkString,
@@ -675,7 +659,7 @@ case class PresentationQuery(chResponse: CHResponse) {
   }
 
   private def createQueryForPresentation(solrQuery: SolrQuery): String = {
-    "query=%s%s".format(SolrQueryService.encode(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=","&qf=", ""))
+    "query=%s%s".format(SolrQueryService.encodeUrl(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=","&qf=", ""))
   }
 
 }
