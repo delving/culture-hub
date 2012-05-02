@@ -314,7 +314,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         "<record>%s</record>".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
     // todo get the record separator for rendering from somewhere
     val response = try {
-      val elem: Elem = XML.loadString(StringEscapeUtils.unescapeHtml(recordAsString).replaceAll("&((?!amp;))","&amp;$1").replaceFirst("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>""", ""))
       <record>
         <header>
           <identifier>{URLEncoder.encode(record.hubId, "utf-8")}</identifier>
@@ -322,11 +321,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {if (metadataPrefix != "ese")
-            elem
-          else
-            <europeana:record>{elem.child.filterNot(_.prefix == "delving")}</europeana:record>
-            }
+          {XML.loadString(recordAsString)}
         </metadata>
       </record>
     } catch {
