@@ -867,6 +867,5 @@ function setScrollablePageHeight(target, index){
  * @param id the ID of the thumbnail
  */
 function showDefaultImg(obj){
-//    alert("foo");
     obj.src = "/assets/common/images/dummy-object.png";
 }
