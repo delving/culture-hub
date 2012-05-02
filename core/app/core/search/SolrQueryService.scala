@@ -22,14 +22,12 @@ import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
 import core.Constants._
-import org.apache.commons.lang.StringEscapeUtils
 import collection.immutable.{List, Map}
 import models.PortalTheme
 import scala.xml.XML
 import scala.xml.Elem
 import java.net.URLEncoder
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.commons.validator.UrlValidator
 
 /**
  *
@@ -43,24 +41,12 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  val urlValidator = new UrlValidator()
-
   def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
     val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
     {
       try {
-        if(field.getKeyAsXml.endsWith("_text")) {
-          XML.loadString("<%s><![CDATA[%s]]><%s>\n".format(keyAsXml, StringEscapeUtils.unescapeHtml(value)))
-        } else {
-          val encodedValue = if(value.startsWith("http")) {
-            if(!urlValidator.isValid(value)) encodeUrl(value) else value
-          } else {
-            value
-          }
-          val escaped = StringEscapeUtils.escapeXml(encodedValue)
-          XML.loadString("<%s>%s</%s>\n".format(keyAsXml, escaped, keyAsXml))
-        }
+        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, value, keyAsXml))
       }
       catch {
         case ex: Exception =>

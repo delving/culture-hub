@@ -36,7 +36,6 @@ object ApplicationBuild extends Build {
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
     "eu.delving"                %  "sip-core"                        % "1.0.5-SNAPSHOT",
 
-    "commons-validator"         %  "commons-validator"               % "1.3.1",
     "org.apache.solr"           %  "solr-solrj"                      % "3.4.0",
     "org.apache.tika"           %  "tika-parsers"                    % "1.0"
   )
