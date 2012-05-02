@@ -24,10 +24,10 @@
                 <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
             #{/ifnot}
             #{ifnot user.userProfile.twitter().isEmpty()}
-                <dt>Twitter:</dt><dd><a href="http://twitter.com/${user.userProfile.twitter().get()}">${user.userProfile.twitter().get()}</a></dd>
+                <dt>Twitter:</dt><dd><a href="http://twitter.com/${user.userProfile.twitter().get()}" target="_blank">${user.userProfile.twitter().get()}</a></dd>
             #{/ifnot}
             #{ifnot user.userProfile.linkedIn().isEmpty()}
-                <dt>LinkedIn:</dt><dd><a href="http://at.linkedin.com/in/${user.userProfile.linkedIn().get()}"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
+                <dt>LinkedIn:</dt><dd><a href="http://www.linkedin.com/in/${user.userProfile.linkedIn().get()}" target="_blank"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
             #{/ifnot}
             #{ifnot user.userProfile.description().isEmpty()}
                 <dt>&{'user.profile.aboutYou'}:</dt>

@@ -24,6 +24,23 @@ hr.editorRule {
     border: 0;
 }
 
+.shout {
+    background: #000;
+    color: #fff;
+    display: table;
+    padding: 0 8px;
+    width: auto;
+
+}
+
+.shout.beware {
+    background: #cc3300;
+}
+
+dt, dd, li {
+    line-height: 21px;
+}
+
 
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
@@ -441,6 +458,10 @@ form label.radio {
 .help-inline {
     color: #888;
     font-style: italic;
+}
+
+.char-count-over-limit {
+    background-color: #cc3300 !important;
 }
 
 /*.btn-group .btn:first-child:not([type='form']) {*/

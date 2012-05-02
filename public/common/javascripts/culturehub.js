@@ -184,23 +184,68 @@ function updateViewModel(data, viewModel, scope) {
     }
 }
 
-function remove(buttonId, dialogId, removeUrl, redirectUrl) {
-    $(buttonId).click(function(e) {
-      e.preventDefault();
-      confirmDeletion(dialogId, function() {
-          $.ajax({
-            url: removeUrl,
-            type: 'DELETE',
-            complete: function() {
-              document.location = redirectUrl;
-            }
-          });
-      });
-    });
-
-}
+//function remove(buttonId, dialogId, removeUrl, redirectUrl) {
+//    $(buttonId).click(function(e) {
+//      e.preventDefault();
+//      confirmDeletion(dialogId, function() {
+//          $.ajax({
+//            url: removeUrl,
+//            type: 'DELETE',
+//            complete: function() {
+//              document.location = redirectUrl;
+//            }
+//          });
+//      });
+//    });
+//
+//}
 
 // ~~~ common dialogs
+
+/* depends on bootbox.js (bootstrap extension) */
+
+function bootboxConfirm( options ) {
+    var default_args = {
+        'action_url'        : "",
+        'cancel_callback'   : "",
+        'cancel_message'    : "",
+        'error_callback'    : "",
+        'message'           : "Are you sure?",
+        'success_callback'  : "",
+        'success_url'       : "",
+        'type'              : 'GET',
+        'data'              : ""
+    };
+    for ( var index in default_args ) {
+        if ( typeof options[index] == "undefined" ) options[index] = default_args[index];
+    }
+    bootbox.confirm(options["message"], function(result){
+        if(result) {
+            $.ajax({
+                url: options["action_url"],
+                type: options["type"],
+                data: options["data"],
+                success: function() {
+                    if ( options["success_url"].length > 0) {
+                        document.location = options["success_url"];
+                    }
+                    if(typeof options["success_callback"] == 'function') {
+                        options["success_callback"].apply()
+                    }
+                },
+                error: function() {
+                    if(typeof options["error_callback"] == 'function') {
+                        options["error_callback"].apply()
+                    }
+                }
+            });
+        } else {
+            if(typeof options["cancel_callback"] == 'function') {
+                options["cancel_callback"].apply()
+            }
+        }
+    })
+}
 
 function confirmationDialog(elementId, onConfirm, message, title) {
     var id = '#' + elementId + 'ConfirmationDialog';
@@ -822,6 +867,5 @@ function setScrollablePageHeight(target, index){
  * @param id the ID of the thumbnail
  */
 function showDefaultImg(obj){
-//    alert("foo");
     obj.src = "/assets/common/images/dummy-object.png";
 }

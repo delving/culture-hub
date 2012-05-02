@@ -18,7 +18,7 @@
           #{checkboxField name:"isPublic", form:profileForm, label:messages.get('ui.label.visibility.public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
        </div>
     <div class="span6">
-          #{textArea name:"description", form:profileForm, label:messages.get('user.profile.aboutYou'), dataBind:"value: description", extHelp:messages.get('user.admin.profile.help.aboutYou'), dataMaxChars:"400", inputClass:"span5" /}
+          #{textArea name:"description", form:profileForm, label:messages.get('user.profile.aboutYou'), dataBind:"value: description", extHelp:messages.get('user.admin.profile.help.aboutYou'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}
           #{textField name:"funFact", form:profileForm, label:messages.get('user.profile.funFact'), dataBind:"value: funFact" /}
           #{textField name:"twitter", form:profileForm, label:"Twitter", dataBind:"value: twitter", extHelp: messages.get('user.admin.profile.help.twitter') /}
           #{textField name:"linkedIn", form:profileForm, label:"LinkedIn", dataBind:"value: linkedIn", extHelp: messages.get('user.admin.profile.help.linkedIn') /}
@@ -51,6 +51,6 @@
     });
 
     $("textarea#description").limitChars({ charCountClass: "small-text", allowOverLimit: false, charsLeftText: '${messages.get('ui.message.charsLeft')}'});
-
+    $(".char-count span").addClass("badge");
   });
 </script>

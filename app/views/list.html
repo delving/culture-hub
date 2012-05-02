@@ -3,17 +3,18 @@
 #{set pageId:'ho'/}
 #{if count > views.Helpers.PAGE_SIZE()}
 #{set 'moreScripts'}
-    <script>
-        pageObject = new Object();
-        pageObject.count = ${count};
-        pageObject.page = ${page};
-        pageObject.link = '?page=__id__';
-        pageObject.previous = "${messages.get('ui.label.previous')}";
-        pageObject.next = "${messages.get('ui.label.next')}";
-        pageObject.itemsPerPage = ${views.Helpers.PAGE_SIZE()}
-        pageObject.selector = ".pg"
-    </script>
-    <script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
+<script>
+    pageObject = new Object();
+    pageObject.count = ${count};
+    pageObject.page = ${page};
+    pageObject.link = '?page=__id__';
+    pageObject.previous = "${messages.get('ui.label.previous')}";
+    pageObject.next = "${messages.get('ui.label.next')}";
+    pageObject.itemsPerPage = ${views.Helpers.PAGE_SIZE()}
+    pageObject.selector = ".pg"
+</script>
+<script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 
@@ -60,7 +61,13 @@
 
 <script>
     $(document).ready(function(){
-    $(".ic_container").capslide();
+        $(".ic_container").capslide({
+            caption_color    : 'white',
+            caption_bgcolor    : 'black',
+            overlay_bgcolor : 'black',
+            border            : '',
+            showcaption        : true
+        });
     });
 
 </script>
