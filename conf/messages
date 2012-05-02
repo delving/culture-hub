@@ -598,11 +598,15 @@ org.cms.list.deletePage=Delete page
 org.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
 org.cms.upload=Upload file
 org.cms.upload.image=Upload image
-org.cms.upload.image.explain=Here you can upload images from your own computer and afterwards add them to a CMS page. These images will be added to a list which is made available when you create a new page or edit an existing page.
 org.cms.upload.save=Save files
 org.cms.upload.chooseFile=Choose file
 org.cms.upload.start=Start upload
 org.cms.upload.cancel=Cancel upload
+org.cms.upload.help.toggle=Help with uploading images
+org.cms.upload.help.chooseImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
+org.cms.upload.help.startUpload=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
+org.cms.upload.help.ready=Ready for use
+org.cms.upload.help.ready.info=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
 
 ### CMS PAGE HELP ###
 org.cms.page.help.toggle=Help with website pages

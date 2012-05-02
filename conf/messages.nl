@@ -575,6 +575,13 @@ org.cms.upload.chooseFile=Bestand kiezen
 org.cms.upload.start=Upload starten
 org.cms.upload.cancel=Upload annuleren
 
+org.cms.upload.help.toggle=Hulp met bestanden uploaden
+org.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>
+org.cms.upload.help.startUpload=<p>De plaatsen worden toegevoegd aan de lijst en zijn klaar voor uploaden.</p><ul><li>Klik op <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Upload starten</span> om alle plaatjes tegelijkertijd te uploaden</li><li>Klik de <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> knop om plaatjes afzonderlijk van elkaar te uploaden</li></ul>
+org.cms.upload.help.ready=Klaar voor gebruik
+org.cms.upload.help.ready.info=<p>Eenmaal klaar, ga terug naar de <a href="/organizations/{0}/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/organizations/{0}/site/{1}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
+
+
 ### CMS PAGE HELP ###
 org.cms.page.help.toggle=Hulp met website paginas
 # FIELDS #
