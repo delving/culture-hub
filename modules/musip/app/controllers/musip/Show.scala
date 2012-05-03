@@ -2,9 +2,9 @@ package controllers.musip
 
 import controllers.DelvingController
 import core.rendering.ViewRenderer
-import models.MusipItem
 import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Action}
+import models.MetadataCache
 
 
 /**
@@ -40,12 +40,13 @@ object Show extends DelvingController {
   }
 
   private def show(orgId: String, itemId: String, itemType: String, renderer: Option[ViewRenderer])(implicit request: RequestHeader) = {
-    MusipItem.find(orgId, itemId, itemType).map {
+    val cache = MetadataCache.get(orgId, "musip", itemType)
+    cache.findOne(itemId).map {
       thing =>
         if (!renderer.isDefined) {
           InternalServerError("Could not find renderer for " + itemType)
         } else {
-          val renderResult = renderer.get.renderRecord(thing.rawXml, List.empty, Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
+          val renderResult = renderer.get.renderRecord(thing.xml("musip"), List.empty, Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
           val viewTree = renderResult.toViewTree
 
           (viewTree, thing.systemFields)
