@@ -252,7 +252,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
-            <identifier>{orgId}:{setName}:{record._id}</identifier>
+            <identifier>{record.hubId}</identifier>
             <datestamp>{record.modified}</datestamp>
             <setSpec>{setName}</setSpec>
           </header>
