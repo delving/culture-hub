@@ -21,16 +21,15 @@ import core.Constants._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
-import scala.collection.JavaConverters._
+import collection.JavaConverters._
 import play.api.Logger
-import scala.collection.immutable.ListMap
+import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
-import scala.xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import models.{MetadataCache, IndexItem, RecordDefinition, PortalTheme}
-import scala.xml.PrettyPrinter
+import models.{MetadataCache, RecordDefinition, PortalTheme}
+import xml.{PrettyPrinter, NodeSeq, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import java.net.{URLEncoder, URLDecoder}
@@ -53,7 +52,6 @@ object SearchService {
 }
 
 class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
-
 
   val log = Logger("CultureHub")
 
@@ -171,14 +169,20 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     }
   }
 
-  private def renderIndexItem(id: String) = IndexItem.findOneById(id).map {
-    indexItem =>
-      new RenderedView {
-        def toXmlString: String = indexItem.rawXml
+  private def renderIndexItem(id: String): Option[RenderedView] = {
+    if(id.split("_").length != 3) {
+      None
+    } else {
+      val Array(orgId, itemType, itemId) = id.split("_")
+      val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
+      val indexItem = cache.findOne(itemId).getOrElse(return None)
+      Some(new RenderedView {
+        def toXmlString: String = indexItem.getRawXmlString
         def toJson: String = "JSON rendering not supported"
-        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.rawXml)
+        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.getRawXmlString)
         def toViewTree: RenderNode = null
-      }
+      })
+    }
   }
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {

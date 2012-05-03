@@ -4,7 +4,6 @@ import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import mongoContext._
 import com.novus.salat.dao.SalatDAO
-import core.MetadataCache
 import java.util.Date
 
 /**
@@ -31,20 +30,20 @@ object MetadataCache {
 
   def getMongoCollectionName(orgId: String) = "%s_MetadataCache".format(orgId)
 
-  def get(orgId: String, collection: String, itemType: String): MetadataCache = {
-    val collection = connection(getMongoCollectionName(orgId))
-    collection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
-    collection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
-    collection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))
+  def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
+    val mongoCollection = connection(getMongoCollectionName(orgId))
+    mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
+    mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
+    mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))
 
-    object MongoMetadataCache extends SalatDAO[MetadataItem, ObjectId](collection) with MetadataCache {
+    object MongoMetadataCache extends SalatDAO[MetadataItem, ObjectId](mongoCollection) with core.MetadataCache {
 
       def saveOrUpdate(item: MetadataItem) {
         update(MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId), _grater.asDBObject(item.copy(modified = new Date())), true)
       }
 
       def iterate(index: Int = 0, limit: Option[Int]): Iterator[MetadataItem] = {
-        val query = MongoDBObject("collection" -> collection, "itemType" -> itemType) ++ ("index" $gt index)
+        val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gt index)
         val cursor = find(query).sort(MongoDBObject("index" -> 1))
         if(limit.isDefined) {
           cursor.limit(limit.get)
@@ -55,9 +54,11 @@ object MetadataCache {
 
       def list(index: Int = 0, limit: Option[Int]): List[MetadataItem] = iterate(index, limit).toList
 
-      def count(): Long = count(MongoDBObject("collection" -> collection, "itemType" -> itemType))
+      def count(): Long = count(MongoDBObject("collection" -> col, "itemType" -> itemType))
 
-      def findOne(itemId: String): Option[MetadataItem] = findOne(MongoDBObject("collection" -> collection, "itemType" -> itemType, "itemId" -> itemId))
+      def findOne(itemId: String): Option[MetadataItem] = findOne(MongoDBObject("collection" -> col, "itemType" -> itemType, "itemId" -> itemId))
+
+      def remove(itemId: String) { remove(MongoDBObject("collection" -> col, "itemId" -> itemId)) }
     }
 
     MongoMetadataCache

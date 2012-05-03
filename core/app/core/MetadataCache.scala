@@ -19,4 +19,6 @@ trait MetadataCache {
 
   def count(): Long
 
+  def remove(itemId: String)
+
 }
