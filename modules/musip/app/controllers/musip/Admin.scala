@@ -4,11 +4,11 @@ import controllers.OrganizationController
 import play.api.mvc.Action
 import play.api.Play
 import play.api.Play.current
-import models.MusipItem
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
 import core.indexing.IndexingService
 import scala.xml._
+import models.{MetadataCache, MetadataItem}
 
 /**
  *
@@ -46,15 +46,17 @@ object Admin extends OrganizationController {
 
   private def sync(items: NodeSeq, orgId: String, itemType: String, extractSystemFields: NodeSeq => MultiMap): Int = {
     IndexingService.deleteByQuery("delving_orgId:%s delving_recordType:%s delving_systemType:hubItem".format(orgId, itemType))
-    for (i <- items) {
+    for (item <- items.zipWithIndex) {
+      val index = item._2
+      val i = item._1
       val localId = (i \ "@localId").text
       val xml = i.toString()
 
       // extract system fields
       val systemFields = extractSystemFields(i)
 
-      val item = MusipItem(rawXml = xml, orgId = orgId, itemId = localId, itemType = itemType, systemFields = systemFields)
-      MusipItem.saveOrUpdate(item, orgId, itemType)
+      val metadataItem = MetadataItem(collection = "musip", itemId = localId, itemType = itemType, xml = Map("musip" -> xml), systemFields = systemFields, index = index)
+      MetadataCache.get(orgId, "musip", itemType).saveOrUpdate(metadataItem)
 
       val doc = new SolrInputDocument()
 
