@@ -59,7 +59,7 @@ object VirtualCollections extends OrganizationController {
           case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
         }
 
-        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(Constants.ORGANIZATIONS))
+        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(ORGANIZATIONS))
 
         if (viewModel.isEmpty) {
           NotFound(spec.getOrElse(""))
@@ -170,16 +170,13 @@ object VirtualCollections extends OrganizationController {
           val ids = specIds._2
 
           DataSet.findBySpecAndOrgId(spec, orgId) match {
-            case Some(ds) =>
-              val hubCollection = DataSet.getRecordsCollectionName(ds)
-              val mdrs = MetadataRecord.getMDRs(hubCollection, ids)
 
-              val references = for (i <- 0 until mdrs.size) yield {
-                val mdr = mdrs(i)
-                MDRReference(parentId = id, hubCollection = hubCollection, hubId = mdr.hubId, validOutputFormats = mdr.validOutputFormats, idx = i)
-              }
-              for (ref <- references) {
-                VirtualCollection.children.insert(ref)
+            case Some(ds) =>
+              val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
+              cache.iterate().foreach {
+                item =>
+                  val ref = MDRReference(parentId = id, collection = spec, itemId = item.itemId, invalidTargetSchemas = item.invalidTargetSchemas, index = item.index)
+                  VirtualCollection.children.insert(ref)
               }
               Some(DataSetReference(spec, orgId))
 

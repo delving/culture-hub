@@ -83,12 +83,11 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           inRecord = false
           record = MetadataItem(
             collection = dataSet.spec,
-            schemaPrefix = "raw",
             itemType = ITEM_TYPE_MDR,
             itemId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
-            rawXml = recordXml.toString(),
+            xml = Map("raw" -> recordXml.toString()),
             invalidTargetSchemas = getInvalidMappings(dataSet, recordCounter),
-            insertionIndex = recordCounter
+            index = recordCounter
           )
           recordXml.clear()
           recordId = null

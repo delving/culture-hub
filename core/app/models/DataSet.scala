@@ -32,6 +32,7 @@ import eu.delving.metadata.{RecMapping, Path}
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
+import core.Constants._
 
 /**
  * DataSet model
@@ -300,13 +301,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
   }
 
-  // ~~~ caching
-
-  def cacheMappedRecord(dataSet: DataSet, record: MetadataRecord, prefix: String, xml: String) {
-    getRecords(dataSet).update(MongoDBObject("_id" -> record._id), $set("rawMetadata." + prefix -> xml))
-  }
-
-
   // ~~~ record handling
 
   def getRecordsCollectionName(dataSet: DataSet): String = getRecordsCollectionName(dataSet.orgId, dataSet.spec)
@@ -315,24 +309,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
 
-  def getRecordCount(dataSet: DataSet): Int = {
-    val records: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    val count: Long = records.count
-    count.toInt
-  }
-
-  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
-
-  // TODO should we cache the constructions of these objects?
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId]  = {
-    val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("hubId" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("validOutputFormats" -> 1))
-    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection)
-    CollectionMDR
-  }
+  def getRecordCount(dataSet: DataSet): Long = MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).count()
 
   // ~~~ indexing control
 
@@ -414,10 +391,10 @@ case class Mapping(recordMapping: Option[String] = None,
                    indexed: Boolean = false)
 
 case class Details(name: String,
-                   uploaded_records: Int = 0,
-                   total_records: Int = 0,
-                   deleted_records: Int = 0,
-                   indexing_count: Int = 0,
+                   uploaded_records: Long = 0,
+                   total_records: Long = 0,
+                   deleted_records: Long = 0,
+                   indexing_count: Long = 0,
                    invalid_records: Option[Int] = Some(0),
                    metadataFormat: RecordDefinition,
                    facts: BasicDBObject = new BasicDBObject(),
