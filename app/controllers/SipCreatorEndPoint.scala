@@ -299,9 +299,9 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val records = DataSet.getRecords(dataSet)
+    val records = MetadataCache.get(dataSet.orgId, dataSet.spec, Constants.ITEM_TYPE_MDR).iterate()
 
-    if (records.count() > 0) {
+    if (records.hasNext) {
       writeEntry("source.xml", zipOut) {
         out =>
           val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
@@ -314,8 +314,9 @@ object SipCreatorEndPoint extends ApplicationController {
           write(builder.toString(), pw, out)
 
           var count = 0
-          for (record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
-            pw.println("""<input id="%s">""".format(record.localRecordKey))
+          for (record <- records) {
+            val localId = record.itemId.split("_")(2)
+            pw.println("<input id=\"%s\">".format(localId))
             pw.print(record.getRawXmlString)
             pw.println("</input>")
 
@@ -364,7 +365,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
     var uploadedRecords = 0
 
-    val records = MetadataCache.get(dataSet.orgId)
+    val records = MetadataCache.get(dataSet.orgId, dataSet.spec, Constants.ITEM_TYPE_MDR)
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
@@ -410,7 +411,7 @@ class ReceiveSource extends Actor {
       case t: Throwable => return Left(t)
     }
 
-    val recordCount: Int = DataSet.getRecordCount(dataSet)
+    val recordCount: Long = DataSet.getRecordCount(dataSet)
 
     // TODO review the semantics behind total_records, deleted records etc.
     val details = dataSet.details.copy(

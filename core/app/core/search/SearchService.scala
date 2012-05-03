@@ -27,10 +27,10 @@ import scala.collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
-import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
 import scala.xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import scala._
+import models.{MetadataCache, IndexItem, RecordDefinition, PortalTheme}
+import scala.xml.PrettyPrinter
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import java.net.{URLEncoder, URLDecoder}
@@ -54,8 +54,6 @@ object SearchService {
 
 class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
 
-  import scala.xml.PrettyPrinter
-  import java.lang.String
 
   val log = Logger("CultureHub")
 
@@ -119,7 +117,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
-    import scala.xml.Elem
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
@@ -166,7 +163,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
           if(idType == "indexItem") {
             renderIndexItem(id)
           } else {
-            renderMetadataRecord(maybePrefix.get, hubId, viewName)
+            renderMetadataRecord(maybePrefix.get, URLDecoder.decode(hubId, "utf-8"), viewName)
           }
         }
       case None =>
@@ -185,7 +182,10 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
-    val rawRecord: Option[String] = MetadataRecord.getMDR(URLDecoder.decode(hubId, "utf-8")).flatMap(_.getCachedTransformedRecord(prefix))
+    if(hubId.split("_").length != 3) return None
+    val Array(orgId, collection, itemId) = hubId.split("_")
+    val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
+    val rawRecord: Option[String] = cache.findOne(itemId).flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       None
@@ -239,7 +239,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     def toJSON: String = {
       import net.liftweb.json.JsonAST._
       import net.liftweb.json.{Extraction, Printer}
-      import scala.collection.immutable.ListMap
       implicit val formats = net.liftweb.json.DefaultFormats
       val docMap = ListMap("status" -> error, "message" -> errorMessage)
       Printer pretty (render(Extraction.decompose(docMap)))
@@ -256,7 +255,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   def getSimileResultResponse(callback : String = "") : PlainResult  = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.{Extraction, Printer}
-    import scala.collection.immutable.ListMap
     implicit val formats = net.liftweb.json.DefaultFormats
 
     try {
@@ -312,8 +310,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
 case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean = false)
 
 case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
-
-  import scala.xml.Elem
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
@@ -410,7 +406,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 
   def renderAsJSON(authorized: Boolean): String = {
-    import scala.collection.immutable.ListMap
     import net.liftweb.json.{Extraction, JsonAST, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
@@ -497,8 +492,6 @@ case class FacetAutoComplete(params: Params) {
 }
 
 case class ExplainResponse(theme: PortalTheme, params: Params) {
-
-  import scala.xml.Elem
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 
