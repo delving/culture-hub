@@ -23,7 +23,7 @@ echo
 echo "Starting Play. Please wait..."
 echo
 
-sleep 30
+sleep 60
 echo
 echo Killing SBT
 echo
