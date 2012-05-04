@@ -5,6 +5,7 @@
         <elem name="result">
             <attrs>
                 <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="custom" value="http://www.delving.eu/schemas/"/>
                 <attr prefix="xmlns" name="dc" value="http://purl.org/dc/elements/1.1/"/>
                 <attr prefix="xmlns" name="dcterms" value="http://purl.org/dc/termes/"/>
                 <attr prefix="xmlns" name="europeana" value="http://www.europeana.eu/schemas/ese/"/>
