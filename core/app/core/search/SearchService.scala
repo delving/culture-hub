@@ -21,16 +21,19 @@ import core.Constants._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import play.api.Logger
-import collection.immutable.ListMap
+import scala.collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
 import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
-import xml.{NodeSeq, Elem}
+import scala.xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
 import java.net.URLDecoder
+import scala._
+import org.apache.solr.client.solrj.response.FacetField.Count
+import org.apache.solr.client.solrj.response.FacetField
 
 /**
  *
@@ -51,7 +54,7 @@ object SearchService {
 
 class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
 
-  import xml.PrettyPrinter
+  import scala.xml.PrettyPrinter
   import java.lang.String
 
   val log = Logger("CultureHub")
@@ -116,7 +119,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
-    import xml.Elem
+    import scala.xml.Elem
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
@@ -236,7 +239,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     def toJSON: String = {
       import net.liftweb.json.JsonAST._
       import net.liftweb.json.{Extraction, Printer}
-      import collection.immutable.ListMap
+      import scala.collection.immutable.ListMap
       implicit val formats = net.liftweb.json.DefaultFormats
       val docMap = ListMap("status" -> error, "message" -> errorMessage)
       Printer pretty (render(Extraction.decompose(docMap)))
@@ -253,7 +256,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   def getSimileResultResponse(callback : String = "") : PlainResult  = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.{Extraction, Printer}
-    import collection.immutable.ListMap
+    import scala.collection.immutable.ListMap
     implicit val formats = net.liftweb.json.DefaultFormats
 
     try {
@@ -310,7 +313,7 @@ case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean
 
 case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
 
-  import xml.Elem
+  import scala.xml.Elem
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
@@ -407,7 +410,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 
   def renderAsJSON(authorized: Boolean): String = {
-    import collection.immutable.ListMap
+    import scala.collection.immutable.ListMap
     import net.liftweb.json.{Extraction, JsonAST, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
@@ -452,8 +455,17 @@ case class FacetAutoComplete(params: Params) {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
   val query = params.getValueOrElse("value", "")
+  val rows = try {
+    params.getValueOrElse("rows", "10").toInt
+  }
+  catch {
+    case _ => 10
+  }
 
-  val autocomplete = SolrServer.getFacetFieldAutocomplete(facet, query)
+  val autocomplete: Seq[Count] =  if (facet != "listAll")
+    SolrServer.getFacetFieldAutocomplete(facet, query, rows)
+  else
+    SolrServer.getSolrFields.sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
 
   def renderAsXml : Elem = {
     <results>
@@ -482,7 +494,7 @@ case class FacetAutoComplete(params: Params) {
 
 case class ExplainResponse(theme: PortalTheme, params: Params) {
 
-  import xml.Elem
+  import scala.xml.Elem
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 
@@ -500,7 +512,8 @@ case class ExplainResponse(theme: PortalTheme, params: Params) {
     ExplainItem("qf", List("any valid Facet as defined in the facets block")),
     ExplainItem("hqf", List("any valid Facet as defined in the facets block"), "This link is not used for the display part of the API." +
       "It is used to send hidden constraints to the API to create custom API views"),
-    ExplainItem("explain", List("all", "light", "fieldValue"), "fieldValue will give you back an autocomplete response when you provide the 'field' to autocomplete on and the 'value' to limit it."),
+    ExplainItem("explain", List("all", "light", "fieldValue"), "fieldValue will give you back an autocomplete response when you provide the 'field' to autocomplete on and the 'value' to limit it. Additional parameters are 'rows' for nr returned and format" +
+      "when you specify listAll as the field you will get back all the fields that can be used for autocompletion." ),
     ExplainItem("mlt", List("true", "false"), "This enables the related item search functionality in combination with requesting a record via the 'id' parameter."),
     ExplainItem("sortBy", List("any valid sort field prefixed by 'sort_'", "geodist()"), "Geodist is can be used to sort the results by distance."),
     ExplainItem("sortOrder", List("asc", "desc"), "The sort order of the field specified by sortBy"),
