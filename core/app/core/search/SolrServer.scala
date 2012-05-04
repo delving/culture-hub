@@ -141,12 +141,12 @@ object SolrServer {
 
   }
 
-  def getFacetFieldAutocomplete(facetName: String,  facetQuery: String) = {
+  def getFacetFieldAutocomplete(facetName: String,  facetQuery: String, facetLimit: Int = 10) = {
     val normalisedFacetName = "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName))
     val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
     val query = new SolrQuery("*:*")
     query setFacet true
-    query setFacetLimit 50
+    query setFacetLimit facetLimit
     query setFacetMinCount 1
 //    query addFacetField (normalisedFacetName)
 //    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
@@ -157,7 +157,7 @@ object SolrServer {
     val facetValues = (response getFacetField (facetName))
 //    val facetValuesLowerCase = (response getFacetField (normalisedFacetName))
 
-    if (facetValues.getValueCount != 0) facetValues.getValues.asScala.take(10) else List[FacetField.Count]()
+    if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
   }
 
 }
