@@ -329,7 +329,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {XML.loadString(recordAsString)}
+          {XML.loadString(cachedString)}
         </metadata>
       </record>
     } catch {
