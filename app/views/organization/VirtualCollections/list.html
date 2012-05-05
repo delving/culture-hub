@@ -15,6 +15,7 @@
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
+                    <th>&{'org.vc.publicMetadataPrefixes'}</th>
                     <th>&{'org.vc.recordCount'}</th>
                     <th>&{'org.vc.currentCount'}</th>
                     <th width="35%">&{'thing.actions'}</th>
@@ -25,6 +26,9 @@
                 <tr>
                     <td>
                         <span>${vc.name}</span>
+                    </td>
+                    <td>
+                        <span>#{list vc.getPublicMetadataPrefixes(), as:'prefix'}<a href="http://${request.host()}/organizations/${orgId}/api/oai-pmh?verb=ListRecords&set=${vc.spec}&metadataPrefix=${prefix}">${prefix}</a>#{/list}</span>
                     </td>
                     <td>
                         <span>${vc.recordCount()}</span>

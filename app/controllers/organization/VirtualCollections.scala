@@ -8,10 +8,10 @@ import extensions.JJson
 import extensions.Formatters._
 import core.search._
 import play.api.Logger
-import models._
 import collection.mutable.ListBuffer
 import controllers.{ShortDataSet, ViewModel, OrganizationController}
 import core.Constants
+import models._
 
 /**
  *
@@ -96,20 +96,22 @@ object VirtualCollections extends OrganizationController {
 
                     // create new virtual collection
                     createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, theme) match {
-                      case Right(ok) => Ok
+                      case Right(u) =>
+                      // update collection definition
+                      val updated = u.copy(
+                        spec = virtualCollectionForm.spec,
+                        name = virtualCollectionForm.name,
+                        query = virtualCollectionQuery,
+                        currentQueryCount = VirtualCollection.children.countByParentId(u._id)
+                      )
+                    VirtualCollection.save(updated)
+
+
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
                         Error("Error computing virtual collection")
                     }
 
-                    // update collection definition
-                    val updated = vc.copy(
-                      spec = virtualCollectionForm.spec,
-                      name = virtualCollectionForm.name,
-                      query = virtualCollectionQuery,
-                      currentQueryCount = VirtualCollection.children.countByParentId(vc._id)
-                    )
-                    VirtualCollection.save(updated)
 
 
                   case None =>
@@ -154,7 +156,7 @@ object VirtualCollections extends OrganizationController {
     }
   }
 
-  private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme)(implicit request: RequestHeader): Either[Throwable, String] = {
+  private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme)(implicit request: RequestHeader): Either[Throwable, VirtualCollection] = {
     val vc = VirtualCollection.findOneByID(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
@@ -191,13 +193,12 @@ object VirtualCollections extends OrganizationController {
 
       val updatedVc = vc.copy(dataSetReferences = dataSetReferences, currentQueryCount = count)
       VirtualCollection.save(updatedVc)
+      Right(updatedVc)
 
     } catch {
       case mqe: MalformedQueryException => return Left(mqe)
       case t => return Left(t)
     }
-
-    Right("ok")
   }
 
   private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty)(implicit request: RequestHeader): List[String] = {

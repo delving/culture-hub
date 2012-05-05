@@ -15,7 +15,7 @@
             <dd>${spec}</dd>
             <dt>&{'thing.name'}</dt>
             <dd>${name}</dd>
-            <dt>&{'thing.datasets'}</dt>
+            <dt>&{'org.vc.referencedDatasets'}</dt>
             <dd><ul>
                 #{list dataSets, as: 'ds'}
                     <li><a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a></li>
