@@ -45,7 +45,7 @@ object SolrQueryService extends SolrServer {
     val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
     {
-      val cleanValue = value
+      val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else value
       try {
         XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml))
       }
