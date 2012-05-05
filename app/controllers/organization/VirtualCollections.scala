@@ -29,7 +29,7 @@ object VirtualCollections extends OrganizationController {
               'spec -> spec,
               'name -> vc.name,
               'dataSets -> vc.dataSetReferences.map(_.spec).toList,
-              'recordCount -> VirtualCollection.children.countByParentId(vc._id)
+              'recordCount -> vc.recordCount
             ))
 
           case None => NotFound("Could not find Virtual Collection " + spec)
@@ -81,33 +81,37 @@ object VirtualCollections extends OrganizationController {
         VirtualCollectionViewModel.virtualCollectionForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           virtualCollectionForm => {
+            val virtualCollectionQuery = VirtualCollectionQuery(
+              virtualCollectionForm.dataSets.split(",").map(_.trim).filterNot(_.isEmpty).toList,
+              virtualCollectionForm.freeFormQuery,
+              virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).filterNot(_.isEmpty).toList
+            )
             virtualCollectionForm.id match {
               case Some(id) =>
                 VirtualCollection.findOneByID(id) match {
                   case Some(vc) =>
-                    // update collection definition
-                    val updated = vc.copy(
-                      spec = virtualCollectionForm.spec,
-                      name = virtualCollectionForm.name,
-                      query = VirtualCollectionQuery(
-                        virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
-                        virtualCollectionForm.freeFormQuery,
-                        virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).toList
-                      )
-                    )
-                    VirtualCollection.save(updated)
 
                     // clear the previous entries
                     VirtualCollection.children.removeByParentId(id)
 
                     // create new virtual collection
-                    val query = composeQuery(virtualCollectionForm.dataSets, virtualCollectionForm.freeFormQuery, virtualCollectionForm.excludedIdentifiers)
-                    createVirtualCollectionFromQuery(id, query, theme) match {
+                    createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
                         Error("Error computing virtual collection")
                     }
+
+                    // update collection definition
+                    val updated = vc.copy(
+                      spec = virtualCollectionForm.spec,
+                      name = virtualCollectionForm.name,
+                      query = virtualCollectionQuery,
+                      currentQueryCount = VirtualCollection.children.countByParentId(vc._id)
+                    )
+                    VirtualCollection.save(updated)
+
+
                   case None =>
                     NotFound("Could not find VirtualCollection with ID " + id)
                 }
@@ -116,17 +120,12 @@ object VirtualCollections extends OrganizationController {
                             spec = virtualCollectionForm.spec,
                             name = virtualCollectionForm.name,
                             orgId = orgId,
-                            query = VirtualCollectionQuery(
-                              virtualCollectionForm.dataSets.split(",").map(_.trim).toList,
-                              virtualCollectionForm.freeFormQuery,
-                              virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).toList
-                            ),
+                            query = virtualCollectionQuery,
                             dataSetReferences = List.empty)
                 val id = VirtualCollection.insert(vc)
                 id match {
                   case Some(vcid) =>
-                    val query = composeQuery(virtualCollectionForm.dataSets, virtualCollectionForm.freeFormQuery, virtualCollectionForm.excludedIdentifiers)
-                    createVirtualCollectionFromQuery(vcid, query, theme) match {
+                    createVirtualCollectionFromQuery(vcid, virtualCollectionQuery.toSolrQuery, theme) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -153,14 +152,6 @@ object VirtualCollections extends OrganizationController {
         }
 
     }
-  }
-
-  private def composeQuery(dataSets: String, freeFormQuery: String, excludedIdentifiers: String) = {
-    val specCondition = dataSets.split(",").filterNot(_.isEmpty).map(s => "delving_spec:" + s.trim + " ").mkString(" ")
-    val excludedIdentifiersCondition = "NOT (" + excludedIdentifiers.split(",").map(s => "delving_hubId:\"" + s.trim + "\"").mkString(" OR ") + ")"
-    val query = specCondition + " " + freeFormQuery + " " + excludedIdentifiersCondition
-    Logger("CultureHub").debug("Composed query " + query)
-    query
   }
 
   private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme)(implicit request: RequestHeader): Either[Throwable, String] = {
@@ -196,12 +187,14 @@ object VirtualCollections extends OrganizationController {
           }
       }.toList
 
-      val updatedVc = vc.copy(dataSetReferences = dataSetReferences)
+      val count = VirtualCollection.children.countByParentId(id)
+
+      val updatedVc = vc.copy(dataSetReferences = dataSetReferences, currentQueryCount = count)
       VirtualCollection.save(updatedVc)
 
     } catch {
-      case mqe: MalformedQueryException => Left(mqe)
-      case t => Left(t)
+      case mqe: MalformedQueryException => return Left(mqe)
+      case t => return Left(t)
     }
 
     Right("ok")
@@ -214,7 +207,7 @@ object VirtualCollections extends OrganizationController {
     val chQuery: CHQuery = SolrQueryService.createCHQuery(params, theme, true, Option(connectedUser), List.empty[String])
     val response = CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
-    val hubIds = briefItemView.getBriefDocs.map(b => b.getHubId)
+    val hubIds = briefItemView.getBriefDocs.map(_.getHubId).filterNot(_.isEmpty)
     Logger("CultureHub").debug("Found ids " + hubIds)
     ids ++= hubIds
 

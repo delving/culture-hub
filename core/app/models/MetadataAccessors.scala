@@ -19,6 +19,7 @@ package models
 import core.Constants._
 import org.bson.types.ObjectId
 import views.Helpers.thumbnailUrl
+import java.net.URLDecoder
 
 /**
  *
@@ -34,7 +35,7 @@ abstract class MetadataAccessors extends Universal {
 
   // ~~~ identifiers
   def getMongoId: String = assign(ID)
-  def getHubId : String = assign(HUB_ID)
+  def getHubId : String = URLDecoder.decode(assign(HUB_ID), "utf-8")
 
   def getOwnerId: String = getRecordType match {
     case OBJECT | USERCOLLECTION | STORY => getOwner
