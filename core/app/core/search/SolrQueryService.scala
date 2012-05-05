@@ -45,12 +45,13 @@ object SolrQueryService extends SolrServer {
     val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
     {
+      val cleanValue = value
       try {
-        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, value, keyAsXml))
+        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml))
       }
       catch {
         case ex: Exception =>
-          Logger("CultureHub") error ("unable to parse " + value + "for field " + keyAsXml, ex)
+          Logger("CultureHub") error ("For query %s we are unable to parse %s for field %s".format(response.params.toString(), cleanValue, keyAsXml), ex)
             <error/>
       }
     }
@@ -530,7 +531,9 @@ case class Params(queryString: Map[String, Seq[String]]) {
 
   def keys = params.keys.toList
 
-
+  override def toString: String = {
+    params.map(k => k._2.map(v => "%s=%s".format(k._1, v))).flatten.mkString("?", "&", "")
+  }
 
 }
 
