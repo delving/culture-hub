@@ -644,6 +644,8 @@ org.vc.excludedIds=Exclude
 org.vc.spec=Identifier
 org.vc.recordCount=Number of linked records
 org.vc.currentCount=Number of current results
+org.vc.publicMetadataPrefixes=Public metadata prefixes
+org.vc.referencedDatasets=Referenced DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections

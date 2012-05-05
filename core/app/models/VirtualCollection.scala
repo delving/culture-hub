@@ -5,6 +5,7 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import mongoContext._
 import core.Constants._
+import scala.collection.JavaConverters._
 
 /**
  *
@@ -27,9 +28,9 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
   def getVisibleMetadataFormats(accessKey: Option[String]): List[RecordDefinition] = {
     // all available formats to all dataSets in common
     // can probably be done in a more functional way, but how?
-    var intersect: List[RecordDefinition] = null
+    var intersect: List[RecordDefinition] = List.empty
     for(dataSet: DataSet <- dataSets) yield {
-      if(intersect == null) {
+      if(intersect.isEmpty) {
         intersect = dataSet.getVisibleMetadataFormats(accessKey)
       } else {
         intersect = dataSet.getVisibleMetadataFormats(accessKey).intersect(intersect)
@@ -37,6 +38,8 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     }
     intersect
   }
+
+  def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
 
   def recordCount = VirtualCollection.children.countByParentId(_id)
 
