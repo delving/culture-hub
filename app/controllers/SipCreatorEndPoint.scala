@@ -314,8 +314,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
           var count = 0
           for (record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
-            pw.println("<input>")
-            pw.println("""<_id>%s</_id>""".format(record.localRecordKey))
+            pw.println("""<input id="%s">""".format(record.localRecordKey))
             pw.print(record.getRawXmlString)
             pw.println("</input>")
 
