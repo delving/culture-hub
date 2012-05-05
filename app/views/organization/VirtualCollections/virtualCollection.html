@@ -236,7 +236,7 @@
                     }
                 });
             }
-            return (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '') + freeFormQuery + (excludedIdentifiersCondition.length > 0 ? ' NOT ' + excludedIdentifiersCondition : '');
+            return "delving_recordType:mdr " + (dataSetCondition.length > 0 ? (dataSetCondition + ' ') : '') + freeFormQuery + (excludedIdentifiersCondition.length > 0 ? ' NOT ' + excludedIdentifiersCondition : '');
         }
 
         function search(query, orgId, start) {

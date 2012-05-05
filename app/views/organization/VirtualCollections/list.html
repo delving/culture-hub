@@ -15,6 +15,8 @@
                 <thead>
                 <tr>
                     <th>&{'thing.title'}</th>
+                    <th>&{'org.vc.recordCount'}</th>
+                    <th>&{'org.vc.currentCount'}</th>
                     <th width="35%">&{'thing.actions'}</th>
                 </tr>
                 </thead>
@@ -23,6 +25,12 @@
                 <tr>
                     <td>
                         <span>${vc.name}</span>
+                    </td>
+                    <td>
+                        <span>${vc.recordCount()}</span>
+                    </td>
+                    <td>
+                        <span>${vc.currentQueryCount}</span>
                     </td>
                     <td>
                         #{if isOwner}
