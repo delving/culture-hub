@@ -26,8 +26,8 @@ import collection.immutable.{List, Map}
 import models.PortalTheme
 import scala.xml.XML
 import scala.xml.Elem
-import java.net.URLEncoder
 import org.apache.solr.client.solrj.SolrQuery
+import java.net.{URLDecoder, URLEncoder}
 
 /**
  *
@@ -71,6 +71,8 @@ object SolrQueryService extends SolrServer {
   }
 
   def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
+
+  def decodeUrl(text: String): String = URLDecoder.decode(text, "utf-8")
 
   def getSolrQueryWithDefaults: SolrQuery = {
 
@@ -502,7 +504,7 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 case class Params(queryString: Map[String, Seq[String]]) {
 
-  private val params = collection.mutable.Map(queryString.filter(!_._2.isEmpty).toSeq: _*)
+  private val params = collection.mutable.Map(queryString.filter(!_._2.isEmpty).map(k => ((k._1, k._2.map(SolrQueryService.decodeUrl(_))))).toSeq: _*)
 
   def put(key: String, values: Seq[String]) {params put (key, values)}
 
