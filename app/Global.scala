@@ -91,6 +91,15 @@ object Global extends GlobalSettings {
       CacheSolrFields
     )
 
+    // virtual collection update
+    val virtualCollectionCount = Akka.system.actorOf(Props[VirtualCollectionCount])
+    Akka.system.scheduler.schedule(
+      1 minute,
+      1 hour,
+      virtualCollectionCount,
+      UpdateVirtualCollectionCount
+    )
+
     // routes access logger
     val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
     Akka.system.scheduler.schedule(

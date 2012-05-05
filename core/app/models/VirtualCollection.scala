@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
 import mongoContext._
+import core.Constants._
 
 /**
  *
@@ -15,6 +16,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
                              name: String,
                              orgId: String,
                              query: VirtualCollectionQuery,
+                             currentQueryCount: Long = 0,
                              dataSetReferences: List[DataSetReference] // kept here for redundancy
                              ) {
 
@@ -36,11 +38,20 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     intersect
   }
 
+  def recordCount = VirtualCollection.children.countByParentId(_id)
+
 }
 
 case class DataSetReference(spec: String, orgId: String)
 
-case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty)
+case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty) {
+
+  def toSolrQuery = {
+    val specCondition = dataSets.map(s => SPEC + ":" + s + " ").mkString(" ")
+    val excludedIdentifiersCondition = "NOT (" + excludeHubIds.map(s => "delving_hubId:\"" + s + "\"").mkString(" OR ") + ")"
+    "delving_recordType:mdr " + specCondition + " " + freeFormQuery + (if(!excludeHubIds.isEmpty) " " + excludedIdentifiersCondition else "")
+  }
+}
 
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,
