@@ -1,5 +1,5 @@
 Hi ${fullName} !
 
-${messages.get('mail.message.activateaccount', themeInfo.displayName())}:
+${messages.get('mail.message.activateaccount', themeInfo.siteName())}:
 
-@@{controllers.routes.Application.index()}registration/activate/${activationToken}
+http://${host}@{controllers.routes.Application.index()}registration/activate/${activationToken}

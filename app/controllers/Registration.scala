@@ -115,7 +115,7 @@ object Registration extends ApplicationController {
             activationToken match {
               case Some(token) =>
                 try {
-                  Mails.activation(r.email, r.firstName + " " + r.lastName, token, theme)
+                  Mails.activation(r.email, r.firstName + " " + r.lastName, token, theme, request.host)
                   index.flashing(("registrationSuccess", r.email))
                 } catch {
                   case t => {
@@ -203,7 +203,7 @@ object Registration extends ApplicationController {
           resetPassword => {
             HubServices.registrationService.preparePasswordReset(resetPassword.email) match {
               case Some(resetPasswordToken) =>
-                Mails.resetPassword(resetPassword.email, resetPasswordToken, theme)
+                Mails.resetPassword(resetPassword.email, resetPasswordToken, theme, request.host)
                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
               case None =>
                 // TODO adjust view for this case
