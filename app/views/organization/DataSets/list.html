@@ -226,7 +226,8 @@
             });
         });
         $('.delete.disabled').click(function(){
-            bootbox.alert("&{'dataset.disableDatasetForDeletion'}");
+            var ds = $(this).attr('data-remove');
+            bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
     });
     function resetFilter(){
