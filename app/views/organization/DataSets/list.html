@@ -121,11 +121,13 @@
                                 </form>
                             #{/if}
 
+                    #{ifnot i.lockedBy.isEmpty()}
                     <div class="btn-group">
-                        <a class="btn btn-warning btn-mini#{if i.lockedBy.isEmpty()} disabled#{/if}" id="unlock${i.spec}">
-                        ${messages.get('ui.label.unlock')} ${i.lockedBy.get()}
+                        <a class="btn btn-warning btn-mini" id="unlock${i.spec}">
+                        ${messages.get('ui.label.unlock')}
                         </a>
                     </div>
+                    #{/ifnot}
 
                     <div class="btn-group">
                         <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
@@ -163,7 +165,6 @@
                          #{/if}
 
                          #{if i.state.name() == models.DataSetState.PROCESSING().name()}
-
                          <div class="progress progress-striped active">
                              <div class="bar" id="indexCounter${i.spec}"></div>
                          </div>
