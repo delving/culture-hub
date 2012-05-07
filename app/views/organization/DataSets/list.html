@@ -39,11 +39,12 @@
             <th class="sort">&{'ui.label.nritems'}</th>
             <th class="sort">&{'ui.label.status'}</th>
             <th>&{'ui.label.options'}</th>
+            <th>&#160;</th>
         </tr>
         </thead>
         <tfoot>
         <tr>
-            <td colspan="4">
+            <td colspan="5">
             #{ifnot items.length() > 0}
                 {messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
             #{/ifnot}
@@ -123,16 +124,10 @@
                     #{ifnot i.lockedBy.isEmpty()}
                     <div class="btn-group">
                         <a class="btn btn-warning btn-mini" id="unlock${i.spec}">
-                        ${messages.get('ui.label.unlock')}
+                        ${messages.get('ui.label.unlock')} (${i.lockedBy.get()})
                         </a>
                     </div>
                     #{/ifnot}
-
-                    <div class="btn-group">
-                        <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
-                        ${messages.get('ui.label.delete')}
-                        </a>
-                    </div>
 
                         <script type="text/javascript">
                             $(document).ready(function () {
@@ -188,6 +183,13 @@
                          #{/if}
                 #{/if}
             </div>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
+                    ${messages.get('ui.label.delete')}
+                    </a>
+                </div>
             </td>
         </tr>
         #{/list}
