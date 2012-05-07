@@ -13,6 +13,7 @@ import scala.io.Source
 import eu.delving.groovy.XmlSerializer
 import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
 import play.api.{Play, Logger}
+import org.joda.time.{DateTimeZone, DateTime}
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -61,6 +62,7 @@ object DataSetProcessor {
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
 
     val now = System.currentTimeMillis()
+    val startIndexing: DateTime = new DateTime(DateTimeZone.UTC)
 
     val formatsString = formats.map(_.prefix).mkString(", ")
     log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formatsString, indexingFormat.map(_.prefix).getOrElse("NONE!")))
@@ -82,12 +84,6 @@ object DataSetProcessor {
 
     checkOutputFormats("Rendering", renderingFormat)
     checkOutputFormats("Indexing", indexingFormat)
-
-
-    // drop previous index
-    if (indexingFormat.isDefined) {
-      IndexingService.deleteBySpec(orgId, spec)
-    }
 
     // loop over records
     val recordsCollection = DataSet.getRecords(dataSet)
@@ -156,6 +152,7 @@ object DataSetProcessor {
     DataSet.getState(orgId, spec).name match {
       case DataSetState.PROCESSING.name =>
         if(indexingFormat.isDefined) {
+          IndexingService.deleteOrphansBySpec(orgId, spec, startIndexing)
           Indexing.commit()
         }
         DataSet.updateState(dataSet, DataSetState.ENABLED)

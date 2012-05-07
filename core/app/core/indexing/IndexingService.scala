@@ -5,6 +5,8 @@ import core.search.SolrServer
 import core.Constants._
 import play.api.Logger
 import org.apache.solr.common.SolrInputDocument
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 /**
  * Indexing API
@@ -78,6 +80,15 @@ object IndexingService extends SolrServer {
   def deleteBySpec(orgId: String, spec: String) {
     val deleteQuery = SPEC + ":" + spec + " " + ORG_ID + ":" + orgId
     Logger.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
+    val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
+    deleteResponse.getStatus
+    getStreamingUpdateServer.commit
+  }
+
+  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime) {
+    val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    val deleteQuery = SPEC + ":" + spec + " " + ORG_ID + ":" + orgId + " timestamp:[* TO " + fmt.print(startIndexing) + "]"
+    Logger.info("Deleting orphans from dataset from Solr Index: %s".format(deleteQuery))
     val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
     deleteResponse.getStatus
     getStreamingUpdateServer.commit
