@@ -3,7 +3,7 @@ package eu.delving.basex.client
 import org.basex.BaseXServer
 import java.io.{File, ByteArrayInputStream}
 import org.basex.server.ClientSession
-import org.basex.core.cmd.Delete
+import org.basex.core.cmd.{Rename, Delete}
 
 /**
  * TODO support remote connection
@@ -39,7 +39,7 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
    * Stops an embedded BaseX server
    */
   def stop() {
-    server.stop()
+    BaseXServer.stop(port, 1985)
   }
 
   def withSession[T](block: ClientSession => T) = {
@@ -90,6 +90,14 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
       session =>
         session.execute("open " + database)
         session.replace(path, new ByteArrayInputStream(document.getBytes("utf-8")))
+    }
+  }
+
+  def rename(database: String, path: String, newPath: String) {
+    withSession {
+      session =>
+        session.execute("open " + database)
+        session.execute(new Rename(path, newPath))
     }
   }
 
