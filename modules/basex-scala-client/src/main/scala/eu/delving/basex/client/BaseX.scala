@@ -3,12 +3,10 @@ package eu.delving.basex.client
 import org.basex.BaseXServer
 import java.io.{File, ByteArrayInputStream}
 import org.basex.server.ClientSession
+import org.basex.core.cmd.Delete
 
 /**
- * TODO start & stop hooks. explicit startup method, rather than by constructor (booh)
- *
- * TODO remove
- * TODO replace
+ * TODO support remote connection
  *
  * TODO mass insert, with bulk block
  * TODO query with limits
@@ -17,20 +15,30 @@ import org.basex.server.ClientSession
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class BaseX(host: String, port: Int, user: String, pass: String, dataDirectory: Option[String] = None) extends Implicits {
+class BaseX(host: String, port: Int, user: String, pass: String) extends Implicits {
 
-  if(dataDirectory.isDefined) {
-    val d = new File(dataDirectory.get)
-    if(!d.exists()) {
-      val created = d.mkdirs()
-      if(!created) throw new RuntimeException("Failed to create data directory for BaseX " + dataDirectory)
+  private var server: BaseXServer = null
+
+  /**
+   * Starts an embedded BaseX server
+   * @param dataDirectory the data directory on disk. Leave empty to use BaseX default.
+   */
+  def start(dataDirectory: Option[String] = None) {
+    if(dataDirectory.isDefined) {
+      val d = new File(dataDirectory.get)
+      if(!d.exists()) {
+        val created = d.mkdirs()
+        if(!created) throw new RuntimeException("Failed to create data directory for BaseX " + dataDirectory)
+      }
+      System.setProperty("org.basex.path", d.getAbsolutePath)
     }
-    System.setProperty("org.basex.path", d.getAbsolutePath)
+    server = new BaseXServer()
   }
 
-  val server: BaseXServer = new BaseXServer()
-
-  def shutdown() {
+  /**
+   * Stops an embedded BaseX server
+   */
+  def stop() {
     server.stop()
   }
 
@@ -63,14 +71,36 @@ class BaseX(host: String, port: Int, user: String, pass: String, dataDirectory: 
     }
   }
 
+  def dropDatabase(name: String) {
+    withSession {
+      session => session.execute("drop db " + name)
+    }
+  }
+
   def add(database: String, path: String, document: String) {
     withSession {
       session =>
-        val c = session.execute("open " + database)
-        println(c)
+        session.execute("open " + database)
         session.add(path, new ByteArrayInputStream(document.getBytes("utf-8")))
     }
   }
+
+  def replace(database: String, path: String, document: String) {
+    withSession {
+      session =>
+        session.execute("open " + database)
+        session.replace(path, new ByteArrayInputStream(document.getBytes("utf-8")))
+    }
+  }
+
+  def delete(database: String, path: String) {
+    withSession {
+      session =>
+        session.execute("open " + database)
+        session.execute(new Delete(path))
+    }
+  }
+
 
   def query(database: String, query: String): List[String] = {
     withSession {
