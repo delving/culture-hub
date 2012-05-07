@@ -538,6 +538,13 @@ form label.radio {
     vertical-align: baseline;
 }
 
+/* popover */
+
+
+.popover h3 {
+    margin: 0;
+}
+
 /*---------------------------------
 	TINY_MCE overrides
 -----------------------------------*/

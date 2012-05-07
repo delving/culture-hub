@@ -65,7 +65,7 @@
                 *{<span class="error">${i.state.description()}:<br/>${i.error.raw()}</span>}*
             #{/if}
             #{else}
-                ${i.state.description()}
+                    ${i.state.description()}
             #{/else}
             </td>
             <td>
@@ -234,7 +234,7 @@
             var ds = $(this).attr('data-remove');
             bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
-        $('.badge-error').popover('hide');
+        $('.badge-error').popover();
     });
     function resetFilter(){
         $.uiTableFilter($('#dataset-table'), '');
