@@ -107,6 +107,4 @@ object Constants {
 
 
   val HubId = """^(.*?)_(.*?)_(.*)$""".r
-
-
 }
