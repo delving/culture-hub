@@ -38,6 +38,7 @@ ui.label.delete=Delete
 ui.label.edit=Edit
 ui.label.email=Email
 ui.label.enlargeImage=Enlarge image
+ui.label.error=Error
 ui.label.filesadd=Add files...
 ui.label.filesdelete=Delete files
 ui.label.first=First

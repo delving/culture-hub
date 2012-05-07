@@ -6,6 +6,8 @@
 <script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.tablesorter.min.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.uitablefilter.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>
+
 #{/set}
 
 #{set bodyId: 'organization' /}
@@ -35,11 +37,11 @@
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
         <tr>
-            <th width="200" class="sort">&{'thing.name'}</th>
-            <th class="sort">&{'ui.label.nritems'}</th>
+            <th width="150" class="sort">&{'thing.name'}</th>
+            <th class="sort" width="70">&{'ui.label.nritems'}</th>
             <th class="sort">&{'ui.label.status'}</th>
             <th>&{'ui.label.options'}</th>
-            <th>&#160;</th>
+            <th width="70">&#160;</th>
         </tr>
         </thead>
         <tfoot>
@@ -59,13 +61,14 @@
             <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
             <td id="description${i.spec}" width="120">
             #{if i.state.name() == models.DataSetState.ERROR().name()}
-            <span class="error">${i.state.description()}:<br/>${i.error.raw()}</span>
+                <span class="badge badge-important badge-error" rel="popover" data-original-title="${i.state.description()}" data-content="${i.error.raw()}">&{'ui.label.error'}</span>
+                *{<span class="error">${i.state.description()}:<br/>${i.error.raw()}</span>}*
             #{/if}
             #{else}
-            ${i.state.description()}
+                ${i.state.description()}
             #{/else}
             </td>
-            <td width="550">
+            <td>
                 #{if isOwner}
                     <div class="btn-toolbar nom">
                         <div class="btn-group">
@@ -231,6 +234,7 @@
             var ds = $(this).attr('data-remove');
             bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
+        $('.badge-error').popover('hide');
     });
     function resetFilter(){
         $.uiTableFilter($('#dataset-table'), '');

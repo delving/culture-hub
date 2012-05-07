@@ -39,6 +39,7 @@ ui.label.disable=Uitschakelen
 ui.label.edit=Bewerk
 ui.label.email=E-mail
 ui.label.enlargeImage=Afbeelding vergroten
+ui.label.error=Foutmelding
 ui.label.filesadd=Bestand(en) toevoegen...
 ui.label.filesdelete=Bestand(en) verwijderen
 ui.label.first=Eeste
