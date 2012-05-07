@@ -39,6 +39,7 @@ ui.label.disable=Uitschakelen
 ui.label.edit=Bewerk
 ui.label.email=E-mail
 ui.label.enlargeImage=Afbeelding vergroten
+ui.label.error=Foutmelding
 ui.label.filesadd=Bestand(en) toevoegen...
 ui.label.filesdelete=Bestand(en) verwijderen
 ui.label.first=Eeste
@@ -288,7 +289,7 @@ dataset.enable=Inschakelen
 dataset.confirmDeletion=Verwijder deze Dataset?
 dataset.find=Vind een Dataset
 dataset.disableDatasetForDeletion=Dataset eerst uitschakelen om te kunnen verwijderen
-dataset.filter.beginTypeing=Type hier een dataset naam
+dataset.filter.beginTyping=Type hier een dataset naam
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
 mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor {0} opnieuw in te stellen

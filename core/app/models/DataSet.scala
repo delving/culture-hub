@@ -49,6 +49,7 @@ case class DataSet(_id: ObjectId = new ObjectId,
                    lockedBy: Option[String] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
+                   errorMessage: Option[String] = None,
                    visibility: Visibility,
                    deleted: Boolean = false,
                    details: Details,
@@ -335,15 +336,19 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ indexing control
 
-  def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState): DataSet = {
+  def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState, errorMessage: Option[String] = None): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
-    val updatedDataSet = dataSetLatest.copy(state = state)
+    val updatedDataSet = dataSetLatest.copy(state = state, errorMessage = errorMessage)
     DataSet.save(updatedDataSet)
     updatedDataSet
   }
 
-  def updateState(dataSet: DataSet, state: DataSetState) {
-    update(MongoDBObject("_id" -> dataSet._id), $set ("state.name" -> state.name))
+  def updateState(dataSet: DataSet, state: DataSetState, errorMessage: Option[String] = None) {
+    if(errorMessage.isDefined) {
+      update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name, "errorMessage" -> errorMessage.get))
+    } else {
+      update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
+    }
   }
 
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
@@ -402,8 +407,6 @@ object DataSetState {
   def valid(name: String) = values.contains(DataSetState(name))
   val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR, NOTFOUND)
 }
-
-case class RecordSep(pre: String, label: String, path: Path = Path.create())
 
 case class Mapping(recordMapping: Option[String] = None,
                    format: RecordDefinition,

@@ -34,7 +34,7 @@ hr.editorRule {
 }
 
 .shout.beware {
-    background: #cc3300;
+    background: #b22222;
 }
 
 dt, dd, li {
@@ -536,6 +536,17 @@ form label.radio {
     color: #000;
     text-shadow: none;
     vertical-align: baseline;
+}
+
+/* popover */
+
+
+.popover h3 {
+    margin: 0;
+}
+
+.popover-inner.large {
+    width: 350px;
 }
 
 /*---------------------------------
