@@ -26,7 +26,7 @@
 
     <form id="filter-form" class="form-inline well">
         <label>&{'dataset.find'}: </label>
-        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="&{'dataset.filter.beginTypeing'}"/>
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="&{'dataset.filter.beginTyping'}"/>
         <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
     </form>
 
@@ -123,7 +123,7 @@
 
                     <div class="btn-group">
                         <a class="btn btn-warning btn-mini#{if i.lockedBy.isEmpty()} disabled#{/if}" id="unlock${i.spec}">
-                        ${messages.get('ui.label.unlock')}
+                        ${messages.get('ui.label.unlock')} ${i.lockedBy.get()}
                         </a>
                     </div>
 
