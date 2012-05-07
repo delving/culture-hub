@@ -60,13 +60,13 @@ object SolrServer {
   // defaults to 0.  > 1 not recommended.
 
   private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
-  streamingUpdateServer.setSoTimeout(10000) // socket read timeout
-  streamingUpdateServer.setConnectionTimeout(1000)
+  streamingUpdateServer.setSoTimeout(5000) // socket read timeout
+  streamingUpdateServer.setConnectionTimeout(500)
   streamingUpdateServer.setDefaultMaxConnectionsPerHost(20)
   streamingUpdateServer.setMaxTotalConnections(50)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
+  streamingUpdateServer.setMaxRetries(3) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
   def deleteFromSolrById(id: ObjectId): UpdateResponse = {
