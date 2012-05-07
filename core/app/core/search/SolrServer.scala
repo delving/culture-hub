@@ -50,8 +50,8 @@ object SolrServer {
   private val solrServer = new CommonsHttpSolrServer(url)
   solrServer.setSoTimeout(10000) // socket read timeout
   solrServer.setConnectionTimeout(100)
-  solrServer.setDefaultMaxConnectionsPerHost(100)
-  solrServer.setMaxTotalConnections(100)
+  solrServer.setDefaultMaxConnectionsPerHost(64)
+  solrServer.setMaxTotalConnections(125)
   solrServer.setFollowRedirects(false) // defaults to false
   // allowCompression defaults to false.
   // Server side must support gzip or deflate for this to have any effect.
@@ -61,9 +61,9 @@ object SolrServer {
 
   private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
   streamingUpdateServer.setSoTimeout(10000) // socket read timeout
-  streamingUpdateServer.setConnectionTimeout(100)
-  streamingUpdateServer.setDefaultMaxConnectionsPerHost(100)
-  streamingUpdateServer.setMaxTotalConnections(100)
+  streamingUpdateServer.setConnectionTimeout(1000)
+  streamingUpdateServer.setDefaultMaxConnectionsPerHost(20)
+  streamingUpdateServer.setMaxTotalConnections(50)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
   streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
