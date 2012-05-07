@@ -2,7 +2,6 @@ package controllers
 
 import exceptions.{UnauthorizedException, AccessKeyException}
 import play.api.mvc._
-import models._
 import core.mapping.MappingService
 import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
@@ -19,6 +18,8 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
+import com.mongodb.casbah.Imports._
+import models._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -364,7 +365,6 @@ object SipCreatorEndPoint extends ApplicationController {
     var uploadedRecords = 0
 
     val records = DataSet.getRecords(dataSet)
-    records.collection.drop()
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
@@ -375,12 +375,13 @@ object SipCreatorEndPoint extends ApplicationController {
         uploadedRecords += 1
         val record = maybeNext.get
 
-        // now we need to reconstruct any links that may have existed to this record - if it was re-ingested
-        val incomingLinks = Link.findTo(record.getUri(dataSet.orgId, dataSet.spec), Link.LinkType.PARTOF)
-        val embeddedLinks = incomingLinks.map(l => EmbeddedLink(TS = new Date(l._id.getTime), userName = l.userName, linkType = l.linkType, link = l._id, value = l.value))
-
-        val toInsert = record.copy(modified = new Date(), deleted = false, links = embeddedLinks)
-        records.insert(toInsert)
+        val toInsert = record.copy(modified = new Date(), deleted = false)
+        records.findOne(MongoDBObject("localRecordKey" -> toInsert.localRecordKey)) match {
+          case Some(existing) =>
+            records.update(MongoDBObject("_id" -> existing._id), existing.copy(rawMetadata = (existing.rawMetadata ++ toInsert.rawMetadata)))
+          case None =>
+            records.insert(toInsert)
+        }
       } else {
         continue = false
       }
