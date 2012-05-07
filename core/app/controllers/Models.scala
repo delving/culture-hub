@@ -26,6 +26,7 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         spec: String = "",
                         total_records: Int = 0,
                         state: DataSetState = DataSetState.INCOMPLETE,
+                        errorMessage: Option[String],
                         facts: Map[String, String] = Map.empty[String, String],
                         recordDefinitions: List[String] = List.empty[String],
                         indexingMappingPrefix: String,
@@ -33,7 +34,12 @@ case class ShortDataSet(id: Option[ObjectId] = None,
                         userName: String,
                         lockedBy: Option[String],
                         errors: Map[String, String] = Map.empty[String, String],
-                        visibility: Int = 0)
+                        visibility: Int = 0) {
+
+  val error: String = errorMessage.map {
+    m => m.replaceAll("\n", "<br/>")
+  }.getOrElse("")
+}
 
 case class Fact(name: String, prompt: String, value: String)
 
