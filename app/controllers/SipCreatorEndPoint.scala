@@ -397,7 +397,7 @@ class ReceiveSource extends Actor {
     case SourceStream(dataSet, theme, is) =>
       receiveSource(dataSet, theme, is) match {
         case Left(t) =>
-          DataSet.updateState(dataSet, DataSetState.ERROR)
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
         case _ =>

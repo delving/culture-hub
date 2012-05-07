@@ -22,6 +22,7 @@ trait CoreImplicits {
     spec = ds.spec,
     total_records = ds.details.total_records,
     state = ds.state,
+    errorMessage = ds.errorMessage,
     facts = ds.getFacts,
     recordDefinitions = ds.mappings.keySet.toList,
     indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),

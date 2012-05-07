@@ -262,9 +262,8 @@ object DataSetControl extends OrganizationController {
               DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
               Redirect("/organizations/%s/dataset".format(orgId))
             } catch {
-              case rt if rt.getMessage.contains() =>
-                // TODO give the user some decent feedback in the interface
-                DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR)
+              case t =>
+                DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
                 Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
             }
           case _ => Error(Messages("organization.datasets.cannotBeProcessed"))
@@ -294,7 +293,7 @@ object DataSetControl extends OrganizationController {
             try {
               IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
             } catch {
-              case _ => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR)
+              case t => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
             }
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeCancelled"))
