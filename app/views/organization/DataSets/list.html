@@ -234,8 +234,10 @@
             var ds = $(this).attr('data-remove');
             bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
-        $('.badge-error').popover();
-        $('.popover-inner').addClass('large');
+        $('.badge-error').popover().on('hover', function(){
+            $('.popover-inner').addClass('large');
+        });
+
     });
     function resetFilter(){
         $.uiTableFilter($('#dataset-table'), '');
