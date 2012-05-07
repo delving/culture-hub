@@ -184,7 +184,7 @@ object DataSetProcessor {
   }
 
   private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
-    val Array(orgId, spec, localRecordKey) = hubId.split("_")
+    val HubId(orgId, spec, localRecordKey) = hubId.split("_")
     systemFields ++ Map(
       SPEC -> spec,
       RECORD_TYPE -> MDR,
