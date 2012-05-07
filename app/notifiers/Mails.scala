@@ -15,8 +15,8 @@ import util.Quotes
 
 object Mails {
 
-  def activation(email: String, fullName: String, token: String, theme: PortalTheme)(implicit lang: Lang) {
-    Email(theme.emailTarget.systemFrom, "Welcome to CultureHub").to(email).withTemplate("Mails/activation.txt", lang.language, 'fullName -> fullName, 'activationToken -> token, 'themeInfo -> new ThemeInfo(theme)).send()
+  def activation(email: String, fullName: String, token: String, theme: PortalTheme, host: String)(implicit lang: Lang) {
+    Email(theme.emailTarget.systemFrom, "Welcome to CultureHub").to(email).withTemplate("Mails/activation.txt", lang.language, 'fullName -> fullName, 'activationToken -> token, 'themeInfo -> new ThemeInfo(theme), 'host -> host).send()
   }
 
 //  def accountBlocked(user: User, contactEmail: String, theme: PortalTheme) {
@@ -27,8 +27,8 @@ object Mails {
     Email(theme.emailTarget.systemFrom, subject).to(theme.emailTarget.exceptionTo).withTemplate("Mails/newUser.txt", lang.language, 'fullName -> fullName, 'hub -> hub, 'userName -> userName, 'quote -> Quotes.randomQuote()).send()
   }
   
-  def resetPassword(email: String, resetPasswordToken: String, theme: PortalTheme)(implicit lang: Lang) {
-    Email(theme.emailTarget.systemFrom, "Reset your password").to(email).withTemplate("Mails/resetPassword.txt", lang.language, 'resetPasswordToken -> resetPasswordToken, 'themeInfo -> new ThemeInfo(theme)).send()
+  def resetPassword(email: String, resetPasswordToken: String, theme: PortalTheme, host: String)(implicit lang: Lang) {
+    Email(theme.emailTarget.systemFrom, "Reset your password").to(email).withTemplate("Mails/resetPassword.txt", lang.language, 'resetPasswordToken -> resetPasswordToken, 'themeInfo -> new ThemeInfo(theme), 'host -> host).send()
   }
 
 }
