@@ -144,7 +144,7 @@ object DataSetProcessor {
       case t => {
         t.printStackTrace()
         log.error("Error while processing records of DataSet %s".format(spec), t)
-        DataSet.updateState(dataSet, DataSetState.ERROR)
+        DataSet.updateState(dataSet, DataSetState.ERROR, Some(t.getMessage))
       }
     }
 
@@ -159,7 +159,7 @@ object DataSetProcessor {
       case DataSetState.UPLOADED.name => // do nothing, this processing was cancelled
       case s@_ =>
         log.error("Failed to process DataSet %s: it is in state %s".format(spec, s))
-        DataSet.updateState(dataSet, DataSetState.ERROR)
+        DataSet.updateState(dataSet, DataSetState.ERROR, Some("Processing failed, final state is " + s))
         if (indexingFormat.isDefined) {
           log.info("Deleting DataSet %s from SOLR".format(spec))
           IndexingService.deleteBySpec(orgId, spec)

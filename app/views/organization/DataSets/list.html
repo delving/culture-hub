@@ -6,6 +6,8 @@
 <script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.tablesorter.min.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("/common/javascripts/jquery.uitablefilter.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>
+
 #{/set}
 
 #{set bodyId: 'organization' /}
@@ -26,7 +28,7 @@
 
     <form id="filter-form" class="form-inline well">
         <label>&{'dataset.find'}: </label>
-        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="&{'dataset.filter.beginTypeing'}"/>
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder="&{'dataset.filter.beginTyping'}"/>
         <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
     </form>
 
@@ -35,15 +37,16 @@
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
         <tr>
-            <th width="200" class="sort">&{'thing.name'}</th>
-            <th class="sort">&{'ui.label.nritems'}</th>
+            <th width="150" class="sort">&{'thing.name'}</th>
+            <th class="sort" width="70">&{'ui.label.nritems'}</th>
             <th class="sort">&{'ui.label.status'}</th>
             <th>&{'ui.label.options'}</th>
+            <th width="70">&#160;</th>
         </tr>
         </thead>
         <tfoot>
         <tr>
-            <td colspan="4">
+            <td colspan="5">
             #{ifnot items.length() > 0}
                 {messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
             #{/ifnot}
@@ -57,15 +60,15 @@
             <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
             <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
             <td id="description${i.spec}" width="120">
-            *{todo enable this again after classloader fix}*
-                            *{#{if i.state.name() == models.DataSetState.ERROR().name()}}*
-                                *{<span class="error">${i.state.description()}</span>}*
-                            *{#{/if}}*
-                            *{#{else}}*
-                                ${i.state.description()}
-                            *{#{/else}}*
+            #{if i.state.name() == models.DataSetState.ERROR().name()}
+                <span class="badge badge-important badge-error" rel="popover" data-original-title="${i.state.description()}" data-content="${i.error.raw()}">&{'ui.label.error'}</span>
+                *{<span class="error">${i.state.description()}:<br/>${i.error.raw()}</span>}*
+            #{/if}
+            #{else}
+                    ${i.state.description()}
+            #{/else}
             </td>
-            <td width="550">
+            <td>
                 #{if isOwner}
                     <div class="btn-toolbar nom">
                         <div class="btn-group">
@@ -121,17 +124,13 @@
                                 </form>
                             #{/if}
 
+                    #{ifnot i.lockedBy.isEmpty()}
                     <div class="btn-group">
-                        <a class="btn btn-warning btn-mini#{if i.lockedBy.isEmpty()} disabled#{/if}" id="unlock${i.spec}">
-                        ${messages.get('ui.label.unlock')}
+                        <a class="btn btn-warning btn-mini" id="unlock${i.spec}">
+                        ${messages.get('ui.label.unlock')} (${i.lockedBy.get()})
                         </a>
                     </div>
-
-                    <div class="btn-group">
-                        <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
-                        ${messages.get('ui.label.delete')}
-                        </a>
-                    </div>
+                    #{/ifnot}
 
                         <script type="text/javascript">
                             $(document).ready(function () {
@@ -163,7 +162,6 @@
                          #{/if}
 
                          #{if i.state.name() == models.DataSetState.PROCESSING().name()}
-
                          <div class="progress progress-striped active">
                              <div class="bar" id="indexCounter${i.spec}"></div>
                          </div>
@@ -189,6 +187,13 @@
                 #{/if}
             </div>
             </td>
+            <td>
+                <div class="btn-group">
+                    <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
+                    ${messages.get('ui.label.delete')}
+                    </a>
+                </div>
+            </td>
         </tr>
         #{/list}
         </tbody>
@@ -205,7 +210,7 @@
         $("#dataset-table").tablesorter();
         var theTable = $('#dataset-table')
         theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
-            $(this).prev().find(":checkbox").click()
+            $(this).prev().find(":checkbox").click();
         });
         $("#filter").keyup(function () {
             $.uiTableFilter(theTable, this.value);
@@ -220,14 +225,19 @@
             var ds = $(this).attr('data-remove');
             bootboxConfirm({
                 'type': 'DELETE',
-                'message' : '<h3 class="shout">'+ds+'</h3>&{'dataset.confirmDeletion'}',
+                'message' : '<h3 class="shout beware">'+ds+'</h3>&{'dataset.confirmDeletion'}',
                 'action_url':'/organizations/${orgId}/dataset/'+ ds + '/remove',
                 'success_url':'/organizations/${orgId}/dataset'
             });
         });
         $('.delete.disabled').click(function(){
-            bootbox.alert("&{'dataset.disableDatasetForDeletion'}");
+            var ds = $(this).attr('data-remove');
+            bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
+        $('.badge-error').popover().on('hover', function(){
+            $('.popover-inner').addClass('large');
+        });
+
     });
     function resetFilter(){
         $.uiTableFilter($('#dataset-table'), '');
