@@ -25,4 +25,3 @@ This is the changelog of the CultureHub. It documents changes of the main platfo
 ### Fixes
 
 - manu, sjoerd, eric: many bug fixes and robustness improvements
-
