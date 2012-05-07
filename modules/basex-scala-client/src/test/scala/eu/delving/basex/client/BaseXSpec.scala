@@ -1,7 +1,7 @@
 package eu.delving.basex.client
 
 import org.basex.core.BaseXException
-import org.specs2.mutable.Specification
+import org.specs2.mutable._
 
 /**
  *
@@ -16,6 +16,8 @@ class BaseXSpec extends Specification {
     server
   }
 
+  sequential
+
   "the BaseX storage" should {
 
     "create a database" in {
@@ -23,13 +25,13 @@ class BaseXSpec extends Specification {
     }
 
     "insert a document" in {
-      s.add("test", "foo.xml", "<root><bla>bar</bla></root>")
+      s.add("test", "/foo.xml", "<root><bla>bar</bla></root>")
       val r = s.query("test", "//root")
       r.size must be equalTo (1)
     }
 
     "replace a document" in {
-      s.replace("test", "foo.xml", "<replacedRoot><bla>bar</bla></replacedRoot>")
+      s.replace("test", "/foo.xml", "<replacedRoot><bla>bar</bla></replacedRoot>")
 
       val r = s.query("test", "//replacedRoot")
       val r1 = s.query("test", "//root")
@@ -38,8 +40,19 @@ class BaseXSpec extends Specification {
       r1.size must be equalTo (0)
     }
 
+    "rename a document" in {
+      s.rename("test", "/foo.xml", "/foo/foobar.xml")
+
+      val r = s.query("test", "db:open(\"test\", \"/foo/foobar.xml\")")
+      val r1 = s.query("test", "db:open(\"test\", \"/foo.xml\")")
+
+      r.size must be equalTo (1)
+      r1.size must be equalTo (0)
+    }
+
+
     "delete a document" in {
-      s.delete("test", "foo.xml")
+      s.delete("test", "/foo/foobar.xml")
       val r = s.query("test", "//replacedRoot")
       r.size must be equalTo (0)
     }
@@ -48,11 +61,12 @@ class BaseXSpec extends Specification {
       s.add("blablabla", "foo.xml", "<root/>") must throwA[BaseXException]
     }
 
-  }
+    "shut down" in {
+      s.dropDatabase("test")
+      s.stop()
+      success
+    }
 
-  step {
-    s.dropDatabase("test")
-    s.stop()
   }
 
 }
