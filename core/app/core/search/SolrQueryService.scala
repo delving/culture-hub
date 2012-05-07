@@ -28,6 +28,7 @@ import scala.xml.XML
 import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
 import java.net.{URLDecoder, URLEncoder}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  *
@@ -45,7 +46,7 @@ object SolrQueryService extends SolrServer {
     val keyAsXml = field.getKeyAsXml
     field.getValueAsArray.map(value =>
     {
-      val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else value
+      val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
       try {
         XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml))
       }
