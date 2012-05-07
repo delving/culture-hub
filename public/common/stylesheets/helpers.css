@@ -545,6 +545,10 @@ form label.radio {
     margin: 0;
 }
 
+.popover-inner.large {
+    width: 350px;
+}
+
 /*---------------------------------
 	TINY_MCE overrides
 -----------------------------------*/

@@ -235,6 +235,7 @@
             bootbox.alert('<h3 class="shout">'+ds+'</h3>&{'dataset.disableDatasetForDeletion'}');
         });
         $('.badge-error').popover();
+        $('.popover-inner').addClass('large');
     });
     function resetFilter(){
         $.uiTableFilter($('#dataset-table'), '');
