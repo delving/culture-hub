@@ -10,7 +10,7 @@ import core.search._
 import play.api.Logger
 import collection.mutable.ListBuffer
 import controllers.{ShortDataSet, ViewModel, OrganizationController}
-import core.Constants
+import core.Constants._
 import models._
 
 /**
