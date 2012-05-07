@@ -205,7 +205,7 @@
         $("#dataset-table").tablesorter();
         var theTable = $('#dataset-table')
         theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
-            $(this).prev().find(":checkbox").click()
+            $(this).prev().find(":checkbox").click();
         });
         $("#filter").keyup(function () {
             $.uiTableFilter(theTable, this.value);
@@ -220,7 +220,7 @@
             var ds = $(this).attr('data-remove');
             bootboxConfirm({
                 'type': 'DELETE',
-                'message' : '<h3 class="shout">'+ds+'</h3>&{'dataset.confirmDeletion'}',
+                'message' : '<h3 class="shout beware">'+ds+'</h3>&{'dataset.confirmDeletion'}',
                 'action_url':'/organizations/${orgId}/dataset/'+ ds + '/remove',
                 'success_url':'/organizations/${orgId}/dataset'
             });
