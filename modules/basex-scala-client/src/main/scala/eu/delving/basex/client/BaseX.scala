@@ -4,6 +4,7 @@ import org.basex.BaseXServer
 import java.io.{File, ByteArrayInputStream}
 import org.basex.server.ClientSession
 import org.basex.core.cmd.{Rename, Delete}
+import xml.Node
 
 /**
  * TODO support remote connection
@@ -109,7 +110,6 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
     }
   }
 
-
   def query(database: String, query: String): List[String] = {
     withSession {
       session =>
@@ -120,5 +120,13 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
         r
     }
   }
+
+  def fetchRaw(database: String, path: String): Option[String] = {
+    withSession {
+      session => session.query("""db:open("%s", "%s")""".format(database, path)).toList.headOption
+    }
+  }
+
+  def fetch(database: String, path: String): Option[Node] = fetchRaw(database, path).map(scala.xml.XML.loadString(_))
 
 }
