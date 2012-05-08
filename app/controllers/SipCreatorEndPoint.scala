@@ -3,11 +3,9 @@ package controllers
 import exceptions.{UnauthorizedException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
-import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
 import org.apache.commons.io.IOUtils
-import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import play.libs.Akka
@@ -18,9 +16,12 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import com.mongodb.casbah.Imports._
 import models._
 import core.storage.BaseXStorage
+import eu.delving.basex.client._
+import xml.Node
+import akka.util.Duration
+import java.util.concurrent.TimeUnit
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -366,35 +367,43 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
     var uploadedRecords = 0
 
-    // TODO create someplace else
-    val collection = BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
+    val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
+      BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
+    }
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
     BaseXStorage.withBulkSession(collection) {
       session =>
 
-      var continue = true
-      while (continue) {
-        val maybeNext = parser.nextRecord
-        if (maybeNext != None) {
-          uploadedRecords += 1
-          session.add("/" + maybeNext.get.id,
-            BaseXStorage.newRecord(
-              maybeNext.get.id,
-              "raw",
-              maybeNext.get.xml,
-              maybeNext.get.index,
-              parser.namespaces.toMap
-            )
-          )
-        } else {
-          continue = false
-        }
-      }
-    }
+        if(uploadedRecords % 10000 == 0)
+          session.flush()
 
-    uploadedRecords
+        // first retrieve versions
+        val versions: Map[String, Int] = (session.find("""for $i in /record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
+          v: Node =>
+            ((v \ "@id").text -> v.text.toInt)
+        }).toMap
+
+        while (parser.hasNext) {
+          val next = parser.next()
+            uploadedRecords += 1
+            session.add("/" + next.id,
+              BaseXStorage.buildRecord(
+                next.id,
+                versions.get(next.id).getOrElse(0),
+                "raw",
+                next.xml,
+                next.index,
+                parser.namespaces.toMap
+              )
+            )
+          }
+
+        session.flush()
+      }
+  
+      uploadedRecords
 
 
   }
@@ -405,14 +414,17 @@ class ReceiveSource extends Actor {
   
   protected def receive = {
     case SourceStream(dataSet, theme, is) =>
+      val now = System.currentTimeMillis()
       receiveSource(dataSet, theme, is) match {
         case Left(t) =>
           DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
         case _ =>
-        // all is good
-          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s".format(dataSet.spec, dataSet.orgId))
+          // all is good
+          Duration
+          val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. Took %s s.".format(dataSet.spec, dataSet.orgId, duration.toSeconds))
       }
     case _ => // nothing
   }
