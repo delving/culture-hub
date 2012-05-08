@@ -19,12 +19,9 @@ package util
 import io.Source
 import java.io.InputStream
 import xml.pull._
-import collection.mutable.{MultiMap, HashMap}
 import xml.{TopScope, NamespaceBinding}
-import eu.delving.metadata.{Hasher, Tag, Path}
 import scala.collection.JavaConverters._
-import models.{MetadataItem, DataSet}
-import core.Constants._
+import models.DataSet
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -34,8 +31,8 @@ import core.Constants._
 
 class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
 
+  val namespaces = collection.mutable.Map.empty[String, String]
   val parser = new XMLEventReader(Source.fromInputStream(is))
-  val hasher = new Hasher
   var recordCounter: Int = 0
 
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
@@ -48,15 +45,11 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     (key, value)
   }).toMap[String, Set[Int]]
 
-  def nextRecord: Option[MetadataItem] = {
+  def nextRecord: Option[InputItem] = {
 
     var hasParsedOne = false
     var inRecord = false
-    var inIdentifierElement = false
-    var justLeftIdentifierElement = false
     var elementHasContent = false
-    val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
-    val path = Path.create()
 
     // the whole content of one record
     val recordXml = new StringBuilder()
@@ -64,7 +57,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     // the value of one field
     val fieldValueXml = new StringBuilder()
 
-    var record: MetadataItem = null
+    var record: InputItem = null
     var recordId: String = null
 
     while (!hasParsedOne) {
@@ -72,7 +65,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
       val next = parser.next()
       next match {
         case EvElemStart(_, "delving-sip-source", _, scope) =>
-          val namespaces = collection.mutable.Map.empty[String, String]
           extractNamespaces(scope, namespaces)
           DataSet.updateNamespaces(dataSet.spec, namespaces.toMap)
         case EvElemStart(pre, "input", attrs, _) =>
@@ -81,41 +73,28 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           if(mayId != None) recordId = mayId.get.text
         case EvElemEnd(_, "input") =>
           inRecord = false
-          record = MetadataItem(
-            collection = dataSet.spec,
-            itemType = ITEM_TYPE_MDR,
-            itemId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
-            xml = Map("raw" -> recordXml.toString()),
-            invalidTargetSchemas = getInvalidMappings(dataSet, recordCounter),
-            index = recordCounter
+          record = InputItem(
+            id = recordId,
+            index = recordCounter,
+            xml = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
+            invalidMappings = getInvalidMappings(dataSet, recordCounter)
           )
           recordXml.clear()
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case EvElemStart(prefix, "_id", attrs, scope) if(inRecord) =>
-          inIdentifierElement = true
-        case EvElemEnd(_, "_id") if(inRecord) =>
-          inIdentifierElement = false
-          justLeftIdentifierElement = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
-          path.child(Tag.element(prefix, label, null))
           recordXml.append(elemStartToString(elemStart))
           elementHasContent = false;
-        case EvText(text) if(inRecord && inIdentifierElement) =>
-          recordId = text
-        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
+        case EvText(text) if(inRecord) =>
           if(text != null && text.size > 0) elementHasContent = true
           recordXml.append(text)
           fieldValueXml.append(text)
-        case EvEntityRef(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
+        case EvEntityRef(text) if(inRecord) =>
           elementHasContent = true
           recordXml.append("&%s;".format(text))
           fieldValueXml.append(text)
-        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
-          justLeftIdentifierElement = false
         case elemEnd@EvElemEnd(_, _) if(inRecord) =>
-          valueMap.addBinding(path.toString, fieldValueXml.toString())
           if(!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
@@ -123,7 +102,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
           } else {
             recordXml.append(elemEndToString(elemEnd))
           }
-          path.parent()
           fieldValueXml.clear()
         case some@_ =>
       }
@@ -152,4 +130,8 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     extractNamespaces(ns.parent, namespaces)
   }
 
+
+  case class InputItem(id: String, index: Int, xml: String, invalidMappings: List[String])
+
 }
+

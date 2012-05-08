@@ -23,6 +23,16 @@ class BaseXSpec extends Specification {
 
     "create a database" in {
       s.createDatabase("test")
+      success
+    }
+
+    "open a database" in {
+      s.openDatabase("test")
+      success
+    }
+
+    "not open a non-existing database" in {
+      s.openDatabase("gumby") must throwA[BaseXException]
     }
 
     "insert a document" in {

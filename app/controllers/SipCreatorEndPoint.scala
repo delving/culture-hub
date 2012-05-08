@@ -20,6 +20,7 @@ import scala.{Either, Option}
 import util.SimpleDataSetParser
 import com.mongodb.casbah.Imports._
 import models._
+import core.storage.BaseXStorage
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -365,22 +366,37 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
     var uploadedRecords = 0
 
-    val records = MetadataCache.get(dataSet.orgId, dataSet.spec, Constants.ITEM_TYPE_MDR)
+    // TODO create someplace else
+    val collection = BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
-    var continue = true
-    while (continue) {
-      val maybeNext = parser.nextRecord
-      if (maybeNext != None) {
-        uploadedRecords += 1
-        records.saveOrUpdate(maybeNext.get)
-      } else {
-        continue = false
+    BaseXStorage.withBulkSession(collection) {
+      session =>
+
+      var continue = true
+      while (continue) {
+        val maybeNext = parser.nextRecord
+        if (maybeNext != None) {
+          uploadedRecords += 1
+          session.add("/" + maybeNext.get.id,
+            BaseXStorage.newRecord(
+              maybeNext.get.id,
+              "raw",
+              maybeNext.get.xml,
+              maybeNext.get.index,
+              parser.namespaces.toMap
+            )
+          )
+        } else {
+          continue = false
+        }
       }
     }
 
     uploadedRecords
+
+
   }
 
 }
