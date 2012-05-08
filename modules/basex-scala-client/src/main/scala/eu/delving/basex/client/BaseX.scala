@@ -5,6 +5,7 @@ import java.io.{File, ByteArrayInputStream}
 import org.basex.server.ClientSession
 import org.basex.core.cmd.{Rename, Delete}
 import xml.Node
+import scala.Predef._
 
 /**
  * TODO support remote connection
@@ -43,7 +44,16 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
     BaseXServer.stop(port, 1985)
   }
 
-  def withSession[T](block: ClientSession => T) = {
+  def withSession[T](database: String)(block: ClientSession => T): T = {
+    withSession {
+      session =>
+        session.execute("open " + database)
+        block(session)
+    }
+  }
+
+
+  def withSession[T](block: ClientSession => T): T = {
     val session = new ClientSession(host, port, user, pass)
     try {
       block(session)
@@ -71,6 +81,13 @@ class BaseX(host: String, port: Int, user: String, pass: String) extends Implici
       session => session.execute("create db " + name)
     }
   }
+
+  def openDatabase(name: String) {
+    withSession {
+      session => session.execute("open " + name)
+    }
+  }
+
 
   def dropDatabase(name: String) {
     withSession {
