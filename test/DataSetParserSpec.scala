@@ -3,9 +3,9 @@ import java.io.ByteArrayInputStream
 import models.{MetadataItem, DataSet}
 import org.specs2.execute.Error
 import org.specs2.mutable.Specification
-import util.SimpleDataSetParser
 import play.api.test._
 import play.api.test.Helpers._
+import util.{InputItem, SimpleDataSetParser}
 
 /**
  *
@@ -30,9 +30,16 @@ class DataSetParserSpec extends Specification with TestContext {
 
       withTestContext {
         val buffer = parseStream
-        buffer(1).invalidTargetSchemas.contains("icn") must equalTo (true)
+        buffer(1).invalidMappings.contains("icn") must equalTo(true)
       }
 
+    }
+
+//    "preserve cdata" in {
+//      withTestContext {
+//        val buffer = parseStream
+//        buffer(0).xml must contain("<![CDATA[")
+//      }
     }
   }
 
@@ -41,18 +48,13 @@ class DataSetParserSpec extends Specification with TestContext {
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
-    val buffer = ListBuffer[MetadataItem]()
+    val buffer = ListBuffer[InputItem]()
 
     try {
 
-      var continue = true
-      while (continue) {
-        val record = parser.nextRecord
-        if (record != None) {
-          buffer.append(record.get)
-        } else {
-          continue = false
-        }
+      while (parser.hasNext) {
+        val record = parser.next()
+        buffer.append(record)
       }
 
     } catch {
@@ -68,6 +70,7 @@ class DataSetParserSpec extends Specification with TestContext {
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="1">
 <priref>1</priref>
+<someDescription><![CDATA[&notAnEntity;]]></someDescription>
 <edit.source>collect>intern</edit.source>
 <edit.source>photo</edit.source>
 <edit.source>collect>intern</edit.source>

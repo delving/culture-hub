@@ -19,9 +19,9 @@ package util
 import io.Source
 import java.io.InputStream
 import xml.pull._
-import xml.{TopScope, NamespaceBinding}
 import scala.collection.JavaConverters._
 import models.DataSet
+import xml.{TopScope, NamespaceBinding}
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -88,7 +88,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
           hasParsedOne = true
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
           recordXml.append(elemStartToString(elemStart))
-          elementHasContent = false;
+          elementHasContent = false
         case EvText(text) if(inRecord) =>
           if(text != null && text.size > 0) elementHasContent = true
           recordXml.append(text)
