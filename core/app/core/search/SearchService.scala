@@ -30,10 +30,10 @@ import java.lang.String
 import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
 import scala.xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import java.net.URLDecoder
 import scala._
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
+import java.net.{URLEncoder, URLDecoder}
 
 /**
  *
@@ -148,7 +148,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
-    SolrQueryService.resolveHubIdAndFormat(orgId, id, idType) match {
+    SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType) match {
       case Some((hubId, defaultSchema, publicSchemas)) =>
         val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           Some(schema.get)
