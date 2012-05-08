@@ -384,16 +384,14 @@ class ReceiveSource extends Actor {
           DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case _ =>
-          // all is good
-          Duration
+        case Right(inserted) =>
           val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
-          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. Took %s s.".format(dataSet.spec, dataSet.orgId, duration.toSeconds))
+          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
       }
     case _ => // nothing
   }
   
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, String] = {
+  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Int] = {
 
     var uploadedRecords = 0
 
@@ -414,7 +412,7 @@ class ReceiveSource extends Actor {
 
     val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
     DataSet.save(updatedDataSet)
-    Right("Goodbye and thanks for all the fish")
+    Right(uploadedRecords)
   }
 
 
