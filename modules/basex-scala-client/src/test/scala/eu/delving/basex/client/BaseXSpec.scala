@@ -2,6 +2,7 @@ package eu.delving.basex.client
 
 import org.basex.core.BaseXException
 import org.specs2.mutable._
+import scala.xml.Utility.trim
 
 /**
  *
@@ -28,6 +29,12 @@ class BaseXSpec extends Specification {
       s.add("test", "/foo.xml", "<root><bla>bar</bla></root>")
       val r = s.query("test", "//root")
       r.size must be equalTo (1)
+    }
+
+    "fetch a document as scala node" in {
+      val r = s.fetch("test", "/foo.xml")
+      r must be not empty
+      trim(r.get) must be equalTo trim(<root><bla>bar</bla></root>)
     }
 
     "replace a document" in {
