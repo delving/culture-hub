@@ -23,7 +23,6 @@ import scala.collection.JavaConverters._
 import models.DataSet
 import xml.{TopScope, NamespaceBinding}
 import core.storage.Record
-import scala.Predef._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -37,20 +36,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   private val parser = new XMLEventReader(Source.fromInputStream(is))
   private var recordCounter: Int = 0
   private var isDone = false
-
-
-  {
-    parser.next() match {
-      case EvElemStart(_, "delving-sip-source", _, scope) =>
-        extractNamespaces(scope, ns)
-        DataSet.updateNamespaces(dataSet.spec, ns.toMap)
-      case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
-    }
-  }
-
-  def namespaces = ns.toMap
-
-  def hasNext: Boolean = !isDone && parser.hasNext
+  private var lookAhead: Record = null
 
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
   val invalidRecords = dataSet.invalidRecords.map(valid => {
@@ -62,8 +48,36 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     (key, value)
   }).toMap[String, Set[Int]]
 
+
+  {
+    parser.next() match {
+      case EvElemStart(_, "delving-sip-source", _, scope) =>
+        extractNamespaces(scope, ns)
+        DataSet.updateNamespaces(dataSet.spec, ns.toMap)
+      case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
+    }
+    parseNext() match {
+      case Some(l) => lookAhead = l
+      case None => isDone = true
+    }
+  }
+
+  def namespaces = ns.toMap
+
+
+  def hasNext: Boolean = !isDone
+
   def next(): Record = {
     if(isDone) throw new java.util.NoSuchElementException("next on empty iterator")
+    val l = lookAhead
+    parseNext() match {
+      case Some(l) => lookAhead = l
+      case None => isDone = true
+    }
+    l
+  }
+
+  private def parseNext(): Option[Record] = {
 
     var hasParsedOne = false
     var inRecord = false
@@ -78,7 +92,8 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     var record: Record = null
     var recordId: String = null
 
-    while (!hasParsedOne || !isDone) {
+    while (!hasParsedOne) {
+      if(!parser.hasNext) return None
       val next = parser.next()
       next match {
         case EvElemStart(pre, "input", attrs, _) =>
@@ -117,13 +132,10 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
             recordXml.append(elemEndToString(elemEnd))
           }
           fieldValueXml.clear()
-        case EvElemEnd(_, "delving-sip-source") =>
-          isDone = true
         case some@_ =>
       }
     }
-    if (!parser.hasNext) isDone = true
-    record
+    Some(record)
   }
 
   private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if (invalid._2.contains(index)) Some(invalid._1) else None).toList

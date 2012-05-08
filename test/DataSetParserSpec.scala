@@ -1,11 +1,12 @@
 import collection.mutable.ListBuffer
+import core.storage.Record
 import java.io.ByteArrayInputStream
-import models.{MetadataItem, DataSet}
+import models.DataSet
 import org.specs2.execute.Error
 import org.specs2.mutable.Specification
 import play.api.test._
 import play.api.test.Helpers._
-import util.{InputItem, SimpleDataSetParser}
+import util.SimpleDataSetParser
 
 /**
  *
@@ -30,7 +31,7 @@ class DataSetParserSpec extends Specification with TestContext {
 
       withTestContext {
         val buffer = parseStream
-        buffer(1).invalidMappings.contains("icn") must equalTo(true)
+        buffer(1).invalidTargetSchemas.contains("icn") must equalTo(true)
       }
 
     }
@@ -40,7 +41,7 @@ class DataSetParserSpec extends Specification with TestContext {
 //        val buffer = parseStream
 //        buffer(0).xml must contain("<![CDATA[")
 //      }
-    }
+//    }
   }
 
   def parseStream = {
@@ -48,7 +49,7 @@ class DataSetParserSpec extends Specification with TestContext {
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
-    val buffer = ListBuffer[InputItem]()
+    val buffer = ListBuffer[Record]()
 
     try {
 
@@ -58,7 +59,9 @@ class DataSetParserSpec extends Specification with TestContext {
       }
 
     } catch {
-      case t => Error(t)
+      case t =>
+        t.printStackTrace()
+        Error(t)
     }
 
     buffer

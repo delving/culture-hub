@@ -5,6 +5,7 @@ import eu.delving.basex.client.BaseX
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import scala.xml.Node
+import scala._
 
 /**
  * BaseX-based Storage engine.
@@ -62,7 +63,6 @@ object BaseXStorage {
         }
         session.flush()
         session.createAttributeIndex()
-
       }
     inserted
   }
