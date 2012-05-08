@@ -29,11 +29,14 @@ import models.DataSet
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
+class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[InputItem] {
 
   val namespaces = collection.mutable.Map.empty[String, String]
   val parser = new XMLEventReader(Source.fromInputStream(is))
   var recordCounter: Int = 0
+
+
+  def hasNext: Boolean = parser.hasNext
 
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
   val invalidRecords = dataSet.invalidRecords.map(valid => {
@@ -45,7 +48,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     (key, value)
   }).toMap[String, Set[Int]]
 
-  def nextRecord: Option[InputItem] = {
+  def next(): InputItem = {
 
     var hasParsedOne = false
     var inRecord = false
@@ -61,7 +64,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     var recordId: String = null
 
     while (!hasParsedOne) {
-      if (!parser.hasNext) return None
+      if (!parser.hasNext) throw new java.util.NoSuchElementException("next on empty iterator")
       val next = parser.next()
       next match {
         case EvElemStart(_, "delving-sip-source", _, scope) =>
@@ -106,7 +109,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
         case some@_ =>
       }
     }
-    Option(record)
+    record
   }
 
   private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if(invalid._2.contains(index)) Some(invalid._1) else None).toList
@@ -130,8 +133,8 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     extractNamespaces(ns.parent, namespaces)
   }
 
-
-  case class InputItem(id: String, index: Int, xml: String, invalidMappings: List[String])
-
 }
+
+case class InputItem(id: String, index: Int, xml: String, invalidMappings: List[String])
+
 
