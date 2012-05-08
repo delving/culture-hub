@@ -47,6 +47,15 @@ class BaseXSpec extends Specification {
       trim(r.get) must be equalTo trim(<root><bla>bar</bla></root>)
     }
 
+    "find something and return it as scala nodes" in {
+      val r = s.withSession {
+        session =>
+          session.open("test")
+          session.find("let $items := /root for $i in $items return <version id=\"{$i/@id}\">{count($i)}</version>").toList
+      }
+      r.size must equalTo (1)
+    }
+
     "replace a document" in {
       s.replace("test", "/foo.xml", "<replacedRoot><bla>bar</bla></replacedRoot>")
 
