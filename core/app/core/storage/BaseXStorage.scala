@@ -4,6 +4,7 @@ import eu.delving.basex.client._
 import eu.delving.basex.client.BaseX
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
+import scala.xml.Node
 
 /**
  * BaseX-based Storage engine.
@@ -43,7 +44,30 @@ object BaseXStorage {
     }
   }
 
-  def buildRecord(identifier: String, version: Int, schemaPrefix: String, document: String, index: Int, namespaces: Map[String, String]) = {
+  def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String]): Int = {
+    var inserted: Int = 0
+    BaseXStorage.withBulkSession(collection) {
+      session =>
+        val versions: Map[String, Int] = (session.find("""for $i in /record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
+          v: Node =>
+            ((v \ "@id").text -> v.text.toInt)
+        }).toMap
+
+        val it = records.zipWithIndex
+        while(it.hasNext) {
+          val next = it.next()
+          if(next._2 % 10000 == 0) session.flush()
+          session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
+          inserted = next._2
+        }
+        session.flush()
+        session.createAttributeIndex()
+
+      }
+    inserted
+  }
+
+  def buildRecord(record: Record, version: Int, namespaces: Map[String, String], index: Int) = {
 
     val ns = namespaces.map(ns => """xmlns:%s="%s"""".format(ns._1, ns._2)).mkString(" ")
 
@@ -55,11 +79,13 @@ object BaseXStorage {
       </system>
       <document>%s</document>
       <links/>
-    </record>""".format(identifier, ns, version, schemaPrefix, index, document).getBytes("utf-8"))
+    </record>""".format(record.id, ns, version, record.schemaPrefix, index, record.document).getBytes("utf-8"))
 
   }
 
 }
+
+case class Record(id: String, schemaPrefix: String, document: String, invalidTargetSchemas: List[String] = List.empty)
 
 case class Collection(orgId: String, name: String) {
   val databaseName = orgId + "____" + name
