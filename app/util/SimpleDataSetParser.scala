@@ -22,6 +22,8 @@ import xml.pull._
 import scala.collection.JavaConverters._
 import models.DataSet
 import xml.{TopScope, NamespaceBinding}
+import core.storage.Record
+import scala.Predef._
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -29,14 +31,26 @@ import xml.{TopScope, NamespaceBinding}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[InputItem] {
+class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Record] {
 
-  val namespaces = collection.mutable.Map.empty[String, String]
-  val parser = new XMLEventReader(Source.fromInputStream(is))
-  var recordCounter: Int = 0
+  private val ns = collection.mutable.Map.empty[String, String]
+  private val parser = new XMLEventReader(Source.fromInputStream(is))
+  private var recordCounter: Int = 0
+  private var isDone = false
 
 
-  def hasNext: Boolean = parser.hasNext
+  {
+    parser.next() match {
+      case EvElemStart(_, "delving-sip-source", _, scope) =>
+        extractNamespaces(scope, ns)
+        DataSet.updateNamespaces(dataSet.spec, ns.toMap)
+      case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
+    }
+  }
+
+  def namespaces = ns.toMap
+
+  def hasNext: Boolean = !isDone && parser.hasNext
 
   // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
   val invalidRecords = dataSet.invalidRecords.map(valid => {
@@ -48,7 +62,8 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
     (key, value)
   }).toMap[String, Set[Int]]
 
-  def next(): InputItem = {
+  def next(): Record = {
+    if(isDone) throw new java.util.NoSuchElementException("next on empty iterator")
 
     var hasParsedOne = false
     var inRecord = false
@@ -60,27 +75,23 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
     // the value of one field
     val fieldValueXml = new StringBuilder()
 
-    var record: InputItem = null
+    var record: Record = null
     var recordId: String = null
 
-    while (!hasParsedOne) {
-      if (!parser.hasNext) throw new java.util.NoSuchElementException("next on empty iterator")
+    while (!hasParsedOne || !isDone) {
       val next = parser.next()
       next match {
-        case EvElemStart(_, "delving-sip-source", _, scope) =>
-          extractNamespaces(scope, namespaces)
-          DataSet.updateNamespaces(dataSet.spec, namespaces.toMap)
         case EvElemStart(pre, "input", attrs, _) =>
           inRecord = true
           val mayId = attrs.get("id").headOption
-          if(mayId != None) recordId = mayId.get.text
+          if (mayId != None) recordId = mayId.get.text
         case EvElemEnd(_, "input") =>
           inRecord = false
-          record = InputItem(
+          record = Record(
             id = recordId,
-            index = recordCounter,
-            xml = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
-            invalidMappings = getInvalidMappings(dataSet, recordCounter)
+            document = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
+            schemaPrefix = "raw",
+            invalidTargetSchemas = getInvalidMappings(dataSet, recordCounter)
           )
           recordXml.clear()
           recordId = null
@@ -89,16 +100,16 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
         case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
           recordXml.append(elemStartToString(elemStart))
           elementHasContent = false
-        case EvText(text) if(inRecord) =>
-          if(text != null && text.size > 0) elementHasContent = true
+        case EvText(text) if (inRecord) =>
+          if (text != null && text.size > 0) elementHasContent = true
           recordXml.append(text)
           fieldValueXml.append(text)
-        case EvEntityRef(text) if(inRecord) =>
+        case EvEntityRef(text) if (inRecord) =>
           elementHasContent = true
           recordXml.append("&%s;".format(text))
           fieldValueXml.append(text)
-        case elemEnd@EvElemEnd(_, _) if(inRecord) =>
-          if(!elementHasContent) {
+        case elemEnd@EvElemEnd(_, _) if (inRecord) =>
+          if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
             recordXml.append(rollback).append("/>")
@@ -106,21 +117,24 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
             recordXml.append(elemEndToString(elemEnd))
           }
           fieldValueXml.clear()
+        case EvElemEnd(_, "delving-sip-source") =>
+          isDone = true
         case some@_ =>
       }
     }
+    if (!parser.hasNext) isDone = true
     record
   }
 
-  private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if(invalid._2.contains(index)) Some(invalid._1) else None).toList
+  private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if (invalid._2.contains(index)) Some(invalid._1) else None).toList
 
 
   private def elemStartToString(start: EvElemStart): String = {
-      val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
-      if (attrs.isEmpty)
-        "<%s%s>".format(prefix(start.pre), start.label)
-      else
-        "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
+    val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
+    if (attrs.isEmpty)
+      "<%s%s>".format(prefix(start.pre), start.label)
+    else
+      "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
   }
 
   private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
@@ -129,12 +143,9 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[In
 
   private def extractNamespaces(ns: NamespaceBinding, namespaces: collection.mutable.Map[String, String]) {
     if (ns == TopScope) return
-    if(ns.prefix != null) namespaces.put(ns.prefix, ns.uri)
+    if (ns.prefix != null) namespaces.put(ns.prefix, ns.uri)
     extractNamespaces(ns.parent, namespaces)
   }
 
 }
-
-case class InputItem(id: String, index: Int, xml: String, invalidMappings: List[String])
-
 

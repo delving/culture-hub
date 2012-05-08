@@ -365,47 +365,11 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
-    var uploadedRecords = 0
-
     val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
       BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
     }
-
     val parser = new SimpleDataSetParser(source, dataSet)
-
-    BaseXStorage.withBulkSession(collection) {
-      session =>
-
-        if(uploadedRecords % 10000 == 0)
-          session.flush()
-
-        // first retrieve versions
-        val versions: Map[String, Int] = (session.find("""for $i in /record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
-          v: Node =>
-            ((v \ "@id").text -> v.text.toInt)
-        }).toMap
-
-        while (parser.hasNext) {
-          val next = parser.next()
-            uploadedRecords += 1
-            session.add("/" + next.id,
-              BaseXStorage.buildRecord(
-                next.id,
-                versions.get(next.id).getOrElse(0),
-                "raw",
-                next.xml,
-                next.index,
-                parser.namespaces.toMap
-              )
-            )
-          }
-
-        session.flush()
-      }
-  
-      uploadedRecords
-
-
+    BaseXStorage.store(collection, parser, parser.namespaces)
   }
 
 }
