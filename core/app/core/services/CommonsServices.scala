@@ -36,7 +36,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   private def postWithBody[T <: JsValue](path: String, body: T, queryParams: (String, String)*): Option[Response] = call(path, Some(body), "POST", queryParams)
 
   private def call[T <: JsValue](path: String, body: Option[T], method: String = "GET", queryParams: Seq[(String, String)], retry: Int = 0): Option[Response] = {
-    val wsCall = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _ *)
+    val wsCall = WS.url(host + path).withQueryString(queryParams.map(t => (t._1, URLEncoder.encode(t._2, "utf-8"))) ++ apiQueryParams: _ *)
     val callInvocation = method match {
       case "GET" => wsCall.get()
       case "POST" if (body.isDefined) => wsCall.post(body.get)
