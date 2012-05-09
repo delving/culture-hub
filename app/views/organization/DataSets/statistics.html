@@ -12,12 +12,12 @@
 <div class="row">
     <div class="span12">
         <div class="tabbable">
-            <h4 class="page-header">
-                Statisctics
-            </h4>
+            <h3 class="page-header">
+            &{'org.stats'}
+            </h3>
             <ul class="nav nav-pills">
                 <li class="active"><a href="#datasets" data-toggle="tab">&{'thing.datasets'}</a></li>
-                <li><a href="#providers" data-toggle="tab">&{'metadata.dc.provider'}</a></li>
+                <li><a href="#providers" data-toggle="tab">&{'metadata.europeana.dataProvider'}</a></li>
             </ul>
 
             <div class="tab-content">
@@ -102,7 +102,7 @@
 
                         <tr>
                             <td>2012-05-08 14:35</td>
-                            <td>&{'metadata.dc.provider'} ${i}</td>
+                            <td>&{'metadata.europeana.dataProvider'} ${i}</td>
                             <td>12345</td>
                             <td>123</td>
                             <td>24645</td>
@@ -133,7 +133,7 @@
 
                                 <tr>
                                     <td>2012-${i}-${i+10}</td>
-                                    <td>&{'metadata.dc.provider'} x</td>
+                                    <td>&{'metadata.europeana.dataProvider'} x</td>
                                     <td>${12345 * i}</td>
                                     <td>${12 * i}</td>
                                     <td>${(12345 * i)+(12 * i)}</td>
@@ -153,7 +153,7 @@
 </div>
 
 <script>
-    //    $(document).ready(function(){
-    //        $('#historyModal').modal();
-    //    })
+    $(document).ready(function(){
+        $('.modal').modal('hide').on('show').addClass('modal-big');
+    });
 </script>
