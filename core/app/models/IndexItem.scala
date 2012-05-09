@@ -1,12 +1,12 @@
 package models
 
 import mongoContext._
-import core.Constants._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.Imports._
 import org.apache.solr.common.SolrInputDocument
 import xml.XML
+import core.Constants._
 
 /**
  *
@@ -53,18 +53,20 @@ case class IndexItem(_id: ObjectId = new ObjectId,
     }
 
     // system fields
-    val allowedSystemFields = List("collection", "thumbnail", "landingPage", "provider", "dataProvider")
+    val allowedSystemFields = List("collection", "thumbnail", "landingPage", "provider", "owner", "title", "description", "fullText")
 
     val systemFields = document.filter(_.label == "systemField")
     systemFields.filter(f => f.attribute("name").isDefined && allowedSystemFields.contains(f.attribute("name").get.text)).foreach {
       field =>
         val name = (field \ "@name").text
 
-        if(name == "thumbnail") {
-          doc.addField(THUMBNAIL, field.text)
-        } else {
-          val indexFieldName = "delving_%s_%s".format(name, "string")
-          doc.addField(indexFieldName, field.text)
+        name match {
+          case "thumbnail" => doc.addField(THUMBNAIL, field.text)
+          case "title" | "description" | "fullText" =>
+            doc.addField("delving_%s_%s".format(name, "text"), field.text)
+          case _ =>
+            val indexFieldName = "delving_%s_%s".format(name, "string")
+            doc.addField(indexFieldName, field.text)
         }
     }
 
