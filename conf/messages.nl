@@ -655,7 +655,11 @@ organization.members=Leden
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
-
+org.stats=Statistieken
+org.stats.history=Geschiedenis
+org.stats.withObjects=Met objecten
+org.stats.withoutObjects=Zonder objecten
+org.stats.total=Totaal
 
 # Controllers
 

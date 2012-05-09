@@ -1,0 +1,159 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('org.stats') /}
+#{set bodyId:'statistics' /}
+#{set pageId:'Statistics'/}
+*{#{set 'moreScripts'}}*
+*{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-modal.js")}"></script>}*
+*{#{/set}}*
+#{breadcrumbs /}
+
+#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+
+<div class="row">
+    <div class="span12">
+        <div class="tabbable">
+            <h4 class="page-header">
+                Statisctics
+            </h4>
+            <ul class="nav nav-pills">
+                <li class="active"><a href="#datasets" data-toggle="tab">&{'thing.datasets'}</a></li>
+                <li><a href="#providers" data-toggle="tab">&{'metadata.dc.provider'}</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="datasets">
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'metadata.dc.date'}</th>
+                            <th>&{'thing.name'}</th>
+                            <th>&{'org.stats.withObjects'}</th>
+                            <th>&{'org.stats.withoutObjects'}</th>
+                            <th>&{'org.stats.total'}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        %{for(i in 1..10) { }%
+
+                        <tr>
+                            <td>2012-05-08 14:35</td>
+                            <td>&{'thing.dataset'} ${i}</td>
+                            <td>12345</td>
+                            <td>123</td>
+                            <td>24645</td>
+                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini">&{'org.stats.history'}</button></td>
+                        </tr>
+                        %{ }}%
+                        </tbody>
+                    </table>
+                    <!-- History Modal -->
+                    <div class="modal hide" id="datasetHistory">
+                        <div class="modal-header">
+                            <button class="close" data-dismiss="modal">x</button>
+                            <h3>&{'org.stats.history'}</h3>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>&{'metadata.dc.date'}</th>
+                                    <th>&{'thing.name'}</th>
+                                    <th>&{'org.stats.withObjects'}</th>
+                                    <th>&{'org.stats.withoutObjects'}</th>
+                                    <th>&{'org.stats.total'}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                %{for(i in 10..1) { }%
+
+                                <tr>
+                                    <td>2012-${i}-${i+10}</td>
+                                    <td>&{'thing.dataset'} x</td>
+                                    <td>${12345 * i}</td>
+                                    <td>${12 * i}</td>
+                                    <td>${(12345 * i)+(12 * i)}</td>
+                                </tr>
+                                %{ }}%
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="providers">
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'metadata.dc.date'}</th>
+                            <th>&{'thing.name'}</th>
+                            <th>&{'org.stats.withObjects'}</th>
+                            <th>&{'org.stats.withoutObjects'}</th>
+                            <th>&{'org.stats.total'}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        %{for(i in 1..10) { }%
+
+                        <tr>
+                            <td>2012-05-08 14:35</td>
+                            <td>&{'metadata.dc.provider'} ${i}</td>
+                            <td>12345</td>
+                            <td>123</td>
+                            <td>24645</td>
+                            <td><button data-toggle="modal" data-target="#providerHistory" class="btn btn-primary btn-mini">&{'org.stats.history'}</button></td>
+
+                        %{ }}%
+                        </tbody>
+                    </table>
+                    <!-- History Modal -->
+                    <div class="modal hide" id="providerHistory">
+                        <div class="modal-header">
+                            <button class="close" data-dismiss="modal">x</button>
+                            <h3>&{'org.stats.history'}</h3>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>&{'metadata.dc.date'}</th>
+                                    <th>&{'thing.name'}</th>
+                                    <th>&{'org.stats.withObjects'}</th>
+                                    <th>&{'org.stats.withoutObjects'}</th>
+                                    <th>&{'org.stats.total'}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                %{for(i in 10..1) { }%
+
+                                <tr>
+                                    <td>2012-${i}-${i+10}</td>
+                                    <td>&{'metadata.dc.provider'} x</td>
+                                    <td>${12345 * i}</td>
+                                    <td>${12 * i}</td>
+                                    <td>${(12345 * i)+(12 * i)}</td>
+                                </tr>
+                                %{ }}%
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //    $(document).ready(function(){
+    //        $('#historyModal').modal();
+    //    })
+</script>
