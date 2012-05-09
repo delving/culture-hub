@@ -1,20 +1,149 @@
 <?xml version ="1.0" encoding="UTF-8"?>
 
 <views>
+    <view name="html">
+        <row>
+            <section id="general">
+                <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
+                <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
+            </section>
+        </row>
+        <row>
+            <section id="events">
+                <list path="/aff:record/aff:events/aff:event">
+                    <field label="thing.title" path="aff:displayEvent"/>
+                    <field label="thing.date" path="aff:displayDate"/>
+                </list>
+            </section>
+        </row>
+    </view>
     <view name="full">
-      <row>
-        <section id="general">
-            <field path="/record/thing/displayTitle" label="thing.title"/>
-            <field path="/record/thing/displayDescription" label="thing.description"/>
-        </section>
-      </row>
-      <row>
-          <section id="events">
-              <list path="/record/events/event">
-                  <field label="thing.title" path="displayEvent" />
-                  <field label="thing.date" path="displayDate" />
-              </list>
-          </section>
-      </row>
+        <elem name="record">
+            <attrs>
+                <attr prefix="xmlns" name="aff" value="http://schemas.delving.eu/aff/"/>
+            </attrs>
+            <elem name="admin">
+                <elem name="displayDataProvider" expr="/aff:record/aff:admin/aff:displayDataProvider" />
+                <elem name="displayDataProviderCountry" expr="/aff:record/aff:admin/aff:displayDataProviderCountry" />
+                <elem name="displayProvider" expr="/aff:record/aff:admin/aff:displayProvider" />
+                <elem name="defaultLang" expr="/aff:record/aff:admin/aff:defaultLang" />
+            </elem>
+            <elem name="thing">
+                <elem name="uri" expr="/aff:record/aff:thing/aff:uri" />
+                <elem name="category" expr="/aff:record/aff:thing/aff:category" />
+                <elem name="displayIdentification" expr="/aff:record/aff:thing/aff:displayIdentification" />
+                <elem name="displayTitle" expr="/aff:record/aff:thing/aff:displayTitle" />
+                <elem name="displayDescription" expr="/aff:record/aff:thing/aff:displayDescription" />
+                <list name="dimensions" path="/aff:record/aff:thing/aff:dimensions/aff:displayDimension">
+                    <elem name="displayDimension" expr="." />
+                </list>
+                <list name="years" path="/aff:record/aff:thing/aff:years/aff:year">
+                    <elem name="year" expr="."/>
+                </list>
+                <elem name="displayRights" expr="/aff:record/aff:thing/aff:displayRights" />
+            </elem>
+        </elem>
     </view>
 </views>
+
+<!--
+<aff:record xmlns:aff="http://schemas.delving.eu/aff/">
+<aff:admin>
+    <aff:displayDataProvider>Princessehof</aff:displayDataProvider>
+    <aff:displayDataProviderCountry>netherlands</aff:displayDataProviderCountry>
+    <aff:displayProvider>Friese Verhalen</aff:displayProvider>
+    <aff:defaultLang>nl</aff:defaultLang>
+</aff:admin>
+<aff:thing>
+    <aff:uri>http://id.princesshof.nl/thing/OKS_1989_002</aff:uri>
+    <aff:category>CONSTANT</aff:category>
+    <aff:displayIdentification>OKS 1989-002</aff:displayIdentification>
+    <aff:displayTitle>Schotel met blauwwit bijbels decor</aff:displayTitle>
+    <aff:displayDescription>
+        Iets verdiept liggende bodem, zeer weinig geprononceerde standring, trapsgewijs spreidende wand, gele scherf,
+        grijs/wit tinglazuur, in blauw gedecoreerd, rondom een bloemguirlande, in vieren, op het plat een voorstelling
+        van Judas' verraad van Jezus Opschrift: Mat. 26 vers 47 (En als Hij nog sprak, ziet, Judas, een van de twaalven,
+        kwam, en met hem een grote schare, met zwaarden en stokken, gezonden van de overpriesters en ouderlingen des
+        volks).
+    </aff:displayDescription>
+    <aff:dimensions>
+        <aff:displayDimension>diameter cm 32.5</aff:displayDimension>
+        <aff:displayDimension>hoogte cm 4.0</aff:displayDimension>
+    </aff:dimensions>
+    <aff:years>
+        <aff:year>1800</aff:year>
+        <aff:year>1790</aff:year>
+    </aff:years>
+    <aff:displayRights>http://creativecommons.org/publicdomain/mark/1.0/</aff:displayRights>
+</aff:thing>
+<aff:concepts>
+    <aff:concept aff:type="keyword" aff:key="http://id.culturecloud.eu/concepts/#objectName">
+        <aff:displayConcept>schotel</aff:displayConcept>
+    </aff:concept>
+    <aff:concept aff:type="material" aff:key="http://www.cidoc-crm.org/rdfs/E57.Material">
+        <aff:displayConcept>aardewerk</aff:displayConcept>
+    </aff:concept>
+    <aff:concept aff:type="technique" aff:key="http://www.cidoc-crm.org/rdfs/P32F_used_general_technique">
+        <aff:displayConcept>gedraaid</aff:displayConcept>
+    </aff:concept>
+    <aff:concept aff:type="technique" aff:key="http://www.cidoc-crm.org/rdfs/P32F_used_general_technique">
+        <aff:displayConcept>inglazuurschildering</aff:displayConcept>
+    </aff:concept>
+    <aff:concept aff:type="technique" aff:key="http://www.cidoc-crm.org/rdfs/P32F_used_general_technique">
+        <aff:displayConcept>tinglazuur</aff:displayConcept>
+    </aff:concept>
+</aff:concepts>
+<aff:events>
+    <aff:event aff:type="Production" aff:schemaUri="http://www.cidoc-crm.org/rdfs/E12.Production" aff:schema="cidoc-crm"
+               aff:key="crm_e12">
+        <aff:displayDate>1790</aff:displayDate>
+        <aff:eventActor>
+            <aff:displayRoleInEvent>vervaardiger</aff:displayRoleInEvent>
+            <aff:displayActor>Tichelaar, gleibakkerij van de familie (1700-1868)</aff:displayActor>
+            <aff:displayDescription>,</aff:displayDescription>
+            <aff:relatedEvent aff:type="Birth" aff:key="crm_e67">
+                <aff:displayDate>Tichelaar, gleibakkerij van de familie (1700-1868)</aff:displayDate>
+            </aff:relatedEvent>
+            <aff:relatedEvent aff:type="Death" aff:key="crm_e69">
+                <aff:displayDate>Tichelaar, gleibakkerij van de familie (1700-1868)</aff:displayDate>
+            </aff:relatedEvent>
+        </aff:eventActor>
+        <aff:eventActor>
+            <aff:displayRoleInEvent>schilder</aff:displayRoleInEvent>
+            <aff:displayActor>Hofstra, Douwe Klazes</aff:displayActor>
+            <aff:displayDescription>,</aff:displayDescription>
+            <aff:relatedEvent aff:type="Birth" aff:key="crm_e67">
+                <aff:displayDate>Hofstra, Douwe Klazes 0</aff:displayDate>
+            </aff:relatedEvent>
+            <aff:relatedEvent aff:type="Death" aff:key="crm_e69">
+                <aff:displayDate>Hofstra, Douwe Klazes 0</aff:displayDate>
+            </aff:relatedEvent>
+        </aff:eventActor>
+        <aff:eventPlace>
+            <aff:displayPlace>Makkum</aff:displayPlace>
+        </aff:eventPlace>
+    </aff:event>
+    <aff:event aff:type="Acquisition" aff:schemaUri="http://www.cidoc-crm.org/rdfs/E8.Acquisition"
+               aff:schema="cidoc-crm" aff:key="crm_e8">
+        <aff:displayMethod>aankoop</aff:displayMethod>
+        <aff:eventActor>
+            <aff:displayActor>Ott, J.B.A.M.</aff:displayActor>
+        </aff:eventActor>
+        <aff:eventPlace>
+            <aff:displayPlace>Zutphen</aff:displayPlace>
+        </aff:eventPlace>
+    </aff:event>
+</aff:events>
+<aff:resources>
+    <aff:resource aff:type="thumbnail" aff:key="http://id.culturecloud.eu/concepts/#thumbnail">
+        <aff:resourceUrl>http://www.whatever.nl/OKS_1989_002</aff:resourceUrl>
+    </aff:resource>
+    <aff:resource aff:type="fullImage" aff:key="http://id.culturecloud.eu/concepts/#fullImage">
+        <aff:resourceUrl>http://www.whatever.nl/OKS_1989_002</aff:resourceUrl>
+    </aff:resource>
+    <aff:resource aff:type="landingPage" aff:key="http://id.culturecloud.eu/concepts/#landingPage">
+        <aff:resourceUrl>http://www.whatever.nl/OKS_1989_002</aff:resourceUrl>
+    </aff:resource>
+</aff:resources>
+</aff:record>
+-->

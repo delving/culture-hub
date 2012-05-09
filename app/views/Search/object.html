@@ -2,7 +2,7 @@
 
 #{set title:'Search results' /}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": summaryFields.get("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.get("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
 <div class="row dashboard">
     #{view view: fullView /}

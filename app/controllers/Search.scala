@@ -16,7 +16,7 @@ import core.rendering.ViewRenderer
 object Search extends DelvingController {
   
   // TODO move later
-  val affViewRenderer = ViewRenderer.fromDefinition("aff", "full")
+  val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
@@ -81,7 +81,7 @@ object Search extends DelvingController {
                 val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                 val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-                Ok(Template("Search/object.html", 'summaryFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+                Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
               }
 
             } else {
