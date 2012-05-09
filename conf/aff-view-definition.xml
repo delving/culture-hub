@@ -3,8 +3,8 @@
 <views>
     <view name="html">
         <row>
-            <section id="general">
-                <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
+            <section id="general" >
+                <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title" />
                 <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
             </section>
         </row>
