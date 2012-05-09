@@ -38,10 +38,10 @@
         <thead>
         <tr>
             <th width="150" class="sort">&{'thing.name'}</th>
-            <th class="sort" width="70">&{'ui.label.nritems'}</th>
-            <th class="sort">&{'ui.label.status'}</th>
+            <th class="sort" width="80">&{'ui.label.nritems'}</th>
+            <th class="sort" width="70">&{'ui.label.status'}</th>
             <th>&{'ui.label.options'}</th>
-            <th width="70">&#160;</th>
+            <th width="50">&#160;</th>
         </tr>
         </thead>
         <tfoot>
@@ -58,7 +58,7 @@
         #{list items, as: 'i'}
         <tr>
             <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
-            <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
+            <td><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
             <td id="description${i.spec}" width="120">
             #{if i.state.name() == models.DataSetState.ERROR().name()}
                 <span class="badge badge-important badge-error" rel="popover" data-original-title="${i.state.description()}" data-content="${i.error.raw()}">&{'ui.label.error'}</span>
