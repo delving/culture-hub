@@ -30,6 +30,7 @@ import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
 import scala.Predef._
+import core.rendering.RenderNode
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -83,6 +84,7 @@ class ViewRenderer(schema: String, viewName: String) {
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
     val result = RenderNode("root", None, true)
+    var shortcutResult: Option[RenderedView] = None
     val treeStack = Stack(result)
     val root = viewDefinition
     walk(root, record)
@@ -197,6 +199,17 @@ class ViewRenderer(schema: String, viewName: String) {
               case "attrs" => // this is handled by elem below
 
 
+              case "verbatim" =>
+                // shortcut everything. pull out XML directly, and use lift-json to turn it into JSON. not fit for HTML
+                shortcutResult = Some(new RenderedView {
+                  def toXmlString: String = rawRecord
+
+                  def toJson: String = util.Json.toJson(toXml)
+
+                  def toXml: NodeSeq = XML.loadString(rawRecord)
+
+                  def toViewTree: RenderNode = null
+                })
 
 
               // ~~~ legacy support
@@ -361,7 +374,11 @@ class ViewRenderer(schema: String, viewName: String) {
       roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
-    NodeRenderedView(viewName, prefix, result.content.head)
+    if(shortcutResult.isDefined) {
+      shortcutResult.get
+    } else {
+      NodeRenderedView(viewName, prefix, result.content.head)
+    }
 
   }
 
