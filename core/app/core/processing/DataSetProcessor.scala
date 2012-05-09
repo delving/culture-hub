@@ -6,7 +6,6 @@ import scala.collection.JavaConverters._
 import eu.delving.MappingEngine
 import eu.delving.MappingResult
 import core.indexing.{IndexingService, Indexing}
-import core.SystemField
 import core.Constants._
 import com.mongodb.casbah.Imports._
 import scala.io.Source
@@ -14,6 +13,7 @@ import eu.delving.groovy.XmlSerializer
 import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
 import play.api.{Play, Logger}
 import org.joda.time.{DateTimeZone, DateTime}
+import core.SystemField
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -184,7 +184,7 @@ object DataSetProcessor {
   }
 
   private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
-    val Array(orgId, spec, localRecordKey) = hubId.split("_")
+    val HubId(orgId, spec, localRecordKey) = hubId
     systemFields ++ Map(
       SPEC -> spec,
       RECORD_TYPE -> MDR,

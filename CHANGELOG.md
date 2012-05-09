@@ -2,6 +2,14 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+## 12.05.1
+
+### Fixes
+
+- sjoerd: more robust extractor for hubIds, in case the localId contains an underscore
+- sjoerd: Fixes to deal with html entities in the ingested xml that are not indexed properly
+- manu: URL-encoding the id we get in the SearchService before querying for it, since IDs are URL-encoded in the index
+
 ## 12.05.0
 
 ### New features

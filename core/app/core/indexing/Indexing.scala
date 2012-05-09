@@ -30,6 +30,7 @@ import org.apache.tika.parser.ParseContext
 import models.{MetadataRecord, DataSet}
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
+import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 
 /**
@@ -60,10 +61,11 @@ object Indexing extends SolrServer {
     indexDoc.foreach {
       entry =>
         val unMungedKey = entry._1
-        entry._2.foreach(
+        entry._2.foreach {
           value =>
-            doc.addField(unMungedKey, value.toString)
-        )
+            val cleanValue = if (unMungedKey.endsWith("_text")) StringEscapeUtils.unescapeHtml(value.toString) else value.toString
+            doc.addField(unMungedKey, cleanValue)
+        }
     }
     doc
   }

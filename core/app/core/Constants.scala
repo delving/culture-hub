@@ -105,4 +105,6 @@ object Constants {
   val ORGANIZATIONS = "organizations"
   val GROUPS = "groups"
 
+
+  val HubId = """^(.*?)_(.*?)_(.*)$""".r
 }

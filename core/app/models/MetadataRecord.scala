@@ -58,7 +58,7 @@ case class MetadataRecord(_id: ObjectId = new ObjectId,
 object MetadataRecord {
 
   def getMDR(hubId: String): Option[MetadataRecord] = {
-    val Array(orgId, spec, recordId) = hubId.split("_")
+    val HubId(orgId, spec, recordId) = hubId
     val collectionName = DataSet.getRecordsCollectionName(orgId, spec)
     getMDR(collectionName, hubId)
   }
