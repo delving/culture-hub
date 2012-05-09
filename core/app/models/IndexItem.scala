@@ -33,9 +33,19 @@ case class IndexItem(_id: ObjectId = new ObjectId,
         val dataType = field.attribute("fieldType").getOrElse("text")
         val isFacet = field.attribute("facet").isDefined && (field \ "@facet").text == "true"
 
-        val indexFieldName = "%s_%s".format(name, dataType)
+        val acceptedPrefixes = "dc|dcterms|icn|europeana|delving"
 
-        doc.addField("custom_%s".format(indexFieldName), field.text)
+        val indexFieldName = if (name.contains(":") && name.split(":").head.matches(acceptedPrefixes)) {
+          "%s_%s".format(name.replaceFirst(":", "_"), dataType)
+        }
+        else if (name.contains("_") && name.split("_").head.matches(acceptedPrefixes)) {
+          "%s_%s".format(name, dataType)
+        }
+        else {
+          "custom_%s_%s".format(name, dataType)
+        }
+
+        doc.addField(indexFieldName, field.text)
 
         if(isFacet) {
           doc.addField(indexFieldName + "_facet", field.text)
