@@ -49,7 +49,7 @@
                         </tbody>
                     </table>
                     <!-- History Modal -->
-                    <div class="modal hide" id="datasetHistory">
+                    <div class="modal modal-big hide" id="datasetHistory">
                         <div class="modal-header">
                             <button class="close" data-dismiss="modal">x</button>
                             <h3>&{'org.stats.history'}</h3>
@@ -112,7 +112,7 @@
                         </tbody>
                     </table>
                     <!-- History Modal -->
-                    <div class="modal hide" id="providerHistory">
+                    <div class="modal modal-big hide" id="providerHistory">
                         <div class="modal-header">
                             <button class="close" data-dismiss="modal">x</button>
                             <h3>&{'org.stats.history'}</h3>
@@ -151,9 +151,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function(){
-        $('.modal').modal('hide').on('show').addClass('modal-big');
-    });
-</script>
