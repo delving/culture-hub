@@ -24,6 +24,18 @@ trait Implicits {
       session.query(query).map(XML.loadString(_))
     }
 
+    def findRaw(query: String): Iterator[String] = {
+      session.query(query)
+    }
+
+    def findOne(query: String): Option[Node] = {
+      findOneRaw(query).map(XML.loadString(_)).toList.headOption
+    }
+
+    def findOneRaw(query: String): Option[String] = {
+      session.query(query).toList.headOption
+    }
+
     def setAutoflush(flush: Boolean) {
       if(flush) {
         session.execute("set autoflush true")

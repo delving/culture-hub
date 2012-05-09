@@ -36,6 +36,13 @@ object BaseXStorage {
     }
   }
 
+  def withSession[T](collection: Collection)(block: ClientSession => T) = {
+    storage.withSession(collection.databaseName) {
+      session =>
+        block(session)
+    }
+  }
+
   def withBulkSession[T](collection: Collection)(block: ClientSession => T) = {
     storage.withSession(collection.databaseName) {
       session =>
@@ -76,10 +83,11 @@ object BaseXStorage {
         <version>%s</version>
         <schemaPrefix>%s</schemaPrefix>
         <index>%s</index>
+        <invalidTargetSchemas>%s</invalidTargetSchemas>
       </system>
       <document>%s</document>
       <links/>
-    </record>""".format(record.id, ns, version, record.schemaPrefix, index, record.document).getBytes("utf-8"))
+    </record>""".format(record.id, ns, version, record.schemaPrefix, index, record.invalidTargetSchemas.mkString(",").mkString, record.document).getBytes("utf-8"))
 
   }
 
