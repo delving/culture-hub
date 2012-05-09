@@ -659,7 +659,8 @@ org.stats=Statistieken
 org.stats.history=Geschiedenis
 org.stats.withObjects=Met objecten
 org.stats.withoutObjects=Zonder objecten
-org.stats.total=Totaal
+org.stats.nrRecords=Aantal records
+org.stats.landingPages=Met landing-pages
 
 # Controllers
 
