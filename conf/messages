@@ -694,7 +694,8 @@ org.stats=Statistics
 org.stats.history=History
 org.stats.withObjects=With objects
 org.stats.withoutObjects=Without objects
-org.stats.total=Total objects
+org.stats.nrRecords=Number of records
+org.stats.landingPages=With landing-pages
 
 # Controllers
 

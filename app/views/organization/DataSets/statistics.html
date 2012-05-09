@@ -2,48 +2,61 @@
 #{set title: messages.get('org.stats') /}
 #{set bodyId:'statistics' /}
 #{set pageId:'Statistics'/}
-*{#{set 'moreScripts'}}*
-*{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-modal.js")}"></script>}*
-*{#{/set}}*
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
+#{/set}
 #{breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
 
 <div class="row">
     <div class="span12">
+        <h3 class="page-header">
+        &{'org.stats'}
+        </h3>
         <div class="tabbable">
-            <h3 class="page-header">
-            &{'org.stats'}
-            </h3>
-            <ul class="nav nav-pills">
-                <li class="active"><a href="#datasets" data-toggle="tab">&{'thing.datasets'}</a></li>
-                <li><a href="#providers" data-toggle="tab">&{'metadata.europeana.dataProvider'}</a></li>
+
+            <ul class="nav nav-pills" id="stats-tabs">
+                <li class="active"><a href="#datasets-pane" data-toggle="tab">&{'thing.datasets'}</a></li>
+                <li><a href="#providers-pane" data-toggle="tab">&{'metadata.europeana.dataProvider'}</a></li>
+                <li><a href="#country-pane" data-toggle="tab">&{'metadata.europeana.country'}</a></li>
+                <li><a href="#province-pane" data-toggle="tab">&{'thing.province'}</a></li>
+                <li><a href="#municipality-pane" data-toggle="tab">&{'thing.municipality'}</a></li>
             </ul>
 
             <div class="tab-content">
-                <div class="tab-pane active" id="datasets">
-
+                <div class="tab-pane active" id="datasets-pane">
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>&{'metadata.dc.date'}</th>
                             <th>&{'thing.name'}</th>
+                            <th>&{'org.stats.nrRecords'}</th>
                             <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.withoutObjects'}</th>
-                            <th>&{'org.stats.total'}</th>
+                            <th>&{'org.stats.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        %{for(i in 1..10) { }%
+                        %{
+                        Random rand = new Random()
+                        int maxNr = 10000
+                        int maxPer = 40
+                        int min = 50
+
+                        for(i in 1..10) {
+                            def randNr = rand.nextInt(maxNr+122) + 1000
+                            def randNr2 = rand.nextInt(maxNr+27)
+                            def randPer = rand.nextInt(maxPer) + min
+                            def randPer2 = rand.nextInt(maxPer) + min
+                            int total = (i*randNr + i*randNr2)
+                        }%
 
                         <tr>
-                            <td>2012-05-08 14:35</td>
                             <td>&{'thing.dataset'} ${i}</td>
-                            <td>12345</td>
-                            <td>123</td>
-                            <td>24645</td>
-                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini">&{'org.stats.history'}</button></td>
+                            <td>${total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
+                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
@@ -60,20 +73,27 @@
                                 <tr>
                                     <th>&{'metadata.dc.date'}</th>
                                     <th>&{'thing.name'}</th>
+                                    <th>&{'org.stats.nrRecords'}</th>
                                     <th>&{'org.stats.withObjects'}</th>
-                                    <th>&{'org.stats.withoutObjects'}</th>
-                                    <th>&{'org.stats.total'}</th>
+                                    <th>&{'org.stats.landingPages'}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                %{for(i in 10..1) { }%
+                                %{
+                                for(i in 1..10) {
+                                def randNr = rand.nextInt(maxNr+122) + 1000
+                                def randNr2 = rand.nextInt(maxNr+27)
+                                def randPer = rand.nextInt(maxPer) + min
+                                def randPer2 = rand.nextInt(maxPer) + min
+                                int total = (i*randNr + i*randNr2)
+                                }%
 
                                 <tr>
                                     <td>2012-${i}-${i+10}</td>
                                     <td>&{'thing.dataset'} x</td>
-                                    <td>${12345 * i}</td>
-                                    <td>${12 * i}</td>
-                                    <td>${(12345 * i)+(12 * i)}</td>
+                                    <td>${total}</td>
+                                    <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                                    <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
                                 </tr>
                                 %{ }}%
                                 </tbody>
@@ -84,35 +104,40 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane" id="providers">
-
+                <div class="tab-pane" id="providers-pane">
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>&{'metadata.dc.date'}</th>
                             <th>&{'thing.name'}</th>
+                            <th>&{'org.stats.nrRecords'}</th>
                             <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.withoutObjects'}</th>
-                            <th>&{'org.stats.total'}</th>
+                            <th>&{'org.stats.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        %{for(i in 1..10) { }%
+                        %{
+
+                        for(i in 1..10) {
+                        def randNr = rand.nextInt(maxNr+122) + 1000
+                        def randNr2 = rand.nextInt(maxNr+27)
+                        def randPer = rand.nextInt(maxPer) + min
+                        def randPer2 = rand.nextInt(maxPer) + min
+                        int total = (i*randNr + i*randNr2)
+                        }%
 
                         <tr>
-                            <td>2012-05-08 14:35</td>
                             <td>&{'metadata.europeana.dataProvider'} ${i}</td>
-                            <td>12345</td>
-                            <td>123</td>
-                            <td>24645</td>
-                            <td><button data-toggle="modal" data-target="#providerHistory" class="btn btn-primary btn-mini">&{'org.stats.history'}</button></td>
-
+                            <td>${total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
+                            <td><button data-toggle="modal" data-target="#dataproviderHistory" class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                        </tr>
                         %{ }}%
                         </tbody>
                     </table>
                     <!-- History Modal -->
-                    <div class="modal modal-big hide" id="providerHistory">
+                    <div class="modal modal-big hide" id="dataproviderHistory">
                         <div class="modal-header">
                             <button class="close" data-dismiss="modal">x</button>
                             <h3>&{'org.stats.history'}</h3>
@@ -123,20 +148,27 @@
                                 <tr>
                                     <th>&{'metadata.dc.date'}</th>
                                     <th>&{'thing.name'}</th>
+                                    <th>&{'org.stats.nrRecords'}</th>
                                     <th>&{'org.stats.withObjects'}</th>
-                                    <th>&{'org.stats.withoutObjects'}</th>
-                                    <th>&{'org.stats.total'}</th>
+                                    <th>&{'org.stats.landingPages'}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                %{for(i in 10..1) { }%
+                                %{
+                                for(i in 1..10) {
+                                def randNr = rand.nextInt(maxNr+122) + 1000
+                                def randNr2 = rand.nextInt(maxNr+27)
+                                def randPer = rand.nextInt(maxPer) + min
+                                def randPer2 = rand.nextInt(maxPer) + min
+                                int total = (i*randNr + i*randNr2)
+                                }%
 
                                 <tr>
                                     <td>2012-${i}-${i+10}</td>
                                     <td>&{'metadata.europeana.dataProvider'} x</td>
-                                    <td>${12345 * i}</td>
-                                    <td>${12 * i}</td>
-                                    <td>${(12345 * i)+(12 * i)}</td>
+                                    <td>${total}</td>
+                                    <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                                    <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
                                 </tr>
                                 %{ }}%
                                 </tbody>
@@ -147,7 +179,113 @@
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane" id="country-pane">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'metadata.europeana.country'}</th>
+                            <th>&{'org.stats.nrRecords'}</th>
+                            <th>&{'org.stats.withObjects'}</th>
+                            <th>&{'org.stats.landingPages'}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        %{
+                        def dcList = ["Loremim","Ipsumius","Caelum","Obscuro","Penumbral","Quisque","Vestibulum","Aenean","Pestibulus","Sinistrum","Dextorum","Arcadia"]
+                        for(i in dcList){
+
+                        def randNr = rand.nextInt(maxNr+122) + 1000
+                        def randNr2 = rand.nextInt(maxNr+27)
+                        def randPer = rand.nextInt(maxPer) + min
+                        def randPer2 = rand.nextInt(maxPer) + min
+                        int total = (5*randNr + 6*randNr2)
+                        }%
+                        <tr>
+                            <td>${i}</td>
+                            <td>${total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                        </tr>
+                        %{ }}%
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="province-pane">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'thing.province'}</th>
+                            <th>&{'org.stats.nrRecords'}</th>
+                            <th>&{'org.stats.withObjects'}</th>
+                            <th>&{'org.stats.landingPages'}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        %{
+                            def dpList = ["Groningen","Friesland","Drenthe","Overijssel","Flevoland","Gelderland","Utrecht","Noord-Holland","Zuid-Holland","Zeeland","Noord-Brabant","Limburg"]
+                            for(i in dpList){
+
+                            def randNr = rand.nextInt(maxNr+122) + 1000
+                            def randNr2 = rand.nextInt(maxNr+27)
+                            def randPer = rand.nextInt(maxPer) + min
+                            def randPer2 = rand.nextInt(maxPer) + min
+                            int total = (5*randNr + 6*randNr2)
+                        }%
+                        <tr>
+                            <td>${i}</td>
+                            <td>${total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                        </tr>
+                        %{ }}%
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="tab-pane" id="municipality-pane">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'thing.province'}</th>
+                            <th>&{'org.stats.nrRecords'}</th>
+                            <th>&{'org.stats.withObjects'}</th>
+                            <th>&{'org.stats.landingPages'}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        %{
+
+                        for(i in dcList){
+
+                        def randNr = rand.nextInt(maxNr+122) + 1000
+                        def randNr2 = rand.nextInt(maxNr+27)
+                        def randPer = rand.nextInt(maxPer) + min
+                        def randPer2 = rand.nextInt(maxPer) + min
+                        int total = (5*randNr + 6*randNr2)
+                        }%
+                        <tr>
+                            <td>${i}</td>
+                            <td>${total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                        </tr>
+                        %{ }}%
+                        </tbody>
+                    </table>
+
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function(){
+        $('span[rel=tooltip]').tooltip();
+    })
+</script>
