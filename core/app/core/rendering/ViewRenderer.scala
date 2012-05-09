@@ -30,7 +30,6 @@ import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
 import scala.Predef._
-import core.rendering.RenderNode
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
