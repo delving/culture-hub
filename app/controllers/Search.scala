@@ -66,10 +66,9 @@ object Search extends DelvingController {
                 InternalServerError
               } else {
                 val definition = RecordDefinition.getRecordDefinition("aff").get
-                val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), record)
                 // TODO
                 val grantTypes = List.empty
-                val renderResult = affViewRenderer.get.renderRecord(wrappedRecord, grantTypes, definition.getNamespaces, lang)
+                val renderResult = affViewRenderer.get.renderRecord(record, grantTypes, definition.getNamespaces, lang)
 
                 val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
                   // we're coming from someplace else then a search, remove the return to results cookie

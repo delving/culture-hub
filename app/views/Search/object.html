@@ -2,7 +2,7 @@
 
 #{set title:'Search results' /}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.get("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
 <div class="row dashboard">
     #{view view: fullView /}
@@ -10,8 +10,8 @@
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
 <div class="contentWrap">
-    <img src="${summaryFields.get("delving_thumbnail").get(0)}" alt="${summaryFields.get("delving_title").get(0)}" style="max-width:900px" />
-    <div class="title"> ${summaryFields.get("delving_title").get(0)}</div>
+    <img src="${systemFields.apply("delving_thumbnail").get(0)}" alt="${systemFields.apply("delving_title").get(0)}" style="max-width:900px" />
+    <div class="title"> ${systemFields.apply("delving_title").get(0)}</div>
 </div>
 </div>
 
