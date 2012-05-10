@@ -12,10 +12,11 @@ import java.util.concurrent.TimeUnit
 import eu.delving.{MappingResult, MappingEngine}
 import core.SystemField
 import core.Constants._
-import xml.Node
-import models._
+import scala.xml.Node
 import core.indexing.{Indexing, IndexingService}
 import play.api.Play.current
+import models._
+import org.joda.time.{DateTimeZone, DateTime}
 
 /**
  *
@@ -31,7 +32,7 @@ object DataSetCollectionProcessor {
 
   def process(dataSet: DataSet) {
 
-    val selectedSchemas = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
+    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
       t => new ProcessingSchema {
@@ -83,7 +84,7 @@ object DataSetCollectionProcessor {
 
     val collectionProcessor = new CollectionProcessor(Collection(dataSet.orgId, dataSet.spec), actionableTargetSchemas, indexingSchema, renderingSchema)
     def interrupted = DataSet.getState(dataSet.orgId, dataSet.spec) != DataSetState.PROCESSING
-    def updateCount(count: Int) {
+    def updateCount(count: Long) {
       DataSet.updateIndexingCount(dataSet, count)
     }
     def onError(t: Throwable) {
@@ -93,6 +94,7 @@ object DataSetCollectionProcessor {
 
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne)
+    DataSet.updateState(dataSet, DataSetState.ENABLED)
   }
 
 
@@ -105,12 +107,12 @@ abstract class ProcessingSchema {
   val mapping: Option[String]
   val sourceSchema: String
 
-  val prefix = definition.prefix
-  val hasMapping = mapping.isDefined
-  val javaNamespaces = namespaces.asJava
-  val engine: Option[MappingEngine] = mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
+  lazy val prefix = definition.prefix
+  lazy val hasMapping = mapping.isDefined
+  lazy val javaNamespaces = namespaces.asJava
+  lazy val engine: Option[MappingEngine] = mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
 
-  def isValidRecord(record: Node) = (record \\ "invalidTargetSchemas").text.split(",").contains(prefix)
+  def isValidRecord(record: Node) = !(record \\ "invalidTargetSchemas").text.split(",").contains(prefix)
 
 }
 
@@ -122,15 +124,16 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
   private implicit def listMapToScala(map: java.util.Map[String, java.util.List[String]]) = map.asScala.map(v => (v._1, v._2.asScala.toList)).toMap
 
-  def process(interrupted: => Boolean, updateCount: Int => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String]) {
+  def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String]) {
     val now = System.currentTimeMillis()
+    val startIndexing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.name, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
 
     BaseXStorage.withSession(collection) {
       session => {
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>max($r/system/version)</currentVersion>").get.text.toInt
-        val recordCount = session.findOne("let $r := /record where $r/system/version = %s return <count>count($r)</count>".format(currentVersion)).get.text.toInt
+        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/system/version)}</currentVersion>").get.text.toInt
+        val recordCount = session.findOne("let $r := /record where $r/system/version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
         val records = session.find("for $i in /record where $i/system/version = %s order by $i/system/index return $i".format(currentVersion))
 
         val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
@@ -141,13 +144,12 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
         try {
           records.zipWithIndex.foreach {
             r => {
-              record = r._1
-              index = r._2
-
-              val localId = (record \ "@id").text
-              val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
-
               if (!interrupted) {
+                record = r._1
+                index = r._2
+
+                val localId = (record \ "@id").text
+                val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
 
                 if (index % 100 == 0) updateCount(index)
                 if (index % 2000 == 0) {
@@ -168,7 +170,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
                 val systemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
                   val systemFields = getSystemFields(mappingResults(renderingSchema.get.prefix))
-                  val enriched = enrichSystemFields(systemFields, localId, renderingSchema.get.prefix)
+                  val enriched = enrichSystemFields(systemFields, hubId, renderingSchema.get.prefix)
                   Some(enriched)
                 } else {
                   None
@@ -179,8 +181,8 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                   itemType = ITEM_TYPE_MDR,
                   itemId = hubId,
                   xml = mappingResults.map(r => (r._1 -> MappingService.nodeTreeToXmlString(r._2.root()))),
-                  systemFields = systemFields.get,
-                  index = index
+                  systemFields = systemFields.getOrElse(Map.empty),
+                  index = index.toInt
                 )
                 cache.saveOrUpdate(cachedRecord)
 
@@ -197,6 +199,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
           if (!interrupted && indexingSchema.isDefined) {
             IndexingService.commit()
+            IndexingService.deleteOrphansBySpec(collection.orgId, collection.name, startIndexing)
           }
 
         } catch {
@@ -209,7 +212,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
             |
             | %s
             |
-            """.format(collection.name, index, record), t)
+            """.stripMargin.format(collection.name, index, record), t)
 
             if (indexingSchema.isDefined) {
               log.info("Deleting DataSet %s from SOLR".format(collection.name))
@@ -243,7 +246,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
   }
 
   private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
-    val Array(orgId, spec, localRecordKey) = hubId.split("_")
+    val HubId(orgId, spec, localRecordKey) = hubId
     systemFields ++ Map(
       SPEC -> spec,
       RECORD_TYPE -> MDR,

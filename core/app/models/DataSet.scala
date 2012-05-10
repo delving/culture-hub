@@ -28,11 +28,12 @@ import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
 import play.api.i18n.Messages
 import core.HubServices
-import eu.delving.metadata.{RecMapping, Path}
+import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
 import core.Constants._
+import scala.Predef._
 
 /**
  * DataSet model
@@ -144,7 +145,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSetState(name)
   }
 
-  def getProcessingState(orgId: String, spec: String): (Int, Int) = {
+  def getProcessingState(orgId: String, spec: String): (Long, Long) = {
 
     val stateData = dataSetsCollection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
@@ -153,8 +154,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
     val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
 
-    val totalRecords = details.getAsOrElse[Int]("total_records", 0)
-    val processingCount = details.getAsOrElse[Int]("indexing_count", 0)
+    val totalRecords = details.getAsOrElse[Long]("total_records", 0)
+    // this one is unboxed as Int because when we write it via $set it doesn't get written as a NumberLong...
+    val processingCount = details.getAsOrElse[Long]("indexing_count", 0)
     val invalidRecords = details.getAsOrElse[Int]("invalid_records", 0)
 
     if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
@@ -332,7 +334,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
   }
 
-  def updateIndexingCount(dataSet: DataSet, count: Int) {
+  def updateIndexingCount(dataSet: DataSet, count: Long) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
 
