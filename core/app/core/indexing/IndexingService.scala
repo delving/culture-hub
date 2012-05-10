@@ -88,13 +88,13 @@ object IndexingService extends SolrServer {
 
   def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime) {
     val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    val deleteQuery = SPEC + ":" + spec + " " + ORG_ID + ":" + orgId + " timestamp:[* TO " + fmt.print(startIndexing) + "]"
-    val numFound = getSolrServer.query(new SolrQuery(deleteQuery)).getResults.getNumFound
-    if (numFound > 0) {
+    val deleteQuery = SPEC + ":" + spec + " AND " + ORG_ID + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
+    val orphans = getSolrServer.query(new SolrQuery(deleteQuery)).getResults.getNumFound
+    if (orphans > 0) {
       val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
       deleteResponse.getStatus
       getStreamingUpdateServer.commit
-      Logger.info("Deleting orphans %s from dataset from Solr Index: %s".format(numFound.toString, deleteQuery))
+      Logger.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
     }
     else
       Logger.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
