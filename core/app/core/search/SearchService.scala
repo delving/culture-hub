@@ -418,7 +418,11 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       val recordMap = collection.mutable.ListMap[String, Any]();
       doc.getFieldValuesFiltered(false, Array())
         .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, fv.getValueAsArray))
-      ListMap(recordMap.toSeq: _*)
+      ListMap("item" ->
+        ListMap("fields" ->
+          ListMap(recordMap.toSeq: _*)
+        )
+      )
     }
 
     def createFacetList: List[ListMap[String, Any]] = {
