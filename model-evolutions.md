@@ -131,3 +131,65 @@ May not be a problem but we need to check if there are any items live.
       records.update({}, { $set: { summaryFields: {} } }, false, true);
     })
 
+03.05.2012 - Switching to MetadataCache
+
+    db.Datasets.find().forEach(function(ds) {
+      var validFormats = [];
+
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          validFormats.push(key);
+        }
+      }
+      print("Valid " + validFormats);
+
+      var collection = "Records." + ds.orgId + "_" + ds.spec;
+
+      db.getCollection(collection).find().forEach(function(r) {
+        var invalid = [];
+        for(var i in validFormats) {
+            var key = validFormats[i];
+            var found = false;
+            for(var v in r.validOutputFormats) {
+              var val = r.validOutputFormats[v];
+              print(val)
+              found = (val == key);
+              if(found) break;
+            }
+            if(!found) invalid.push(key);
+        }
+        print("Invalid " + invalid);
+
+        var item = {
+            "itemType": "mdr",
+            "itemId": r.hubId,
+            "collection": ds.spec,
+            "modified": r.modified,
+            "index": r.transferIdx,
+            "xml": r.rawMetadata,
+            "systemFields": r.systemFields != null ? r.systemFields : {},
+            "invalidTargetSchemas": invalid
+        }
+
+        var cache = ds.orgId + "_MetadataCache";
+
+        db.getCollection(cache).insert(item);
+      });
+    })
+
+    var c = 0;
+    db.getCollection('IndexItems').find().forEach(function(r) {
+      var item = {
+        "itemType": r.itemType,
+        "itemId": r.itemId,
+        "collection": "indexApiItems",
+//        "modified":
+        "xml": {"raw": r.rawXml},
+        "systemFields": {},
+        "invalidTargetSchemas": [],
+        "index": c,
+      }
+      var cache = r.orgId + "_MetadataCache";
+      db.getCollection(cache).insert(item);
+      c = c + 1;
+    });

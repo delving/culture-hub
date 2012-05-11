@@ -59,10 +59,10 @@ case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String,
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,
                         parentId: ObjectId = new ObjectId,
-                        hubCollection: String, // mongo collection in which this one is kept
-                        hubId: String, // hubId of the MDR
-                        idx: Int, // index, generated at collection creation time, to use as count
-                        validOutputFormats: List[String]) // cache of valid output formats
+                        collection: String, // collection in which this one is kept
+                        itemId: String, // id of the MDR
+                        index: Int, // index, generated at collection creation time, to use as count
+                        invalidTargetSchemas: Seq[String]) // cache of invalid output formats
 
 
 object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) {
