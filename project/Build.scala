@@ -37,6 +37,9 @@ object ApplicationBuild extends Build {
     "eu.delving"                %  "sip-core"                        % "1.0.5-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
+    "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
+    "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
+
     "org.apache.tika"           %  "tika-parsers"                    % "1.0"
   )
 
