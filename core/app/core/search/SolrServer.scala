@@ -18,7 +18,6 @@ package core.search
 
 import org.bson.types.ObjectId
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.impl.{StreamingUpdateSolrServer, CommonsHttpSolrServer}
 import play.api.Play.current
 import xml.Node
 import org.apache.solr.common.SolrInputDocument
@@ -26,6 +25,7 @@ import play.api.Play
 import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
 import collection.JavaConverters._
 import play.api.cache.Cache
+import org.apache.solr.client.solrj.impl.{HttpSolrServer, StreamingUpdateSolrServer, CommonsHttpSolrServer}
 
 
 /**
@@ -47,8 +47,8 @@ trait SolrServer {
 object SolrServer {
 
   private val url = Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2")
-  private val solrServer = new CommonsHttpSolrServer(url)
-  solrServer.setSoTimeout(10000) // socket read timeout
+  private[search] val solrServer = new HttpSolrServer(url)
+  solrServer.setSoTimeout(1000) // socket read timeout
   solrServer.setConnectionTimeout(100)
   solrServer.setDefaultMaxConnectionsPerHost(64)
   solrServer.setMaxTotalConnections(125)
@@ -59,21 +59,23 @@ object SolrServer {
   solrServer.setMaxRetries(1)
   // defaults to 0.  > 1 not recommended.
 
-  private val streamingUpdateServer = new StreamingUpdateSolrServer(url, 2500, 5)
-  streamingUpdateServer.setSoTimeout(5000) // socket read timeout
-  streamingUpdateServer.setConnectionTimeout(500)
-  streamingUpdateServer.setDefaultMaxConnectionsPerHost(20)
-  streamingUpdateServer.setMaxTotalConnections(50)
+  private[search] val streamingUpdateServer = new HttpSolrServer(url)
+  streamingUpdateServer.setSoTimeout(10000) // socket read timeout
+  streamingUpdateServer.setConnectionTimeout(15000)
+  streamingUpdateServer.setDefaultMaxConnectionsPerHost(10)
+  streamingUpdateServer.setMaxTotalConnections(15)
   streamingUpdateServer.setFollowRedirects(false) // defaults to false
   streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(3) // defaults to 0.  > 1 not recommended.
+  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
+
   def deleteFromSolrById(id: ObjectId): UpdateResponse = {
     val response = deleteFromSolrById(id.toString)
     commit()
     response
   }
+
   def deleteFromSolrByQuery(query: String) = {
     val response = streamingUpdateServer.deleteByQuery(query)
     commit()

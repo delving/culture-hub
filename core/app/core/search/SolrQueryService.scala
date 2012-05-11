@@ -574,11 +574,12 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7
+  val hardenedRows = if (rows == 0) core.Constants.PAGE_SIZE else rows
 
-  val totalPages = if (numFound % rows != 0) numFound / rows + 1 else numFound / rows
-  val currentPageNumber = start / rows + 1
+  val totalPages = if (numFound % hardenedRows != 0) numFound / hardenedRows + 1 else numFound / hardenedRows
+  val currentPageNumber = start / hardenedRows + 1
   val hasPreviousPage = start > 1
-  val previousPageNumber = start - rows
+  val previousPageNumber = start - hardenedRows
   var fromPage: Int = 1
   var toPage: Int = scala.math.min(totalPages, MARGIN * 2)
   if (currentPageNumber > PAGE_NUMBER_THRESHOLD) {
@@ -589,8 +590,8 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_
     fromPage = scala.math.max(1, toPage - MARGIN * 2 + 1)
   }
   val hasNextPage = totalPages > 1 && currentPageNumber < toPage
-  val nextPageNumber = start + rows
-  val pageLinks = (fromPage to toPage).map(page => PageLink(((page - 1) * rows + 1), page, currentPageNumber != page)).toList
+  val nextPageNumber = start + hardenedRows
+  val pageLinks = (fromPage to toPage).map(page => PageLink(((page - 1) * hardenedRows + 1), page, currentPageNumber != page)).toList
   val lastViewableRecord = if (hasNextPage) scala.math.min(nextPageNumber, numFound) - 1 else numFound
 }
 
@@ -610,7 +611,7 @@ case class ResultPagination (chResponse: CHResponse) {
 
   def getNumFound: Int = pager.numFound
 
-  def getRows: Int = pager.rows
+  def getRows: Int = pager.hardenedRows
 
   def getStart: Int = pager.start
 

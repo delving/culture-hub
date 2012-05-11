@@ -14,6 +14,7 @@ import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibili
 import play.api.{Play, Logger}
 import org.joda.time.{DateTimeZone, DateTime}
 import core.SystemField
+import org.joda.time.format.DateTimeFormat
 
 /**
  * Processes a DataSet and all of its records so that it is available for publishing and
@@ -63,9 +64,10 @@ object DataSetProcessor {
 
     val now = System.currentTimeMillis()
     val startIndexing: DateTime = new DateTime(DateTimeZone.UTC)
+    val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     val formatsString = formats.map(_.prefix).mkString(", ")
-    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s".format(spec, formatsString, indexingFormat.map(_.prefix).getOrElse("NONE!")))
+    log.info("Starting processing of DataSet '%s': going to process formats '%s', format for indexing is %s (at %s)".format(spec, formatsString, indexingFormat.map(_.prefix).getOrElse("NONE!"), fmt.print(startIndexing)))
 
     // initialize context
     val processingFormats = formats.map(ProcessingFormat(_, dataSet))

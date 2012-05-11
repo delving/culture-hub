@@ -58,7 +58,7 @@ object Index extends DelvingController {
         |   </indexItem>
         | </indexRequest>
         |
-        | The possible systemField names are: collection, thumbnail, landingPage, provider, dataProvider
+        | The possible systemField names are: collection, thumbnail, landingPage, provider, owner, title, description, fullText
         """.stripMargin)
       )
     case _ => None
