@@ -170,10 +170,10 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   private def renderIndexItem(id: String): Option[RenderedView] = {
-    if(id.split("_").length != 3) {
+    if(id.split("_").length < 3) {
       None
     } else {
-      val Array(orgId, itemType, itemId) = id.split("_")
+      val HubId(orgId, itemType, itemId) = id
       val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
       val indexItem = cache.findOne(itemId).getOrElse(return None)
       Some(new RenderedView {
@@ -186,8 +186,8 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
-    if(hubId.split("_").length != 3) return None
-    val Array(orgId, collection, itemId) = hubId.split("_")
+    if(hubId.split("_").length < 3) return None
+    val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
     val rawRecord: Option[String] = cache.findOne(itemId).flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
