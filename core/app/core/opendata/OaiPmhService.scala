@@ -271,12 +271,12 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
-    if(pmhRequest.identifier.split("_").length != 3) return createErrorResponse("idDoesNotExist")
+    if(pmhRequest.identifier.split("_").length < 3) return createErrorResponse("idDoesNotExist")
 
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    val Array(orgId, set, itemId) = pmhRequest.identifier.split("_")
+    val HubId(orgId, set, itemId) = pmhRequest.identifier
 
     // check access rights
     val ds = DataSet.findBySpecAndOrgId(set, orgId)
