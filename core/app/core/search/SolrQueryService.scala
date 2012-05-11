@@ -510,7 +510,10 @@ case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List
 
 case class Params(queryString: Map[String, Seq[String]]) {
 
-  private val params = collection.mutable.Map(queryString.filter(!_._2.isEmpty).map(k => ((k._1, k._2.map(SolrQueryService.decodeUrl(_))))).toSeq: _*)
+  private val params = collection.mutable.Map(queryString.filter(!_._2.isEmpty).map(
+    k =>
+      ((k._1, if (k._1.equalsIgnoreCase("query")) k._2 else k._2.map(SolrQueryService.decodeUrl(_))))
+  ).toSeq: _*)
 
   def put(key: String, values: Seq[String]) {params put (key, values)}
 
