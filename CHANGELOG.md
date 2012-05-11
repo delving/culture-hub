@@ -2,6 +2,16 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+## 12.05.2
+
+### Fixes
+
+- sjoerd: IndexApi accepting default namespaces, aligning system fields
+- sjoerd: upgrading to solr-j 3.6.0
+- sjoerd: fixing deleteOrphans implementation
+- sjoerd: fix in search pager
+- sjoerd: fixing search summary difference between xml and json representations
+
 ## 12.05.1
 
 ### Fixes
