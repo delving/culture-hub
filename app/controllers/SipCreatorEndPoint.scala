@@ -3,11 +3,9 @@ package controllers
 import exceptions.{UnauthorizedException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
-import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
 import org.apache.commons.io.IOUtils
-import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import play.libs.Akka
@@ -18,8 +16,12 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import com.mongodb.casbah.Imports._
 import models._
+import core.storage.BaseXStorage
+import eu.delving.basex.client._
+import xml.Node
+import akka.util.Duration
+import java.util.concurrent.TimeUnit
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -299,9 +301,9 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val records = DataSet.getRecords(dataSet)
+    val records = MetadataCache.get(dataSet.orgId, dataSet.spec, Constants.ITEM_TYPE_MDR).iterate()
 
-    if (records.count() > 0) {
+    if (records.hasNext) {
       writeEntry("source.xml", zipOut) {
         out =>
           val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
@@ -314,8 +316,9 @@ object SipCreatorEndPoint extends ApplicationController {
           write(builder.toString(), pw, out)
 
           var count = 0
-          for (record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
-            pw.println("""<input id="%s">""".format(record.localRecordKey))
+          for (record <- records) {
+            val localId = record.itemId.split("_")(2)
+            pw.println("<input id=\"%s\">".format(localId))
             pw.print(record.getRawXmlString)
             pw.println("</input>")
 
@@ -362,32 +365,11 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
-    var uploadedRecords = 0
-
-    val records = DataSet.getRecords(dataSet)
-
-    val parser = new SimpleDataSetParser(source, dataSet)
-
-    var continue = true
-    while (continue) {
-      val maybeNext = parser.nextRecord
-      if (maybeNext != None) {
-        uploadedRecords += 1
-        val record = maybeNext.get
-
-        val toInsert = record.copy(modified = new Date(), deleted = false)
-        records.findOne(MongoDBObject("localRecordKey" -> toInsert.localRecordKey)) match {
-          case Some(existing) =>
-            records.update(MongoDBObject("_id" -> existing._id), records._grater.asDBObject(existing.copy(rawMetadata = (existing.rawMetadata ++ toInsert.rawMetadata))))
-          case None =>
-            records.insert(toInsert)
-        }
-      } else {
-        continue = false
-      }
+    val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
+      BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
     }
-
-    uploadedRecords
+    val parser = new SimpleDataSetParser(source, dataSet)
+    BaseXStorage.store(collection, parser, parser.namespaces)
   }
 
 }
@@ -396,19 +378,20 @@ class ReceiveSource extends Actor {
   
   protected def receive = {
     case SourceStream(dataSet, theme, is) =>
+      val now = System.currentTimeMillis()
       receiveSource(dataSet, theme, is) match {
         case Left(t) =>
           DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
           Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
           ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case _ =>
-        // all is good
-          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s".format(dataSet.spec, dataSet.orgId))
+        case Right(inserted) =>
+          val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
       }
     case _ => // nothing
   }
   
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, String] = {
+  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Int] = {
 
     var uploadedRecords = 0
 
@@ -418,7 +401,7 @@ class ReceiveSource extends Actor {
       case t: Throwable => return Left(t)
     }
 
-    val recordCount: Int = DataSet.getRecordCount(dataSet)
+    val recordCount: Long = DataSet.getRecordCount(dataSet)
 
     // TODO review the semantics behind total_records, deleted records etc.
     val details = dataSet.details.copy(
@@ -429,7 +412,7 @@ class ReceiveSource extends Actor {
 
     val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
     DataSet.save(updatedDataSet)
-    Right("Goodbye and thanks for all the fish")
+    Right(uploadedRecords)
   }
 
 

@@ -3,7 +3,7 @@ package actors
 import akka.actor._
 import models._
 import play.api.Logger
-import core.processing.DataSetProcessor
+import core.processing.DataSetCollectionProcessor
 
 /**
  *
@@ -18,7 +18,7 @@ class Processor extends Actor {
       val dataSet = DataSet.findCollectionForIndexing()
       if (dataSet != None) {
         try {
-          DataSetProcessor.process(dataSet.get)
+          DataSetCollectionProcessor.process(dataSet.get)
         } catch {
           case t => {
             t.printStackTrace()

@@ -50,6 +50,7 @@ abstract class MetadataAccessors extends Universal {
 
   // ~~~ well-known, always provided, meta-data fields
   def getRecordType: String = assign(RECORD_TYPE)
+  def getRecordSchema: String = assign(SCHEMA)
   def getTitle : String = assign(TITLE)
   def getDescription: String = assign(DESCRIPTION)
   def getOwner: String = assign(OWNER)

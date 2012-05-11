@@ -24,7 +24,7 @@ import models.{Visibility, Universal, DataSetState}
 
 case class ShortDataSet(id: Option[ObjectId] = None,
                         spec: String = "",
-                        total_records: Int = 0,
+                        total_records: Long = 0,
                         state: DataSetState = DataSetState.INCOMPLETE,
                         errorMessage: Option[String],
                         facts: Map[String, String] = Map.empty[String, String],

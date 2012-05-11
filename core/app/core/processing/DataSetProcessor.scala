@@ -10,10 +10,10 @@ import core.Constants._
 import com.mongodb.casbah.Imports._
 import scala.io.Source
 import eu.delving.groovy.XmlSerializer
-import models.{DataSet, MetadataRecord, RecordDefinition, DataSetState, Visibility}
 import play.api.{Play, Logger}
 import org.joda.time.{DateTimeZone, DateTime}
 import core.SystemField
+import models._
 import org.joda.time.format.DateTimeFormat
 
 /**
@@ -25,7 +25,7 @@ import org.joda.time.format.DateTimeFormat
 
 object DataSetProcessor {
 
-  type MultiMap = Map[String, List[Any]]
+  type MultiMap = Map[String, List[String]]
 
   val log = Logger("CultureHub")
 
@@ -88,23 +88,26 @@ object DataSetProcessor {
     checkOutputFormats("Indexing", indexingFormat)
 
     // loop over records
-    val recordsCollection = DataSet.getRecords(dataSet)
-    val recordCount = recordsCollection.count(MongoDBObject())
-    val records = recordsCollection.find(MongoDBObject())
+    val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
+    val recordCount = cache.count()
+    val records = cache.iterate()
 
     var indexedRecords: Int = 0
 
     try {
-      for (record <- records) {
+      for (item <- records.zipWithIndex) {
+        val record = item._1
+        val index = item._2
+
         if (DataSet.getState(orgId, spec) == DataSetState.PROCESSING) {
 
           // update state
-          if (records.numSeen % 100 == 0) {
-            DataSet.updateIndexingCount(dataSet, records.numSeen)
+          if (index % 100 == 0) {
+            DataSet.updateIndexingCount(dataSet, index)
           }
 
-          if (records.numSeen % 2000 == 0) {
-            log.info("%s: processed %s of %s records, for formats '%s'".format(spec, records.numSeen, recordCount, formatsString))
+          if (index % 2000 == 0) {
+            log.info("%s: processed %s of %s records, for formats '%s'".format(spec, index, recordCount, formatsString))
           }
 
           val mappingResults: Map[String, MappingResult] = (for(format <- processingFormats; if(format.hasMapping && format.recordIsValid(record))) yield {
@@ -115,17 +118,25 @@ object DataSetProcessor {
             crosswalkResults ++ Seq(format.prefix -> mainMappingResult)
           }).flatten.toMap
 
-            // cache mapping results
-            for(r <- mappingResults) {
-              DataSet.cacheMappedRecord(dataSet, record, r._1, MappingService.nodeTreeToXmlString(r._2.root()))
+            // handle systemFields
+            val systemFields = if(renderingFormat.isDefined && mappingResults.contains(renderingFormat.get.prefix)) {
+              val systemFields = getSystemFields(mappingResults(renderingFormat.get.prefix))
+              val enriched = enrichSystemFields(systemFields, record.itemId, renderingFormat.get.prefix)
+              Some(enriched)
+            } else {
+              None
             }
 
-            // handle systemFields
-            if(renderingFormat.isDefined && mappingResults.contains(renderingFormat.get.prefix)) {
-              val systemFields = getSystemFields(mappingResults(renderingFormat.get.prefix))
-              val enrichedSystemFields = enrichSystemFields(systemFields, record.hubId, renderingFormat.get.prefix)
-              recordsCollection.update(MongoDBObject("_id" -> record._id), $set("systemFields" -> (enrichedSystemFields).asDBObject))
+            // cache mapping results
+            for(r <- mappingResults) {
+              val updatedRecord = if(systemFields.isDefined) {
+                record.copy(xml = record.xml + (r._1 -> MappingService.nodeTreeToXmlString(r._2.root())), systemFields = systemFields.get)
+              } else {
+                record.copy(xml = record.xml + (r._1 -> MappingService.nodeTreeToXmlString(r._2.root())))
+              }
+              cache.saveOrUpdate(updatedRecord)
             }
+
 
             // if the current format is the to be indexed one, send the record out for indexing
             if (indexingFormat.isDefined && mappingResults.contains(indexingFormat.get.prefix)) {
@@ -171,9 +182,9 @@ object DataSetProcessor {
     log.info("Processing of DataSet %s finished, took %s ms".format(spec, (System.currentTimeMillis() - now)))
   }
 
-  private def getSystemFields(mappingResult: MappingResult) = {
-    val systemFields: Map[String, List[Any]] = mappingResult.systemFields()
-    val renamedSystemFields: Map[String, List[Any]] = systemFields.flatMap(sf => {
+  private def getSystemFields(mappingResult: MappingResult): MultiMap = {
+    val systemFields: Map[String, List[String]] = mappingResult.systemFields()
+    val renamedSystemFields: Map[String, List[String]] = systemFields.flatMap(sf => {
       try {
         Some(SystemField.valueOf(sf._1).tag -> sf._2)
       } catch {
@@ -192,7 +203,7 @@ object DataSetProcessor {
       RECORD_TYPE -> MDR,
       VISIBILITY -> Visibility.PUBLIC.value.toString,
       MIMETYPE -> "image/jpeg", // assume we have images, for the moment, since this is what most flat formats are anyway
-      HAS_DIGITAL_OBJECT -> (systemFields.contains(THUMBNAIL) && systemFields.get(THUMBNAIL).size > 0),
+      HAS_DIGITAL_OBJECT -> (systemFields.contains(THUMBNAIL) && systemFields.get(THUMBNAIL).size > 0).toString,
       HUB_URI -> (if(currentFormatPrefix == AFF) "/%s/object/%s/%s".format(orgId, spec, localRecordKey) else "")
     ).map(v => (v._1, List(v._2))).toMap
   }
@@ -215,6 +226,6 @@ case class ProcessingFormat(format: RecordDefinition, dataSet: DataSet) {
       (targetPrefix -> engine)
     }).toMap
 
-  def recordIsValid(record: MetadataRecord) = record.validOutputFormats.contains(format.prefix)
+  def recordIsValid(record: MetadataItem) = !record.invalidTargetSchemas.contains(format.prefix)
 
 }
