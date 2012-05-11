@@ -34,6 +34,7 @@ import play.api.Play.current
 import java.net.URL
 import core.Constants._
 import scala.Predef._
+import core.storage.BaseXStorage
 
 /**
  * DataSet model
@@ -104,7 +105,9 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
-  def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
+  def hasRecords: Boolean = {
+    BaseXStorage.openCollection(this.orgId, this.spec).isDefined && DataSet.getRecordCount(this) != 0
+  }
 
 }
 
@@ -247,9 +250,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.save(updatedDataSet)
 
     if(dataSet.hasRecords) {
-      val collection = getRecordsCollection(dataSet)
-      collection.update(MongoDBObject(), $addToSet ("validOutputFormats" -> prefix), false, true)
-      collection.update("transferIdx" $in (invalidIndexes), $pull("validOutputFormats" -> prefix), false, true)
+      // TODO do this via the XQuery update facility
+      // TODO FIXME
     }
   }
 
@@ -311,7 +313,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
 
-  def getRecordCount(dataSet: DataSet): Long = MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).count()
+  def getRecordCount(dataSet: DataSet): Long = BaseXStorage.count(core.storage.Collection(dataSet.orgId, dataSet.spec))
 
   // ~~~ indexing control
 

@@ -4,8 +4,8 @@ import eu.delving.basex.client._
 import eu.delving.basex.client.BaseX
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
-import scala.xml.Node
 import scala._
+import xml.{XML, Node}
 
 /**
  * BaseX-based Storage engine.
@@ -72,6 +72,15 @@ object BaseXStorage {
         session.createAttributeIndex()
       }
     inserted
+  }
+
+  def count(collection: Collection) = {
+    withSession(collection) {
+      session =>
+        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/system/version)}</currentVersion>").get.text.toInt
+        session.findOne("let $r := /record where $r/system/version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
+    }
+
   }
 
   def buildRecord(record: Record, version: Int, namespaces: Map[String, String], index: Int) = {
