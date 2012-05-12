@@ -132,9 +132,9 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
     BaseXStorage.withSession(collection) {
       session => {
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/system/version)}</currentVersion>").get.text.toInt
-        val recordCount = session.findOne("let $r := /record where $r/system/version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
-        val records = session.find("for $i in /record where $i/system/version = %s order by $i/system/index return $i".format(currentVersion))
+        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/@version)}</currentVersion>").get.text.toInt
+        val recordCount = session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
+        val records = session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentVersion))
 
         val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
 

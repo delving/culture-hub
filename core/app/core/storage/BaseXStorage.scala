@@ -77,8 +77,8 @@ object BaseXStorage {
   def count(collection: Collection) = {
     withSession(collection) {
       session =>
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/system/version)}</currentVersion>").get.text.toInt
-        session.findOne("let $r := /record where $r/system/version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
+        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/@version)}</currentVersion>").get.text.toInt
+        session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
     }
 
   }
@@ -87,16 +87,15 @@ object BaseXStorage {
 
     val ns = namespaces.map(ns => """xmlns:%s="%s"""".format(ns._1, ns._2)).mkString(" ")
 
-    new ByteArrayInputStream("""<record id="%s" %s>
+    new ByteArrayInputStream("""<record id="%s" version="%s" %s>
       <system>
-        <version>%s</version>
         <schemaPrefix>%s</schemaPrefix>
         <index>%s</index>
         <invalidTargetSchemas>%s</invalidTargetSchemas>
       </system>
       <document>%s</document>
       <links/>
-    </record>""".format(record.id, ns, version, record.schemaPrefix, index, record.invalidTargetSchemas.mkString(",").mkString, record.document).getBytes("utf-8"))
+    </record>""".format(record.id, version, ns, record.schemaPrefix, index, record.invalidTargetSchemas.mkString(",").mkString, record.document).getBytes("utf-8"))
 
   }
 
