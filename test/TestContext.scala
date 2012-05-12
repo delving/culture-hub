@@ -34,7 +34,10 @@ trait TestContext {
     connection.dropDatabase()
     try {
       BaseXStorage.withSession(core.storage.Collection("delving", "PrincessehofSample")) {
-        session => session.execute("drop database delving____PrincessehofSample")
+        session => {
+          val r = session.execute("drop database delving____PrincessehofSample")
+          println(r)
+        }
       }
     } catch {
       case _ => //ignore if not found

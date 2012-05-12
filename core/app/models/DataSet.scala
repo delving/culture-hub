@@ -32,8 +32,6 @@ import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
-import core.Constants._
-import scala.Predef._
 import core.storage.BaseXStorage
 
 /**
@@ -248,11 +246,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedDetails = dataSet.details.copy(invalid_records = Some(invalidIndexes.size))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
-
-    if(dataSet.hasRecords) {
-      // TODO do this via the XQuery update facility
-      // TODO FIXME
-    }
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {
