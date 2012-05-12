@@ -32,6 +32,8 @@ object DataSetCollectionProcessor {
 
   def process(dataSet: DataSet) {
 
+    val invalidRecords = DataSet.getInvalidRecords(dataSet)
+
     val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
@@ -40,6 +42,8 @@ object DataSetCollectionProcessor {
         val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.namespaces
         val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
         val sourceSchema: String = RAW_PREFIX
+
+        def isValidRecord(index: Int): Boolean = !invalidRecords(t.prefix).contains(index)
       }
     }
 
@@ -55,6 +59,8 @@ object DataSetCollectionProcessor {
             val namespaces: Map[String, String] = c._1.getNamespaces ++ dataSet.namespaces
             val mapping: Option[String] = Some(Source.fromURL(c._2).getLines().mkString("\n"))
             val sourceSchema: String = c._1.prefix
+
+            def isValidRecord(index: Int): Boolean = true // TODO later we need to figure out a way to handle validation for crosswalks
           }
           Some(schema)
         } else {
@@ -107,13 +113,12 @@ abstract class ProcessingSchema {
   val mapping: Option[String]
   val sourceSchema: String
 
+  def isValidRecord(index: Int): Boolean
+
   lazy val prefix = definition.prefix
   lazy val hasMapping = mapping.isDefined
   lazy val javaNamespaces = namespaces.asJava
   lazy val engine: Option[MappingEngine] = mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
-
-  def isValidRecord(record: Node) = !(record \\ "invalidTargetSchemas").text.split(",").contains(prefix)
-
 }
 
 class CollectionProcessor(collection: Collection, targetSchemas: List[ProcessingSchema], indexingSchema: Option[ProcessingSchema], renderingSchema: Option[ProcessingSchema]) {
@@ -132,9 +137,9 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
     BaseXStorage.withSession(collection) {
       session => {
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/system/version)}</currentVersion>").get.text.toInt
-        val recordCount = session.findOne("let $r := /record where $r/system/version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
-        val records = session.find("for $i in /record where $i/system/version = %s order by $i/system/index return $i".format(currentVersion))
+        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/@version)}</currentVersion>").get.text.toInt
+        val recordCount = session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
+        val records = session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentVersion))
 
         val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
 
@@ -150,18 +155,19 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
                 val localId = (record \ "@id").text
                 val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
+                val recordIndex = (record \ "system" \ "index").text.toInt
 
                 if (index % 100 == 0) updateCount(index)
                 if (index % 2000 == 0) {
                   log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
                 }
 
-                val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(record) && targetSchema.sourceSchema == "raw")) yield {
+                val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
                   val sourceRecord = (record \ "document" \ "input").toString()
                   (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                 }).toMap
 
-                val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(record) && targetSchema.sourceSchema != "raw")) yield {
+                val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
                   val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root())
                   (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                 }).toMap

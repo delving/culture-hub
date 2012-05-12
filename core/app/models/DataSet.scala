@@ -32,8 +32,6 @@ import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
-import core.Constants._
-import scala.Predef._
 import core.storage.BaseXStorage
 
 /**
@@ -48,7 +46,7 @@ import core.storage.BaseXStorage
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    userName: String,
-                   orgId: Predef.String,
+                   orgId: String,
                    lockedBy: Option[String] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
@@ -233,6 +231,26 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     ) > 0
   }
 
+  // workaround for salat not working as it should
+  def getInvalidRecords(dataSet: DataSet): Map[String, Set[Int]] = {
+    import scala.collection.JavaConverters._
+    dataSetsCollection.findOne(MongoDBObject("_id" -> dataSet._id), MongoDBObject("invalidRecords" -> 1)).map {
+      ds => {
+        val map = ds.getAs[DBObject]("invalidRecords").get
+        map.map(valid => {
+            val key = valid._1.toString
+            val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+              case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+              case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+            }).toSet
+            (key, value)
+          }).toMap[String, Set[Int]]
+      }
+    }.getOrElse {
+      Map.empty
+    }
+  }
+
 
   // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
@@ -248,11 +266,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedDetails = dataSet.details.copy(invalid_records = Some(invalidIndexes.size))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
-
-    if(dataSet.hasRecords) {
-      // TODO do this via the XQuery update facility
-      // TODO FIXME
-    }
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {

@@ -1,23 +1,24 @@
+import collection.mutable.ListBuffer
 import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecMapping
 import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
-import java.util.zip.{GZIPInputStream}
+import java.util.zip.GZIPInputStream
 import org.specs2.mutable._
 import collection.JavaConverters._
-import scala.xml.Utility.trim
 import play.api.test._
 import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
-import xml.XML
 
 class SipCreatorEndPointSpec extends Specification with TestContext {
 
-  step(cleanup)
-  step(loadStandalone)
+  step {
+    cleanup
+    loadStandalone
+  }
 
 
   "SipCreatorEndPoint" should {
@@ -128,28 +129,12 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         ))
         status(result) must equalTo(OK)
 
-        val originalStream = new DataInputStream(new FileInputStream(new File(intSource)))
-        val length = originalStream.readInt()
-        var counter = 0
-        val original = if (length == 0) {
-          List()
-        } else {
-          Stream.continually({
-            counter += 1;
-            originalStream.readInt()
-          }).takeWhile(i => counter < length).toList
+        val original = readIntFile(intTarget)
 
-        }
         val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
 
-        val invalidRecords = uploaded.map(valid => {
-          val key = valid._1.toString
-          val value: List[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
-            case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
-            case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
-          }).toList
-          (key, value)
-        }).toMap[String, List[Int]]
+        val invalidRecords = readInvalidIndexes(uploaded)
+
 
         original must equalTo(invalidRecords("icn"))
       }
@@ -198,6 +183,31 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
       }
     }
 
+    "update an int file" in {
+       running(FakeApplication()) {
+         val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+         val intTarget = "target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+         Files.copyFile(new File(intSource), new File(intTarget))
+
+         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21EC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
+           method = "POST",
+           uri = "",
+           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
+           body = TemporaryFile(new File(intTarget))
+         ))
+         status(result) must equalTo(OK)
+
+         val original = readIntFile(intTarget)
+
+         val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+
+         val invalidRecords = readInvalidIndexes(uploaded)
+
+         original must equalTo(invalidRecords("icn"))
+       }
+     }
+
+
     "download a source file" in {
 
       case class ZipEntry(name: String)
@@ -230,6 +240,34 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
   running(FakeApplication()) {
     step(cleanup)
+  }
+
+
+  def readIntFile(file: String) = {
+    val originalStream = new DataInputStream(new FileInputStream(new File(file)))
+    val length = originalStream.readInt()
+    val b = new ListBuffer[Int]()
+    var counter = 0
+    if (length == 0) {
+      List()
+    } else {
+      while(counter < length) {
+        counter += 1
+        b += originalStream.readInt()
+      }
+      b.toList
+    }
+  }
+
+  def readInvalidIndexes(uploaded: Map[String, List[Int]]) = {
+    uploaded.map(valid => {
+      val key = valid._1.toString
+      val value: List[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+        case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+        case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+      }).toList
+      (key, value)
+    }).toMap[String, List[Int]]
   }
 
 

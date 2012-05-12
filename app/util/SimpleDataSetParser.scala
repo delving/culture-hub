@@ -19,7 +19,6 @@ package util
 import io.Source
 import java.io.InputStream
 import xml.pull._
-import scala.collection.JavaConverters._
 import models.DataSet
 import xml.{TopScope, NamespaceBinding}
 import core.storage.Record
@@ -37,17 +36,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   private var recordCounter: Int = 0
   private var isDone = false
   private var lookAhead: Record = null
-
-  // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
-  val invalidRecords = dataSet.invalidRecords.map(valid => {
-    val key = valid._1.toString
-    val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
-      case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
-      case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
-    }).toSet
-    (key, value)
-  }).toMap[String, Set[Int]]
-
 
   {
     parser.next() match {
@@ -71,7 +59,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     if(isDone) throw new java.util.NoSuchElementException("next on empty iterator")
     val l = lookAhead
     parseNext() match {
-      case Some(l) => lookAhead = l
+      case Some(ahead) => lookAhead = ahead
       case None => isDone = true
     }
     l
@@ -105,8 +93,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           record = Record(
             id = recordId,
             document = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
-            schemaPrefix = "raw",
-            invalidTargetSchemas = getInvalidMappings(dataSet, recordCounter)
+            schemaPrefix = "raw"
           )
           recordXml.clear()
           recordId = null
@@ -137,9 +124,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     }
     Some(record)
   }
-
-  private def getInvalidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(invalid => if (invalid._2.contains(index)) Some(invalid._1) else None).toList
-
 
   private def elemStartToString(start: EvElemStart): String = {
     val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
