@@ -46,7 +46,7 @@ import core.storage.BaseXStorage
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    userName: String,
-                   orgId: Predef.String,
+                   orgId: String,
                    lockedBy: Option[String] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
@@ -229,6 +229,26 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       "users" -> userName,
       "grantType" -> GrantType.MODIFY.key)
     ) > 0
+  }
+
+  // workaround for salat not working as it should
+  def getInvalidRecords(dataSet: DataSet): Map[String, Set[Int]] = {
+    import scala.collection.JavaConverters._
+    dataSetsCollection.findOne(MongoDBObject("_id" -> dataSet._id), MongoDBObject("invalidRecords" -> 1)).map {
+      ds => {
+        val map = ds.getAs[DBObject]("invalidRecords").get
+        map.map(valid => {
+            val key = valid._1.toString
+            val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+              case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+              case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+            }).toSet
+            (key, value)
+          }).toMap[String, Set[Int]]
+      }
+    }.getOrElse {
+      Map.empty
+    }
   }
 
 
