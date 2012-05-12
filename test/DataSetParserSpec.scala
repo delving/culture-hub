@@ -31,7 +31,8 @@ class DataSetParserSpec extends Specification with TestContext {
 
       withTestContext {
         val buffer = parseStream
-        buffer(1).invalidTargetSchemas.contains("icn") must equalTo(true)
+        val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        DataSet.getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
 
     }

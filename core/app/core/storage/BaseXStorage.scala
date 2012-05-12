@@ -91,17 +91,16 @@ object BaseXStorage {
       <system>
         <schemaPrefix>%s</schemaPrefix>
         <index>%s</index>
-        <invalidTargetSchemas>%s</invalidTargetSchemas>
       </system>
       <document>%s</document>
       <links/>
-    </record>""".format(record.id, version, ns, record.schemaPrefix, index, record.invalidTargetSchemas.mkString(",").mkString, record.document).getBytes("utf-8"))
+    </record>""".format(record.id, version, ns, record.schemaPrefix, index, record.document).getBytes("utf-8"))
 
   }
 
 }
 
-case class Record(id: String, schemaPrefix: String, document: String, invalidTargetSchemas: List[String] = List.empty)
+case class Record(id: String, schemaPrefix: String, document: String)
 
 case class Collection(orgId: String, name: String) {
   val databaseName = orgId + "____" + name
