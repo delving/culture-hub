@@ -31,8 +31,12 @@ object IndexingService extends SolrServer {
     }
 
     // standard facets
-    doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
-    doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+    if(!doc.containsKey(RECORD_TYPE + "_facet")) {
+      doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
+    }
+    if(!doc.containsKey(HAS_DIGITAL_OBJECT + "_facet")) {
+      doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+    }
 
     getStreamingUpdateServer.add(doc)
   }
