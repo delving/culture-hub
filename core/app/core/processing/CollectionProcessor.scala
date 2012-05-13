@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit
 import eu.delving.MappingResult
 import core.SystemField
 import core.Constants._
-import scala.xml.Node
 import core.indexing.IndexingService
 import models._
 import org.joda.time.{DateTimeZone, DateTime}
+import xml.{Elem, NodeSeq, Node}
 
 class CollectionProcessor(collection: Collection, targetSchemas: List[ProcessingSchema], indexingSchema: Option[ProcessingSchema], renderingSchema: Option[ProcessingSchema]) {
 
@@ -21,6 +21,15 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
   type MultiMap = Map[String, List[String]]
 
   private implicit def listMapToScala(map: java.util.Map[String, java.util.List[String]]) = map.asScala.map(v => (v._1, v._2.asScala.toList)).toMap
+
+  class ChildSelectable(ns: NodeSeq) {
+    def \* = ns flatMap { _ match {
+      case e:Elem => e.child
+      case _ => NodeSeq.Empty
+    } }
+  }
+
+  implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
   def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String]) {
     val now = System.currentTimeMillis()
@@ -55,7 +64,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                 }
 
                 val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
-                  val sourceRecord = (record \ "document" \ "input").toString()
+                  val sourceRecord = (record \ "document" \ "input" \*).mkString("\n")
                   (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                 }).toMap
 
