@@ -183,7 +183,7 @@ May not be a problem but we need to check if there are any items live.
         "itemType": r.itemType,
         "itemId": r.itemId,
         "collection": "indexApiItems",
-//        "modified":
+        "modified": new Date(),
         "xml": {"raw": r.rawXml},
         "systemFields": {},
         "invalidTargetSchemas": [],
