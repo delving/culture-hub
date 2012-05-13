@@ -16,12 +16,11 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import models._
 import core.storage.BaseXStorage
-import eu.delving.basex.client._
-import xml.Node
+import core.storage.Collection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
+import models._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -301,9 +300,11 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val records = MetadataCache.get(dataSet.orgId, dataSet.spec, Constants.ITEM_TYPE_MDR).iterate()
+    val collection = Collection(dataSet.orgId, dataSet.spec)
 
-    if (records.hasNext) {
+    val recordCount = BaseXStorage.count(collection)
+
+    if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
         out =>
           val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
@@ -315,20 +316,20 @@ object SipCreatorEndPoint extends ApplicationController {
           builder.append("%s>".format(attrBuilder.toString().trim()))
           write(builder.toString(), pw, out)
 
-          var count = 0
-          for (record <- records) {
-            val localId = record.itemId.split("_")(2)
-            pw.println("<input id=\"%s\">".format(localId))
-            pw.print(record.getRawXmlString)
-            pw.println("</input>")
+          BaseXStorage.withSession(collection) {
+            implicit session => BaseXStorage.findAllCurrent foreach {
+              record =>
+                var count = 0
+                pw.print((record \ "document" \ "input").toString())
 
-            if (count % 100 == 0) {
-              pw.flush()
-              out.flush()
+                if (count % 2000 == 0) {
+                  pw.flush()
+                  out.flush()
+                }
+                count += 1
             }
-            count += 1
+            write("</delving-sip-source>", pw, out)
           }
-          write("</delving-sip-source>", pw, out)
       }
     }
 
@@ -375,7 +376,7 @@ object SipCreatorEndPoint extends ApplicationController {
 }
 
 class ReceiveSource extends Actor {
-  
+
   protected def receive = {
     case SourceStream(dataSet, theme, is) =>
       val now = System.currentTimeMillis()
@@ -390,7 +391,7 @@ class ReceiveSource extends Actor {
       }
     case _ => // nothing
   }
-  
+
   private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Int] = {
 
     var uploadedRecords = 0
