@@ -74,13 +74,10 @@ object BaseXStorage {
     inserted
   }
 
-  def count(collection: Collection) = {
+  def count(collection: Collection): Int = {
     withSession(collection) {
-      session =>
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/@version)}</currentVersion>").get.text.toInt
-        session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
+      implicit session => count
     }
-
   }
 
   def buildRecord(record: Record, version: Int, namespaces: Map[String, String], index: Int) = {
@@ -95,7 +92,21 @@ object BaseXStorage {
       <document>%s</document>
       <links/>
     </record>""".format(record.id, version, ns, record.schemaPrefix, index, record.document).getBytes("utf-8"))
+  }
 
+
+  // ~~~ Collection queries
+
+  def currentCollectionVersion(implicit session: ClientSession): Int = {
+    session.findOne("let $r := /record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text.toInt
+  }
+
+  def count(implicit session: ClientSession): Int = {
+    session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
+  }
+
+  def findAllCurrent(implicit session: ClientSession) = {
+    session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentCollectionVersion))
   }
 
 }

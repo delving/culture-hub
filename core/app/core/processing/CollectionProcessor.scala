@@ -1,125 +1,18 @@
 package core.processing
 
-import eu.delving.basex.client._
 import core.storage.{BaseXStorage, Collection}
 import scala.collection.JavaConverters._
-import play.api.{Play, Logger}
+import play.api.Logger
 import core.mapping.MappingService
-import java.net.URL
-import scala.io.Source
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
-import eu.delving.{MappingResult, MappingEngine}
+import eu.delving.MappingResult
 import core.SystemField
 import core.Constants._
 import scala.xml.Node
-import core.indexing.{Indexing, IndexingService}
-import play.api.Play.current
+import core.indexing.IndexingService
 import models._
 import org.joda.time.{DateTimeZone, DateTime}
-
-/**
- *
- * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
- */
-
-object DataSetCollectionProcessor {
-
-  val log = Logger("CultureHub")
-
-  val RAW_PREFIX = "raw"
-  val AFF_PREFIX = "aff"
-
-  def process(dataSet: DataSet) {
-
-    val invalidRecords = DataSet.getInvalidRecords(dataSet)
-
-    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
-
-    val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
-      t => new ProcessingSchema {
-        val definition: RecordDefinition = t
-        val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.namespaces
-        val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
-        val sourceSchema: String = RAW_PREFIX
-
-        def isValidRecord(index: Int): Boolean = !invalidRecords(t.prefix).contains(index)
-      }
-    }
-
-    val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
-    val crosswalkSchemas: Seq[ProcessingSchema] = crosswalks flatMap {
-      c =>
-        val prefix = c._2.getPath.substring(c._2.getPath.indexOf(c._1.prefix + "-")).split("-")(0)
-        val recordDefinition = RecordDefinition.getRecordDefinition(prefix)
-
-        if (recordDefinition.isDefined) {
-          val schema = new ProcessingSchema {
-            val definition = recordDefinition.get
-            val namespaces: Map[String, String] = c._1.getNamespaces ++ dataSet.namespaces
-            val mapping: Option[String] = Some(Source.fromURL(c._2).getLines().mkString("\n"))
-            val sourceSchema: String = c._1.prefix
-
-            def isValidRecord(index: Int): Boolean = true // TODO later we need to figure out a way to handle validation for crosswalks
-          }
-          Some(schema)
-        } else {
-          log.warn("Could not find RecordDefinition for schema '%s', which is the target of crosswalk '%s' - skipping it.".format(prefix, c._2))
-          None
-        }
-    }
-
-    val targetSchemas: List[ProcessingSchema] = selectedProcessingSchemas.toList ++ crosswalkSchemas.toList
-
-    val actionableTargetSchemas = targetSchemas.partition(_.hasMapping)._1
-    val incompleteTargetSchemas = targetSchemas.partition(_.hasMapping)._2
-
-    if (!incompleteTargetSchemas.isEmpty) {
-      log.warn("Could not find mapping for the following schemas: %s. They will be ignored in the mapping process.".format(incompleteTargetSchemas.mkString(", ")))
-    }
-
-    val indexingSchema: Option[ProcessingSchema] = dataSet.idxMappings.headOption.flatMap(i => actionableTargetSchemas.find(_.prefix == i))
-
-    val renderingSchema: Option[ProcessingSchema] = if (actionableTargetSchemas.exists(_.prefix == AFF_PREFIX)) {
-      actionableTargetSchemas.find(_.prefix == AFF_PREFIX)
-    } else if (indexingSchema.isDefined) {
-      indexingSchema
-    } else {
-      actionableTargetSchemas.headOption
-    }
-
-    val collectionProcessor = new CollectionProcessor(Collection(dataSet.orgId, dataSet.spec), actionableTargetSchemas, indexingSchema, renderingSchema)
-    def interrupted = DataSet.getState(dataSet.orgId, dataSet.spec) != DataSetState.PROCESSING
-    def updateCount(count: Long) {
-      DataSet.updateIndexingCount(dataSet, count)
-    }
-    def onError(t: Throwable) {
-      DataSet.updateState(dataSet, DataSetState.ERROR, Some(t.getMessage))
-    }
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
-
-    DataSet.updateState(dataSet, DataSetState.PROCESSING)
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne)
-    DataSet.updateState(dataSet, DataSetState.ENABLED)
-  }
-
-
-}
-
-abstract class ProcessingSchema {
-
-  val definition: RecordDefinition
-  val namespaces: Map[String, String]
-  val mapping: Option[String]
-  val sourceSchema: String
-
-  def isValidRecord(index: Int): Boolean
-
-  lazy val prefix = definition.prefix
-  lazy val hasMapping = mapping.isDefined
-  lazy val javaNamespaces = namespaces.asJava
-  lazy val engine: Option[MappingEngine] = mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
-}
 
 class CollectionProcessor(collection: Collection, targetSchemas: List[ProcessingSchema], indexingSchema: Option[ProcessingSchema], renderingSchema: Option[ProcessingSchema]) {
 
@@ -136,10 +29,9 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.name, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
 
     BaseXStorage.withSession(collection) {
-      session => {
-        val currentVersion = session.findOne("let $r := /record return <currentVersion>{max($r/@version)}</currentVersion>").get.text.toInt
-        val recordCount = session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentVersion)).get.text.toInt
-        val records = session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentVersion))
+      implicit session => {
+        val recordCount = BaseXStorage.count
+        val records = BaseXStorage.findAllCurrent
 
         val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
 
@@ -174,7 +66,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
                 val mappingResults = directMappingResults ++ derivedMappingResults
 
-                val systemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
+                val allSystemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
                   val systemFields = getSystemFields(mappingResults(renderingSchema.get.prefix))
                   val enriched = enrichSystemFields(systemFields, hubId, renderingSchema.get.prefix)
                   Some(enriched)
@@ -187,7 +79,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                   itemType = ITEM_TYPE_MDR,
                   itemId = hubId,
                   xml = mappingResults.map(r => (r._1 -> MappingService.nodeTreeToXmlString(r._2.root()))),
-                  systemFields = systemFields.getOrElse(Map.empty),
+                  systemFields = allSystemFields.getOrElse(Map.empty),
                   index = index.toInt
                 )
                 cache.saveOrUpdate(cachedRecord)
@@ -202,7 +94,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
               }
             }
           }
-
+          log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
           if (!interrupted && indexingSchema.isDefined) {
             IndexingService.commit()
             IndexingService.deleteOrphansBySpec(collection.orgId, collection.name, startIndexing)
