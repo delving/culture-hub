@@ -110,11 +110,11 @@ object BaseXStorage {
   }
 
   def count(implicit session: ClientSession): Int = {
-    session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
+    session.findOne("let $r := /record[@version = %s] return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
   }
 
   def findAllCurrent(implicit session: ClientSession) = {
-    session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentCollectionVersion))
+    session.find("for $i in /record[@version = %s] order by $i/system/index return $i".format(currentCollectionVersion))
   }
 
 }
