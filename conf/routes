@@ -190,7 +190,7 @@ GET         /organizations/:orgId/api/index                                   co
 POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
 
 
-## Legacy routes support
+## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
