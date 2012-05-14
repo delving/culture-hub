@@ -189,7 +189,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     if(hubId.split("_").length < 3) return None
     val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
-    val rawRecord: Option[String] = cache.findOne(itemId).flatMap(_.xml.get(prefix))
+    val rawRecord: Option[String] = cache.findOne(hubId).flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       None
