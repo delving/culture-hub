@@ -54,8 +54,9 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
+        val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
-        MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(recordId) match {
+        MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
           case Some(mdr) =>
 
             if(mdr.xml.get("aff").isDefined) {

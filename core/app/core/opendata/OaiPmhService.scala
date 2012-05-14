@@ -287,7 +287,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val record: MetadataItem = {
       val cache = MetadataCache.get(orgId, set, ITEM_TYPE_MDR)
-      val mdRecord = cache.findOne(itemId)
+      val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -329,7 +329,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {XML.loadString(cachedString)}
+          {elem}
         </metadata>
       </record>
     } catch {
