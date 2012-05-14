@@ -39,9 +39,13 @@ object MetadataCache {
     object MongoMetadataCache extends SalatDAO[MetadataItem, ObjectId](mongoCollection) with core.MetadataCache {
 
       def saveOrUpdate(item: MetadataItem) {
-        val fields = $set("modified" -> new Date(), "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId, "index" -> item.index, "systemFields" -> item.systemFields)
         val mappings = item.xml.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
-        update(MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId), fields ++ $set ("xml" -> mappings), true)
+        update(
+          MongoDBObject(
+            "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
+            $set ("modified" -> new Date(), "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId, "index" -> item.index, "systemFields" -> item.systemFields, "xml" -> mappings),
+            true
+        )
       }
 
       def iterate(index: Int = 0, limit: Option[Int]): Iterator[MetadataItem] = {
