@@ -54,13 +54,12 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        val id = "%s_%s_%s".format(orgId, spec, recordId)
-        
-        MetadataRecord.getMDR(id) match {
+
+        MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(recordId) match {
           case Some(mdr) =>
 
-            if(mdr.getCachedTransformedRecord("aff").isDefined) {
-              val record = mdr.getCachedTransformedRecord("aff").get
+            if(mdr.xml.get("aff").isDefined) {
+              val record = mdr.xml.get("aff").get
               if(!affViewRenderer.isDefined) {
                 logError("Could not find AFF view definition")
                 InternalServerError
