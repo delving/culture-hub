@@ -224,7 +224,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    // FIXME these head calls blow up if there are no records
+
+    if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
+
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
