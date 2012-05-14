@@ -420,7 +420,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     
     def renderResumptionToken(recordList: List[MetadataItem], totalListSize: Long) = {
 
-      val nextLastIdx = recordList.last.idx
+      val nextLastIdx = recordList.last.index
 
       val originalListSize = if (getOriginalListSize == 0) totalListSize else getOriginalListSize
 
