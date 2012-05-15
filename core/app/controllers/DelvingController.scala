@@ -137,7 +137,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   def DOk(xml: NodeSeq, sequences: String*)(implicit request: RequestHeader): Result = {
     if(wantsJson) {
-      Ok(util.Json.toJson(xml, sequences)).as(JSON)
+      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
     } else {
       Ok(xml)
     }

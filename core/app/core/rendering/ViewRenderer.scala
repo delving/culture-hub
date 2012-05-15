@@ -203,7 +203,7 @@ class ViewRenderer(schema: String, viewName: String) {
                 shortcutResult = Some(new RenderedView {
                   def toXmlString: String = rawRecord
 
-                  def toJson: String = util.Json.toJson(toXml)
+                  def toJson: String = util.Json.toJson(toXml, true)
 
                   def toXml: NodeSeq = XML.loadString(rawRecord)
 
