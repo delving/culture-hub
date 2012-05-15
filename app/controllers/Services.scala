@@ -32,7 +32,13 @@ object Services extends DelvingController {
       Async {
         val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, accessKey)
         Promise.pure(oaiPmhService.parseRequest).map {
-          response => Ok(response).as(XML)
+          response =>
+
+            if(!request.path.contains("api")) {
+              warning("Using deprecated API call " + request.uri)
+            }
+
+            Ok(response).as(XML)
         }
       }
   }

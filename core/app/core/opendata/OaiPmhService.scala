@@ -224,7 +224,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    // FIXME these head calls blow up if there are no records
+
+    if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
+
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
@@ -287,7 +289,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val record: MetadataItem = {
       val cache = MetadataCache.get(orgId, set, ITEM_TYPE_MDR)
-      val mdRecord = cache.findOne(itemId)
+      val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -329,7 +331,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {XML.loadString(cachedString)}
+          {elem}
         </metadata>
       </record>
     } catch {

@@ -20,6 +20,11 @@ object Search extends DelvingController {
       implicit request =>
         Async {
           Promise.pure {
+
+            if(!request.path.contains("api")) {
+              warning("Using deprecated API call " + request.uri)
+            }
+
             val hiddenQueryFilters = ListBuffer[String]()
 
             if (!orgId.isEmpty)
