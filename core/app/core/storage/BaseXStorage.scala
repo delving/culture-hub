@@ -5,7 +5,7 @@ import eu.delving.basex.client.BaseX
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import scala._
-import xml.{XML, Node}
+import xml.Node
 
 /**
  * BaseX-based Storage engine.
@@ -25,6 +25,8 @@ object BaseXStorage {
     storage.createDatabase(c.databaseName)
     c
   }
+
+  def openCollection(c: Collection): Option[Collection] = openCollection(c.orgId, c.name)
 
   def openCollection(orgId: String, collectionName: String): Option[Collection] = {
     val c = Collection(orgId, collectionName)
@@ -75,8 +77,14 @@ object BaseXStorage {
   }
 
   def count(collection: Collection): Int = {
-    withSession(collection) {
-      implicit session => count
+    val c = openCollection(collection)
+    c.map {
+      col =>
+        withSession(col) {
+          implicit session => count
+        }
+    }.getOrElse {
+      0
     }
   }
 
@@ -102,11 +110,11 @@ object BaseXStorage {
   }
 
   def count(implicit session: ClientSession): Int = {
-    session.findOne("let $r := /record where $r/@version = %s return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
+    session.findOne("let $r := /record[@version = %s] return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
   }
 
   def findAllCurrent(implicit session: ClientSession) = {
-    session.find("for $i in /record where $i/@version = %s order by $i/system/index return $i".format(currentCollectionVersion))
+    session.find("for $i in /record[@version = %s] order by $i/system/index return $i".format(currentCollectionVersion))
   }
 
 }
