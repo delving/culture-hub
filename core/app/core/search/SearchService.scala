@@ -102,9 +102,8 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
-        case Some(rendered) => rendered.toJson
-        case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "json")
-        case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
+        case Right(rendered) => rendered.toJson
+        case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -121,9 +120,8 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
-          case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
-          case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "xml")
-          case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
+          case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
+          case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -139,44 +137,40 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String, schema: Option[String] = None): Option[RenderedView] = {
+  def getRenderedFullView(viewName: String, schema: Option[String] = None): Either[String, RenderedView] = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
     SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType) match {
       case Some((hubId, defaultSchema, publicSchemas)) =>
-        val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
-          Some(schema.get)
+        val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
+          schema.get
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
-          Logger("Search").info("Schema %s not available for hubId %s".format(schema.get, hubId))
-          None
+          val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
+          Logger("Search").info(m)
+          return Left(m)
         } else {
-          Some(defaultSchema)
+          defaultSchema
         }
 
-        if(maybePrefix.isEmpty) {
-          Logger("Search").info("Could not find prefix for rendering of full view of record %s".format(hubId))
-          None
+        if(idType == "indexItem") {
+          renderIndexItem(id)
         } else {
-          if(idType == "indexItem") {
-            renderIndexItem(id)
-          } else {
-            renderMetadataRecord(maybePrefix.get, URLDecoder.decode(hubId, "utf-8"), viewName)
-          }
+          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewName)
         }
       case None =>
-        None
+        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType))
     }
   }
 
-  private def renderIndexItem(id: String): Option[RenderedView] = {
+  private def renderIndexItem(id: String): Either[String, RenderedView] = {
     if(id.split("_").length < 3) {
-      None
+      Left("Invalid hubId")
     } else {
       val HubId(orgId, itemType, itemId) = id
       val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
-      val indexItem = cache.findOne(itemId).getOrElse(return None)
-      Some(new RenderedView {
+      val indexItem = cache.findOne(itemId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
+      Right(new RenderedView {
         def toXmlString: String = indexItem.getRawXmlString
         def toJson: String = "JSON rendering not supported"
         def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.getRawXmlString)
@@ -185,14 +179,14 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
-    if(hubId.split("_").length < 3) return None
+  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Either[String, RenderedView] = {
+    if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
     val rawRecord: Option[String] = cache.findOne(hubId).flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
-      None
+      Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
     } else {
 
       // handle legacy formats
@@ -205,23 +199,25 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
           val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
-            None
+            Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))
           } else {
             try {
               val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
               log.debug(cleanRawRecord)
-              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
+//              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
               // TODO see what to do with roles
-              Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(apiLanguage))
+              Right(rendered)
             } catch {
               case t =>
                 log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
-                None
+                Left("Error while rendering view '%s' for record with hubId '%s'".format(viewDefinitionFormatName, hubId))
             }
           }
         case None =>
-          log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
-          None
+          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(viewDefinitionFormatName, hubId, prefix)
+          log.error(m)
+          Left(m)
       }
     }
   }
@@ -339,10 +335,11 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
     // todo add years from query if they exist
     val response: Elem =
-      <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+      <results xmlns:delving="http://www.delving.eu/schemas/" xmlns:aff="http://schemas.delving.eu/aff/"
+               xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
-               xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
+               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
+               xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
                xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
           <terms>{searchTerms}</terms>

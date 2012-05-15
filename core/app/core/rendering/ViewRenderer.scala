@@ -83,6 +83,7 @@ class ViewRenderer(schema: String, viewName: String) {
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
     val result = RenderNode("root", None, true)
+    var shortcutResult: Option[RenderedView] = None
     val treeStack = Stack(result)
     val root = viewDefinition
     walk(root, record)
@@ -197,6 +198,17 @@ class ViewRenderer(schema: String, viewName: String) {
               case "attrs" => // this is handled by elem below
 
 
+              case "verbatim" =>
+                // shortcut everything. pull out XML directly, and use lift-json to turn it into JSON. not fit for HTML
+                shortcutResult = Some(new RenderedView {
+                  def toXmlString: String = rawRecord
+
+                  def toJson: String = util.Json.toJson(toXml, true)
+
+                  def toXml: NodeSeq = XML.loadString(rawRecord)
+
+                  def toViewTree: RenderNode = null
+                })
 
 
               // ~~~ legacy support
@@ -361,7 +373,11 @@ class ViewRenderer(schema: String, viewName: String) {
       roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
     }
 
-    NodeRenderedView(viewName, prefix, result.content.head)
+    if(shortcutResult.isDefined) {
+      shortcutResult.get
+    } else {
+      NodeRenderedView(viewName, prefix, result.content.head)
+    }
 
   }
 
@@ -506,41 +522,7 @@ case object RenderNode {
   }
 
   def toJson(n: RenderNode): String = {
-
-    import extensions.JJson._
-    
-    val jsonTree = visitJson(n, HashMap.empty)
-    
-    generate(jsonTree)
-  }
-
-  def visitJson(n: RenderNode, json: HashMap[String, AnyRef]): HashMap[String, AnyRef] = {
-    
-    if(n.nodeType == "root") {
-      for(c <- n.content) {
-        visitJson(c, json)
-      }
-    } else {
-      if(n.isArray) {
-        val children = n.content.map {
-          child => visitJson(child, HashMap.empty)
-        }
-        json.put(n.nodeType, children.toList)
-      } else if(n.isFlatArray) {
-        json.put(n.nodeType, n.content.map(_.nodeType).toList)
-      } else if(!n.isLeaf) {
-        val map = HashMap.empty[String, AnyRef]
-        for(c <- n.content) {
-          visitJson(c, map)
-        }
-        json.put(n.nodeType, map)
-      } else {
-        json.put(n.nodeType, n.text)
-      }
-    }
-    
-    json
-    
+    util.Json.toJson(XML.loadString(toXMLString(n)), true)
   }
 
 }
