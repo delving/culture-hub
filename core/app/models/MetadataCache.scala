@@ -43,7 +43,7 @@ object MetadataCache {
         update(
           MongoDBObject(
             "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
-            $set ("modified" -> new Date(), "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId, "index" -> item.index, "systemFields" -> item.systemFields, "xml" -> mappings),
+            $set ("modified" -> new Date(), "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId, "index" -> item.index, "systemFields" -> item.systemFields.asDBObject, "xml" -> mappings),
             true
         )
       }
