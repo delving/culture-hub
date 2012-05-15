@@ -32,7 +32,7 @@ object Json {
       }
     } else json
 
-    Printer.pretty(render(js))
+    compact(render(js))
   }
 
 

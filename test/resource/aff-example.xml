@@ -1,81 +1,42 @@
 <?xml version ="1.0" encoding="UTF-8"?>
 
-<record>
-    <admin>
-        <ownerUri>http://www.vbm.se</ownerUri>
-        <displayOwner>Västerbottens museum</displayOwner>
-        <displayOwnerCountry>Sweden</displayOwnerCountry>
-        <providerUri>xxxxxx</providerUri>
-        <displayProvider>HUBNAME</displayProvider>
-        <rigths>Wahtever</rigths>
-    </admin>
-
-    <collection localId="42">
-        <collectionUri>http://id.vbm.se/collection/3</collectionUri>
-        <displayCollection>Skidsamlingen</displayCollection>
-    </collection>
-
-    <thing localId="42" localUri="http://id.vbm.se/thing/42">
-        <displayWorkType>string</displayWorkType>
-        <displayTitle>string</displayTitle>
-        <displayDescription>string</displayDescription>
-        <language>string</language>
-        <displayDimensions>string</displayDimensions>
-        <displayYear>string</displayYear>
-        <landingPage>string</landingPage>
-        <rigths>Whatever for an unique thing</rigths>
-    </thing>
-
-    <types>
-        <type localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
-            <displayType>Steel</displayType>
-            <categoryUri>http://option_key.se</categoryUri>
-            <displayCategory>Option_value</displayCategory>
-        </type>
-    </types>
-
-    <events>
-        <event>
-            <eventTypeUri>string</eventTypeUri>
-            <displayEventType>string</displayEventType>
-            <displayEvent>string</displayEvent>
-            <displayDate>string</displayDate>
-            <date>
-                <earliestDate>string</earliestDate>
-                <latestDate>string</latestDate>
-            </date>
-
-            <eventPlace localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
-                <displayPlaceInRole>string</displayPlaceInRole>
-                <placeInRoleUri>string</placeInRoleUri>
-                <displayPlace>string</displayPlace>
-                <displayPlaceType>string</displayPlaceType>
-                <displayPlaceAdmin>
-                    <displayAdmin1>string</displayAdmin1>
-                    <displayAdmin2>string</displayAdmin2>
-                    <displayAdmin3>string</displayAdmin3>
-                    <displayAdmin4>string</displayAdmin4>
-                    <displayCountry>string</displayCountry>
-                    <lat>string</lat>
-                    <long>string</long>
-                </displayPlaceAdmin>
-            </eventPlace>
-
-            <eventActor localId="42" localUri="http://id.vbm.se/thing/42" sourceName="AAT" sourceUri="http://id.hbm.se/42">
-                <displayActorInRole>string</displayActorInRole>
-                <actorInRoleUri>string</actorInRoleUri>
-                <displayActor>string</displayActor>
-            </eventActor>
-        </event>
-    </events>
-
-    <mediaFiles>
-         <mediaFile>
-             <localURL>string</localURL>
-             <localMediaTypeUri>string</localMediaTypeUri>
-             <localMimeType>string</localMimeType>
-             <delvingMediaURI>string</delvingMediaURI>
-         </mediaFile>
-     </mediaFiles>
-
-</record>
+<aff:record xmlns:aff="http://schemas.delving.eu/aff/">
+    <aff:admin>
+        <aff:displayDataProvider>Princessehof</aff:displayDataProvider>
+        <aff:displayDataProviderCountry>netherlands</aff:displayDataProviderCountry>
+        <aff:displayProvider>delving</aff:displayProvider>
+        <aff:defaultLang>nl</aff:defaultLang>
+    </aff:admin>
+    <aff:thing>
+        <aff:uri>http://id.princesshof.nl/thing/FMC_2004_775</aff:uri>
+        <aff:category>CONSTANT</aff:category>
+        <aff:displayIdentification>FMC 2004-775</aff:displayIdentification>
+        <aff:displayRights>http://creativecommons.org/publicdomain/mark/1.0/</aff:displayRights>
+    </aff:thing>
+    <aff:events>
+        <aff:event aff:key="crm_e12" aff:schema="cidoc-crm" aff:schemaUri="http://www.cidoc-crm.org/rdfs/E12.Production"
+                   aff:type="Production">
+            <aff:eventActor>
+                <aff:displayRoleInEvent>vervaardiger</aff:displayRoleInEvent>
+                <aff:displayActor>onbekend</aff:displayActor>
+                <aff:relatedEvent aff:key="crm_e67" aff:type="Birth">
+                    <aff:displayDate>onbekend</aff:displayDate>
+                </aff:relatedEvent>
+                <aff:relatedEvent aff:key="crm_e69" aff:type="Death">
+                    <aff:displayDate>onbekend</aff:displayDate>
+                </aff:relatedEvent>
+            </aff:eventActor>
+        </aff:event>
+    </aff:events>
+    <aff:resources>
+        <aff:resource aff:key="http://id.culturecloud.eu/concepts/#thumbnail" aff:type="thumbnail">
+            <aff:resourceUrl>http://www.whatever.nl/FMC_2004_775</aff:resourceUrl>
+        </aff:resource>
+        <aff:resource aff:key="http://id.culturecloud.eu/concepts/#fullImage" aff:type="fullImage">
+            <aff:resourceUrl>http://www.whatever.nl/FMC_2004_775</aff:resourceUrl>
+        </aff:resource>
+        <aff:resource aff:key="http://id.culturecloud.eu/concepts/#landingPage" aff:type="landingPage">
+            <aff:resourceUrl>http://www.whatever.nl/FMC_2004_775</aff:resourceUrl>
+        </aff:resource>
+    </aff:resources>
+</aff:record>

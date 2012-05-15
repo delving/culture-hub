@@ -87,7 +87,7 @@ metadata.icn.placeName: Amsterdam
 
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val renderer = new ViewRenderer("aff", "full")
+        val renderer = new ViewRenderer("aff", "html")
         val view = renderer.renderRecord(affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
@@ -154,7 +154,7 @@ metadata.icn.placeName: Amsterdam
         println(json)
         println()
 
-        val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
+        val expected = """{"record":{"item":{"id":"42","dc_title":"A test hierarchical record","delving_description":"This is a test record","places":{"place":[{"country":"France","name":"Paris"},{"country":"Germany","name":"Berlin"},{"country":"Netherlands","name":"Amsterdam"}]}}}}"""
 
         json must equalTo (expected)
       }
