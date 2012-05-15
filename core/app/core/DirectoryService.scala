@@ -1,5 +1,6 @@
 package core
-import eu.delving.definitions.Organization
+
+import eu.delving.definitions.OrganizationEntry
 
 /**
  *
@@ -8,8 +9,8 @@ import eu.delving.definitions.Organization
 
 trait DirectoryService {
 
-  def findOrganization(query: String): List[Organization]
+  def findOrganization(query: String): List[OrganizationEntry]
 
-  def findOrganizationByName(name: String): Option[Organization]
+  def findOrganizationByName(name: String): Option[OrganizationEntry]
 
 }

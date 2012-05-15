@@ -7,8 +7,8 @@ import play.api.libs.json._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
-import eu.delving.definitions.Organization
 import extensions.{JJson, MissingLibs}
+import eu.delving.definitions.OrganizationEntry
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -211,22 +211,22 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 
   // directory
 
-  def findOrganization(query: String): List[Organization] = {
+  def findOrganization(query: String): List[OrganizationEntry] = {
     get("/directory/organization/query", "query" -> query).map {
       response =>
         if(response.status == OK) {
-          JJson.parse[List[Organization]](response.body)
+          JJson.parse[List[OrganizationEntry]](response.body)
         } else {
           List.empty
         }
     }.getOrElse(List.empty)
   }
 
-  def findOrganizationByName(name: String): Option[Organization] = {
+  def findOrganizationByName(name: String): Option[OrganizationEntry] = {
     get("/directory/organization/byName", "name" -> name).map {
       response =>
         if(response.status == OK) {
-          Some(JJson.parse[Organization](response.body))
+          Some(JJson.parse[OrganizationEntry](response.body))
         } else {
           None
         }
