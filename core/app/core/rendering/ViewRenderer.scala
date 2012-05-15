@@ -522,41 +522,7 @@ case object RenderNode {
   }
 
   def toJson(n: RenderNode): String = {
-
-    import extensions.JJson._
-    
-    val jsonTree = visitJson(n, HashMap.empty)
-    
-    generate(jsonTree)
-  }
-
-  def visitJson(n: RenderNode, json: HashMap[String, AnyRef]): HashMap[String, AnyRef] = {
-    
-    if(n.nodeType == "root") {
-      for(c <- n.content) {
-        visitJson(c, json)
-      }
-    } else {
-      if(n.isArray) {
-        val children = n.content.map {
-          child => visitJson(child, HashMap.empty)
-        }
-        json.put(n.nodeType, children.toList)
-      } else if(n.isFlatArray) {
-        json.put(n.nodeType, n.content.map(_.nodeType).toList)
-      } else if(!n.isLeaf) {
-        val map = HashMap.empty[String, AnyRef]
-        for(c <- n.content) {
-          visitJson(c, map)
-        }
-        json.put(n.nodeType, map)
-      } else {
-        json.put(n.nodeType, n.text)
-      }
-    }
-    
-    json
-    
+    util.Json.toJson(XML.loadString(toXMLString(n)), true)
   }
 
 }
