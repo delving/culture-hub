@@ -135,30 +135,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
     request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
 
-
-  /**
-   * Turns a scala XML node into a JSON string
-   *
-   * @param xml the input xml document
-   * @param sequences field names that are sequences, and should be generated as array even when there's only a single element
-   * @return a string formatted as JSON
-   */
-  def toJson(xml: NodeSeq, sequences: Seq[String] = List.empty): String = {
-    import net.liftweb.json._
-    val json = Xml.toJson(xml) map {
-        case JField(name: String, x: JObject) =>
-          if(sequences.contains(name))
-            JField("dataProvider", JArray(x :: Nil))
-          else
-            x
-        case x => x
-    }
-    Printer.pretty(render(json))
-  }
-
   def DOk(xml: NodeSeq, sequences: String*)(implicit request: RequestHeader): Result = {
     if(wantsJson) {
-      Ok(toJson(xml, sequences)).as(JSON)
+      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
     } else {
       Ok(xml)
     }

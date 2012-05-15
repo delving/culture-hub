@@ -1,20 +1,15 @@
 <?xml version ="1.0" encoding="UTF-8"?>
 
 <views>
+    <view name="html">
+        <row>
+            <section id="general">
+                <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
+                <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
+            </section>
+        </row>
+    </view>
     <view name="full">
-      <row>
-        <section id="general">
-            <field path="/record/thing/displayTitle" label="thing.title"/>
-            <field path="/record/thing/displayDescription" label="thing.description"/>
-        </section>
-      </row>
-      <row>
-          <section id="events">
-              <list path="/record/events/event">
-                  <field label="thing.title" path="displayEvent" />
-                  <field label="thing.date" path="displayDate" />
-              </list>
-          </section>
-      </row>
+        <verbatim/>
     </view>
 </views>
