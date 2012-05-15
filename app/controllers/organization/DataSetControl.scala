@@ -256,7 +256,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case DISABLED | UPLOADED | ERROR =>
+          case ENABLED | UPLOADED | DISABLED | ERROR =>
             try {
               DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
               DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
@@ -275,7 +275,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case ENABLED =>
+          case ENABLED | UPLOADED | DISABLED | ERROR =>
             DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
             Redirect("/organizations/%s/dataset".format(orgId))

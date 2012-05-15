@@ -549,6 +549,14 @@ form label.radio {
     width: 350px;
 }
 
+/* modal */
+
+.modal-big {
+    width: 800px;
+    margin-left: -400px;
+
+}
+
 /*---------------------------------
 	TINY_MCE overrides
 -----------------------------------*/

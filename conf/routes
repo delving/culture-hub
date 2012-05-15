@@ -190,7 +190,7 @@ GET         /organizations/:orgId/api/index                                   co
 POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
 
 
-## Legacy routes support
+## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
@@ -236,6 +236,7 @@ DELETE      /organizations/:orgId/site/:language/page/:key                    co
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+GET         /organizations/:orgId/dataset/statistics                          controllers.organization.DataSets.statistics(orgId)
 GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
 GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
 POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)

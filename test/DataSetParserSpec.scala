@@ -1,11 +1,12 @@
 import collection.mutable.ListBuffer
+import core.storage.Record
 import java.io.ByteArrayInputStream
-import models.{MetadataRecord, DataSet}
+import models.DataSet
 import org.specs2.execute.Error
 import org.specs2.mutable.Specification
-import util.SimpleDataSetParser
 import play.api.test._
 import play.api.test.Helpers._
+import util.SimpleDataSetParser
 
 /**
  *
@@ -26,14 +27,22 @@ class DataSetParserSpec extends Specification with TestContext {
 
     }
 
-    "properly assign valid metadata formats" in {
+    "properly assign invalid metadata formats" in {
 
       withTestContext {
         val buffer = parseStream
-        buffer(1).validOutputFormats should not contain ("icn")
+        val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        DataSet.getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
 
     }
+
+//    "preserve cdata" in {
+//      withTestContext {
+//        val buffer = parseStream
+//        buffer(0).xml must contain("<![CDATA[")
+//      }
+//    }
   }
 
   def parseStream = {
@@ -41,22 +50,19 @@ class DataSetParserSpec extends Specification with TestContext {
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
-    val buffer = ListBuffer[MetadataRecord]()
+    val buffer = ListBuffer[Record]()
 
     try {
 
-      var continue = true
-      while (continue) {
-        val record = parser.nextRecord
-        if (record != None) {
-          buffer.append(record.get)
-        } else {
-          continue = false
-        }
+      while (parser.hasNext) {
+        val record = parser.next()
+        buffer.append(record)
       }
 
     } catch {
-      case t => Error(t)
+      case t =>
+        t.printStackTrace()
+        Error(t)
     }
 
     buffer
@@ -68,6 +74,7 @@ class DataSetParserSpec extends Specification with TestContext {
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="1">
 <priref>1</priref>
+<someDescription><![CDATA[&notAnEntity;]]></someDescription>
 <edit.source>collect>intern</edit.source>
 <edit.source>photo</edit.source>
 <edit.source>collect>intern</edit.source>

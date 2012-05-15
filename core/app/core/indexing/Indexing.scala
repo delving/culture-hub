@@ -27,9 +27,9 @@ import org.apache.tika.parser.pdf.PDFParser
 import exceptions.SolrConnectionException
 import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
-import models.{MetadataRecord, DataSet}
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
+import models.{MetadataItem, DataSet}
 import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 
@@ -40,7 +40,7 @@ import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 object Indexing extends SolrServer {
 
-  def indexOne(dataSet: DataSet, mdr: MetadataRecord, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
+  def indexOne(dataSet: DataSet, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
     try {
@@ -70,7 +70,7 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataRecord, format: String) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataItem, format: String) {
     import scala.collection.JavaConversions._
 
     // mandatory fields
@@ -79,12 +79,12 @@ object Indexing extends SolrServer {
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
 
-    inputDoc.addField(HUB_ID, URLEncoder.encode(record.hubId, "utf-8"))
+    inputDoc.addField(HUB_ID, URLEncoder.encode(record.itemId, "utf-8"))
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
     inputDoc.addField(SCHEMA, format)
 
     // for backwards-compatibility
-    inputDoc.addField(PMH_ID, URLEncoder.encode(record.hubId, "utf-8"))
+    inputDoc.addField(PMH_ID, URLEncoder.encode(record.itemId, "utf-8"))
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
@@ -133,7 +133,7 @@ object Indexing extends SolrServer {
     }
     
     if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
-    inputDoc.addField(ID, record.hubId)
+    inputDoc.addField(ID, record.itemId)
 
     val uriWithTypeSuffix = EUROPEANA_URI + "_string"
     val uriWithTextSuffix = EUROPEANA_URI + "_text"
