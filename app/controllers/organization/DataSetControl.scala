@@ -33,6 +33,7 @@ import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
 import play.api.libs.concurrent.Promise
 import core.indexing.{IndexingService, Indexing}
+import core.HubServices
 
 /**
  *
@@ -169,6 +170,14 @@ object DataSetControl extends OrganizationController {
           dataSetForm => {
             val factsObject = new BasicDBObject()
             factsObject.putAll(dataSetForm.facts.asMap)
+
+            // try to enrich with provider and dataProvider uris
+            HubServices.directoryService.findOrganizationByName(factsObject.get("provider").toString) foreach {
+              p => factsObject.put("providerUri", p)
+            }
+            HubServices.directoryService.findOrganizationByName(factsObject.get("dataProvider").toString) foreach {
+              p => factsObject.put("dataProviderUri", p)
+            }
 
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
               val mappings = recordDefinitions.map {
