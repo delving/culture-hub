@@ -2,12 +2,13 @@ package core.services
 
 import core._
 import play.api.libs.Crypto
-import extensions.MissingLibs
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
+import eu.delving.definitions.Organization
+import extensions.{JJson, MissingLibs}
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -16,7 +17,7 @@ import java.net.URLEncoder
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with play.api.http.Status {
+class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with play.api.http.Status {
 
 
   val host = if (commonsHost.endsWith("/")) commonsHost.substring(0, commonsHost.length() - 1) else commonsHost
@@ -208,6 +209,31 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     }.getOrElse(None)
   }
 
+  // directory
+
+  def findOrganization(query: String): List[Organization] = {
+    get("/directory/organization/query", "query" -> query).map {
+      response =>
+        if(response.status == OK) {
+          JJson.parse[List[Organization]](response.body)
+        } else {
+          List.empty
+        }
+    }.getOrElse(List.empty)
+  }
+
+  def findOrganizationByName(name: String): Option[Organization] = {
+    get("/directory/organization/byName", "name" -> name).map {
+      response =>
+        if(response.status == OK) {
+          Some(JJson.parse[Organization](response.body))
+        } else {
+          None
+        }
+    }.getOrElse(None)
+  }
+
+  // json un/marshalling
 
   import play.api.libs.json._
 
@@ -255,8 +281,9 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
         )
       )
     )
-
   }
+
+
 
 
 }
