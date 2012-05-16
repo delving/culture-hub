@@ -19,7 +19,7 @@ object HubServices {
   var registrationService: RegistrationService = null
   var userProfileService: UserProfileService = null
   var organizationService: OrganizationService = null
-
+  var directoryService: DirectoryService = null
 
   def init() {
 
@@ -49,6 +49,7 @@ object HubServices {
     registrationService = services
     userProfileService = services
     organizationService = services
+    directoryService = services
   }
 
 

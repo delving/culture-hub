@@ -33,6 +33,7 @@ import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
 import play.api.libs.concurrent.Promise
 import core.indexing.{IndexingService, Indexing}
+import core.HubServices
 
 /**
  *
@@ -169,6 +170,15 @@ object DataSetControl extends OrganizationController {
           dataSetForm => {
             val factsObject = new BasicDBObject()
             factsObject.putAll(dataSetForm.facts.asMap)
+
+            // try to enrich with provider and dataProvider uris
+            def enrich(input: String, output: String) = HubServices.directoryService.findOrganizationByName(factsObject.get(input).toString) match {
+              case Some(p) => factsObject.put(output, p.uri)
+              case None => factsObject.remove(output)
+            }
+
+            enrich("provider", "providerUri")
+            enrich("dataProvider", "dataProviderUri")
 
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
               val mappings = recordDefinitions.map {
@@ -380,6 +390,13 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
         Ok
+    }
+  }
+
+  def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        Json(HubServices.directoryService.findOrganization(term).map(_.name))
     }
   }
 
