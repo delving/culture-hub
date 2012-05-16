@@ -2,6 +2,10 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+## 12.05.3
+
+- sjoerd: url-decoding legacy identifier in solr query service
+
 ## 12.05.2
 
 ### Fixes
