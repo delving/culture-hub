@@ -6,6 +6,8 @@ import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import scala._
 import xml.Node
+import play.api.Play
+import play.api.Play.current
 
 /**
  * BaseX-based Storage engine.
@@ -17,8 +19,12 @@ import xml.Node
 
 object BaseXStorage {
 
-  // TODO use real config, and non-embedded
-  val storage = new BaseX("localhost", 1984, "admin", "admin")
+  val storage = new BaseX(
+    Play.configuration.getString("basex.host").getOrElse("localhost"),
+    Play.configuration.getInt("basex.port").getOrElse(1984),
+    Play.configuration.getString("basex.user").getOrElse("admin"),
+    Play.configuration.getString("basex.password").getOrElse("admin")
+  )
 
   def createCollection(orgId: String, collectionName: String): Collection = {
     val c = Collection(orgId, collectionName)
