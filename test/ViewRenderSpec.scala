@@ -283,7 +283,8 @@ metadata.icn.placeName: Amsterdam
   }
   
   private def legacyRecord(): String =
-  """<dc:creator>C.</dc:creator>
+    """<input>
+  <dc:creator>C.</dc:creator>
   <dc:date>1965</dc:date>
   <dc:format>application/pdf</dc:format>
   <dc:publisher>De Brabantse Leeuw</dc:publisher>
@@ -333,6 +334,7 @@ metadata.icn.placeName: Amsterdam
   </tib:thumbLarge>
   <tib:thumbSmall>
   http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180
-  </tib:thumbSmall>"""
+  </tib:thumbSmall>
+  </input>"""
 
 }
