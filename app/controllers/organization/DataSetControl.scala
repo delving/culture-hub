@@ -173,10 +173,10 @@ object DataSetControl extends OrganizationController {
 
             // try to enrich with provider and dataProvider uris
             HubServices.directoryService.findOrganizationByName(factsObject.get("provider").toString) foreach {
-              p => factsObject.put("providerUri", p)
+              p => factsObject.put("providerUri", p.uri)
             }
             HubServices.directoryService.findOrganizationByName(factsObject.get("dataProvider").toString) foreach {
-              p => factsObject.put("dataProviderUri", p)
+              p => factsObject.put("dataProviderUri", p.uri)
             }
 
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
@@ -389,6 +389,13 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
         Ok
+    }
+  }
+
+  def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        Json(HubServices.directoryService.findOrganization(term).map(_.name))
     }
   }
 
