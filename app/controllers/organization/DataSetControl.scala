@@ -172,12 +172,13 @@ object DataSetControl extends OrganizationController {
             factsObject.putAll(dataSetForm.facts.asMap)
 
             // try to enrich with provider and dataProvider uris
-            HubServices.directoryService.findOrganizationByName(factsObject.get("provider").toString) foreach {
-              p => factsObject.put("providerUri", p.uri)
+            def enrich(input: String, output: String) = HubServices.directoryService.findOrganizationByName(factsObject.get(input).toString) match {
+              case Some(p) => factsObject.put(output, p.uri)
+              case None => factsObject.remove(output)
             }
-            HubServices.directoryService.findOrganizationByName(factsObject.get("dataProvider").toString) foreach {
-              p => factsObject.put("dataProviderUri", p.uri)
-            }
+
+            enrich("provider", "providerUri")
+            enrich("dataProvider", "dataProviderUri")
 
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
               val mappings = recordDefinitions.map {
