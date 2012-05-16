@@ -19,7 +19,7 @@ import play.api.Play.current
 
 object BaseXStorage {
 
-  val storage = new BaseX(
+  lazy val storage = new BaseX(
     Play.configuration.getString("basex.host").getOrElse("localhost"),
     Play.configuration.getInt("basex.port").getOrElse(1984),
     Play.configuration.getString("basex.user").getOrElse("admin"),
