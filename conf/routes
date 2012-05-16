@@ -252,6 +252,8 @@ DELETE      /organizations/:orgId/dataset/:spec/remove                        co
 POST        /organizations/:orgId/dataset/:spec/invalidate                    controllers.organization.DataSetControl.invalidate(orgId, spec)
 POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
 
+GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
+
 GET         /organizations/:orgId/virtualCollection                           controllers.organization.VirtualCollections.list(orgId)
 GET         /organizations/:orgId/virtualCollection/add                       controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String] = None)
 GET         /organizations/:orgId/virtualCollection/:spec/update              controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String])
