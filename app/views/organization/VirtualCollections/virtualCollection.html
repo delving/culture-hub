@@ -12,9 +12,6 @@
 
 #{set bodyId: 'organization' /}
 
-*{** Create a comma separated list of available Datasets to use for typeAhead **}*
-#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
-
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
@@ -74,7 +71,7 @@
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
-            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5" /}
+            #{boundAddRemoveTokenField id:"dataSets", name:"dataSets", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", dataBind:"tokens: dataSets", required: true, label:messages.get('thing.datasets') /}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
             #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
@@ -140,7 +137,7 @@
                             <!-- /ko -->
                             <!-- ko if: typeof item.fields['delving_hubId'] !== 'undefined' -->
                             <strong>hubId:</strong> <span data-bind="text: item.fields['delving_hubId']"></span><br/>
-                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
+                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.item.fields['delving_hubId']())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
                             <!-- /ko -->
                         </div>
                     </div>
@@ -188,6 +185,7 @@
         });
 
         $('#previewButton').click(function (event) {
+            console.log($('#dataSets').val())
             var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
             search(query, '${orgId}', 1);
         });
@@ -195,10 +193,6 @@
         function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
             if (dataSets) {
-                // remove trailing comma and space (added by typeAhead functionality)
-                if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
-                    dataSets = dataSets.trim().slice(0, -1)
-                }
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -226,7 +220,7 @@
                         if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
-                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + el.trim() + '"';
+                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + encodeURIComponent(el.trim()) + '"';
                         if (index < excludedIdsList.length - 1) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + ' OR ';
                         }
@@ -262,7 +256,7 @@
             if (keyFromTitle == '') {
                 $(this).next('.error').html(genError);
             }
-            $(destination).val(keyFromTitle);
+            virtualCollectionModel.spec(keyFromTitle);
         });
         // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));

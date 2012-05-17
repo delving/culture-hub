@@ -17,7 +17,14 @@
             <dd>${name}</dd>
             <dt>&{'org.vc.referencedDatasets'}</dt>
             <dd><ul>
-                #{list dataSets, as: 'ds'}
+                #{list referencedDatasets, as: 'ds'}
+                    <li><a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a></li>
+                #{/list}
+            </ul>
+            </dd>
+            <dt>&{'org.vc.queryDatasets'}</dt>
+            <dd><ul>
+                #{list queryDatasets, as: 'ds'}
                     <li><a href="@{controllers.organization.routes.DataSets.dataSet(orgId, ds)}">${ds}</a></li>
                 #{/list}
             </ul>
