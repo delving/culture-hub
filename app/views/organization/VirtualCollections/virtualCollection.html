@@ -137,7 +137,7 @@
                             <!-- /ko -->
                             <!-- ko if: typeof item.fields['delving_hubId'] !== 'undefined' -->
                             <strong>hubId:</strong> <span data-bind="text: item.fields['delving_hubId']"></span><br/>
-                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
+                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.item.fields['delving_hubId']())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
                             <!-- /ko -->
                         </div>
                     </div>
@@ -220,7 +220,7 @@
                         if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
-                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + el.trim() + '"';
+                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + encodeURIComponent(el.trim()) + '"';
                         if (index < excludedIdsList.length - 1) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + ' OR ';
                         }

@@ -159,6 +159,8 @@ object VirtualCollections extends OrganizationController {
     val vc = VirtualCollection.findOneByID(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
+      VirtualCollection.children.removeByParentId(vc._id)
+
       val hubIds = getIdsFromQuery(query)
       val groupedHubIds = hubIds.groupBy(id => (id.split("_")(0), id.split("_")(1)))
 
@@ -172,7 +174,7 @@ object VirtualCollections extends OrganizationController {
 
             case Some(ds) =>
               val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
-              cache.iterate().foreach {
+              cache.iterate().filter(i => ids.contains(i.itemId)).foreach {
                 item =>
                   val ref = MDRReference(parentId = id, collection = spec, itemId = item.itemId, invalidTargetSchemas = item.invalidTargetSchemas, index = item.index)
                   VirtualCollection.children.insert(ref)
