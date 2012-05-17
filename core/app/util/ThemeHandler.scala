@@ -21,8 +21,8 @@ import java.lang.String
 import play.api.Play.current
 import play.api.{Play, Logger}
 import xml.{Node, XML}
+import collection.immutable.HashMap
 
-//import scala.collection.JavaConversions._
 import com.mongodb.casbah.commons.MongoDBObject
 import models.{EmailTarget, PortalTheme}
 
@@ -35,7 +35,9 @@ import models.{EmailTarget, PortalTheme}
  */
 object ThemeHandler {
 
-  private var themeList: Seq[PortalTheme] = List()
+  private var themeList: Seq[PortalTheme] = Seq.empty
+  private var domainList: Seq[(String, PortalTheme)] = Seq.empty
+  private var domainLookupCache: HashMap[String, PortalTheme] = HashMap.empty
 
   def getThemeNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
@@ -49,12 +51,16 @@ object ThemeHandler {
   def startup() {
     if (PortalTheme.count() == 0) {
       themeList = readThemesFromDisk
+      domainList = toDomainList(themeList)
+      domainLookupCache = HashMap.empty
       themeList foreach {
         PortalTheme.insert(_)
       }
     } else {
       try {
         themeList = readThemesFromDatabase()
+        domainList = toDomainList(themeList)
+        domainLookupCache = HashMap.empty
       } catch {
         case t: Throwable =>
           Logger.error("Error reading Themes from the database.", t)
@@ -72,6 +78,8 @@ object ThemeHandler {
    */
   def update() {
     themeList = readThemesFromDatabase()
+    domainList = toDomainList(themeList)
+    domainLookupCache = HashMap.empty
   }
 
   def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
@@ -92,22 +100,28 @@ object ThemeHandler {
     if (Play.isDev) {
       startup()
     }
-    if (hasSingleTheme) getDefaultTheme.get
-    else {
-      // fetch by longest matching subdomain
-      themeList.foldLeft(getDefaultTheme.get) {
-        (r: PortalTheme, c: PortalTheme) => {
-          val rMatches = r.subdomain != None && domain.startsWith(r.subdomain.get)
-          val cMatches = c.subdomain != None && domain.startsWith(c.subdomain.get)
-          val rLonger = r.subdomain.get.length() > c.subdomain.get.length()
+    if (hasSingleTheme) {
+      getDefaultTheme.get
+    } else {
+      // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
+      if(!domainLookupCache.contains(domain)) {
+        // fetch by longest matching domain
+        val theme = domainList.foldLeft(("#", getDefaultTheme.get)) {
+          (r: (String, PortalTheme), c: (String, PortalTheme)) => {
+            val rMatches = domain.startsWith(r._1)
+            val cMatches = domain.startsWith(c._1)
+            val rLonger = r._1.length() > c._1.length()
 
-          if (rMatches && cMatches && rLonger) r
-          else if (rMatches && cMatches && !rLonger) c
-          else if (rMatches && !cMatches) r
-          else if (cMatches && !rMatches) c
-          else r // default
-        }
+            if (rMatches && cMatches && rLonger) r
+            else if (rMatches && cMatches && !rLonger) c
+            else if (rMatches && !cMatches) r
+            else if (cMatches && !rMatches) c
+            else r // default
+          }
+        }._2
+        domainLookupCache = domainLookupCache + (domain -> theme)
       }
+      domainLookupCache(domain)
     }
   }
 
@@ -117,14 +131,17 @@ object ThemeHandler {
     themeDefinitions.flatMap(f => parseThemeDefinition(XML.loadFile(f)))
   }
 
+  private def toDomainList(themeList: Seq[PortalTheme]) = themeList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
+
   private def parseThemeDefinition(root: Node): Seq[PortalTheme] = {
     for( theme <- root \\ "theme") yield {
       PortalTheme(
         name             = (theme \ "@name").text,
         subdomain        = Some((theme \ "subdomain").text),
+        domains          = (theme \\ "domain").map(_.text).toList,
         themeDir         = (theme \ "themeDir").text,
-        siteName      = if(((theme \ "siteName").text).isEmpty) Some("Delving CultureHub") else Some((theme \ "siteName").text),
-        siteSlogan    = if(((theme \ "siteSlogan").text).isEmpty) Some("") else Some((theme \ "siteSlogan").text),
+        siteName         = if(((theme \ "siteName").text).isEmpty) Some("Delving CultureHub") else Some((theme \ "siteName").text),
+        siteSlogan       = if(((theme \ "siteSlogan").text).isEmpty) Some("") else Some((theme \ "siteSlogan").text),
         defaultLanguage  = (theme \ "defaultLanguage").text,
         solrSelectUrl    = (theme \ "solrSelectUrl").text,
         facets           = Some((theme \ "facets").text),
