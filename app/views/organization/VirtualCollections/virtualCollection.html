@@ -262,7 +262,7 @@
             if (keyFromTitle == '') {
                 $(this).next('.error').html(genError);
             }
-            $(destination).val(keyFromTitle);
+            virtualCollectionModel.spec(keyFromTitle);
         });
         // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
