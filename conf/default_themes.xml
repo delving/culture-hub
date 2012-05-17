@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <themes>
     <theme name="default">
-        <subdomain>default</subdomain>
+        <domains>
+            <domain>default</domain>
+        </domains>
         <themeDir>default</themeDir>
         <siteName>Delving CultureHub</siteName>
         <siteSlogan>Opensource solutions for Cultural Heritage</siteSlogan>
