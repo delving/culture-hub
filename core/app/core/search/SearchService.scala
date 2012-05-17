@@ -373,8 +373,8 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
             {uniqueKeyNames.map {
             item =>
               <field>
-                <key>{SearchService.localiseKey(item, language)}</key>
-                <value>{item}</value>
+                <name>{item}</name>
+                <i18n>{SearchService.localiseKey(item, language)}</i18n>
               </field>
           }}
           </fields>
@@ -440,7 +440,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
             ),
           "layout" ->
-            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("key" -> SearchService.localiseKey(item, language), "value" -> item))),
+            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("name" -> item, "i18n" -> SearchService.localiseKey(item, language)))),
           "items" ->
             result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
           "facets" -> createFacetList

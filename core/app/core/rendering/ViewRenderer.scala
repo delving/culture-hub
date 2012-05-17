@@ -223,11 +223,9 @@ class ViewRenderer(schema: String, viewName: String) {
                 val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
 
                 val renderNode = RenderNode("field", None)
-                renderNode += RenderNode("key", Some(Messages(internationalizationKey)))
-                renderNode += RenderNode("value", Some(current.getNodeName.replaceAll(":", "_")))
+                renderNode += RenderNode("name", Some(current.getNodeName.replaceAll(":", "_")))
+                renderNode += RenderNode("i18n", Some(Messages(internationalizationKey)))
                 appendNode(renderNode)
-
-
 
 
               // ~~~ html helpers
