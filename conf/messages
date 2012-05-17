@@ -647,6 +647,7 @@ org.vc.recordCount=Number of linked records
 org.vc.currentCount=Number of current results
 org.vc.publicMetadataPrefixes=Public metadata prefixes
 org.vc.referencedDatasets=Referenced DataSets
+org.vc.queryDatasets=Queried DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections
