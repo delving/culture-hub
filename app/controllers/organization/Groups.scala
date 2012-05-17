@@ -188,14 +188,6 @@ case class GroupViewModel(id: Option[ObjectId] = None,
 
 object GroupViewModel {
 
-  def tokenListMapping = list(
-    mapping(
-      "id" -> text,
-      "name" -> text,
-      "tokenType" -> optional(text),
-      "data" -> optional(of[Map[String, String]])
-      )(Token.apply)(Token.unapply)
-    )
 
   val groupForm: Form[GroupViewModel] = Form(
     mapping(
@@ -203,8 +195,8 @@ object GroupViewModel {
       "name" -> nonEmptyText,
       "grantType" -> nonEmptyText,
       "canChangeGrantType" -> boolean,
-      "users" -> tokenListMapping,
-      "dataSets" -> tokenListMapping,
+      "users" -> Groups.tokenListMapping,
+      "dataSets" -> Groups.tokenListMapping,
       "errors" -> of[Map[String, String]]
     )(GroupViewModel.apply)(GroupViewModel.unapply)
   )

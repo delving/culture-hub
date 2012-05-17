@@ -49,11 +49,21 @@ object DataSets extends OrganizationController {
     }
   }
 
+  // TODO[manu] deprecate this one (used by groups, needs data migration)
   def listAsTokens(orgId: String, q: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
         val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
         val asTokens = dataSets.map(ds => Token(ds._id, ds.spec, Some("dataset")))
+        Json(asTokens)
+    }
+  }
+
+  def listAsTokensBySpec(orgId: String, q: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+        val asTokens = dataSets.map(ds => Token(ds.spec, ds.spec, Some("dataset")))
         Json(asTokens)
     }
   }

@@ -9,9 +9,9 @@ import extensions.Formatters._
 import core.search._
 import play.api.Logger
 import collection.mutable.ListBuffer
-import controllers.{ShortDataSet, ViewModel, OrganizationController}
 import core.Constants._
 import models._
+import controllers.{Token, ShortDataSet, ViewModel, OrganizationController}
 
 /**
  *
@@ -28,7 +28,8 @@ object VirtualCollections extends OrganizationController {
             Ok(Template(
               'spec -> spec,
               'name -> vc.name,
-              'dataSets -> vc.dataSetReferences.map(_.spec).toList,
+              'queryDatasets -> vc.query.dataSets,
+              'referencedDatasets -> vc.dataSetReferences.map(_.spec).toList,
               'recordCount -> vc.recordCount
             ))
 
@@ -53,13 +54,11 @@ object VirtualCollections extends OrganizationController {
 
         val viewModel = spec match {
           case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
-            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.mkString(", "), vc.query.freeFormQuery, vc.query.excludeHubIds.mkString(",")))
+            case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.query.dataSets.map(r => Token(r, r)), vc.query.freeFormQuery, vc.query.excludeHubIds.mkString(",")))
             case None => None
           }
-          case None => Some(VirtualCollectionViewModel(None, "", "", "", "", ""))
+          case None => Some(VirtualCollectionViewModel(None, "", "", List.empty, "", ""))
         }
-
-        val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(ORGANIZATIONS))
 
         if (viewModel.isEmpty) {
           NotFound(spec.getOrElse(""))
@@ -68,7 +67,7 @@ object VirtualCollections extends OrganizationController {
             'id -> spec,
             'data -> JJson.generate(viewModel.get),
             'virtualCollectionForm -> VirtualCollectionViewModel.virtualCollectionForm,
-            'dataSets -> dataSets
+            'dataSets -> JJson.generate(viewModel.get.dataSets)
           ))
         }
     }
@@ -82,7 +81,7 @@ object VirtualCollections extends OrganizationController {
           formWithErrors => handleValidationError(formWithErrors),
           virtualCollectionForm => {
             val virtualCollectionQuery = VirtualCollectionQuery(
-              virtualCollectionForm.dataSets.split(",").map(_.trim).filterNot(_.isEmpty).toList,
+              virtualCollectionForm.dataSets.map(_.id),
               virtualCollectionForm.freeFormQuery,
               virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).filterNot(_.isEmpty).toList
             )
@@ -225,7 +224,7 @@ object VirtualCollections extends OrganizationController {
 case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
                                       spec: String,
                                       name: String,
-                                      dataSets: String, // comma-separated list of spec names
+                                      dataSets: List[Token] = List.empty[Token],
                                       freeFormQuery: String,
                                       excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
                                       errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
@@ -237,7 +236,7 @@ object VirtualCollectionViewModel {
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText,
       "name" -> nonEmptyText,
-      "dataSets" -> text,
+      "dataSets" -> VirtualCollections.tokenListMapping,
       "freeFormQuery" -> text,
       "excludedIdentifiers" -> text,
       "errors" -> of[Map[String, String]]
