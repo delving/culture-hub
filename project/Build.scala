@@ -2,11 +2,15 @@ import sbt._
 import PlayProject._
 import sbt.Keys._
 import scala._
+import sbtbuildinfo.Plugin._
 
 object ApplicationBuild extends Build {
 
+  val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
+
   val appName = "culture-hub"
-  val appVersion = "1.0"
+  val cultureHubVersion = "1.0"
+  val sipCreatorVersion = "1.0.5-SNAPSHOT"
 
   val dosVersion = "1.5"
 
@@ -33,7 +37,7 @@ object ApplicationBuild extends Build {
     "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
-    "eu.delving"                %  "sip-core"                        % "1.0.5-SNAPSHOT",
+    "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
@@ -78,11 +82,20 @@ object ApplicationBuild extends Build {
   ).dependsOn(core)
 
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+  val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
 
+    onLoadMessage := "May the force be with you",
+
+    sipCreator := sipCreatorVersion,
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
+
+    sourceGenerators in Compile <+= buildInfo,
+
+    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
+
+    buildInfoPackage := "eu.delving.culturehub",
 
     watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
 
