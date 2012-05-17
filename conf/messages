@@ -146,6 +146,7 @@ thing.pages=Site pages
 thing.notavailable.single=There is currently no {0} available
 thing.notavailable.plural=There are currently no {0} available
 thing.owner=Owner
+thing.creator=Creator
 thing.datecreated=Date created
 thing.datemodified=Date modified
 thing.description=Description

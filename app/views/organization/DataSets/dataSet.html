@@ -9,6 +9,7 @@
 <div class="row">
     <div class="span6">
         <dl class="dl dl-horizontal">
+            <dt>&{'thing.creator'}</dt><dd>${dataSet.userName}</dd>
             #{list facts, as: 'facet'}
                 <dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>
                 #{if facet.prompt() == 'Data Set Spec'}#{set 'spec'}${facet.value()}#{/set}#{/if}
