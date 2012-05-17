@@ -211,6 +211,7 @@ GET         /organizations/:orgId/admin/indexDataSets                         co
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
 GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
+GET         /organizations/:orgId/datasets/searchBySpec                       controllers.organization.DataSets.listAsTokensBySpec(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
 GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)

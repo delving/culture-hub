@@ -13,6 +13,7 @@ import org.bson.types.ObjectId
 import xml.NodeSeq
 import core._
 import models.{GrantType, Group, HubUser}
+import play.api.data.Forms._
 
 /**
  *
@@ -142,6 +143,19 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
       Ok(xml)
     }
   }
+
+
+  // ~~~ Form utilities
+  import extensions.Formatters._
+
+  val tokenListMapping = list(
+    play.api.data.Forms.mapping(
+      "id" -> text,
+      "name" -> text,
+      "tokenType" -> optional(text),
+      "data" -> optional(of[Map[String, String]])
+      )(Token.apply)(Token.unapply)
+    )
 
 }
 

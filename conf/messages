@@ -146,6 +146,7 @@ thing.pages=Site pages
 thing.notavailable.single=There is currently no {0} available
 thing.notavailable.plural=There are currently no {0} available
 thing.owner=Owner
+thing.creator=Creator
 thing.datecreated=Date created
 thing.datemodified=Date modified
 thing.description=Description
@@ -647,6 +648,7 @@ org.vc.recordCount=Number of linked records
 org.vc.currentCount=Number of current results
 org.vc.publicMetadataPrefixes=Public metadata prefixes
 org.vc.referencedDatasets=Referenced DataSets
+org.vc.queryDatasets=Queried DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections

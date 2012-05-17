@@ -395,7 +395,7 @@ object SolrQueryService extends SolrServer {
 
   def makeFacetQueryUrls(facetField: FacetField, filterQueries: List[FilterQuery], facetCount: FacetField.Count, remove: Boolean): String = {
     val facetTerms: List[String] = filterQueries.filterNot(_ == FilterQuery(facetField.getName, facetCount.getName)).map {
-      fq => "%s:%s".format(fq.field, fq.value)
+      fq => "%s:%s".format(fq.field, encodeUrl(fq.value))
     }
     val href = remove match {
       case true => facetTerms

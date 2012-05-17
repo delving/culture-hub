@@ -103,6 +103,13 @@
                                 </form>
                             #{/if}
 
+                            #{if i.state.name() == models.DataSetState.ERROR().name()}
+                                <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set data-set-disable">
+                                    #{authenticityToken /}
+                                    <button class="btn btn-mini">&{'dataset.disable'}</button>
+                                </form>
+                            #{/if}
+
                             #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.PROCESSING().name()}
 
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
