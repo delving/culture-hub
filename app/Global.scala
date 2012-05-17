@@ -13,6 +13,7 @@ import play.api._
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
+import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
 
@@ -30,7 +31,13 @@ object Global extends GlobalSettings {
              / /   / / / / / __/ / / / ___/ _ \/ /_/ / / / / __ \
             / /___/ /_/ / / /_/ /_/ / /  /  __/ __  / /_/ / /_/ /
             \____/\__,_/_/\__/\__,_/_/   \___/_/ /_/\__,_/_.___/
-      """)
+
+
+            Version %s
+
+            Sip-Creator Version %s
+
+      """.format(BuildInfo.version, BuildInfo.sipCreator))
     }
 
 
