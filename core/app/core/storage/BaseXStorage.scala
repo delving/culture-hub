@@ -60,8 +60,8 @@ object BaseXStorage {
     }
   }
 
-  def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String]): Int = {
-    var inserted: Int = 0
+  def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
+    var inserted: Long = 0
     BaseXStorage.withBulkSession(collection) {
       session =>
         val versions: Map[String, Int] = (session.find("""for $i in /record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
@@ -74,7 +74,8 @@ object BaseXStorage {
           val next = it.next()
           if(next._2 % 10000 == 0) session.flush()
           session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
-          inserted = next._2
+          inserted += 1
+          onRecordInserted(inserted)
         }
         session.flush()
         session.createAttributeIndex()
