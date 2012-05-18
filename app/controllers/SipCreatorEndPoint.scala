@@ -21,6 +21,7 @@ import core.storage.Collection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
+import play.api.libs.Files.TemporaryFile
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -196,8 +197,8 @@ object SipCreatorEndPoint extends ApplicationController {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
               case "source" if extension == "xml.gz" => {
-                val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
-                receiveActor ! SourceStream(dataSet.get, theme, inputStream)
+                val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
                 DataSet.updateState(dataSet.get, DataSetState.PARSING)
                 Right("Received it")
               }
@@ -365,58 +366,66 @@ object SipCreatorEndPoint extends ApplicationController {
     out.flush()
   }
 
-  def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
+  def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
     val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
       BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
     }
     val parser = new SimpleDataSetParser(source, dataSet)
-    BaseXStorage.store(collection, parser, parser.namespaces)
+
+    def onRecordInserted(count: Long) {
+      if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
+    }
+
+    BaseXStorage.store(collection, parser, parser.namespaces, onRecordInserted)
   }
 
 }
 
 class ReceiveSource extends Actor {
 
+  var tempFileRef: TemporaryFile = null
+
   protected def receive = {
-    case SourceStream(dataSet, theme, is) =>
+    case SourceStream(dataSet, theme, inputStream, tempFile) =>
       val now = System.currentTimeMillis()
-      receiveSource(dataSet, theme, is) match {
-        case Left(t) =>
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
-          Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-          ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case Right(inserted) =>
-          val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
-          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
+
+      // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
+      tempFileRef = tempFile
+
+      try {
+        receiveSource(dataSet, theme, inputStream) match {
+          case Left(t) =>
+            DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
+            Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+          case Right(inserted) =>
+            val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+            Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
+        }
+
+      } catch {
+        case t =>
+          Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing uploaded source: " + t.getMessage))
+
+      } finally {
+        tempFileRef = null
       }
-    case _ => // nothing
   }
 
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Int] = {
-
-    var uploadedRecords = 0
+  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
-      uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+      val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+      DataSet.updateRecordCount(dataSet, uploadedRecords)
+      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      Right(uploadedRecords)
     } catch {
-      case t: Throwable => return Left(t)
+      case t => return Left(t)
     }
-
-    val recordCount: Long = DataSet.getRecordCount(dataSet)
-
-    // TODO review the semantics behind total_records, deleted records etc.
-    val details = dataSet.details.copy(
-      uploaded_records = uploadedRecords,
-      total_records = recordCount,
-      deleted_records = recordCount - dataSet.details.uploaded_records
-    )
-
-    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
-    DataSet.save(updatedDataSet)
-    Right(uploadedRecords)
   }
 
 
 }
 
-case class SourceStream(dataSet: DataSet, theme: PortalTheme, is: InputStream)
+case class SourceStream(dataSet: DataSet, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)
