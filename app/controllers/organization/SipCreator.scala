@@ -2,6 +2,7 @@ package controllers.organization
 
 import controllers.OrganizationController
 import play.api.mvc._
+import eu.delving.culturehub.BuildInfo
 
 /**
  *
@@ -20,7 +21,6 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val sipCreatorVersion = "1.0.5"
         val host = request.domain + ":9000"
         val home = "http://" + host + "/" + user + "/"
         val codebase = "http://" + host + "/assets/sip-creator/"
@@ -42,8 +42,8 @@ object SipCreator extends OrganizationController {
           <resources>
               <j2se version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
               <property name="jnlp.versionEnabled" value="false"/>
-              <jar href={"sip-app-" + sipCreatorVersion + "-SNAPSHOT.jar"} main="true"/>
-              <jar href={"sip-core-" + sipCreatorVersion + "-SNAPSHOT.jar"}/>
+              <jar href={"sip-app-" + BuildInfo.sipCreator + ".jar"} main="true"/>
+              <jar href={"sip-core-" + BuildInfo.sipCreator + ".jar"}/>
               <jar href="oauth2-client-0.2-SNAPSHOT.jar"/>
               <jar href="oauth2-common-0.2-SNAPSHOT.jar"/>
               <jar href="jettison-1.2.jar"/>
