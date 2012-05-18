@@ -353,6 +353,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
 
+  def updateRecordCount(dataSet: DataSet, count: Long) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
+  }
+
+
   def invalidateHashes(dataSet: DataSet) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
   }
@@ -408,9 +413,7 @@ case class Mapping(recordMapping: Option[String] = None,
                    indexed: Boolean = false)
 
 case class Details(name: String,
-                   uploaded_records: Long = 0,
                    total_records: Long = 0,
-                   deleted_records: Long = 0,
                    indexing_count: Long = 0,
                    invalid_records: Option[Int] = Some(0),
                    metadataFormat: RecordDefinition,
