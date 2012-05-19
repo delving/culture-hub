@@ -24,6 +24,8 @@ import ScalesUtils._
 import scales.xml._
 import ScalesXml._
 import org.apache.commons.lang.StringEscapeUtils
+import javax.xml.stream.XMLInputFactory
+import org.codehaus.stax2.XMLInputFactory2
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -34,7 +36,7 @@ import org.apache.commons.lang.StringEscapeUtils
 class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Record] {
 
   private val ns = collection.mutable.Map.empty[String, String]
-  private val pull = pullXml(is)
+  private val pull = pullXml(is, parserFactoryPool = CustomStaxInputFactoryPool)
   private var recordCounter: Int = 0
   private var isDone = false
   private var lookAhead: Record = null
@@ -59,7 +61,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   def hasNext: Boolean = !isDone
 
   def next(): Record = {
-    if(isDone) throw new java.util.NoSuchElementException("next on empty iterator")
+    if (isDone) throw new java.util.NoSuchElementException("next on empty iterator")
     val l = lookAhead
     parseNext() match {
       case Some(ahead) => lookAhead = ahead
@@ -84,14 +86,14 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     var recordId: String = null
 
     while (!hasParsedOne) {
-      if(!pull.hasNext) return None
+      if (!pull.hasNext) return None
       val next = pull.next()
       next match {
         case Left(Elem(qname, attrs, namespaces)) if qname.local == "input" =>
           inRecord = true
           val mayId = attrs.find(_.name.local == "id")
           if (mayId != None) recordId = mayId.get.value
-        case Right(EndElem(name, _)) if(name.local == "input") =>
+        case Right(EndElem(name, _)) if (name.local == "input") =>
           inRecord = false
           record = Record(
             id = recordId,
@@ -115,10 +117,10 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           val d = """<![CDATA[%s]]>""".format(data)
           recordXml.append(d)
           fieldValueXml.append(d)
-//        case EvEntityRef(text) if (inRecord) =>
-//          elementHasContent = true
-//          recordXml.append("&%s;".format(text))
-//          fieldValueXml.append(text)
+        //        case EvEntityRef(text) if (inRecord) =>
+        //          elementHasContent = true
+        //          recordXml.append("&%s;".format(text))
+        //          fieldValueXml.append(text)
         case elemEnd@Right(EndElem(qname, _)) if (inRecord) =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
@@ -138,7 +140,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     val attrs = attributes.
       toList.
       sortBy(a => a.name.local).
-      map(a => a.prefix.getOrElse("") + (if(a.prefix.isDefined) ":" else "") + a.local + "=\"" + a.value + "\"")
+      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined) ":" else "") + a.local + "=\"" + a.value + "\"")
     if (attrs.isEmpty)
       "<%s%s>".format(prefix(qname.prefix), qname.local)
     else
@@ -148,5 +150,31 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   private def elemEndToString(qname: QName): String = "</%s%s>".format(prefix(qname.prefix), qname.local)
 
   private def prefix(pre: Option[String]): String = if (pre.isDefined) pre.get + ":" else ""
+}
+
+object CustomStaxInputFactoryPool extends scales.utils.SimpleUnboundedPool[XMLInputFactory] {
+  pool =>
+
+  val cdata = "http://java.sun.com/xml/stream/properties/report-cdata-event"
+
+  def create = {
+    val xmlif = XMLInputFactory.newInstance().asInstanceOf[XMLInputFactory2]
+    if (xmlif.isPropertySupported(cdata)) {
+      xmlif.setProperty(cdata, java.lang.Boolean.TRUE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES)) {
+      xmlif.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES)) {
+      xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_COALESCING)) {
+      xmlif.setProperty(XMLInputFactory.IS_COALESCING, java.lang.Boolean.FALSE)
+    }
+    xmlif.configureForSpeed()
+
+    xmlif
+
+  }
 }
 
