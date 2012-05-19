@@ -224,7 +224,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
                 val renderNode = RenderNode("field", None)
                 renderNode += RenderNode("name", Some(current.getNodeName.replaceAll(":", "_")))
-                renderNode += RenderNode("i18n", Some(Messages(internationalizationKey)))
+                renderNode += RenderNode("i18n", Some(Messages(internationalizationKey)(lang)))
                 appendNode(renderNode)
 
 
