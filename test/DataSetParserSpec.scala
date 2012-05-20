@@ -20,7 +20,7 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "parse an input stream" in {
 
-      withTestContext {
+      withTestData {
         val buffer = parseStream
         buffer.length must be equalTo (2)
       }
@@ -29,7 +29,7 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "properly assign invalid metadata formats" in {
 
-      withTestContext {
+      withTestData {
         val buffer = parseStream
         val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
         DataSet.getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
@@ -38,7 +38,7 @@ class DataSetParserSpec extends Specification with TestContext {
     }
 
 //    "preserve cdata" in {
-//      withTestContext {
+//      withTestData {
 //        val buffer = parseStream
 //        buffer(0).xml must contain("<![CDATA[")
 //      }

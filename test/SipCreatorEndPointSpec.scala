@@ -16,8 +16,8 @@ import play.api.libs.Files
 class SipCreatorEndPointSpec extends Specification with TestContext {
 
   step {
-    cleanup
-    loadStandalone
+      cleanup()
+      loadStandalone()
   }
 
 
@@ -25,7 +25,7 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
 
     "list all DataSets" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
         val result = controllers.SipCreatorEndPoint.listAll(Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
         contentAsString(result) must contain("<spec>PrincessehofSample</spec>")
@@ -38,7 +38,7 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
       import com.mongodb.casbah.Imports._
       DataSet.update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
 
-      running(FakeApplication()) {
+      withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
         DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.lockedBy must be(None)
@@ -47,7 +47,7 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
     }
 
     "accept a list of files" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
 A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
@@ -69,7 +69,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "accept a hints file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val hintsSource: String = "conf/bootstrap/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
         val hintsTarget = "target/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
         Files.copyFile(new File(hintsSource), new File(hintsTarget))
@@ -89,7 +89,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
 
     "accept a mappings file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val mappingSource: String = "conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         val mappingTarget = "target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         Files.copyFile(new File(mappingSource), new File(mappingTarget))
@@ -116,7 +116,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "accept a int file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
         val intTarget = "target/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
         Files.copyFile(new File(intSource), new File(intTarget))
@@ -141,7 +141,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "accept a source file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val sourceSource: String = "conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
         val sourceTarget = "target/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
         Files.copyFile(new File(sourceSource), new File(sourceTarget))
@@ -164,7 +164,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "have marked all file hashes and not accept them again" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
 A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
@@ -184,7 +184,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "update an int file" in {
-       running(FakeApplication()) {
+      withTestConfig {
          val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
          val intTarget = "target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
          Files.copyFile(new File(intSource), new File(intTarget))
@@ -212,7 +212,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
       case class ZipEntry(name: String)
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
@@ -238,7 +238,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
   }
 
-  running(FakeApplication()) {
+  withTestConfig {
     step(cleanup)
   }
 

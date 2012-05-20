@@ -32,12 +32,12 @@ import core.rendering._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specification {
+class ViewRenderSpec extends Specification with TestContext {
 
   "The ViewRenderer" should {
 
     "render a record as HTML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
@@ -81,7 +81,7 @@ metadata.icn.placeName: Amsterdam
     }
 
     "render an AFF record as HTML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
@@ -109,7 +109,7 @@ metadata.icn.placeName: Amsterdam
     }
 
     "render a record as XML" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
@@ -145,7 +145,7 @@ metadata.icn.placeName: Amsterdam
 
 
     "render a record as JSON" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
         val renderer = new ViewRenderer("aff", "xml")
         val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
@@ -164,7 +164,7 @@ metadata.icn.placeName: Amsterdam
 
 
     "render a legacy record as XML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map(
           "dc" -> "http://purl.org/dc/elements/1.1/",
