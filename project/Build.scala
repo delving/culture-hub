@@ -43,7 +43,9 @@ object ApplicationBuild extends Build {
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
     "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
 
-    "org.apache.tika"           %  "tika-parsers"                    % "1.0"
+    "org.apache.tika"           %  "tika-parsers"                    % "1.0",
+
+    "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6"
   )
 
   val basexScalaClient = Project("basex-scala-client", file("modules/basex-scala-client")).settings(

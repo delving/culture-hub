@@ -73,7 +73,13 @@ object BaseXStorage {
         while(it.hasNext) {
           val next = it.next()
           if(next._2 % 10000 == 0) session.flush()
-          session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
+          try {
+            session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
+          } catch {
+            case t =>
+              println(next._1)
+              throw t
+          }
           inserted += 1
           onRecordInserted(inserted)
         }

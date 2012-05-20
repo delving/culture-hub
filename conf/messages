@@ -705,7 +705,7 @@ user.secured.noAccess=We are deeply sorry - really, we are - but you do not have
 
 dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for processing
-dataSetState.parsing=Parsing uploaded source data
+dataSetState.parsing=Parsing and storing uploaded source data
 dataSetState.queued=Queued for processing
 dataSetState.processing=Processing
 dataSetState.indexing=Indexing
