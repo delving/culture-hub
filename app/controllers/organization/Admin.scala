@@ -8,9 +8,10 @@ import util.ThemeHandler
 import models._
 import core.HubServices
 import core.search.Params
-import play.api.Play
 import play.api.Play.current
 import play.api.libs.ws.WS
+import java.io.File
+import play.api.{Logger, Play}
 
 /**
  *
@@ -96,6 +97,35 @@ object Admin extends OrganizationController {
           case Right(r) => Ok(r.xml)
           case Left(error) => InternalServerError(error.getMessage)
         }
+    }
+  }
+
+  def redeploy(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val parsing = DataSet.findByState(DataSetState.PARSING).toList
+        val processing = DataSet.findByState(DataSetState.PROCESSING).toList
+
+        if(parsing.size == 0 && processing.size == 0) {
+          val pb = new ProcessBuilder(Seq("/bin/sh", new File(Play.application.path, "redeploy.sh").getAbsolutePath, "&") : _ *)
+          pb.start()
+          Logger("CultureHub").info("Redeploying of CultureHub triggered by HTTP request")
+          Ok("Ok, redeploying")
+        } else {
+          val parsingSets = parsing.map(ds => "%s (%s parsed)".format(ds.spec, ds.details.total_records)).mkString(", ")
+          val processingSets = processing.map(ds => "%s (%s/%s)".format(ds.spec, ds.details.indexing_count, ds.details.total_records)).mkString(", ")
+          Ok(
+            """Can't redeploy:
+              | parsing:
+              | %s
+              |
+              | processing:
+              | %s
+            """.stripMargin.format(parsingSets, processingSets))
+        }
+
+
+
     }
   }
 
