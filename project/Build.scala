@@ -38,6 +38,7 @@ object ApplicationBuild extends Build {
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
+    "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
@@ -48,12 +49,6 @@ object ApplicationBuild extends Build {
     "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6"
   )
 
-  val basexScalaClient = Project("basex-scala-client", file("modules/basex-scala-client")).settings(
-    resolvers += "basex" at "http://files.basex.org/maven",
-    libraryDependencies += "org.basex"  %     "basex" % "7.2.1",
-    libraryDependencies += "org.specs2" %%   "specs2" % "1.7.1" %  "test"
-  )
-
   val core = PlayProject("culturehub-core", coreVersion, coreDependencies, file("core/")).settings(
     organization := "eu.delving",
     version := coreVersion,
@@ -61,7 +56,7 @@ object ApplicationBuild extends Build {
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
     resolvers ++= commonResolvers
-  ).dependsOn(basexScalaClient)
+  )
 
   val dosDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
