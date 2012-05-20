@@ -16,12 +16,16 @@
 
 package util
 
-import io.Source
 import java.io.InputStream
-import xml.pull._
 import models.DataSet
-import xml.{TopScope, NamespaceBinding}
 import core.storage.Record
+import scales.utils._
+import ScalesUtils._
+import scales.xml._
+import ScalesXml._
+import org.apache.commons.lang.StringEscapeUtils
+import javax.xml.stream.XMLInputFactory
+import org.codehaus.stax2.XMLInputFactory2
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -32,15 +36,16 @@ import core.storage.Record
 class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Record] {
 
   private val ns = collection.mutable.Map.empty[String, String]
-  private val parser = new XMLEventReader(Source.fromInputStream(is))
+  private val pull = pullXml(is, parserFactoryPool = CustomStaxInputFactoryPool)
   private var recordCounter: Int = 0
   private var isDone = false
   private var lookAhead: Record = null
 
   {
-    parser.next() match {
-      case EvElemStart(_, "delving-sip-source", _, scope) =>
-        extractNamespaces(scope, ns)
+    // skip start of document
+    pull.next() match {
+      case Left(Elem(qname, _, namespaces)) if qname.local == "delving-sip-source" =>
+        ns ++= namespaces
         DataSet.updateNamespaces(dataSet.spec, ns.toMap)
       case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
     }
@@ -56,7 +61,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   def hasNext: Boolean = !isDone
 
   def next(): Record = {
-    if(isDone) throw new java.util.NoSuchElementException("next on empty iterator")
+    if (isDone) throw new java.util.NoSuchElementException("next on empty iterator")
     val l = lookAhead
     parseNext() match {
       case Some(ahead) => lookAhead = ahead
@@ -81,14 +86,14 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     var recordId: String = null
 
     while (!hasParsedOne) {
-      if(!parser.hasNext) return None
-      val next = parser.next()
+      if (!pull.hasNext) return None
+      val next = pull.next()
       next match {
-        case EvElemStart(pre, "input", attrs, _) =>
+        case Left(Elem(qname, attrs, namespaces)) if qname.local == "input" =>
           inRecord = true
-          val mayId = attrs.get("id").headOption
-          if (mayId != None) recordId = mayId.get.text
-        case EvElemEnd(_, "input") =>
+          val mayId = attrs.find(_.name.local == "id")
+          if (mayId != None) recordId = mayId.get.value
+        case Right(EndElem(name, _)) if (name.local == "input") =>
           inRecord = false
           record = Record(
             id = recordId,
@@ -99,24 +104,30 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
-          recordXml.append(elemStartToString(elemStart))
+        case elemStart@Left(Elem(qname, attrs, ns)) if (inRecord) =>
+          recordXml.append(elemStartToString(qname, attrs, ns))
           elementHasContent = false
-        case EvText(text) if (inRecord) =>
-          if (text != null && text.size > 0) elementHasContent = true
-          recordXml.append(text)
-          fieldValueXml.append(text)
-        case EvEntityRef(text) if (inRecord) =>
-          elementHasContent = true
-          recordXml.append("&%s;".format(text))
-          fieldValueXml.append(text)
-        case elemEnd@EvElemEnd(_, _) if (inRecord) =>
+        case Left(Text(txt)) if (inRecord) =>
+          if (txt != null && txt.size > 0) elementHasContent = true
+          val encoded = StringEscapeUtils.escapeXml(txt)
+          recordXml.append(encoded)
+          fieldValueXml.append(encoded)
+        case Left(CData(data)) if (inRecord) =>
+          if (data != null && data.size > 0) elementHasContent = true
+          val d = """<![CDATA[%s]]>""".format(data)
+          recordXml.append(d)
+          fieldValueXml.append(d)
+        //        case EvEntityRef(text) if (inRecord) =>
+        //          elementHasContent = true
+        //          recordXml.append("&%s;".format(text))
+        //          fieldValueXml.append(text)
+        case elemEnd@Right(EndElem(qname, _)) if (inRecord) =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
             recordXml.append(rollback).append("/>")
           } else {
-            recordXml.append(elemEndToString(elemEnd))
+            recordXml.append(elemEndToString(qname))
           }
           fieldValueXml.clear()
         case some@_ =>
@@ -125,23 +136,45 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     Some(record)
   }
 
-  private def elemStartToString(start: EvElemStart): String = {
-    val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
+  private def elemStartToString(qname: QName, attributes: ListSet[Attribute], ns: Map[String, String]): String = {
+    val attrs = attributes.
+      toList.
+      sortBy(a => a.name.local).
+      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined) ":" else "") + a.local + "=\"" + a.value + "\"")
     if (attrs.isEmpty)
-      "<%s%s>".format(prefix(start.pre), start.label)
+      "<%s%s>".format(prefix(qname.prefix), qname.local)
     else
-      "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
+      "<%s%s %s>".format(prefix(qname.prefix), qname.local, attrs.mkString(" "))
   }
 
-  private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
+  private def elemEndToString(qname: QName): String = "</%s%s>".format(prefix(qname.prefix), qname.local)
 
-  private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
+  private def prefix(pre: Option[String]): String = if (pre.isDefined) pre.get + ":" else ""
+}
 
-  private def extractNamespaces(ns: NamespaceBinding, namespaces: collection.mutable.Map[String, String]) {
-    if (ns == TopScope) return
-    if (ns.prefix != null) namespaces.put(ns.prefix, ns.uri)
-    extractNamespaces(ns.parent, namespaces)
+object CustomStaxInputFactoryPool extends scales.utils.SimpleUnboundedPool[XMLInputFactory] {
+  pool =>
+
+  val cdata = "http://java.sun.com/xml/stream/properties/report-cdata-event"
+
+  def create = {
+    val xmlif = XMLInputFactory.newInstance().asInstanceOf[XMLInputFactory2]
+    if (xmlif.isPropertySupported(cdata)) {
+      xmlif.setProperty(cdata, java.lang.Boolean.TRUE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES)) {
+      xmlif.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES)) {
+      xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_COALESCING)) {
+      xmlif.setProperty(XMLInputFactory.IS_COALESCING, java.lang.Boolean.FALSE)
+    }
+    xmlif.configureForSpeed()
+
+    xmlif
+
   }
-
 }
 
