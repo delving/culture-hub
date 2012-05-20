@@ -18,14 +18,14 @@ class PlatformSpec extends Specification with TestContext {
   "The PortalTheme handled" should {
 
     "load themes from disk into the database" in {
-      running(FakeApplication()) {
+      withTestConfig {
         themeHandler.startup()
         PortalTheme.find(MongoDBObject()).size should not equalTo (0)
       }
     }
 
     "deliver a default theme" in {
-      running(FakeApplication()) {
+      withTestConfig {
         themeHandler.getDefaultTheme should not equalTo (null)
       }
     }
