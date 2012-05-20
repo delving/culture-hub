@@ -2,6 +2,28 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.06
+
+### New features
+
+- manu: new storage layer:
+  - all items saved in mongodb are now in a standardized `MetadataCache`, each item being a `MetadataItem`
+  - using BaseX (http://www.basex.org) in order to store source data
+- manu: AFF API rendering
+- manu: verbatim rendering mechanism for APIs
+- manu: DirectoryService lookup to match Provider and DataProvider in the DataSet creation page
+- eric: statistics mockup
+- manu: multiple domain support for themes (#42)
+- manu: buildinfo now prints which version of the hub and the sip-creator are used at startup
+- manu: replacing scala pull parser with stax
+- manu: redeploy action
+
+### Fixes
+- manu: better JSON rendering for ViewRendering APIs
+- manu: fix #497, #504, #509, #510, #512
+- manu: changing search API layout so that it is valid when rendered as JSON
+- manu: correctly rendering the language for ViewRendering API requests
+
 ## 12.05.2
 
 ### Fixes
