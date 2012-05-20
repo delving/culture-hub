@@ -32,7 +32,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "process a request with 2 valid items" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -70,7 +70,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "reject items without itemId" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -112,7 +112,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "delete items" in {
 
-        running(FakeApplication()) {
+      withTestConfig {
 
           val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
@@ -152,7 +152,7 @@ class IndexApiSpec extends Specification with TestContext {
 
   "process a request with thumbnail systemFields" in {
 
-    running(FakeApplication()) {
+    withTestConfig {
 
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",

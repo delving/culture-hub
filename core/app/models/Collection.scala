@@ -19,7 +19,7 @@ case class Collection(spec: String,
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
     val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
     if(dataSet.isDefined) {
-      val records = cache.list(position, Some(limit))
+      val records = cache.list(position, Some(limit)).filter(_.xml.contains(metadataFormat))
       val totalSize = cache.count()
       (records, totalSize)
     } else {

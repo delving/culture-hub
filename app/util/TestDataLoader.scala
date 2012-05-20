@@ -5,6 +5,14 @@ import org.joda.time.DateTime
 import org.bson.types.ObjectId
 import java.util.Date
 import models._
+import eu.delving.metadata._
+import play.api.Play
+import play.api.Play.current
+import io.Source
+import controllers.SipCreatorEndPoint
+import java.util.zip.GZIPInputStream
+import java.io.{File, FileInputStream}
+import core.processing.DataSetCollectionProcessor
 
 /**
  * Test data
@@ -22,6 +30,12 @@ object TestDataLoader {
     if (DataSet.count() == 0) bootstrapDatasets()
   }
 
+  def loadDataSet() {
+    val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+    DataSet.updateState(dataSet, DataSetState.QUEUED)
+    DataSetCollectionProcessor.process(dataSet)
+  }
 
   private def bootstrapUser() {
     val profile = UserProfile()
@@ -137,9 +151,14 @@ object TestDataLoader {
       lastUploaded = new Date(0),
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
-      mappings = Map("icn" -> Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head)),
+      mappings = Map("icn" -> Mapping(
+        format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head,
+        recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
+      )),
       formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "public"), "icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
+
+
 
 }
