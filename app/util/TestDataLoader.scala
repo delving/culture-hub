@@ -9,6 +9,10 @@ import eu.delving.metadata._
 import play.api.Play
 import play.api.Play.current
 import io.Source
+import controllers.SipCreatorEndPoint
+import java.util.zip.GZIPInputStream
+import java.io.{File, FileInputStream}
+import core.processing.DataSetCollectionProcessor
 
 /**
  * Test data
@@ -26,6 +30,12 @@ object TestDataLoader {
     if (DataSet.count() == 0) bootstrapDatasets()
   }
 
+  def loadDataSet() {
+    val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+    DataSet.updateState(dataSet, DataSetState.QUEUED)
+    DataSetCollectionProcessor.process(dataSet)
+  }
 
   private def bootstrapUser() {
     val profile = UserProfile()
@@ -148,5 +158,7 @@ object TestDataLoader {
       formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "public"), "icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
+
+
 
 }

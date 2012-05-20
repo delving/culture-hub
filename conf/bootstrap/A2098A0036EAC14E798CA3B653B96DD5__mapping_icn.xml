@@ -2,31 +2,27 @@
   <facts>
     <entry>
       <string>spec</string>
-      <string>PrincesseofSample</string>
+      <string>princessehof</string>
     </entry>
     <entry>
-      <string>collectionType</string>
-      <string>all</string>
+      <string>orgId</string>
+      <string>dimcon</string>
     </entry>
     <entry>
       <string>dataProvider</string>
-      <string>Sample Man</string>
+      <string>Princessehof</string>
     </entry>
     <entry>
       <string>name</string>
-      <string>Princessehof Sample Dataset</string>
+      <string>Collectie Princessehof</string>
     </entry>
     <entry>
       <string>rights</string>
-      <string>http://creativecommons.org/publicdomain/mark/1.0/</string>
-    </entry>
-    <entry>
-      <string>namespacePrefix</string>
-      <string>raw</string>
+      <string>http://www.europeana.eu/rights/unknown/</string>
     </entry>
     <entry>
       <string>provider</string>
-      <string>Sample Man</string>
+      <string>Rijksdienst voor het Cultureel Erfgoed</string>
     </entry>
     <entry>
       <string>language</string>
@@ -42,65 +38,99 @@
     </entry>
   </facts>
   <functions>
-    <mapping-function name="cleanAdlibImageReference">
-      <sample-input>
-        <string>..\..\..\Images PH\OKS 1989-001 [01].JPG</string>
-        <string>../../../Images PH/OKS 1989-001 [01].JPG</string>
-      </sample-input>
-      <documentation></documentation>
-      <groovy-code>
-        <string>it.replaceAll(&apos;; &apos;, &apos;_&apos;).replaceAll(&apos;JPG&apos;, &apos;jpg&apos;).replaceAll(&quot;.*?[\\\\|//]&quot;, &quot;&quot;).replaceAll(&quot; &quot;, &quot;%20&quot;).replaceAll(&quot;\\[&quot;, &quot;%5B&quot;).replaceAll(&quot;]&quot;, &quot;%5D&quot;)</string>
-      </groovy-code>
-    </mapping-function>
     <mapping-function name="cleanUrl">
       <sample-input>
-        <string>sjoerd [0]</string>
+        <string>OKS 1972-[020]</string>
       </sample-input>
-      <documentation></documentation>
       <groovy-code>
-        <string>it.replaceAll(&quot; &quot;, &quot;%20&quot;).replaceAll(&quot;\\[&quot;, &quot;%5B&quot;).replaceAll(&quot;]&quot;, &quot;%5D&quot;)</string>
+        <string>it.replaceAll(&quot; &quot;, &quot;_&quot;).replaceAll(&quot;\\[&quot;, &quot;%5B&quot;).replaceAll(&quot;]&quot;, &quot;%5D&quot;)</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="convertToIdentifier">
+      <sample-input>
+        <string>someidentifier</string>
+      </sample-input>
+      <groovy-code>
+        <string>def uriBytes = &quot;[${it}]&quot;.getBytes(&quot;UTF-8&quot;);</string>
+        <string>def digest = java.security.MessageDigest.getInstance(&quot;SHA-1&quot;)</string>
+        <string>def hash = new StringBuilder()</string>
+        <string>for (Byte b in digest.digest(uriBytes)) {</string>
+        <string>hash.append(&apos;0123456789ABCDEF&apos;[(b &amp; 0xF0) &gt;&gt; 4])</string>
+        <string>hash.append(&apos;0123456789ABCDEF&apos;[b &amp; 0x0F])</string>
+        <string>}</string>
+        <string>&quot;Princessehof/$hash&quot;</string>
       </groovy-code>
     </mapping-function>
   </functions>
   <node-mappings>
     <node-mapping inputPath="/input/creator.date_of_birth" outputPath="/icn:record/icn:creatorYearOfBirth"/>
-    <node-mapping inputPath="/input/creator.date_of_death" outputPath="/icn:record/icn:creatorYearOfDeath"/>
-    <node-mapping inputPath="/input/creator.role" outputPath="/icn:record/icn:creatorRole"/>
+    <node-mapping inputPath="/input/technique" outputPath="/icn:record/icn:technique"/>
     <node-mapping inputPath="/input/material" outputPath="/icn:record/icn:material"/>
-    <node-mapping inputPath="/input/institution.place" outputPath="/icn:record/icn:location"/>
-    <node-mapping inputPath="/input" outputPath="/icn:record/icn:province">
+    <node-mapping inputPath="/constant" outputPath="/icn:record/icn:province">
       <groovy-code>
-        <string>&quot;Friesland&quot;</string>
+        <string>&apos;Friesland&apos;</string>
       </groovy-code>
     </node-mapping>
-    <node-mapping inputPath="/input/collection" outputPath="/icn:record/icn:collectionPart"/>
+    <node-mapping inputPath="/input/administration_name" outputPath="/icn:record/icn:collectionPart"/>
+    <node-mapping inputPath="/input/acquisition.method" outputPath="/icn:record/icn:acquisitionMeans"/>
+    <node-mapping inputPath="/input/acquisition.date" outputPath="/icn:record/icn:acquisitionYear"/>
+    <node-mapping inputPath="/input/acquisition.price.value" outputPath="/icn:record/icn:purchasePrice"/>
+    <node-mapping inputPath="/input/acquisition.funding.source" outputPath="/icn:record/icn:acquiredWithHelpFrom"/>
+    <node-mapping inputPath="/input/condition" outputPath="/icn:record/icn:physicalState"/>
     <node-mapping inputPath="/input/title" outputPath="/icn:record/dc:title"/>
     <node-mapping inputPath="/input/creator" outputPath="/icn:record/dc:creator"/>
-    <node-mapping inputPath="/input/object_name" outputPath="/icn:record/dc:subject"/>
-    <node-mapping inputPath="/input/description" outputPath="/icn:record/dc:description"/>
+    <node-mapping inputPath="/input/production.date.end" outputPath="/icn:record/dc:date">
+      <siblings>
+        <path>/input/production.date.start</path>
+      </siblings>
+      <groovy-code>
+        <string>if (_M2[&apos;productiondatestart&apos;] == _M2[&apos;productiondateend&apos;]) {</string>
+        <string>&quot;${_M2[&apos;productiondatestart&apos;]}&quot;</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>&quot;${_M2[&apos;productiondatestart&apos;]} ${_M2[&apos;productiondateend&apos;]}&quot;</string>
+        <string>}</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/object_name" outputPath="/icn:record/dc:type"/>
     <node-mapping inputPath="/input/dimension.type" outputPath="/icn:record/dc:format">
       <siblings>
         <path>/input/dimension.unit</path>
         <path>/input/dimension.value</path>
       </siblings>
-    </node-mapping>
-    <node-mapping inputPath="/input/priref" outputPath="/icn:record/dc:identifier"/>
-    <node-mapping inputPath="/input/title.notes" outputPath="/icn:record/dcterms:alternative"/>
-    <node-mapping inputPath="/input/content.date.note" outputPath="/icn:record/dcterms:temporal"/>
-    <node-mapping inputPath="/input/copyright" outputPath="/icn:record/dcterms:rightsHolder">
-      <siblings>
-        <path>/input/current_owner</path>
-      </siblings>
-    </node-mapping>
-    <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/europeana:isShownBy">
       <groovy-code>
-        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier_URL)}&quot;</string>
+        <string>&quot;${_M2[&apos;dimensiontype&apos;]}: ${_M2[&apos;dimensionvalue&apos;]} ${_M2[&apos;dimensionunit&apos;]}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/object_number" outputPath="/icn:record/dc:identifier"/>
+    <node-mapping inputPath="/input/institution.name" outputPath="/icn:record/dc:source"/>
+    <node-mapping inputPath="/input/production.place" outputPath="/icn:record/dc:coverage"/>
+    <node-mapping inputPath="/input/institution.name" outputPath="/icn:record/dc:rights"/>
+    <node-mapping inputPath="/input/technique" outputPath="/icn:record/dcterms:medium"/>
+    <node-mapping inputPath="/input/current_owner" outputPath="/icn:record/dcterms:provenance">
+      <groovy-code>
+        <string>def list = [</string>
+        <string>&apos;Gemeente Leeuwarden&apos;,</string>
+        <string>&apos;Ottema-Kingma Stichting&apos;,</string>
+        <string>&apos;Vereniging van Vrienden Keramiekmuseum Princessehof&apos;</string>
+        <string>]</string>
+        <string>list.contains(_currentowner)?_currentowner.text():&quot;&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/reproduction.reference" outputPath="/icn:record/europeana:isShownBy" operator="FIRST">
+      <groovy-code>
+        <string>&quot;http://fries-museum.delving.org/images/PH/${cleanUrl(_reproductionreference)}.jpg&quot;</string>
       </groovy-code>
     </node-mapping>
     <node-mapping inputPath="/facts/rights" outputPath="/icn:record/europeana:rights"/>
     <node-mapping inputPath="/input/object_number" outputPath="/icn:record/europeana:isShownAt">
       <groovy-code>
-        <string>&quot;http://collectie.princessehof.nl/portal/object/${cleanUrl(_object_number)}.html&quot;</string>
+        <string>&quot;http://collectie.princessehof.nl/portal/object/${convertToIdentifier(_objectnumber)}.html&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/reproduction.reference" outputPath="/icn:record/europeana:object" operator="FIRST">
+      <groovy-code>
+        <string>&quot;http://fries-museum.delving.org/images/PH/${cleanUrl(_reproductionreference)}.jpg&quot;</string>
       </groovy-code>
     </node-mapping>
     <node-mapping inputPath="/facts/provider" outputPath="/icn:record/europeana:provider"/>
@@ -111,10 +141,5 @@
     <node-mapping inputPath="/facts/country" outputPath="/icn:record/europeana:country"/>
     <node-mapping inputPath="/facts/spec" outputPath="/icn:record/europeana:collectionName"/>
     <node-mapping inputPath="/facts/name" outputPath="/icn:record/europeana:collectionTitle"/>
-    <node-mapping inputPath="/input/reproduction.identifier_URL" outputPath="/icn:record/delving:thumbnail">
-      <groovy-code>
-        <string>&quot;http://princessehof.delving.org/images/PH/${cleanAdlibImageReference(_reproduction_identifier__URL)}&quot;</string>
-      </groovy-code>
-    </node-mapping>
   </node-mappings>
 </rec-mapping>
