@@ -542,7 +542,7 @@
    <dynamicField name="*_string"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_single"  type="string"  indexed="true"  stored="true"/>
-   <dynamicField name="*_link"  type="string"  indexed="true"  stored="true"/>
+   <dynamicField name="*_link"  type="string"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_long"  type="long"   indexed="true"  stored="true"/>
    <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
    <dynamicField name="*_txt" type="text_general"    indexed="true"  stored="true" multiValued="true"/>

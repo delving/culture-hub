@@ -2,12 +2,13 @@ package core.storage
 
 import eu.delving.basex.client._
 import eu.delving.basex.client.BaseX
+import exceptions.StorageInsertionException
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import scala._
 import xml.Node
-import play.api.Play
 import play.api.Play.current
+import play.api.{Logger, Play}
 
 /**
  * BaseX-based Storage engine.
@@ -22,8 +23,10 @@ object BaseXStorage {
   lazy val storage = new BaseX(
     Play.configuration.getString("basex.host").getOrElse("localhost"),
     Play.configuration.getInt("basex.port").getOrElse(1984),
+    Play.configuration.getInt("basex.eport").getOrElse(1985),
     Play.configuration.getString("basex.user").getOrElse("admin"),
-    Play.configuration.getString("basex.password").getOrElse("admin")
+    Play.configuration.getString("basex.password").getOrElse("admin"),
+    false
   )
 
   def createCollection(orgId: String, collectionName: String): Collection = {
@@ -77,8 +80,8 @@ object BaseXStorage {
             session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
           } catch {
             case t =>
-              println(next._1)
-              throw t
+              Logger("CultureHub").error(next._1.toString)
+              throw new StorageInsertionException(next._1.toString, t)
           }
           inserted += 1
           onRecordInserted(inserted)
