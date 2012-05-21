@@ -22,8 +22,10 @@ object BaseXStorage {
   lazy val storage = new BaseX(
     Play.configuration.getString("basex.host").getOrElse("localhost"),
     Play.configuration.getInt("basex.port").getOrElse(1984),
+    Play.configuration.getInt("basex.eport").getOrElse(1985),
     Play.configuration.getString("basex.user").getOrElse("admin"),
-    Play.configuration.getString("basex.password").getOrElse("admin")
+    Play.configuration.getString("basex.password").getOrElse("admin"),
+    false
   )
 
   def createCollection(orgId: String, collectionName: String): Collection = {
