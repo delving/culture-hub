@@ -106,9 +106,20 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
           log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
           if (!interrupted && indexingSchema.isDefined) {
             IndexingService.commit()
-            IndexingService.deleteOrphansBySpec(collection.orgId, collection.name, startIndexing)
+            var retries = 0
+            var success = false
+            while(retries < 3 && !success) {
+              try {
+                IndexingService.deleteOrphansBySpec(collection.orgId, collection.name, startIndexing)
+                success = true
+              } catch {
+                case t => retries += 1
+                }
+              }
+            if(!success) {
+              log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
+            }
           }
-
         } catch {
           case t =>
             t.printStackTrace()
