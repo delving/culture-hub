@@ -67,7 +67,7 @@ object BaseXStorage {
     var inserted: Long = 0
     BaseXStorage.withBulkSession(collection) {
       session =>
-        val versions: Map[String, Int] = (session.find("""for $i in /record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
+        val versions: Map[String, Int] = (session.find("""for $i in /*:record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
           v: Node =>
             ((v \ "@id").text -> v.text.toInt)
         }).toMap
@@ -122,16 +122,16 @@ object BaseXStorage {
   // ~~~ Collection queries
 
   def currentCollectionVersion(implicit session: ClientSession): Int = {
-    val v = session.findOne("let $r := /record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text
+    val v = session.findOne("let $r := /*:record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text
     if(v.isEmpty) 0 else v.toInt
   }
 
   def count(implicit session: ClientSession): Int = {
-    session.findOne("let $r := /record[@version = %s] return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
+    session.findOne("let $r := /*:record[@version = %s] return <count>{count($r)}</count>".format(currentCollectionVersion)).get.text.toInt
   }
 
   def findAllCurrent(implicit session: ClientSession) = {
-    session.find("for $i in /record[@version = %s] order by $i/system/index return $i".format(currentCollectionVersion))
+    session.find("for $i in /*:record[@version = %s] order by $i/system/index return $i".format(currentCollectionVersion))
   }
 
 }
