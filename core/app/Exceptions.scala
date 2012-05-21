@@ -72,5 +72,9 @@ class SolrConnectionException(s: String, throwable: Throwable) extends Exception
   def this(s: String) = this (s, null)
 }
 
+// ~~~ BaseX insertion
+
+class StorageInsertionException(s: String, throwable: Throwable) extends Exception(s, throwable)
+
 }
 
