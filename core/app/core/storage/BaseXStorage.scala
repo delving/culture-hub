@@ -122,7 +122,8 @@ object BaseXStorage {
   // ~~~ Collection queries
 
   def currentCollectionVersion(implicit session: ClientSession): Int = {
-    session.findOne("let $r := /record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text.toInt
+    val v = session.findOne("let $r := /record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text
+    if(v.isEmpty) 0 else v.toInt
   }
 
   def count(implicit session: ClientSession): Int = {
