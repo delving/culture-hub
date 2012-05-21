@@ -1,6 +1,6 @@
 package controllers
 
-import exceptions.{UnauthorizedException, AccessKeyException}
+import exceptions.{StorageInsertionException, UnauthorizedException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
@@ -396,7 +396,19 @@ class ReceiveSource extends Actor {
         receiveSource(dataSet, theme, inputStream) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
-            DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
+            val message = if(t.isInstanceOf[StorageInsertionException]) {
+              Some("""Error while inserting record:
+                      |
+                      |%s
+                      |
+                      |Cause:
+                      |
+                      |%s
+                      |""".stripMargin.format(t.getMessage, t.getCause.getMessage))
+            } else {
+              Some(t.getMessage)
+            }
+            DataSet.updateState(dataSet, DataSetState.ERROR, message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
             ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
           case Right(inserted) =>
