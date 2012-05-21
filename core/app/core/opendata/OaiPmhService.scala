@@ -353,7 +353,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     for (ns <- namespaces) {
       import xml.{Null, UnprefixedAttribute}
-      mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+      if(ns.prefix == null || ns.prefix.isEmpty) {
+        mutableElem = mutableElem % new UnprefixedAttribute("xmlns", ns.uri, Null)
+      } else {
+        mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+      }
     }
     mutableElem
   }

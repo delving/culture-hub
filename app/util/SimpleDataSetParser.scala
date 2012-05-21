@@ -139,8 +139,9 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   private def elemStartToString(qname: QName, attributes: ListSet[Attribute], ns: Map[String, String]): String = {
     val attrs = attributes.
       toList.
+      filterNot(a => a.prefix.isEmpty && (a.local == null || a.local.trim.length == 0)).
       sortBy(a => a.name.local).
-      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined) ":" else "") + a.local + "=\"" + a.value + "\"")
+      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") + a.local + "=\"" + a.value + "\"")
     if (attrs.isEmpty)
       "<%s%s>".format(prefix(qname.prefix), qname.local)
     else
