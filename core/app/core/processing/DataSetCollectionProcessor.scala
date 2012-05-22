@@ -5,7 +5,10 @@ import play.api.Logger
 import models._
 import java.net.URL
 import io.Source
-import core.indexing.Indexing
+import core.indexing.{IndexingService, Indexing}
+import org.apache.solr.client.solrj.SolrQuery
+import core.Constants._
+import org.joda.time.DateTime
 
 
 /**
@@ -88,8 +91,37 @@ object DataSetCollectionProcessor {
     }
     def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
 
+    def onIndexingComplete(start: DateTime) {
+      IndexingService.commit()
+
+      // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
+      var retries = 0
+      var success = false
+      while(retries < 3 && !success) {
+        try {
+          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start)
+          success = true
+        } catch {
+          case t => retries += 1
+          }
+        }
+      if(!success) {
+        log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
+      }
+
+      // workaround: it looks as though the first query targeting a specific set after it has been indexed blows up with a timeout
+      // it does not matter how long we wait
+      // hence, we just trigger it here, and ignore the exception.
+      try {
+        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)))
+      } catch {
+        case t => // as described earlier on, just ignore this exception
+      }
+
+    }
+
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne)
+    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
     if(DataSet.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
       DataSet.updateState(dataSet, DataSetState.ENABLED)
     }
