@@ -13,6 +13,7 @@ import core.indexing.IndexingService
 import models._
 import org.joda.time.{DateTimeZone, DateTime}
 import xml.{Elem, NodeSeq, Node}
+import org.apache.solr.client.solrj.SolrQuery
 
 class CollectionProcessor(collection: Collection, targetSchemas: List[ProcessingSchema], indexingSchema: Option[ProcessingSchema], renderingSchema: Option[ProcessingSchema]) {
 
@@ -31,9 +32,8 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
-  def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String]) {
-    val now = System.currentTimeMillis()
-    val startIndexing: DateTime = new DateTime(DateTimeZone.UTC)
+  def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String], onIndexingComplete: DateTime => Unit) {
+    val startProcessing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.name, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
 
@@ -105,20 +105,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
           }
           log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
           if (!interrupted && indexingSchema.isDefined) {
-            IndexingService.commit()
-            var retries = 0
-            var success = false
-            while(retries < 3 && !success) {
-              try {
-                IndexingService.deleteOrphansBySpec(collection.orgId, collection.name, startIndexing)
-                success = true
-              } catch {
-                case t => retries += 1
-                }
-              }
-            if(!success) {
-              log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
-            }
+            onIndexingComplete(startProcessing)
           }
         } catch {
           case t =>
@@ -141,7 +128,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
         }
 
         updateCount(index)
-        log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS).toSeconds))
+        log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
       }
 
     }
