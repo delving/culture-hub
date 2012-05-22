@@ -90,7 +90,9 @@ object DataSetCollectionProcessor {
 
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne)
-    DataSet.updateState(dataSet, DataSetState.ENABLED)
+    if(DataSet.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
+      DataSet.updateState(dataSet, DataSetState.ENABLED)
+    }
   }
 
 
