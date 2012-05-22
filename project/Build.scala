@@ -10,7 +10,7 @@ object ApplicationBuild extends Build {
 
   val appName = "culture-hub"
   val cultureHubVersion = "1.0"
-  val sipCreatorVersion = "1.0.5-SNAPSHOT"
+  val sipCreatorVersion = "1.0.6-SNAPSHOT"
 
   val dosVersion = "1.5"
 
