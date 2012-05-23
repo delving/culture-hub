@@ -40,7 +40,7 @@ object IndexingService extends SolrServer {
   /**
    * Commits staged Things or MDRs to index
     */
-  def commit() {
+  def commit() = {
     getStreamingUpdateServer.commit()
   }
 

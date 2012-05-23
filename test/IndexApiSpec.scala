@@ -97,10 +97,15 @@ class IndexApiSpec extends Specification with TestContext {
                         <deletedItemCount>0</deletedItemCount>
                         <invalidItemCount>1</invalidItemCount>
                         <invalidItems>
-                          <indexItem itemType="movie">
-                            <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                            <field name="director" fieldType="string" facet="true">Garth Jennings</field>
-                          </indexItem>
+                          <invalidItem>
+                            <error>Item misses required attributes 'itemId' or 'itemType'</error>
+                            <item>
+                              <indexItem itemType="movie">
+                                <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                                <field name="director" fieldType="string" facet="true">Garth Jennings</field>
+                              </indexItem>
+                            </item>
+                          </invalidItem>
                         </invalidItems>
                       </indexResponse>
 
@@ -185,6 +190,49 @@ class IndexApiSpec extends Specification with TestContext {
       queryByHasDigitalObject.getResults.get(0).getFirstValue("custom_title_string") must equalTo ("FooBar")
     }
   }
+
+  "yield errors for items with invalid dates" in {
+    running(FakeApplication()) {
+      val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
+        method = "POST",
+        uri = "",
+        headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
+        body =  <indexRequest>
+                  <indexItem itemId="123456" itemType="test" delete="false">
+                    <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
+                  </indexItem>
+                  <indexItem itemId="654321" itemType="test" delete="false">
+                    <field name="custom:creationDate" fieldType="date">1995-12-31T23:59:59.9Z</field>
+                    </indexItem>
+                </indexRequest>
+      )
+
+      val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+      status(result) must equalTo(OK)
+
+      val expected = <indexResponse>
+                      <totalItemCount>2</totalItemCount>
+                      <indexedItemCount>1</indexedItemCount>
+                      <deletedItemCount>0</deletedItemCount>
+                      <invalidItemCount>1</invalidItemCount>
+                      <invalidItems>
+                        <invalidItem>
+                          <error>Invalid date field 'custom:creationDate' with value '2012-05-03 15:44:28'</error>
+                          <item>
+                            <indexItem itemId="123456" itemType="test" delete="false">
+                            <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
+                            </indexItem>
+                          </item>
+                        </invalidItem>
+                      </invalidItems>
+                    </indexResponse>
+
+      trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
+
+    }
+  }
+
+
 
 
   step {
