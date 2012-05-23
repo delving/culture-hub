@@ -25,7 +25,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
   class ChildSelectable(ns: NodeSeq) {
     def \* = ns flatMap { _ match {
-      case e:Elem => e.child
+      case e: Elem => e.child
       case _ => NodeSeq.Empty
     } }
   }
@@ -94,11 +94,30 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                   None
                 }
 
+                val serializedRecords = mappingResults.flatMap {
+                  r =>
+                  try {
+                    val serialized = MappingService.nodeTreeToXmlString(r._2.root())
+                    Some((r._1 -> serialized))
+                  } catch {
+                    case t =>
+                      log.error(
+                        """While attempting to serialize the following output document:
+                          |
+                          |%s
+                          |
+                        """.stripMargin.format(r._2.root()), t)
+                      throw t
+
+                    None
+                  }
+                }
+
                 val cachedRecord = MetadataItem(
                   collection = collection.name,
                   itemType = ITEM_TYPE_MDR,
                   itemId = hubId,
-                  xml = mappingResults.map(r => (r._1 -> MappingService.nodeTreeToXmlString(r._2.root()))),
+                  xml = serializedRecords,
                   systemFields = allSystemFields.getOrElse(Map.empty),
                   index = index.toInt
                 )
