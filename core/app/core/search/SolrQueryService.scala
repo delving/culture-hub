@@ -255,7 +255,11 @@ object SolrQueryService extends SolrServer {
   def resolveHubIdAndFormat(orgId: Option[String], id: String, idType: String): Option[(String, String, Seq[String])] = {
     val t = DelvingIdType(id, idType)
     val solrQuery = if(orgId.isDefined) {
-      "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, orgId.get)
+      if (idType == "legacy") {
+        "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), orgId.get)
+      } else {
+        "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, orgId.get)
+      }
     } else {
       "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
     }
