@@ -84,10 +84,10 @@ object Search extends DelvingController {
     val grantTypes = request.session.get(Constants.USERNAME).map {
       userName =>
         val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
-        val groups: Seq[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+        val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
         // TODO make this cleaner
         if(isAdmin) {
-          groups ++ Seq(GrantType.get("own"))
+          groups ++ List(GrantType.get("own"))
         } else {
           groups
         }
