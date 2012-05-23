@@ -1,0 +1,11 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="html">
+        <row>
+            <section id="general">
+                <field path="/icn:record/dc:title" label="thing.title"/>
+            </section>
+        </row>
+    </view>
+</views>
