@@ -46,7 +46,7 @@ object Show extends DelvingController {
         if (!renderer.isDefined) {
           InternalServerError("Could not find renderer for " + itemType)
         } else {
-          val renderResult = renderer.get.renderRecord(thing.xml("musip"), List.empty, Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
+          val renderResult = renderer.get.renderRecord(thing.xml("musip"), getUserGrantTypes(orgId), Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
           val viewTree = renderResult.toViewTree
 
           (viewTree, thing.systemFields)

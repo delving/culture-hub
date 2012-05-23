@@ -157,6 +157,22 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
       )(Token.apply)(Token.unapply)
     )
 
+
+  // ~~~ Access control
+
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
+    userName =>
+      val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+      val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+      // TODO make this cleaner
+      if(isAdmin) {
+        groups ++ List(GrantType.get("own"))
+      } else {
+        groups
+      }
+  }.getOrElse(List.empty)
+
+
 }
 
 

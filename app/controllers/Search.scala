@@ -81,19 +81,7 @@ object Search extends DelvingController {
 
   private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String)(implicit request: RequestHeader) = {
 
-    val grantTypes = request.session.get(Constants.USERNAME).map {
-      userName =>
-        val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
-        val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
-        // TODO make this cleaner
-        if(isAdmin) {
-          groups ++ List(GrantType.get("own"))
-        } else {
-          groups
-        }
-    }.getOrElse(List.empty)
-
-    val renderResult = viewRenderer.renderRecord(record, grantTypes, definition.getNamespaces, lang)
+    val renderResult = viewRenderer.renderRecord(record, getUserGrantTypes(orgId), definition.getNamespaces, lang)
 
     val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
       // we're coming from someplace else then a search, remove the return to results cookie
