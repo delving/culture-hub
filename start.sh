@@ -7,7 +7,7 @@ echo Starting the CultureHub in production mode
 echo ==========================================
 echo
 echo
-export _JAVA_OPTIONS="-Dconfig.file=`pwd`/conf/production.conf -Dlogger.resource=prod-logger.xml -Xms256M -Xmx1024M"
+sh params.sh
 ../play-2.0/play start &
 
 echo
