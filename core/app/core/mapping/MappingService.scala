@@ -45,17 +45,12 @@ object MappingService {
 
   }
 
-  def transformRecord(rawRecord: String, recordMapping: String, namespaces: Map[String, String]): String = {
-    val engine: MappingEngine = new MappingEngine(recordMapping, Play.classloader, recDefModel, namespaces.asJava)
-    val nodeTree = engine.execute(rawRecord).root
-    nodeTreeToXmlString(nodeTree)
-  }
-
   def nodeTreeToXmlString(node: Node): String = {
     val serialized = serializer.toXml(node)
-    // chop of the XML prefix. kindof a hack
-    if(serialized.startsWith("""<?xml version="1.0" encoding="UTF-8"?>""")) {
-      serialized.substring("""<?xml version="1.0" encoding="UTF-8"?>""".length)
+    // chop of the XML prefix. kindof a hack. this should be a regex instead, more robust
+    val xmlPrefix = """<?xml version='1.0' encoding='UTF-8'?>"""
+    if(serialized.startsWith(xmlPrefix)) {
+      serialized.substring(xmlPrefix.length)
     } else {
       serialized
     }
