@@ -18,6 +18,7 @@ import eu.delving.groovy.XmlSerializer
 object MappingService {
 
   var recDefModel: RecDefModel = null
+  val serializer = new XmlSerializer
 
   def init() {
     try {
@@ -51,7 +52,7 @@ object MappingService {
   }
 
   def nodeTreeToXmlString(node: Node): String = {
-    val serialized = XmlSerializer.toXml(node)
+    val serialized = serializer.toXml(node)
     // chop of the XML prefix. kindof a hack
     if(serialized.startsWith("""<?xml version="1.0" encoding="UTF-8"?>""")) {
       serialized.substring("""<?xml version="1.0" encoding="UTF-8"?>""".length)
