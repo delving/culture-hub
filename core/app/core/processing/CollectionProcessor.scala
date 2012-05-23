@@ -65,7 +65,18 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
                 val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
                   val sourceRecord = (record \ "document" \ "input" \*).mkString("\n")
-                  (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
+                  try {
+                    (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
+                  } catch {
+                    case t =>
+                      log.error(
+                        """While processing source input document:
+                          |
+                          |%s
+                          |
+                        """.stripMargin.format(sourceRecord), t)
+                      throw t
+                  }
                 }).toMap
 
                 val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
