@@ -4,7 +4,7 @@
     <view name="museum">
         <row>
             <section id="general" type="dl" class="span6">
-                <field path="/musip:actor/musip:name" label="thing.title" type="di" role="namer"/>
+                <field path="/musip:actor/musip:name" label="thing.title" type="di" />
                 <field path="/musip:actor/musip:description" label="thing.description" type="di" class="truncate"/>
                 <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
                 <field path="/musip:actor/musip:postal_code" label="thing.postalCode" type="di"/>
