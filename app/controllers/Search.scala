@@ -7,6 +7,8 @@ import core.search._
 import exceptions._
 import play.api.i18n.Messages
 import core.rendering.ViewRenderer
+import core.{HubServices, Constants}
+import com.mongodb.casbah.Imports._
 
 /**
  *
@@ -17,6 +19,7 @@ object Search extends DelvingController {
   
   // TODO move later
   val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
+  val icnViewRenderer = ViewRenderer.fromDefinition("icn", "html")
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
@@ -59,30 +62,14 @@ object Search extends DelvingController {
         MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
           case Some(mdr) =>
 
+            // TODO eventually make the selection mechanism dynamic, if we need to.
+            // AFF takes precedence over anything else
             if(mdr.xml.get("aff").isDefined) {
               val record = mdr.xml.get("aff").get
-              if(!affViewRenderer.isDefined) {
-                logError("Could not find AFF view definition")
-                InternalServerError
-              } else {
-                val definition = RecordDefinition.getRecordDefinition("aff").get
-                // TODO
-                val grantTypes = List.empty
-                val renderResult = affViewRenderer.get.renderRecord(record, grantTypes, definition.getNamespaces, lang)
-
-                val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
-                  // we're coming from someplace else then a search, remove the return to results cookie
-                  request.session - (RETURN_TO_RESULTS)
-                } else {
-                  request.session
-                }
-
-                val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-                val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
-
-                Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
-              }
-
+              renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId)
+            } else if(mdr.xml.get("icn").isDefined) {
+              val record = mdr.xml.get("icn").get
+               renderRecord(mdr, record, icnViewRenderer.get, RecordDefinition.getRecordDefinition("icn").get, orgId)
             } else {
               NotFound(Messages("heritageObject.notViewable"))
             }
@@ -90,6 +77,36 @@ object Search extends DelvingController {
           case None => NotFound("Record was not found")
         }
     }
+  }
+
+  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String)(implicit request: RequestHeader) = {
+
+    val grantTypes = request.session.get(Constants.USERNAME).map {
+      userName =>
+        val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+        val groups: Seq[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+        // TODO make this cleaner
+        if(isAdmin) {
+          groups ++ Seq(GrantType.get("own"))
+        } else {
+          groups
+        }
+    }.getOrElse(List.empty)
+
+    val renderResult = viewRenderer.renderRecord(record, grantTypes, definition.getNamespaces, lang)
+
+    val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+      // we're coming from someplace else then a search, remove the return to results cookie
+      request.session - (RETURN_TO_RESULTS)
+    } else {
+      request.session
+    }
+
+    val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+    val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+
+    Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+
   }
 
 
