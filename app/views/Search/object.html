@@ -4,9 +4,41 @@
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
-<div class="row dashboard">
-    #{view view: fullView /}
-</div>
+<style>
+    h5 {
+        margin: 0 0 2px 0;
+    }
+    p {
+        margin: 0 0 8px 10px;
+    }
+    dl {
+        margin: 0 0 10px 0;
+    }
+    ul {
+        margin-bottom: 10px;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    #collections ul {
+        display: inline-block;
+        width: 44%;
+        vertical-align: top;
+    }
+    div.image {
+        margin-bottom: 21px;
+        text-align: center;
+    }
+    img.img {
+        height: auto;
+        max-width: 100%;
+    }
+
+</style>
+
+#{view view: fullView /}
+
 
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
