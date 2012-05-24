@@ -172,6 +172,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   val list = RenderNode(nodeType = listName, value =  None, isArray = true)
                   list.addAttrs(attrs)
 
+                  list.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
                   treeStack.head += list
                   treeStack push list
 
@@ -310,7 +311,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
       log.debug("Entered " + viewDefinitionNode.label)
-      renderNode.parent = treeStack.head
+      renderNode.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+
       treeStack.head += renderNode
       treeStack.push(renderNode)
       viewDefinitionNode.child foreach {
@@ -341,7 +343,7 @@ class ViewRenderer(schema: String, viewName: String) {
     /** appends a new RenderNode to the result tree and performs an operation on it **/
     def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType, text)
-      newNode.parent = treeStack.head
+      newNode.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
       attr foreach {
         newNode addAttr _
       }
@@ -353,7 +355,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
     /** simply appends a node to the current tree head **/
     def appendNode(node: RenderNode) {
-      node.parent = treeStack.head
+      node.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
       treeStack.head += node
     }
 
