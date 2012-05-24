@@ -9,16 +9,22 @@
 
 <style>
     h5 {
-        margin: 0;
+        margin: 0 0 2px 0;
+    }
+    p {
+        margin: 0 0 8px 10px;
     }
     dl {
-        margin: 0;
+        margin: 0 0 10px 0;
+    }
+    ul {
+        margin-bottom: 10px;
     }
     img {
         max-width: 100%;
         height: auto;
     }
-    ul.split {
+    #collections ul {
         display: inline-block;
         width: 44%;
         vertical-align: top;
@@ -31,25 +37,26 @@
         height: auto;
         max-width: 100%;
     }
+
 </style>
 
 <div class="page-header">
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
+
 #{view view: view /}
 
 <script>
     $(document).ready(function(){
-        $('#sidebar  ul').easyListSplitter({
+        $('#collections  ul').easyListSplitter({
             colNumber: 2,
             direction: 'vertical'
         });
-        $('.truncate').expander({
+        $('p').expander({
             slicePoint: 600,
             expandText: "&{'ui.label.more'}",
             userCollapseText: "&{'ui.label.less'}"
         });
         $('.read-more a, .read-less a').addClass("badge badge-info");
-//        $('.read-more a').addClass("btn btn-primary btn-mini");
     })
 </script>

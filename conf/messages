@@ -189,6 +189,8 @@ thing.endYear=End year
 thing.keyword=Keyword
 thing.keywords=Keywords
 
+
+
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to {0} for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: {0}
@@ -470,6 +472,10 @@ metadata.tib.vindplaats=Physical Location
 
 metadata.collection.strength=Strength
 metadata.collection.administrators=Administrators
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relation to core collection
+metadata.collection.earliestWork=Earliest work from collection
+metadata.collection.latestWork=Most recent work from collection
 
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type
