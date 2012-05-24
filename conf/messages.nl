@@ -362,6 +362,7 @@ metadata.dcterms.isFormatOf=Is formaat van
 metadata.dcterms.hasVersion=Versie
 metadata.dcterms.isPartOf=Is deel van
 metadata.dcterms.isReferencedBy=Is verwezen door
+metadata.dcterms.medium=Medium
 metadata.dcterms.isReplacedBy=Is vervangen door
 metadata.dcterms.provenance=Herkomst
 metadata.dcterms.references=Referenties

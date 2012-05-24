@@ -7,29 +7,26 @@
                 <container>
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                     <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
+                    <!-- is this actually mapped? -->
+                    <!--<field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>-->
                     <field path="/icn:record/dc:date" label="metadata.dc.date"/>
                     <field path="/icn:record/dc:format" label="metadata.dc.format"/>
                     <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
                     <field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>
                     <field path="/icn:record/dc:source" label="metadata.dc.source"/>
                     <field path="/icn:record/dc:type" label="metadata.dc.type"/>
-
-                    <enumeration path="/icn:record/dcterms:medium" label="metadata.dcterms.medium"/>
+                    <!-- seems to be the same as icn:technique -->
+                    <!--<enumeration path="/icn:record/dcterms:medium" label="metadata.dcterms.medium"/>-->
                     <field path="/icn:record/icn:material" label="metadata.icn.material"/>
                     <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique"/>
 
                     <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
-
-                    <field path="/icn:record/europeana:isShownAt" label="thing.landingPage"/>
-
-
-
                 </container>
             </column>
             <column proportion="1of3">
                 <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
                 <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
-                <field path="icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+                <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
 
                 <!-- TODO extend these to links, when we have the mechanism in place. -->
                 <field value="${provider}" label="metadata.europeana.provider"/>
@@ -44,10 +41,15 @@
             <column proportion="1of3">
                 <container>
                     <image path="/icn:record/europeana:object"/>
+
+                    <!-- TODO: textValue should get value from messages just like Label-->
                     <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt"/>
                 </container>
             </column>
         </row>
+        <!--<row>-->
+            <!-- TODO: get list of related objects? -->
+        <!--</row>-->
     </view>
 </views>
 
