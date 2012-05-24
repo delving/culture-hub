@@ -212,7 +212,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   // directory
 
   def findOrganization(query: String): List[OrganizationEntry] = {
-    get("/directory/organization/query", "query" -> query).map {
+    get("/directory/organization/query", "query" -> URLEncoder.encode(query, "utf-8")).map {
       response =>
         if(response.status == OK) {
           JJson.parse[List[OrganizationEntry]](response.body)
@@ -223,10 +223,15 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   }
 
   def findOrganizationByName(name: String): Option[OrganizationEntry] = {
-    get("/directory/organization/byName", "name" -> name).map {
+    get("/directory/organization/byName", "name" -> URLEncoder.encode(name, "utf-8")).map {
       response =>
-        if(response.status == OK) {
-          Some(JJson.parse[OrganizationEntry](response.body))
+        // FIXME this check and the try-catch are a hack. The deserialization has no reason to blow up here.
+        if(response.status == OK && response.body != null) {
+          try {
+            Some(JJson.parse[OrganizationEntry](response.body))
+          } catch {
+            case _ => None
+          }
         } else {
           None
         }
