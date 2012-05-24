@@ -17,19 +17,22 @@
                     <field path="/musip:actor/musip:email" label="thing.email"/>
                     <field path="/musip:actor/musip:url" label="thing.url"/>
                     <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
-                    <container type="list">
-                        <list label="thing.contact" path="/musip:actor/musip:contacts/musip:contact">
-                            <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
-                        </list>
-                    </container>
+                </container>
+                <container type="list" label="thing.contact">
+                    <list path="/musip:actor/musip:contacts/musip:contact">
+                        <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
+                    </list>
                 </container>
             </column>
             <column proportion="1of2">
-                <container>
+                <container id="sidebar">
                     <image label="thing.collections" path="/musip:actor/musip:image"/>
+
+                    <container type="list" label="thing.collections">
                     <list path="/musip:actor/musip:collections/musip:collection"> <!-- TODO in rendering: class="split" -->
                         <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                     </list>
+                    </container>
                 </container>
             </column>
         </row>
