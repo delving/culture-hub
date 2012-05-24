@@ -20,7 +20,7 @@
 
                     <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
 
-                    <field path="/icn:record/delving:landingPage" label="thing.landingPage"/>
+                    <field path="/icn:record/europeana:isShownAt" label="thing.landingPage"/>
 
                     <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
                     <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
@@ -40,7 +40,7 @@
             </column>
             <column proportion="1of2">
                 <container>
-                    <image path="/icn:record/delving:thumbnail"/>
+                    <image path="/icn:record/europeana:object"/>
                 </container>
             </column>
         </row>
