@@ -34,7 +34,7 @@
             <column proportion="1of2">
                 <image label="thing.collections" path="/musip:actor/musip:image"/>
                 <container type="list" label="thing.collections" id="collections">
-                    <list path="/musip:actor/musip:collections/musip:collection"> <!-- TODO in rendering: class="split" -->
+                    <list path="/musip:actor/musip:collections/musip:collection">
                         <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                     </list>
                 </container>

@@ -3,7 +3,7 @@
 <views>
     <view name="full">
         <row>
-            <column proportion="1of2">
+            <column proportion="1of3">
                 <container>
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                     <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
@@ -22,25 +22,29 @@
 
                     <field path="/icn:record/europeana:isShownAt" label="thing.landingPage"/>
 
-                    <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
-                    <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
-                    <field path="icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
 
-                    <!-- TODO extend these to links, when we have the mechanism in place. -->
-                    <field value="${provider}" label="metadata.europeana.provider"/>
-                    <field value="${dataProvider}" label="metadata.europeana.dataProvider"/>
-
-                    <field path="/icn:record/icn:province" label="metadata.icn.province"/>
-                    <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
-
-                    <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
-                    <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="icn"/>
 
                 </container>
             </column>
-            <column proportion="1of2">
+            <column proportion="1of3">
+                <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
+                <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
+                <field path="icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+
+                <!-- TODO extend these to links, when we have the mechanism in place. -->
+                <field value="${provider}" label="metadata.europeana.provider"/>
+                <field value="${dataProvider}" label="metadata.europeana.dataProvider"/>
+
+                <field path="/icn:record/icn:province" label="metadata.icn.province"/>
+                <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
+
+                <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
+                <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="icn"/>
+            </column>
+            <column proportion="1of3">
                 <container>
                     <image path="/icn:record/europeana:object"/>
+                    <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt"/>
                 </container>
             </column>
         </row>

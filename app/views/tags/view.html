@@ -7,11 +7,17 @@ switch (_view.nodeType) {
 
         def propClass;
         switch (_view.attr("proportion")) {
+            case "1of1":
+                propClass = "span12"
+                break
             case "1of2":
                 propClass = "span6"
                 break
-            case "2of3":
+            case "1of3":
                 propClass = "span4"
+                break
+            case "2of3":
+                propClass = "span8"
                 break
             default:
                 propClass = ""
