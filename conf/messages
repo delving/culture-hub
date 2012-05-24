@@ -367,7 +367,7 @@ metadata.abm.aboutPerson=About Person
 
 metadata.dc.contributor=Contributor
 metadata.dc.coverage=Coverage
-metadata.dc.creator=Author
+metadata.dc.creator=Creator
 metadata.dc.date=Date
 metadata.dc.description=Description
 metadata.dc.format=Format
@@ -391,6 +391,7 @@ metadata.dcterms.isFormatOf=Is format of
 metadata.dcterms.isPartOf=Is Part of
 metadata.dcterms.isReferencedBy=Is referenced by
 metadata.dcterms.isReplacedBy=Is replaced by
+metadata.dcterms.medium=Medium
 metadata.dcterms.provenance=Provenance
 metadata.dcterms.references=References
 metadata.dcterms.replaces=Replaces
