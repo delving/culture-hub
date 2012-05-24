@@ -4,44 +4,38 @@
     <view name="museum">
         <row>
             <column proportion="1of2">
-                <container id="general">
-                    <field path="/musip:actor/musip:name" label="thing.title"/>
-                    <field path="/musip:actor/musip:description" label="thing.description"/>
-                    <field path="/musip:actor/musip:addresss" label="thing.address"/>
-                    <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
-                    <field path="/musip:actor/musip:place" label="thing.place"/>
-                    <field path="/musip:actor/musip:municipality" label="thing.municipality"/>
-                    <field path="/musip:actor/musip:province" label="thing.province"/>
-                    <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea"/>
-                    <field path="/musip:actor/musip:fax" label="thing.fax"/>
-                    <field path="/musip:actor/musip:email" label="thing.email"/>
-                    <field path="/musip:actor/musip:url" label="thing.url"/>
-                    <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
-                </container>
+                <field path="/musip:actor/musip:name" label="thing.title"/>
+                <field path="/musip:actor/musip:description" label="thing.description"/>
+                <field path="/musip:actor/musip:types/musip:type" label="thing.type"/>
+                <field path="/musip:actor/musip:addresss" label="thing.address"/>
+                <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
+                <field path="/musip:actor/musip:place" label="thing.place"/>
+                <field path="/musip:actor/musip:municipality" label="thing.municipality"/>
+                <field path="/musip:actor/musip:province" label="thing.province"/>
+                <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea"/>
+                <field path="/musip:actor/musip:fax" label="thing.fax"/>
+                <field path="/musip:actor/musip:email" label="thing.email"/>
+                <field path="/musip:actor/musip:url" label="thing.url"/>
+                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
+                <field path="/musip:actor/musip:lastChanged" label="thing.datemodified" />
+                <!--
+                CONTACT INFO FIELD NOT FOR PUBLIC
+                TODO: FLAG IT SO THAT IT CAN REMAIN IN THE VIEW DEFINITION BUT NOT HAVE IT RENDERED IN THE HUB'S HTML OUTPUT
+                BUT MAKE IT POSSIBLE TO RENDER IT IN THE SIP-CREATOR
+                -->
+                <!--
                 <container type="list" label="thing.contact">
                     <list path="/musip:actor/musip:contacts/musip:contact">
                         <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
                     </list>
                 </container>
+                -->
             </column>
             <column proportion="1of2">
-                <container id="sidebar">
-                    <image label="thing.collections" path="/musip:actor/musip:image"/>
-
-                    <container type="list" label="thing.collections">
+                <image label="thing.collections" path="/musip:actor/musip:image"/>
+                <container type="list" label="thing.collections" id="collections">
                     <list path="/musip:actor/musip:collections/musip:collection"> <!-- TODO in rendering: class="split" -->
                         <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
-                    </list>
-                    </container>
-                </container>
-            </column>
-        </row>
-        <row>
-            <column>
-                <container>
-                    <list path="/musip:actor/musip:contatcs/musip:contact">
-                        <field label="thing.contactName" path="musip:name"/>
-                        <link textValue="thing.contactEmail" urlExpr="musip:email"/>
                     </list>
                 </container>
             </column>
@@ -53,23 +47,22 @@
         <row>
             <column proportion="1of2">
                 <container>
-                    <field path="/musip:collection/musip:name" label="thing.title"/>
-                    <field path="/musip:collection/musip:description" label="thing.description" />
-                    <field path="/musip:collection/musip:strength" label="metadata.collection.strength"/>
-                    <field path="/musip:collection/musip:startYear" label="thing.startYear"/>
-                    <field path="/musip:collection/musip:endYear" label="thing.endYear"/>
-                    <enumeration label="thing.keywords" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
+                <field path="/musip:collection/musip:name" label="thing.title"/>
+                <field path="/musip:collection/musip:description" label="thing.description" />
+                <container label="metadata.collection.museum" type="list">
+                    <list path="/musip:collection/musip:administrators/musip:actor">
+                        <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
+                    </list>
+                </container>
+                <field path="/musip:collection/musip:strength" label="metadata.collection.relationToCoreCollection"/>
+                <field path="/musip:collection/musip:startYear" label="metadata.collection.earliestWork"/>
+                <field path="/musip:collection/musip:endYear" label="metadata.collection.latestWork"/>
+                <field path="/musip:collection/musip:lastChanged" label="thing.datemodified" />
+                <enumeration label="thing.keywords" separator=", " path="/musip:collection/musip:keywords/musip:keyword,/musip:collection/musip:relatedObjects/musip:object"/>
                 </container>
             </column>
             <column proportion="1of2">
-                <container>
                     <image path="/musip:collection/musip:images[1]/musip:url"/>
-                    <container label="metadata.collection.administrators" type="list">
-                        <list path="/musip:collection/musip:administrators/musip:actor">
-                            <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
-                        </list>
-                    </container>
-                </container>
             </column>
         </row>
 

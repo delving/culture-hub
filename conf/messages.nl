@@ -174,6 +174,7 @@ thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 
 
+
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
 ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: {0}
@@ -443,6 +444,13 @@ metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
 metadata.tib.pages=Paginering
 metadata.tib.formatted=Geformateerde tekst
 metadata.tib.vindplaats=Vindplaats
+
+metadata.collection.strength=Kracht
+metadata.collection.administrators=Beheerders
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relatie tot kerncollectie
+metadata.collection.earliestWork=Vroegste werk uit collectie
+metadata.collection.latestWork=Meest recente werk uit collectie
 
 
 #Users

@@ -26,43 +26,50 @@ switch (_view.nodeType) {
     break
 
     case "container":}%
-        <div id="${_view.attr("id")}">
+        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
 
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
-        #{if _view.attr("type") == "default" || !_view.attr("type")}
+
+        #{if _view.attr("type") == "labelled-list"}
         <dl class="dl">
             #{list items: _view.content(), as: 'i'}
                 #{view view: i /}
             #{/list}
         </dl>
         #{/if}
+
         #{elseif _view.attr("type") == "list" }
-        <ul class="ul">
+        <ul>
             #{list items: _view.content(), as: 'i'}
                 #{view view: i /}
             #{/list}
         </ul>
         #{/elseif}
+
         #{else}
             #{list items: _view.content(), as: 'i'}
                 #{view view: i /}
             #{/list}
         #{/else}
+
         </div>
     %{
     break
 
     case "field": if (_view.text()){ }%
-        #{if !_view.parent.attr("type") || _view.parent.attr("default") }
+        #{if _view.parent.attr("labelled-list") }
             <dt>&{_view.attr("label")}</dt><dd class="truncate">${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
             <li>${_view.text()}</li>
         #{/elseif}
         #{else}
-            &{_view.attr("label")}: ${_view.text()}
+            #{if _view.attr("label")}
+            <h5>&{_view.attr("label")}</h5>
+            #{/if}
+            <p>${_view.text()}</p>
         #{/else}
     %{ }
     break
@@ -83,7 +90,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}#{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
+        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
     %{ }
     break
 
@@ -91,7 +98,7 @@ switch (_view.nodeType) {
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
-        <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
+        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</p>
     %{
     break
 
