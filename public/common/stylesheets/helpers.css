@@ -327,37 +327,6 @@ dt, dd, li {
 
 /* token input overrides */
 
-ul.token-input-list {
-    border: none;
-    padding: 0;
-    width: 100%;
-}
-
-li.token-input-token,
-div.token-input-dropdown ul li.token-input-selected-dropdown-item {
-    background: #08C;
-    color: #fff;
-    margin: 0 0 2px 0;
-}
-
-li.token-input-token:hover {
-    background: #b2e0f0;
-}
-
-li.token-input-token span {
-    color: #fff;
-}
-
-li.token-input-input-token {
-    background: #f1f1f1;
-    border: 1px solid #ccc;
-}
-
-li.token-input-input-token input[type='text'] {
-    background: transparent !important;
-    margin: 0 0 2px 0;
-}
-
 
 /** BOOTSTRAP TABLE HELPER **/
 

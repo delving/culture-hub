@@ -621,7 +621,7 @@ org.vc.help.toggle=Hulp met virtuele collecties
 org.vc.help.fields.tab=Invoer velden
 org.vc.help.fields.name.info=De getoonde naam van de virtuele collectie.
 org.vc.help.fields.identifier.info=systeem naam van de virtuele collectie.
-org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie. Meerdere datasets mogen worden toegevoegd door deze te scheiden met een komma <code>dataset1, dataset2</code>.
+org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie.
 org.vc.help.fields.query.info=De zoek-term(en) waarmee de virtuele collectie opgebouwd wordt.
 org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma.
 # QUERIES #
