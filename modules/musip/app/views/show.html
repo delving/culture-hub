@@ -53,10 +53,15 @@
             direction: 'vertical'
         });
         $('p').expander({
-            slicePoint: 600,
+            slicePoint: 650,
             expandText: "&{'ui.label.more'}",
             userCollapseText: "&{'ui.label.less'}"
         });
+        *{$('ul').expander({}*
+            *{slicePoint: 500,}*
+            *{expandText: "&{'ui.label.more'}",}*
+            *{userCollapseText: "&{'ui.label.less'}"}*
+        *{});}*
         $('.read-more a, .read-less a').addClass("badge badge-info");
     })
 </script>
