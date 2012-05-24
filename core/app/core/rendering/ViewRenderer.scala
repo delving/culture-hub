@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
-import scala.Predef._
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -140,7 +139,7 @@ class ViewRenderer(schema: String, viewName: String) {
                     None
                   }
 
-                  val r = RenderNode(elemName, elemValue, isArray)
+                  val r = RenderNode(nodeType = elemName, value = elemValue, isArray = isArray)
                   r.addAttrs(attrs)
 
                   if(elemValue.isDefined && n.child.isEmpty) {
@@ -158,12 +157,6 @@ class ViewRenderer(schema: String, viewName: String) {
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
 
-                  // for html lists
-                  val listType = n.attr("type")
-                  val separator = n.attr("separator")
-                  val label = n.attr("label")
-                  val hClass = n.attr("class")
-
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
                   } else {
@@ -176,14 +169,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val attrs = fetchNestedAttributes(n, dataNode)
 
-                  val list = RenderNode(listName, None, true)
+                  val list = RenderNode(nodeType = listName, value =  None, isArray = true)
                   list.addAttrs(attrs)
-
-                  // for html lists
-                  if(!label.isEmpty) list.addAttr('label -> label)
-                  if(!separator.isEmpty) list.addAttr('separator -> separator)
-                  if(!listType.isEmpty) list.addAttr('type -> listType)
-                  if(!hClass.isEmpty) list.addAttr('class -> hClass)
 
                   treeStack.head += list
                   treeStack push list
@@ -228,10 +215,11 @@ class ViewRenderer(schema: String, viewName: String) {
                 appendNode(renderNode)
 
 
-              // ~~~ html helpers
+              // ~~~ view definition elements
 
-              case "row" => enterAndAppendOne(n, dataNode, "row", true, 'class -> n.attr("class"))
-              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'type -> n.attr("type"), 'title -> n.attr("title"), 'label -> n.attr("label"))
+              case "row" => enterAndAppendOne(n, dataNode, "row", true, 'proportion -> n.attr("proportion"))
+              case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
+              case "container" => enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"))
               case "image" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
@@ -240,12 +228,12 @@ class ViewRenderer(schema: String, viewName: String) {
               case "field" =>
                 if (hasAccess(roleList)) {
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
+                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
                 }
               case "enumeration" =>
                 if (hasAccess(roleList)) {
 
-                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'separator -> n.attr("separator")) {
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -258,7 +246,6 @@ class ViewRenderer(schema: String, viewName: String) {
                       }
                   }
                 }
-
               case "link" =>
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
@@ -314,7 +301,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
     /** appends a new RenderNode to the result tree and walks one level deeper **/
     def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, isArray: Boolean = false, attr: (Symbol, Any)*) {
-      val newRenderNode = RenderNode(nodeType, None, isArray)
+      val newRenderNode = RenderNode(nodeType = nodeType, value = None, isArray = isArray)
       attr foreach {
         newRenderNode addAttr _
       }
@@ -323,6 +310,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
       log.debug("Entered " + viewDefinitionNode.label)
+      renderNode.parent = treeStack.head
       treeStack.head += renderNode
       treeStack.push(renderNode)
       viewDefinitionNode.child foreach {
@@ -353,6 +341,7 @@ class ViewRenderer(schema: String, viewName: String) {
     /** appends a new RenderNode to the result tree and performs an operation on it **/
     def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType, text)
+      newNode.parent = treeStack.head
       attr foreach {
         newNode addAttr _
       }
@@ -364,6 +353,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
     /** simply appends a node to the current tree head **/
     def appendNode(node: RenderNode) {
+      node.parent = treeStack.head
       treeStack.head += node
     }
 
@@ -414,6 +404,7 @@ case class RenderNode(nodeType: String, value: Option[String] = None, isArray: B
   private val contentBuffer = new ArrayBuffer[RenderNode]
   private val attributes = new HashMap[String, Any]
 
+  var parent: RenderNode = null
 
   def content: List[RenderNode] = contentBuffer.toList
 

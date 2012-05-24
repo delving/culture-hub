@@ -20,4 +20,6 @@ abstract class ProcessingSchema {
   lazy val hasMapping = mapping.isDefined
   lazy val javaNamespaces = namespaces.asJava
   lazy val engine: Option[MappingEngine] = mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
+
+  override def toString: String = prefix
 }

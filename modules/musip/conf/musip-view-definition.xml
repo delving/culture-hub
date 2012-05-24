@@ -3,110 +3,73 @@
 <views>
     <view name="museum">
         <row>
-            <section id="general" type="dl" class="span6">
-                <field path="/musip:actor/musip:name" label="thing.title" type="di" />
-                <field path="/musip:actor/musip:description" label="thing.description" type="di" class="truncate"/>
-                <field path="/musip:actor/musip:addresss" label="thing.address" type="di"/>
-                <field path="/musip:actor/musip:postal_code" label="thing.postalCode" type="di"/>
-                <field path="/musip:actor/musip:place" label="thing.place" type="di"/>
-                <field path="/musip:actor/musip:municipality" label="thing.municipality" type="di"/>
-                <field path="/musip:actor/musip:province" label="thing.province" type="di"/>
-                <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea" type="di"/>
-                <field path="/musip:actor/musip:fax" label="thing.fax" type="di"/>
-                <field path="/musip:actor/musip:email" label="thing.email" type="di"/>
-                <field path="/musip:actor/musip:url" label="thing.url" type="di"/>
-                <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement" type="di" class="truncate"/>
-                <list label="thing.contact" path="/musip:actor/musip:contacts/musip:contact" type="ul">
-                    <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
-                </list>
-            </section>
-            <section class="span6">
-                <image path="/musip:actor/musip:image" class="img"/>
-                <list type="ul" label="thing.collections" path="/musip:actor/musip:collections/musip:collection" class="split">
-                    <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
-                </list>
-            </section>
+            <column proportion="1of2">
+                <container id="general">
+                    <field path="/musip:actor/musip:name" label="thing.title"/>
+                    <field path="/musip:actor/musip:description" label="thing.description"/>
+                    <field path="/musip:actor/musip:addresss" label="thing.address"/>
+                    <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
+                    <field path="/musip:actor/musip:place" label="thing.place"/>
+                    <field path="/musip:actor/musip:municipality" label="thing.municipality"/>
+                    <field path="/musip:actor/musip:province" label="thing.province"/>
+                    <field path="/musip:actor/musip:geographic_area" label="thing.geographicArea"/>
+                    <field path="/musip:actor/musip:fax" label="thing.fax"/>
+                    <field path="/musip:actor/musip:email" label="thing.email"/>
+                    <field path="/musip:actor/musip:url" label="thing.url"/>
+                    <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
+                    <container type="list">
+                        <list label="thing.contact" path="/musip:actor/musip:contacts/musip:contact">
+                            <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
+                        </list>
+                    </container>
+                </container>
+            </column>
+            <column proportion="1of2">
+                <container>
+                    <image label="thing.collections" path="/musip:actor/musip:image"/>
+                    <list path="/musip:actor/musip:collections/musip:collection"> <!-- TODO in rendering: class="split" -->
+                        <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
+                    </list>
+                </container>
+            </column>
         </row>
         <row>
-            <section class="span6">
-                <list path="/musip:actor/musip:contatcs/musip:contact">
-                    <field label="thing.contactName" path="musip:name"/>
-                    <link textValue="thing.contactEmail" urlExpr="musip:email"/>
-                </list>
-            </section>
+            <column>
+                <container>
+                    <list path="/musip:actor/musip:contatcs/musip:contact">
+                        <field label="thing.contactName" path="musip:name"/>
+                        <link textValue="thing.contactEmail" urlExpr="musip:email"/>
+                    </list>
+                </container>
+            </column>
         </row>
     </view>
 
     <view name="collection">
 
         <row>
-            <section id="general" type="dl" class="span6">
-                <field path="/musip:collection/musip:name" label="thing.title" type="di"/>
-                <field path="/musip:collection/musip:description" label="thing.description" type="di" class="truncate"/>
-                <field path="/musip:collection/musip:strength" label="metadata.collection.strength" type="di"/>
-                <field path="/musip:collection/musip:startYear" label="thing.startYear" type="di"/>
-                <field path="/musip:collection/musip:endYear" label="thing.endYear" type="di"/>
-                <enumeration label="thing.keywords" type="concatenated" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
-            </section>
-            <section class="span6">
-                <image path="/musip:collection/musip:images[1]/musip:url" class="img"/>
-                <list type="ul" path="/musip:collection/musip:administrators/musip:actor" label="metadata.collection.administrators" class="col2">
-                    <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
-                </list>
-            </section>
+            <column proportion="1of2">
+                <container>
+                    <field path="/musip:collection/musip:name" label="thing.title"/>
+                    <field path="/musip:collection/musip:description" label="thing.description" />
+                    <field path="/musip:collection/musip:strength" label="metadata.collection.strength"/>
+                    <field path="/musip:collection/musip:startYear" label="thing.startYear"/>
+                    <field path="/musip:collection/musip:endYear" label="thing.endYear"/>
+                    <enumeration label="thing.keywords" separator=", " path="/musip:collection/musip:keywords/musip:keyword"/>
+                </container>
+            </column>
+            <column proportion="1of2">
+                <container>
+                    <image path="/musip:collection/musip:images[1]/musip:url"/>
+                    <container label="metadata.collection.administrators" type="list">
+                        <list path="/musip:collection/musip:administrators/musip:actor">
+                            <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
+                        </list>
+                    </container>
+                </container>
+            </column>
         </row>
 
     </view>
-
-    <!--
-        <musip:uri>http://id.musip.nl/crm_e78/1</musip:uri>
-    <musip:name>Schilderijen (oude kunst)</musip:name>
-    <musip:description>De collectie Schilderijen (oude kunst) omvat een grote variatie aan geschilderde werken, waarvan de meeste van Nijmeegse schilders vanaf de 17de t/m de 19de eeuw met de nadruk op de periode 1770-1870.  Ook moderner werk kan onder deze deelcollectie vallen, zoals de werken van 'Nijmeegse kunstenaars' uit de periode 1900-1940, waaronder Henri Leeuw, Eug&#232;ne L&#252;cker, Chris Hammes en Chris Le Roy.
-Belangrijk zijn de schilderijen van Nijmeegse kunstenaars vanaf de 17de eeuw tot het midden van de 20ste eeuw, met het doel een beeld te geven van de kunst in deze regio in het verleden. Het museum bezit een reeks topografische werken uit de periode 1600-1940 van gerenommeerde kunstenaars als Jan van Goyen, Arnoldus van Anthonissen en Johannes Weissenbruch. Het vogelvluchtgezicht op Nijmegen van Hendrik Feltman (1667-69) maakt deel uit van een select gezelschap van monumentale, zeventiende-eeuwse stadsplattegronden die in Nederland bewaard zijn gebleven. Daarnaast tonen bijzondere schilderijen als De Vrede van Nijmegen in 1678 van Henri Gascard, Het verbond tussen Bataven en Romeinen van Nicolaes de Helt Stocade en Het Valkhof te Nijmegen in het jaar 800 door Cornelis Springer aansprekende momenten uit de lokale geschiedenis met een belangrijke landelijke uitstraling.</musip:description>
-    <musip:strength>Veel van de objecten uit de deelcollectie Schilderijen (oude kunst) worden gebruikt in de permanente expositie of bij tijdelijke exposities. Belangrijk is dat ze letterlijk een beeld geven van de geschiedenis en historische topografie van Nijmegen en omgeving, of passen in het doel een beeld te geven van de kunst en kunstenaars in deze regio in het verleden.</musip:strength>
-    <musip:startYear>1500</musip:startYear>
-    <musip:endYear>2000</musip:endYear>
-    <musip:lastChanged>not imported yet...</musip:lastChanged>
-    <musip:administrators>
-      <musip:actor actorId="18">Museum Het Valkhof</musip:actor>
-    </musip:administrators>
-    <musip:keywords>
-      <musip:keyword conceptId="8136">schilderijen</musip:keyword>
-    </musip:keywords>
-    <musip:images>
-      <musip:url>http://musip.adlibsoft.com/wwwopac/wwwopac.exe?thumbnail=../../Applicatie/images/1045-01-HeltStocade.jpg</musip:url>
-    </musip:images>
-    <musip:relatedObjects>
-      <musip:object conceptId="3191">portretten</musip:object>
-      <musip:object conceptId="6365">genrestukken</musip:object>
-      <musip:object conceptId="1296">landschappen (voorstellingen)</musip:object>
-      <musip:object conceptId="2934">stadsgezichten (beeldmateriaal)</musip:object>
-      <musip:object conceptId="4841">topografische aanzichten</musip:object>
-    </musip:relatedObjects>
-    <musip:relatedActors>
-      <musip:actor>
-        <musip:name actorId="42">Hammes, Chris</musip:name>
-        <musip:association conceptId="1761">vervaardiger</musip:association>
-        <musip:type>PERSON</musip:type>
-      </musip:actor>
-      <musip:actor>
-        <musip:name actorId="46">Leeuw, Henri</musip:name>
-        <musip:association conceptId="1761">vervaardiger</musip:association>
-        <musip:type>PERSON</musip:type>
-      </musip:actor>
-      <musip:actor>
-        <musip:name actorId="45">L&#252;cker, Eug&#232;ne</musip:name>
-        <musip:association conceptId="1761">vervaardiger</musip:association>
-        <musip:type>PERSON</musip:type>
-      </musip:actor>
-      <musip:actor>
-        <musip:name actorId="43">Roy, Chris le</musip:name>
-        <musip:association conceptId="1761">vervaardiger</musip:association>
-        <musip:type>PERSON</musip:type>
-      </musip:actor>
-    </musip:relatedActors>
-
-
-    -->
 
 </views>
