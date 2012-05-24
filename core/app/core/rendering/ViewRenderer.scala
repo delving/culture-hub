@@ -105,6 +105,7 @@ class ViewRenderer(schema: String, viewName: String) {
             val label = n.attr("label")
             val role = n.attr("role")
             val path = n.attr("path")
+            val value = n.attr("value")
             val queryLink = {
               val l = n.attr("queryLink")
               if (l.isEmpty) false else l.toBoolean
@@ -118,9 +119,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
               case "view" => enterAndAppendOne(n, dataNode, "root", true)
 
-              case "elem" =>
-
-                if(hasAccess(roleList)) {
+              case "elem" => withAccessControl(roleList) {
+                role =>
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
@@ -150,9 +150,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
                 }
 
-              case "list" =>
-
-                if(hasAccess(roleList)) {
+              case "list" => withAccessControl(roleList) {
+                role =>
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
@@ -221,20 +220,22 @@ class ViewRenderer(schema: String, viewName: String) {
               case "row" => enterAndAppendOne(n, dataNode, "row", true, 'proportion -> n.attr("proportion"))
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"))
-              case "image" =>
-                if (hasAccess(roleList)) {
+              case "image" => withAccessControl(roleList) {
+                role =>
                   val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
+                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
                 }
-              case "field" =>
-                if (hasAccess(roleList)) {
-                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink) { renderNode => }
+              case "field" => withAccessControl(roleList) {
+                role =>
+                  val v = if(!value.isEmpty)
+                    Some(evaluateParamExpression(value, parameters))
+                  else
+                    fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption
+                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.description).getOrElse("")) { renderNode => }
                 }
-              case "enumeration" =>
-                if (hasAccess(roleList)) {
-
-                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator")) {
+              case "enumeration" => withAccessControl(roleList) {
+                role =>
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.description).getOrElse("")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -251,12 +252,7 @@ class ViewRenderer(schema: String, viewName: String) {
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
-                val enhancedUrlValue = """\$\{(.*)\}""".r.replaceAllIn(urlValue, m => parameters.get(m.group(1)).getOrElse {
-                  log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
-                  ""
-                })
-
-                val url = enhancedUrlValue + urlExpr.getOrElse("")
+                val url = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
                 val text = if(n.attribute("textExpr").isDefined) {
                   XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
@@ -359,8 +355,16 @@ class ViewRenderer(schema: String, viewName: String) {
       treeStack.head += node
     }
 
-    def hasAccess(roles: List[String]) = {
-      roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
+    def withAccessControl(roles: List[String])(block: Option[GrantType] => Unit) {
+      if(roles.isEmpty) {
+        block(None)
+      } else if(userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")) {
+        block(Some(GrantType.OWN))
+      } else if(userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix)) {
+        block(userGrantTypes.find(gt => roles.contains(gt.key) && gt.origin == prefix).headOption)
+      } else {
+        // though luck, man
+      }
     }
 
     if(shortcutResult.isDefined) {
@@ -371,10 +375,16 @@ class ViewRenderer(schema: String, viewName: String) {
 
   }
 
-
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
       XPath.selectText(path, dataNode, namespaces.asJava)
+    })
+  }
+
+  def evaluateParamExpression(value: String, parameters: Map[String, String]) = {
+    """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
+      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
+      ""
     })
   }
 
