@@ -583,6 +583,7 @@ org.list.dataSetCount={0} Dataset(s)
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
 org.group.grantType.cms=Site content administration rights
+org.group.grantType.own=Administrator rights
 org.group.save=Save group
 org.group.create=Create group
 org.group.list=Group list

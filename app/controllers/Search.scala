@@ -19,7 +19,7 @@ object Search extends DelvingController {
   
   // TODO move later
   val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
-  val icnViewRenderer = ViewRenderer.fromDefinition("icn", "html")
+  val icnViewRenderer = ViewRenderer.fromDefinition("icn", "full")
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
