@@ -4,6 +4,8 @@
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
+
+
 <style>
     h5 {
         margin: 0 0 0 0;
@@ -37,6 +39,10 @@
     }
 
 </style>
+
+<div class="page-header">
+    <h1>${systemFields.apply("delving_title").get(0)}</h1>
+</div>
 
 #{view view: fullView /}
 

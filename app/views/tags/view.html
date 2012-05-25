@@ -73,19 +73,19 @@ switch (_view.nodeType) {
         #{/elseif}
         #{else}
             #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
-            #{/if}
-            <p>${_view.text()}</p>
+                <h5>&{_view.attr("label")}</h5>
+                #{/if}
+                <p>${_view.text()}</p>
         #{/else}
     %{ }
     break
 
     case "link": if (_view.attr("text")){ }%
         #{if !_view.parent.attr("type") || _view.parent.attr("default") }
-            <dt>&{_view.attr("label")}</dt><dd><div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div></dd>
+            <dt>&{_view.attr("label")}</dt><dd><div class="link"><a href="${_view.attr("url")}">&{_view.attr("text")}</a></div></dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
-            <li><div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div></li>
+            <li><div class="link"><a href="${_view.attr("url")}">&{_view.attr("text")}</a></div></li>
         #{/elseif}
         #{else}
             <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>

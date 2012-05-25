@@ -5,13 +5,13 @@
 #{breadcrumbs /}
 
 <div class="row">
-    <div class="span2">
+    <div class="span3">
       <p>#{gravatar.img user.email, size:200 /}</p>
       #{if user.userName == userName}
         <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update" /}</p>
       #{/if}
     </div>
-    <div class="span9 offset1">
+    <div class="span9">
         <dl class="dl-horizontal">
             <dt>&{'ui.label.username'}:</dt>
             <dd>${user.userName}</dd>
