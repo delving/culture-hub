@@ -178,13 +178,13 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isOwner(implicit request: RequestHeader): Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
+  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, connectedUser)
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (isOwner) {
+          if (isAdmin(orgId)) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))

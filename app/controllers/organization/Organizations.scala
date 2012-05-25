@@ -27,7 +27,6 @@ object Organizations extends DelvingController {
             'isMember -> HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
             'members -> members,
             'dataSets -> dataSets,
-            'isOwner -> HubServices.organizationService.isAdmin(orgId, connectedUser),
             'currentLanguage -> lang
 
           ))
