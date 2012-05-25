@@ -4,7 +4,7 @@
 
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+#{organizationNavBar orgId: orgId, active:"virtual-collections", navigation: navigation /}
 
 <div class="row">
 
@@ -37,7 +37,7 @@
                         <span>${vc.currentQueryCount}</span>
                     </td>
                     <td>
-                        #{if isOwner}
+                        #{if isAdmin}
                         <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
                             <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
@@ -54,7 +54,7 @@
                         No virtual collections are defined
                     </td>
                     <td>
-                        #{if isOwner}
+                        #{if isAdmin}
                             <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/add"><i class="icon-plus-sign icon-white"></i>&#160;&{'org.vc.new'}</a>
                         #{/if}
                     </td>
