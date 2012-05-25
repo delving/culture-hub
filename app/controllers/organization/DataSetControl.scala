@@ -225,7 +225,7 @@ object DataSetControl extends OrganizationController {
               }
               case None =>
                 // TODO for now only owners can do
-                if (!isOwner) return Action {
+                if (!isAdmin(orgId)) return Action {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
 
@@ -407,7 +407,7 @@ object DataSetControl extends OrganizationController {
           implicit request => NotFound(Messages("organization.datasets.dataSetNotFound", spec))
         })
         // TODO for now only owners can do
-        if (!isOwner) return Action {
+        if (!isAdmin(orgId)) return Action {
           implicit request => Forbidden
         }
         operation(dataSet)(request)
