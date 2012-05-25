@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.cms
 
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import mongoContext._
+import models.mongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
 
 /**
@@ -37,11 +37,11 @@ case class CMSPage(_id: ObjectId = new ObjectId(),
                    content: String, // actual page content (text)
                    isSnippet: Boolean = false, // is this a snippet in the welcome page or not
                    published: Boolean = false
-                  )
+                    )
 
 case class MenuEntry(_id: ObjectId = new ObjectId(),
                      orgId: String, // orgId to which this menu belongs to
-                     theme: String,  // hub theme the menu entry belongs to
+                     theme: String, // hub theme the menu entry belongs to
                      menuKey: String, // key of the menu this entry belongs to
                      parentKey: Option[ObjectId] = None, // parent menu entry key. if none is provided this entry is not part of a sub-menu
                      position: Int, // position of this menu entry inside of the menu
@@ -50,7 +50,7 @@ case class MenuEntry(_id: ObjectId = new ObjectId(),
                      targetUrl: Option[String] = None, // URL this menu entry links to, if any
                      targetAnchor: Option[String] = None, // id of the target HTML anchor, if any
                      published: Boolean = false
-                    )
+                      )
 
 
 object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
@@ -60,7 +60,7 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
   def findByKey(orgId: String, key: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "key" -> key)).$orderby(MongoDBObject("_id" -> -1)).toList
 
   def findByKeyAndLanguage(key: String, lang: String): List[CMSPage] = find(MongoDBObject("key" -> key, "lang" -> lang)).$orderby(MongoDBObject("_id" -> -1)).toList
-  
+
   def create(orgId: String, theme: String, key: String, lang: String, userName: String, title: String, content: String, published: Boolean): CMSPage = {
     val page = CMSPage(orgId = orgId, theme = theme, key = key, userName = userName, title = title, content = content, isSnippet = false, lang = lang, published = published)
     val inserted = CMSPage.insert(page)
@@ -70,13 +70,13 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
   def delete(orgId: String, key: String, lang: String) {
     remove(MongoDBObject("orgId" -> orgId, "key" -> key, "lang" -> lang))
   }
-  
+
 }
 
 object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
 
   def findByPageAndMenu(orgId: String, theme: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "targetPageKey" -> key))
-  
+
   def findEntries(orgId: String, theme: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
 
   // TODO FIXME this won't scale when more orgs live on one culturehub. we need to fix the theme -> orgId lookup
@@ -100,15 +100,15 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
 
   def removePage(orgId: String, theme: String, menuKey: String, targetPageKey: String, lang: String) {
     MenuEntry.findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "targetPageKey" -> targetPageKey)) match {
-          case Some(entry) =>
-            val updated = entry.copy(title = entry.title - (lang))
-            if(updated.title.isEmpty) {
-              MenuEntry.remove(MongoDBObject("_id" -> updated._id))
-            } else {
-              MenuEntry.save(updated)
-            }
-          case None => // nothing
+      case Some(entry) =>
+        val updated = entry.copy(title = entry.title - (lang))
+        if (updated.title.isEmpty) {
+          MenuEntry.remove(MongoDBObject("_id" -> updated._id))
+        } else {
+          MenuEntry.save(updated)
         }
+      case None => // nothing
+    }
   }
 
   def updatePosition(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None, position: Int) {
@@ -118,5 +118,5 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
   def updateTitle(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None, lang: String, title: String) {
     update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey), $set("title.%s".format(lang) -> title))
   }
-  
+
 }

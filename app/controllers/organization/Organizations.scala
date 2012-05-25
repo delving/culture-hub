@@ -14,7 +14,7 @@ import core.{Constants, HubServices}
 
 object Organizations extends DelvingController {
 
-  def index(orgId: String, language: Option[String]) = Root {
+  def index(orgId: String, language: Option[String]) = OrgBrowsingAction(orgId) {
     Action {
       implicit request =>
         if (HubServices.organizationService.exists(orgId)) {

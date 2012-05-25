@@ -12,6 +12,7 @@ import extensions.Formatters._
 import controllers.{ViewModel, OrganizationController}
 import extensions.{MissingLibs, JJson}
 import models._
+import cms.{MenuEntry, CMSPage}
 import com.mongodb.casbah.Imports._
 import core.HubServices
 

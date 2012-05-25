@@ -202,16 +202,11 @@ trait OrganizationController extends DelvingController with Secured {
             if (orgId == null || orgId.isEmpty) {
               Error("How did you even get here?")
             }
-            val organizations = request.session.get(Constants.ORGANIZATIONS).getOrElse("")
-            if (organizations == null || organizations.isEmpty) {
+            if (!HubUser.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
               Forbidden(Messages("user.secured.noAccess"))
-            } else if (!organizations.split(",").contains(orgId)) {
-              Forbidden(Messages("user.secured.noAccess"))
+            } else {
+              action(request)
             }
-            renderArgs += ("orgId" -> orgId)
-            renderArgs += ("isOwner" -> HubServices.organizationService.isAdmin(orgId, userName))
-            renderArgs += ("isCMSAdmin" -> (HubServices.organizationService.isAdmin(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
-            action(request)
           }
         }
       }
@@ -331,8 +326,30 @@ trait DelvingController extends ApplicationController with CoreImplicits {
       Action(action.parser) {
         implicit request =>
           val orgName = HubServices.organizationService.getName(orgId, "en")
-          renderArgs +=("browsedOrgName", orgName)
-          renderArgs +=("currentLanguage", getLang)
+          val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+          renderArgs += ("orgId" -> orgId)
+          renderArgs += ("browsedOrgName", orgName)
+          renderArgs += ("currentLanguage", getLang)
+          renderArgs += ("isAdmin" -> isAdmin)
+
+          val roles: Seq[String] = (session.get("userName").map {
+            u => Group.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
+          }.getOrElse {
+            List.empty
+          }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)
+
+
+          import collection.JavaConverters._
+
+          renderArgs += ("roles" -> roles.asJava)
+
+          val navigation = hubPlugins.map(
+            plugin => plugin.getNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
+          ).flatten.asJava
+
+          renderArgs += ("navigation" -> navigation)
+
+
           action(request)
       }
     }
