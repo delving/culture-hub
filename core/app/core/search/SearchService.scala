@@ -101,7 +101,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
@@ -119,7 +119,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
@@ -190,7 +190,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     } else {
 
       // handle legacy formats
-      val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
+      val legacyFormats = List("tib", "abm", "ese", "abc")
       val viewDefinitionFormatName = if (legacyFormats.contains(prefix)) "legacy" else prefix
 
       // let's do some rendering
