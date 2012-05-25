@@ -7,6 +7,9 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.min.js")}"></script>
 #{/set}
 
+
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
+
 <style>
     h5 {
         margin: 0 0 2px 0;

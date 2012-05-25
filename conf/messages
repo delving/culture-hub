@@ -797,3 +797,18 @@ locale.en=English (en)
 locale.nl=Dutch (nl)
 locale.no=Norwegian (no)
 locale.nb=Norwegian b�kmal (nb)
+
+
+
+
+###### Plugin messages (TODO: move to plugin)
+
+plugin.musip.museum=Museum
+plugin.musip.museums=Museums
+plugin.musip.collection=Collection
+plugin.musip.collections=Collections
+
+
+
+
+
