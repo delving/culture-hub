@@ -64,7 +64,7 @@ abstract class MetadataAccessors extends Universal {
       // only provide a link if there's something to show via AFF
       val allSchemas = values(ALL_SCHEMAS)
       if(allSchemas.size > 0 && (allSchemas.contains("aff") || allSchemas.contains("icn"))) {
-        "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
+        "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
       } else {
         ""
       }

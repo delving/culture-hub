@@ -20,10 +20,6 @@ object Search extends DelvingController {
   val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
   val icnViewRenderer = ViewRenderer.fromDefinition("icn", "full")
 
-  val RETURN_TO_RESULTS = "returnToResults"
-  val SEARCH_TERM = "searchTerm"
-  val IN_ORGANIZATION = "inOrg"
-
   def index(query: String, page: Int) = search(query, page)
 
   def search(query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = Root {
