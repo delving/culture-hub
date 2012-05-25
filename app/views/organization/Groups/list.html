@@ -6,7 +6,7 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"groups", isOwner: isOwner, currentLanguage: currentLanguage /}
+#{organizationNavBar orgId: orgId, active:"groups", navigation: navigation /}
 
 <div class="row">
     <div class="span12">
@@ -21,20 +21,20 @@
                 #{if group.grantType == models.GrantType.OWN().key}
                 <tr>
                     <td>${group.name} - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'}</td>
-                    <td>#{if isOwner}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
+                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
                 </tr>
                 #{/if}
                 #{else}
                 <tr>
                     <td>${group.name} - &{'org.list.memberCount', group.users.size()}</td>
-                    <td>#{if isOwner}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
+                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
                 </tr>
                 #{/else}
             #{/list}
             #{else}
                 <tr>
                     <td>No groups defined</td>
-                    <td>#{if isOwner}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/create">&{'org.group.create'}</a>#{/if}</td>
+                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/create">&{'org.group.create'}</a>#{/if}</td>
                 </tr>
             #{/else}
             </tbody>
