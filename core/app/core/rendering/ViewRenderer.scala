@@ -19,7 +19,6 @@ package core.rendering
 import collection.mutable.{HashMap, ArrayBuffer}
 import collection.mutable.Stack
 import models.GrantType
-import org.w3c.dom.{Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -29,6 +28,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
+import org.w3c.dom.{Text, Node => WNode}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -377,8 +377,32 @@ class ViewRenderer(schema: String, viewName: String) {
 
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPath.selectText(path, dataNode, namespaces.asJava)
-    })
+      XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.toSeq.flatMap {
+        node =>
+          var rnode = node
+          try {
+            if (rnode == null) {
+              None
+            } else {
+              if (!(rnode.isInstanceOf[Text])) {
+                rnode = node.getFirstChild
+              }
+              if (!(rnode.isInstanceOf[Text])) {
+                None
+              } else {
+                Some((rnode.asInstanceOf[Text]).getData)
+              }
+            }
+          }
+          catch {
+            case e: Exception => {
+              throw new RuntimeException(e)
+              None
+            }
+          }
+      }
+
+    }).flatten
   }
 
   def evaluateParamExpression(value: String, parameters: Map[String, String]) = {
