@@ -72,10 +72,8 @@ switch (_view.nodeType) {
             <li>${_view.text()}</li>
         #{/elseif}
         #{else}
-            #{if _view.attr("label")}
-                <h5>&{_view.attr("label")}</h5>
-                #{/if}
-                <p>${_view.text()}</p>
+            #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>#{/if}
+            <p>${_view.text()}</p>
         #{/else}
     %{ }
     break
@@ -100,11 +98,24 @@ switch (_view.nodeType) {
     %{ }
     break
 
-    case "enumeration":}%
+    case "enumeration":
+
+        def separator;
+        switch (_view.attr("separator")) {
+            case "lf":
+            separator = "<br/>"
+            break
+            case "hr":
+            separator = "<hr/>"
+            break
+            default:
+            separator = _view.attr("separator")
+        }}%
+
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
-        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</p>
+        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
     %{
     break
 
