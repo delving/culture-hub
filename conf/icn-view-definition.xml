@@ -3,41 +3,38 @@
 <views>
     <view name="full">
         <row>
+
             <column proportion="1of3">
                 <container>
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                     <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
                     <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
-                    <!--<field path="/icn:record/dc:date" label="metadata.dc.date"/>-->
-                    <enumeration
-                            label="metadata.dc.date"
-                            separator=", "
-                            path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"
-                            />
+                    <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
                     <field path="/icn:record/dc:type" label="metadata.dc.type"/>
-                    <!--<field path="/icn:record/dc:format" label="metadata.dc.format"/>-->
                     <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
-                    <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
                     <field path="/icn:record/icn:material" label="metadata.icn.material"/>
                     <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
+                    <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
                     <field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>
-                    <field path="/icn:record/dc:source" label="metadata.dc.source"/>
-
-                    <!-- seems to be the same as icn:technique -->
-                    <!--<enumeration path="/icn:record/dcterms:medium" label="metadata.dcterms.medium"/>-->
-
-                    <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
+                    <!-- TODO: empty enumberation still shows label -->
+                    <!--
+                    <enumeration label="metadata.dc.relation"
+                                 separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
+                                 /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
+                                 /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
+                    -->
                 </container>
             </column>
             <column proportion="1of3">
+                <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                 <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
                 <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
                 <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
-
                 <!-- TODO extend these to links, when we have the mechanism in place. -->
                 <field value="${provider}" label="metadata.europeana.provider"/>
                 <field value="${dataProvider}" label="metadata.europeana.dataProvider"/>
                 <field path="/icn:record/dc:source" label="metadata.dc.source"/>
+                <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
                 <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                 <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                 <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
@@ -46,22 +43,20 @@
             <column proportion="1of3">
                 <container>
                     <image path="/icn:record/europeana:object"/>
-
-                    <!-- TODO: textValue should get value from messages just like Label-->
                     <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt"/>
                 </container>
             </column>
         </row>
         <row>
             <container id="admin">
-            <column proportion="1of1">
-
-
-                    <field path="/" label="test"/>
+                <column proportion="1of3">
                     <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
-                    <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="icn"/>
-
-            </column>
+                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="icn"/>
+                </column>
+                <column proportion="1of3">
+                    <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="icn"/>
+                    <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="icn"/>
+                </column>
             </container>
         </row>
     </view>
