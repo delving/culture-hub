@@ -4,7 +4,7 @@
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="row">
     <div class="span6">
@@ -17,7 +17,7 @@
         </dl>
     </div>
     <div class="span6">
-        #{if isOwner == true}
+        #{if canEdit}
         <div class="well">
             #{if get('spec')}
             <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${get('spec')}/update">${messages.get('ui.label.edit')}</a>

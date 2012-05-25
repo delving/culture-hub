@@ -14,7 +14,7 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="row">
     <div class="span12">
@@ -69,7 +69,7 @@
             #{/else}
             </td>
             <td>
-                #{if isOwner}
+                #{if isAdmin}
                     <div class="btn-toolbar nom">
                         <div class="btn-group">
                             <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${i.spec}/update">

@@ -2,8 +2,8 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{RequestContext, CultureHubPlugin}
-import models.MenuEntry
+import core.{MenuEntry, OrganizationMenuEntry, RequestContext, CultureHubPlugin}
+import models.GrantType
 
 /**
  *
@@ -16,13 +16,25 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override val onApplicationRequest: RequestContext => Unit = {
     context =>
-
-      // Menu entries
-      val mainMenuEntries = MenuEntry.findEntries(context.theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(context.lang)).map(e => (Map(
+    // Add menu entries to main application
+      val mainMenuEntries = models.cms.MenuEntry.findEntries(context.theme.name, CMS.MAIN_MENU).filterNot(!_.title.contains(context.lang)).map(e => (Map(
         "title" -> e.title(context.lang),
         "page" -> e.targetPageKey.getOrElse(""),
         "published" -> e.published))
       ).toList
       context.renderArgs.put("menu", mainMenuEntries)
   }
+
+  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[OrganizationMenuEntry] = Seq(
+    OrganizationMenuEntry(
+      key = "site",
+      titleKey = "org.cms",
+      roles = Seq(GrantType.OWN, GrantType.CMS),
+      items = Seq(
+        MenuEntry("/organizations/%s/site".format(context("orgId")), "org.cms.page.list"),
+        MenuEntry("/organizations/%s/site/%s/page/add".format(context("orgId"), context("currentLanguage")), "org.cms.page.new"),
+        MenuEntry("/organizations/%s/site/upload".format(context("orgId")), "org.cms.upload.image")
+      )
+    )
+  )
 }
