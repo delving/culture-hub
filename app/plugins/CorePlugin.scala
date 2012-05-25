@@ -24,6 +24,12 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       membersOnly = false
     ),
     OrganizationMenuEntry(
+      key = "administration",
+      titleKey = "ui.label.administration",
+      mainEntry = Some(MenuEntry("/organizations/%s/admin".format(context("orgId")), "ui.label.administration")),
+      roles = Seq(GrantType.OWN)
+    ),
+    OrganizationMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
@@ -45,7 +51,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "thing.virtualCollections",
       items = Seq(
         MenuEntry("/organizations/%s/virtualCollection".format(context("orgId")), "org.vc.list"),
-        MenuEntry("/organizations/%s/dataset/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
+        MenuEntry("/organizations/%s/virtualCollection/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
       )
     ),
     OrganizationMenuEntry(
