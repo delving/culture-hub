@@ -1,7 +1,6 @@
-import com.mongodb.casbah.commons.MongoDBObject
 import core.indexing.IndexingService
 import core.search.SolrQueryService
-import models.IndexItem
+import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
 import org.specs2.mutable.Specification
 import play.api.test.Helpers._
@@ -33,7 +32,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "process a request with 2 valid items" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -55,9 +54,11 @@ class IndexApiSpec extends Specification with TestContext {
 
         trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
-        val mongoCache = IndexItem.find(MongoDBObject()).toList
+        val cacheMovie = MetadataCache.get("delving", "indexApiItems", "movie")
+        val cacheBook = MetadataCache.get("delving", "indexApiItems", "book")
 
-        mongoCache.size must equalTo(2)
+        cacheMovie.count() must equalTo(1)
+        cacheBook.count() must equalTo(1)
 
         val queryByType = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:book"))
         val queryById = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving id:delving_movie_456"))
@@ -69,7 +70,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "reject items without itemId" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -111,7 +112,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     "delete items" in {
 
-        running(FakeApplication()) {
+      withTestConfig {
 
           val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
@@ -151,7 +152,7 @@ class IndexApiSpec extends Specification with TestContext {
 
   "process a request with thumbnail systemFields" in {
 
-    running(FakeApplication()) {
+    withTestConfig {
 
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",

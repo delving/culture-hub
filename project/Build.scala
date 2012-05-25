@@ -2,11 +2,15 @@ import sbt._
 import PlayProject._
 import sbt.Keys._
 import scala._
+import sbtbuildinfo.Plugin._
 
 object ApplicationBuild extends Build {
 
+  val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
+
   val appName = "culture-hub"
-  val appVersion = "1.0"
+  val cultureHubVersion = "1.0"
+  val sipCreatorVersion = "1.0.6-SNAPSHOT"
 
   val dosVersion = "1.5"
 
@@ -21,7 +25,6 @@ object ApplicationBuild extends Build {
     "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
     delvingSnapshots,
     delvingReleases
-
   )
 
   val appDependencies = Seq(
@@ -34,13 +37,16 @@ object ApplicationBuild extends Build {
     "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
-    "eu.delving"                %  "sip-core"                        % "1.0.5-SNAPSHOT",
+    "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
+    "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
     "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
 
-    "org.apache.tika"           %  "tika-parsers"                    % "1.0"
+    "org.apache.tika"           %  "tika-parsers"                    % "1.0",
+
+    "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6"
   )
 
   val core = PlayProject("culturehub-core", coreVersion, coreDependencies, file("core/")).settings(
@@ -50,7 +56,6 @@ object ApplicationBuild extends Build {
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
     resolvers ++= commonResolvers
-
   )
 
   val dosDependencies = Seq(
@@ -73,11 +78,25 @@ object ApplicationBuild extends Build {
     resolvers ++= commonResolvers
   ).dependsOn(core)
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
 
+  val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
+
+    onLoadMessage := "May the force be with you",
+
+    sipCreator := sipCreatorVersion,
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
+
+    sourceGenerators in Compile <+= buildInfo,
+
+    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
+
+    buildInfoPackage := "eu.delving.culturehub",
+
+    watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
+
+    watchSources <++= baseDirectory map { path => ((path / "modules" / "basex-scala-client") ** "*").get },
 
     routesImport += "extensions.Binders._"
 

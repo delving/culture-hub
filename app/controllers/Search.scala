@@ -16,7 +16,7 @@ import core.rendering.ViewRenderer
 object Search extends DelvingController {
   
   // TODO move later
-  val affViewRenderer = ViewRenderer.fromDefinition("aff", "full")
+  val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
 
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
@@ -54,22 +54,21 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        val id = "%s_%s_%s".format(orgId, spec, recordId)
-        
-        MetadataRecord.getMDR(id) match {
+        val hubId = "%s_%s_%s".format(orgId, spec, recordId)
+
+        MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
           case Some(mdr) =>
 
-            if(mdr.getCachedTransformedRecord("aff").isDefined) {
-              val record = mdr.getCachedTransformedRecord("aff").get
+            if(mdr.xml.get("aff").isDefined) {
+              val record = mdr.xml.get("aff").get
               if(!affViewRenderer.isDefined) {
                 logError("Could not find AFF view definition")
                 InternalServerError
               } else {
                 val definition = RecordDefinition.getRecordDefinition("aff").get
-                val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), record)
                 // TODO
                 val grantTypes = List.empty
-                val renderResult = affViewRenderer.get.renderRecord(wrappedRecord, grantTypes, definition.getNamespaces, lang)
+                val renderResult = affViewRenderer.get.renderRecord(record, grantTypes, definition.getNamespaces, lang)
 
                 val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
                   // we're coming from someplace else then a search, remove the return to results cookie
@@ -81,7 +80,7 @@ object Search extends DelvingController {
                 val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                 val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-                Ok(Template("Search/object.html", 'summaryFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+                Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
               }
 
             } else {

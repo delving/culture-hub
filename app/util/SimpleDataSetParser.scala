@@ -16,14 +16,16 @@
 
 package util
 
-import io.Source
 import java.io.InputStream
-import xml.pull._
-import collection.mutable.{MultiMap, HashMap}
-import xml.{TopScope, NamespaceBinding}
-import eu.delving.metadata.{Hasher, Tag, Path}
-import models.{MetadataRecord, DataSet}
-import scala.collection.JavaConverters._
+import models.DataSet
+import core.storage.Record
+import scales.utils._
+import ScalesUtils._
+import scales.xml._
+import ScalesXml._
+import org.apache.commons.lang.StringEscapeUtils
+import javax.xml.stream.XMLInputFactory
+import org.codehaus.stax2.XMLInputFactory2
 
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
@@ -31,31 +33,48 @@ import scala.collection.JavaConverters._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
+class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Record] {
 
-  val parser = new XMLEventReader(Source.fromInputStream(is))
-  val hasher = new Hasher
-  var recordCounter = 0
+  private val ns = collection.mutable.Map.empty[String, String]
+  private val pull = pullXml(is, parserFactoryPool = CustomStaxInputFactoryPool)
+  private var recordCounter: Int = 0
+  private var isDone = false
+  private var lookAhead: Record = null
 
-  // there's a salat bug that leads to our Map[String, List[Int]] not being deserialized properly, so we do it here
-  val invalidRecords = dataSet.invalidRecords.map(valid => {
-    val key = valid._1.toString
-    val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
-      case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
-      case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
-    }).toSet
-    (key, value)
-  }).toMap[String, Set[Int]]
+  {
+    // skip start of document
+    pull.next() match {
+      case Left(Elem(qname, _, namespaces)) if qname.local == "delving-sip-source" =>
+        ns ++= namespaces
+        DataSet.updateNamespaces(dataSet.spec, ns.toMap)
+      case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
+    }
+    parseNext() match {
+      case Some(l) => lookAhead = l
+      case None => isDone = true
+    }
+  }
 
-  def nextRecord: Option[MetadataRecord] = {
+  def namespaces = ns.toMap
+
+
+  def hasNext: Boolean = !isDone
+
+  def next(): Record = {
+    if (isDone) throw new java.util.NoSuchElementException("next on empty iterator")
+    val l = lookAhead
+    parseNext() match {
+      case Some(ahead) => lookAhead = ahead
+      case None => isDone = true
+    }
+    l
+  }
+
+  private def parseNext(): Option[Record] = {
 
     var hasParsedOne = false
     var inRecord = false
-    var inIdentifierElement = false
-    var justLeftIdentifierElement = false
     var elementHasContent = false
-    val valueMap = new HashMap[String, collection.mutable.Set[String]]() with MultiMap[String, String]
-    val path = Path.create()
 
     // the whole content of one record
     val recordXml = new StringBuilder()
@@ -63,104 +82,100 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) {
     // the value of one field
     val fieldValueXml = new StringBuilder()
 
-    var record: MetadataRecord = null
+    var record: Record = null
     var recordId: String = null
 
     while (!hasParsedOne) {
-      if (!parser.hasNext) return None
-      val next = parser.next()
+      if (!pull.hasNext) return None
+      val next = pull.next()
       next match {
-        case EvElemStart(_, "delving-sip-source", _, scope) =>
-          val namespaces = collection.mutable.Map.empty[String, String]
-          extractNamespaces(scope, namespaces)
-          DataSet.updateNamespaces(dataSet.spec, namespaces.toMap)
-        case EvElemStart(pre, "input", attrs, _) =>
+        case Left(Elem(qname, attrs, namespaces)) if qname.local == "input" =>
           inRecord = true
-          val mayId = attrs.get("id").headOption
-          if(mayId != None) recordId = mayId.get.text
-        case EvElemEnd(_, "input") =>
+          val mayId = attrs.find(_.name.local == "id")
+          if (mayId != None) recordId = mayId.get.value
+        case Right(EndElem(name, _)) if (name.local == "input") =>
           inRecord = false
-          record = MetadataRecord(
-            hubId = "%s_%s_%s".format(dataSet.orgId, dataSet.spec, recordId),
-            rawMetadata = Map("raw" -> recordXml.toString()),
-            validOutputFormats = getValidMappings(dataSet, recordCounter),
-            transferIdx = Some(recordCounter),
-            localRecordKey = recordId,
-            globalHash = hasher.getHashString(recordXml.toString()),
-            hash = createHashToPathMap(valueMap))
+          record = Record(
+            id = recordId,
+            document = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
+            schemaPrefix = "raw"
+          )
           recordXml.clear()
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case EvElemStart(prefix, "_id", attrs, scope) if(inRecord) =>
-          inIdentifierElement = true
-        case EvElemEnd(_, "_id") if(inRecord) =>
-          inIdentifierElement = false
-          justLeftIdentifierElement = true
-        case elemStart@EvElemStart(prefix, label, attrs, scope) if (inRecord) =>
-          path.child(Tag.element(prefix, label, null))
-          recordXml.append(elemStartToString(elemStart))
-          elementHasContent = false;
-        case EvText(text) if(inRecord && inIdentifierElement) =>
-          recordId = text
-        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
-          if(text != null && text.size > 0) elementHasContent = true
-          recordXml.append(text)
-          fieldValueXml.append(text)
-        case EvEntityRef(text) if(inRecord && !inIdentifierElement && recordId != null && !justLeftIdentifierElement) =>
-          elementHasContent = true
-          recordXml.append("&%s;".format(text))
-          fieldValueXml.append(text)
-        case EvText(text) if(inRecord && !inIdentifierElement && recordId != null && justLeftIdentifierElement) =>
-          justLeftIdentifierElement = false
-        case elemEnd@EvElemEnd(_, _) if(inRecord) =>
-          valueMap.addBinding(path.toString, fieldValueXml.toString())
-          if(!elementHasContent) {
+        case elemStart@Left(Elem(qname, attrs, ns)) if (inRecord) =>
+          recordXml.append(elemStartToString(qname, attrs, ns))
+          elementHasContent = false
+        case Left(Text(txt)) if (inRecord) =>
+          if (txt != null && txt.size > 0) elementHasContent = true
+          val encoded = StringEscapeUtils.escapeXml(txt)
+          recordXml.append(encoded)
+          fieldValueXml.append(encoded)
+        case Left(CData(data)) if (inRecord) =>
+          if (data != null && data.size > 0) elementHasContent = true
+          val d = """<![CDATA[%s]]>""".format(data)
+          recordXml.append(d)
+          fieldValueXml.append(d)
+        //        case EvEntityRef(text) if (inRecord) =>
+        //          elementHasContent = true
+        //          recordXml.append("&%s;".format(text))
+        //          fieldValueXml.append(text)
+        case elemEnd@Right(EndElem(qname, _)) if (inRecord) =>
+          if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
             recordXml.append(rollback).append("/>")
           } else {
-            recordXml.append(elemEndToString(elemEnd))
+            recordXml.append(elemEndToString(qname))
           }
-          path.parent()
           fieldValueXml.clear()
         case some@_ =>
       }
     }
-    Option(record)
+    Some(record)
   }
 
-  private def getValidMappings(dataSet: DataSet, index: Int): List[String] = invalidRecords.flatMap(valid => if(valid._2.contains(index)) None else Some(valid._1)).toList
-
-
-  private def elemStartToString(start: EvElemStart): String = {
-      val attrs = scala.xml.Utility.sort(start.attrs).toString().trim()
-      if (attrs.isEmpty)
-        "<%s%s>".format(prefix(start.pre), start.label)
-      else
-        "<%s%s %s>".format(prefix(start.pre), start.label, attrs)
+  private def elemStartToString(qname: QName, attributes: ListSet[Attribute], ns: Map[String, String]): String = {
+    val attrs = attributes.
+      toList.
+      filterNot(a => a.prefix.isEmpty && (a.local == null || a.local.trim.length == 0)).
+      sortBy(a => a.name.local).
+      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") + a.local + "=\"" + a.value + "\"")
+    if (attrs.isEmpty)
+      "<%s%s>".format(prefix(qname.prefix), qname.local)
+    else
+      "<%s%s %s>".format(prefix(qname.prefix), qname.local, attrs.mkString(" "))
   }
 
-  private def elemEndToString(end: EvElemEnd): String = "</%s%s>".format(prefix(end.pre), end.label)
+  private def elemEndToString(qname: QName): String = "</%s%s>".format(prefix(qname.prefix), qname.local)
 
-  private def prefix(pre: String): String = if (pre != null) pre + ":" else ""
+  private def prefix(pre: Option[String]): String = if (pre.isDefined) pre.get + ":" else ""
+}
 
-  private def extractNamespaces(ns: NamespaceBinding, namespaces: collection.mutable.Map[String, String]) {
-    if (ns == TopScope) return
-    if(ns.prefix != null) namespaces.put(ns.prefix, ns.uri)
-    extractNamespaces(ns.parent, namespaces)
-  }
+object CustomStaxInputFactoryPool extends scales.utils.SimpleUnboundedPool[XMLInputFactory] {
+  pool =>
 
-  private def createHashToPathMap(valueMap: MultiMap[String, String]): Map[String, String] = {
-    val bits: Iterable[collection.mutable.Set[(String, String)]] = for (path <- valueMap.keys) yield {
-      var index: Int = 0
-      val innerBits: collection.mutable.Set[(String, String)] = for (value <- valueMap.get(path).get) yield {
-        val foo: String = if (index == 0) path else "%s_%d".format(path, index)
-        index += 1
-        (hasher.getHashString(value), foo)
-      }
-      innerBits
+  val cdata = "http://java.sun.com/xml/stream/properties/report-cdata-event"
+
+  def create = {
+    val xmlif = XMLInputFactory.newInstance().asInstanceOf[XMLInputFactory2]
+    if (xmlif.isPropertySupported(cdata)) {
+      xmlif.setProperty(cdata, java.lang.Boolean.TRUE)
     }
-    bits.flatten.toMap
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES)) {
+      xmlif.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES)) {
+      xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, java.lang.Boolean.FALSE)
+    }
+    if (xmlif.isPropertySupported(XMLInputFactory.IS_COALESCING)) {
+      xmlif.setProperty(XMLInputFactory.IS_COALESCING, java.lang.Boolean.FALSE)
+    }
+    xmlif.configureForSpeed()
+
+    xmlif
+
   }
 }
+

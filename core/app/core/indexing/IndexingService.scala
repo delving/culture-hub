@@ -31,8 +31,12 @@ object IndexingService extends SolrServer {
     }
 
     // standard facets
-    doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
-    doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+    if(!doc.containsKey(RECORD_TYPE + "_facet")) {
+      doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
+    }
+    if(!doc.containsKey(HAS_DIGITAL_OBJECT + "_facet")) {
+      doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+    }
 
     getStreamingUpdateServer.add(doc)
   }
@@ -91,10 +95,15 @@ object IndexingService extends SolrServer {
     val deleteQuery = SPEC + ":" + spec + " AND " + ORG_ID + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
     val orphans = getSolrServer.query(new SolrQuery(deleteQuery)).getResults.getNumFound
     if (orphans > 0) {
-      val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
-      deleteResponse.getStatus
-      getStreamingUpdateServer.commit
-      Logger.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
+      try {
+        val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)
+        deleteResponse.getStatus
+        getStreamingUpdateServer.commit
+        Logger.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
+      }
+      catch {
+        case e: Exception => Logger.info("Unable to remove orphans for %s because of %s".format(spec, e.getMessage))
+      }
     }
     else
       Logger.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))

@@ -190,7 +190,7 @@ GET         /organizations/:orgId/api/index                                   co
 POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
 
 
-## Legacy routes support
+## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
@@ -207,10 +207,12 @@ POST        /organizations/:orgId/admin/users/add                             co
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
+GET         /organizations/:orgId/admin/redeploy                              controllers.organization.Admin.redeploy(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
 GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
+GET         /organizations/:orgId/datasets/searchBySpec                       controllers.organization.DataSets.listAsTokensBySpec(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
 GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)
@@ -236,6 +238,7 @@ DELETE      /organizations/:orgId/site/:language/page/:key                    co
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+GET         /organizations/:orgId/dataset/statistics                          controllers.organization.DataSets.statistics(orgId)
 GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
 GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
 POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
@@ -250,6 +253,8 @@ POST        /organizations/:orgId/dataset/:spec/enable                        co
 DELETE      /organizations/:orgId/dataset/:spec/remove                        controllers.organization.DataSetControl.delete(orgId, spec)
 POST        /organizations/:orgId/dataset/:spec/invalidate                    controllers.organization.DataSetControl.invalidate(orgId, spec)
 POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
+
+GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 GET         /organizations/:orgId/virtualCollection                           controllers.organization.VirtualCollections.list(orgId)
 GET         /organizations/:orgId/virtualCollection/add                       controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String] = None)

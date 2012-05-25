@@ -19,7 +19,7 @@ class ItinEndPointSpec extends Specification with TestContext {
 
     "Store XML post" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",

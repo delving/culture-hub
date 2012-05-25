@@ -32,12 +32,12 @@ import core.rendering._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specification {
+class ViewRenderSpec extends Specification with TestContext {
 
   "The ViewRenderer" should {
 
     "render a record as HTML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
@@ -81,13 +81,13 @@ metadata.icn.placeName: Amsterdam
     }
 
     "render an AFF record as HTML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val renderer = new ViewRenderer("aff", "full")
+        val renderer = new ViewRenderer("aff", "html")
         val view = renderer.renderRecord(affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
@@ -109,7 +109,7 @@ metadata.icn.placeName: Amsterdam
     }
 
     "render a record as XML" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
@@ -145,7 +145,7 @@ metadata.icn.placeName: Amsterdam
 
 
     "render a record as JSON" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
         val renderer = new ViewRenderer("aff", "xml")
         val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
@@ -154,7 +154,7 @@ metadata.icn.placeName: Amsterdam
         println(json)
         println()
 
-        val expected = """{"record":{"item":{"places":[{"place":{"name":"Paris"}},{"place":{"name":"Berlin"}},{"place":{"name":"Amsterdam"}}],"dc:title":"A test hierarchical record","delving:description":"This is a test record"}}}"""
+        val expected = """{"record":{"item":{"id":"42","dc_title":"A test hierarchical record","delving_description":"This is a test record","places":{"place":[{"country":"France","name":"Paris"},{"country":"Germany","name":"Berlin"},{"country":"Netherlands","name":"Amsterdam"}]}}}}"""
 
         json must equalTo (expected)
       }
@@ -164,7 +164,7 @@ metadata.icn.placeName: Amsterdam
 
 
     "render a legacy record as XML" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val namespaces = Map(
           "dc" -> "http://purl.org/dc/elements/1.1/",
@@ -283,7 +283,8 @@ metadata.icn.placeName: Amsterdam
   }
   
   private def legacyRecord(): String =
-  """<dc:creator>C.</dc:creator>
+    """<input>
+  <dc:creator>C.</dc:creator>
   <dc:date>1965</dc:date>
   <dc:format>application/pdf</dc:format>
   <dc:publisher>De Brabantse Leeuw</dc:publisher>
@@ -333,6 +334,7 @@ metadata.icn.placeName: Amsterdam
   </tib:thumbLarge>
   <tib:thumbSmall>
   http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180
-  </tib:thumbSmall>"""
+  </tib:thumbSmall>
+  </input>"""
 
 }

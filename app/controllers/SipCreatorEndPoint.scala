@@ -1,13 +1,11 @@
 package controllers
 
-import exceptions.{UnauthorizedException, AccessKeyException}
+import exceptions.{StorageInsertionException, UnauthorizedException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
-import java.util.Date
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
 import org.apache.commons.io.IOUtils
-import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import play.libs.Akka
@@ -18,8 +16,12 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import com.mongodb.casbah.Imports._
+import core.storage.BaseXStorage
+import core.storage.Collection
+import akka.util.Duration
+import java.util.concurrent.TimeUnit
 import models._
+import play.api.libs.Files.TemporaryFile
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -195,8 +197,8 @@ object SipCreatorEndPoint extends ApplicationController {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
               case "source" if extension == "xml.gz" => {
-                val receiveActor = Akka.system().actorOf(Props[ReceiveSource])
-                receiveActor ! SourceStream(dataSet.get, theme, inputStream)
+                val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
                 DataSet.updateState(dataSet.get, DataSetState.PARSING)
                 Right("Received it")
               }
@@ -299,9 +301,11 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val records = DataSet.getRecords(dataSet)
+    val collection = Collection(dataSet.orgId, dataSet.spec)
 
-    if (records.count() > 0) {
+    val recordCount = BaseXStorage.count(collection)
+
+    if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
         out =>
           val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
@@ -309,23 +313,24 @@ object SipCreatorEndPoint extends ApplicationController {
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
           val attrBuilder = new StringBuilder
-          for (ns <- dataSet.namespaces) attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+          for (ns <- dataSet.namespaces) attrBuilder.append(if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
           builder.append("%s>".format(attrBuilder.toString().trim()))
           write(builder.toString(), pw, out)
 
-          var count = 0
-          for (record <- records.find(MongoDBObject()).sort(MongoDBObject("_id" -> 1))) {
-            pw.println("""<input id="%s">""".format(record.localRecordKey))
-            pw.print(record.getRawXmlString)
-            pw.println("</input>")
+          BaseXStorage.withSession(collection) {
+            implicit session => BaseXStorage.findAllCurrent foreach {
+              record =>
+                var count = 0
+                pw.print((record \ "document" \ "input").toString())
 
-            if (count % 100 == 0) {
-              pw.flush()
-              out.flush()
+                if (count % 2000 == 0) {
+                  pw.flush()
+                  out.flush()
+                }
+                count += 1
             }
-            count += 1
+            write("</delving-sip-source>", pw, out)
           }
-          write("</delving-sip-source>", pw, out)
       }
     }
 
@@ -361,78 +366,80 @@ object SipCreatorEndPoint extends ApplicationController {
     out.flush()
   }
 
-  def loadSourceData(dataSet: DataSet, source: InputStream): Int = {
-    var uploadedRecords = 0
-
-    val records = DataSet.getRecords(dataSet)
-
+  def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
+    val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
+      BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
+    }
     val parser = new SimpleDataSetParser(source, dataSet)
 
-    var continue = true
-    while (continue) {
-      val maybeNext = parser.nextRecord
-      if (maybeNext != None) {
-        uploadedRecords += 1
-        val record = maybeNext.get
-
-        val toInsert = record.copy(modified = new Date(), deleted = false)
-        records.findOne(MongoDBObject("localRecordKey" -> toInsert.localRecordKey)) match {
-          case Some(existing) =>
-            records.update(MongoDBObject("_id" -> existing._id), records._grater.asDBObject(existing.copy(rawMetadata = (existing.rawMetadata ++ toInsert.rawMetadata))))
-          case None =>
-            records.insert(toInsert)
-        }
-      } else {
-        continue = false
-      }
+    def onRecordInserted(count: Long) {
+      if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
-    uploadedRecords
+    BaseXStorage.store(collection, parser, parser.namespaces, onRecordInserted)
   }
 
 }
 
 class ReceiveSource extends Actor {
-  
-  protected def receive = {
-    case SourceStream(dataSet, theme, is) =>
-      receiveSource(dataSet, theme, is) match {
-        case Left(t) =>
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing DataSet source: " + t.getMessage))
-          Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-          ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
-        case _ =>
-        // all is good
-          Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s".format(dataSet.spec, dataSet.orgId))
-      }
-    case _ => // nothing
-  }
-  
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, String] = {
 
-    var uploadedRecords = 0
+  var tempFileRef: TemporaryFile = null
+
+  protected def receive = {
+    case SourceStream(dataSet, theme, inputStream, tempFile) =>
+      val now = System.currentTimeMillis()
+
+      // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
+      tempFileRef = tempFile
+
+      try {
+        receiveSource(dataSet, theme, inputStream) match {
+          case Left(t) =>
+            DataSet.invalidateHashes(dataSet)
+            val message = if(t.isInstanceOf[StorageInsertionException]) {
+              Some("""Error while inserting record:
+                      |
+                      |%s
+                      |
+                      |Cause:
+                      |
+                      |%s
+                      |""".stripMargin.format(t.getMessage, t.getCause.getMessage))
+            } else {
+              Some(t.getMessage)
+            }
+            DataSet.updateState(dataSet, DataSetState.ERROR, message)
+            Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+          case Right(inserted) =>
+            val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+            Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
+        }
+
+      } catch {
+        case t =>
+          Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
+          DataSet.invalidateHashes(dataSet)
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing uploaded source: " + t.getMessage))
+
+      } finally {
+        tempFileRef = null
+      }
+  }
+
+  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
-      uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+      val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+      DataSet.updateRecordCount(dataSet, uploadedRecords)
+      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      Right(uploadedRecords)
     } catch {
-      case t: Throwable => return Left(t)
+      case t => return Left(t)
     }
-
-    val recordCount: Int = DataSet.getRecordCount(dataSet)
-
-    // TODO review the semantics behind total_records, deleted records etc.
-    val details = dataSet.details.copy(
-      uploaded_records = uploadedRecords,
-      total_records = recordCount,
-      deleted_records = recordCount - dataSet.details.uploaded_records
-    )
-
-    val updatedDataSet = DataSet.findOneByID(dataSet._id).get.copy(details = details, state = DataSetState.UPLOADED) // fetch the DataSet from mongo again, it may have been modified by the parser (namespaces)
-    DataSet.save(updatedDataSet)
-    Right("Goodbye and thanks for all the fish")
   }
 
 
 }
 
-case class SourceStream(dataSet: DataSet, theme: PortalTheme, is: InputStream)
+case class SourceStream(dataSet: DataSet, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)

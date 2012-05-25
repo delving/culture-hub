@@ -4,6 +4,9 @@
  */
 
 import actors._
+import akka.actor.SupervisorStrategy.Restart
+import akka.routing.RoundRobinRouter
+import controllers.ReceiveSource
 import core.{CultureHubPlugin, HubServices}
 import play.api.libs.concurrent._
 import akka.util.duration._
@@ -13,6 +16,7 @@ import play.api._
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
+import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
 
@@ -30,7 +34,13 @@ object Global extends GlobalSettings {
              / /   / / / / / __/ / / / ___/ _ \/ /_/ / / / / __ \
             / /___/ /_/ / / /_/ /_/ / /  /  __/ __  / /_/ / /_/ /
             \____/\__,_/_/\__/\__,_/_/   \___/_/ /_/\__,_/_.___/
-      """)
+
+
+            Version %s
+
+            Sip-Creator Version %s
+
+      """.format(BuildInfo.version, BuildInfo.sipCreator))
     }
 
 
@@ -52,6 +62,12 @@ object Global extends GlobalSettings {
         Logger("CultureHub").error("No cultureHub.organization configured!")
         System.exit(-1)
   }
+
+    val dataSetParser = Akka.system.actorOf(Props[ReceiveSource].withRouter(
+      RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+      })
+    ), name = "dataSetParser")
 
     // ~~~ bootstrap jobs
 

@@ -37,6 +37,11 @@ object Proxy extends DelvingController {
   def list(orgId: String) = Root {
     Action {
       implicit request =>
+
+        if(!request.path.contains("api")) {
+          warning("Using deprecated API call " + request.uri)
+        }
+
         val list =
           <explain>
             {proxies.map {
@@ -55,6 +60,11 @@ object Proxy extends DelvingController {
   def query(orgId: String, proxyKey: String) = Action {
     implicit request =>
       Async {
+
+        if(!request.path.contains("api")) {
+          warning("Using deprecated API call " + request.uri)
+        }
+
         proxies.find(_.key == proxyKey).map {
           proxy =>
             WS.
@@ -72,6 +82,11 @@ object Proxy extends DelvingController {
   def item(orgId: String, proxyKey: String, itemKey: String) = Action {
     implicit request =>
       Async {
+
+        if(!request.path.contains("api")) {
+          warning("Using deprecated API call " + request.uri)
+        }
+
         proxies.find(_.key == proxyKey).map {
           proxy =>
 

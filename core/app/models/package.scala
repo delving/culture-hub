@@ -129,13 +129,4 @@ package object mongoContext extends models.MongoContext {
 
   lazy val statisticsRunCollection = connection("StatisticsRun")
 
-  /** the index API items, cached for re-processing **/
-  lazy val indexItemsCollection = connection("IndexItems")
-  addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
-
-
-  lazy val musipItemsCollection = connection("MusipItems")
-  addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
-
-
 }
