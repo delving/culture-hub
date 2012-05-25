@@ -7,8 +7,7 @@
                 <container>
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                     <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
-                    <!-- is this actually mapped? -->
-                    <!--<field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>-->
+                    <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
                     <field path="/icn:record/dc:date" label="metadata.dc.date"/>
                     <field path="/icn:record/dc:format" label="metadata.dc.format"/>
                     <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
@@ -18,7 +17,7 @@
                     <!-- seems to be the same as icn:technique -->
                     <!--<enumeration path="/icn:record/dcterms:medium" label="metadata.dcterms.medium"/>-->
                     <field path="/icn:record/icn:material" label="metadata.icn.material"/>
-                    <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique"/>
+                    <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
 
                     <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                 </container>
@@ -47,12 +46,7 @@
                 </container>
             </column>
         </row>
-        <!--<row>-->
-            <!-- TODO: get list of related objects? -->
-        <!--</row>-->
     </view>
-</views>
-
 
 <!--
 
@@ -62,3 +56,27 @@
 <europeana:type>IMAGE</europeana:type>
 
 -->
+
+    <view name="api">
+        <elem name="result">
+            <attrs>
+                <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="custom" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="dc" value="http://purl.org/dc/elements/1.1/"/>
+                <attr prefix="xmlns" name="dcterms" value="http://purl.org/dc/termes/"/>
+                <attr prefix="xmlns" name="europeana" value="http://www.europeana.eu/schemas/ese/"/>
+                <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
+            </attrs>
+            <elem name="layout">
+                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                    <auto-layout-field/>
+                </list>
+            </elem>
+            <elem name="item">
+                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                    <auto-field/>
+                </list>
+            </elem>
+        </elem>
+    </view>
+</views>
