@@ -33,6 +33,11 @@ import org.w3c.dom.{Text, Node => WNode}
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
  *
+ * TODO refactor this:
+ * - the tree walking and building methods should be encapsulated in their own TreeWalker class which gets initialized with an empty stack
+ * - since there is a number of common attributes shared amongst elements (especially in the ViewRendering DSL), those elements
+ *   should be resolved upfront and inherited by all special cases. so a more generic way of declaring elements or their results needs to be put into place
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
@@ -102,7 +107,8 @@ class ViewRenderer(schema: String, viewName: String) {
           if (n.label != "#PCDATA") {
 
             // common attributes
-            val label = n.attr("label")
+            val label = if(n.attr("labelExpr").isEmpty) n.attr("label") else XPath.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
+
             val role = n.attr("role")
             val path = n.attr("path")
             val value = n.attr("value")
@@ -231,6 +237,7 @@ class ViewRenderer(schema: String, viewName: String) {
                     Some(evaluateParamExpression(value, parameters))
                   else
                     fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption
+
                   append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.description).getOrElse("")) { renderNode => }
                 }
               case "enumeration" => withAccessControl(roleList) {
