@@ -2,7 +2,7 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{MenuEntry, OrganizationMenuEntry, RequestContext, CultureHubPlugin}
+import core.{MenuElement, MainMenuEntry, RequestContext, CultureHubPlugin}
 import models.GrantType
 
 /**
@@ -25,15 +25,15 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
       context.renderArgs.put("menu", mainMenuEntries)
   }
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[OrganizationMenuEntry] = Seq(
-    OrganizationMenuEntry(
+  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+    MainMenuEntry(
       key = "site",
       titleKey = "org.cms",
       roles = Seq(GrantType.OWN, GrantType.CMS),
       items = Seq(
-        MenuEntry("/organizations/%s/site".format(context("orgId")), "org.cms.page.list"),
-        MenuEntry("/organizations/%s/site/%s/page/add".format(context("orgId"), context("currentLanguage")), "org.cms.page.new"),
-        MenuEntry("/organizations/%s/site/upload".format(context("orgId")), "org.cms.upload.image")
+        MenuElement("/organizations/%s/site".format(context("orgId")), "org.cms.page.list"),
+        MenuElement("/organizations/%s/site/%s/page/add".format(context("orgId"), context("currentLanguage")), "org.cms.page.new"),
+        MenuElement("/organizations/%s/site/upload".format(context("orgId")), "org.cms.upload.image")
       )
     )
   )
