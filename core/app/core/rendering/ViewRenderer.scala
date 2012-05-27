@@ -257,12 +257,12 @@ class ViewRenderer(schema: String, viewName: String) {
                 val text = if(n.attribute("textExpr").isDefined) {
                   XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
                 } else if(n.attribute("textValue").isDefined) {
-                  n.attr("textValue")
+                  evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
                   ""
                 }
 
-                appendSimple("link", 'url -> url, 'text -> text, 'class -> n.attr("class")) { node => }
+                appendSimple("link", 'url -> url, 'text -> text, 'label -> label) { node => }
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 

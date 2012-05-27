@@ -59,16 +59,24 @@ object Search extends DelvingController {
             MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
               case Some(mdr) =>
 
-                val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString)).toMap
+                val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
+
+                // TODO this is a workaround for not yet having a resolver for directory entries
+                if(facts.contains("providerUri")) {
+                  facts.put("resolvedProviderUri", "/%s/museum/%s".format(orgId, facts("providerUri").split("/").reverse.head))
+                }
+                if(facts.contains("dataProviderUri")) {
+                  facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
+                }
 
                 // TODO eventually make the selection mechanism dynamic, if we need to.
                 // AFF takes precedence over anything else
                 if(mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
-                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts)
+                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else if(mdr.xml.get("icn").isDefined) {
                   val record = mdr.xml.get("icn").get
-                   renderRecord(mdr, record, icnViewRenderer.get, RecordDefinition.getRecordDefinition("icn").get, orgId, facts)
+                   renderRecord(mdr, record, icnViewRenderer.get, RecordDefinition.getRecordDefinition("icn").get, orgId, facts.toMap)
                 } else {
                   NotFound(Messages("heritageObject.notViewable"))
                 }
