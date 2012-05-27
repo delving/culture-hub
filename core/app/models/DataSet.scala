@@ -278,7 +278,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
       case Some(existingMapping) =>
         existingMapping.copy(
-          format = existingMapping.format.copy(roles = ns.get.roles),
           recordMapping = Some(mapping.toString)
         )
       case None =>
@@ -289,7 +288,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             ns.get.schema,
             ns.get.namespace,
             ns.get.allNamespaces,
-            ns.get.roles,
             ns.get.isFlat
           )
         )

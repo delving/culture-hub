@@ -20,7 +20,7 @@
                 <div class="controls">
                     <select id="grantType" name="grantType" data-bind="value: grantType" class="span4">
                     #{list grantTypes, as: 'gt'}
-                        <option value="${gt.key}">${gt.origin} - &{gt.description}</option>
+                        <option value="${gt.key}">&{gt.description}</option>
                     #{/list}
                     </select>
                     <span class="error">${views.Helpers.showError('grantType', null)}</span>

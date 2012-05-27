@@ -31,7 +31,6 @@ case class RecordDefinition(prefix: String,
                             schema: String,
                             namespace: String,               // the namespace of the format
                             allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
-                            roles: List[Role] = List.empty,  // roles that are described in the RecordDefinition
                             isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
                             ) {
 
@@ -39,8 +38,6 @@ case class RecordDefinition(prefix: String,
 }
 
 case class Namespace(prefix: String, uri: String, schema: String)
-
-case class Role(key: String, description: String, prefix: String)
 
 case class FormatAccessControl(accessType: String = "none", accessKey: Option[String] = None) {
   def hasAccess(key: Option[String]) = isPublicAccess || (isProtectedAccess && key != None && accessKey == key)
@@ -102,15 +99,12 @@ object RecordDefinition {
         n.attribute("schema").get.text
       )).toList
 
-    val roles = (node \ "roles" \ "role").map(r => Role((r \ "@key").text, (r \ "@description").text, prefix)).toList
-
     Some(
       RecordDefinition(
         recordDefinitionNamespace \ "@prefix" text,
         recordDefinitionNamespace \ "@schema" text,
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
-        roles,
         isFlat
       )
     )
