@@ -28,14 +28,10 @@ object Breadcrumbs {
 
       case "users" :: Nil => List(("/users", Messages("thing.users")))
       case "objects" :: Nil => List(("/objects", Messages("thing.objects.user")))
-      case "heritageObjects" :: Nil => List(("/objects", Messages("thing.objects.heritage")))
       case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
       case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
-//      case "search" :: Nil if p != null =>
-//        val returnToResults = p.get("search").get("returnToResults")
-//        val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
-//        List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
+      case "search" :: Nil => List(("NOLINK", Messages("ui.label.search")))
 
       case "org" :: orgId :: "thing" :: spec :: recordId :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))

@@ -8,7 +8,7 @@ import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
 import extensions.{Extensions, ConfigurationException}
-import com.mongodb.casbah.commons.MongoDBObject
+import collection.JavaConverters._
 import org.bson.types.ObjectId
 import xml.NodeSeq
 import core._
@@ -66,6 +66,13 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
           // apply plugin handlers
           onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, theme, renderArgs, getLang)))
+
+          // main navigation
+          val menu = hubPlugins.map(
+            plugin => plugin.mainMenuEntries(theme, getLang).map(_.asJavaMap)
+          ).flatten.asJava
+
+          renderArgs += ("menu" -> menu)
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
@@ -355,12 +362,10 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)
 
 
-          import collection.JavaConverters._
-
           renderArgs += ("roles" -> roles.asJava)
 
           val navigation = hubPlugins.map(
-            plugin => plugin.getNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
+            plugin => plugin.getOrganizationNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
           ).flatten.asJava
 
           renderArgs += ("navigation" -> navigation)

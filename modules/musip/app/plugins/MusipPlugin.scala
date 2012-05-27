@@ -1,9 +1,10 @@
 package plugins
 
-import core.CultureHubPlugin
 import play.api.mvc.Handler
 import scala.util.matching.Regex
-import play.api.Application
+import models.PortalTheme
+import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import play.api.{Play, Application}
 
 /**
  *
@@ -23,8 +24,18 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
     },
     """^/organizations/([A-Za-z0-9-]+)/admin/musip/synchronize$""".r -> {
       pathArgs: List[String] => controllers.musip.Admin.synchronize(pathArgs(0))
-    }
+    })
 
-
+  override def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq(
+    MainMenuEntry(
+      key = "museums",
+      titleKey = "plugin.musip.museums",
+      mainEntry = Some(MenuElement(url = "/search?query=*&qf=delving_recordType_facet:museum", titleKey = "plugin.musip.museums"))
+    ),
+    MainMenuEntry(
+      key = "collections",
+      titleKey = "plugin.musip.collections",
+      mainEntry = Some(MenuElement(url = "/search?query=*&qf=delving_recordType_facet:collection", titleKey = "plugin.musip.collections"))
+    )
   )
 }

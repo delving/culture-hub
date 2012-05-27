@@ -2,7 +2,7 @@ package plugins
 
 import play.api.Application
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import models.GrantType
+import models.{PortalTheme, GrantType}
 
 
 /**
@@ -15,6 +15,15 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "core"
 
   override def enabled: Boolean = true
+
+
+  override def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq(
+    MainMenuEntry(
+      key = "home",
+      titleKey = "site.nav.home",
+      mainEntry = Some(MenuElement(url = "/", titleKey = "site.nav.home"))
+    )
+  )
 
   override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(

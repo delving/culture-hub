@@ -26,11 +26,11 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     request =>
   }
 
-  def mainMenuEntries(context: Map[String, String]): Seq[MainMenuEntry] = Seq.empty
+  def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
-  def getNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean) = organizationMenuEntries(context, roles).
+  def getOrganizationNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean) = organizationMenuEntries(context, roles).
     filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
     map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
 
