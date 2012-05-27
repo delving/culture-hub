@@ -106,7 +106,6 @@ GET          /users                                                           co
 GET          /users/search                                                    controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 #GET         /collections/?                                                   Collections.list
 #GET         /objects/?                                                       DObjects.list
-GET          /heritageObjects                                                 controllers.HeritageObjects.list(page: Int ?= 1)
 #GET         /stories/?                                                       Stories.list
 
 GET          /search                                                          controllers.Search.index(query ?= "*:*", page: Int ?= 1)
