@@ -27,6 +27,7 @@ extras/servlet-server/work/
 /module-extra/
 /public/javascripts/press
 /public/stylesheets/press
+params.sh
 
 project/project
 project/target
