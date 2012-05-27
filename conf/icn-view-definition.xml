@@ -30,9 +30,10 @@
                 <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
                 <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
                 <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
-                <!-- TODO extend these to links, when we have the mechanism in place. -->
-                <field value="${provider}" label="metadata.europeana.provider"/>
-                <field value="${dataProvider}" label="metadata.europeana.dataProvider"/>
+
+                <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
+                <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
+
                 <field path="/icn:record/dc:source" label="metadata.dc.source"/>
                 <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
                 <field path="/icn:record/icn:province" label="metadata.icn.province"/>
