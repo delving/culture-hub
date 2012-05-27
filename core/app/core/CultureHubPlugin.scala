@@ -26,7 +26,9 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     request =>
   }
 
-  def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[OrganizationMenuEntry] = Seq.empty
+  def mainMenuEntries(context: Map[String, String]): Seq[MainMenuEntry] = Seq.empty
+
+  def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
   def getNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean) = organizationMenuEntries(context, roles).
     filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
@@ -34,7 +36,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
 }
 
-case class OrganizationMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = Seq.empty, items: Seq[MenuEntry] = Seq.empty, mainEntry: Option[MenuEntry] = None, membersOnly: Boolean = true) {
+case class MainMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = Seq.empty, items: Seq[MenuElement] = Seq.empty, mainEntry: Option[MenuElement] = None, membersOnly: Boolean = true) {
 
   def asJavaMap = Map(
     "key" -> key,
@@ -45,7 +47,7 @@ case class OrganizationMenuEntry(key: String, titleKey: String, roles: Seq[Grant
   ).asJava
 }
 
-case class MenuEntry(url: String, titleKey: String, roles: Seq[GrantType] = Seq.empty) {
+case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Seq.empty) {
   val asJavaMap = Map(
     "url" -> url,
     "titleKey" -> titleKey
