@@ -29,6 +29,7 @@ import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
 import org.w3c.dom.{Text, Node => WNode}
+import java.net.URLEncoder
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -228,8 +229,15 @@ class ViewRenderer(schema: String, viewName: String) {
               case "container" => enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"))
               case "image" => withAccessControl(roleList) {
                 role =>
-                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                  val value = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption.map {
+                    url =>
+                      if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+                        "/image/cache?id=%s".format(URLEncoder.encode(url, "utf-8"))
+                      } else {
+                        url
+                      }
+                  }
+                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
                 }
               case "field" => withAccessControl(roleList) {
                 role =>
