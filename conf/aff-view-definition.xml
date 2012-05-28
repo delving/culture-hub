@@ -3,10 +3,12 @@
 <views>
     <view name="html">
         <row>
-            <section id="general">
-                <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
-                <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
-            </section>
+            <column id="general">
+                <container>
+                    <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
+                    <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
+                </container>
+            </column>
         </row>
     </view>
     <view name="full">
