@@ -200,7 +200,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
     val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).filterNot(_.deleted).toList
   }
 
   // FIXME this one makes no sense, since findAllCanSee only returns public datasets anyway
