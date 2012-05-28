@@ -4,13 +4,14 @@ import play.api.Logger
 import play.api.mvc._
 import play.api.mvc.Results._
 
-import com.mongodb.casbah.gridfs.Imports._
-import com.mongodb.casbah.Implicits._
+import com.mongodb.casbah.Imports._
 import java.util.Date
 import java.io.InputStream
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
 import extensions.HTTPClient
+import com.mongodb.casbah.commons.MongoDBObject
+import java.net.URLDecoder
 
 
 /**
@@ -23,13 +24,13 @@ object ImageCache extends Controller with RespondWithDefaultImage {
 
   def image(id: String, withDefaultFromUrl: Boolean) = Action {
     implicit request =>
-      val result = imageCacheService.retrieveImageFromCache(request, id, false)
+      val result = imageCacheService.retrieveImageFromCache(request, URLDecoder.decode(id, "utf-8"), false)
       if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
   }
 
   def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = Action {
     implicit request =>
-      val result = imageCacheService.retrieveImageFromCache(request, id, true, width)
+      val result = imageCacheService.retrieveImageFromCache(request, URLDecoder.decode(id, "utf-8"), true, width)
       if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
   }
 }
@@ -45,39 +46,43 @@ class ImageCacheService extends HTTPClient with Thumbnail {
         require(url != "noImageFound")
         require(!url.isEmpty)
 
-        val isAvailable = checkOrInsert(sanitizeUrl(url))
-        isAvailable match {
-          case false => NotFound(url)
-          case true => ImageDisplay.renderImage(id = url, thumbnail = thumbnail, thumbnailWidth = ImageDisplay.thumbnailWidth(thumbnailWidth), store = imageCacheStore)(request)
+        val sanitizedUrl = sanitizeUrl(url)
+
+        val isAvailable = checkOrInsert(sanitizedUrl)
+        if(isAvailable) {
+          imageCacheStoreConnection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc ("viewed" -> 1)) ++ $set ("lastViewed" -> new Date))
+          ImageDisplay.renderImage(id = sanitizedUrl, thumbnail = thumbnail, thumbnailWidth = ImageDisplay.thumbnailWidth(thumbnailWidth), store = imageCacheStore)(request)
+        } else {
+          NotFound(sanitizedUrl)
         }
 
       } catch {
         case ia: IllegalArgumentException =>
-          log.error("problem with processing this url: \"" + url + "\"")
-          NotFound(url)
+          log.error("Problem with processing this url: \"" + sanitizeUrl(url) + "\"", ia)
+          NotFound(sanitizeUrl(url))
         case ex: Exception =>
-          log.error("unable to find image: \"" + url + "\"\n" + ex.getStackTraceString)
-          NotFound(url)
+          log.error("Unable to find image: \"" + sanitizeUrl(url) + "\"\n", ex)
+          NotFound(sanitizeUrl(url))
       }
   }
 
   def checkOrInsert(url: String): Boolean = {
     if(isImageCached(url)) true else {
-      log info ("image not found, attempting to store it in the cache based on URL: " + url)
+      log.info("Image not found, attempting to store it in the cache based on URL: '" + url + "'")
       val stored = storeImage(url)
       if(stored) {
-        log info ("successfully cached image for URL: " + url)
+        log.debug("Successfully cached image for URL: '" + url + "'")
         true
       } else {
-        log info ("unable to store " + url)
+        log.info("Unable to store '" + url + "'")
         false
       }
     }
   }
 
   private def isImageCached(url: String): Boolean = {
-    log info ("attempting to retrieve image for URL " + url)
-    imageCacheStore.findOne(url) != None
+    log.debug("Attempting to retrieve image for URL " + url)
+    imageCacheStore.findOne(MongoDBObject("filename" -> url)) != None
   }
 
   private def sanitizeUrl(url: String): String = {
@@ -107,18 +112,20 @@ class ImageCacheService extends HTTPClient with Thumbnail {
     val method = new GetMethod(url)
     getHttpClient executeMethod (method)
     method.getResponseHeaders.foreach(header => log.debug(header.toString))
-    val storable = isStorable(method)
-    WebResource(url, method.getResponseBodyAsStream, storable._1, storable._2)
-  }
-
-  private def isStorable(method: GetMethod) = {
-    val contentType: Header = method.getResponseHeader("Content-Type")
-    val contentLength: Header = method.getResponseHeader("Content-Length")
-    val mimeTypes = List("image/png", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/pjpeg")
-    //todo build a size check in later
-    (mimeTypes.contains(contentType.getValue.toLowerCase), contentType.getValue)
+    WebResource(method)
   }
 
 }
 
 case class WebResource(url: String, dataAsStream: InputStream, storable: Boolean, contentType: String)
+
+case object WebResource {
+
+  def apply(method: GetMethod): WebResource = {
+    val contentType: Header = method.getResponseHeader("Content-Type")
+    // TODO sanity check on length
+    val contentLength: Header = method.getResponseHeader("Content-Length")
+    val mimeTypes = List("image/png", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/pjpeg")
+    WebResource(method.getURI.toString, method.getResponseBodyAsStream, mimeTypes.contains(contentType.getValue.toLowerCase), contentType.getValue)
+  }
+}
