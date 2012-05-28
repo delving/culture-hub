@@ -55,24 +55,34 @@ class ViewRenderSpec extends Specification with TestContext {
         args.put("lang", "en")
         val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
         val expected: String =
-"""<div class="row">
-<div id="description">
-Description: This is a test record
-</div>
-<div id="fields">
-<h5>random</h5>
-<div>A test hierarchical record, Wood</div>
-Purchase Price: 5000
-metadata.icn.purchaseType: auction
-<div class="link"><a href="http://foo.bar.com">Blablabla</a></div>
-</div>
-<div id="complexFields">
-metadata.icn.placeName: Paris
-metadata.icn.placeName: Berlin
-metadata.icn.placeName: Amsterdam
-</div>
-</div>
-"""
+
+
+          """<div class="root ">
+            |<div class="row ">
+            |<div class="column ">
+            |<div >
+            |<h5>Description </h5>            <p>This is a test record</p>
+            |</div>
+            |</div>
+            |<div class="column ">
+            |<div >
+            |<h5>random</h5>
+            |<p>A test hierarchical record, Wood</p>
+            |<h5>Purchase Price <span class="label">admin</span></h5>            <p>5000</p>
+            |<h5>metadata.icn.purchaseType </h5>            <p>auction</p>
+            |<dt></dt><dd><div class="link"><a href="http://foo.bar.com">Blablabla</a></div></dd>
+            |</div>
+            |</div>
+            |<div class="column ">
+            |<div >
+            |<h5>metadata.icn.placeName </h5>            <p>Paris</p>
+            |<h5>metadata.icn.placeName </h5>            <p>Berlin</p>
+            |<h5>metadata.icn.placeName </h5>            <p>Amsterdam</p>
+            |</div>
+            |</div>
+            |</div>
+            |</div>
+            |""".stripMargin
 
         println(rendered)
 
@@ -179,7 +189,7 @@ metadata.icn.placeName: Amsterdam
 
         val testRecord = "<root %s>%s</root>".format(namespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), legacyRecord())
 
-        val renderer = new ViewRenderer("legacy", "full")
+        val renderer = new ViewRenderer("legacy", "api")
         val view = renderer.renderRecord(testRecord, List.empty, namespaces, Lang("en"))
 
         println(view.toXmlString)
@@ -205,20 +215,26 @@ metadata.icn.placeName: Amsterdam
   private def testHtmlViewDefinition =
     <view name="full">
       <row>
-        <section id="description">
-            <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
-        </section>
-        <section id="fields">
-            <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
-            <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
-            <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
-            <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name" />
-        </section>
-        <section id="complexFields">
-             <list path="/record/icn:places/icn:place">
-                 <field path="@name" label="metadata.icn.placeName"/>
-             </list>
-         </section>
+        <column id="description">
+          <container>
+              <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
+          </container>
+        </column>
+        <column id="fields">
+          <container>
+              <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
+              <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+              <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
+              <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name" />
+          </container>
+        </column>
+        <column id="complexFields">
+          <container>
+            <list path="/record/icn:places/icn:place">
+                <field path="@name" label="metadata.icn.placeName"/>
+            </list>
+          </container>
+         </column>
       </row>
     </view>
 
