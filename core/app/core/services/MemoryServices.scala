@@ -93,7 +93,7 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   def getName(orgId: String, language: String): Option[String] = organizations.get(orgId).getOrElse(return None).name.get(language)
 
   // directory
-  private val dummyDelving = OrganizationEntry("http://dummy.org/delving", "Delving", "NL")
+  private val dummyDelving = OrganizationEntry("http://id.delving.org/org/1", "Delving", "NL")
 
   def findOrganization(query: String): List[OrganizationEntry] = List(dummyDelving)
 

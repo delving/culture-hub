@@ -1,6 +1,4 @@
 #{list _menu, as:'m'}
-#{if m.apply("published") == true}
-<li class="#{if m.apply("page") == pageId}active#{/if}"><a href="/page/${m.apply("page")}">${m.apply("title")}</a></li>
-#{/if}
+<li class="#{if m.key == pageId}active#{/if}"><a href="${m.mainEntry.url}">&{m.mainEntry.titleKey}</a></li>
 #{/list}
 

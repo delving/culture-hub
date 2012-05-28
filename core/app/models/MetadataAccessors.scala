@@ -19,7 +19,9 @@ package models
 import core.Constants._
 import org.bson.types.ObjectId
 import views.Helpers.thumbnailUrl
-import java.net.URLDecoder
+import play.api.Play
+import play.api.Play.current
+import java.net.{URLEncoder, URLDecoder}
 
 /**
  *
@@ -63,8 +65,8 @@ abstract class MetadataAccessors extends Universal {
     case MDR =>
       // only provide a link if there's something to show via AFF
       val allSchemas = values(ALL_SCHEMAS)
-      if(allSchemas.size > 0 && allSchemas.contains("aff")) {
-        "/" + getOrgId + "/object/" + getSpec + "/" + getRecordId
+      if(allSchemas.size > 0 && (allSchemas.contains("aff") || allSchemas.contains("icn"))) {
+        "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
       } else {
         ""
       }
@@ -77,13 +79,18 @@ abstract class MetadataAccessors extends Universal {
     case _ => ""
   }
   def getThumbnailUri: String = getThumbnailUri(180)
+
   def getThumbnailUri(size: Int): String = {
     assign(THUMBNAIL) match {
       case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
         val mongoId = Some(new ObjectId(id))
         thumbnailUrl(mongoId, size)
-      // TODO plug-in the image cache here for MDRs
-      case url if url.startsWith("http") => url
+      case url if url.startsWith("http") =>
+        if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+          "/thumbnail/cache?id=%s&width=%s".format(URLEncoder.encode(url, "utf-8"), size)
+        } else {
+          url
+        }
       case _ => thumbnailUrl(None, size)
     }
   }

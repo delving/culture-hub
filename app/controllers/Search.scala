@@ -7,6 +7,7 @@ import core.search._
 import exceptions._
 import play.api.i18n.Messages
 import core.rendering.ViewRenderer
+import com.mongodb.casbah.Imports._
 
 /**
  *
@@ -17,10 +18,7 @@ object Search extends DelvingController {
   
   // TODO move later
   val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
-
-  val RETURN_TO_RESULTS = "returnToResults"
-  val SEARCH_TERM = "searchTerm"
-  val IN_ORGANIZATION = "inOrg"
+  val icnViewRenderer = ViewRenderer.fromDefinition("icn", "full")
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -54,42 +52,59 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        val hubId = "%s_%s_%s".format(orgId, spec, recordId)
+        DataSet.findBySpecAndOrgId(spec, orgId).map {
+          collection =>
+            val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
-        MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
-          case Some(mdr) =>
+            MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
+              case Some(mdr) =>
 
-            if(mdr.xml.get("aff").isDefined) {
-              val record = mdr.xml.get("aff").get
-              if(!affViewRenderer.isDefined) {
-                logError("Could not find AFF view definition")
-                InternalServerError
-              } else {
-                val definition = RecordDefinition.getRecordDefinition("aff").get
-                // TODO
-                val grantTypes = List.empty
-                val renderResult = affViewRenderer.get.renderRecord(record, grantTypes, definition.getNamespaces, lang)
+                val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
 
-                val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
-                  // we're coming from someplace else then a search, remove the return to results cookie
-                  request.session - (RETURN_TO_RESULTS)
-                } else {
-                  request.session
+                // TODO this is a workaround for not yet having a resolver for directory entries
+                if(facts.contains("providerUri")) {
+                  facts.put("resolvedProviderUri", "/%s/museum/%s".format(orgId, facts("providerUri").split("/").reverse.head))
+                }
+                if(facts.contains("dataProviderUri")) {
+                  facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
                 }
 
-                val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-                val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+                // TODO eventually make the selection mechanism dynamic, if we need to.
+                // AFF takes precedence over anything else
+                if(mdr.xml.get("aff").isDefined) {
+                  val record = mdr.xml.get("aff").get
+                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
+                } else if(mdr.xml.get("icn").isDefined) {
+                  val record = mdr.xml.get("icn").get
+                   renderRecord(mdr, record, icnViewRenderer.get, RecordDefinition.getRecordDefinition("icn").get, orgId, facts.toMap)
+                } else {
+                  NotFound(Messages("heritageObject.notViewable"))
+                }
 
-                Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
-              }
-
-            } else {
-              NotFound(Messages("heritageObject.notViewable"))
+              case None => NotFound("Record was not found")
             }
-
-          case None => NotFound("Record was not found")
+        }.getOrElse {
+          NotFound("Collection was not found")
         }
     }
+  }
+
+  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)(implicit request: RequestHeader) = {
+
+    val renderResult = viewRenderer.renderRecord(record, getUserGrantTypes(orgId), definition.getNamespaces, lang, parameters)
+
+    val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+      // we're coming from someplace else then a search, remove the return to results cookie
+      request.session - (RETURN_TO_RESULTS)
+    } else {
+      request.session
+    }
+
+    val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+    val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+
+    Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+
   }
 
 

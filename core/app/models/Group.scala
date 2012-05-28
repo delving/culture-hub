@@ -77,12 +77,12 @@ object GrantType {
 
   val systemGrantTypes = List(VIEW, MODIFY, CMS, OWN)
 
-  def dynamicGrantTypes = RecordDefinition.recordDefinitions.map(_.roles).flatten
+  def dynamicGrantTypes = Role.getAllRoles
 
-  val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
+  val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
 
   def allGrantTypes = if(Play.isDev) {
-    (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, r.prefix)))
+    (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
   } else {
     cachedGrantTypes
   }

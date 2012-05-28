@@ -10,8 +10,9 @@
     <title>#{get 'title' /}</title>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>}*
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap-delving.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap-responsive.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/helpers.css")}"/>
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>

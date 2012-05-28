@@ -174,6 +174,7 @@ thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 
 
+
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
 ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: {0}
@@ -361,6 +362,7 @@ metadata.dcterms.isFormatOf=Is formaat van
 metadata.dcterms.hasVersion=Versie
 metadata.dcterms.isPartOf=Is deel van
 metadata.dcterms.isReferencedBy=Is verwezen door
+metadata.dcterms.medium=Medium
 metadata.dcterms.isReplacedBy=Is vervangen door
 metadata.dcterms.provenance=Herkomst
 metadata.dcterms.references=Referenties
@@ -443,6 +445,13 @@ metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
 metadata.tib.pages=Paginering
 metadata.tib.formatted=Geformateerde tekst
 metadata.tib.vindplaats=Vindplaats
+
+metadata.collection.strength=Kracht
+metadata.collection.administrators=Beheerders
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relatie tot kerncollectie
+metadata.collection.earliestWork=Vroegste werk uit collectie
+metadata.collection.latestWork=Meest recente werk uit collectie
 
 
 #Users
@@ -621,7 +630,7 @@ org.vc.help.toggle=Hulp met virtuele collecties
 org.vc.help.fields.tab=Invoer velden
 org.vc.help.fields.name.info=De getoonde naam van de virtuele collectie.
 org.vc.help.fields.identifier.info=systeem naam van de virtuele collectie.
-org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie. Meerdere datasets mogen worden toegevoegd door deze te scheiden met een komma <code>dataset1, dataset2</code>.
+org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie.
 org.vc.help.fields.query.info=De zoek-term(en) waarmee de virtuele collectie opgebouwd wordt.
 org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma.
 # QUERIES #
