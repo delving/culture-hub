@@ -200,7 +200,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
     val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).filterNot(_.deleted).toList
   }
 
   // FIXME this one makes no sense, since findAllCanSee only returns public datasets anyway
@@ -278,7 +278,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
       case Some(existingMapping) =>
         existingMapping.copy(
-          format = existingMapping.format.copy(roles = ns.get.roles),
           recordMapping = Some(mapping.toString)
         )
       case None =>
@@ -289,7 +288,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             ns.get.schema,
             ns.get.namespace,
             ns.get.allNamespaces,
-            ns.get.roles,
             ns.get.isFlat
           )
         )

@@ -1,0 +1,96 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="full">
+        <row>
+
+            <column proportion="1of3">
+                <container>
+                    <field path="/icn:record/dc:title" label="metadata.dc.title"/>
+                    <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
+                    <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
+                    <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
+                    <field path="/icn:record/dc:type" label="metadata.dc.type"/>
+                    <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
+                    <field path="/icn:record/icn:material" label="metadata.icn.material"/>
+                    <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
+                    <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
+                    <field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>
+                    <!-- TODO: empty enumberation still shows label -->
+                    <!--
+                    <enumeration label="metadata.dc.relation"
+                                 separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
+                                 /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
+                                 /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
+                    -->
+                </container>
+            </column>
+            <column proportion="1of3">
+                <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
+                <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
+                <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
+                <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+
+                <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
+                <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
+
+                <field path="/icn:record/dc:source" label="metadata.dc.source"/>
+                <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
+                <field path="/icn:record/icn:province" label="metadata.icn.province"/>
+                <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
+                <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
+
+            </column>
+            <column proportion="1of3">
+                <container>
+                    <image path="/icn:record/europeana:object"/>
+                    <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt"/>
+                </container>
+            </column>
+        </row>
+        <row>
+            <container id="admin">
+                <column proportion="1of3">
+                    <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
+                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="icn"/>
+                </column>
+                <column proportion="1of3">
+                    <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="icn"/>
+                    <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="icn"/>
+                </column>
+            </container>
+        </row>
+    </view>
+
+<!--
+
+<dc:identifier>OKS 1989-001</dc:identifier>
+
+<europeana:rights>http://www.europeana.eu/rights/unknown/</europeana:rights>
+<europeana:type>IMAGE</europeana:type>
+
+-->
+
+    <view name="api">
+        <elem name="result">
+            <attrs>
+                <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="custom" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="dc" value="http://purl.org/dc/elements/1.1/"/>
+                <attr prefix="xmlns" name="dcterms" value="http://purl.org/dc/termes/"/>
+                <attr prefix="xmlns" name="europeana" value="http://www.europeana.eu/schemas/ese/"/>
+                <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
+            </attrs>
+            <elem name="layout">
+                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                    <auto-layout-field/>
+                </list>
+            </elem>
+            <elem name="item">
+                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                    <auto-field/>
+                </list>
+            </elem>
+        </elem>
+    </view>
+</views>

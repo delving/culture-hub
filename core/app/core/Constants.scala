@@ -113,4 +113,12 @@ object Constants {
 
   val HubId = """^(.*?)_(.*?)_(.*)$""".r
 
+
+  // ~~~ Search UI
+  val RETURN_TO_RESULTS = "returnToResults"
+  val SEARCH_TERM = "searchTerm"
+  val IN_ORGANIZATION = "inOrg"
+
+
+
 }

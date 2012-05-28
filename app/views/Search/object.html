@@ -4,9 +4,61 @@
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
-<div class="row dashboard">
-    #{view view: fullView /}
+
+
+<style>
+    body {
+        margin-bottom: 50px;
+    }
+    h5 {
+        margin: 0 0 0 0;
+    }
+    p {
+        margin: 0 0 2px 10px;
+        padding: 0;
+    }
+    dl {
+        margin: 0 0 10px 0;
+    }
+    ul {
+        margin-bottom: 10px;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    #collections ul {
+        display: inline-block;
+        width: 44%;
+        vertical-align: top;
+    }
+    div.image {
+        margin-bottom: 21px;
+        text-align: center;
+    }
+    img.img {
+        height: auto;
+        max-width: 100%;
+    }
+
+    div#admin {
+        border-top: 1px solid #eee;
+        /*height: auto;*/
+        margin: 10px 0;
+        padding: 10px 0;
+        *{width: 100%;}*
+        display: block;
+    }
+
+</style>
+
+<div class="page-header">
+    <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
+
+#{view view: fullView /}
+
+
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
 <div class="contentWrap">

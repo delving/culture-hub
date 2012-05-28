@@ -18,7 +18,7 @@ object Breadcrumbs {
     implicit val lang: Lang = Lang(request.cookies.get("CH_LANG").map(_.value).getOrElse(theme.defaultLanguage))
 
     // we can't make the difference between orgId/object and user/object
-    val crumbList = if(p != null && p.containsKey(controllers.Search.IN_ORGANIZATION)) {
+    val crumbList = if(p != null && p.containsKey(core.Constants.IN_ORGANIZATION)) {
       "org" :: request.path.split("/").drop(1).toList
     } else {
       request.path.split("/").drop(1).toList
@@ -28,21 +28,33 @@ object Breadcrumbs {
 
       case "users" :: Nil => List(("/users", Messages("thing.users")))
       case "objects" :: Nil => List(("/objects", Messages("thing.objects.user")))
-      case "heritageObjects" :: Nil => List(("/objects", Messages("thing.objects.heritage")))
       case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
       case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
-//      case "search" :: Nil if p != null =>
-//        val returnToResults = p.get("search").get("returnToResults")
-//        val searchTerm = "[%s]".format(p.get("search").get("searchTerm"))
-//        List(("NOLINK", Messages("ui.label.search")), ("/search?" + returnToResults , searchTerm))
+      case "search" :: Nil => List(("NOLINK", Messages("ui.label.search")))
 
-      case "org" :: orgId :: "object" :: spec :: recordId :: Nil =>
+      case "org" :: orgId :: "thing" :: spec :: recordId :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
           case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
         }
+
+      // TODO fetch these crumbs from the plugin
+      case "org" :: orgId :: "museum" :: id :: Nil =>
+        val returnToResults = Option(p.get("search").get("returnToResults"))
+        returnToResults match {
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.museums")), ("NOLINK", p.get("title").get("label")))
+        }
+
+      case "org" :: orgId :: "collection" :: id :: Nil =>
+        val returnToResults = Option(p.get("search").get("returnToResults"))
+        returnToResults match {
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.collections")), ("NOLINK", p.get("title").get("label")))
+        }
+
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))
       case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", Messages("org.admin.index.title")))

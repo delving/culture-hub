@@ -5,7 +5,7 @@ import core.rendering.ViewRenderer
 import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Action}
 import models.MetadataCache
-
+import core.Constants._
 
 /**
  *
@@ -23,7 +23,8 @@ object Show extends DelvingController {
     Action {
       Action {
         implicit request => show(orgId, itemId, "collection", collectionViewDefinition) match {
-          case Some((viewTree, systemFields)) => Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields))
+          case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
+            Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
           case None => NotFound("Collection not found")
         }
       }
@@ -33,7 +34,8 @@ object Show extends DelvingController {
   def museum(orgId: String, itemId: String) = Root {
     Action {
       implicit request => show(orgId, itemId, "museum", museumViewDefinition) match {
-        case Some((viewTree, systemFields)) => Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields))
+        case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
+          Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
         case None => NotFound("Museum not found")
       }
     }
@@ -46,10 +48,22 @@ object Show extends DelvingController {
         if (!renderer.isDefined) {
           InternalServerError("Could not find renderer for " + itemType)
         } else {
-          val renderResult = renderer.get.renderRecord(thing.xml("musip"), List.empty, Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
+
+          val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+            // we're coming from someplace else then a search, remove the return to results cookie
+            request.session - (RETURN_TO_RESULTS)
+          } else {
+            request.session
+          }
+
+          val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+          val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+
+
+          val renderResult = renderer.get.renderRecord(thing.xml("musip"), getUserGrantTypes(orgId), Map("musip" -> "http://www.musip.nl/"), Lang(getLang), Map("orgId" -> orgId))
           val viewTree = renderResult.toViewTree
 
-          (viewTree, thing.systemFields)
+          (viewTree, thing.systemFields, returnToResults, searchTerm)
         }
     }
   }

@@ -1,8 +1,8 @@
 package plugins
 
 import play.api.Application
-import core.{MenuEntry, OrganizationMenuEntry, CultureHubPlugin}
-import models.GrantType
+import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import models.{PortalTheme, GrantType}
 
 
 /**
@@ -16,42 +16,57 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[OrganizationMenuEntry] = Seq(
-    OrganizationMenuEntry(
+
+  override def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq(
+    MainMenuEntry(
+      key = "home",
+      titleKey = "site.nav.home",
+      mainEntry = Some(MenuElement(url = "/", titleKey = "site.nav.home"))
+    )
+  )
+
+  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+    MainMenuEntry(
       key = "overview",
       titleKey = "ui.label.overview",
-      mainEntry = Some(MenuEntry("/organizations/" + context("orgId"), "ui.label.overview")),
+      mainEntry = Some(MenuElement("/organizations/" + context("orgId"), "ui.label.overview")),
       membersOnly = false
     ),
-    OrganizationMenuEntry(
+    MainMenuEntry(
+      key = "administration",
+      titleKey = "ui.label.administration",
+      mainEntry = Some(MenuElement("/organizations/%s/admin".format(context("orgId")), "ui.label.administration")),
+      roles = Seq(GrantType.OWN)
+    ),
+    MainMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
-        MenuEntry("/organizations/%s/groups".format(context("orgId")), "org.group.list"),
-        MenuEntry("/organizations/%s/groups/create".format(context("orgId")), "org.group.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/groups".format(context("orgId")), "org.group.list"),
+        MenuElement("/organizations/%s/groups/create".format(context("orgId")), "org.group.create", Seq(GrantType.OWN))
       )
     ),
-    OrganizationMenuEntry(
+    MainMenuEntry(
       key = "datasets",
       titleKey = "thing.datasets",
       items = Seq(
-        MenuEntry("/organizations/%s/dataset".format(context("orgId")), "organization.dataset.list"),
-        MenuEntry("/organizations/%s/dataset/statistics".format(context("orgId")), "org.stats", Seq(GrantType.OWN)),
-        MenuEntry("/organizations/%s/dataset/add".format(context("orgId")), "organization.dataset.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/dataset".format(context("orgId")), "organization.dataset.list"),
+        MenuElement("/organizations/%s/dataset/statistics".format(context("orgId")), "org.stats", Seq(GrantType.OWN)),
+        MenuElement("/organizations/%s/dataset/add".format(context("orgId")), "organization.dataset.create", Seq(GrantType.OWN))
       )
     ),
-    OrganizationMenuEntry(
+    MainMenuEntry(
       key = "virtual-collections",
       titleKey = "thing.virtualCollections",
       items = Seq(
-        MenuEntry("/organizations/%s/virtualCollection".format(context("orgId")), "org.vc.list"),
-        MenuEntry("/organizations/%s/dataset/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/virtualCollection".format(context("orgId")), "org.vc.list"),
+        MenuElement("/organizations/%s/virtualCollection/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
       )
     ),
-    OrganizationMenuEntry(
+    MainMenuEntry(
       key = "sipcreator",
       titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuEntry("/organizations/%s/sip-creator".format(context("orgId")), "ui.label.sipcreator"))
+      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(context("orgId")), "ui.label.sipcreator"))
     )
   )
 }

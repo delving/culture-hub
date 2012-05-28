@@ -106,7 +106,6 @@ GET          /users                                                           co
 GET          /users/search                                                    controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 #GET         /collections/?                                                   Collections.list
 #GET         /objects/?                                                       DObjects.list
-GET          /heritageObjects                                                 controllers.HeritageObjects.list(page: Int ?= 1)
 #GET         /stories/?                                                       Stories.list
 
 GET          /search                                                          controllers.Search.index(query ?= "*:*", page: Int ?= 1)
@@ -130,10 +129,10 @@ GET          /:user                                                           co
 #POST        /{user}/object/{id}/block                                        admin.NodeAdmin.blockDObject
 #GET         /{user}/object/{id}                                              DObjects.dobject
 
-GET          /:orgId/object/:spec/:recordId/overlay                          controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
-#POST        /:orgId/object/:spec/:recordId/link/:linkType/:toType/:toId     controllers.user.Links.add(fromType:'mdr')
-#DELETE      /:orgId/object/:spec/:recordId/link/:linkType/:toType/:toId     controllers.user.Links.remove(fromType:'mdr')
-GET          /:orgId/object/:spec/:recordId                                  controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
+GET          /:orgId/thing/:spec/:recordId/overlay                           controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
+#POST        /:orgId/thing/:spec/:recordId/link/:linkType/:toType/:toId      controllers.user.Links.add(fromType:'mdr')
+#DELETE      /:orgId/thing/:spec/:recordId/link/:linkType/:toType/:toId      controllers.user.Links.remove(fromType:'mdr')
+GET          /:orgId/thing/:spec/:recordId                                   controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
 
 GET          /:user/sip-creator.jnlp                                          controllers.organization.SipCreator.jnlp(user)
 

@@ -35,7 +35,16 @@ trait RespondWithDefaultImage extends play.api.http.Status {
       }
     }
 
-    if (result.asInstanceOf[SimpleResult[Any]].header.status == NOT_FOUND)
+    val notFound = if(result.isInstanceOf[SimpleResult[Any]]) {
+      result.asInstanceOf[SimpleResult[Any]].header.status == NOT_FOUND
+    } else if(result.isInstanceOf[ChunkedResult[Any]]) {
+      result.asInstanceOf[ChunkedResult[Any]].header.status == NOT_FOUND
+    } else {
+      // let's hope for the best
+      false
+    }
+
+    if(notFound)
       getDefaultImage
     else
       result
