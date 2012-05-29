@@ -7,7 +7,7 @@ echo Starting the CultureHub in production mode
 echo ==========================================
 echo
 echo
-source params.sh
+. ./params.sh
 ../play-2.0/play start &
 
 echo
