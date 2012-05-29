@@ -7,7 +7,7 @@ echo Redeploying the CultureHub in production mode
 echo =============================================
 echo
 echo
-sh params.sh
+source params.sh
 kill -9 `cat RUNNING_PID` && rm RUNNING_PID
 git pull
 ant downloadSipCreator
