@@ -15,13 +15,6 @@ import java.util.regex.Pattern
 
 object DataSets extends OrganizationController {
 
-  def statistics(orgId: String) = OrgMemberAction(orgId)  {
-    Action {
-      implicit request =>
-        Ok(Template())
-    }
-  }
-
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
