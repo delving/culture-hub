@@ -29,32 +29,18 @@
                             <th>&{'plugin.statistics.nrRecords'}</th>
                             <th>&{'plugin.statistics.withObjects'}</th>
                             <th>&{'plugin.statistics.landingPages'}</th>
-                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        %{
-                        Random rand = new Random()
-                        int maxNr = 10000
-                        int maxPer = 40
-                        int min = 50
 
-                        for(i in 1..10) {
-                            def randNr = rand.nextInt(maxNr+122) + 1000
-                            def randNr2 = rand.nextInt(maxNr+27)
-                            def randPer = rand.nextInt(maxPer) + min
-                            def randPer2 = rand.nextInt(maxPer) + min
-                            int total = (i*randNr + i*randNr2)
-                        }%
-
+                        #{list dataSetStatistics, as: 'dss'}
                         <tr>
-                            <td>&{'thing.dataset'} ${i}</td>
-                            <td>${total}</td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
-                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
+                            <td>${dss.spec}</td>
+                            <td>${dss.total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasDigitalObjectCount} records">${dss.hasDigitalObjectPercentage}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasLandingPageCount} records">${dss.hasLandingPagePercentage}%</span></td>
                         </tr>
-                        %{ }}%
+                        #{/list}
                         </tbody>
                     </table>
                 </div>
