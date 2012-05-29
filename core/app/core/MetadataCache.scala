@@ -1,6 +1,7 @@
 package core
 
-import models.MetadataItem
+import models.{MongoMetadataCache, MetadataItem}
+
 
 /**
  *
@@ -8,6 +9,8 @@ import models.MetadataItem
  */
 
 trait MetadataCache {
+
+  def underlying: MongoMetadataCache
 
   def saveOrUpdate(item: MetadataItem)
 

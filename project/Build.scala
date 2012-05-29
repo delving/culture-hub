@@ -79,6 +79,10 @@ object ApplicationBuild extends Build {
   ).dependsOn(core)
 
 
+  val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
+    resolvers ++= commonResolvers
+  ).dependsOn(core)
+
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
 
     onLoadMessage := "May the force be with you",
@@ -100,6 +104,6 @@ object ApplicationBuild extends Build {
 
     routesImport += "extensions.Binders._"
 
-  ).dependsOn(core, dos, musip)
+  ).dependsOn(core, dos, statistics, musip)
 
 }
