@@ -51,7 +51,6 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "thing.datasets",
       items = Seq(
         MenuElement("/organizations/%s/dataset".format(context("orgId")), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/statistics".format(context("orgId")), "org.stats", Seq(GrantType.OWN)),
         MenuElement("/organizations/%s/dataset/add".format(context("orgId")), "organization.dataset.create", Seq(GrantType.OWN))
       )
     ),
