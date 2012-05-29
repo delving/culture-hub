@@ -122,10 +122,10 @@ case class WebResource(url: String, dataAsStream: InputStream, storable: Boolean
 case object WebResource {
 
   def apply(method: GetMethod): WebResource = {
-    val contentType: Header = method.getResponseHeader("Content-Type")
+    val contentType = method.getResponseHeader("Content-Type").getValue.toLowerCase.split(",").headOption.getOrElse("")
     // TODO sanity check on length
     val contentLength: Header = method.getResponseHeader("Content-Length")
     val mimeTypes = List("image/png", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/pjpeg")
-    WebResource(method.getURI.toString, method.getResponseBodyAsStream, mimeTypes.contains(contentType.getValue.toLowerCase), contentType.getValue)
+    WebResource(method.getURI.toString, method.getResponseBodyAsStream, mimeTypes.contains(contentType), contentType)
   }
 }
