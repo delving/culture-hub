@@ -226,7 +226,10 @@ class ViewRenderer(schema: String, viewName: String) {
 
               case "row" => enterAndAppendOne(n, dataNode, "row", true, 'proportion -> n.attr("proportion"))
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
-              case "container" => enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"))
+              case "container" => withAccessControl(roleList) {
+                role =>
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse(""))
+              }
               case "image" => withAccessControl(roleList) {
                 role =>
                   val value = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption.map {
