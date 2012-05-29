@@ -82,12 +82,12 @@
                 <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/icn:record/*[local-name()!='purchasePrice']">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
