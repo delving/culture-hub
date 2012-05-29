@@ -1,5 +1,5 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('org.stats') /}
+#{set title: messages.get('plugin.statistics.statistics') /}
 #{set bodyId:'statistics' /}
 #{set pageId:'Statistics'/}
 #{set 'moreScripts'}
@@ -7,12 +7,12 @@
 #{/set}
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active:"statistics", navigation: navigation /}
 
 <div class="row">
     <div class="span12">
         <h3 class="page-header">
-        &{'org.stats'}
+        &{'plugin.statistics.statistics'}
         </h3>
         <div class="tabbable">
 
@@ -30,9 +30,9 @@
                         <thead>
                         <tr>
                             <th>&{'thing.name'}</th>
-                            <th>&{'org.stats.nrRecords'}</th>
-                            <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.landingPages'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -56,7 +56,7 @@
                             <td>${total}</td>
                             <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
                             <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
-                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                            <td><button data-toggle="modal" data-target="#datasetHistory" class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
@@ -65,7 +65,7 @@
                     <div class="modal modal-big hide" id="datasetHistory">
                         <div class="modal-header">
                             <button class="close" data-dismiss="modal">x</button>
-                            <h3>&{'org.stats.history'}</h3>
+                            <h3>&{'plugin.statistics.history'}</h3>
                         </div>
                         <div class="modal-body">
                             <table class="table">
@@ -73,9 +73,9 @@
                                 <tr>
                                     <th>&{'metadata.dc.date'}</th>
                                     <th>&{'thing.name'}</th>
-                                    <th>&{'org.stats.nrRecords'}</th>
-                                    <th>&{'org.stats.withObjects'}</th>
-                                    <th>&{'org.stats.landingPages'}</th>
+                                    <th>&{'plugin.statistics.nrRecords'}</th>
+                                    <th>&{'plugin.statistics.withObjects'}</th>
+                                    <th>&{'plugin.statistics.landingPages'}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -109,9 +109,9 @@
                         <thead>
                         <tr>
                             <th>&{'thing.name'}</th>
-                            <th>&{'org.stats.nrRecords'}</th>
-                            <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.landingPages'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -131,7 +131,7 @@
                             <td>${total}</td>
                             <td><span class="badge badge-info" rel="tooltip" title="${i*randNr} records">${randPer}%</span></td>
                             <td><span class="badge badge-info" rel="tooltip" title="${i*randNr2} records">${randPer2}%</span></td>
-                            <td><button data-toggle="modal" data-target="#dataproviderHistory" class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                            <td><button data-toggle="modal" data-target="#dataproviderHistory" class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
@@ -140,7 +140,7 @@
                     <div class="modal modal-big hide" id="dataproviderHistory">
                         <div class="modal-header">
                             <button class="close" data-dismiss="modal">x</button>
-                            <h3>&{'org.stats.history'}</h3>
+                            <h3>&{'plugin.statistics.history'}</h3>
                         </div>
                         <div class="modal-body">
                             <table class="table">
@@ -148,9 +148,9 @@
                                 <tr>
                                     <th>&{'metadata.dc.date'}</th>
                                     <th>&{'thing.name'}</th>
-                                    <th>&{'org.stats.nrRecords'}</th>
-                                    <th>&{'org.stats.withObjects'}</th>
-                                    <th>&{'org.stats.landingPages'}</th>
+                                    <th>&{'plugin.statistics.nrRecords'}</th>
+                                    <th>&{'plugin.statistics.withObjects'}</th>
+                                    <th>&{'plugin.statistics.landingPages'}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -184,9 +184,9 @@
                         <thead>
                         <tr>
                             <th>&{'metadata.europeana.country'}</th>
-                            <th>&{'org.stats.nrRecords'}</th>
-                            <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.landingPages'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -206,7 +206,7 @@
                             <td>${total}</td>
                             <td><span class="badge badge-info" rel="tooltip" title="${4*randNr} records">${randPer}%</span></td>
                             <td><span class="badge badge-info" rel="tooltip" title="${6*randNr2} records">${randPer2}%</span></td>
-                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
@@ -217,9 +217,9 @@
                         <thead>
                         <tr>
                             <th>&{'thing.province'}</th>
-                            <th>&{'org.stats.nrRecords'}</th>
-                            <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.landingPages'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -239,7 +239,7 @@
                             <td>${total}</td>
                             <td><span class="badge badge-info" rel="tooltip" title="${5*randNr} records">${randPer}%</span></td>
                             <td><span class="badge badge-info" rel="tooltip" title="${3*randNr2} records">${randPer2}%</span></td>
-                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
@@ -251,9 +251,9 @@
                         <thead>
                         <tr>
                             <th>&{'thing.province'}</th>
-                            <th>&{'org.stats.nrRecords'}</th>
-                            <th>&{'org.stats.withObjects'}</th>
-                            <th>&{'org.stats.landingPages'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -273,7 +273,7 @@
                             <td>${total}</td>
                             <td><span class="badge badge-info" rel="tooltip" title="${8*randNr} records">${randPer}%</span></td>
                             <td><span class="badge badge-info" rel="tooltip" title="${4*randNr2} records">${randPer2}%</span></td>
-                            <td><button class="btn btn-primary btn-mini pull-right">&{'org.stats.history'}</button></td>
+                            <td><button class="btn btn-primary btn-mini pull-right">&{'plugin.statistics.history'}</button></td>
                         </tr>
                         %{ }}%
                         </tbody>
