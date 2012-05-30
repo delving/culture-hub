@@ -25,7 +25,7 @@ object Search extends DelvingController {
               warning("Using deprecated API call " + request.uri)
             }
 
-            val hiddenQueryFilters = ListBuffer[String]()
+            val hiddenQueryFilters = ListBuffer[String]("%s:%s".format(RECORD_TYPE, ITEM_TYPE_MDR))
 
             if (!orgId.isEmpty)
               hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
