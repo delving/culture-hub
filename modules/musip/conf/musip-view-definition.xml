@@ -6,7 +6,7 @@
             <column proportion="1of2">
                 <field path="/musip:actor/musip:name" label="thing.title"/>
                 <field path="/musip:actor/musip:description" label="thing.description"/>
-                <field path="/musip:actor/musip:types/musip:type" label="thing.type"/>
+                <field path="/musip:actor/musip:types/musip:type" label="metadata.museum.type"/>
                 <field path="/musip:actor/musip:addresss" label="thing.address"/>
                 <field path="/musip:actor/musip:postal_code" label="thing.postalCode"/>
                 <field path="/musip:actor/musip:place" label="thing.place"/>
@@ -17,19 +17,12 @@
                 <field path="/musip:actor/musip:email" label="thing.email"/>
                 <field path="/musip:actor/musip:url" label="thing.url"/>
                 <field path="/musip:actor/musip:mission_statement" label="thing.missionStatement"/>
-                <field path="/musip:actor/musip:lastChanged" label="thing.datemodified" />
-                <!--
-                CONTACT INFO FIELD NOT FOR PUBLIC
-                TODO: FLAG IT SO THAT IT CAN REMAIN IN THE VIEW DEFINITION BUT NOT HAVE IT RENDERED IN THE HUB'S HTML OUTPUT
-                BUT MAKE IT POSSIBLE TO RENDER IT IN THE SIP-CREATOR
-                -->
-                <!--
-                <container type="list" label="thing.contact">
+                <field path="/musip:actor/musip:lastChanged" label="thing.datemodified"/>
+                <container type="list" label="thing.contact" role="icn">
                     <list path="/musip:actor/musip:contacts/musip:contact">
                         <link urlExpr="musip:email" urlValue="mailto:" textExpr="musip:name"/>
                     </list>
                 </container>
-                -->
             </column>
             <column proportion="1of2">
                 <image label="thing.collections" path="/musip:actor/musip:image"/>
@@ -47,22 +40,40 @@
         <row>
             <column proportion="1of2">
                 <container>
-                <field path="/musip:collection/musip:name" label="thing.title"/>
-                <field path="/musip:collection/musip:description" label="thing.description" />
-                <container label="metadata.collection.museum" type="list">
-                    <list path="/musip:collection/musip:administrators/musip:actor">
-                        <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
+                    <field path="/musip:collection/musip:name" label="thing.title"/>
+                    <field path="/musip:collection/musip:description" label="thing.description" />
+                    <container label="metadata.collection.museum" type="list">
+                        <list path="/musip:collection/musip:administrators/musip:actor">
+                            <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
+                        </list>
+                    </container>
+                    <field path="/musip:collection/musip:strength" label="metadata.collection.relationToCoreCollection"/>
+                    <field path="/musip:collection/musip:startYear" label="metadata.collection.earliestWork"/>
+                    <field path="/musip:collection/musip:endYear" label="metadata.collection.latestWork"/>
+                    <field path="/musip:collection/musip:lastChanged" label="thing.datemodified" />
+                    <enumeration label="thing.keywords" separator=", " path="/musip:collection/musip:keywords/musip:keyword,/musip:collection/musip:relatedObjects/musip:object"/>
+                </container>
+                <!-- general counts -->
+                <container type="labelled-list" label="metadata.collection.count" id="count-data">
+                    <field label="metadata.collection.total" path="/musip:collection/musip:objects/musip:objectsTotal"/>
+                    <field label="metadata.collection.fromCore" path="/musip:collection/musip:objects/musip:objectsFromCoreCollection"/>
+                    <field label="metadata.collection.fromBorrowed" path="/musip:collection/musip:objects/musip:objectsFromLoan"/>
+                </container>
+                <!-- geo counts -->
+                <container label="metadata.collection.geographicalRelevance" id="geo-data" type="labelled-list">
+                    <list path="/musip:collection/musip:geocounts" >
+                        <field labelExpr="musip:geocountName" path="musip:geocountCount" />
                     </list>
                 </container>
-                <field path="/musip:collection/musip:strength" label="metadata.collection.relationToCoreCollection"/>
-                <field path="/musip:collection/musip:startYear" label="metadata.collection.earliestWork"/>
-                <field path="/musip:collection/musip:endYear" label="metadata.collection.latestWork"/>
-                <field path="/musip:collection/musip:lastChanged" label="thing.datemodified" />
-                <enumeration label="thing.keywords" separator=", " path="/musip:collection/musip:keywords/musip:keyword,/musip:collection/musip:relatedObjects/musip:object"/>
+                <!-- AAT counts -->
+                <container label="metadata.collection.aatCategories" role="icn" id="aat-data" type="labelled-list">
+                    <list path="/musip:collection/musip:aatCounts">
+                        <field labelExpr="./musip:aatCount/musip:aatCategory" path="./musip:aatCount/musip:aatCount"/>
+                    </list>
                 </container>
             </column>
             <column proportion="1of2">
-                    <image path="/musip:collection/musip:images[1]/musip:url"/>
+                <image path="/musip:collection/musip:images[1]/musip:url"/>
             </column>
         </row>
 
