@@ -48,24 +48,22 @@
             </column>
         </row>
         <row>
-            <container id="admin">
+            <container id="admin" role="icn">
                 <column proportion="1of3">
                     <!-- museumetrie private -->
-                    <container role="icn">
                     <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation"/>
                     <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation"/>
                     <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans"/>
                     <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear"/>
                     <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom"/>
                     <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice"/>
+                </column>
+                <column proportion="1of3">
                     <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus"/>
                     <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges"/>
                     <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear"/>
                     <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion"/>
                     <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState"/>
-                    </container>
-                </column>
-                <column proportion="1of3">
                 </column>
             </container>
         </row>
