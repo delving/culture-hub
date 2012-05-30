@@ -143,6 +143,7 @@ object ThemeHandler {
         siteName         = if(((theme \ "siteName").text).isEmpty) Some("Delving CultureHub") else Some((theme \ "siteName").text),
         siteSlogan       = if(((theme \ "siteSlogan").text).isEmpty) Some("") else Some((theme \ "siteSlogan").text),
         defaultLanguage  = (theme \ "defaultLanguage").text,
+        hiddenQueryFilter = if(((theme \ "hiddenQueryFilter").text).isEmpty) None else Some((theme \ "hiddenQueryFilter").text),
         solrSelectUrl    = (theme \ "solrSelectUrl").text,
         facets           = Some((theme \ "facets").text),
         sortFields       = Some((theme \ "sortFields").text),
