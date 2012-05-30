@@ -27,8 +27,6 @@
     <div class="span8">
         <div id="site-nav">
             <ul class="nav nav-pills pull-right">
-                <li class='${pageId == "home" ? "active" : "" }'><a href="@{controllers.routes.Application.index()}"><span>&{'site.nav.home'}</span></a></li>
-                <li class='${pageId == "ho" ? "active" : "" }'><a href="@{controllers.routes.HeritageObjects.list(1)}"><span>&{'thing.objects.heritage'}</span></a></li>
                 #{mainMenu menu:menu /}
             </ul>
         </div>
