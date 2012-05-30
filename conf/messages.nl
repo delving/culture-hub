@@ -452,7 +452,14 @@ metadata.collection.museum=Museum
 metadata.collection.relationToCoreCollection=Relatie tot kerncollectie
 metadata.collection.earliestWork=Vroegste werk uit collectie
 metadata.collection.latestWork=Meest recente werk uit collectie
+metadata.collection.geographicalRelevance=Geographische verbondenheid
+metadata.collection.aatCategories=AAT categorieën
+metadata.collection.count=Aantal objecten
+metadata.collection.total=Totaal
+metadata.collection.fromCore=Uit kerncollectie
+metadata.collection.fromBorrowed=Uit bruikleen
 
+metadata.museum.type=Museum type
 
 #Users
 
