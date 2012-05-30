@@ -55,7 +55,8 @@ object ApplicationBuild extends Build {
     publishTo := Some(delvingRepository(coreVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    resolvers += "BaseX Repository" at "http://files.basex.org/maven"
   )
 
   val dosDependencies = Seq(
