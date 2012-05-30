@@ -11,6 +11,10 @@
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
 <style>
+    body {
+        margin-bottom: 50px;
+    }
+
     h5 {
         margin: 0 0 2px 0;
     }
@@ -48,6 +52,22 @@
         width: 100%;
         display: block;
     }
+
+    div#geo-data dl dt,
+    div#aat-data dl dt,
+    div#count-data dl dt {
+        float: left;
+        font-weight: normal;
+        margin-left: 10px;
+        margin-right: 4px;
+    }
+    div#geo-data dl dt:after,
+    div#aat-data dl dt:after,
+    div#count-data dl dt:after
+    {
+        content: ":";
+    }
+
 
 </style>
 

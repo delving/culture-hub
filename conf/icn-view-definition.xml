@@ -15,26 +15,25 @@
                     <field path="/icn:record/icn:material" label="metadata.icn.material"/>
                     <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
                     <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
-                    <field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>
-                    <!-- TODO: empty enumberation still shows label -->
-                    <!--
+                    <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
                     <enumeration label="metadata.dc.relation"
                                  separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
                                  /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
                                  /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
-                    -->
+                    <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                 </container>
             </column>
             <column proportion="1of3">
-                <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
-                <field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>
+
+                <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
                 <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
                 <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+                <field path="/icn:record/icn:collectionType" label="metadata.icn.collectionType" />
 
                 <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
                 <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
 
-                <field path="/icn:record/dc:source" label="metadata.dc.source"/>
+                <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
                 <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
                 <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                 <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
@@ -49,14 +48,22 @@
             </column>
         </row>
         <row>
-            <container id="admin">
+            <container id="admin" role="icn">
                 <column proportion="1of3">
-                    <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
-                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="icn"/>
+                    <!-- museumetrie private -->
+                    <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation"/>
+                    <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation"/>
+                    <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans"/>
+                    <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear"/>
+                    <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom"/>
+                    <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice"/>
                 </column>
                 <column proportion="1of3">
-                    <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="icn"/>
-                    <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="icn"/>
+                    <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus"/>
+                    <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges"/>
+                    <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear"/>
+                    <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion"/>
+                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState"/>
                 </column>
             </container>
         </row>

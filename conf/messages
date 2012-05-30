@@ -477,6 +477,14 @@ metadata.collection.museum=Museum
 metadata.collection.relationToCoreCollection=Relation to core collection
 metadata.collection.earliestWork=Earliest work from collection
 metadata.collection.latestWork=Most recent work from collection
+metadata.collection.geographicalRelevance=Geographical relevance
+metadata.collection.aatCategories=AAT categories
+metadata.collection.count=Aantal objecten
+metadata.collection.total=Totaal
+metadata.collection.fromCore=Uit kerncollectie
+metadata.collection.fromBorrowed=Uit bruikleen
+
+metadata.museum.type=Museum type
 
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type

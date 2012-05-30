@@ -32,10 +32,10 @@ switch (_view.nodeType) {
     break
 
     case "container":}%
-        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
+    #{if _view.attr("id")}<div id="${_view.attr("id")}">#{/if}
 
         #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
+            <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>
         #{/if}
 
         #{if _view.attr("type") == "labelled-list"}
@@ -60,13 +60,13 @@ switch (_view.nodeType) {
             #{/list}
         #{/else}
 
-        </div>
+    #{if _view.attr("id")}</div>#{/if}
     %{
     break
 
     case "field": if (_view.text()){ }%
-        #{if _view.parent.attr("labelled-list") }
-            <dt>&{_view.attr("label")}</dt><dd class="truncate">${_view.text()}</dd>
+        #{if _view.parent.attr("type") == "labelled-list"}
+            <dt>&{_view.attr("label")}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
             <li>${_view.text()}</li>
@@ -79,14 +79,20 @@ switch (_view.nodeType) {
     break
 
     case "link": if (_view.attr("text")){ }%
-        #{if !_view.parent.attr("type") || _view.parent.attr("default") }
-            <dt>&{_view.attr("label")}</dt><dd><div class="link"><a href="${_view.attr("url")}">&{_view.attr("text")}</a></div></dd>
+        #{if _view.parent.attr("labelled-list")  }
+            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
-            <li><div class="link"><a href="${_view.attr("url")}">&{_view.attr("text")}</a></div></li>
+            <li><a href="${_view.attr("url")}">&{_view.attr("text")}</a></li>
         #{/elseif}
         #{else}
-            <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
+            #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
+            #{if _view.attr("url")}
+                <p><a href="${_view.attr("url")}">&{_view.attr("text")}</a></p>
+            #{/if}
+            #{else}
+                <p>&{_view.attr("text")}</p>
+            #{/else}
         #{/else}
 
 
@@ -111,11 +117,12 @@ switch (_view.nodeType) {
             default:
             separator = _view.attr("separator")
         }}%
-
+        #{if _view.content().length() > 0 }
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
         <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
+        #{/if}
     %{
     break
 
