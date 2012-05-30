@@ -68,7 +68,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
 
   def checkOrInsert(url: String): Boolean = {
     if(isImageCached(url)) true else {
-      log.info("Image not found, attempting to store it in the cache based on URL: '" + url + "'")
+      log.debug("Image not found, attempting to store it in the cache based on URL: '" + url + "'")
       val stored = storeImage(url)
       if(stored) {
         log.debug("Successfully cached image for URL: '" + url + "'")
@@ -86,7 +86,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
   }
 
   private def sanitizeUrl(url: String): String = {
-    val sanitizeUrl: String = url.replaceAll("""\\""", "%5C").replaceAll("\\[", "%5B").replaceAll("\\]", "%5D")
+    val sanitizeUrl: String = url.replaceAll("""\\""", "%5C").replaceAll("\\[", "%5B").replaceAll("\\]", "%5D").replaceAll(" ", "%20")
     sanitizeUrl
   }
 
@@ -110,8 +110,15 @@ class ImageCacheService extends HTTPClient with Thumbnail {
 
   private def retrieveImageFromUrl(url: String): WebResource = {
     val method = new GetMethod(url)
-    getHttpClient executeMethod (method)
-    method.getResponseHeaders.foreach(header => log.debug(header.toString))
+    try {
+      getHttpClient executeMethod (method)
+    } catch {
+      case timeout: org.apache.commons.httpclient.ConnectTimeoutException =>
+        log.error("""Could not retrieve image at URL "%s" because of connection timeout: %s""".format(url, timeout.getMessage))
+      case t =>
+      log.error("""Error downloading image at URL "%s": %s""".format(url, t.getMessage), t)
+    }
+//    method.getResponseHeaders.foreach(header => log.debug(header.toString))
     WebResource(method)
   }
 
