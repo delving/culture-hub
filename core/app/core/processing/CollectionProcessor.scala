@@ -39,15 +39,14 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
 
     BaseXStorage.withSession(collection) {
       implicit session => {
-        val recordCount = BaseXStorage.count
-        val records = BaseXStorage.findAllCurrent
-
-        val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
-
         var record: Node = null
         var index: Int = 0
 
         try {
+          val recordCount = BaseXStorage.count
+          val records = BaseXStorage.findAllCurrent
+          val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
+
           records.zipWithIndex.foreach {
             r => {
               if (!interrupted) {
@@ -68,7 +67,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                   try {
                     (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                   } catch {
-                    case t =>
+                    case t => {
                       log.error(
                         """While processing source input document:
                           |
@@ -76,6 +75,7 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                           |
                         """.stripMargin.format(sourceRecord), t)
                       throw t
+                    }
                   }
                 }).toMap
 
@@ -95,21 +95,22 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                 }
 
                 val serializedRecords = mappingResults.flatMap {
-                  r =>
-                  try {
-                    val serialized = MappingService.nodeTreeToXmlString(r._2.root())
-                    Some((r._1 -> serialized))
-                  } catch {
-                    case t =>
-                      log.error(
-                        """While attempting to serialize the following output document:
-                          |
-                          |%s
-                          |
-                        """.stripMargin.format(r._2.root()), t)
-                      throw t
-
-                    None
+                  r => {
+                    try {
+                      val serialized = MappingService.nodeTreeToXmlString(r._2.root())
+                      Some((r._1 -> serialized))
+                    } catch {
+                      case t => {
+                        log.error(
+                          """While attempting to serialize the following output document:
+                            |
+                            |%s
+                            |
+                          """.stripMargin.format(r._2.root()), t)
+                        throw t
+                        None
+                      }
+                    }
                   }
                 }
 
@@ -130,6 +131,8 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                   indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
                 }
 
+              } else {
+                log.info("Processing of collection %s was interrupted by the user".format(collection.name))
               }
             }
           }
@@ -137,8 +140,12 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
           if (!interrupted && indexingSchema.isDefined) {
             onIndexingComplete(startProcessing)
           }
+
+          updateCount(index)
+          log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+
         } catch {
-          case t =>
+          case t => {
             t.printStackTrace()
 
             log.error("""Error while processing records of collection %s, at index %s
@@ -154,11 +161,12 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
               IndexingService.deleteBySpec(collection.orgId, collection.name)
             }
 
+            updateCount(0)
+            log.info("Error while processing collection %s".format(collection.name))
             onError(t)
-        }
+          }
 
-        updateCount(index)
-        log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+        }
       }
 
     }
