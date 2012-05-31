@@ -374,7 +374,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case DISABLED | ENABLED | UPLOADED | ERROR =>
+          case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
             DataSet.invalidateHashes(dataSet)
             DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INCOMPLETE)
             Redirect("/organizations/%s/dataset".format(orgId))
