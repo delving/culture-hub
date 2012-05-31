@@ -306,7 +306,7 @@ class ViewRenderer(schema: String, viewName: String) {
                   ""
                 }
 
-                appendSimple("link", 'url -> url, 'text -> text, 'label -> label) { node => }
+                appendSimple("link", 'url -> url, 'text -> text, 'label -> label, 'type -> n.attr("type")) { node => }
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 
