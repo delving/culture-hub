@@ -13,7 +13,6 @@ import core.indexing.IndexingService
 import models._
 import org.joda.time.{DateTimeZone, DateTime}
 import xml.{Elem, NodeSeq, Node}
-import org.apache.solr.client.solrj.SolrQuery
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -46,136 +45,145 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.name, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
 
-    BaseXStorage.withSession(collection) {
-      implicit session => {
-        var record: Node = null
-        var index: Int = 0
+    try {
+      BaseXStorage.withSession(collection) {
+        implicit session => {
+          var record: Node = null
+          var index: Int = 0
 
-        try {
-          val recordCount = BaseXStorage.count
-          val records = BaseXStorage.findAllCurrent
-          val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
+          try {
+            val recordCount = BaseXStorage.count
+            val records = BaseXStorage.findAllCurrent
+            val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
 
-          records.zipWithIndex.foreach {
-            r => {
-              if (!interrupted) {
-                record = r._1
-                index = r._2
+            records.zipWithIndex.foreach {
+              r => {
+                if (!interrupted) {
+                  record = r._1
+                  index = r._2
 
-                val localId = (record \ "@id").text
-                val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
-                val recordIndex = (record \ "system" \ "index").text.toInt
+                  val localId = (record \ "@id").text
+                  val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
+                  val recordIndex = (record \ "system" \ "index").text.toInt
 
-                if (index % 100 == 0) updateCount(index)
-                if (index % 2000 == 0) {
-                  log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
-                }
-
-                val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
-                  val sourceRecord = (record \ "document" \ "input" \*).mkString("\n")
-                  try {
-                    (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
-                  } catch {
-                    case t => {
-                      log.error(
-                        """While processing source input document:
-                          |
-                          |%s
-                          |
-                        """.stripMargin.format(sourceRecord), t)
-                      throw t
-                    }
+                  if (index % 100 == 0) updateCount(index)
+                  if (index % 2000 == 0) {
+                    log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
                   }
-                }).toMap
 
-                val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
-                  val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root())
-                  (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
-                }).toMap
-
-                val mappingResults = directMappingResults ++ derivedMappingResults
-
-                val allSystemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
-                  val systemFields = getSystemFields(mappingResults(renderingSchema.get.prefix))
-                  val enriched = enrichSystemFields(systemFields, hubId, renderingSchema.get.prefix)
-                  Some(enriched)
-                } else {
-                  None
-                }
-
-                val serializedRecords = mappingResults.flatMap {
-                  r => {
+                  val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
+                    val sourceRecord = (record \ "document" \ "input" \*).mkString("\n")
                     try {
-                      val serialized = MappingService.nodeTreeToXmlString(r._2.root())
-                      Some((r._1 -> serialized))
+                      (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                     } catch {
                       case t => {
                         log.error(
-                          """While attempting to serialize the following output document:
+                          """While processing source input document:
                             |
                             |%s
                             |
-                          """.stripMargin.format(r._2.root()), t)
+                          """.stripMargin.format(sourceRecord), t)
                         throw t
-                        None
+                      }
+                    }
+                  }).toMap
+
+                  val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
+                    val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root())
+                    (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
+                  }).toMap
+
+                  val mappingResults = directMappingResults ++ derivedMappingResults
+
+                  val allSystemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
+                    val systemFields = getSystemFields(mappingResults(renderingSchema.get.prefix))
+                    val enriched = enrichSystemFields(systemFields, hubId, renderingSchema.get.prefix)
+                    Some(enriched)
+                  } else {
+                    None
+                  }
+
+                  val serializedRecords = mappingResults.flatMap {
+                    r => {
+                      try {
+                        val serialized = MappingService.nodeTreeToXmlString(r._2.root())
+                        Some((r._1 -> serialized))
+                      } catch {
+                        case t => {
+                          log.error(
+                            """While attempting to serialize the following output document:
+                              |
+                              |%s
+                              |
+                            """.stripMargin.format(r._2.root()), t)
+                          throw t
+                          None
+                        }
                       }
                     }
                   }
+
+                  val cachedRecord = MetadataItem(
+                    collection = collection.name,
+                    itemType = ITEM_TYPE_MDR,
+                    itemId = hubId,
+                    xml = serializedRecords,
+                    systemFields = allSystemFields.getOrElse(Map.empty),
+                    index = index.toInt
+                  )
+                  cache.saveOrUpdate(cachedRecord)
+
+                  if (indexingSchema.isDefined && mappingResults.contains(indexingSchema.get.prefix)) {
+                    val r = mappingResults(indexingSchema.get.prefix)
+                    val fields: Map[String, List[String]] = r.fields()
+                    val searchFields: Map[String, List[String]] = r.searchFields()
+                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
+                  }
+
+                } else {
+                  log.info("Processing of collection %s was interrupted by the user".format(collection.name))
                 }
-
-                val cachedRecord = MetadataItem(
-                  collection = collection.name,
-                  itemType = ITEM_TYPE_MDR,
-                  itemId = hubId,
-                  xml = serializedRecords,
-                  systemFields = allSystemFields.getOrElse(Map.empty),
-                  index = index.toInt
-                )
-                cache.saveOrUpdate(cachedRecord)
-
-                if (indexingSchema.isDefined && mappingResults.contains(indexingSchema.get.prefix)) {
-                  val r = mappingResults(indexingSchema.get.prefix)
-                  val fields: Map[String, List[String]] = r.fields()
-                  val searchFields: Map[String, List[String]] = r.searchFields()
-                  indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
-                }
-
-              } else {
-                log.info("Processing of collection %s was interrupted by the user".format(collection.name))
               }
             }
-          }
-          log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
-          if (!interrupted && indexingSchema.isDefined) {
-            onIndexingComplete(startProcessing)
-          }
-
-          updateCount(index)
-          log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
-
-        } catch {
-          case t => {
-            t.printStackTrace()
-
-            log.error("""Error while processing records of collection %s, at index %s
-            |
-            | Source record:
-            |
-            | %s
-            |
-            """.stripMargin.format(collection.name, index, record), t)
-
-            if (indexingSchema.isDefined) {
-              log.info("Deleting DataSet %s from SOLR".format(collection.name))
-              IndexingService.deleteBySpec(collection.orgId, collection.name)
+            log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
+            if (!interrupted && indexingSchema.isDefined) {
+              onIndexingComplete(startProcessing)
             }
 
-            updateCount(0)
-            log.info("Error while processing collection %s".format(collection.name))
-            onError(t)
-          }
+            updateCount(index)
+            log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
 
+          } catch {
+            case t => {
+              t.printStackTrace()
+
+              log.error("""Error while processing records of collection %s, at index %s
+              |
+              | Source record:
+              |
+              | %s
+              |
+              """.stripMargin.format(collection.name, index, record), t)
+
+              if (indexingSchema.isDefined) {
+                log.info("Deleting DataSet %s from SOLR".format(collection.name))
+                IndexingService.deleteBySpec(collection.orgId, collection.name)
+              }
+
+              updateCount(0)
+              log.error("Error while processing collection %s: %s".format(collection.name, t.getMessage), t)
+              onError(t)
+            }
+
+          }
         }
+
+      }
+    } catch {
+      case t => {
+        t.printStackTrace()
+        log.error("Error while processing collection %s, cannot read source data: %s".format(collection.name, t.getMessage), t)
+        onError(t)
       }
 
     }
