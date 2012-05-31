@@ -15,6 +15,15 @@ import org.joda.time.{DateTimeZone, DateTime}
 import xml.{Elem, NodeSeq, Node}
 import org.apache.solr.client.solrj.SolrQuery
 
+/**
+ * CollectionProcessor, essentially taking care of:
+ *
+ * - iterating over all records
+ * - running the primary mappings and derived ones for each valid record, for each selected target schema
+ * - extracting system fields for the given renderingSchema and together with the serialized result caching them in the MetadataCache
+ * - indexing the record in the selected indexingSchema
+ *
+ */
 class CollectionProcessor(collection: Collection, targetSchemas: List[ProcessingSchema], indexingSchema: Option[ProcessingSchema], renderingSchema: Option[ProcessingSchema]) {
 
   val log = Logger("CultureHub")
