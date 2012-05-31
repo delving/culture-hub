@@ -3,7 +3,6 @@
 <views>
     <view name="full">
         <row>
-
             <column proportion="1of3">
                 <container>
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
@@ -45,12 +44,14 @@
                     <image path="/icn:record/europeana:object"/>
                     <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt"/>
                 </container>
+                <container id="zoom-viewer">
+                    <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
+                </container>
             </column>
         </row>
         <row>
             <container id="admin" role="icn">
                 <column proportion="1of3">
-                    <!-- museumetrie private -->
                     <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation"/>
                     <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation"/>
                     <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans"/>
@@ -68,15 +69,6 @@
             </container>
         </row>
     </view>
-
-<!--
-
-<dc:identifier>OKS 1989-001</dc:identifier>
-
-<europeana:rights>http://www.europeana.eu/rights/unknown/</europeana:rights>
-<europeana:type>IMAGE</europeana:type>
-
--->
 
     <view name="api">
         <elem name="result">

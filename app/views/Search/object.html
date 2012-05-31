@@ -2,9 +2,11 @@
 
 #{set title:'Search results' /}
 
+#{set 'moreScripts'}
+<script type='text/javascript' src="@{routes.Assets.at('/common/javascripts/seadragon/seadragon-min.js')}"></script>
+#{/set}
+
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
-
-
 
 <style>
     body {
@@ -50,6 +52,11 @@
         display: block;
     }
 
+    div#zoom-viewer {
+        width: 100%;
+        height: 300px;
+    }
+
 </style>
 
 <div class="page-header">
@@ -58,7 +65,7 @@
 
 #{view view: fullView /}
 
-
+*{
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
 <div class="contentWrap">
@@ -66,16 +73,39 @@
     <div class="title"> ${systemFields.apply("delving_title").get(0)}</div>
 </div>
 </div>
-
+}*
 <script type="text/javascript" language="javascript">
-    $(function () {
-        $("a.overlay-trigger").overlay({
-            closeOnClick: true,
-            mask: {
-                color: "#ddddd0",
-                loadSpeed: 200,
-                opacity: 0.5
-            }
-        });
-    });
+*{
+//    $(function () {
+//        $("a.overlay-trigger").overlay({
+//            closeOnClick: true,
+//            mask: {
+//                color: "#ddddd0",
+//                loadSpeed: 200,
+//                opacity: 0.5
+//            }
+//        });
+//    });
+}*
+$(document).ready(function() {
+    if ($('a[rel=zoom]').size() > 0) {
+        // Deepzoom image
+        var zoomImg = $('a[rel=zoom]').attr('href');
+        // Deepzoom viewer
+        var viewer;
+
+        Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
+        Seadragon.Config.autoHideControls = false;
+        viewer = new Seadragon.Viewer("zoom-viewer");
+        viewer.openDzi({
+            "url":zoomImg,
+            "width":1800,
+            "height":1400,
+            "tileSize":256,
+            "tileOverlap":0,
+            "tileFormat":"jpg"});
+    }
+});
+
+
 </script>

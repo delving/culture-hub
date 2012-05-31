@@ -1,0 +1,61 @@
+
+dy {
+    margin-bottom: 50px !important;
+}
+
+#musip h5 {
+    margin: 0 0 2px 0;
+}
+#musip p {
+    margin: 0 0 8px 10px;
+}
+#musip dl {
+    margin: 0 0 10px 0;
+}
+#musip ul {
+    margin-bottom: 10px;
+}
+#musip img {
+    max-width: 100%;
+    height: auto;
+}
+#musip #collections ul {
+    display: inline-block;
+    width: 44%;
+    vertical-align: top;
+}
+#musip div.image {
+    margin-bottom: 21px;
+    text-align: center;
+}
+#musip img.img {
+    height: auto;
+    max-width: 100%;
+}
+
+#musip div#admin {
+    border-top: 1px solid #ccc;
+    height: auto;
+    margin-top: 21px;
+    width: 100%;
+    display: block;
+}
+
+#musip div#geo-data dl dt,
+#musip div#aat-data dl dt,
+#musip div#count-data dl dt {
+    float: left;
+    font-weight: normal;
+    margin-left: 10px;
+    margin-right: 4px;
+}
+#musip div#geo-data dl dt:after,
+#musip div#aat-data dl dt:after,
+#musip div#count-data dl dt:after
+{
+    content: ":";
+}
+#musip .page-header {
+    background: transparent url(/assets/common/images/branding/musip.png) top right no-repeat;
+    padding-right: 200px;
+}

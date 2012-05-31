@@ -7,75 +7,21 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.expander.min.js")}"></script>
 #{/set}
 
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/musip/musip.css")}"/>
+#{/set}
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
 
-<style>
-    body {
-        margin-bottom: 50px;
-    }
 
-    h5 {
-        margin: 0 0 2px 0;
-    }
-    p {
-        margin: 0 0 8px 10px;
-    }
-    dl {
-        margin: 0 0 10px 0;
-    }
-    ul {
-        margin-bottom: 10px;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    #collections ul {
-        display: inline-block;
-        width: 44%;
-        vertical-align: top;
-    }
-    div.image {
-        margin-bottom: 21px;
-        text-align: center;
-    }
-    img.img {
-        height: auto;
-        max-width: 100%;
-    }
+<div id="musip">
 
-    div#admin {
-        border-top: 1px solid #ccc;
-        height: auto;
-        margin-top: 21px;
-        width: 100%;
-        display: block;
-    }
+    <div class="page-header">
+        <h1>${systemFields.apply("delving_title").get(0)}</h1>
+    </div>
+     #{view view: view /}
 
-    div#geo-data dl dt,
-    div#aat-data dl dt,
-    div#count-data dl dt {
-        float: left;
-        font-weight: normal;
-        margin-left: 10px;
-        margin-right: 4px;
-    }
-    div#geo-data dl dt:after,
-    div#aat-data dl dt:after,
-    div#count-data dl dt:after
-    {
-        content: ":";
-    }
-
-
-</style>
-
-<div class="page-header">
-    <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
-
-#{view view: view /}
 
 <script>
     $(document).ready(function(){

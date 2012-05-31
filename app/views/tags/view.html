@@ -32,35 +32,39 @@ switch (_view.nodeType) {
     break
 
     case "container":}%
-    #{if _view.attr("id")}<div id="${_view.attr("id")}">#{/if}
 
-        #{if _view.attr("label")}
-            <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>
-        #{/if}
+    *{ TODO: make this robust: if container content is empty don't show }*
+    #{if !_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)}
+        #{if _view.attr("id")}<div id="${_view.attr("id")}">#{/if}
 
-        #{if _view.attr("type") == "labelled-list"}
-        <dl class="dl">
-            #{list items: _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        </dl>
-        #{/if}
+            #{if _view.attr("label")}
+                <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>
+            #{/if}
 
-        #{elseif _view.attr("type") == "list" }
-        <ul>
-            #{list items: _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        </ul>
-        #{/elseif}
+            #{if _view.attr("type") == "labelled-list"}
+            <dl class="dl">
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            </dl>
+            #{/if}
 
-        #{else}
-            #{list items: _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        #{/else}
+            #{elseif _view.attr("type") == "list" }
+            <ul>
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            </ul>
+            #{/elseif}
 
-    #{if _view.attr("id")}</div>#{/if}
+            #{else}
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            #{/else}
+
+        #{if _view.attr("id")}</div>#{/if}
+    #{/if}
     %{
     break
 
@@ -79,16 +83,19 @@ switch (_view.nodeType) {
     break
 
     case "link": if (_view.attr("text")){ }%
+
         #{if _view.parent.attr("labelled-list")  }
             <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
         #{/if}
+
         #{elseif _view.parent.attr("type") == "list"}
             <li><a href="${_view.attr("url")}">&{_view.attr("text")}</a></li>
         #{/elseif}
+
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
             #{if _view.attr("url")}
-                <p><a href="${_view.attr("url")}">&{_view.attr("text")}</a></p>
+                <p><a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
             #{/if}
             #{else}
                 <p>&{_view.attr("text")}</p>

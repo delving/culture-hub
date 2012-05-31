@@ -479,10 +479,10 @@ metadata.collection.earliestWork=Earliest work from collection
 metadata.collection.latestWork=Most recent work from collection
 metadata.collection.geographicalRelevance=Geographical relevance
 metadata.collection.aatCategories=AAT categories
-metadata.collection.count=Aantal objecten
-metadata.collection.total=Totaal
-metadata.collection.fromCore=Uit kerncollectie
-metadata.collection.fromBorrowed=Uit bruikleen
+metadata.collection.count=Number of objects
+metadata.collection.total=Total
+metadata.collection.fromCore=From core-collection
+metadata.collection.fromBorrowed=Borrowed
 
 metadata.museum.type=Museum type
 
