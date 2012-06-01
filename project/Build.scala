@@ -3,6 +3,7 @@ import PlayProject._
 import sbt.Keys._
 import scala._
 import sbtbuildinfo.Plugin._
+import eu.delving.templates.Plugin._
 
 object ApplicationBuild extends Build {
 
@@ -84,7 +85,7 @@ object ApplicationBuild extends Build {
     resolvers ++= commonResolvers
   ).dependsOn(core)
 
-  val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
+  val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
 
     onLoadMessage := "May the force be with you",
 
@@ -94,6 +95,9 @@ object ApplicationBuild extends Build {
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
 
     sourceGenerators in Compile <+= buildInfo,
+
+    sourceGenerators in Compile <+= groovyTemplatesList,
+
 
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
 
