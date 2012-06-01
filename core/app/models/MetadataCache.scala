@@ -72,4 +72,6 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
   def findOne(itemId: String): Option[MetadataItem] = findOne(MongoDBObject("collection" -> col, "itemType" -> itemType, "itemId" -> itemId))
 
   def remove(itemId: String) { remove(MongoDBObject("collection" -> col, "itemId" -> itemId)) }
+
+  def removeAll() { remove(MongoDBObject("collection" -> col)) }
 }
