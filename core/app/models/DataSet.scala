@@ -32,6 +32,7 @@ import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
+import core.Constants._
 import core.storage.BaseXStorage
 
 /**
@@ -310,10 +311,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def delete(dataSet: DataSet) {
-    if(connection.getCollectionNames().contains(getRecordsCollectionName(dataSet))) {
-      connection(getRecordsCollectionName(dataSet)).rename(getRecordsCollectionName(dataSet) + "_" + dataSet._id.toString)
-    }
-    update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
+    MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
+    BaseXStorage.deleteCollection(core.storage.Collection(dataSet.orgId, dataSet.spec))
+    remove(dataSet)
   }
 
   // ~~~ record handling
