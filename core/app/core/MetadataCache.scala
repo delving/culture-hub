@@ -24,4 +24,6 @@ trait MetadataCache {
 
   def remove(itemId: String)
 
+  def removeAll()
+
 }
