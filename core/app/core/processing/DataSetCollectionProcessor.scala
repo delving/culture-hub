@@ -82,7 +82,10 @@ object DataSetCollectionProcessor {
     }
 
     val collectionProcessor = new CollectionProcessor(Collection(dataSet.orgId, dataSet.spec), actionableTargetSchemas, indexingSchema, renderingSchema)
-    def interrupted = DataSet.getState(dataSet.orgId, dataSet.spec) != DataSetState.PROCESSING
+    def interrupted = {
+      val current = DataSet.getState(dataSet.orgId, dataSet.spec)
+      current != DataSetState.PROCESSING && current != DataSetState.QUEUED
+    }
     def updateCount(count: Long) {
       DataSet.updateIndexingCount(dataSet, count)
     }
