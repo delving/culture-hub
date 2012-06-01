@@ -47,6 +47,10 @@ object BaseXStorage {
     }
   }
 
+  def deleteCollection(c: Collection) {
+    storage.dropDatabase(c.databaseName)
+  }
+
   def withSession[T](collection: Collection)(block: ClientSession => T) = {
     storage.withSession(collection.databaseName) {
       session =>
