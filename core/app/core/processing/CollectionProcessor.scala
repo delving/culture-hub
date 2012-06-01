@@ -140,8 +140,6 @@ class CollectionProcessor(collection: Collection, targetSchemas: List[Processing
                     indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
                   }
 
-                } else {
-                  log.info("Processing of collection %s was interrupted by the user".format(collection.name))
                 }
               }
             }
