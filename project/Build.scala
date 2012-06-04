@@ -35,7 +35,7 @@ object ApplicationBuild extends Build {
   )
 
   val coreDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                 % "1.1-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
@@ -61,7 +61,7 @@ object ApplicationBuild extends Build {
   )
 
   val dosDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % "1.0-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                 % "1.1-SNAPSHOT",
     "com.thebuzzmedia"          %  "imgscalr-lib"                     % "3.2"
   )
 
