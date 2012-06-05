@@ -94,21 +94,21 @@ object ApplicationBuild extends Build {
     resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
 
-    sourceGenerators in Compile <+= buildInfo,
-
     sourceGenerators in Compile <+= groovyTemplatesList,
 
-
+    sourceGenerators in Compile <+= buildInfo,
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
-
     buildInfoPackage := "eu.delving.culturehub",
 
     watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
-
     watchSources <++= baseDirectory map { path => ((path / "modules" / "basex-scala-client") ** "*").get },
+
+    publishTo := Some(delvingRepository),
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._"
 
-  ).dependsOn(core, dos, statistics, musip)
+  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(core, dos, statistics, musip)
+
 
 }
