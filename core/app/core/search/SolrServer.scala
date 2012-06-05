@@ -25,7 +25,7 @@ import play.api.Play
 import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
 import collection.JavaConverters._
 import play.api.cache.Cache
-import org.apache.solr.client.solrj.impl.{HttpSolrServer, StreamingUpdateSolrServer, CommonsHttpSolrServer}
+import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrServer, StreamingUpdateSolrServer, CommonsHttpSolrServer}
 
 
 /**
@@ -59,14 +59,14 @@ object SolrServer {
   solrServer.setMaxRetries(1)
   // defaults to 0.  > 1 not recommended.
 
-  private[search] val streamingUpdateServer = new HttpSolrServer(url)
-  streamingUpdateServer.setSoTimeout(10000) // socket read timeout
-  streamingUpdateServer.setConnectionTimeout(15000)
-  streamingUpdateServer.setDefaultMaxConnectionsPerHost(10)
-  streamingUpdateServer.setMaxTotalConnections(15)
-  streamingUpdateServer.setFollowRedirects(false) // defaults to false
-  streamingUpdateServer.setAllowCompression(false)
-  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
+  private[search] val streamingUpdateServer = new ConcurrentUpdateSolrServer(url, 1000, 5)
+//  streamingUpdateServer.setSoTimeout(10000) // socket read timeout
+//  streamingUpdateServer.setConnectionTimeout(15000)
+//  streamingUpdateServer.setDefaultMaxConnectionsPerHost(10)
+//  streamingUpdateServer.setMaxTotalConnections(15)
+//  streamingUpdateServer.setFollowRedirects(false) // defaults to false
+//  streamingUpdateServer.setAllowCompression(false)
+//  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
 

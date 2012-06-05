@@ -33,7 +33,7 @@ case class IndexItem(_id: ObjectId = new ObjectId,
         val dataType = field.attribute("fieldType").getOrElse("text")
         val isFacet = field.attribute("facet").isDefined && (field \ "@facet").text == "true"
 
-        val acceptedPrefixes = "dc|dcterms|icn|europeana|delving"
+        val acceptedPrefixes = "dc|dcterms|icn|europeana|delving|custom"
 
         val indexFieldName = if (name.contains(":") && name.split(":").head.matches(acceptedPrefixes)) {
           "%s_%s".format(name.replaceFirst(":", "_"), dataType)

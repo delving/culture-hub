@@ -9,6 +9,8 @@ import collection.mutable.ListBuffer
 import core.Constants._
 import core.indexing.IndexingService
 import com.mongodb.casbah.commons.MongoDBObject
+import org.joda.time.format.ISODateTimeFormat
+import play.api.Logger
 
 /**
  *
@@ -95,12 +97,14 @@ object Index extends DelvingController {
           }
           IndexingService.commit()
 
+          val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
+
           <indexResponse>
             <totalItemCount>{valid.size + invalid.size}</totalItemCount>
             <indexedItemCount>{valid.filterNot(_.deleted).size}</indexedItemCount>
             <deletedItemCount>{valid.filter(_.deleted).size}</deletedItemCount>
             <invalidItemCount>{invalid.size}</invalidItemCount>
-            <invalidItems>{invalid}</invalidItems>
+            <invalidItems>{invalidItems}</invalidItems>
           </indexResponse>
 
         } map {
@@ -111,9 +115,9 @@ object Index extends DelvingController {
     }
   }
 
-  private def parseIndexRequest(orgId: String, root: NodeSeq): (List[IndexItem], List[NodeSeq]) = {
+  private def parseIndexRequest(orgId: String, root: NodeSeq): (List[IndexItem], List[(String, NodeSeq)]) = {
     val validItems = new ListBuffer[IndexItem]()
-    val invalidItems = new ListBuffer[NodeSeq]()
+    val invalidItems = new ListBuffer[(String, NodeSeq)]()
     for(item <- root \\ "indexItem") {
 
       val requiredAttributes = Seq("itemId", "itemType")
@@ -121,27 +125,42 @@ object Index extends DelvingController {
         (r, c) => r && item.attribute(c).isDefined
       }
       if(!hasRequiredAttributes) {
-        invalidItems += item
+        invalidItems += "Item misses required attributes 'itemId' or 'itemType'" -> item
       } else {
         val itemId = item.attribute("itemId").get.text
         val itemType = item.attribute("itemType").get.text
 
         // TODO add more reserved values?
         if(itemType == MDR) {
-          invalidItems += item
+          invalidItems += "Item uses reserved itemType value 'mdr'" -> item
         } else {
           val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
 
-          // TODO check the field syntax
+          // TODO check more field syntax
+          val invalidDates = item.nonEmptyChildren.filter(f => f.label == "field" && f.attribute("fieldType").isDefined && f.attribute("fieldType").get.head.text == "date") flatMap {
+            f =>
+              try {
+                ISODateTimeFormat.dateTime().parseDateTime(f.text)
+                None
+              } catch {
+                case t => Some(("Invalid date field '%s' with value '%s'".format((f \ "@name").text, f.text) -> item))
+              }
+          }
 
-          val indexItem = IndexItem(
-            orgId = orgId,
-            itemId = itemId,
-            itemType = itemType,
-            rawXml = item.toString(),
-            deleted = deleted
-          )
-          validItems += indexItem
+          if(!invalidDates.isEmpty) {
+            invalidItems ++= invalidDates
+          } else {
+            val indexItem = IndexItem(
+              orgId = orgId,
+              itemId = itemId,
+              itemType = itemType,
+              rawXml = item.toString(),
+              deleted = deleted
+            )
+            validItems += indexItem
+          }
+
+
         }
 
       }
