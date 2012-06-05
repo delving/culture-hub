@@ -103,7 +103,7 @@ object ApplicationBuild extends Build {
     watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
     watchSources <++= baseDirectory map { path => ((path / "modules" / "basex-scala-client") ** "*").get },
 
-    publishTo := Some(delvingRepository),
+    publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._"
