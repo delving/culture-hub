@@ -162,6 +162,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
+                  val distinct = n.attr("distinct")
 
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
@@ -182,7 +183,15 @@ class ViewRenderer(schema: String, viewName: String) {
                   treeStack.head += list
                   treeStack push list
 
-                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
+                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
+                  val children = if(distinct == "name") {
+                    val distinctNames = allChildren.map(_.getLocalName).distinct
+                    distinctNames.flatMap(n => allChildren.find(_.getLocalName == n))
+                  } else {
+                    allChildren
+                  }
+
+                  children.foreach {
                     child =>
                       enterNode(n, child)
                   }
