@@ -89,7 +89,7 @@
                 <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>
