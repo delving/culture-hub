@@ -181,7 +181,7 @@ class ViewRenderSpec extends Specification with TestContext {
 
         // wrap legacy record (as it would be in the mongo cache) in a root element with namespaces
 
-        val testRecord = "<root %s>%s</root>".format(namespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), legacyRecord())
+        val testRecord = legacyRecord()
 
         val renderer = new ViewRenderer("legacy", "api")
         val view = renderer.renderRecord(testRecord, List.empty, namespaces, Lang("en"))
@@ -190,6 +190,8 @@ class ViewRenderSpec extends Specification with TestContext {
         println()
 
         1 must equalTo(1)
+
+        (view.toXml \ "layout" \ "fields" \ "field").filter(c => (c \ "name").text == "tib_objectSoort").size must equalTo(1)
 
       }
 
@@ -293,7 +295,7 @@ class ViewRenderSpec extends Specification with TestContext {
   }
   
   private def legacyRecord(): String =
-    """<input>
+    """<record xmlns:delving="http://www.delving.eu/schemas/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:icn="http://www.icn.nl/schemas/icn/" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
   <dc:creator>C.</dc:creator>
   <dc:date>1965</dc:date>
   <dc:format>application/pdf</dc:format>
@@ -316,6 +318,9 @@ class ViewRenderSpec extends Specification with TestContext {
   <delving:thumbnail>
   http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/500
   </delving:thumbnail>
+  <delving:thumbnail>
+  http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180
+  </delving:thumbnail>
   <delving:visibility>10</delving:visibility>
   <delving:year>1965</delving:year>
   <europeana:collectionName>de-brabantse-leeuw</europeana:collectionName>
@@ -337,6 +342,7 @@ class ViewRenderSpec extends Specification with TestContext {
   <tib:citOldId>ccBrabant_deBrabantseLeeuw_3967</tib:citOldId>
   <tib:collection>De Brabantse Leeuw</tib:collection>
   <tib:objectSoort>tijdschriftartikel</tib:objectSoort>
+  <tib:objectSoort>ontwerptekening</tib:objectSoort>
   <tib:pageEnd>96</tib:pageEnd>
   <tib:pageStart>87</tib:pageStart>
   <tib:thumbLarge>
@@ -345,6 +351,6 @@ class ViewRenderSpec extends Specification with TestContext {
   <tib:thumbSmall>
   http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180
   </tib:thumbSmall>
-  </input>"""
+  </record>"""
 
 }
