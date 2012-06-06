@@ -62,7 +62,7 @@ class ViewRenderSpec extends Specification with TestContext {
             |<p>A test hierarchical record, Wood</p>
             |<h5>Purchase Price <span class="label">admin</span></h5>            <p>5000</p>
             |<h5>metadata.icn.purchaseType </h5>            <p>auction</p>
-            |<p><a href="http://foo.bar.com">Blablabla</a></p>
+            |<p><a href="http://foo.bar.com" rel="">Blablabla</a></p>
             |</div>
             |<div class="column ">
             |<h5>metadata.icn.placeName </h5>            <p>Paris</p>
