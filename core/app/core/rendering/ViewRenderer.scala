@@ -16,8 +16,6 @@
 
 package core.rendering
 
-import collection.mutable.{HashMap, ArrayBuffer}
-import collection.mutable.Stack
 import models.GrantType
 import play.libs.XPath
 import collection.JavaConverters._
@@ -30,6 +28,7 @@ import play.api.{Play, Logger}
 import play.api.Play.current
 import org.w3c.dom.{Text, Node => WNode}
 import java.net.URLEncoder
+import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -90,6 +89,12 @@ class ViewRenderer(schema: String, viewName: String) {
     val result = RenderNode("root", None, true)
     var shortcutResult: Option[RenderedView] = None
     val treeStack = Stack(result)
+    var stackPath = new ArrayBuffer[String]
+
+    val defaultParent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+
+    val arrays = new ArrayBuffer[List[String]] // paths that are arrays of repeated elements
+
     val root = viewDefinition
     walk(root, record)
 
@@ -99,6 +104,16 @@ class ViewRenderer(schema: String, viewName: String) {
           (n \ sel).text
         }
       }
+
+    def push(node: RenderNode) {
+      treeStack.push(node)
+      stackPath += node.nodeType
+    }
+
+    def pop = {
+      treeStack.pop()
+      if(stackPath.length > 0) stackPath = stackPath.dropRight(1)
+    }
 
     def walk(viewDefinitionNode: Node, dataNode: WNode) {
 
@@ -162,6 +177,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
+                  val distinct = n.attr("distinct")
 
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
@@ -178,15 +194,25 @@ class ViewRenderer(schema: String, viewName: String) {
                   val list = RenderNode(nodeType = listName, value =  None, isArray = true)
                   list.addAttrs(attrs)
 
-                  list.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+                  list.parent = defaultParent
                   treeStack.head += list
-                  treeStack push list
+                  push(list)
 
-                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
+                  arrays += stackPath.toList.drop(1) // drop root
+
+                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
+                  val children = if(distinct == "name") {
+                    val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
+                    distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
+                  } else {
+                    allChildren
+                  }
+
+                  children.foreach {
                     child =>
                       enterNode(n, child)
                   }
-                  treeStack.pop()
+                  pop
                 }
 
               case "attrs" => // this is handled by elem below
@@ -197,7 +223,7 @@ class ViewRenderer(schema: String, viewName: String) {
                 shortcutResult = Some(new RenderedView {
                   def toXmlString: String = rawRecord
 
-                  def toJson: String = util.Json.toJson(toXml, true)
+                  def toJson: String = util.Json.toJson(xml = toXml, escapeNamespaces = true, sequences = arrays.toList)
 
                   def toXml: NodeSeq = XML.loadString(rawRecord)
 
@@ -325,16 +351,16 @@ class ViewRenderer(schema: String, viewName: String) {
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
       log.debug("Entered " + viewDefinitionNode.label)
-      renderNode.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+      renderNode.parent = defaultParent
 
       treeStack.head += renderNode
-      treeStack.push(renderNode)
+      push(renderNode)
       viewDefinitionNode.child foreach {
         n =>
           log.debug("Node " + n)
           walk(n, dataNode)
       }
-      treeStack.pop()
+      pop
     }
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
@@ -357,19 +383,19 @@ class ViewRenderer(schema: String, viewName: String) {
     /** appends a new RenderNode to the result tree and performs an operation on it **/
     def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType, text)
-      newNode.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+      newNode.parent = defaultParent
       attr foreach {
         newNode addAttr _
       }
       treeStack.head += newNode
-      treeStack.push(newNode)
+      push(newNode)
       block(newNode)
-      treeStack.pop()
+      pop
     }
 
     /** simply appends a node to the current tree head **/
     def appendNode(node: RenderNode) {
-      node.parent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+      node.parent = defaultParent
       treeStack.head += node
     }
 
@@ -388,7 +414,7 @@ class ViewRenderer(schema: String, viewName: String) {
     if(shortcutResult.isDefined) {
       shortcutResult.get
     } else {
-      NodeRenderedView(viewName, prefix, result.content.head)
+      NodeRenderedView(viewName, prefix, result.content.head, arrays.toList)
     }
 
   }
@@ -439,13 +465,13 @@ abstract class RenderedView {
   def toViewTree: RenderNode
 }
 
-case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode) extends RenderedView {
+case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
 
   def toXml = XML.loadString(toXmlString)
   
   def toXmlString = RenderNode.toXMLString(viewTree)
 
-  def toJson = RenderNode.toJson(viewTree)
+  def toJson = RenderNode.toJson(viewTree, sequences)
 
   def toViewTree = viewTree
 }
@@ -564,8 +590,12 @@ case object RenderNode {
     }
   }
 
-  def toJson(n: RenderNode): String = {
-    util.Json.toJson(XML.loadString(toXMLString(n)), true)
+  def toJson(n: RenderNode, sequences: Seq[List[String]]): String = {
+    util.Json.toJson(
+      xml = XML.loadString(toXMLString(n)),
+      escapeNamespaces = true,
+      sequences = sequences
+    )
   }
 
 }

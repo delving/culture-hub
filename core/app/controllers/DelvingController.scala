@@ -143,7 +143,7 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
     request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
 
-  def DOk(xml: NodeSeq, sequences: String*)(implicit request: RequestHeader): Result = {
+  def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
     if(wantsJson) {
       Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
     } else {
