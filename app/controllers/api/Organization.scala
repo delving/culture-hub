@@ -34,7 +34,7 @@ object Organization extends DelvingController {
               </provider>}
             </providers>
 
-          DOk(xmlResponse, "provider")
+          DOk(xmlResponse, List("providers"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))
@@ -62,7 +62,7 @@ object Organization extends DelvingController {
               </dataProvider>}
             </dataProviders>
 
-          DOk(xmlResponse, "dataProvider")
+          DOk(xmlResponse, List("dataProviders"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))
@@ -89,7 +89,7 @@ object Organization extends DelvingController {
               </collection>}
             </collections>
 
-          DOk(xmlResponse, "collection")
+          DOk(xmlResponse, List("collection"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))
