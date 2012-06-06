@@ -185,8 +185,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
                   val children = if(distinct == "name") {
-                    val distinctNames = allChildren.map(_.getLocalName).distinct
-                    distinctNames.flatMap(n => allChildren.find(_.getLocalName == n))
+                    val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
+                    distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
                   } else {
                     allChildren
                   }
