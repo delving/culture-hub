@@ -53,7 +53,7 @@ object Proxy extends DelvingController {
           }}
           </explain>
 
-        DOk(list, "item")
+        DOk(list, List("explain"))
     }
   }
 
@@ -70,7 +70,7 @@ object Proxy extends DelvingController {
             WS.
               url(proxy.searchUrl).
               withQueryString(getWSQueryString(request, proxy): _*).
-              get().map(r => DOk(proxy.handleSearchResponse(r), "item"))
+              get().map(r => DOk(proxy.handleSearchResponse(r), List("explain")))
 
         }.getOrElse {
           Promise.pure(NotFound("Proxy with key '%s' not found".format(proxyKey)))
