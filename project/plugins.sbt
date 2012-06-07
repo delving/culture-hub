@@ -3,6 +3,7 @@ logLevel := Level.Warn
 resolvers ++= Seq(
     DefaultMavenRepository,
     Resolver.url("Play", url("http://download.playframework.org/ivy-releases/"))(Resolver.ivyStylePatterns),
+    Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "sbt-idea-repo" at "http://mpeltonen.github.com/maven/",
     "jahia" at "http://maven.jahia.org/maven2",
