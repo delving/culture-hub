@@ -24,7 +24,7 @@ object Mails {
 //  }
 
   def newUser(subject: String, hub: String, userName: String, fullName: String, email: String, theme: PortalTheme)(implicit lang: Lang) {
-    Email(theme.emailTarget.systemFrom, subject).to(theme.emailTarget.exceptionTo).withTemplate("Mails/newUser.txt", lang.language, 'fullName -> fullName, 'hub -> hub, 'userName -> userName, 'quote -> Quotes.randomQuote()).send()
+    Email(theme.emailTarget.systemFrom, subject).to(theme.emailTarget.exceptionTo).withTemplate("Mails/newUser.txt", lang.language, 'fullName -> fullName, 'hub -> hub, 'userName -> userName, 'email -> email, 'quote -> Quotes.randomQuote()).send()
   }
   
   def resetPassword(email: String, resetPasswordToken: String, theme: PortalTheme, host: String)(implicit lang: Lang) {
