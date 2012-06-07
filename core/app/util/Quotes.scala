@@ -39,8 +39,12 @@ object Quotes {
   }
 
   def randomQuote() = {
-    val index = java.lang.Math.random() * quotes.size + 1
-    quotes(index.toInt)
+    if(!quotes.isEmpty) {
+      val index = java.lang.Math.random() * quotes.size + 1
+      quotes(index.toInt)
+    } else {
+      ""
+    }
   }
 
 }

@@ -118,8 +118,7 @@ object Registration extends ApplicationController {
                   Mails.activation(r.email, r.firstName + " " + r.lastName, token, theme, request.host)
                   index.flashing(("registrationSuccess", r.email))
                 } catch {
-                  case t => {
-//                    User.remove(newUser.copy(_id = id))
+                  case t: Throwable => {
                     logError(t, t.getMessage, r.userName)
                     index.flashing(("registrationError" -> t.getMessage))
                   }
