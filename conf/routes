@@ -217,6 +217,7 @@ GET         /organizations/:orgId/groups                                      co
 GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/create                               controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
+DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/update/                              controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 POST        /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/:groupId/addUser                     controllers.organization.Groups.addUser(orgId, groupId: org.bson.types.ObjectId)
