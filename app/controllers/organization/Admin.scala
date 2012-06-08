@@ -60,19 +60,6 @@ object Admin extends OrganizationController {
     }
   }
 
-  def reloadThemes(orgId: String) = OrgOwnerAction(orgId) {
-    Action {
-      implicit request =>
-        info("Reloading entire configuration from disk.")
-        val themeList = ThemeHandler.readThemesFromDisk
-        themeList foreach {
-          PortalTheme.insert(_)
-        }
-        ThemeHandler.update()
-        Ok("Themes reloaded")
-    }
-  }
-
   def indexDataSets(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>

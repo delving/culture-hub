@@ -20,7 +20,7 @@ class PlatformSpec extends Specification with TestContext {
     "load themes from disk into the database" in {
       withTestConfig {
         themeHandler.startup()
-        PortalTheme.find(MongoDBObject()).size should not equalTo (0)
+        PortalTheme.getAll.size should not equalTo (0)
       }
     }
 

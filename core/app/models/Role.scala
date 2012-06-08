@@ -15,7 +15,7 @@ object Role {
   def getAllRoles = Play.configuration.getConfig("roles").map {
     rolesConfig => rolesConfig.keys.map {
       r =>
-        Role(r, rolesConfig.getString(r).getOrElse(""))
+        Role(r, rolesConfig.getString("description").getOrElse(""))
     }
   }.getOrElse {
     Seq.empty

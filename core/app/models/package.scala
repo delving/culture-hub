@@ -64,8 +64,6 @@ package object mongoContext extends models.MongoContext {
 
   lazy val groupCollection = connection("Groups")
 
-  lazy val portalThemeCollection = connection("PortalThemes")
-
   lazy val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
 
   lazy val dataSetsCollection = connection("Datasets")
