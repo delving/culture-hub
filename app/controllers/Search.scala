@@ -29,13 +29,11 @@ object Search extends DelvingController {
         try {
           val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
           val briefItemView = BriefItemView(response)
-      //    val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
           Ok(Template("/Search/index.html",
             'briefDocs -> briefItemView.getBriefDocs,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-    //        'collections -> userCollections,
             'themeFacets -> theme.getFacets,
             'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(

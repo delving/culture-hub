@@ -138,9 +138,6 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   }
 
   def hubTypeToCollection(hubType: String) = Option(hubType match {
-    case OBJECT => objectsCollection
-    case USERCOLLECTION => userCollectionsCollection
-    case STORY => userStoriesCollection
     case USER => hubUserCollection
     case _ => null
   })
@@ -150,9 +147,6 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
       case USER => "http://id.culturecloud.eu/actor/" + id
       case _ =>
         val typeUri = hubType match {
-          case OBJECT => "thing/" + id
-          case USERCOLLECTION => "collection/" + id
-          case STORY => "story/" + id
           case MDR => "thing/" + id
           case _ => throw PlayException("Programmer Error", "Invalid hubType " + hubType)
         }

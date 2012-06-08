@@ -71,16 +71,6 @@ package object mongoContext extends models.MongoContext {
   lazy val virtualCollectionsCollection = connection("VirtualCollections")
   lazy val virtualCollectionsRecordsCollection = connection("VirtualCollectionsRecords")
 
-  lazy val objectsCollection = connection("UserObjects") // the user contributed objects
-  addIndexes(objectsCollection, thingIndexes)
-
-  lazy val userCollectionsCollection = connection("UserCollections") // the collections made by users
-  addIndexes(userCollectionsCollection, thingIndexes)
-
-  lazy val userStoriesCollection = connection("UserStories")
-  addIndexes(userStoriesCollection, thingIndexes)
-  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
-
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
   linksCollection.ensureIndex(MongoDBObject("linkType" -> 1, "value" -> 1))
@@ -104,8 +94,6 @@ package object mongoContext extends models.MongoContext {
   cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1))
 
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
-
-  lazy val CoRefCollecion = connection("coRefs")
 
   lazy val routeAccessCollection = connection("RouteAccess")
 
