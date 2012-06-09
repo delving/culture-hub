@@ -80,7 +80,7 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
   def findBySpecAndOrgId(spec: String, orgId: String) = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
   def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme, connectedUser: String): Either[Throwable, VirtualCollection] = {
-    val vc = VirtualCollection.findOneByID(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
+    val vc = VirtualCollection.findOneById(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
       VirtualCollection.children.removeByParentId(vc._id)
