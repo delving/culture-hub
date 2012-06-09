@@ -215,7 +215,8 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/directory/organization/query", "query" -> URLEncoder.encode(query, "utf-8")).map {
       response =>
         if(response.status == OK) {
-          JJson.parse[List[OrganizationEntry]](response.body)
+          import OrganizationEntryFormat._
+          Json.fromJson[List[OrganizationEntry]](Json.parse(response.body))
         } else {
           List.empty
         }
@@ -225,13 +226,8 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOrganizationByName(name: String): Option[OrganizationEntry] = {
     get("/directory/organization/byName", "name" -> URLEncoder.encode(name, "utf-8")).map {
       response =>
-        // FIXME this check and the try-catch are a hack. The deserialization has no reason to blow up here.
-        if(response.status == OK && response.body != null) {
-          try {
-            Some(JJson.parse[OrganizationEntry](response.body))
-          } catch {
-            case _ => None
-          }
+        if(response.status == OK) {
+          Some(Json.fromJson[OrganizationEntry](Json.parse(response.body)))
         } else {
           None
         }
@@ -284,6 +280,23 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
         "name" -> JsObject(
           o.name.map(n => (n._1 -> JsString(n._2))).toList
         )
+      )
+    )
+  }
+
+  implicit object OrganizationEntryFormat extends Format[OrganizationEntry] {
+
+    def reads(json: JsValue): OrganizationEntry = OrganizationEntry(
+      uri = (json \ "uri").as[String],
+      name = (json \ "name").as[String],
+      countryCode = (json \ "countryCode").as[String]
+    )
+
+    def writes(o: OrganizationEntry): JsValue = JsObject(
+      Seq(
+        "uri" -> JsString(o.uri),
+        "name" -> JsString(o.name),
+        "countryCode" -> JsString(o.countryCode)
       )
     )
   }
