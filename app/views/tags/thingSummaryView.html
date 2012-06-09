@@ -1,5 +1,5 @@
 %{
-def recordType = _data.getRecordType()
+def recordType = _data.getItemType()
 switch (recordType) {
     case "object":
         recordType = messages.get('thing.object.user')
@@ -14,7 +14,7 @@ switch (recordType) {
         recordType = messages.get('thing.object.heritage')
         break
     default:
-    recordType = _data.getRecordType()
+    recordType = _data.getItemType()
 }
 }%
 

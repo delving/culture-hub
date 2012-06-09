@@ -35,29 +35,27 @@ package models
 /**
  * Interface for any kind of object accessible from the view layer
  *
- * TODO find a better name
+ * TODO review what can be removed from here
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Universal {
+trait ViewableItem {
 
-    // ~~~ identifiers
-  def getMongoId: String
+  // ~~~ identifiers
   def getHubId : String
-  def getOwnerId: String
 
-  // ~~~ well-known, always provided, meta-data fields
-  def getRecordType: String
+  // ~~~ short view
+  def getItemType: String
   def getTitle : String
   def getDescription: String
-  def getOwner: String
-  def getCreator: String
-  def getVisibility: String
-  def getUri : String
-  def getLandingPage: String // external landing page for this thing
+  def getUri: String // internal landing page for this thing
   def getThumbnailUri: String
   def getThumbnailUri(size: Int): String
+
+  def getOwner: String
+  def getVisibility: String
+  def getLandingPage: String // external landing page for this thing
   def getMimeType: String
   def hasDigitalObject: Boolean
 

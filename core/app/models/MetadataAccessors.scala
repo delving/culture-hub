@@ -27,7 +27,7 @@ import java.net.{URLEncoder, URLDecoder}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class MetadataAccessors extends Universal {
+abstract class MetadataAccessors extends ViewableItem {
 
   protected def assign(key: String): String
 
@@ -36,13 +36,7 @@ abstract class MetadataAccessors extends Universal {
   // TODO cleanup, unify, decide, conquer
 
   // ~~~ identifiers
-  def getMongoId: String = assign(ID)
   def getHubId : String = URLDecoder.decode(assign(HUB_ID), "utf-8")
-
-  def getOwnerId: String = getRecordType match {
-    case MDR => getOrgId
-    case _ => ""
-  }
 
   // ~~~ institutional record IDs
   def getOrgId : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(0) else ""
@@ -50,16 +44,15 @@ abstract class MetadataAccessors extends Universal {
   def getRecordId : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(2) else ""
 
   // ~~~ well-known, always provided, meta-data fields
-  def getRecordType: String = assign(RECORD_TYPE)
+  def getItemType: String = assign(RECORD_TYPE)
   def getRecordSchema: String = assign(SCHEMA)
   def getTitle : String = assign(TITLE)
   def getDescription: String = assign(DESCRIPTION)
   def getOwner: String = assign(OWNER)
-  def getCreator: String = assign(CREATOR)
   def getVisibility: String = assign(VISIBILITY)
 
   // TODO add plugin mechanism
-  def getUri : String = getRecordType match {
+  def getUri : String = getItemType match {
     case MDR =>
       // only provide a link if there's something to show via AFF
       val allSchemas = values(ALL_SCHEMAS)
@@ -71,7 +64,7 @@ abstract class MetadataAccessors extends Universal {
 
     case _ => assign(HUB_URI)
   }
-  def getLandingPage = getRecordType match {
+  def getLandingPage = getItemType match {
     case MDR => assign(EXTERNAL_LANDING_PAGE)
     case _ => ""
   }
@@ -100,14 +93,6 @@ abstract class MetadataAccessors extends Universal {
     case url if url.trim().length() > 0 => true
     case _ => false
   }
-
-  // ~~~ old and others
-  //  def getCreator : String = assign("dc_creator")
-
-  def getYear : String = assign("europeana_year")
-  def getProvider : String = assign("europeana_provider")
-  def getDataProvider : String = assign("europeana_dataProvider")
-  def getLanguage : String = assign("europeana_language")
 
 }
 
