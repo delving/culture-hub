@@ -160,10 +160,10 @@ object CMS extends OrganizationController {
     }
   }
 
-  private def getThemes = if (Play.isDev || PortalTheme.findAll.length == 1) {
-    PortalTheme.findAll.map(t => (t.name, t.name))
+  private def getThemes = if (Play.isDev || PortalTheme.getAll.length == 1) {
+    PortalTheme.getAll.map(t => (t.name, t.name))
   } else {
-    PortalTheme.findAll.filterNot(_.name == "default").map(t => (t.name, t.name))
+    PortalTheme.getAll.filterNot(_.name == "default").map(t => (t.name, t.name))
   }
 
 
