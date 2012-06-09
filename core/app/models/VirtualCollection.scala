@@ -126,7 +126,7 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
   private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, theme: String, connectedUser: String): List[String] = {
 
     // for the start, only pass a dead-simple query
-    val portalTheme = PortalTheme.get(theme).get
+    val portalTheme = PortalTheme.getAll.find(_.name == theme).get
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
     val chQuery: CHQuery = SolrQueryService.createCHQuery(params, portalTheme, true, Option(connectedUser), List.empty[String])
     val response = CHResponse(params, portalTheme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
