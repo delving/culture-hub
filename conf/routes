@@ -187,7 +187,7 @@ GET         /organizations/:orgId/api/collections                             co
 
 GET         /organizations/:orgId/api/index                                   controllers.api.Index.status(orgId)
 POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
-
+POST        /organizations/:orgId/api/reIndex                                 controllers.api.Index.reIndex(orgId)
 
 ## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
@@ -204,7 +204,6 @@ GET         /organizations/:orgId                                             co
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
-GET         /organizations/:orgId/admin/reloadFromDisk                        controllers.organization.Admin.reloadThemes(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 GET         /organizations/:orgId/admin/redeploy                              controllers.organization.Admin.redeploy(orgId)
 

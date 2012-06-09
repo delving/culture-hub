@@ -115,6 +115,12 @@ object Global extends GlobalSettings {
       virtualCollectionCount,
       UpdateVirtualCollectionCount
     )
+    Akka.system.scheduler.schedule(
+      1 minute,
+      2 hours,
+      virtualCollectionCount,
+      UpdateVirtualCollection
+    )
 
     // routes access logger
     val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
