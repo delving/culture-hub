@@ -16,15 +16,11 @@
 
 package util
 
-import extensions.ConfigurationException
-import java.lang.String
+import play.api.Play
 import play.api.Play.current
-import play.api.{Play, Logger}
-import xml.{Node, XML}
 import collection.immutable.HashMap
-
-import com.mongodb.casbah.commons.MongoDBObject
-import models.{EmailTarget, PortalTheme}
+import models.PortalTheme
+import extensions.ConfigurationException
 
 /**
  * ThemHandler taking care of loading themes
@@ -45,44 +41,15 @@ object ThemeHandler {
     set
   }
 
-  /**
-   * Look into the database if we have some themes. If we don't attempt to load from YML.
-   */
   def startup() {
-    if (PortalTheme.count() == 0) {
-      themeList = readThemesFromDisk
-      domainList = toDomainList(themeList)
-      domainLookupCache = HashMap.empty
-      themeList foreach {
-        PortalTheme.insert(_)
-      }
-    } else {
-      try {
-        themeList = readThemesFromDatabase()
-        domainList = toDomainList(themeList)
-        domainLookupCache = HashMap.empty
-      } catch {
-        case t: Throwable =>
-          Logger.error("Error reading Themes from the database.", t)
-          throw t
-      }
-    }
+    themeList = PortalTheme.getAll
+    domainList = toDomainList(themeList)
+    domainLookupCache = HashMap.empty
 
     if (!getDefaultTheme.isDefined) {
       throw ConfigurationException("No default theme could be found!")
     }
   }
-
-  /**
-   * Updates the themes in memory by reading them from the database
-   */
-  def update() {
-    themeList = readThemesFromDatabase()
-    domainList = toDomainList(themeList)
-    domainLookupCache = HashMap.empty
-  }
-
-  def readThemesFromDatabase(): Seq[PortalTheme] = PortalTheme.find(MongoDBObject()).toSeq
 
   def hasSingleTheme: Boolean = themeList.length == 1
 
@@ -125,40 +92,7 @@ object ThemeHandler {
     }
   }
 
-  def readThemesFromDisk: Seq[PortalTheme] = {
-    val THEME_CONFIG_SUFFIX = "_themes.xml"
-    val themeDefinitions = Play.getFile("conf/").listFiles().filter(f => f.isFile && f.getName.endsWith(THEME_CONFIG_SUFFIX))
-    themeDefinitions.flatMap(f => parseThemeDefinition(XML.loadFile(f)))
-  }
-
   private def toDomainList(themeList: Seq[PortalTheme]) = themeList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
-
-  private def parseThemeDefinition(root: Node): Seq[PortalTheme] = {
-    for( theme <- root \\ "theme") yield {
-      PortalTheme(
-        name             = (theme \ "@name").text,
-        subdomain        = Some((theme \ "subdomain").text),
-        domains          = (theme \\ "domain").map(_.text).toList,
-        themeDir         = (theme \ "themeDir").text,
-        siteName         = if(((theme \ "siteName").text).isEmpty) Some("Delving CultureHub") else Some((theme \ "siteName").text),
-        siteSlogan       = if(((theme \ "siteSlogan").text).isEmpty) Some("") else Some((theme \ "siteSlogan").text),
-        defaultLanguage  = (theme \ "defaultLanguage").text,
-        hiddenQueryFilter = if(((theme \ "hiddenQueryFilter").text).isEmpty) None else Some((theme \ "hiddenQueryFilter").text),
-        solrSelectUrl    = (theme \ "solrSelectUrl").text,
-        facets           = Some((theme \ "facets").text),
-        sortFields       = Some((theme \ "sortFields").text),
-        apiWsKey         = (theme \ "apiWsKey").text.toBoolean,
-        emailTarget = EmailTarget(
-          (theme \ "emailTarget" \ "adminTo").text,
-          (theme \ "emailTarget" \ "exceptionTo").text,
-          (theme \ "emailTarget" \ "feedbackTo").text,
-          (theme \ "emailTarget" \ "registerTo").text,
-          (theme \ "emailTarget" \ "systemFrom").text,
-          (theme \ "emailTarget" \ "feedbackFrom").text
-        )
-      )
-    }
-  }
 
 }
 
