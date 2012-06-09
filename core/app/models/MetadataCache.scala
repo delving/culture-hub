@@ -73,5 +73,5 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
 
   def remove(itemId: String) { remove(MongoDBObject("collection" -> col, "itemId" -> itemId)) }
 
-  def removeAll() { remove(MongoDBObject("collection" -> col)) }
+  def removeAll() { remove(MongoDBObject("collection" -> col, "itemType" -> itemType)) }
 }

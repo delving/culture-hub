@@ -65,6 +65,7 @@ class IndexApiSpec extends Specification with TestContext {
 
         queryByType.getResults.size() must equalTo(1)
         queryById.getResults.size() must equalTo(1)
+        queryById.getResults.get(0).get("delving_thumbnail") must not equalTo(null)
       }
     }
 
