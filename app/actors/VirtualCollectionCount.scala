@@ -32,7 +32,7 @@ class VirtualCollectionCount extends Actor with SolrServer {
         vc =>
           val currentCount = count(vc)
           if(currentCount != vc.recordCount) {
-            val portalTheme = PortalTheme.get(vc.query.theme).get
+            val portalTheme = PortalTheme.getAll.find(_.name == vc.query.theme).get
             VirtualCollection.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, portalTheme, null) match {
               case Right(computed) =>
                 log.info("Recomputed Virtual Collection %s, found %s records".format(vc.name, computed.recordCount))
