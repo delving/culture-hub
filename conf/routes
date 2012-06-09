@@ -104,64 +104,18 @@ GET         /enrichment/place/search                                            
 
 GET          /users                                                           controllers.Users.list(query: String ?= "", page: Int ?= 1)
 GET          /users/search                                                    controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
-#GET         /collections/?                                                   Collections.list
-#GET         /objects/?                                                       DObjects.list
-#GET         /stories/?                                                       Stories.list
 
 GET          /search                                                          controllers.Search.index(query ?= "*:*", page: Int ?= 1)
 
 GET          /:user                                                           controllers.Profile.profile(user)
 
-#POST        /{user}/block                                                    admin.NodeAdmin.blockUser
-
-#GET         /{user}/label/search                                             Links.listFreeTextAsTokens
-
-#POST        /{user}/link/{linkType}/{toType}/{toId}                          user.Links.add(fromType:'user')
-#DELETE      /{user}/link/{linkType}/{link}                                   user.Links.removeById(fromType:'user')
-
-#GET         /{user}/object                                                   DObjects.list
-#GET         /{user}/object/add                                               user.DObjects.dobject
-#GET         /{user}/object/{id}/update                                       user.DObjects.dobject
-#POST        /{user}/object/{fromId}/link/{linkType}/{toType}/{toId}          user.Links.add(fromType:'object')
-#DELETE      /{user}/object/{fromId}/link/{linkType}/{link}                   user.Links.removeById(fromType:'object')
-#POST        /{user}/object/submit                                            user.DObjects.objectSubmit
-#DELETE      /{user}/object/{id}/remove                                       user.DObjects.remove
-#POST        /{user}/object/{id}/block                                        admin.NodeAdmin.blockDObject
-#GET         /{user}/object/{id}                                              DObjects.dobject
-
-GET          /:orgId/thing/:spec/:recordId/overlay                           controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
-#POST        /:orgId/thing/:spec/:recordId/link/:linkType/:toType/:toId      controllers.user.Links.add(fromType:'mdr')
-#DELETE      /:orgId/thing/:spec/:recordId/link/:linkType/:toType/:toId      controllers.user.Links.remove(fromType:'mdr')
-GET          /:orgId/thing/:spec/:recordId                                   controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
+GET          /:orgId/thing/:spec/:recordId/overlay                            controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
+GET          /:orgId/thing/:spec/:recordId                                    controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
 
 GET          /:user/sip-creator.jnlp                                          controllers.organization.SipCreator.jnlp(user)
 
-#GET         /{user}/collection                                               Collections.list
-#GET         /{user}/collection/{id}/objects                                  Collections.listObjects
-#GET         /{user}/collection/{collectionId}/object/{id}                    DObjects.dobject
-#GET         /{user}/collection/add                                           user.Collections.collection
-#GET         /{user}/collection/{id}/update                                   user.Collections.collection
-#POST        /{user}/collection/{fromId}/link/{linkType}/{toType}/{toId}      user.Links.add(fromType:'collection')
-#DELETE      /{user}/collection/{fromId}/link/{linkType}/{link}               user.Links.removeById(fromType:'collection')
-#POST        /{user}/collection/submit                                        user.Collections.collectionSubmit
-#DELETE      /{user}/collection/{id}/remove                                   user.Collections.remove
-#POST        /{user}/collection/{id}/block                                    admin.NodeAdmin.blockUserCollection
-#GET         /{user}/collection/{id}                                          Collections.collection
-
-#GET         /{user}/story                                                    Stories.list
-#GET         /{user}/story/add                                                user.Stories.story
-#GET         /{user}/story/{id}/update                                        user.Stories.story
-#POST        /{user}/story/{fromId}/link/{linkType}/{toType}/{toId}           user.Links.add(fromType:'story')
-#DELETE      /{user}/story/{fromId}/link/{linkType}/{link}                    user.Links.removeById(fromType:'story')
-#POST        /{user}/story/submit                                             user.Stories.storySubmit
-#DELETE      /{user}/story/{id}/remove                                        user.Stories.remove
-#POST        /{user}/story/{id}/block                                         admin.NodeAdmin.blockStory
-#GET         /{user}/story/{id}                                               Stories.story
-#GET         /{user}/story/{id}/read                                          Stories.read
-
-
-GET         /:user/admin/profile/update                                       controllers.user.Admin.profile(user)
-POST        /:user/admin/profile                                              controllers.user.Admin.profileSubmit(user)
+GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
+POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)
 
 
 # Organizations API
@@ -217,6 +171,7 @@ GET         /organizations/:orgId/groups                                      co
 GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/create                               controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
+DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/update/                              controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 POST        /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/:groupId/addUser                     controllers.organization.Groups.addUser(orgId, groupId: org.bson.types.ObjectId)

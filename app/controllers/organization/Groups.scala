@@ -102,6 +102,18 @@ object Groups extends OrganizationController {
     }
   }
 
+  def remove(orgId: String, groupId: Option[ObjectId]) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        if(!groupId.isDefined) {
+          Results.BadRequest
+        } else {
+          Group.remove(MongoDBObject("_id" -> groupId, "orgId" -> orgId))
+          Ok
+        }
+    }
+  }
+
 
   def update(orgId: String, groupId: Option[ObjectId]): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {

@@ -40,7 +40,7 @@ trait CoreImplicits {
   implicit def userListToListItemList(l: List[HubUser]) = l.map { userToListItem(_) }
   implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
 
-    // ~~~ ObjectId
+  // ~~~ ObjectId
 
   implicit def oidToString(oid: ObjectId): String = oid.toString
 

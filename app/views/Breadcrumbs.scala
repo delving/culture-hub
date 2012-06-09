@@ -2,7 +2,7 @@ package views
 
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
-import models.{PortalTheme, UserCollection, DObject}
+import models.PortalTheme
 import play.api.i18n.Lang
 
 
@@ -27,9 +27,6 @@ object Breadcrumbs {
     val crumbs = crumbList match {
 
       case "users" :: Nil => List(("/users", Messages("thing.users")))
-      case "objects" :: Nil => List(("/objects", Messages("thing.objects.user")))
-      case "collections" :: Nil => List(("/collections", Messages("thing.collection")))
-      case "stories" :: Nil => List(("/stories", Messages("thing.stories")))
 
       case "search" :: Nil => List(("NOLINK", Messages("ui.label.search")))
 
@@ -74,27 +71,7 @@ object Breadcrumbs {
       case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")))
       case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("org.vc.new")))
 
-
       case user :: Nil => List(("/" + user, user))
-      case user :: "collection" :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")))
-      case user :: "object" :: Nil => List(("/" + user, user), ("/" + user + "/object", Messages("thing.objects")))
-      case user :: "dataset" :: Nil => List(("/" + user, user), ("/" + user + "/dataset", Messages("thing.datasets")))
-      case user :: "story" :: Nil => List(("/" + user, user), ("/" + user + "/story", Messages("thing.stories")))
-
-      case user :: "object" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/object", Messages("thing.objects")), ("/" + user + "/object/add", Messages("user.object.create")))
-      case user :: "collection" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")), ("/" + user + "/collection/add", Messages("user.collection.create")))
-      case user :: "story" :: "add" :: Nil => List(("/" + user, user), ("/" + user + "/story", Messages("thing.stories")), ("/" + user + "/story/add", Messages("user.story.create")))
-
-      case user :: "object" :: id :: Nil => List(("/" + user, user), ("/" + user + "/object", Messages("thing.objects")), ("/" + user + "/object/" + id, DObject.fetchName(id)))
-      case user :: "collection" :: id :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")), ("/" + user + "/collection/" + id, UserCollection.fetchName(id)))
-      case user :: "story" :: id :: Nil => List(("/" + user, user), ("/" + user + "/story", Messages("thing.stories")), ("/" + user + "/story/" + id, models.Story.fetchName(id)))
-      case user :: "story" :: id :: "read" :: Nil => List(("/" + user, user), ("/" + user + "/story", Messages("thing.stories")), ("/" + user + "/story/" + id, models.Story.fetchName(id)), ("/" + user + "/story/" + id, Messages("thing.story")))
-
-      case user :: "object" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/object", Messages("thing.objects")), ("/" + user + "/object/" + id,  DObject.fetchName(id)),("/" + user + "/object/" + id, Messages("user.object.updateObject", DObject.fetchName(id))))
-      case user :: "collection" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")), ("/" + user + "/collection/" + id,  UserCollection.fetchName(id)),("/" + user + "/collection/" + id, Messages("user.collection.update", UserCollection.fetchName(id))))
-      case user :: "story" :: id :: "update" :: Nil => List(("/" + user, user), ("/" + user + "/story", Messages("thing.stories")),("/" + user + "/story/" + id,  models.Story.fetchName(id)),("/" + user + "/story/" + id, Messages("user.story.updateStory", models.Story.fetchName(id))))
-
-      case user :: "collection" :: cid :: "object" :: oid ::Nil => List(("/" + user, user), ("/" + user + "/collection", Messages("thing.collections")), ("/" + user + "/collection/" + cid, UserCollection.fetchName(cid)), ("/" + user + "/collection/" + cid + "/object/" + oid, DObject.fetchName(oid)))
 
       case _ => List()
     }

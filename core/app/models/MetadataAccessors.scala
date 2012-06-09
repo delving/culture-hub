@@ -40,7 +40,6 @@ abstract class MetadataAccessors extends Universal {
   def getHubId : String = URLDecoder.decode(assign(HUB_ID), "utf-8")
 
   def getOwnerId: String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => getOwner
     case MDR => getOrgId
     case _ => ""
   }
@@ -61,7 +60,6 @@ abstract class MetadataAccessors extends Universal {
 
   // TODO add plugin mechanism
   def getUri : String = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => "/" + getHubId.replaceAll("_", "/")
     case MDR =>
       // only provide a link if there's something to show via AFF
       val allSchemas = values(ALL_SCHEMAS)
@@ -74,7 +72,6 @@ abstract class MetadataAccessors extends Universal {
     case _ => assign(HUB_URI)
   }
   def getLandingPage = getRecordType match {
-    case OBJECT | USERCOLLECTION | STORY => getUri
     case MDR => assign(EXTERNAL_LANDING_PAGE)
     case _ => ""
   }

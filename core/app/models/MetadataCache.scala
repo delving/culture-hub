@@ -5,6 +5,7 @@ import org.bson.types.ObjectId
 import mongoContext._
 import com.novus.salat.dao.SalatDAO
 import java.util.Date
+import core.Constants
 
 /**
  *
@@ -35,6 +36,10 @@ object MetadataCache {
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))
+
+    // temporary
+    mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> Constants.ITEM_TYPE_MDR, "systemFields.delving_hasDigitalObject" -> 1))
+    mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> Constants.ITEM_TYPE_MDR, "systemFields.delving_landingPage" -> 1))
 
     new MongoMetadataCache(orgId, col, itemType, mongoCollection)
   }
