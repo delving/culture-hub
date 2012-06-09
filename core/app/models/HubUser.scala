@@ -84,7 +84,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
   // ~~~ OAuth2
 
   def setOauthTokens(user: HubUser, accessToken: String, refreshToken: String) {
-    HubUser.update(MongoDBObject("userName" -> user.userName), user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken)), false, false, new WriteConcern())
+    HubUser.update(MongoDBObject("userName" -> user.userName), HubUser._grater.asDBObject(user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken))))
   }
 
   def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
@@ -103,7 +103,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
 
   def evictExpiredAccessTokens(timeout: Long = 3600) {
     val delta = System.currentTimeMillis() - timeout * 1000
-    HubUser.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)), false, false, new WriteConcern())
+    HubUser.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)))
   }
 
 

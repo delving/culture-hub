@@ -80,7 +80,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
   def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink]) {
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
-    update(MongoDBObject("id.nodeId" -> entity.id.nodeId), entity, true, false, new WriteConcern())
+    update(MongoDBObject("id.nodeId" -> entity.id.nodeId), DrupalEntity._grater.asDBObject(entity), true, false)
     if (!entity.deleted) IndexingService.stageForIndexing(entity.toSolrDocument) else IndexingService.deleteById(entity.id.nodeId)
   }
 

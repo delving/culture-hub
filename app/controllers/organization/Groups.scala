@@ -33,7 +33,7 @@ object Groups extends OrganizationController {
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
           Forbidden(Messages("user.secured.noAccess"))
         } else {
-          val group: Option[Group] = groupId.flatMap(Group.findOneByID(_))
+          val group: Option[Group] = groupId.flatMap(Group.findOneById(_))
           val (usersAsTokens, dataSetsAsTokens) = group match {
             case None => (JJson.generate(List()), JJson.generate(List()))
             case Some(g) =>
@@ -123,7 +123,7 @@ object Groups extends OrganizationController {
                   }
               }
 
-              if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.findOneByID(groupModel.id.get) == None))) {
+              if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.findOneById(groupModel.id.get) == None))) {
                 reportSecurity("User %s tried to create an owners team!".format(connectedUser))
                 return Action {
                   Forbidden("Your IP has been logged and reported to the police.")
@@ -140,7 +140,7 @@ object Groups extends OrganizationController {
                       Some(groupModel.copy(id = Some(id)))
                   }
                 case Some(id) =>
-                  Group.findOneByID(groupModel.id.get) match {
+                  Group.findOneById(groupModel.id.get) match {
                     case None => return Action {
                       NotFound("Group with ID %s was not found".format(id))
                     }
@@ -165,7 +165,7 @@ object Groups extends OrganizationController {
   }
 
   private def load(orgId: String, groupId: Option[ObjectId]): String = {
-    groupId.flatMap(Group.findOneByID(_)) match {
+    groupId.flatMap(Group.findOneById(_)) match {
       case None => JJson.generate(GroupViewModel())
       case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != GrantType.OWN.key))
     }

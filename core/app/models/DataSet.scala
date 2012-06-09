@@ -22,7 +22,6 @@ import org.bson.types.ObjectId
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
-import com.mongodb.{BasicDBObject, WriteConcern}
 import xml.{Node, XML}
 import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
@@ -256,11 +255,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
   def updateById(id: ObjectId, dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet))
   }
 
   def upsertById(id: ObjectId, dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet), true)
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {

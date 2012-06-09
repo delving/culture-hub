@@ -53,7 +53,7 @@ case class UserCollection(_id: ObjectId = new ObjectId,
 object UserCollection extends SalatDAO[UserCollection, ObjectId](userCollectionsCollection) with Commons[UserCollection] with Resolver[UserCollection] with Pager[UserCollection] {
 
   def block(id: ObjectId, whoBlocks: String) {
-    UserCollection.findOneByID(id) map {
+    UserCollection.findOneById(id) map {
       c =>
         val updated = c.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
         UserCollection.save(updated)

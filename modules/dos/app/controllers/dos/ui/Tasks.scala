@@ -56,7 +56,7 @@ object Tasks extends Controller with Extensions with GroovyTemplates {
 
   def cancel(id: ObjectId) = Action {
     implicit request =>
-      val task = Task.findOneByID(id)
+      val task = Task.findOneById(id)
       if (task.isEmpty)
         NotFound("Could not find task with id " + id)
       else {
@@ -84,7 +84,7 @@ object Tasks extends Controller with Extensions with GroovyTemplates {
 
   def status(id: ObjectId) = Action {
     implicit request =>
-      val task = Task.findOneByID(id)
+      val task = Task.findOneById(id)
       if (task.isEmpty) NotFound("Could not find task with id " + id)
       else
         Json(

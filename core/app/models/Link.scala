@@ -131,7 +131,7 @@ object Link extends SalatDAO[Link, ObjectId](linksCollection) {
   }
 
   def removeById(linkId: ObjectId) {
-    Link.findOneByID(linkId) match {
+    Link.findOneById(linkId) match {
       case Some(link) => removeLink(link)
       case None => // it's not there
     }

@@ -72,7 +72,7 @@ object DObject extends SalatDAO[DObject, ObjectId](objectsCollection) with Commo
 
   def block(id: ObjectId, whoBlocks: String) {
 
-    DObject.findOneByID(id) map {
+    DObject.findOneById(id) map {
       o =>
         val updated = o.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
         DObject.save(updated)

@@ -63,7 +63,7 @@ case class Story(_id: ObjectId = new ObjectId,
 object Story extends SalatDAO[Story, ObjectId](userStoriesCollection) with Commons[Story] with Resolver[Story] with Pager[Story] {
 
   def block(id: ObjectId, whoBlocks: String) {
-    Story.findOneByID(id) map {
+    Story.findOneById(id) map {
       s =>
         val updated = s.copy(blocked = true, blockingInfo = Some(BlockingInfo(whoBlocks)))
         Story.save(updated)

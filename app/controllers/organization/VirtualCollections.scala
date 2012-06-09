@@ -87,7 +87,7 @@ object VirtualCollections extends OrganizationController {
             )
             virtualCollectionForm.id match {
               case Some(id) =>
-                VirtualCollection.findOneByID(id) match {
+                VirtualCollection.findOneById(id) match {
                   case Some(vc) =>
 
                     // clear the previous entries
@@ -156,7 +156,7 @@ object VirtualCollections extends OrganizationController {
   }
 
   private def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme)(implicit request: RequestHeader): Either[Throwable, VirtualCollection] = {
-    val vc = VirtualCollection.findOneByID(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
+    val vc = VirtualCollection.findOneById(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
       VirtualCollection.children.removeByParentId(vc._id)

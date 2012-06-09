@@ -206,7 +206,7 @@ object DataSetControl extends OrganizationController {
             dataSetForm.id match {
               // TODO for update, add the operator that appends key-value pairs rather than setting all
               case Some(id) => {
-                val existing = DataSet.findOneByID(id).get
+                val existing = DataSet.findOneById(id).get
                 if (!DataSet.canEdit(existing, connectedUser)) {
                   return Action {
                     implicit request => Forbidden("You have no rights to edit this DataSet")
