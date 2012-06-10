@@ -115,4 +115,13 @@ package object mongoContext extends models.MongoContext {
 
   lazy val statisticsRunCollection = connection("StatisticsRun")
 
+
+  // dataSet stats
+  lazy val dataSetStatistics = connection("DataSetStatistics")
+
+  lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
+  lazy val fieldValues = connection("DataSetStatisticsFieldValues")
+
+
+
 }
