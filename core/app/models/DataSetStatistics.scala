@@ -7,7 +7,7 @@ import com.novus.salat.dao.SalatDAO
 import mongoContext._
 import eu.delving.stats.Stats
 import collection.JavaConverters._
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 
 /**
  *
@@ -22,6 +22,10 @@ case class DataSetStatistics(_id: ObjectId = new ObjectId,
   def getStatisticsFile = {
     hubFileStore.findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
   }
+
+  def getHistogram(path: String): Option[Histogram] = DataSetStatistics.frequencies.
+    findByParentId(_id, MongoDBObject("context.orgId" -> context.orgId, "context.spec" -> context.spec, "context.uploadDate" -> context.uploadDate, "path" -> path)).toList.headOption.
+    map(_.histogram)
 
 }
 
@@ -86,5 +90,7 @@ object DataSetStatistics extends SalatDAO[DataSetStatistics, ObjectId](dataSetSt
   val frequencies = new ChildCollection[FieldFrequencies, ObjectId](collection = fieldFrequencies, parentIdField = "parentId") {}
 
   val values = new ChildCollection[FieldValues, ObjectId](collection = fieldValues, parentIdField = "parentId") {}
+
+  def getMostRecent(orgId: String, spec: String) = find(MongoDBObject("context.orgId" -> orgId, "context.spec" -> spec)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
 
 }

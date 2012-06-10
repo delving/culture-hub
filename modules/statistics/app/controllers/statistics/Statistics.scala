@@ -2,11 +2,9 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import core.Constants
-import models.mongoContext._
-import models.{MetadataCache, MongoMetadataCache, DataSet}
-import com.mongodb.casbah.Imports._
+import models.DataSet
 import collection.JavaConverters._
+import models.statistics.DataSetStatistics
 
 /**
  *
@@ -22,22 +20,36 @@ object Statistics extends OrganizationController {
         val statistics = DataSet.findAll(orgId).map {
           ds => {
 
-            val total = ds.details.total_records
-            val cache = new MongoMetadataCache(orgId, ds.spec, Constants.ITEM_TYPE_MDR, connection(MetadataCache.getMongoCollectionName(orgId)))
-            val hasDigitalObject = cache.count(MongoDBObject("collection" -> ds.spec, "itemType" -> Constants.ITEM_TYPE_MDR, "systemFields.delving_hasDigitalObject" -> "true"))
-            val hasNoLandingPage = cache.count(MongoDBObject("collection" -> ds.spec, "itemType" -> Constants.ITEM_TYPE_MDR, "systemFields.delving_landingPage" -> MongoDBObject("$size" -> 0)))
+            DataSetStatistics.getMostRecent(ds.orgId, ds.spec).map {
+              stats =>
+                val total = stats.recordCount
 
-            Map(
-              "spec" -> ds.spec,
-              "total" -> total,
-              "hasDigitalObjectCount" -> hasDigitalObject,
-              "hasNoDigitalObjectCount" -> (total - hasDigitalObject),
-              "hasLandingPageCount" -> (total - hasNoLandingPage),
-              "hasNoLandingPageCount" -> hasNoLandingPage,
-              "hasDigitalObjectPercentage" -> (if(total > 0) ((hasDigitalObject.toDouble / total) * 100).round else 0),
-              "hasLandingPagePercentage" -> (if(total > 0) (((total.toDouble - hasNoLandingPage) / total) * 100).round else 0)
-            )
+                // TODO generify this by generic mapping of sorts
+                val hasDigitalObject = stats.getHistogram("/icn:record/europeana:object").map(_.present).getOrElse(0)
+                val hasLandingPage = stats.getHistogram("/icn:record/europeana:isShownAt").map(_.present).getOrElse(0)
 
+                Map(
+                  "spec" -> ds.spec,
+                  "total" -> total,
+                  "hasDigitalObjectCount" -> hasDigitalObject,
+                  "hasNoDigitalObjectCount" -> (total - hasDigitalObject),
+                  "hasLandingPageCount" -> hasLandingPage,
+                  "hasNoLandingPageCount" -> (total - hasLandingPage),
+                  "hasDigitalObjectPercentage" -> (if(total > 0) ((hasDigitalObject.toDouble / total) * 100).round else 0),
+                  "hasLandingPagePercentage" -> (if(total > 0) (((hasLandingPage.toDouble) / total) * 100).round else 0)
+                )
+            }.getOrElse {
+              Map(
+                "spec" -> ds.spec,
+                "total" -> "N/A",
+                "hasDigitalObjectCount" -> "N/A",
+                "hasNoDigitalObjectCount" -> "N/A",
+                "hasLandingPageCount" -> "N/A",
+                "hasNoLandingPageCount" -> "N/A",
+                "hasDigitalObjectPercentage" -> "N/A",
+                "hasLandingPagePercentage" -> "N/A"
+              )
+            }
           }
         }
 
