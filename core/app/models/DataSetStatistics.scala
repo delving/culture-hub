@@ -7,6 +7,7 @@ import com.novus.salat.dao.SalatDAO
 import mongoContext._
 import eu.delving.stats.Stats
 import collection.JavaConverters._
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -16,7 +17,13 @@ import collection.JavaConverters._
 case class DataSetStatistics(_id: ObjectId = new ObjectId,
                              context: DataSetStatisticsContext,
                              recordCount: Int,
-                             fieldCount: Histogram)
+                             fieldCount: Histogram) {
+
+  def getStatisticsFile = {
+    hubFileStore.findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
+  }
+
+}
 
 case class FieldFrequencies(_id: ObjectId = new ObjectId,
                             parentId: ObjectId,

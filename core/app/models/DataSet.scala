@@ -33,6 +33,7 @@ import play.api.Play.current
 import java.net.URL
 import core.Constants._
 import core.storage.BaseXStorage
+import models.statistics.DataSetStatistics
 
 /**
  * DataSet model
@@ -373,6 +374,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       case Some(ds) => ds.getVisibleMetadataFormats(accessKey)
       case None => List[RecordDefinition]()
     }
+  }
+
+  // statistics
+
+  def getMostRecentDataSetStatistics = {
+    DataSetStatistics.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 
 }

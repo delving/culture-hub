@@ -26,6 +26,7 @@ import eu.delving.stats.Stats
 import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
+import models.mongoContext.hubFileStore
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -209,7 +210,7 @@ object SipCreatorEndPoint extends ApplicationController {
                 Right("Received it")
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
-              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream)
+              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, request.body.file)
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
                 Left(msg)
@@ -251,8 +252,11 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream): Either[String, String] = {
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
     try {
+      import com.mongodb.casbah.gridfs.Imports._
+      val f = hubFileStore.createFile(file)
+
       val stats = Stats.read(inputStream)
 
       val context = DataSetStatisticsContext(dataSet.orgId,
@@ -262,6 +266,13 @@ object SipCreatorEndPoint extends ApplicationController {
                                              if(dataSet.details.facts.containsField("providerUri")) dataSet.details.facts.get("providerUri").toString else "",
                                              if(dataSet.details.facts.containsField("dataProviderUri")) dataSet.details.facts.get("dataProviderUri").toString else "",
                                              new Date())
+
+      f.put("contentType", "application/x-gzip")
+      f.put("orgId", dataSet.orgId)
+      f.put("spec", dataSet.spec)
+      f.put("uploadDate", context.uploadDate)
+      f.put("hubFileType", "source-statistics")
+      f.save
 
       val dss = DataSetStatistics(
         context = context,
