@@ -18,7 +18,7 @@ package controllers
 
 import org.bson.types.ObjectId
 import views.Helpers.getThumbnailUrl
-import models.{Visibility, Universal, DataSetState}
+import models.{Visibility, ViewableItem, DataSetState}
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -49,7 +49,7 @@ case class Token(id: String,
                  data: Option[Map[String, String]] = None)
 
 case class ListItem(id: String,
-                    recordType: String,
+                    itemType: String,
                     title: String,
                     description: String = "",
                     thumbnailId: Option[ObjectId] = None,
@@ -57,7 +57,7 @@ case class ListItem(id: String,
                     mimeType: String = "unknown/unknown",
                     userName: String,
                     isPrivate: Boolean,
-                    url: String) extends Universal {
+                    url: String) extends ViewableItem {
   
   def thumbnail(size: Int = 100): String = (thumbnailId, thumbnailUrl) match {
     case (None,  None) => getThumbnailUrl(None)
@@ -65,10 +65,8 @@ case class ListItem(id: String,
     case (None, Some(url)) => url
   }
 
-  def getMongoId = id
-  def getHubId = "%s_%s_%s".format(userName, recordType, id)
-  def getOwnerId = userName
-  def getRecordType = recordType
+  def getHubId = "%s_%s_%s".format(userName, itemType, id)
+  def getItemType = itemType
   def getTitle = title
   def getDescription = description
   def getOwner = userName

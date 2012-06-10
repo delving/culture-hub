@@ -17,7 +17,6 @@
 package controllers
 
 import dos.StoredFile
-import views.Helpers.thumbnailUrl
 import core.Constants._
 import models._
 
@@ -34,18 +33,4 @@ trait ModelImplicits extends CoreImplicits {
 
   implicit def mdrAccessorToShortObjectModel[T <: MetadataAccessors](record: T) = ShortObjectModel(id = record.getHubId, url = record.getUri, thumbnail = record.getThumbnailUri(500), title = record.getTitle, hubType = MDR)
   implicit def mdrAccessorListToSOMList[T <: MetadataAccessors](records: List[T]) = records.map(mdrAccessorToShortObjectModel(_))
-
-  implicit def objectToShortObjectModel(o: DObject): ShortObjectModel = ShortObjectModel(o._id, o.url, thumbnailUrl(o.thumbnail_id, 500), o.name, OBJECT, o.files, o.getMimeType)
-  implicit def objectListToShortObjectModelList(l: List[DObject]): List[ShortObjectModel] = l.map { objectToShortObjectModel(_) }
-
-  // ~~ ListItems
-
-  implicit def objectToListItem(o: DObject): ListItem = ListItem(o._id, OBJECT, o.name, o.description, Some(o._id), None, o.getMimeType, o.userName, o.visibility == Visibility.PRIVATE, o.url)
-  implicit def collectionToListItem(c: UserCollection) = ListItem(c._id, USERCOLLECTION, c.name, c.description, c.thumbnail_id, c.thumbnail_url, "unknown/unknown", c.userName, c.visibility == Visibility.PRIVATE, c.url)
-  implicit def storyToListItem(s: Story) = ListItem(s._id, STORY, s.name, s.description, s.thumbnail_id, s.thumbnail_url, "unknown/unknown", s.userName, s.visibility == Visibility.PRIVATE, s.url)
-
-  implicit def objectListToListItemList(l: List[DObject]) = l.map { objectToListItem(_) }
-  implicit def collectionListToListItemList(l: List[UserCollection]) = l.map { collectionToListItem(_) }
-  implicit def storyListToListItemList(l: List[Story]) = l.map { storyToListItem(_) }
-
 }

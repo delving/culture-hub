@@ -8,11 +8,13 @@ import akka.actor.SupervisorStrategy.Restart
 import akka.routing.RoundRobinRouter
 import controllers.ReceiveSource
 import core.{CultureHubPlugin, HubServices}
+import java.io.File
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
+import libs.Files
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
@@ -41,6 +43,13 @@ object Global extends GlobalSettings {
             Sip-Creator Version %s
 
       """.format(BuildInfo.version, BuildInfo.sipCreator))
+    }
+
+    // temporary deployment trick
+    if(Play.isProd) {
+      val port = if(System.getProperty("http.port").isEmpty) "9000" else System.getProperty("http.port")
+      val runningPid = new File(current.path, "RUNNING_PID")
+      Files.moveFile(runningPid, new File(current.path, port + "/RUNNING_PID"))
     }
 
 

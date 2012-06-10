@@ -34,63 +34,64 @@ object OAuth2TokenEndpoint extends Controller {
   val TOKEN_TIMEOUT = 3600
 
   def token: Action[AnyContent] = Action {
-    request =>
+    implicit request =>
       val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
 
       try {
         val oauthRequest = new PlayOAuthTokenRequest(request)
 
         // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
-        if (oauthRequest.getGrantType == null) return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
-
-        var grantType: GrantType = null;
-            try {
-              grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
-            } catch {
-              case iae: IllegalArgumentException => return errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
-            }
-
-            val user = grantType match {
+        if (oauthRequest.getGrantType == null) {
+          errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
+        } else {
+          try {
+            val grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
+            val mayUser = grantType match {
               // TODO use real node from URL
               case GrantType.PASSWORD =>
-                if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword))
-                  return errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password")
-                else
-                  HubUser.findByUsername(oauthRequest.getUsername).get
+                if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
+                  Left(errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password"))
+                } else {
+                  Right(HubUser.findByUsername(oauthRequest.getUsername).get)
+                }
               case GrantType.REFRESH_TOKEN => {
                 val maybeUser = HubUser.findByRefreshToken(oauthRequest.getRefreshToken)
-                if(maybeUser == None) {
-                   return errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token")
+                if (maybeUser == None) {
+                  Left(errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token"))
                 } else {
-                  maybeUser.get
+                  Right(maybeUser.get)
                 }
               }
               // TODO
-              case GrantType.AUTHORIZATION_CODE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
-              case GrantType.ASSERTION => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
-              case GrantType.NONE => return errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type")
+              case GrantType.AUTHORIZATION_CODE | GrantType.ASSERTION | GrantType.NONE => Left(errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type"))
             }
 
-            var accessToken: String = null;
-            var refreshToken: String = null;
-
-            if (grantType == GrantType.REFRESH_TOKEN) {
-              accessToken = oauthIssuerImpl.accessToken
-              refreshToken = oauthIssuerImpl.refreshToken
-              HubUser.setOauthTokens(user, accessToken, refreshToken)
+            if (mayUser.isLeft) {
+              mayUser.left.get
             } else {
-              accessToken = if(user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
-              refreshToken = if(user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
-              // save only if this is new
-              if(user.accessToken == None) {
-                HubUser.setOauthTokens(user, accessToken, refreshToken)
-              }
-            }
+              val user = mayUser.right.get
 
-            val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
-            WrappedJson(resp.getBody)
-          }
-          catch {
+              var accessToken: String = null
+              var refreshToken: String = null
+
+              if (grantType == GrantType.REFRESH_TOKEN) {
+                accessToken = oauthIssuerImpl.accessToken
+                refreshToken = oauthIssuerImpl.refreshToken
+                HubUser.setOauthTokens(user, accessToken, refreshToken)
+              } else {
+                accessToken = if (user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
+                refreshToken = if (user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
+                // save only if this is new
+                if (user.accessToken == None) {
+                  HubUser.setOauthTokens(user, accessToken, refreshToken)
+                }
+              }
+
+              val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
+              WrappedJson(resp.getBody)
+
+            }
+          } catch {
             case e: OAuthProblemException => {
               val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
               val resp: OAuthResponse = builder.error(e).buildJSONMessage()
@@ -98,26 +99,30 @@ object OAuth2TokenEndpoint extends Controller {
               BadRequest(resp.getBody).as(JSON)
             }
           }
+
+        }
+      } catch {
+        case iae: IllegalArgumentException => errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
+      }
+
+
   }
 
-  def errorResponse(tokenResponse: String, message: String): Action[AnyContent] = {
+  def errorResponse(tokenResponse: String, message: String)(implicit request: RequestHeader) = {
     val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
     val resp: OAuthResponse = builder.setError(tokenResponse).setErrorDescription(message).buildJSONMessage()
     Logger("CultureHub").warn(resp.getBody)
-    Action {
-      request => BadRequest(resp.getBody).as(JSON)
-    }
+    BadRequest(resp.getBody).as(JSON)
   }
 
-  /** ensure that some content is set, so that there will always be a Content-Length in the response **/
-  def WrappedJson(payload: String) = if(payload == null) Ok("").as(JSON) else Ok(payload).as(JSON)
-
+  /**ensure that some content is set, so that there will always be a Content-Length in the response **/
+  def WrappedJson(payload: String) = if (payload == null) Ok("").as(JSON) else Ok(payload).as(JSON)
 
 
   // ~~~
 
   def isValidToken(token: String): Boolean = {
-    if((Play.isTest || Play.isDev) && token == "TEST") return true
+    if ((Play.isTest || Play.isDev) && token == "TEST") return true
     HubUser.isValidAccessToken(token, TOKEN_TIMEOUT)
   }
 

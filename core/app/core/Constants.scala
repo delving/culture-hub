@@ -25,9 +25,6 @@ package core
 object Constants {
 
   // ~~~ hub types, used in view as itemName and otherwise for links and search recordTypes
-  val OBJECT = "object"
-  val USERCOLLECTION = "userCollection"
-  val STORY = "story"
   val USER = "user"
   val DATASET = "dataSet"
 
@@ -66,8 +63,7 @@ object Constants {
   val THUMBNAIL = SystemField.THUMBNAIL.tag
   val EXTERNAL_LANDING_PAGE = SystemField.LANDING_PAGE.tag
 
-  val OWNER = SystemField.OWNER.tag
-  val CREATOR = SystemField.CREATOR.tag
+  val OWNER = SystemField.OWNER.tag // dataProvider
   val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
   val PROVIDER = SystemField.PROVIDER.tag
 

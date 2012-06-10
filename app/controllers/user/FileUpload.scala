@@ -17,12 +17,10 @@
 package controllers.user
 
 import play.api.mvc._
-import models.DObject
 import org.bson.types.ObjectId
 import controllers.DelvingController
 import play.api.Play
 import play.api.Play.current
-import play.api.i18n.Messages
 
 /**
  * Router for the FileUpload service that either directly invokes the module API when running locally or invokes the remote
@@ -53,16 +51,6 @@ object FileUpload extends DelvingController {
             case "remote" => InternalServerError("Not implemented")
           }
         }
-
-        // remove refering objects
-        if (!ObjectId.isValid(id)) {
-          Error(Messages("user.fileupload.removeError", id))
-        } else {
-          val oid = new ObjectId(id)
-          DObject.removeFile(oid)
-          Ok
-        }
-
     }
   }
 

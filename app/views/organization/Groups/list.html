@@ -27,7 +27,12 @@
                 #{else}
                 <tr>
                     <td>${group.name} - &{'org.list.memberCount', group.users.size()}</td>
-                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
+                    <td>#{if isAdmin}
+                        <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>
+                        <a class="btn btn-danger btn-mini delete" id="remove${group._id}" data-remove="${group._id}">
+                        ${messages.get('ui.label.delete')}
+                        </a>
+                    #{/if}</td>
                 </tr>
                 #{/else}
             #{/list}
@@ -42,3 +47,16 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.delete:not(.disabled)').click(function() {
+            var group = $(this).attr('data-remove');
+            bootboxConfirm({
+                'type': 'DELETE',
+                'message' : '<h3 class="shout beware">&{'thing.confirmation'}</h3>&{'organizations.group.confirmDeletion'}',
+                'action_url':'/organizations/${orgId}/groups/remove/'+ group,
+                'success_url':'/organizations/${orgId}/groups'
+            });
+        });
+    })
+</script>

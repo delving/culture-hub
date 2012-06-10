@@ -171,8 +171,6 @@ case class CoReferenceLink(_id: ObjectId = new ObjectId,
 
 }
 
-object CoReferenceLink extends SalatDAO[CoReferenceLink, ObjectId](collection = CoRefCollecion) {}
-
 case class LinkAuthor(userUri: String, name: String, organisation: String, role: String)
 
 case class FromLink(uri: String, linkType: String, title: String, crmClass: String = "", extra: Map[String, Array[String]] = Map.empty)

@@ -29,13 +29,11 @@ object Search extends DelvingController {
         try {
           val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
           val briefItemView = BriefItemView(response)
-      //    val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
           Ok(Template("/Search/index.html",
             'briefDocs -> briefItemView.getBriefDocs,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-    //        'collections -> userCollections,
             'themeFacets -> theme.getFacets,
             'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(
@@ -110,10 +108,6 @@ object Search extends DelvingController {
 
   // ~~~ Utility methods (not controller actions)
 
-  def browse(recordType: String, user: Option[String], page: Int, theme: PortalTheme)(implicit request: RequestHeader) = {
-    search(user, page, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
-  }
-
   def search(user: Option[String], page: Int, theme: PortalTheme, query: List[String])(implicit request: RequestHeader) = {
     val start = (page - 1) * PAGE_SIZE + 1
     val queryList = (user match {
@@ -126,12 +120,12 @@ object Search extends DelvingController {
     val briefItemView = BriefItemView(chResponse)
 
     val items = briefItemView.getBriefDocs.map(bd =>
-      ListItem(id = bd.getMongoId,
-        recordType = bd.getRecordType,
+      ListItem(id = bd.getHubId,
+        itemType = bd.getItemType,
         title = bd.getTitle,
         description = bd.getDescription,
         thumbnailUrl = Some(bd.getThumbnailUri(220)),
-        userName = bd.getOwnerId,
+        userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
         url = bd.getUri,
         mimeType = bd.getMimeType))
