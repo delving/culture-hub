@@ -27,7 +27,7 @@
         <div class="media ${itemName}">
 
             <a href="/${i.userName}/" class="img" rel="nofollow">
-                #{gravatar.img i.description /}
+                #{gravatar.img i.email /}
             </a>
 
             <div class="bd">
@@ -35,7 +35,7 @@
 
                     <a href="/${i.userName}/" class="title" rel="nofollow">${i.userName}</a>
 
-                    #{if i.description}
+                    #{if i.email}
                         <div class="more-info">
                             <div class="inner">
                                 #{if i.userName == userName}

@@ -4,7 +4,7 @@
     <ul class="thumbnails">
     #{/if}
     <li class="span3">
-        <div class="thumbnail draggable ${doc.getRecordType()} ">
+        <div class="thumbnail draggable ${doc.getItemType()} ">
             #{thingSummaryView data:doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>

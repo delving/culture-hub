@@ -25,8 +25,6 @@ object TestDataLoader {
   def load() {
     if (HubUser.count() == 0) bootstrapUser()
     if (Group.count() == 0) bootstrapAccessControl()
-    if (UserCollection.count() == 0) bootstrapUserCollection()
-    if (DObject.count() == 0) bootstrapDObject()
     if (DataSet.count() == 0) bootstrapDatasets()
   }
 
@@ -70,40 +68,6 @@ object TestDataLoader {
     // all users are in delving
     HubUser.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
 
-  }
-
-  private def bootstrapUserCollection() {
-    UserCollection.insert(new UserCollection(
-      TS_update = new DateTime("2011-08-14T10:19:20.835Z").toDate,
-      userName = "bob",
-      name = "Test Collection",
-      description = "A test collection",
-      visibility = Visibility(10),
-      thumbnail_id = None,
-      thumbnail_url = None,
-      deleted = false
-    ))
-  }
-
-  private def bootstrapDObject() {
-    DObject.insert(new DObject(
-      TS_update = new DateTime("2011-08-14T10:19:20.835Z").toDate,
-      userName = "bob",
-      description = "A test object",
-      name = "Test Object A",
-      visibility = Visibility(10),
-      thumbnail_id = None,
-      deleted = false
-    ))
-    DObject.insert(new DObject(
-      TS_update = new DateTime("2011-08-14T10:19:20.835Z").toDate,
-      userName = "jimmy",
-      description = "Another test object",
-      name = "Test Object B",
-      visibility = Visibility(10),
-      thumbnail_id = None,
-      deleted = false
-    ))
   }
 
   private def bootstrapDatasets() {
