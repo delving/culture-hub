@@ -22,6 +22,7 @@ import com.mongodb.casbah.MongoCollection
 import com.mongodb.DBObject
 import play.api.Play.current
 import extensions.ConfigurationException
+import com.mongodb.casbah.gridfs.GridFS
 
 // TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
@@ -114,5 +115,27 @@ package object mongoContext extends models.MongoContext {
   addIndexes(collectionStatisticsCollection, statisticsIndexes)
 
   lazy val statisticsRunCollection = connection("StatisticsRun")
+
+
+  // dataSet stats
+
+  val dataSetStatisticsContextIndexes = Seq(
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1),
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.dataProvider" -> 1),
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.provider" -> 1)
+  )
+
+  lazy val dataSetStatistics = connection("DataSetStatistics")
+  addIndexes(dataSetStatistics, dataSetStatisticsContextIndexes)
+
+  lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
+  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes)
+
+  lazy val fieldValues = connection("DataSetStatisticsFieldValues")
+  addIndexes(fieldValues, dataSetStatisticsContextIndexes)
+
+
+  lazy val hubFileStore = GridFS(connection)
+
 
 }
