@@ -26,7 +26,7 @@ import models._
 package object dos extends MongoContext {
 
   // ~~ connection to mongo
-  val testStoreConnection = MongoConnection().getDB("testDoSStore")
+  lazy val testStoreConnection = MongoConnection().getDB("testDoSStore")
   val testing = Play.isTest
 
   val fileStoreConnection = createConnection(Play.configuration.getString("dos.db.fileStore.name").getOrElse("fileStore"))

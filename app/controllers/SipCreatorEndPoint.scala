@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import play.libs.Akka
-import akka.actor.{Props, Actor}
+import akka.actor.Actor
 import eu.delving.metadata.RecMapping
 import play.api.{Play, Logger}
 import play.api.Play.current
@@ -22,6 +22,11 @@ import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
 import play.api.libs.Files.TemporaryFile
+import eu.delving.stats.Stats
+import scala.collection.JavaConverters._
+import java.util.Date
+import models.statistics._
+import models.mongoContext.hubFileStore
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -35,6 +40,8 @@ object SipCreatorEndPoint extends ApplicationController {
   private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
 
   val DOT_PLACEHOLDER = "--"
+
+  val log: Logger = Logger("CultureHub")
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -74,7 +81,7 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   def getConnectedUser: HubUser = connectedUserObject.getOrElse({
-    Logger("CultureHub").warn("Attemtping to connect with an invalid access token")
+    log.warn("Attemtping to connect with an invalid access token")
     throw new AccessKeyException("No access token provided")
   })
 
@@ -157,7 +164,7 @@ object SipCreatorEndPoint extends ApplicationController {
         } else {
           val fileList: String = request.body.asText.getOrElse("")
 
-          Logger("CultureHub").debug("Receiving file upload request, possible files to receive are: \n" + fileList)
+          log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
 
           val lines = fileList.split('\n').map(_.trim).toList
 
@@ -203,10 +210,7 @@ object SipCreatorEndPoint extends ApplicationController {
                 Right("Received it")
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
-              case x if x.startsWith("stats-") =>
-                // politely consume the stream and say goodbye
-                Stream.continually(inputStream.read).takeWhile(-1 !=)
-                Right("All done")
+              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, request.body.file)
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
                 Left(msg)
@@ -241,11 +245,77 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
     if (!DataSet.canEdit(dataSet, connectedUser)) {
-      Logger("CultureHub").warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
+      log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
       throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
     }
     DataSet.updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
+  }
+
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
+    try {
+      import com.mongodb.casbah.gridfs.Imports._
+      val f = hubFileStore.createFile(file)
+
+      val stats = Stats.read(inputStream)
+
+      val context = DataSetStatisticsContext(dataSet.orgId,
+                                             dataSet.spec,
+                                             dataSet.details.facts.get("provider").toString,
+                                             dataSet.details.facts.get("dataProvider").toString,
+                                             if(dataSet.details.facts.containsField("providerUri")) dataSet.details.facts.get("providerUri").toString else "",
+                                             if(dataSet.details.facts.containsField("dataProviderUri")) dataSet.details.facts.get("dataProviderUri").toString else "",
+                                             new Date())
+
+      f.put("contentType", "application/x-gzip")
+      f.put("orgId", dataSet.orgId)
+      f.put("spec", dataSet.spec)
+      f.put("uploadDate", context.uploadDate)
+      f.put("hubFileType", "source-statistics")
+      f.save
+
+      val dss = DataSetStatistics(
+        context = context,
+        recordCount = stats.recordStats.recordCount,
+        fieldCount = Histogram(stats.recordStats.fieldCount)
+      )
+
+      DataSetStatistics.insert(dss).map {
+        dssId => {
+
+          stats.fieldValueMap.asScala.foreach {
+            fv =>
+              val fieldValues = FieldValues(
+                    parentId = dssId,
+                    context = context,
+                    path = fv._1.toString,
+                    valueStats = ValueStats(fv._2)
+                  )
+              DataSetStatistics.values.insert(fieldValues)
+          }
+
+          stats.recordStats.frequencies.asScala.foreach {
+            ff =>
+              val frequencies = FieldFrequencies(
+                    parentId = dssId,
+                    context = context,
+                    path = ff._1.toString,
+                    histogram = Histogram(ff._2)
+                  )
+              DataSetStatistics.frequencies.insert(frequencies)
+          }
+
+          Right("Good")
+        }
+      }.getOrElse {
+        Left("Could not store DataSetStatistics")
+      }
+
+    } catch {
+      case t =>
+        t.printStackTrace()
+        Left("Error receiving source statistics: " + t.getMessage)
+    }
   }
 
   private def receiveHints(dataSet: DataSet, inputStream: InputStream) = {
