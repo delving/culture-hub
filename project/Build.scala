@@ -31,11 +31,12 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
-    "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4"
+    "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
+    "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"
   )
 
   val coreDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % "1.1-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                % "1.1-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
