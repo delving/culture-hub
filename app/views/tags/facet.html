@@ -19,10 +19,16 @@
                     if (facet.getType() == "delving_recordType_facet") {
                     switch (link.value()) {
                     case 'mdr':
-                    thingType = messages.get('thing.objects.heritage')
+                    thingType = messages.get('thing.object.heritage')
                     break
                     case 'object':
-                    thingType = messages.get('thing.objects.user')
+                    thingType = messages.get('thing.object.user')
+                    break
+                    case 'collection':
+                    thingType = messages.get('thing.collection')
+                    break
+                    case 'museum':
+                    thingType = messages.get('thing.museum')
                     break
                     default:
                     thingType = link.value()
@@ -45,106 +51,3 @@
         #{/if}
     #{/if}
 #{/list}
-
-
-*{#{list _facetMap, as: 'facet'}}*
-*{<div class="facet">}*
-*{#{if facet.getLinks().length() > 0 }}*
-
-*{#{if facet.getType() == _type}}*
-*{<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">}*
-*{#{if _typeKey} ${_typeKey} #{/if}}*
-*{#{else}${_type} #{/else}}*
-*{</h4>}*
-
-*{<div class="facet-container">}*
-*{#{list facet.getLinks(), as: 'link'}}*
-*{%{}*
-*{def qs = '/search?query='+ _qString + link.url}*
-*{// translate object types}*
-*{def thingType = link.value()}*
-*{if (facet.getType() == "delving_recordType_facet") {}*
-*{switch (link.value()) {}*
-*{case 'mdr':}*
-*{thingType = messages.get('thing.objects.heritage')}*
-*{break}*
-*{case 'object':}*
-*{thingType =  messages.get('thing.objects.user')}*
-*{break}*
-*{default:}*
-*{thingType = link.value()}*
-*{}}*
-*{}}*
-
-*{}%}*
-*{<div class="#{if _columns == 2}g-1of2 #{/if}">}*
-*{#{if !link.remove()}}*
-*{<input type="checkbox" value="${qs}"/><a href="${qs}">${thingType}</a> (${link.count()})}*
-*{#{/if}}*
-*{#{else}}*
-*{<input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${thingType}</a> (${link.count()})}*
-*{#{/else}}*
-*{</div>}*
-*{#{/list}}*
-*{</div>}*
-*{#{/if}}*
-
-*{#{/if}}*
-*{</div>}*
-*{#{/list}}*
-
-
-
-*{
-#{list _facetMap, as: 'facet'}
-
-#{if facet.getLinks().length() > 0 }
-
-#{if facet.getType() == _type}
-<h4 class="trigger #{if facet.isFacetSelected()}active#{/if}">
-    #{if _typeKey}
-        ${_typeKey}
-    #{/if}
-    #{else}
-        ${_type}
-    #{/else}
-</h4>
-
-<div class="facet-container">
-    #{list facet.getLinks(), as: 'link'}
-    %{
-        def qs = '/search?query='+ _qString + link.url
-        // translate object types
-        def thingType = link.value()
-        if (facet.getType() == "delving_recordType_facet") {
-        switch (link.value()) {
-            case 'mdr':
-                thingType = messages.get('thing.objects.heritage')
-                break
-            case 'object':
-                thingType =  messages.get('thing.objects.user')
-                break
-            default:
-                thingType = link.value()
-            }
-        }
-
-    }%
-     <div class="#{if _columns == 2}g-1of2 #{/if}">
-        #{if !link.remove()}
-        <input type="checkbox" value="${qs}"/><a href="${qs}">${thingType}</a> (${link.count()})
-        #{/if}
-        #{else}
-        <input type="checkbox" checked="checked" value="${qs}"/><a href="${qs}">${thingType}</a> (${link.count()})
-        #{/else}
-    </div>
-    #{/list}
-</div>
-#{/if}
-
-#{/if}
-#{/list}
-}*
-
-
-

@@ -25,8 +25,8 @@
                 </container>
             </column>
             <column proportion="1of2">
-                <image label="thing.collections" path="/musip:actor/musip:image"/>
-                <container type="list" label="thing.collections" id="collections">
+                <image label="plugin.musip.collections" path="/musip:actor/musip:image"/>
+                <container type="list" label="plugin.musip.collections" id="collections">
                     <list path="/musip:actor/musip:collections/musip:collection">
                         <link textExpr="." urlValue="/${orgId}/collection/" urlExpr="@localId"/>
                     </list>
@@ -43,7 +43,7 @@
                     <field path="/musip:collection/musip:name" label="thing.title"/>
                     <field path="/musip:collection/musip:description" label="thing.description" />
                     <container label="metadata.collection.museum" type="list">
-                        <list path="/musip:collection/musip:administrators/musip:actor">
+                        <list path="/musip:collection/musip:administrators/musip:actor" type="list">
                             <link textExpr="." urlValue="/${orgId}/museum/" urlExpr="@actorId"/>
                         </list>
                     </container>
