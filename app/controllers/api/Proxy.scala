@@ -117,7 +117,17 @@ object Proxy extends DelvingController {
     searchUrl = "http://api.europeana.eu/api/opensearch.rss",
     itemUrl = "http://www.europeana.eu/portal/record/",
     constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
-    queryRemapping = Map("query" -> "searchTerms", "start" -> "startPage"))
+    queryRemapping = Map("query" -> "searchTerms", "start" -> "startPage"),
+    paginationRemapping = Some({
+      result => {
+        val total = (result \ "channel" \ "totalResults").text.toInt
+        val start = (result \ "channel" \ "startIndex").text.toInt
+        val rows = (result \ "channel" \ "itemsPerPage").text.toInt
+        ProxyPager(numFound = total, start = start, rows = rows)
+      }
+
+    })
+  )
 
   lazy val wikipediaEn = new MediaWikiProxyConfiguration(
     key = "wikipedia.en",
@@ -158,12 +168,21 @@ class ProxyConfiguration(val key: String,
                          val searchUrl: String,
                          val itemUrl: String,
                          val constantQueryString: Map[String, Seq[String]],
-                         val queryRemapping: Map[String, String]) {
+                         val queryRemapping: Map[String, String],
+                         val paginationRemapping: Option[Elem => ProxyPager] = None) {
 
   def getItems(xml: Elem) = xml \\ "item"
 
   def handleSearchResponse(response: play.api.libs.ws.Response): NodeSeq = {
     val xml = response.xml
+
+    val maybePagination = paginationRemapping.map(f => f(response.xml)).map { pagination =>
+            <pagination>
+              <numFound>{pagination.numFound}</numFound>
+              <start>{pagination.start}</start>
+              <rows>{pagination.rows}</rows>
+            </pagination>
+          }
 
     val processed: Elem =
       <results xmlns:atom="http://www.w3.org/2005/Atom"
@@ -172,6 +191,7 @@ class ProxyConfiguration(val key: String,
                xmlns:dcterms="http://purl.org/dc/terms/"
                xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+        {if(maybePagination.isDefined) maybePagination.get}
         <items>
           {getItems(xml).map(item => {
           <item>
@@ -204,3 +224,5 @@ case class MediaWikiProxyConfiguration(override val key: String,
   override def getItems(xml: Elem) = xml \\ "Item"
 
 }
+
+case class ProxyPager(numFound: Int, start: Int, rows: Int)
