@@ -97,7 +97,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           inRecord = false
           record = Record(
             id = recordId,
-            document = """<input id="%s">%s</input>""".format(recordId, recordXml.toString()),
+            document = """<input id="%s">%s</input>""".format(recordId, recordXml.mkString),
             schemaPrefix = "raw"
           )
           recordXml.clear()
@@ -141,7 +141,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
       toList.
       filterNot(a => a.prefix.isEmpty && (a.local == null || a.local.trim.length == 0)).
       sortBy(a => a.name.local).
-      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") + a.local + "=\"" + a.value + "\"")
+      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") + a.local + "=\"" + StringEscapeUtils.escapeXml(a.value) + "\"")
     if (attrs.isEmpty)
       "<%s%s>".format(prefix(qname.prefix), qname.local)
     else
