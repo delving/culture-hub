@@ -107,9 +107,14 @@ thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
 thing.datasets=Datasets
+thing.object.heritage=Cultureelerfgoed object
+thing.objects.heritage=Cultureelerfgoed objecten
 thing.object=Object
 thing.objects=Objecten
-thing.heritageObject=Erfgoedobject
+thing.collection=Collectie
+thing.collections=Collecties
+thing.museum=Museum
+thing.museums=Musea
 
 thing.virtualCollection=Virtuele collectie
 thing.virtualCollections=Virtuele collecties
@@ -216,7 +221,7 @@ search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
 #search.trail=U bekijkt resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong> voor:
-search.trail=U bekijkt resultaten {0} - {1} van ongeveer {2}
+search.trail=U bekijkt resultaten {0} - {1} van {2}
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 
 #metadata
@@ -576,3 +581,18 @@ organization.datasets.cannotBeCancelled=Dataset indexing cannot be cancelled in 
 organization.datasets.cannotBeDisabled=Dataset cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current state
 organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
+
+###### Plugin messages (TODO: move to plugin once that is available)
+
+plugin.musip.museum=Museum
+plugin.musip.museums=Musea
+plugin.musip.collection=Collectie
+plugin.musip.collections=Collecties
+
+plugin.statistics.statistics=Statistieken
+plugin.statistics.dataset=DataSet
+plugin.statistics.history=Geschiedenies
+plugin.statistics.withObjects=Met objecten
+plugin.statistics.withoutObjects=Zonder objecten
+plugin.statistics.nrRecords=Aantal records
+plugin.statistics.landingPages=Met landing-pages

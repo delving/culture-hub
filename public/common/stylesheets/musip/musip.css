@@ -55,7 +55,7 @@ body {
      content: ":";
 }
 #musip .page-header {
-     background: transparent url(/assets/common/images/branding/musip.png) top right no-repeat;
-     padding-right: 200px;
+     background: transparent url(/assets/common/images/branding/musip.png) 100% 50% no-repeat;
+     padding: 10px 200px 14px 0;
 }
 
