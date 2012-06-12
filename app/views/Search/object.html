@@ -3,7 +3,7 @@
 #{set title:'Search results' /}
 
 #{set 'moreScripts'}
-<script type='text/javascript' src="@{routes.Assets.at('/common/javascripts/seadragon/seadragon-min.js')}"></script>
+<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
 #{/set}
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
