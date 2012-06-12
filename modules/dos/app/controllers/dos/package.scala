@@ -45,7 +45,6 @@ package object dos extends MongoContext {
 
   val emptyThumbnailPath = Play.configuration.getString("dos.emptyImagePath").getOrElse("/public/dos/images/dummy-object.png")
   val emptyThumbnailUrl = "/assets/dos/images/dummy-object.png"
-  val emptyThumbnailFile = new File(Play.application.path, emptyThumbnailPath)
 
   val DEFAULT_THUMBNAIL_WIDTH = 220
   val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "smaller" -> 180, "small" -> 220, "story" -> 350, "big" -> 500)
