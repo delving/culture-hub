@@ -42,7 +42,7 @@ object ItinEndPoint extends DelvingController with ThemeAware {
         if (!enabled) {
           Status(NOT_FOUND)
         } else {
-          SearchService.getApiResult(None, request, theme, List("%s:%s".format(RECORD_TYPE, "drupal")))
+          SearchService.getApiResult(None, request, theme, List())
         }
     }
   }
