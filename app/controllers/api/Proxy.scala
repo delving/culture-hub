@@ -117,7 +117,7 @@ object Proxy extends DelvingController {
     searchUrl = "http://api.europeana.eu/api/opensearch.rss",
     itemUrl = "http://www.europeana.eu/portal/record/",
     constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
-    queryRemapping = Map("query" -> "searchTerms"))
+    queryRemapping = Map("query" -> "searchTerms", "start" -> "startPage"))
 
   lazy val wikipediaEn = new MediaWikiProxyConfiguration(
     key = "wikipedia.en",
