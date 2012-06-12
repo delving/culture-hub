@@ -33,9 +33,8 @@ switch (_view.nodeType) {
 
     case "container":}%
 
-    *{ TODO: make this robust: if container content is empty don't show }*
     #{if !_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)}
-        #{if _view.attr("id")}<div id="${_view.attr("id")}">#{/if}
+        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
 
             #{if _view.attr("label")}
                 <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>
@@ -62,29 +61,29 @@ switch (_view.nodeType) {
                     #{view view: i /}
                 #{/list}
             #{/else}
-
-        #{if _view.attr("id")}</div>#{/if}
+        </div>
     #{/if}
     %{
     break
 
     case "field": if (_view.text()){ }%
+
         #{if _view.parent.attr("type") == "labelled-list"}
-            <dt>&{_view.attr("label")}</dt><dd>${_view.text()}</dd>
+            <dt>&{_view.attr("label")}#{if _view.attr("role")}<span class="label">admin</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
-            <li>${_view.text()}</li>
+            <li>${_view.parent.attr("type")}${_view.text()}</li>
         #{/elseif}
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>#{/if}
-            <p>${_view.text()}</p>
+            <p>${_view.parent.attr("type")} ${_view.text()}</p>
         #{/else}
     %{ }
     break
 
     case "link": if (_view.attr("text")){ }%
 
-        #{if _view.parent.attr("labelled-list")  }
+        #{if _view.parent.attr("type") == "labelled-list"  }
             <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
         #{/if}
 
@@ -95,7 +94,7 @@ switch (_view.nodeType) {
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
             #{if _view.attr("url")}
-                <p><a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
+                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
             #{/if}
             #{else}
                 <p>&{_view.attr("text")}</p>

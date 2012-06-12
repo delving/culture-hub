@@ -91,7 +91,7 @@ class ViewRenderer(schema: String, viewName: String) {
     val treeStack = Stack(result)
     var stackPath = new ArrayBuffer[String]
 
-    val defaultParent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+    def defaultParent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
 
     val arrays = new ArrayBuffer[List[String]] // paths that are arrays of repeated elements
 
@@ -128,6 +128,7 @@ class ViewRenderer(schema: String, viewName: String) {
             val role = n.attr("role")
             val path = n.attr("path")
             val value = n.attr("value")
+
             val queryLink = {
               val l = n.attr("queryLink")
               if (l.isEmpty) false else l.toBoolean

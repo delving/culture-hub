@@ -1461,7 +1461,7 @@ table .span24 {
   *margin-right: .3em;
   line-height: 14px;
   vertical-align: text-top;
-  background-image: url("/assets/common/images/glyphicons-halflings.png");
+  background-image: url("/assets/common/images/bootstrap/glyphicons-halflings.png");
   background-position: 14px 14px;
   background-repeat: no-repeat;
 }
@@ -1470,7 +1470,7 @@ table .span24 {
   *margin-left: 0;
 }
 .icon-white {
-  background-image: url("/assets/common/images/glyphicons-halflings-white.png");
+  background-image: url("/assets/common/images/bootstrap/glyphicons-halflings-white.png");
 }
 .icon-glass {
   background-position: 0      0;
@@ -4163,7 +4163,7 @@ a.badge:hover {
 .navbar-inner {
   background-image: none;
   background-color: #003962;
-  background-image: url("/assets/common/images/bg-striped-2.png");
+  background-image: url("/assets/common/images/bootstrap/bg-striped-2.png");
   background-repeat: repeat;
 }
 .navbar .divider-vertical {
@@ -4176,7 +4176,7 @@ a.badge:hover {
 }
 .nav-pills > li > a {
   background-color: #eeeeee;
-  background-image: url("/assets/common/images/bg-striped-1.png");
+  background-image: url("/assets/common/images/bootstrap/bg-striped-1.png");
   background-repeat: repeat;
   padding-top: 8px;
   padding-bottom: 8px;
@@ -4204,7 +4204,7 @@ a.badge:hover {
 }
 .breadcrumb {
   background-color: #eeeeee;
-  background-image: url("/assets/common/images/bg-striped-1.png");
+  background-image: url("/assets/common/images/bootstrap/bg-striped-1.png");
   background-repeat: repeat;
   border: 1px solid #ddd;
   -webkit-border-radius: 3px;
