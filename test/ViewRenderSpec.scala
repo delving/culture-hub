@@ -55,19 +55,25 @@ class ViewRenderSpec extends Specification with TestContext {
           """<div class="root ">
             |<div class="row ">
             |<div class="column ">
-            |<h5>Description </h5>            <p>This is a test record</p>
+            |<div >
+            |<h5>Description </h5>            <p> This is a test record</p>
+            |</div>
             |</div>
             |<div class="column ">
+            |<div >
             |<h5>random</h5>
             |<p>A test hierarchical record, Wood</p>
-            |<h5>Purchase Price <span class="label">admin</span></h5>            <p>5000</p>
-            |<h5>metadata.icn.purchaseType </h5>            <p>auction</p>
+            |<h5>Purchase Price <span class="label">admin</span></h5>            <p> 5000</p>
+            |<h5>metadata.icn.purchaseType </h5>            <p> auction</p>
             |<p><a href="http://foo.bar.com" rel="">Blablabla</a></p>
             |</div>
+            |</div>
             |<div class="column ">
-            |<h5>metadata.icn.placeName </h5>            <p>Paris</p>
-            |<h5>metadata.icn.placeName </h5>            <p>Berlin</p>
-            |<h5>metadata.icn.placeName </h5>            <p>Amsterdam</p>
+            |<div >
+            |<h5>metadata.icn.placeName </h5>            <p> Paris</p>
+            |<h5>metadata.icn.placeName </h5>            <p> Berlin</p>
+            |<h5>metadata.icn.placeName </h5>            <p> Amsterdam</p>
+            |</div>
             |</div>
             |</div>
             |</div>
