@@ -4,14 +4,8 @@ switch (recordType) {
     case "object":
         recordType = messages.get('thing.object.user')
         break
-    case "collection":
-        recordType = messages.get('thing.collection')
-        break
-    case "story":
-        recordType = messages.get('thing.story')
-        break
     case "mdr":
-        recordType = messages.get('thing.object.heritage')
+        recordType = messages.get('thing.heritageObject')
         break
     default:
     recordType = _data.getItemType()

@@ -113,6 +113,7 @@ thing.datasets=Datasets
 thing.landingPage=Landingpage
 thing.object=Object
 thing.objects=Objects
+thing.heritageObject=Heritage Object
 
 thing.virtualCollection=Virtual Collection
 thing.virtualCollections=Virtual Collections
