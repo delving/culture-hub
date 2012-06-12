@@ -109,6 +109,7 @@ thing.dataset=Dataset
 thing.datasets=Datasets
 thing.object=Object
 thing.objects=Objecten
+thing.heritageObject=Erfgoedobject
 
 thing.virtualCollection=Virtuele collectie
 thing.virtualCollections=Virtuele collecties

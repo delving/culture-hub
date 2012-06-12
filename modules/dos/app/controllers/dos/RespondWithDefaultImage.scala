@@ -2,6 +2,8 @@ package controllers.dos
 
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.api.libs.iteratee.Enumerator
+import play.api.Play
 
 /**
  *
@@ -12,7 +14,8 @@ trait RespondWithDefaultImage extends play.api.http.Status {
 
   def withDefaultFromRequest(result: Result, thumbnail: Boolean = true, width: Option[String], notFoundResponse: Boolean = true)(implicit request: Request[AnyContent]): Result = {
 
-    val emptyFileResult = Ok.sendFile(emptyThumbnailFile, true, f => emptyThumbnailFile.getName)
+    val fileContent: Option[Enumerator[Array[Byte]]] = Play.current.resourceAsStream(emptyThumbnailPath).map(Enumerator.fromStream(_))
+    val emptyFileResult = fileContent.map(c => SimpleResult(header = ResponseHeader(200), body = c)).getOrElse(NotFound)
 
     def getDefaultImage = {
       if (request.queryString.get("default").isDefined) {
