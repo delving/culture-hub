@@ -7,6 +7,7 @@ import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
 import core.ExplainItem
+import play.api.Play
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.
@@ -106,7 +107,7 @@ object Proxy extends DelvingController {
     val queryString: Map[String, Seq[String]] = request.queryString
       .filter(e => !List("path").contains(e._1))
       .map(e => (proxy.queryRemapping.getOrElse(e._1, e._1), e._2))
-    (proxy.constantQueryString ++ queryString).map(entry => (entry._1, entry._2.head)).toSeq
+    (proxy.constantQueryString ++ queryString).map(entry => (entry._1, entry._2.headOption.getOrElse(""))).toSeq
   }
 
 
@@ -116,7 +117,7 @@ object Proxy extends DelvingController {
     key = "europeana",
     searchUrl = "http://api.europeana.eu/api/opensearch.rss",
     itemUrl = "http://www.europeana.eu/portal/record/",
-    constantQueryString = Map("wskey" -> Seq("GJVWAUWPRZ")),
+    constantQueryString = Map("wskey" -> Play.current.configuration.getString("cultureHub.proxy.europeana.wsKey").toSeq),
     queryRemapping = Map("query" -> "searchTerms", "start" -> "startPage"),
     paginationRemapping = Some({
       result => {
@@ -125,7 +126,16 @@ object Proxy extends DelvingController {
         val rows = (result \ "channel" \ "itemsPerPage").text.toInt
         ProxyPager(numFound = total, start = start, rows = rows)
       }
-
+    }),
+    idExtractor = Some({
+      record =>
+        val EUROPEANA_URI_START = "http://www.europeana.eu/portal/record/"
+        val t = (record \ "guid").text
+        if(t.startsWith(EUROPEANA_URI_START)) {
+          t.substring(EUROPEANA_URI_START.length, t.length - "html".length) + "srw"
+        } else {
+          "unknown"
+        }
     })
   )
 
@@ -169,12 +179,17 @@ class ProxyConfiguration(val key: String,
                          val itemUrl: String,
                          val constantQueryString: Map[String, Seq[String]],
                          val queryRemapping: Map[String, String],
-                         val paginationRemapping: Option[Elem => ProxyPager] = None) {
+                         val paginationRemapping: Option[Elem => ProxyPager] = None,
+                         val idExtractor: Option[NodeSeq => String] = None) {
 
   def getItems(xml: Elem) = xml \\ "item"
 
   def handleSearchResponse(response: play.api.libs.ws.Response): NodeSeq = {
     val xml = response.xml
+
+    val maybeId = idExtractor.map(f => f(response.xml)).map { id =>
+      <id>{id}</id>
+    }
 
     val maybePagination = paginationRemapping.map(f => f(response.xml)).map { pagination =>
             <pagination>
@@ -195,6 +210,10 @@ class ProxyConfiguration(val key: String,
         <items>
           {getItems(xml).map(item => {
           <item>
+            {if(maybeId.isDefined) {
+              val itemId = idExtractor.map(f => f(item)).getOrElse("unknown")
+            <id>{itemId}</id>
+            }}
             <fields>
               {item.nonEmptyChildren map {
               case e: Elem => e.copy(scope = TopScope)
