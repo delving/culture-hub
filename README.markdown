@@ -45,7 +45,7 @@ Run in prod mode via
 
 ### Running Apache Solr
 
-To use Apache Solr go to `extras/solr-server` and run `java -jar start.jar`.
+To use Apache Solr run `ant startSolr`. Use `ant stopSolr` in order to stop it.
 
 ### Running the Image Server
 
