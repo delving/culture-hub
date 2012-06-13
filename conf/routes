@@ -54,7 +54,7 @@ GET        /thumbnail/cache                                  controllers.dos.Ima
 ## Lookup by GridFS file ID
 GET        /file/image/:id                                   controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
 GET        /file/thumbnail/:id/:width                        controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
-GET        /file/thumbnaila/*id                              controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+GET        /file/thumbnail/*id                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 ## Lookup by item ID or other form of IDs
 GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = false)
