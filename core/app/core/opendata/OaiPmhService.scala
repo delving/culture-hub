@@ -49,7 +49,7 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, accessKey: Option[String]) extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String]) extends MetaConfig {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)
@@ -148,8 +148,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    // todo add checking for accessKeys and see if is valid
-    val collections = models.Collection.findAllNonEmpty(orgId, None)
+
+    val collections = models.Collection.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -175,19 +175,20 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
    */
 
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    val eseSchema =
-      <metadataFormat>
-        <metadataPrefix>ese</metadataPrefix>
-        <schema>http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd</schema>
-        <metadataNamespace>http://www.europeana.eu/schemas/ese/</metadataNamespace>
-      </metadataFormat>
 
-    // if no identifier present list all formats
     val identifier = pmhRequestEntry.pmhRequestItem.identifier
     val identifierSpec = identifier.split("_").head
 
+    // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
-    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
+    val allMetadataFormats = if (identifier.isEmpty) {
+      models.Collection.getAllMetadataFormats(orgId, accessKey)
+    } else {
+      models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
+    }
+
+    // apply format filter
+    val metadataFormats = if(format.isDefined) allMetadataFormats.filter(_.prefix == format.get) else allMetadataFormats
 
     def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{requestURL}</request>
     else <request verb="ListMetadataFormats">{requestURL}</request>
@@ -206,7 +207,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
             <metadataNamespace>{format.namespace}</metadataNamespace>
           </metadataFormat>
           }
-          {if (metadataFormats.filter(_.prefix.equalsIgnoreCase("ese")).isEmpty) eseSchema}
         </ListMetadataFormats>
       </OAI-PMH>
     elem
@@ -217,9 +217,12 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val setName = pmhRequestEntry.getSet
     if(setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
+
+    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
+
     val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
     if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
-      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
+      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
@@ -277,6 +280,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
+
+    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
     val HubId(orgId, set, itemId) = pmhRequest.identifier
 

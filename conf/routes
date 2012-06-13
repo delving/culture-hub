@@ -127,8 +127,10 @@ GET         /organizations/:orgId/api/search/provider/:provider               co
 GET         /organizations/:orgId/api/search/dataProvider/:dataProvider       controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
 GET         /organizations/:orgId/api/search/collection/:collection           controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
 
-GET         /organizations/:orgId/api/oai-pmh                                 controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
-GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh                                 controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh/format/:format                  controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/format/:format/:accessKey       controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String])
 
 GET         /organizations/:orgId/api/proxy                                   controllers.api.Api.explain(orgId)
 GET         /organizations/:orgId/api/proxy/list                              controllers.api.Proxy.list(orgId)
@@ -145,8 +147,8 @@ POST        /organizations/:orgId/api/reIndex                                 co
 
 ## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/oai-pmh                                     controllers.Services.oaipmh(orgId: String, accessKey: Option[String] = None)
-GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.Services.oaipmh(orgId: String, accessKey: Option[String])
+GET         /organizations/:orgId/oai-pmh                                     controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
 GET         /organizations/:orgId/proxy/list                                  controllers.api.Proxy.list(orgId)
 GET         /organizations/:orgId/proxy/:proxyKey/search                      controllers.api.Proxy.query(orgId, proxyKey)
 GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey               controllers.api.Proxy.item(orgId, proxyKey, itemKey)

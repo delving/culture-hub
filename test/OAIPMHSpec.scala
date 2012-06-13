@@ -30,7 +30,7 @@ class OAIPMHSpec extends Specification with TestContext {
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=Identify")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -49,7 +49,7 @@ class OAIPMHSpec extends Specification with TestContext {
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=ListSets")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -66,12 +66,31 @@ class OAIPMHSpec extends Specification with TestContext {
       }
     }
 
+    "list formats" in {
+
+      withTestConfig {
+        val request = FakeRequest("GET", "?verb=ListMetadataFormats")
+        val r = controllers.api.OaiPmh.oaipmh("delving", Some("icn"), None)(request)
+
+        val response = asyncToResult(r)
+
+        status(response) must equalTo(OK)
+
+        println(contentAsXML(response))
+
+        (contentAsXML(response) \\ "metadataFormat").size must equalTo (1)
+        ((contentAsXML(response) \\ "metadataFormat").head \ "metadataPrefix").text must equalTo("icn")
+
+      }
+
+    }
+
     "list records" in {
 
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
 

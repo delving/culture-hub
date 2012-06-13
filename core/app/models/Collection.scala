@@ -42,11 +42,26 @@ case class Collection(spec: String,
 
 object Collection {
 
-  def findAllNonEmpty(orgId: String, accessKey: Option[String] = None): List[Collection] = {
+  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[Collection] = {
 
     // TODO implement accessKey lookup
-    val dataSets: List[Collection] = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
-    val virtualCollections: List[Collection] = VirtualCollection.findAllNonEmpty(orgId)
+    val dataSets: List[Collection] ={
+      val sets = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
+      if(format.isDefined) {
+        sets.filter(ds => ds.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+      } else {
+        sets
+      }
+    }
+
+    val virtualCollections: List[Collection] = {
+      val vcs = VirtualCollection.findAllNonEmpty(orgId)
+      if(format.isDefined) {
+        vcs.filter(vc => vc.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+      } else {
+        vcs
+      }
+    }
 
     dataSets ++ virtualCollections
   }
