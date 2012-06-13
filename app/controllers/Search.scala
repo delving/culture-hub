@@ -8,6 +8,7 @@ import exceptions._
 import play.api.i18n.Messages
 import core.rendering.ViewRenderer
 import com.mongodb.casbah.Imports._
+import play.api.Play
 
 /**
  *
@@ -18,7 +19,7 @@ object Search extends DelvingController {
   
   // TODO move later
   val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
-  val icnViewRenderer = ViewRenderer.fromDefinition("icn", "full")
+  val viewRenderers = RecordDefinition.enabledDefinitions.flatMap(f => ViewRenderer.fromDefinition(f, "html")).map(r => (r.schema -> r)).toMap[String, ViewRenderer]
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -67,16 +68,19 @@ object Search extends DelvingController {
                   facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
                 }
 
-                // TODO eventually make the selection mechanism dynamic, if we need to.
-                // AFF takes precedence over anything else
+                // TODO add the rendering format to the DataSet
+                // AFF takes precedence over anything else. then we use heuristics until the above is done
                 if(mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
                   renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
-                } else if(mdr.xml.get("icn").isDefined) {
-                  val record = mdr.xml.get("icn").get
-                   renderRecord(mdr, record, icnViewRenderer.get, RecordDefinition.getRecordDefinition("icn").get, orgId, facts.toMap)
                 } else {
-                  NotFound(Messages("heritageObject.notViewable"))
+                  val renderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
+                  if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get)) {
+                    val record = mdr.xml.get(renderingFormat.get).get
+                    renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                  } else {
+                    NotFound(Messages("heritageObject.notViewable"))
+                  }
                 }
 
               case None => NotFound("Record was not found")
