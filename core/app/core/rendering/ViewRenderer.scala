@@ -64,7 +64,7 @@ object ViewRenderer {
 
 }
 
-class ViewRenderer(schema: String, viewName: String) {
+class ViewRenderer(val schema: String, viewName: String) {
   
   val log = Logger("CultureHub")
 
