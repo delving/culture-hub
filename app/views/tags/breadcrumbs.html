@@ -45,7 +45,7 @@
 
     <ul class="breadcrumb">
     #{list views.Breadcrumbs.crumble(_params, request, _theme), as: 'c'}
-        <li>
+        <li #{if c._1._1 != "NOLINK"}class="linked"#{/if}>
         #{if c._2 == views.Breadcrumbs.crumble(_params, request, _theme).length() -1 && views.Breadcrumbs.crumble(_params, request, _theme).length() > 1}
             ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}
@@ -71,7 +71,7 @@
     #{if _queryCrumbs}
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
             #{ifnot crumb_isLast}
-            <li>
+            <li class="linked">
                 <span class="divider">/</span><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a></li>
             #{/ifnot}
             #{else}

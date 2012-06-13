@@ -1,0 +1,83 @@
+#{include 'commonHeader.html'/}
+
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <div class="nav-collapse">
+                    <a class="brand" href="/">Brabant Cloud</a>
+                #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect')/}
+                    <form method="get" action="/search" class="navbar-search pull-right" id="simple-search"
+                          onsubmit="return checkSimpleSearchSubmit('query');">
+                        <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query"
+                               name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'
+                               rel="tooltip" title="&{'ui.label.search.help'}"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sitenav sitenav-fixed-top">
+        <div class="container">
+            <div class="row">
+                <div class="span2">
+                    <div id="primary-branding">
+                        <a href="@{controllers.routes.Application.index()}">
+                            <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}"
+                                 title="${themeInfo.siteName()}"/>
+                        </a>
+                    </div>
+                </div>
+                <div class="span10">
+                    <div id="site-nav">
+                        <ul class="nav nav-pills">
+                        #{mainMenu menu:menu /}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="header">
+        <div class="container">
+            <div class="hero-unit blue">
+                <div class="row">
+                    <div class="span7">
+                        <h1>${themeInfo.siteName()}</h1>
+
+                        <h2>${themeInfo.siteSlogan()}</h2>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="content" role="main">
+        <div class="container">
+        #{doLayout /}
+        </div>
+    </div>
+
+    *{<div class="push"></div>}*
+
+
+<div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <div class="branding pull-right">
+                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img
+                            src="@{routes.Assets.at('/common/images/delving-small.png')}"
+                            alt="Powered by DELVING.EU" id="pbd"/>Powered by Delving</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

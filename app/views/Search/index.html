@@ -34,7 +34,7 @@
 
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
+        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-top" /}
     #{/if}
 
 
