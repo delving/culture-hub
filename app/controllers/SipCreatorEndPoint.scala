@@ -27,6 +27,8 @@ import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
 import models.mongoContext.hubFileStore
+import xml.{Node, NodeSeq, Elem}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -375,6 +377,28 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val recordCount = BaseXStorage.count(collection)
 
+    def buildNamespaces(attrs: Map[String, String]): String = {
+      val attrBuilder = new StringBuilder
+      attrs.foreach(ns => attrBuilder.append(if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
+      attrBuilder.mkString.trim
+    }
+
+    def buildAttributes(attrs: Map[String, String]): String = {
+      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(a => """%s="%s"""".format(a._1, StringEscapeUtils.escapeXml(a._2))).mkString(" ")
+    }
+
+    def serializeElement(n: Node): String = {
+      n match {
+        case e if !e.child.filterNot(e => e.isInstanceOf[scala.xml.Text] || e.isInstanceOf[scala.xml.PCData]).isEmpty =>
+          val content = e.child.filterNot(_.label == "#PCDATA").map(serializeElement(_)).mkString("\n")
+          """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label)
+        case e if e.child.isEmpty => """<%s/>""".format(e.label)
+        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), e.text.replaceAll("&", "amp;"), e.label)
+        case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, e.text.replaceAll("&", "&amp;"), e.label)
+        case _ => "" // nope
+      }
+    }
+
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
         out =>
@@ -382,16 +406,21 @@ object SipCreatorEndPoint extends ApplicationController {
           val builder = new StringBuilder
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
-          val attrBuilder = new StringBuilder
-          for (ns <- dataSet.namespaces) attrBuilder.append(if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
-          builder.append("%s>".format(attrBuilder.toString().trim()))
+          builder.append("%s".format(buildNamespaces(dataSet.namespaces)))
+          builder.append(">")
           write(builder.toString(), pw, out)
 
           BaseXStorage.withSession(collection) {
             implicit session => BaseXStorage.findAllCurrent foreach {
               record =>
                 var count = 0
-                pw.print((record \ "document" \ "input").toString())
+                val input = (record \ "document" \ "input").head
+                pw.println("""<input id="%s">""".format(input.attribute("id").get.text))
+                input.flatMap(elem => elem match {
+                  case e: Elem => e.child
+                  case _ => NodeSeq.Empty
+                }).filterNot(_.label == "#PCDATA").foreach { node: Node => pw.println(serializeElement(node)) }
+                pw.println("</input>")
 
                 if (count % 2000 == 0) {
                   pw.flush()
@@ -399,7 +428,9 @@ object SipCreatorEndPoint extends ApplicationController {
                 }
                 count += 1
             }
-            write("</delving-sip-source>", pw, out)
+            pw.print("</delving-sip-source>")
+            pw.flush()
+            out.flush()
           }
       }
     }
