@@ -32,7 +32,7 @@ object ApplicationBuild extends Build {
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
     "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
-    "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"
+    "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"      changing()
   )
 
   val coreDependencies = Seq(
