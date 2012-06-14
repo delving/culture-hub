@@ -1,9 +1,11 @@
-import collection.mutable.ListBuffer
+import collection.mutable.{Buffer, ListBuffer}
 import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecMapping
-import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
-import java.util.zip.GZIPInputStream
+import java.io._
+import java.util.zip.{ZipInputStream, GZIPInputStream}
+import org.apache.commons.io.{FileUtils, IOUtils}
+import org.apache.solr.common.util.FileUtils
 import org.specs2.mutable._
 import collection.JavaConverters._
 import play.api.test._
@@ -12,6 +14,7 @@ import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
+import xml.XML
 
 class SipCreatorEndPointSpec extends Specification with TestContext {
 
@@ -217,23 +220,57 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
         // first, ingest all sorts of things
-        SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+        val sourceFile = new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
+        val fis = new FileInputStream(sourceFile)
+        val gis = new GZIPInputStream(fis)
+        SipCreatorEndPoint.loadSourceData(dataSet, gis)
+        gis.close()
+        fis.close()
 
         val result = controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
 
-        // TODO find a way to fetch the content from this result
+        // check locking
+        val lockedDataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
-        /*
-                val f = new ZipInputStream(new ByteArrayInputStream(contentAsBytes(result)))
-                var entry = f.getNextEntry
-                val entries = Buffer[ZipEntry]()
-                while(entry != null) {
-                  entries += ZipEntry(entry.getName)
-                  entry = f.getNextEntry
-                }
-                entries.size must equalTo (4)
-        */
+        // check the resulting set, indirectly
+        val is = SipCreatorEndPoint.getSipStream(lockedDataSet)
+        Thread.sleep(1000)
+
+        var downloadedSource = ""
+        val zis = new ZipInputStream(is)
+        var entry = zis.getNextEntry
+        val downloadedEntries = Buffer[ZipEntry]()
+        while(entry != null) {
+          downloadedEntries += ZipEntry(entry.getName)
+          if(entry.getName == "source.xml") {
+            val source = Stream.continually(zis.read()).takeWhile(-1 !=).map(_.toByte).toArray
+            downloadedSource = new String(source, "UTF-8")
+          }
+          entry = zis.getNextEntry
+        }
+        zis.close()
+        fis.close()
+
+        XML.loadString(downloadedSource).size must equalTo (1)
+        downloadedEntries.size must equalTo (6)
+
+        val fis2 = new FileInputStream(sourceFile)
+        val gis2 = new GZIPInputStream(fis2)
+        val originalSource = IOUtils.readLines(gis2).asScala.mkString("\n")
+        gis2.close()
+        fis2.close()
+
+//        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
+//        IOUtils.write(downloadedSource, os1)
+//        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
+//        IOUtils.write(originalSource, os2)
+//        os1.close()
+//        os2.close()
+
+        downloadedSource must equalTo (originalSource)
+
       }
     }
   }
