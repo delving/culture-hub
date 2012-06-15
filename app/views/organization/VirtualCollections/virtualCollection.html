@@ -81,7 +81,7 @@
             </div>
             <hr/>
             <div class="well">
-            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
+            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
             #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success btn-large pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
@@ -154,11 +154,11 @@
 
         var virtualCollectionModel = {};
         var resultModel = {
-            initialized:false,
-            paginate:function (start) {
+            initialized: false,
+            paginate: function(start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
             },
-            exclude:function (excludeMe) {
+            exclude: function(excludeMe) {
                 var exList = $('#excludedIdentifiers');
                 if (!isEmpty(exList.val())){
                     virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers() + ", " + excludeMe);
@@ -167,6 +167,10 @@
                 }
                 // make nice list of excluded hubIds
                 $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
+
+                // trigger search
+                var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
+                search(query, '${orgId}', 1);
             }
         };
 
@@ -186,7 +190,6 @@
         });
 
         $('#previewButton').click(function (event) {
-            console.log($('#dataSets').val())
             var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
             search(query, '${orgId}', 1);
         });
@@ -259,6 +262,13 @@
             }
             virtualCollectionModel.spec(keyFromTitle);
         });
+
+        $('#cancelButton').click(function(e) {
+          e.preventDefault();
+          document.location = document.referrer;
+        });
+
+
         // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });

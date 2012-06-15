@@ -50,7 +50,7 @@ object CMS extends OrganizationController {
 
     val menu = if (MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key).isDefined) MAIN_MENU else NO_MENU
 
-    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.content, p.isSnippet, p.published, menuEntryPosition, menu)
+    CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.userName, p.content, p.isSnippet, p.published, menuEntryPosition, menu)
   }
 
   implicit def cmsPageListToViewModelList(l: List[CMSPage]) = l.map(cmsPageToViewModel(_))
@@ -100,7 +100,7 @@ object CMS extends OrganizationController {
         def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
 
         val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
-          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", false, false, menuEntries.length + 1, NO_MENU), List.empty)
+          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", connectedUser, false, false, menuEntries.length + 1, NO_MENU), List.empty)
           case Some(key) =>
             val versions = CMSPage.findByKey(orgId, key)
             if (versions.length == 0) {
@@ -174,6 +174,7 @@ case class CMSPageViewModel(dateCreated: Long,
                             theme: String, // the hub theme this page belongs to
                             lang: String, // 2-letters ISO code of the page language
                             title: String, // title of the page in this language
+                            userName: String, // creator / editor
                             content: String, // actual page content (text)
                             isSnippet: Boolean = false, // is this a snippet in the welcome page or not
                             published: Boolean,
@@ -190,6 +191,7 @@ object CMSPageViewModel {
       "theme" -> nonEmptyText,
       "lang" -> nonEmptyText,
       "title" -> nonEmptyText,
+      "userName" -> text,
       "content" -> text,
       "isSnippet" -> boolean,
       "published" -> boolean,

@@ -136,6 +136,7 @@
             <thead>
             <tr>
                 <th>&{'thing.title'}</th>
+                <th>&{'thing.user'}</th>
                 <th>&{'thing.datecreated'}</th>
                 <th>&{'thing.actions'}</th>
             </tr>
@@ -144,6 +145,9 @@
             <tr>
                 <td>
                     <span class="page-title" data-bind="text: title"></span>
+                </td>
+                <td>
+                    <span class="page-title" data-bind="text: userName"></span>
                 </td>
                 <td>
                     <span class="page-title" data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
