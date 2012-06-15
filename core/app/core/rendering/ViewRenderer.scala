@@ -110,7 +110,7 @@ class ViewRenderer(val schema: String, viewName: String) {
       stackPath += node.nodeType
     }
 
-    def pop = {
+    def pop() {
       treeStack.pop()
       if(stackPath.length > 0) stackPath = stackPath.dropRight(1)
     }
@@ -120,7 +120,23 @@ class ViewRenderer(val schema: String, viewName: String) {
       viewDefinitionNode.foreach {
         n =>
           log.debug("Node " + n)
-          if (n.label != "#PCDATA") {
+          val ifExpr = n.attr("if")
+          val ifNotExpr = n.attr("ifNot")
+
+          val ifValue = if(!ifExpr.isEmpty) {
+            val v = XPath.selectText(ifExpr, dataNode, namespaces.asJava)
+            v != null && !v.isEmpty
+          } else {
+            true
+          }
+          val ifNotValue = if(!ifNotExpr.isEmpty) {
+            val v = XPath.selectText(ifNotExpr, dataNode, namespaces.asJava)
+            v != null && !v.isEmpty
+          } else {
+            false
+          }
+
+          if (n.label != "#PCDATA" && ifValue && !ifNotValue) {
 
             // common attributes
             val label = if(n.attr("labelExpr").isEmpty) n.attr("label") else XPath.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
