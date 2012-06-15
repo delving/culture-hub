@@ -192,6 +192,7 @@ ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
 ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="{0}"><strong>visibility status</strong></a> to "Public".
 ui.message.charsLeft=characters left
 
+ui.message.noCookies=Your browser needs to support cookies in order for this site to work correctly.
 
 # User navigation
 
