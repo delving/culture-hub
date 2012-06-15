@@ -81,7 +81,7 @@
             </div>
             <hr/>
             <div class="well">
-            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
+            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
             #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success btn-large pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
@@ -259,6 +259,13 @@
             }
             virtualCollectionModel.spec(keyFromTitle);
         });
+
+        $('#cancelButton').click(function(e) {
+          e.preventDefault();
+          document.location = document.referrer;
+        });
+
+
         // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });
