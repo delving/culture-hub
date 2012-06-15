@@ -58,11 +58,11 @@
 
             </column>
             <column proportion="1of3">
-                <container>
+                <container ifNot="/icn:record/delving:deepZoomUrl">
                     <image path="/icn:record/europeana:object"/>
                     <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                 </container>
-                <container id="zoom-viewer">
+                <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
                     <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                 </container>
             </column>
