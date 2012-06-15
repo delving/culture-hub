@@ -54,9 +54,11 @@ abstract class MetadataAccessors extends ViewableItem {
   // TODO add plugin mechanism
   def getUri : String = getItemType match {
     case MDR =>
-      // only provide a link if there's something to show via AFF
+      // TODO don't use heuristics
       val allSchemas = values(ALL_SCHEMAS)
-      if(allSchemas.size > 0 && (allSchemas.contains("aff") || allSchemas.contains("icn"))) {
+      val allSupportedFormats = RecordDefinition.enabledDefinitions
+      val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
+      if(renderFormat.isDefined) {
         "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
       } else {
         ""
