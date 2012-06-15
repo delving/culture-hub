@@ -39,7 +39,7 @@ object Search extends DelvingController {
             }
 
             if (collection.isDefined) {
-              hiddenQueryFilters += """%s:"%s""".format(SPEC, collection.get)
+              hiddenQueryFilters += """%s:"%s"""".format(SPEC, collection.get)
             }
 
             SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
