@@ -14,7 +14,7 @@ case class SystemField(name: String) {
 
 object SystemField {
 
-  val values = List(TITLE, DESCRIPTION, OWNER, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, PROVIDER, SPEC)
+  val values = List(TITLE, DESCRIPTION, PROVIDER, OWNER, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, SPEC)
 
   def valueOf(name: String) = values.find(v => v.name.toUpperCase == name.toUpperCase.replaceAll("_", "")).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
 
