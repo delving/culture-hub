@@ -25,12 +25,8 @@ object Organization extends DelvingController {
             <providers>
               {for (p <- providers) yield
               <provider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
               </provider>}
             </providers>
 
@@ -53,12 +49,8 @@ object Organization extends DelvingController {
             <dataProviders>
               {for (p <- dataProviders) yield
               <dataProvider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
               </dataProvider>}
             </dataProviders>
 
@@ -80,12 +72,8 @@ object Organization extends DelvingController {
             <collections>
               {for (c <- collections) yield
               <collection>
-                <id>
-                  {toIdentifier(c.spec)}
-                </id>
-                <name>
-                  {c.name}
-                </name>
+                <id>{toIdentifier(c.spec)}</id>
+                <name>{c.name}</name>
               </collection>}
             </collections>
 
