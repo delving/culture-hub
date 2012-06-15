@@ -30,6 +30,15 @@ function bindCSRFToken(csrfToken) {
     });
 }
 
+function checkCookie(showCookieFail){
+    var cookieEnabled = navigator.cookieEnabled;
+    if (typeof navigator.cookieEnabled == "undefined" && !cookieEnabled) {
+        document.cookie="testcookie";
+        cookieEnabled = (document.cookie.indexOf("testcookie") != -1)
+    }
+    return (cookieEnabled) ? true : showCookieFail();
+}
+
 function tokenInput(id, searchUrl, prePopulate, params, addUrl, addData, deleteUrl, addCallback, deleteCallback) {
     var defaultParams = {
       prePopulate: prePopulate ? prePopulate : [],
