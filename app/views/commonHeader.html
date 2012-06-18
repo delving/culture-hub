@@ -15,7 +15,7 @@
     *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap-responsive.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/helpers.css")}"/>
     #{get 'moreCss' /}
-    *{<link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>}*
+    <link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>
     <link rel="stylesheet" type="text/css" href='${themeInfo.path("stylesheets/theme-style.css")}'/>
     <script>
         var themePath = "${themeInfo.path('')}";
@@ -25,7 +25,7 @@
         jsLabels.remove = "${messages.get('ui.label.delete')}";
         jsLabels.enlargeImage = "${messages.get('ui.label.enlargeImage')}";
     </script>
-    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>}*
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/less-1.1.5.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/modernizr-2.0.6.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/jquery.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery-ui-1.8.16.custom.min.js")}"></script>
