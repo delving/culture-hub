@@ -221,7 +221,7 @@ search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
 #search.trail=U bekijkt resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong> voor:
-search.trail=U bekijkt resultaten {0} - {1} van {2}
+search.trail=Resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong>
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
 
 #metadata

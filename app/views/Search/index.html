@@ -16,11 +16,11 @@
 
 <div class="row">
 
-    <div class="item-count span6">
+    <div class="item-count span4">
         <h6>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h6>
     </div>
 
-    <div class="facets span6">
+    <div class="facets span8">
         <ul class="nav nav-pills pull-right">
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
