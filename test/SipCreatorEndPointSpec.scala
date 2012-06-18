@@ -262,12 +262,12 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         gis2.close()
         fis2.close()
 
-//        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
-//        IOUtils.write(downloadedSource, os1)
-//        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
-//        IOUtils.write(originalSource, os2)
-//        os1.close()
-//        os2.close()
+        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
+        IOUtils.write(downloadedSource, os1)
+        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
+        IOUtils.write(originalSource, os2)
+        os1.close()
+        os2.close()
 
         downloadedSource must equalTo (originalSource)
 

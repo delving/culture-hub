@@ -384,7 +384,7 @@ object SipCreatorEndPoint extends ApplicationController {
     }
 
     def buildAttributes(attrs: Map[String, String]): String = {
-      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(a => """%s="%s"""".format(a._1, StringEscapeUtils.escapeXml(a._2))).mkString(" ")
+      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(a => """%s="%s"""".format(a._1, escapeXml(a._2))).mkString(" ")
     }
 
     def serializeElement(n: Node): String = {
@@ -393,11 +393,22 @@ object SipCreatorEndPoint extends ApplicationController {
           val content = e.child.filterNot(_.label == "#PCDATA").map(serializeElement(_)).mkString("\n")
           """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label)
         case e if e.child.isEmpty => """<%s/>""".format(e.label)
-        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), e.text.replaceAll("&", "amp;"), e.label)
-        case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, e.text.replaceAll("&", "&amp;"), e.label)
+        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), escapeXml(e.text), e.label)
+        case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, escapeXml(e.text), e.label)
         case _ => "" // nope
       }
     }
+
+    // do not use StringEscapeUtils.escapeXml because it also escapes UTF-8 characters, which are however valid and would break source identity
+    def escapeXml(s: String): String = {
+      s.
+        replaceAll("&", "&amp;").
+        replaceAll("<", "&lt;").
+        replaceAll(">", "&gt;").
+        replaceAll("\"", "&quot;").
+        replaceAll("'", "&apos;")
+    }
+
 
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
