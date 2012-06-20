@@ -56,3 +56,5 @@ This is how:
 - you also need to run a connector for FastCGI. Normally this happens in a web server but for convenience you can also do this without additional
 installation by running `cd extras/servlet-server && java -jar start.jar`
 - now you are ready to go and use the advanced image viewer
+
+## TODO update documentation to reflect the latest version and deploymentt
