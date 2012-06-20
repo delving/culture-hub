@@ -68,18 +68,24 @@ object Search extends DelvingController {
                   facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
                 }
 
-                // TODO add the rendering format to the DataSet
-                // AFF takes precedence over anything else. then we use heuristics until the above is done
+                // AFF takes precedence over anything else
                 if(mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
                   renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else {
-                  val renderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
-                  if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get)) {
-                    val record = mdr.xml.get(renderingFormat.get).get
-                    renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                  val ds = DataSet.findBySpecAndOrgId(spec, orgId)
+                  if(ds.isDefined) {
+                    // use the indexing format as rendering format. if none is set try to find the first suitable one
+                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
+                    val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
+                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get)) {
+                      val record = mdr.xml.get(renderingFormat.get).get
+                      renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                    } else {
+                      NotFound(Messages("heritageObject.notViewable"))
+                    }
                   } else {
-                    NotFound(Messages("heritageObject.notViewable"))
+                    NotFound(Messages("datasets.dataSetNotFound", spec))
                   }
                 }
 
