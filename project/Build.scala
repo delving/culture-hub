@@ -14,7 +14,7 @@ object ApplicationBuild extends Build {
   val sipCreatorVersion = "1.0.7-SNAPSHOT"
 
   val dosVersion = "1.5"
-
+f
   val coreVersion = "1.0-SNAPSHOT"
 
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
@@ -102,7 +102,6 @@ object ApplicationBuild extends Build {
     buildInfoPackage := "eu.delving.culturehub",
 
     watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules" / "basex-scala-client") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
