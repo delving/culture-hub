@@ -33,6 +33,7 @@ import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
 import play.api.libs.concurrent.Promise
 import core.indexing.{IndexingService, Indexing}
+import core.HubServices
 
 /**
  *
@@ -170,6 +171,15 @@ object DataSetControl extends OrganizationController {
             val factsObject = new BasicDBObject()
             factsObject.putAll(dataSetForm.facts.asMap)
 
+            // try to enrich with provider and dataProvider uris
+            def enrich(input: String, output: String) = HubServices.directoryService.findOrganizationByName(factsObject.get(input).toString) match {
+              case Some(p) => factsObject.put(output, p.uri)
+              case None => factsObject.remove(output)
+            }
+
+            enrich("provider", "providerUri")
+            enrich("dataProvider", "dataProviderUri")
+
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
               val mappings = recordDefinitions.map {
                 recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
@@ -196,7 +206,7 @@ object DataSetControl extends OrganizationController {
             dataSetForm.id match {
               // TODO for update, add the operator that appends key-value pairs rather than setting all
               case Some(id) => {
-                val existing = DataSet.findOneByID(id).get
+                val existing = DataSet.findOneById(id).get
                 if (!DataSet.canEdit(existing, connectedUser)) {
                   return Action {
                     implicit request => Forbidden("You have no rights to edit this DataSet")
@@ -215,7 +225,7 @@ object DataSetControl extends OrganizationController {
               }
               case None =>
                 // TODO for now only owners can do
-                if (!isOwner) return Action {
+                if (!isAdmin(orgId)) return Action {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
 
@@ -235,7 +245,6 @@ object DataSetControl extends OrganizationController {
                         "http://delving.eu/namespaces/raw",
                         "http://delving.eu/namespaces/raw/schema.xsd",
                         List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
-                        List.empty,
                         true
                       )
                     ),
@@ -256,7 +265,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case DISABLED | UPLOADED | ERROR =>
+          case ENABLED | UPLOADED | DISABLED | ERROR =>
             try {
               DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
               DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
@@ -275,7 +284,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case ENABLED =>
+          case ENABLED | UPLOADED | DISABLED | ERROR =>
             DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
             DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
             Redirect("/organizations/%s/dataset".format(orgId))
@@ -365,7 +374,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         dataSet.state match {
-          case DISABLED | ENABLED | UPLOADED | ERROR =>
+          case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
             DataSet.invalidateHashes(dataSet)
             DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INCOMPLETE)
             Redirect("/organizations/%s/dataset".format(orgId))
@@ -383,6 +392,13 @@ object DataSetControl extends OrganizationController {
     }
   }
 
+  def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        Json(HubServices.directoryService.findOrganization(term).map(_.name))
+    }
+  }
+
   def withDataSet(orgId: String, spec: String)(operation: => DataSet => RequestHeader => Result): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
@@ -390,7 +406,7 @@ object DataSetControl extends OrganizationController {
           implicit request => NotFound(Messages("organization.datasets.dataSetNotFound", spec))
         })
         // TODO for now only owners can do
-        if (!isOwner) return Action {
+        if (!isAdmin(orgId)) return Action {
           implicit request => Forbidden
         }
         operation(dataSet)(request)

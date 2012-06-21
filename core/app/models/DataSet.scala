@@ -22,16 +22,18 @@ import org.bson.types.ObjectId
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
-import com.mongodb.{BasicDBObject, WriteConcern}
 import xml.{Node, XML}
 import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
 import play.api.i18n.Messages
 import core.HubServices
-import eu.delving.metadata.{RecMapping, Path}
+import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
+import core.Constants._
+import core.storage.BaseXStorage
+import models.statistics.DataSetStatistics
 
 /**
  * DataSet model
@@ -45,7 +47,7 @@ import java.net.URL
 case class DataSet(_id: ObjectId = new ObjectId,
                    spec: String,
                    userName: String,
-                   orgId: Predef.String,
+                   orgId: String,
                    lockedBy: Option[String] = None,
                    description: Option[String] = Some(""),
                    state: DataSetState,
@@ -102,7 +104,9 @@ case class DataSet(_id: ObjectId = new ObjectId,
 
   def hasDetails: Boolean = details != null
 
-  def hasRecords: Boolean = connection(DataSet.getRecordsCollectionName(this)).count != 0
+  def hasRecords: Boolean = {
+    BaseXStorage.openCollection(this.orgId, this.spec).isDefined && DataSet.getRecordCount(this) != 0
+  }
 
 }
 
@@ -143,7 +147,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSetState(name)
   }
 
-  def getProcessingState(orgId: String, spec: String): (Int, Int) = {
+  def getProcessingState(orgId: String, spec: String): (Long, Long) = {
 
     val stateData = dataSetsCollection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
@@ -152,8 +156,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
     val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
 
-    val totalRecords = details.getAsOrElse[Int]("total_records", 0)
-    val processingCount = details.getAsOrElse[Int]("indexing_count", 0)
+    val totalRecords = details.getAsOrElse[Long]("total_records", 0)
+    // this one is unboxed as Int because when we write it via $set it doesn't get written as a NumberLong...
+    val processingCount = details.getAsOrElse[Long]("indexing_count", 0)
     val invalidRecords = details.getAsOrElse[Int]("invalid_records", 0)
 
     if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
@@ -196,7 +201,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
     val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).map(entry => (entry._id, entry)).toMap.values.toList
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).filterNot(_.deleted).toList
   }
 
   // FIXME this one makes no sense, since findAllCanSee only returns public datasets anyway
@@ -227,27 +232,41 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     ) > 0
   }
 
+  // workaround for salat not working as it should
+  def getInvalidRecords(dataSet: DataSet): Map[String, Set[Int]] = {
+    import scala.collection.JavaConverters._
+    dataSetsCollection.findOne(MongoDBObject("_id" -> dataSet._id), MongoDBObject("invalidRecords" -> 1)).map {
+      ds => {
+        val map = ds.getAs[DBObject]("invalidRecords").get
+        map.map(valid => {
+            val key = valid._1.toString
+            val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+              case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+              case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+            }).toSet
+            (key, value)
+          }).toMap[String, Set[Int]]
+      }
+    }.getOrElse {
+      Map.empty
+    }
+  }
+
 
   // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
   def updateById(id: ObjectId, dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), dataSet, false, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet))
   }
 
   def upsertById(id: ObjectId, dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), dataSet, true, false, new WriteConcern())
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet), true)
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
     val updatedDetails = dataSet.details.copy(invalid_records = Some(invalidIndexes.size))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
-
-    if(dataSet.hasRecords) {
-      val collection = getRecordsCollection(dataSet)
-      collection.update(MongoDBObject(), $addToSet ("validOutputFormats" -> prefix), false, true)
-      collection.update("transferIdx" $in (invalidIndexes), $pull("validOutputFormats" -> prefix), false, true)
-    }
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {
@@ -260,7 +279,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
       case Some(existingMapping) =>
         existingMapping.copy(
-          format = existingMapping.format.copy(roles = ns.get.roles),
           recordMapping = Some(mapping.toString)
         )
       case None =>
@@ -271,7 +289,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
             ns.get.schema,
             ns.get.namespace,
             ns.get.allNamespaces,
-            ns.get.roles,
             ns.get.isFlat
           )
         )
@@ -294,18 +311,10 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def delete(dataSet: DataSet) {
-    if(connection.getCollectionNames().contains(getRecordsCollectionName(dataSet))) {
-      connection(getRecordsCollectionName(dataSet)).rename(getRecordsCollectionName(dataSet) + "_" + dataSet._id.toString)
-    }
-    update(MongoDBObject("_id" -> dataSet._id), $set ("deleted" -> true), false, false)
+    MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
+    BaseXStorage.deleteCollection(core.storage.Collection(dataSet.orgId, dataSet.spec))
+    remove(dataSet)
   }
-
-  // ~~~ caching
-
-  def cacheMappedRecord(dataSet: DataSet, record: MetadataRecord, prefix: String, xml: String) {
-    getRecords(dataSet).update(MongoDBObject("_id" -> record._id), $set("rawMetadata." + prefix -> xml))
-  }
-
 
   // ~~~ record handling
 
@@ -315,24 +324,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
 
-  def getRecordCount(dataSet: DataSet): Int = {
-    val records: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    val count: Long = records.count
-    count.toInt
-  }
-
-  def getRecords(orgId: String, spec: String): SalatDAO[MetadataRecord, ObjectId] with MDRCollection = getRecords(findBySpecAndOrgId(spec, orgId).getOrElse(throw new RuntimeException("can't find this")))
-
-  // TODO should we cache the constructions of these objects?
-  def getRecords(dataSet: DataSet): SalatDAO[MetadataRecord, ObjectId] with MDRCollection  = {
-    val recordCollection: MongoCollection = connection(getRecordsCollectionName(dataSet))
-    recordCollection.ensureIndex(MongoDBObject("localRecordKey" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("hubId" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("transferIdx" -> 1))
-    recordCollection.ensureIndex(MongoDBObject("validOutputFormats" -> 1))
-    object CollectionMDR extends SalatDAO[MetadataRecord, ObjectId](recordCollection) with MDRCollection
-    CollectionMDR
-  }
+  def getRecordCount(dataSet: DataSet): Long = BaseXStorage.count(core.storage.Collection(dataSet.orgId, dataSet.spec))
 
   // ~~~ indexing control
 
@@ -355,9 +347,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
   }
 
-  def updateIndexingCount(dataSet: DataSet, count: Int) {
+  def updateIndexingCount(dataSet: DataSet, count: Long) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
   }
+
+  def updateRecordCount(dataSet: DataSet, count: Long) {
+    DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
+  }
+
 
   def invalidateHashes(dataSet: DataSet) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
@@ -377,6 +374,12 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
       case Some(ds) => ds.getVisibleMetadataFormats(accessKey)
       case None => List[RecordDefinition]()
     }
+  }
+
+  // statistics
+
+  def getMostRecentDataSetStatistics = {
+    DataSetStatistics.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 
 }
@@ -414,10 +417,8 @@ case class Mapping(recordMapping: Option[String] = None,
                    indexed: Boolean = false)
 
 case class Details(name: String,
-                   uploaded_records: Int = 0,
-                   total_records: Int = 0,
-                   deleted_records: Int = 0,
-                   indexing_count: Int = 0,
+                   total_records: Long = 0,
+                   indexing_count: Long = 0,
                    invalid_records: Option[Int] = Some(0),
                    metadataFormat: RecordDefinition,
                    facts: BasicDBObject = new BasicDBObject(),

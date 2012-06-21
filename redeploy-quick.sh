@@ -7,7 +7,7 @@ echo Redeploying the CultureHub in production mode
 echo =============================================
 echo
 echo
-export _JAVA_OPTIONS="-Dconfig.file=`pwd`/conf/production.conf -Dlogger.resource=prod-logger.xml -Xms256M -Xmx1024M"
+. ./params.sh
 git pull
 ant downloadSipCreator
 kill -9 `cat RUNNING_PID` && rm RUNNING_PID

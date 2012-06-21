@@ -1,114 +1,141 @@
 %{
 switch (_view.nodeType) {
 
-    case "root":}%
-        #{list items: _view.content(), as: 'row'}
-            #{view view: row /}
-        #{/list}
-    %{
-    break
+    case "root":
+    case "row":
+    case "column":
 
-    case "row":}%
-        <div class="row">
-        #{list items: _view.content(), as: 'col'}
-            #{view view: col /}
+        def propClass;
+        switch (_view.attr("proportion")) {
+            case "1of1":
+                propClass = "span12"
+                break
+            case "1of2":
+                propClass = "span6"
+                break
+            case "1of3":
+                propClass = "span4"
+                break
+            case "2of3":
+                propClass = "span8"
+                break
+            default:
+                propClass = ""
+        }}%
+
+        <div class="${_view.nodeType} ${propClass}">
+        #{list items: _view.content(), as: 'item'}
+            #{view view: item /}
         #{/list}
         </div>
     %{
     break
 
+    case "container":}%
 
-    case "section":}%
-        <div id="${_view.attr("id")}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>
-        #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
-        #{/if}
-        #{if _view.attr("type") == "dl"}
-        <dl class="dl">
-            #{list items: _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        </dl>
-        #{/if}
-        #{else}
-            #{list items: _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        #{/else}
+    #{if !_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)}
+        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
+
+            #{if _view.attr("label")}
+                <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>
+            #{/if}
+
+            #{if _view.attr("type") == "labelled-list"}
+            <dl class="dl">
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            </dl>
+            #{/if}
+
+            #{elseif _view.attr("type") == "list" }
+            <ul>
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            </ul>
+            #{/elseif}
+
+            #{else}
+                #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+            #{/else}
         </div>
+    #{/if}
     %{
     break
 
     case "field": if (_view.text()){ }%
-        #{if _view.attr("type") == "li"}
-            <li>${_view.text()}</li>
+
+        #{if _view.parent.attr("type") == "labelled-list"}
+            <dt>&{_view.attr("label")}#{if _view.attr("role")}<span class="label">admin</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
-        #{if _view.attr("type") == "di"}
-            <dt>&{_view.attr("label")}</dt><dd #{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>${_view.text()}</dd>
-        #{/if}
-        #{ifnot _view.attr("type")}
-            &{_view.attr("label")}: ${_view.text()}
-        #{/ifnot}
+        #{elseif _view.parent.attr("type") == "list"}
+            <li>${_view.parent.attr("type")}${_view.text()}</li>
+        #{/elseif}
+        #{else}
+            #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>#{/if}
+            <p>${_view.parent.attr("type")} ${_view.text()}</p>
+        #{/else}
     %{ }
     break
 
     case "link": if (_view.attr("text")){ }%
-        <div class="link"><a href="${_view.attr("url")}">${_view.attr("text")}</a></div>
+
+        #{if _view.parent.attr("type") == "labelled-list"  }
+            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
+        #{/if}
+
+        #{elseif _view.parent.attr("type") == "list"}
+            <li><a href="${_view.attr("url")}">&{_view.attr("text")}</a></li>
+        #{/elseif}
+
+        #{else}
+            #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
+            #{if _view.attr("url")}
+                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
+            #{/if}
+            #{else}
+                <p>&{_view.attr("text")}</p>
+            #{/else}
+        #{/else}
+
+
     %{ }
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}#{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
+        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
     %{ }
     break
 
-    case "enumeration":}%
+    case "enumeration":
+
+        def separator;
+        switch (_view.attr("separator")) {
+            case "lf":
+            separator = "<br/>"
+            break
+            case "hr":
+            separator = "<hr/>"
+            break
+            default:
+            separator = _view.attr("separator")
+        }}%
+        #{if _view.content().length() > 0 }
         #{if _view.attr("label")}
             <h5>&{_view.attr("label")}</h5>
         #{/if}
-        #{if _view.attr("type") == "ul"}
-            <ul>
-            #{list _view.content(), as: 'e'}
-                  <li>${e.text()}</li>
-            #{/list}
-            </ul>
-        #{/if}
-        #{if _view.attr("type") == "ol"}
-            <ol>
-            #{list _view.content(), as: 'e'}
-                  <li>${e.text()}</li>
-            #{/list}
-            </ol>
-        #{/if}
-        #{if _view.attr("type") == "concatenated"}
-            <div>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${_view.attr("separator")}#{/if}#{/list}</div>
+        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
         #{/if}
     %{
     break
 
     case "list":}%
-        #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
-        #{/if}
-        #{if _view.attr("type") == "ul"}
-        <ul #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
-            #{list _view.content(), as: 'i'}
-                <li>#{view view: i /}</li>
-            #{/list}
-        </ul>
-        #{/if}
-        #{if _view.attr("type") == "ol"}
-        <ol class="test">
-            #{list _view.content(), as: 'i'}
-                <li>#{view view: i /}</li>
-            #{/list}
-        </ol>
-        #{/if}
-        #{ifnot _view.attr("type")}
-            #{list _view.content(), as: 'i'}
-                #{view view: i /}
-            #{/list}
-        #{/ifnot}
+        #{list items: _view.content(), as: 'item'}
+            #{view view: item /}
+        #{/list}
     %{
     break
 

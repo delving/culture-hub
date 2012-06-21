@@ -2,6 +2,7 @@ package controllers.organization
 
 import controllers.OrganizationController
 import play.api.mvc._
+import eu.delving.culturehub.BuildInfo
 
 /**
  *
@@ -20,21 +21,20 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val sipCreatorVersion = "1.0.5"
         val host = request.domain + ":9000"
         val home = "http://" + host + "/" + user + "/"
         val codebase = "http://" + host + "/assets/sip-creator/"
 
         val jnlp = <jnlp spec="1.0+" codebase={codebase} href={home + "sip-creator.jnlp"}>
           <information>
-              <title>SIP-Creator</title>
-              <vendor>Delving</vendor>
-              <description kind="one-line">SIP-Creator</description>
-              <description kind="short">Submission Information Package Creator</description>
+            <title>SIP-Creator</title>
+            <vendor>Delving</vendor>
+            <description kind="one-line">SIP-Creator</description>
+            <description kind="short">Submission Information Package Creator</description>
               <icon href={codebase + "sip-creator-logo.png"} kind="default"/>
-              <shortcut online="false">
-                  <desktop/>
-              </shortcut>
+            <shortcut online="false">
+                <desktop/>
+            </shortcut>
           </information>
           <security>
               <all-permissions/>
@@ -42,8 +42,8 @@ object SipCreator extends OrganizationController {
           <resources>
               <j2se version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
               <property name="jnlp.versionEnabled" value="false"/>
-              <jar href={"sip-app-" + sipCreatorVersion + "-SNAPSHOT.jar"} main="true"/>
-              <jar href={"sip-core-" + sipCreatorVersion + "-SNAPSHOT.jar"}/>
+              <jar href={"sip-app-" + BuildInfo.sipCreator + ".jar"} main="true"/>
+              <jar href={"sip-core-" + BuildInfo.sipCreator + ".jar"}/>
               <jar href="oauth2-client-0.2-SNAPSHOT.jar"/>
               <jar href="oauth2-common-0.2-SNAPSHOT.jar"/>
               <jar href="jettison-1.2.jar"/>
@@ -63,13 +63,23 @@ object SipCreator extends OrganizationController {
               <jar href="woodstox-core-asl-4.0.9.jar"/>
               <jar href="stax-api-1.0-2.jar"/>
               <jar href="stax2-api-3.0.3.jar"/>
+              <jar href="jfreechart-1.0.13.jar"/>
+              <jar href="jcommon-1.0.16.jar"/>
+              <jar href="itext-2.1.7.jar"/>
+              <jar href="bcmail-jdk14-138.jar"/>
+              <jar href="bcprov-jdk14-138.jar"/>
+              <jar href="bctsp-jdk14-1.38.jar"/>
+              <jar href="bcprov-jdk14-1.38.jar"/>
+              <jar href="bcmail-jdk14-1.38.jar"/>
               <jar href="stringtemplate-3.0.jar"/>
               <jar href="antlr-2.7.7.jar"/>
               <jar href="cglib-2.1_3.jar"/>
               <jar href="asm-1.5.3.jar"/>
           </resources>
           <application-desc main-class="eu.delving.sip.Application">
-            <argument>{user}</argument>
+            <argument>
+              {user}
+            </argument>
           </application-desc>
         </jnlp>
 

@@ -1,0 +1,37 @@
+<views>
+    <view name="html">
+        <row>
+            <column proportion="1of3">
+                <container>
+                    <field path="/tib:record/dc:title" label="metadata.dc.title"/>
+                    <field path="/tib:record/dc:creator" label="metadata.dc.creator"/>
+                    <field path="/tib:record/tib:creatorBirthYear" label="metadata.tib.creatorBirthYear"/>
+                    <enumeration label="metadata.dc.date" separator=", " path="/tib:record/dc:date,/tib:record/dcterms:created,/tib:record/dcterms:temporal,/tib:record/dcterms:issued"/>
+                    <field path="/tib:record/dc:type" label="metadata.dc.type"/>
+                    <enumeration label="metadata.dc.format" separator="lf" path="/tib:record/dc:format,/tib:record/dcterms:extent"/>
+                </container>
+           </column>
+           <column proportion="1of3">
+               <container>
+                   <field path="/tib:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
+
+                   <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
+                   <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
+
+                   <field path="/tib:record/dc:contributor" label="searchfield.contributor"/>
+                   <field path="/tib:record/europeana:country" label="metadata.europeana.country"/>
+                   <field path="/tib:record/dc:rights" label="metadata.dc.rights"/>
+               </container>
+            </column>
+            <column proportion="1of3">
+                <container ifNot="/tib:record/delving:deepZoomUrl">
+                    <image path="/tib:record/europeana:object"/>
+                    <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                </container>
+                <container id="zoom-viewer" if="/tib:record/delving:deepZoomUrl">
+                    <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>
+                </container>
+            </column>
+        </row>
+    </view>
+</views>

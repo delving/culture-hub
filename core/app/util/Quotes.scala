@@ -15,28 +15,36 @@ object Quotes {
 
   lazy val quotes: List[String] = {
     // quotes.txt courtesy of Rudy Velthuis - http://blogs.teamb.com/rudyvelthuis/2006/07/29/26308
-    val f = new File(current.path, "/conf/quotes.txt")
-    val lines = org.apache.commons.io.IOUtils.readLines(new FileInputStream(f), "utf-8").asScala
-    val quotes = new ArrayBuffer[String]()
-    val sb = new StringBuilder()
-    try {
-      for (line <- lines) {
-        if (line == ".") {
-          quotes += sb.result()
-          sb.clear()
-        } else {
-          sb.append(line).append("\n")
+    val f = current.resourceAsStream("/conf/quotes.txt")
+    if(!f.isDefined) {
+      List()
+    } else {
+      val lines = org.apache.commons.io.IOUtils.readLines(f.get, "utf-8").asScala
+      val quotes = new ArrayBuffer[String]()
+      val sb = new StringBuilder()
+      try {
+        for (line <- lines) {
+          if (line == ".") {
+            quotes += sb.result()
+            sb.clear()
+          } else {
+            sb.append(line).append("\n")
+          }
         }
+      } catch {
+        case t => t.printStackTrace()
       }
-    } catch {
-      case t => t.printStackTrace()
+      quotes.toList
     }
-    quotes.toList
   }
 
   def randomQuote() = {
-    val index = java.lang.Math.random() * quotes.size + 1
-    quotes(index.toInt)
+    if(!quotes.isEmpty) {
+      val index = java.lang.Math.random() * quotes.size + 1
+      quotes(index.toInt)
+    } else {
+      ""
+    }
   }
 
 }

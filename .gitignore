@@ -6,6 +6,7 @@ test-result
 .idea
 /logs
 /out
+/dist
 /system.out
 /conf/production.conf
 /conf/*_themes.xml
@@ -27,6 +28,7 @@ extras/servlet-server/work/
 /module-extra/
 /public/javascripts/press
 /public/stylesheets/press
+params.sh
 
 project/project
 project/target

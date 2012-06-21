@@ -1,11 +1,13 @@
+import collection.mutable.{Buffer, ListBuffer}
 import controllers.SipCreatorEndPoint
 import core.mapping.MappingService
 import eu.delving.metadata.RecMapping
-import java.io.{ByteArrayInputStream, DataInputStream, File, FileInputStream}
-import java.util.zip.{GZIPInputStream}
+import java.io._
+import java.util.zip.{ZipInputStream, GZIPInputStream}
+import org.apache.commons.io.{FileUtils, IOUtils}
+import org.apache.solr.common.util.FileUtils
 import org.specs2.mutable._
 import collection.JavaConverters._
-import scala.xml.Utility.trim
 import play.api.test._
 import play.api.test.Helpers._
 import models._
@@ -16,15 +18,17 @@ import xml.XML
 
 class SipCreatorEndPointSpec extends Specification with TestContext {
 
-  step(cleanup)
-  step(loadStandalone)
+  step {
+      cleanup()
+      loadStandalone()
+  }
 
 
   "SipCreatorEndPoint" should {
 
     "list all DataSets" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
         val result = controllers.SipCreatorEndPoint.listAll(Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
         contentAsString(result) must contain("<spec>PrincessehofSample</spec>")
@@ -37,7 +41,7 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
       import com.mongodb.casbah.Imports._
       DataSet.update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
 
-      running(FakeApplication()) {
+      withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
         DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.lockedBy must be(None)
@@ -46,7 +50,7 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
     }
 
     "accept a list of files" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
 A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
@@ -68,7 +72,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "accept a hints file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val hintsSource: String = "conf/bootstrap/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
         val hintsTarget = "target/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
         Files.copyFile(new File(hintsSource), new File(hintsTarget))
@@ -88,7 +92,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
 
     "accept a mappings file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val mappingSource: String = "conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         val mappingTarget = "target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         Files.copyFile(new File(mappingSource), new File(mappingTarget))
@@ -115,7 +119,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "accept a int file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
         val intTarget = "target/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
         Files.copyFile(new File(intSource), new File(intTarget))
@@ -128,35 +132,19 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         ))
         status(result) must equalTo(OK)
 
-        val originalStream = new DataInputStream(new FileInputStream(new File(intSource)))
-        val length = originalStream.readInt()
-        var counter = 0
-        val original = if (length == 0) {
-          List()
-        } else {
-          Stream.continually({
-            counter += 1;
-            originalStream.readInt()
-          }).takeWhile(i => counter < length).toList
+        val original = readIntFile(intTarget)
 
-        }
         val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
 
-        val invalidRecords = uploaded.map(valid => {
-          val key = valid._1.toString
-          val value: List[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
-            case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
-            case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
-          }).toList
-          (key, value)
-        }).toMap[String, List[Int]]
+        val invalidRecords = readInvalidIndexes(uploaded)
+
 
         original must equalTo(invalidRecords("icn"))
       }
     }
 
     "accept a source file" in {
-      running(FakeApplication()) {
+      withTestConfig {
         val sourceSource: String = "conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
         val sourceTarget = "target/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
         Files.copyFile(new File(sourceSource), new File(sourceTarget))
@@ -179,7 +167,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
 
     "have marked all file hashes and not accept them again" in {
-      running(FakeApplication()) {
+      withTestConfig {
 
         val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
 A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
@@ -198,38 +186,125 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
       }
     }
 
+    "update an int file" in {
+      withTestConfig {
+         val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+         val intTarget = "target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+         Files.copyFile(new File(intSource), new File(intTarget))
+
+         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21EC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
+           method = "POST",
+           uri = "",
+           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
+           body = TemporaryFile(new File(intTarget))
+         ))
+         status(result) must equalTo(OK)
+
+         val original = readIntFile(intTarget)
+
+         val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+
+         val invalidRecords = readInvalidIndexes(uploaded)
+
+         original must equalTo(invalidRecords("icn"))
+       }
+     }
+
+
     "download a source file" in {
 
       case class ZipEntry(name: String)
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
         // first, ingest all sorts of things
-        SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+        val sourceFile = new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
+        val fis = new FileInputStream(sourceFile)
+        val gis = new GZIPInputStream(fis)
+        SipCreatorEndPoint.loadSourceData(dataSet, gis)
+        gis.close()
+        fis.close()
 
         val result = controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
 
-        // TODO find a way to fetch the content from this result
+        // check locking
+        val lockedDataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
-        /*
-                val f = new ZipInputStream(new ByteArrayInputStream(contentAsBytes(result)))
-                var entry = f.getNextEntry
-                val entries = Buffer[ZipEntry]()
-                while(entry != null) {
-                  entries += ZipEntry(entry.getName)
-                  entry = f.getNextEntry
-                }
-                entries.size must equalTo (4)
-        */
+        // check the resulting set, indirectly
+        val is = SipCreatorEndPoint.getSipStream(lockedDataSet)
+        Thread.sleep(1000)
+
+        var downloadedSource = ""
+        val zis = new ZipInputStream(is)
+        var entry = zis.getNextEntry
+        val downloadedEntries = Buffer[ZipEntry]()
+        while(entry != null) {
+          downloadedEntries += ZipEntry(entry.getName)
+          if(entry.getName == "source.xml") {
+            val source = Stream.continually(zis.read()).takeWhile(-1 !=).map(_.toByte).toArray
+            downloadedSource = new String(source, "UTF-8")
+          }
+          entry = zis.getNextEntry
+        }
+        zis.close()
+        fis.close()
+
+        XML.loadString(downloadedSource).size must equalTo (1)
+        downloadedEntries.size must equalTo (6)
+
+        val fis2 = new FileInputStream(sourceFile)
+        val gis2 = new GZIPInputStream(fis2)
+        val originalSource = IOUtils.readLines(gis2).asScala.mkString("\n")
+        gis2.close()
+        fis2.close()
+
+        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
+        IOUtils.write(downloadedSource, os1)
+        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
+        IOUtils.write(originalSource, os2)
+        os1.close()
+        os2.close()
+
+        downloadedSource must equalTo (originalSource)
+
       }
     }
   }
 
-  running(FakeApplication()) {
+  withTestConfig {
     step(cleanup)
+  }
+
+
+  def readIntFile(file: String) = {
+    val originalStream = new DataInputStream(new FileInputStream(new File(file)))
+    val length = originalStream.readInt()
+    val b = new ListBuffer[Int]()
+    var counter = 0
+    if (length == 0) {
+      List()
+    } else {
+      while(counter < length) {
+        counter += 1
+        b += originalStream.readInt()
+      }
+      b.toList
+    }
+  }
+
+  def readInvalidIndexes(uploaded: Map[String, List[Int]]) = {
+    uploaded.map(valid => {
+      val key = valid._1.toString
+      val value: List[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
+        case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+        case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
+      }).toList
+      (key, value)
+    }).toMap[String, List[Int]]
   }
 
 

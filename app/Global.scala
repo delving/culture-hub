@@ -4,15 +4,21 @@
  */
 
 import actors._
+import akka.actor.SupervisorStrategy.Restart
+import akka.routing.RoundRobinRouter
+import controllers.ReceiveSource
 import core.{CultureHubPlugin, HubServices}
+import java.io.File
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
+import libs.Files
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.ThemeHandler
+import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
 
@@ -30,7 +36,20 @@ object Global extends GlobalSettings {
              / /   / / / / / __/ / / / ___/ _ \/ /_/ / / / / __ \
             / /___/ /_/ / / /_/ /_/ / /  /  __/ __  / /_/ / /_/ /
             \____/\__,_/_/\__/\__,_/_/   \___/_/ /_/\__,_/_.___/
-      """)
+
+
+            Version %s
+
+            Sip-Creator Version %s
+
+      """.format(BuildInfo.version, BuildInfo.sipCreator))
+    }
+
+    // temporary deployment trick
+    if(Play.isProd) {
+      val port = if(System.getProperty("http.port") == null) "9000" else System.getProperty("http.port")
+      val runningPid = new File(current.path, "RUNNING_PID")
+      Files.moveFile(runningPid, new File(current.path, port + "/RUNNING_PID"))
     }
 
 
@@ -52,6 +71,12 @@ object Global extends GlobalSettings {
         Logger("CultureHub").error("No cultureHub.organization configured!")
         System.exit(-1)
   }
+
+    val dataSetParser = Akka.system.actorOf(Props[ReceiveSource].withRouter(
+      RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+      })
+    ), name = "dataSetParser")
 
     // ~~~ bootstrap jobs
 
@@ -98,6 +123,12 @@ object Global extends GlobalSettings {
       1 hour,
       virtualCollectionCount,
       UpdateVirtualCollectionCount
+    )
+    Akka.system.scheduler.schedule(
+      1 minute,
+      2 hours,
+      virtualCollectionCount,
+      UpdateVirtualCollection
     )
 
     // routes access logger

@@ -26,7 +26,7 @@ object Users extends DelvingController {
         val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
         val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
 
-        val items: List[ListItem] = usersPage.toList
+        val items: List[HubUser] = usersPage.toList
         Ok(Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length))
     }
   }

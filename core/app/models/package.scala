@@ -22,6 +22,7 @@ import com.mongodb.casbah.MongoCollection
 import com.mongodb.DBObject
 import play.api.Play.current
 import extensions.ConfigurationException
+import com.mongodb.casbah.gridfs.GridFS
 
 // TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
@@ -64,24 +65,12 @@ package object mongoContext extends models.MongoContext {
 
   lazy val groupCollection = connection("Groups")
 
-  lazy val portalThemeCollection = connection("PortalThemes")
-
   lazy val emailTargetCollection = connection("EmailTargets") // TODO move to PortalTheme as subdocument
 
   lazy val dataSetsCollection = connection("Datasets")
 
   lazy val virtualCollectionsCollection = connection("VirtualCollections")
   lazy val virtualCollectionsRecordsCollection = connection("VirtualCollectionsRecords")
-
-  lazy val objectsCollection = connection("UserObjects") // the user contributed objects
-  addIndexes(objectsCollection, thingIndexes)
-
-  lazy val userCollectionsCollection = connection("UserCollections") // the collections made by users
-  addIndexes(userCollectionsCollection, thingIndexes)
-
-  lazy val userStoriesCollection = connection("UserStories")
-  addIndexes(userStoriesCollection, thingIndexes)
-  userStoriesCollection.ensureIndex(MongoDBObject("isBookmarksCollection" -> 1))
 
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
@@ -107,8 +96,6 @@ package object mongoContext extends models.MongoContext {
 
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
 
-  lazy val CoRefCollecion = connection("coRefs")
-
   lazy val routeAccessCollection = connection("RouteAccess")
 
   val statisticsIndexes = Seq(
@@ -129,13 +116,26 @@ package object mongoContext extends models.MongoContext {
 
   lazy val statisticsRunCollection = connection("StatisticsRun")
 
-  /** the index API items, cached for re-processing **/
-  lazy val indexItemsCollection = connection("IndexItems")
-  addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
+
+  // dataSet stats
+
+  val dataSetStatisticsContextIndexes = Seq(
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1),
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.dataProvider" -> 1),
+    MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.provider" -> 1)
+  )
+
+  lazy val dataSetStatistics = connection("DataSetStatistics")
+  addIndexes(dataSetStatistics, dataSetStatisticsContextIndexes)
+
+  lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
+  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes)
+
+  lazy val fieldValues = connection("DataSetStatisticsFieldValues")
+  addIndexes(fieldValues, dataSetStatisticsContextIndexes)
 
 
-  lazy val musipItemsCollection = connection("MusipItems")
-  addIndexes(indexItemsCollection, Seq(MongoDBObject("orgId" -> 1, "itemId" -> 1, "itemType" -> 1)))
+  lazy val hubFileStore = GridFS(connection)
 
 
 }

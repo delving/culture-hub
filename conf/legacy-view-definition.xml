@@ -1,7 +1,7 @@
 <?xml version ="1.0" encoding="UTF-8"?>
 
 <views>
-    <view name="full">
+    <view name="api">
         <elem name="result">
             <attrs>
                 <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/"/>
@@ -19,7 +19,7 @@
                 <attr prefix="xmlns" name="itin" value="http://www.itin.nl/namespace" />
             </attrs>
             <elem name="layout">
-                <list name="fields" path="//*[local-name()='record']/*">
+                <list name="fields" path="//*[local-name()='record']/*" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>

@@ -2,12 +2,13 @@ package core.services
 
 import core._
 import play.api.libs.Crypto
-import extensions.MissingLibs
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
+import extensions.{JJson, MissingLibs}
+import eu.delving.definitions.OrganizationEntry
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -16,7 +17,7 @@ import java.net.URLEncoder
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with play.api.http.Status {
+class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with play.api.http.Status {
 
 
   val host = if (commonsHost.endsWith("/")) commonsHost.substring(0, commonsHost.length() - 1) else commonsHost
@@ -36,7 +37,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   private def postWithBody[T <: JsValue](path: String, body: T, queryParams: (String, String)*): Option[Response] = call(path, Some(body), "POST", queryParams)
 
   private def call[T <: JsValue](path: String, body: Option[T], method: String = "GET", queryParams: Seq[(String, String)], retry: Int = 0): Option[Response] = {
-    val wsCall = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _ *)
+    val wsCall = WS.url(host + path).withQueryString(queryParams.map(t => (t._1, URLEncoder.encode(t._2, "utf-8"))) ++ apiQueryParams: _ *)
     val callInvocation = method match {
       case "GET" => wsCall.get()
       case "POST" if (body.isDefined) => wsCall.post(body.get)
@@ -208,6 +209,32 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     }.getOrElse(None)
   }
 
+  // directory
+
+  def findOrganization(query: String): List[OrganizationEntry] = {
+    get("/directory/organization/query", "query" -> URLEncoder.encode(query, "utf-8")).map {
+      response =>
+        if(response.status == OK) {
+          import OrganizationEntryFormat._
+          Json.fromJson[List[OrganizationEntry]](Json.parse(response.body))
+        } else {
+          List.empty
+        }
+    }.getOrElse(List.empty)
+  }
+
+  def findOrganizationByName(name: String): Option[OrganizationEntry] = {
+    get("/directory/organization/byName", "name" -> URLEncoder.encode(name, "utf-8")).map {
+      response =>
+        if(response.status == OK) {
+          Some(Json.fromJson[OrganizationEntry](Json.parse(response.body)))
+        } else {
+          None
+        }
+    }.getOrElse(None)
+  }
+
+  // json un/marshalling
 
   import play.api.libs.json._
 
@@ -255,8 +282,26 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
         )
       )
     )
-
   }
+
+  implicit object OrganizationEntryFormat extends Format[OrganizationEntry] {
+
+    def reads(json: JsValue): OrganizationEntry = OrganizationEntry(
+      uri = (json \ "uri").as[String],
+      name = (json \ "name").as[String],
+      countryCode = (json \ "countryCode").as[String]
+    )
+
+    def writes(o: OrganizationEntry): JsValue = JsObject(
+      Seq(
+        "uri" -> JsString(o.uri),
+        "name" -> JsString(o.name),
+        "countryCode" -> JsString(o.countryCode)
+      )
+    )
+  }
+
+
 
 
 }

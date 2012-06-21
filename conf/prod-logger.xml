@@ -3,7 +3,7 @@
     <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel"/>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${application.home}/logs/application.log</file>
+        <file>${application.home}/../../logs/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${application.home}/logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
@@ -14,7 +14,7 @@
     </appender>
 
     <appender name="ROUTEACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${application.home}/logs/routeAccess.log</file>
+        <file>${application.home}/../../logs/routeAccess.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${application.home}/logs/logFile.%d{yyyy-MM}.log</fileNamePattern>
             <maxHistory>12</maxHistory>

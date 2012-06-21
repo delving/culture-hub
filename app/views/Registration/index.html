@@ -7,7 +7,7 @@
 
     <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="form-delving">
 
-    #{authenticityToken /}
+    *{#{authenticityToken /}}*
         <div class="row">
     <div class="span6">
 

@@ -21,16 +21,15 @@ import core.Constants._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
-import scala.collection.JavaConverters._
+import collection.JavaConverters._
 import play.api.Logger
-import scala.collection.immutable.ListMap
+import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
-import models.{IndexItem, RecordDefinition, MetadataRecord, PortalTheme}
-import scala.xml.{NodeSeq, Elem}
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import scala._
+import models.{MetadataCache, RecordDefinition, PortalTheme}
+import xml.{PrettyPrinter, NodeSeq, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import java.net.{URLEncoder, URLDecoder}
@@ -53,9 +52,6 @@ object SearchService {
 }
 
 class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
-
-  import scala.xml.PrettyPrinter
-  import java.lang.String
 
   val log = Logger("CultureHub")
 
@@ -105,10 +101,9 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
-        case Some(rendered) => rendered.toJson
-        case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "json")
-        case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "json")
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
+        case Right(rendered) => rendered.toJson
+        case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -119,16 +114,14 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   }
 
   def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
-    import scala.xml.Elem
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
       case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("full", x.getFirst("schema")) match {
-          case Some(rendered) => return Ok(rendered.toXmlString).as(XML)
-          case None if x.getFirst("schema").isDefined => return errorResponse("Record Not Found", "Unable to find record for id: %s with schema: %s".format(x.getValueOrElse("id", "unknown key"), x.getFirst("schema").get), "xml")
-          case None => return errorResponse("Record Not Found", "Unable to find record for id: %s".format(x.getValueOrElse("id", "unknown key")), "xml")
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
+          case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
+          case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
@@ -144,55 +137,60 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String, schema: Option[String] = None): Option[RenderedView] = {
+  def getRenderedFullView(viewName: String, schema: Option[String] = None): Either[String, RenderedView] = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
     SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType) match {
       case Some((hubId, defaultSchema, publicSchemas)) =>
-        val maybePrefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
-          Some(schema.get)
+        val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
+          schema.get
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
-          Logger("Search").info("Schema %s not available for hubId %s".format(schema.get, hubId))
-          None
+          val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
+          Logger("Search").info(m)
+          return Left(m)
         } else {
-          Some(defaultSchema)
+          defaultSchema
         }
 
-        if(maybePrefix.isEmpty) {
-          Logger("Search").info("Could not find prefix for rendering of full view of record %s".format(hubId))
-          None
+        if(idType == "indexItem") {
+          renderIndexItem(id)
         } else {
-          if(idType == "indexItem") {
-            renderIndexItem(id)
-          } else {
-            renderMetadataRecord(maybePrefix.get, hubId, viewName)
-          }
+          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewName)
         }
       case None =>
-        None
+        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType))
     }
   }
 
-  private def renderIndexItem(id: String) = IndexItem.findOneById(id).map {
-    indexItem =>
-      new RenderedView {
-        def toXmlString: String = indexItem.rawXml
+  private def renderIndexItem(id: String): Either[String, RenderedView] = {
+    if(id.split("_").length < 3) {
+      Left("Invalid hubId")
+    } else {
+      val HubId(orgId, itemType, itemId) = id
+      val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
+      val indexItem = cache.findOne(itemId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
+      Right(new RenderedView {
+        def toXmlString: String = indexItem.getRawXmlString
         def toJson: String = "JSON rendering not supported"
-        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.rawXml)
+        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.getRawXmlString)
         def toViewTree: RenderNode = null
-      }
+      })
+    }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Option[RenderedView] = {
-    val rawRecord: Option[String] = MetadataRecord.getMDR(URLDecoder.decode(hubId, "utf-8")).flatMap(_.getCachedTransformedRecord(prefix))
+  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Either[String, RenderedView] = {
+    if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
+    val HubId(orgId, collection, itemId) = hubId
+    val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
+    val rawRecord: Option[String] = cache.findOne(hubId).flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
-      None
+      Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
     } else {
 
       // handle legacy formats
-      val legacyFormats = List("tib", "icn", "abm", "ese", "abc")
+      val legacyFormats = List("tib", "abm", "ese", "abc")
       val viewDefinitionFormatName = if (legacyFormats.contains(prefix)) "legacy" else prefix
 
       // let's do some rendering
@@ -201,23 +199,25 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
           val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
-            None
+            Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))
           } else {
             try {
               val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
               log.debug(cleanRawRecord)
-              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
+//              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
               // TODO see what to do with roles
-              Some(viewRenderer.get.renderRecord(wrappedRecord, List.empty, definition.getNamespaces, Lang(apiLanguage)))
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(apiLanguage))
+              Right(rendered)
             } catch {
               case t =>
                 log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
-                None
+                Left("Error while rendering view '%s' for record with hubId '%s'".format(viewDefinitionFormatName, hubId))
             }
           }
         case None =>
-          log.error("While rendering view %s for record %s: could not find record definition with prefix %s".format(viewDefinitionFormatName, hubId, prefix))
-          None
+          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(viewDefinitionFormatName, hubId, prefix)
+          log.error(m)
+          Left(m)
       }
     }
   }
@@ -239,7 +239,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
     def toJSON: String = {
       import net.liftweb.json.JsonAST._
       import net.liftweb.json.{Extraction, Printer}
-      import scala.collection.immutable.ListMap
       implicit val formats = net.liftweb.json.DefaultFormats
       val docMap = ListMap("status" -> error, "message" -> errorMessage)
       Printer pretty (render(Extraction.decompose(docMap)))
@@ -256,7 +255,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   def getSimileResultResponse(callback : String = "") : PlainResult  = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.{Extraction, Printer}
-    import scala.collection.immutable.ListMap
     implicit val formats = net.liftweb.json.DefaultFormats
 
     try {
@@ -313,11 +311,9 @@ case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean
 
 case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
 
-  import scala.xml.Elem
-
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Array(OWNER, CREATOR, SYSTEM_TYPE, "delving_snippet", "delving_fullText", "delving_fullTextObjectUrl")
+  private val filteredFields = Array(SYSTEM_TYPE, "delving_snippet", "delving_fullTextObjectUrl")
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
@@ -339,10 +335,11 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
     // todo add years from query if they exist
     val response: Elem =
-      <results xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+      <results xmlns:delving="http://www.delving.eu/schemas/" xmlns:aff="http://schemas.delving.eu/aff/"
+               xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:delving="http://www.delving.eu/schemas/"
-               xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
+               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
+               xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
                xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
           <terms>{searchTerms}</terms>
@@ -376,8 +373,8 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
             {uniqueKeyNames.map {
             item =>
               <field>
-                <key>{SearchService.localiseKey(item, language)}</key>
-                <value>{item}</value>
+                <name>{item}</name>
+                <i18n>{SearchService.localiseKey(item, language)}</i18n>
               </field>
           }}
           </fields>
@@ -410,7 +407,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 
   def renderAsJSON(authorized: Boolean): String = {
-    import scala.collection.immutable.ListMap
     import net.liftweb.json.{Extraction, JsonAST, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
@@ -444,7 +440,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
             ),
           "layout" ->
-            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("key" -> SearchService.localiseKey(item, language), "value" -> item))),
+            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("name" -> item, "i18n" -> SearchService.localiseKey(item, language)))),
           "items" ->
             result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
           "facets" -> createFacetList
@@ -497,8 +493,6 @@ case class FacetAutoComplete(params: Params) {
 }
 
 case class ExplainResponse(theme: PortalTheme, params: Params) {
-
-  import scala.xml.Elem
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 
