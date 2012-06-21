@@ -10,8 +10,8 @@ object ApplicationBuild extends Build {
   val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.06"
-  val sipCreatorVersion = "1.0.6"
+  val cultureHubVersion = "12.07-SNAPSHOT"
+  val sipCreatorVersion = "1.0.7-SNAPSHOT"
 
   val dosVersion = "1.5"
 
