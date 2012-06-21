@@ -26,6 +26,7 @@ This is the changelog of the CultureHub. It documents changes of the main platfo
 - sjoerd: misc fixes for the itin endpoint
 - manu: Mechanism for giving the ID of an item in the proxy search response
 - manu: OaiPmh API for listing only sets of a given format
+- eric: flag to control visibility of the login links, per theme
 
 ### Fixes and refactoring
 - manu: better JSON rendering for ViewRendering APIs
