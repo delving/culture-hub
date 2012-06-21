@@ -1,0 +1,55 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('plugin.statistics.statistics') /}
+#{set bodyId:'statistics' /}
+#{set pageId:'Statistics'/}
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
+#{/set}
+#{breadcrumbs /}
+
+#{organizationNavBar orgId: orgId, active:"statistics", navigation: navigation /}
+
+<div class="row">
+    <div class="span12">
+        <h3 class="page-header">
+        &{'plugin.statistics.statistics'}
+        </h3>
+        <div class="tabbable">
+
+            <ul class="nav nav-pills" id="stats-tabs">
+                <li class="active"><a href="#datasets-pane" data-toggle="tab">&{'thing.datasets'}</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="datasets-pane">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'thing.name'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        #{list dataSetStatistics, as: 'dss'}
+                        <tr>
+                            <td>${dss.spec}</td>
+                            <td>${dss.total}</td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasDigitalObjectCount} records">${dss.hasDigitalObjectPercentage}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasLandingPageCount} records">${dss.hasLandingPagePercentage}%</span></td>
+                        </tr>
+                        #{/list}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('span[rel=tooltip]').tooltip();
+    })
+</script>

@@ -79,30 +79,38 @@ trait Logging extends Secured { self: ApplicationController =>
   val CH = "CultureHub"
 
   def info(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(message.format(args : _ *)))
+    Logger(CH).info(withContext(m(message, args)))
   }
   def info(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(message.format(args : _ *)), e)
+    Logger(CH).info(withContext(m(message, args)), e)
   }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(message.format(args : _ *)))
+    Logger(CH).warn(withContext(m(message, args)))
   }
   def warning(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(message.format(args : _ *)), e)
+    Logger(CH).warn(withContext(m(message, args)), e)
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
-    Logger(CH).error(withContext(message.format(args : _ *)))
+    Logger(CH).error(withContext(m(message, args)))
     reportError(request, if(message != null) message.format(args) else "", theme)
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
-    Logger(CH).error(withContext(message.format(args : _ *)), e)
+    Logger(CH).error(withContext(m(message, args)), e)
     reportError(request, if(message != null) message.format(args) else "", theme)
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
     Logger(CH).error("Attempted security breach: " + message)
     ErrorReporter.reportError(securitySubject, toReport(message, request), theme)
+  }
+  
+  private def m(message: String, args: Seq[String]) = {
+    if(args.length > 0) {
+      message.format(args : _ *)
+    } else {
+      message
+    }
   }
 
   private def withContext(msg: String)(implicit request: RequestHeader) = "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown"), request.method, request.uri, msg)

@@ -25,6 +25,7 @@ import play.api.Logger
 import controllers.DelvingController
 import models.{DrupalEntity, StoreResponse}
 import play.api.mvc.{Action}
+import core.Constants._
 import play.api.libs.concurrent.Promise
 
 /**
@@ -41,7 +42,7 @@ object ItinEndPoint extends DelvingController with ThemeAware {
         if (!enabled) {
           Status(NOT_FOUND)
         } else {
-          SearchService.getApiResult(None, request, theme)
+          SearchService.getApiResult(None, request, theme, List())
         }
     }
   }

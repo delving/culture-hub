@@ -14,12 +14,12 @@ import core.{Constants, HubServices}
 
 object Organizations extends DelvingController {
 
-  def index(orgId: String, language: Option[String]) = Root {
+  def index(orgId: String, language: Option[String]) = OrgBrowsingAction(orgId) {
     Action {
       implicit request =>
         if (HubServices.organizationService.exists(orgId)) {
-          val members: List[ListItem] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
-          val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session(Constants.ORGANIZATIONS))
+          val members: List[HubUser] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
+          val dataSets: List[ShortDataSet] = DataSet.findAllVisible(orgId, connectedUser, request.session.get(Constants.ORGANIZATIONS).getOrElse(""))
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,
@@ -27,7 +27,6 @@ object Organizations extends DelvingController {
             'isMember -> HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
             'members -> members,
             'dataSets -> dataSets,
-            'isOwner -> HubServices.organizationService.isAdmin(orgId, connectedUser),
             'currentLanguage -> lang
 
           ))

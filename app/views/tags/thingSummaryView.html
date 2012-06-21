@@ -1,20 +1,14 @@
 %{
-def recordType = _data.getRecordType()
+def recordType = _data.getItemType()
 switch (recordType) {
     case "object":
         recordType = messages.get('thing.object.user')
-        break
-    case "collection":
-        recordType = messages.get('thing.collection')
-        break
-    case "story":
-        recordType = messages.get('thing.story')
         break
     case "mdr":
         recordType = messages.get('thing.object.heritage')
         break
     default:
-    recordType = _data.getRecordType()
+    recordType = _data.getItemType()
 }
 }%
 
@@ -28,10 +22,10 @@ switch (recordType) {
                     <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
                 #{/if}
                 #{elseif _data.getMimeType().contains('video/') }
-                     <img src="@{routes.Assets.at('/common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+                     <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
                 #{/elseif}
                 #{elseif _data.getMimeType().contains('audio/') }
-                    <img src="@{routes.Assets.at('/common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
+                    <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
                 #{/elseif}
                 #{elseif _data.getMimeType().contains('unknown/') }
                     <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>

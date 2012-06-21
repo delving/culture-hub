@@ -113,20 +113,12 @@ thing.datasets=Datasets
 thing.landingPage=Landingpage
 thing.object=Object
 thing.objects=Objects
-thing.object.user=User object
-thing.objects.user=User objects
-thing.objects.user.info=User Objects are the things that we have, but the cultural institutions don't yet know about. These may be old photographs from a box in the attic, or new pictures of artifacts that we think the world should see. We can put these things online and create collections with a mix of our objects and theirs, and then build stories to give them all context.
-
-# TODO unify - thing.XXX convention is used in e.g. list.html
 thing.object.heritage=Heritage object
 thing.objects.heritage=Heritage objects
-thing.mdr=Heritage object
-thing.mdrs=Heritage objects
-
-thing.objects.heritage.info=Heritage Objects are the rich collections of things for which various cultural institutions are responsible, and the information about these objects is something that they maintain for us.  On this site we have these existing collections as a starting point, and sometimes as inspiration, and we can select from them to build our own collections and stories.
 thing.collection=Collection
 thing.collections=Collections
-thing.collections.info=Everyone has their own favorite subjects of interest, and this site allows us to find objects using search and facet navigation, but we can also drag and drop the treasures we find into our own collections. A collection that we decide to create and make public is made available here under a unique URL which we can tell people about and link to.
+thing.museum=Museum
+thing.museums=Museums
 thing.virtualCollection=Virtual Collection
 thing.virtualCollections=Virtual Collections
 thing.bookmarksCollection=My bookmarks
@@ -146,6 +138,7 @@ thing.pages=Site pages
 thing.notavailable.single=There is currently no {0} available
 thing.notavailable.plural=There are currently no {0} available
 thing.owner=Owner
+thing.creator=Creator
 thing.datecreated=Date created
 thing.datemodified=Date modified
 thing.description=Description
@@ -154,9 +147,6 @@ thing.name=Name
 thing.title=Title
 thing.action=Action
 thing.actions=Actions
-thing.objectcount=Number of objects
-thing.collectioncount=Number of collections
-thing.storycount=Number of stories
 thing.datasetcount=Number of Datasets
 thing.objects=Objects
 thing.addlabel=Add label
@@ -188,6 +178,8 @@ thing.endYear=End year
 thing.keyword=Keyword
 thing.keywords=Keywords
 
+
+
 # Account registration and activation messages
 ui.message.registration.success=Your account was successfully created! An email has been sent to {0} for activation
 ui.message.registration.error=Error creating your account, please try again. The cause of the error is: {0}
@@ -200,102 +192,22 @@ ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
 ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="{0}"><strong>visibility status</strong></a> to "Public".
 ui.message.charsLeft=characters left
 
+ui.message.noCookies=Your browser needs to support cookies in order for this site to work correctly.
 
 # User navigation
 
 user.nav.goto=Go to
 user.nav.create=Create
 user.nav.yourprofile=Your profile
-user.nav.yourobjects=Your objects
-user.nav.yourcollections=Your collections
-user.nav.yourstories=Your stories
-user.nav.yourdatasets=Your Datasets
-user.nav.newobject=New object
-user.nav.newcollection=New collection
-user.nav.newstory=New story
-user.nav.newdataset=New Dataset
 
 # Site navigation
 site.nav.home=Home
 
-
-# jQuery templates
-tmpl.selectedObjects.useAsDefault=Thumbnail
-tmpl.selectedObjects.defaultImage=This will set the image as the thumbnail image to represent your collection or story
-
-# labels
-labels.searchLabelHint=Type in a label name
-labels.searchPlaceHint=Type in a place name
-labels.tokenSearching=Searching...
-labels.createLabel=Create new label
-
-
 # Views
-
-## Admin toolbar
-
-thing.admin.disable.explain=This action prevent other users from viewing or using this {0}
-thing.admin.disable.user.explain=This action disables this user and all associated objects, collections, and stories.
-thing.admin.disable.confirm=Are you sure you want to disable this {0}?
-thing.admin.disable.goProfile=This action takes you to the user's profile page where you can proceed to disable this user. Disabling a user also blocks all their objects, collections and stories.
-thing.admin.disable.object=object
-thing.admin.disable.collection=collection
-thing.admin.disable.story=story
-thing.admin.disable.user=user
-
-## Admin.Themes view
-admin.themes.title=Themes administration
-admin.themes.title.new=Add a new theme
-admin.themes.title.update=Update a theme
-admin.themes.section.systeminfo=System information
-admin.themes.section.displayinfo=Display information
-admin.themes.section.searchconfig=Search configuration
-admin.themes.section.mailconfig=Email configuration
-admin.themes.section.extras=Extras
-admin.themes.label.themename=Theme name
-admin.themes.help.themename=The name of the theme used by the system
-admin.themes.label.isdefault=Is default
-admin.themes.label.templatedir=Template directory
-admin.themes.label.displayname=Display name
-admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
-admin.themes.label.homepage=Homepage
-admin.themes.label.defaultlanguage=Default language
-admin.themes.label.colorscheme=Color scheme
-admin.themes.label.solrurl=Solr select URL
-admin.themes.label.cacheurl=Cache URL
-admin.themes.label.localizedquerykeys=Localized query keys
-admin.themes.label.metadataprefix=Metadata prefix
-admin.themes.label.hiddenqf=Hidden query filter
-admin.themes.label.adminto=Admin to
-admin.themes.label.exceptionto=Exception to
-admin.themes.label.feedbackto=Feedback to
-admin.themes.label.registerto=Register to
-admin.themes.label.systemfrom=System from
-admin.themes.label.feedbackfrom=Feedback from
-admin.themes.label.ga=Google Analytics code
-admin.themes.label.addthis=AddThis code
-admin.themes.label.savetheme=Save theme
-
-##Application (homepage)
-home.recentobject=Recent object
-home.recentobjects=Recent objects
-home.recentcollection=Recent collection
-home.recentcollections=Recent collections
-home.recentstory=Recent story
-home.recentstories=Recent stories
 
 ##Authentication login
 authentication.label.forgotpassword=I forgot my password
 authentication.label.rememberme=Remember me
-
-##DObjects
-object.confirmDeletion=Are you sure you want to remove this object?
-
-##Collections
-collection.confirmDeletion=Are you sure you want to remove this collection?
-
-##HeritageObjects
-heritageObject.notViewable=Sorry, this object cannot be displayed
 
 ##Datasets
 dataset.index=Process
@@ -329,9 +241,6 @@ registration.newpassword=Enter a new password below
 registration.registerFor=Register for {0}
 
 ##Search
-search.addItemsToCollection=Add items to a collection
-search.addToCollection=Add to collection
-search.dragItems=Drag items from the result list to here to add them to a collection
 search.facets=Facets
 search.nrfound= Found {0} results
 search.resultsfor=Search results for
@@ -341,18 +250,9 @@ search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
 search.facet.byCollection=Collection
-#search.trail=You are looking at <strong>{0} - {1}</strong> of <strong>{2}</strong> results for:
-search.trail=You are looking at {0} - {1} of aproximately {2} results
+search.trail=Results <strong>{0} - {1}</strong> of <strong>{2}</strong>
 search.viewInOriginalContext=View in original context
 search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
-
-##Story
-story.pages=Pages
-story.nextpage=Next page
-story.read=Read story
-story.previouspage=Previous page
-story.confirmDeletion=Are you sure you want to remove this story?
-story.titlePage=Title page
 
 #metadata
 metadata.abm.contentProvider=Content Provider
@@ -364,7 +264,7 @@ metadata.abm.aboutPerson=About Person
 
 metadata.dc.contributor=Contributor
 metadata.dc.coverage=Coverage
-metadata.dc.creator=Author
+metadata.dc.creator=Creator
 metadata.dc.date=Date
 metadata.dc.description=Description
 metadata.dc.format=Format
@@ -388,6 +288,7 @@ metadata.dcterms.isFormatOf=Is format of
 metadata.dcterms.isPartOf=Is Part of
 metadata.dcterms.isReferencedBy=Is referenced by
 metadata.dcterms.isReplacedBy=Is replaced by
+metadata.dcterms.medium=Medium
 metadata.dcterms.provenance=Provenance
 metadata.dcterms.references=References
 metadata.dcterms.replaces=Replaces
@@ -447,6 +348,10 @@ metadata.tib.creatorBirthYear= Year of birth
 metadata.tib.creatorDeathYear= Year of death
 metadata.tib.year=Year
 metadata.tib.dimension=Dimension
+metadata.tib.color=Color
+metadata.tib.exhibition=Exhibition
+metadata.tib.design=Design
+metadata.tib.subjectDepicted=Voorstelling
 metadata.tib.objectSoort=Object type
 metadata.tib.objectNumber=Inventory number
 metadata.tib.material=Material
@@ -469,6 +374,18 @@ metadata.tib.vindplaats=Physical Location
 
 metadata.collection.strength=Strength
 metadata.collection.administrators=Administrators
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relation to core collection
+metadata.collection.earliestWork=Earliest work from collection
+metadata.collection.latestWork=Most recent work from collection
+metadata.collection.geographicalRelevance=Geographical relevance
+metadata.collection.aatCategories=AAT categories
+metadata.collection.count=Number of objects
+metadata.collection.total=Total
+metadata.collection.fromCore=From core-collection
+metadata.collection.fromBorrowed=Borrowed
+
+metadata.museum.type=Museum type
 
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type
@@ -503,64 +420,6 @@ user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
 
-##Collections
-user.collection.title.create=Create new collection for user {0}
-user.collection.title.update=Update collection for user {0}
-user.collection.create=Create a collection
-user.collection.update=Update a collection
-user.collection.updateCollection=Update collection {0}
-user.collection.info=Collection information
-user.collection.objects=Collection objects
-user.collection.status=Collection status
-user.collection.label.description=Description
-user.collection.help.description=A short description of your collection
-user.collection.label.addObjects=Add object(s)
-user.collection.title.objectsList=Objects in your collection
-user.collection.title.selectObjects=Select Object(s)
-user.collection.save=Save collection
-
-##DObjects
-user.object.title.create=Create new object for user {0}
-user.object.title.update=Update object for user {0}
-user.object.create=Create an object
-user.object.update=Update an object
-user.object.updateObject=Update object {0}
-user.object.label.addToCollection=Add to collection
-user.object.label.file=File
-user.object.save=Save object
-
-##Stories
-user.story.title.create=Create new story for user {0}
-user.story.title.update=Update story for user {0}
-user.story.create=Create a story
-user.story.update=Update a story
-user.story.updateStory=Update story {0}
-user.story.storyInformationStep1=Step 1
-user.story.storyInformation=Story Information
-user.story.bulletPoint1=Enter the basic story information: a titel and short description. This information will form part of the title-page for your story.
-user.story.bulletPoint2=You should initially keep the story visibility status as "Private". Once you have your story as you like it you can come back and set the status to "Public" so that others may find and view it
-user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
-user.story.label.addPages=Add pages
-user.story.storyPagesStep2=Step 2
-user.story.storyPages=Story Pages
-user.story.storyDescription=A <strong>story</strong> can be created from objects in a <strong>collection</strong>. So before you can compose a story, you must have a collection with objects in it.
-user.story.noPagesFound=No pages found
-user.story.label.viewStory=View story
-user.story.label.addPage=Add a new page
-user.story.label.addObjects=Add object(s)
-user.story.label.freeText=Free Text
-user.story.label.selectCollection=Select a collection
-user.story.label.addImageFromCollection=Add an image from this collection
-user.story.title.selectObjects=Select Object(s)
-user.story.noCollection=Objects without collection
-user.story.existingPage=Existing pages
-user.story.pageTitle=Page title
-user.story.saveStory=Save story
-user.story.savePage=Save page
-user.story.tellStory=Tell your story
-user.story.title.deletePage=Delete the page?
-user.story.title.deletePageConfirm=Are you sure you want to delete this page?
-
 user.profile.aboutYou=About you
 user.profile.funFact=Fun fact
 
@@ -576,6 +435,7 @@ org.list.dataSetCount={0} Dataset(s)
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
 org.group.grantType.cms=Site content administration rights
+org.group.grantType.own=Administrator rights
 org.group.save=Save group
 org.group.create=Create group
 org.group.list=Group list
@@ -643,10 +503,12 @@ org.vc.save=Save
 org.vc.query=Query
 org.vc.excludedIds=Exclude
 org.vc.spec=Identifier
+org.vc.autoUpdate=Automatically update collection
 org.vc.recordCount=Number of linked records
 org.vc.currentCount=Number of current results
 org.vc.publicMetadataPrefixes=Public metadata prefixes
 org.vc.referencedDatasets=Referenced DataSets
+org.vc.queryDatasets=Queried DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections
@@ -654,7 +516,7 @@ org.vc.help.toggle=Help with virtual collections
 org.vc.help.fields.tab=Fields explained
 org.vc.help.fields.name.info=The display name of the virtual collection.
 org.vc.help.fields.identifier.info=The system name for the virtual collection.
-org.vc.help.fields.datasets.info=The Dataset(s) included in the virtual collection. Multiple datasets are allowed and are separated by a comma <code>dataset1, dataset2</code>.
+org.vc.help.fields.datasets.info=The Dataset(s) included in the virtual collection.
 org.vc.help.fields.query.info=The search-term(s) which will query the Datasets to build the virtual collection.
 org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma.
 # QUERIES #
@@ -690,14 +552,13 @@ organization.members=Members
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
-
 # Controllers
 
 user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
 
 dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for processing
-dataSetState.parsing=Parsing uploaded source data
+dataSetState.parsing=Parsing and storing uploaded source data
 dataSetState.queued=Queued for processing
 dataSetState.processing=Processing
 dataSetState.indexing=Indexing
@@ -709,26 +570,14 @@ admin.themes.themeNotFound=Theme with id {0} was not found
 admin.themes.saveError=Error saving theme {0}
 user.admin.userNotFound=Could not find user {0}
 user.admin.profile.saveError=Error saving your profile, please try again
-user.collections.objectNotFound=Object with id {0} was not found
-user.collections.saveError=Error saving collection {0}
-user.dobjects.objectNotFound=Object with id {0} was not found
-user.dobjects.saveError=Error saving object {0}
 user.fileupload.removeError=Error removing file, invalid id {0}
-user.stories.storyNotFound=Story with id {0} was not found
-collections.invalidCollectionId=Invalid collection id {0}
 datasets.dataSetNotFound=Dataset {0} was not found
 delvingcontroller.userNotFound=User {0} was not found
 
-listPageTitle.object.user=List of objects for user {0}
-listPageTitle.object.all=List of objects
 listPageTitle.mdr.user=List of heritage object for {0}
 listPageTitle.mdr.all=List of heritage objects
-listPageTitle.collection.user=List of collections for user {0}
-listPageTitle.collection.all=List of collections
 listPageTitle.dataset.user=List of datasets for user {0}
 listPageTitle.dataset.all=List of datasets
-listPageTitle.story.user=List of stories for user {0}
-listPageTitle.story.all=List of stories
 listPageTitle.user.all=List of users
 
 registration.invalidCode=Invalid code. Please type it again
@@ -749,8 +598,6 @@ authentication.logout=You were logged out successfully
 authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
 servicessecurity.userNotFound=User {0} was not found
 
-stories.storyNotFound=Story with id {0} was not found
-
 profile.profileNotFound=No profile was found for user {0}
 
 organizations.organization.orgNotFound=Could not find organization {0}
@@ -763,6 +610,7 @@ organizations.group.cannotAddDataset=Could not add Dataset with ID {0} to group 
 organizations.group.cannotRemoveDataset=Could not remove Dataset with ID {0} from group {0}
 organizations.group.groupNotFound=Could not find group with ID {0}
 organizations.group.cannotSaveGroup=Could not save group, please try again
+organizations.group.confirmDeletion=Are you sure you want to delete this group?
 
 organization.datasets.dataSetNotFound=Dataset {0} was not found
 organization.datasets.cannotBeProcessed=Dataset cannot be processed in the current state
@@ -781,3 +629,27 @@ locale.en=English (en)
 locale.nl=Dutch (nl)
 locale.no=Norwegian (no)
 locale.nb=Norwegian b�kmal (nb)
+
+
+
+
+###### Plugin messages (TODO: move to plugin once that is available)
+
+plugin.musip.museum=Museum
+plugin.musip.museums=Museums
+plugin.musip.collection=Collection
+plugin.musip.collections=Collections
+
+plugin.statistics.statistics=Statistics
+plugin.statistics.dataset=DataSet
+plugin.statistics.history=History
+plugin.statistics.withObjects=With objects
+plugin.statistics.withoutObjects=Without objects
+plugin.statistics.nrRecords=Number of records
+plugin.statistics.landingPages=With landing-pages
+
+
+
+
+
+

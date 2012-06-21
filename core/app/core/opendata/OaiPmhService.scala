@@ -22,10 +22,10 @@ import exceptions._
 import core.search.Params
 import core.opendata.PmhVerbType.PmhVerb
 import play.api.Logger
-import org.apache.commons.lang.StringEscapeUtils
-import models.{RecordDefinition, MetadataRecord, Collection, Namespace}
 import xml.{Elem, PrettyPrinter, XML}
-import java.net.{URLDecoder, URLEncoder}
+import java.net.URLEncoder
+import core.Constants._
+import models._
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -49,7 +49,7 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, accessKey: Option[String]) extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String]) extends MetaConfig {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)
@@ -148,8 +148,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   }
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    // todo add checking for accessKeys and see if is valid
-    val collections = models.Collection.findAllNonEmpty(orgId, None)
+
+    val collections = models.Collection.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -175,19 +175,20 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
    */
 
   def processListMetadataFormats(pmhRequestEntry: PmhRequestEntry) : Elem = {
-    val eseSchema =
-      <metadataFormat>
-        <metadataPrefix>ese</metadataPrefix>
-        <schema>http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd</schema>
-        <metadataNamespace>http://www.europeana.eu/schemas/ese/</metadataNamespace>
-      </metadataFormat>
 
-    // if no identifier present list all formats
     val identifier = pmhRequestEntry.pmhRequestItem.identifier
     val identifierSpec = identifier.split("_").head
 
+    // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
-    val metadataFormats = if (identifier.isEmpty) models.Collection.getAllMetadataFormats(orgId, accessKey) else models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
+    val allMetadataFormats = if (identifier.isEmpty) {
+      models.Collection.getAllMetadataFormats(orgId, accessKey)
+    } else {
+      models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
+    }
+
+    // apply format filter
+    val metadataFormats = if(format.isDefined) allMetadataFormats.filter(_.prefix == format.get) else allMetadataFormats
 
     def formatRequest: Elem = if (!identifier.isEmpty) <request verb="ListMetadataFormats" identifier={identifier}>{requestURL}</request>
     else <request verb="ListMetadataFormats">{requestURL}</request>
@@ -206,7 +207,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
             <metadataNamespace>{format.namespace}</metadataNamespace>
           </metadataFormat>
           }
-          {if (metadataFormats.filter(_.prefix.equalsIgnoreCase("ese")).isEmpty) eseSchema}
         </ListMetadataFormats>
       </OAI-PMH>
     elem
@@ -217,14 +217,19 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val setName = pmhRequestEntry.getSet
     if(setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
+
+    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
+
     val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
     if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
-      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat));
+      throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
 
     val recordList = records.toList
-    // FIXME these head calls blow up if there are no records
+
+    if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
+
     val from = printDate(recordList.head.modified)
     val to = printDate(recordList.last.modified)
 
@@ -252,7 +257,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
-            <identifier>{record.hubId}</identifier>
+            <identifier>{record.itemId}</identifier>
             <datestamp>{record.modified}</datestamp>
             <setSpec>{setName}</setSpec>
           </header>
@@ -271,12 +276,25 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
+    if(pmhRequest.identifier.split("_").length < 3) return createErrorResponse("idDoesNotExist")
 
     val identifier = pmhRequest.identifier
     val metadataFormat = pmhRequest.metadataPrefix
 
-    val record: MetadataRecord = {
-      val mdRecord = MetadataRecord.getMDR(URLDecoder.decode(identifier, "utf-8"), metadataFormat, accessKey)
+    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
+
+    val HubId(orgId, set, itemId) = pmhRequest.identifier
+
+    // check access rights
+    val ds = DataSet.findBySpecAndOrgId(set, orgId)
+    if (ds == None) return createErrorResponse("noRecordsMatch")
+    if (!ds.get.formatAccessControl.get(metadataFormat).map(_.hasAccess(accessKey)).getOrElse(false)) {
+      return createErrorResponse("idDoesNotExist")
+    }
+
+    val record: MetadataItem = {
+      val cache = MetadataCache.get(orgId, set, ITEM_TYPE_MDR)
+      val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -303,30 +321,27 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   }
 
   // todo find a way to not show status namespace when not deleted
-  private def recordStatus(record: MetadataRecord) : String = if (record.deleted) "deleted" else ""
+  private def recordStatus(record: MetadataItem) : String = "" // todo what is the sense of deleted here? do we need to keep deleted references?
 
-  private def renderRecord(record: MetadataRecord, metadataPrefix: String, set: String) : Elem = {
+  private def renderRecord(record: MetadataItem, metadataPrefix: String, set: String) : Elem = {
 
-    val cachedString = record.getCachedTransformedRecord(metadataPrefix).getOrElse("")
-    val recordAsString = if (cachedString.contains("record>"))
-        "%s".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
-      else
-        "<record>%s</record>".format(cachedString).replaceAll("<[/]{0,1}(br|BR)>", "<br/>")
-    // todo get the record separator for rendering from somewhere
+    val cachedString = record.xml.get(metadataPrefix).getOrElse(throw new RecordNotFoundException(record.itemId))
+
     val response = try {
+      val elem: Elem = XML.loadString(cachedString)
       <record>
         <header>
-          <identifier>{URLEncoder.encode(record.hubId, "utf-8")}</identifier>
+          <identifier>{URLEncoder.encode(record.itemId, "utf-8")}</identifier>
           <datestamp>{printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
-          {XML.loadString(recordAsString)}
+          {elem}
         </metadata>
       </record>
     } catch {
       case e: Exception =>
-        log.error("Unable to render record %s with format %s because of %s".format(record.hubId, metadataPrefix, e.getMessage), e)
+        log.error("Unable to render record %s with format %s because of %s".format(record.itemId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
@@ -343,7 +358,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     for (ns <- namespaces) {
       import xml.{Null, UnprefixedAttribute}
-      mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+      if(ns.prefix == null || ns.prefix.isEmpty) {
+        mutableElem = mutableElem % new UnprefixedAttribute("xmlns", ns.uri, Null)
+      } else {
+        mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+      }
     }
     mutableElem
   }
@@ -408,9 +427,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     def getLastTransferIdx = if (resumptionToken.isEmpty) 0 else recordInt.toInt
     def getOriginalListSize = if (resumptionToken.isEmpty) 0 else originalSize.toInt
     
-    def renderResumptionToken(recordList: List[MetadataRecord], totalListSize: Int) = {
+    def renderResumptionToken(recordList: List[MetadataItem], totalListSize: Long) = {
 
-      val nextLastIdx = recordList.last.transferIdx.get
+      val nextLastIdx = recordList.last.index
 
       val originalListSize = if (getOriginalListSize == 0) totalListSize else getOriginalListSize
 

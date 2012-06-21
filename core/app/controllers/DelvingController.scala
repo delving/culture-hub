@@ -8,11 +8,12 @@ import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
 import extensions.{Extensions, ConfigurationException}
-import com.mongodb.casbah.commons.MongoDBObject
+import collection.JavaConverters._
 import org.bson.types.ObjectId
 import xml.NodeSeq
 import core._
 import models.{GrantType, Group, HubUser}
+import play.api.data.Forms._
 
 /**
  *
@@ -65,6 +66,13 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
           // apply plugin handlers
           onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, theme, renderArgs, getLang)))
+
+          // main navigation
+          val menu = hubPlugins.map(
+            plugin => plugin.mainMenuEntries(theme, getLang).map(_.asJavaMap)
+          ).flatten.asJava
+
+          renderArgs += ("menu" -> menu)
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
@@ -135,34 +143,42 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
   def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
     request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
 
-
-  /**
-   * Turns a scala XML node into a JSON string
-   *
-   * @param xml the input xml document
-   * @param sequences field names that are sequences, and should be generated as array even when there's only a single element
-   * @return a string formatted as JSON
-   */
-  def toJson(xml: NodeSeq, sequences: Seq[String] = List.empty): String = {
-    import net.liftweb.json._
-    val json = Xml.toJson(xml) map {
-        case JField(name: String, x: JObject) =>
-          if(sequences.contains(name))
-            JField("dataProvider", JArray(x :: Nil))
-          else
-            x
-        case x => x
-    }
-    Printer.pretty(render(json))
-  }
-
-  def DOk(xml: NodeSeq, sequences: String*)(implicit request: RequestHeader): Result = {
+  def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
     if(wantsJson) {
-      Ok(toJson(xml, sequences)).as(JSON)
+      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
     } else {
       Ok(xml)
     }
   }
+
+
+  // ~~~ Form utilities
+  import extensions.Formatters._
+
+  val tokenListMapping = list(
+    play.api.data.Forms.mapping(
+      "id" -> text,
+      "name" -> text,
+      "tokenType" -> optional(text),
+      "data" -> optional(of[Map[String, String]])
+      )(Token.apply)(Token.unapply)
+    )
+
+
+  // ~~~ Access control
+
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
+    userName =>
+      val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+      val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+      // TODO make this cleaner
+      if(isAdmin) {
+        groups ++ List(GrantType.get("own"))
+      } else {
+        groups
+      }
+  }.getOrElse(List.empty)
+
 
 }
 
@@ -185,13 +201,13 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isOwner(implicit request: RequestHeader): Boolean = renderArgs("isOwner").get.asInstanceOf[Boolean]
+  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, connectedUser)
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (isOwner) {
+          if (isAdmin(orgId)) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -209,16 +225,11 @@ trait OrganizationController extends DelvingController with Secured {
             if (orgId == null || orgId.isEmpty) {
               Error("How did you even get here?")
             }
-            val organizations = request.session.get(Constants.ORGANIZATIONS).getOrElse("")
-            if (organizations == null || organizations.isEmpty) {
+            if (!HubUser.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
               Forbidden(Messages("user.secured.noAccess"))
-            } else if (!organizations.split(",").contains(orgId)) {
-              Forbidden(Messages("user.secured.noAccess"))
+            } else {
+              action(request)
             }
-            renderArgs += ("orgId" -> orgId)
-            renderArgs += ("isOwner" -> HubServices.organizationService.isAdmin(orgId, userName))
-            renderArgs += ("isCMSAdmin" -> (HubServices.organizationService.isAdmin(orgId, userName) || (Group.count(MongoDBObject("users" -> userName, "grantType" -> GrantType.CMS.key)) == 0)))
-            action(request)
           }
         }
       }
@@ -338,8 +349,28 @@ trait DelvingController extends ApplicationController with CoreImplicits {
       Action(action.parser) {
         implicit request =>
           val orgName = HubServices.organizationService.getName(orgId, "en")
-          renderArgs +=("browsedOrgName", orgName)
-          renderArgs +=("currentLanguage", getLang)
+          val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+          renderArgs += ("orgId" -> orgId)
+          renderArgs += ("browsedOrgName", orgName)
+          renderArgs += ("currentLanguage", getLang)
+          renderArgs += ("isAdmin" -> isAdmin)
+
+          val roles: Seq[String] = (session.get("userName").map {
+            u => Group.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
+          }.getOrElse {
+            List.empty
+          }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)
+
+
+          renderArgs += ("roles" -> roles.asJava)
+
+          val navigation = hubPlugins.map(
+            plugin => plugin.getOrganizationNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
+          ).flatten.asJava
+
+          renderArgs += ("navigation" -> navigation)
+
+
           action(request)
       }
     }

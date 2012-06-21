@@ -1,6 +1,7 @@
 package models
 
 import com.mongodb.casbah.Imports._
+import core.Constants._
 
 /**
  * Hub Collection access. This covers both real collections (DataSets) and virtual ones (VirtualCollections)
@@ -14,19 +15,22 @@ case class Collection(spec: String,
                       namespaces: Map[String, String]) {
 
 
-  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataRecord], Int) = {
+  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+    val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
     if(dataSet.isDefined) {
-      val records = DataSet.getRecords(orgId, spec).find((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt position) )).sort(MongoDBObject("transferIdx" -> 1)).limit(limit)
-      val totalSize = DataSet.getRecords(orgId, spec).count((MongoDBObject("validOutputFormats" -> metadataFormat)  ++ ("transferIdx" $gt position) ))
-      (records.toList, totalSize.toInt)
+      val records = cache.list(position, Some(limit)).filter(_.xml.contains(metadataFormat))
+      val totalSize = cache.count()
+      (records, totalSize)
     } else {
       VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
         case Some(vc) =>
           val references = VirtualCollection.children.find(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit)
           val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> vc._id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position))
-          val records = references.toList.groupBy(_.hubCollection).map {
-            grouped => MetadataRecord.getMDRs(grouped._1, grouped._2.map(_.hubId))
+          val records = references.toList.groupBy(_.collection).map {
+            grouped =>
+              val cache = MetadataCache.get(orgId, grouped._1, ITEM_TYPE_MDR)
+              cache.list()
           }.flatten.toList
           (records, totalSize.toInt)
         case None => (List.empty, 0)
@@ -38,11 +42,26 @@ case class Collection(spec: String,
 
 object Collection {
 
-  def findAllNonEmpty(orgId: String, accessKey: Option[String] = None): List[Collection] = {
+  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[Collection] = {
 
     // TODO implement accessKey lookup
-    val dataSets: List[Collection] = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
-    val virtualCollections: List[Collection] = VirtualCollection.findAllNonEmpty(orgId)
+    val dataSets: List[Collection] ={
+      val sets = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
+      if(format.isDefined) {
+        sets.filter(ds => ds.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+      } else {
+        sets
+      }
+    }
+
+    val virtualCollections: List[Collection] = {
+      val vcs = VirtualCollection.findAllNonEmpty(orgId)
+      if(format.isDefined) {
+        vcs.filter(vc => vc.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+      } else {
+        vcs
+      }
+    }
 
     dataSets ++ virtualCollections
   }

@@ -14,7 +14,7 @@
 
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage /}
+#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="row">
     <div class="span12">
@@ -38,10 +38,10 @@
         <thead>
         <tr>
             <th width="150" class="sort">&{'thing.name'}</th>
-            <th class="sort" width="70">&{'ui.label.nritems'}</th>
-            <th class="sort">&{'ui.label.status'}</th>
+            <th class="sort" width="80">&{'ui.label.nritems'}</th>
+            <th class="sort" width="70">&{'ui.label.status'}</th>
             <th>&{'ui.label.options'}</th>
-            <th width="70">&#160;</th>
+            <th width="50">&#160;</th>
         </tr>
         </thead>
         <tfoot>
@@ -58,18 +58,17 @@
         #{list items, as: 'i'}
         <tr>
             <td><a href="/organizations/${orgId}/dataset/${i.spec}">${i.spec}</a></td>
-            <td width="100"><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
+            <td><a href="/search?query=delving_spec%3A${i.spec}">${i.total_records}</a></td>
             <td id="description${i.spec}" width="120">
             #{if i.state.name() == models.DataSetState.ERROR().name()}
                 <span class="badge badge-important badge-error" rel="popover" data-original-title="${i.state.description()}" data-content="${i.error.raw()}">&{'ui.label.error'}</span>
-                *{<span class="error">${i.state.description()}:<br/>${i.error.raw()}</span>}*
             #{/if}
             #{else}
                     ${i.state.description()}
             #{/else}
             </td>
             <td>
-                #{if isOwner}
+                #{if isAdmin}
                     <div class="btn-toolbar nom">
                         <div class="btn-group">
                             <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${i.spec}/update">
@@ -80,25 +79,36 @@
                             #{if i.state.name() == models.DataSetState.UPLOADED().name() || i.state.name() == models.DataSetState.ERROR().name()}
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/index" method="POST" class="data-set">
                                     <button class="btn btn-mini">&{'dataset.index'}</button>
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                 </form>
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/invalidate" method="POST" class="data-set">
                                     <button class="btn btn-mini">&{'dataset.invalidate'}</button>
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                 </form>
                             #{/if}
 
                             #{if i.state.name() == models.DataSetState.ENABLED().name()}
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/reindex" method="POST" class="data-set">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini">&{'dataset.reindex'}</button>
                                 </form>
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set data-set-disable">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini">&{'dataset.disable'}</button>
                                 </form>
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/invalidate" method="POST" class="data-set">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
+                                    <button class="btn btn-mini">&{'dataset.invalidate'}</button>
+                                </form>
+                            #{/if}
+
+                            #{if i.state.name() == models.DataSetState.ERROR().name()}
+                                <form action="/organizations/${orgId}/dataset/${i.spec}/disable" method="POST" class="data-set data-set-disable">
+                                    *{#{authenticityToken /}}*
+                                    <button class="btn btn-mini">&{'dataset.disable'}</button>
+                                </form>
+                                <form action="/organizations/${orgId}/dataset/${i.spec}/invalidate" method="POST" class="data-set">
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini">&{'dataset.invalidate'}</button>
                                 </form>
                             #{/if}
@@ -106,20 +116,28 @@
                             #{if i.state.name() == models.DataSetState.QUEUED().name() || i.state.name() == models.DataSetState.PROCESSING().name()}
 
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/cancel" method="POST" class="data-set">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini"><span >&{'dataset.cancelindex'}</span>
                                     </button>
                                 </form>
 
                             #{/if}
 
+                            #{if i.state.name() == models.DataSetState.PARSING().name()}
+
+                                <form action="/organizations/${orgId}/dataset/${i.spec}/invalidate" method="POST" class="data-set">
+                                    *{#{authenticityToken /}}*
+                                    <button class="btn btn-mini">&{'dataset.invalidate'}</button>
+                                </form>
+
+                            #{/if}
                             #{if i.state.name() == models.DataSetState.DISABLED().name()}
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/enable" method="POST" class="data-set">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini">&{'dataset.enable'}</button>
                                 </form>
                                 <form action="/organizations/${orgId}/dataset/${i.spec}/invalidate" method="POST" class="data-set">
-                                    #{authenticityToken /}
+                                    *{#{authenticityToken /}}*
                                     <button class="btn btn-mini"><span>&{'dataset.invalidate'}</span></button>
                                 </form>
                             #{/if}
@@ -183,16 +201,14 @@
                                  }
                              });
                          </script>
-                         #{/if}
+                     #{/if}
+                    <div class="btn-group">
+                        <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
+                        ${messages.get('ui.label.delete')}
+                        </a>
+                    </div>
                 #{/if}
             </div>
-            </td>
-            <td>
-                <div class="btn-group">
-                    <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
-                    ${messages.get('ui.label.delete')}
-                    </a>
-                </div>
             </td>
         </tr>
         #{/list}

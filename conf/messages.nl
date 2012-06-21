@@ -90,7 +90,7 @@ ui.label.startupload=Begin upload
 ui.label.status=Status
 ui.label.theme=Website thema
 ui.label.uploadcancel=Annuleer upload
-ui.label.username=Gerbruikersnaam
+ui.label.username=Gebruikersnaam
 ui.label.visibility=Zichtbaarheid
 ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
@@ -107,22 +107,18 @@ thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
 thing.datasets=Datasets
+thing.object.heritage=Cultureelerfgoed object
+thing.objects.heritage=Cultureelerfgoed objecten
 thing.object=Object
 thing.objects=Objecten
-thing.object.user=Gebruikersobject
-thing.objects.user=Gebruikersobjecten
-thing.objects.user.info=Gebruikersobjecten zijn de dingen die wij in bezit hebben, maar die nog niet bekend zijn bij erfgoed instanties.  Misschien oude foto's gevonden op zolder, of nieuwe foto's of opnames van objecten die de wereld zou moeten zien. Wij kunnen deze dingen nu online zetten en collecties maken uit mengsels van objecten uit hun collecties en de onze, en verhalen schrijven die alles in context plaatsten.
-thing.object.heritage=Erfgoedobject
-thing.objects.heritage=Erfgoedobjecten
-thing.objects.heritage.info=Erfgoedobjecten komen uit rijke collecties waarvoor diverse erfgoed instanties verantwoordelijkheid dragen, en die door de organisaties zelf worden bijgehouden. Op deze site kunnen wij erfgoedobjecten gebruiken als een beginpunt, en wellicht als inspiratiebron, en wij kunnen eruit kiezen om ons eigen collecties en verhalen te bouwen.
 thing.collection=Collectie
 thing.collections=Collecties
+thing.museum=Museum
+thing.museums=Musea
+
 thing.virtualCollection=Virtuele collectie
 thing.virtualCollections=Virtuele collecties
 thing.collections.info=Iedereen heeft zijn of haar favoriete onderwerpen, en deze site biedt mogelijkheden om erfgoedobjecten te vinden en in facetten te navigeren, maar wij kunnen ook gevonden schatten slepen naar ons eigen collecties.  Een collectie die wij maken en online zetten wordt geplaatst onder een unieke URL die wij makkelijk kunnen doorgeven aan anderen.
-thing.story=Verhaal
-thing.stories=Verhalen
-thing.stories.info=Het verzinnen van een rode draad is soms de enige manier om erfgoedobjecten de context te geven die ze verdienen.  Vaak zijn de bijbehorende beschrijvingen onbevredigend, en objecten opnemen in een verhaal, zelfs aangevuld met ons eigen schatten, zou beter zijn.  Deze site vereenvoudigt het maken en publiceren van verhalen online voor alle geïnteresseerden.
 thing.user=Gebruiker
 thing.users=Gebruikers
 thing.organization=Organisatie
@@ -139,9 +135,6 @@ thing.name=Naam
 thing.title=Titel
 thing.action=Actie
 thing.actions=Acties
-thing.objectcount=Aantal objecten
-thing.collectioncount=Aantal collecties
-thing.storycount=Aantal verhalen
 thing.datasetcount=Aantal Datasets
 thing.objects=Objecten
 thing.labels=Labels
@@ -174,6 +167,7 @@ thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 
 
+
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
 ui.message.registration.error=Er is een fout opgetreden met het aanmaken van uw account, probeer opnieuw. De foutcode is: {0}
@@ -190,106 +184,17 @@ ui.message.charsLeft=characters mogelijk
 user.nav.goto=Ga naar
 user.nav.create=Aanmaken
 user.nav.yourprofile=Jouw profiel
-user.nav.yourobjects=Jouw objecten
-user.nav.yourcollections=Jouw collecties
-user.nav.yourstories=Jouw verhalen
-user.nav.yourdatasets=Jouw Datasets
-user.nav.newobject=Nieuw object
-user.nav.newcollection=Nieuwe collectie
-user.nav.newstory=Nieuw verhaal
-user.nav.newdataset=Nieuw Dataset
 
 # Site navigation
 site.nav.home=Home
 
-# jQuery templates
-tmpl.selectedObjects.useAsDefault=Thumbnail
-tmpl.selectedObjects.defaultImage=Gebruik deze afbeelding als miniatuur weergave voor uw collectie of verhaal
-
-# labels
-labels.searchLabelHint=Type een label tekst
-labels.searchPlaceHint=Type een plaatsnaam
-labels.tokenSearching=Zoeken...
-labels.createLabel=Nieuwe label
-
 # Views
-
-## Admin toolbar
-
-thing.admin.disable.explain=Deze actie voorkomt dat andere gebruikers {0} kunnen zien of gebruiken.
-thing.admin.disable.user.explain=Deze actie blokkeert de gebruiker en alle objecten, collecties en verhalen van deze gebruiker.
-thing.admin.disable.confirm=Weet u zeker dat u {0} wil blokkeren?
-thing.admin.disable.goProfile=Ga naar de profielpagina van deze gebruiker om die te blokkeren. Deze actie blokkeert de gebruiker en ook alle objecten, collecties en verhalen van de gebruiker.
-thing.admin.disable.goProfile=Deze actie neemt u naar de profiel pagina van deze gebruiker waar u vervolgens de gebruiker kunt blokkeren. Tevens worden alle objecten, collecties en verhalen van deze gebruiker geblokkeert.
-thing.admin.disable.object=dit object
-thing.admin.disable.collection=deze collectie
-thing.admin.disable.story=dit verhaal
-thing.admin.disable.user=deze gebruiker
-
-
-## Admin.Themes view
-admin.themes.title=Themes administration
-admin.themes.title.new=Add a new theme
-admin.themes.title.update=Update a theme
-admin.themes.section.systeminfo=System information
-admin.themes.section.displayinfo=Display information
-admin.themes.section.searchconfig=Search configuration
-admin.themes.section.mailconfig=Email configuration
-admin.themes.section.extras=Extras
-admin.themes.label.themename=Theme name
-admin.themes.help.themename=The name of the theme used by the system
-admin.themes.label.isdefault=Is default
-admin.themes.label.templatedir=Template directory
-admin.themes.label.displayname=Display name
-admin.themes.help.displayname=The display name of the theme as you would like it to appear on the website
-admin.themes.label.homepage=Homepage
-admin.themes.label.defaultlanguage=Default language
-admin.themes.label.colorscheme=Color scheme
-admin.themes.label.solrurl=Solr select URL
-admin.themes.label.cacheurl=Cache URL
-admin.themes.label.localizedquerykeys=Localized query keys
-admin.themes.label.metadataprefix=Metadata prefix
-admin.themes.label.hiddenqf=Hidden query filter
-admin.themes.label.adminto=Admin to
-admin.themes.label.exceptionto=Exception to
-admin.themes.label.feedbackto=Feedback to
-admin.themes.label.registerto=Register to
-admin.themes.label.systemfrom=System from
-admin.themes.label.feedbackfrom=Feedback from
-admin.themes.label.ga=Google Analytics code
-admin.themes.label.addthis=AddThis code
-admin.themes.label.savetheme=Save theme
-
-##Application (homepage)
-home.recentobject=Recent object
-home.recentobjects=Recente objecten
-home.recentcollection=Recente collectie
-home.recentcollections=Recente collecties
-home.recentstory=Recent verhaal
-home.recentstories=Recente verhalen
 
 ##Authentication login
 authentication.label.forgotpassword=Ik ben mijn wachtwoord vergeten
 authentication.label.rememberme=Herinner mij
 
 
-
-##DObjects
-object.confirmDeletion=Weet u zeker dat u dit object wilt verwijderen?
-
-##Collections
-collection.confirmDeletion=Weet u zeker dat u deze collectie wilt verwijderen?
-
-##Datasets
-dataset.index=Indexeren
-dataset.reindex=Opnieuw indexeren
-dataset.cancelindex=Annuleer indexeren
-dataset.disable=Uitschakelen
-dataset.enable=Inschakelen
-dataset.confirmDeletion=Verwijder deze Dataset?
-dataset.find=Vind een Dataset
-dataset.disableDatasetForDeletion=Dataset eerst uitschakelen om te kunnen verwijderen
-dataset.filter.beginTyping=Type hier een dataset naam
 ##Mails
 mail.message.activateaccount=uw account voor {0} is aangemaakt. Om uw account te activeren, klik op de onderstaande link
 mail.message.resetpassword=Klik op de onderstaande link om het wachtwoord voor {0} opnieuw in te stellen
@@ -306,9 +211,6 @@ registration.newpassword=Voer een nieuw wachtwoord in
 registration.registerFor=Registreer voor {0}
 
 ##Search
-search.addItemsToCollection=Voeg toe aan een collectie
-search.addToCollection=Toevoegen
-search.dragItems=Sleep een resultaat object hier in om aan een collectie toe te voegen
 search.facets=Facetten
 search.nrfound= {0} resultaten gevonden
 search.resultsfor=Zoekresultate voor
@@ -319,15 +221,8 @@ search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
 search.facet.byCollection=Collectie
 #search.trail=U bekijkt resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong> voor:
-search.trail=U bekijkt resultaten {0} - {1} van ongeveer {2}
+search.trail=Resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong>
 search.viewInOriginalContext=Bekijk in oorspronkelijke context
-##Story
-story.pages=Pagina's
-story.nextpage=Volgende pagina
-story.read=Lees verhaal
-story.previouspage=Vorige pagina
-story.confirmDeletion=Weet u zeker dat u dit verhaal wilt verwijderen?
-story.titlePage=Titelpagina
 
 #metadata
 metadata.abm.contentProvider=Content Provider
@@ -361,6 +256,7 @@ metadata.dcterms.isFormatOf=Is formaat van
 metadata.dcterms.hasVersion=Versie
 metadata.dcterms.isPartOf=Is deel van
 metadata.dcterms.isReferencedBy=Is verwezen door
+metadata.dcterms.medium=Medium
 metadata.dcterms.isReplacedBy=Is vervangen door
 metadata.dcterms.provenance=Herkomst
 metadata.dcterms.references=Referenties
@@ -423,6 +319,10 @@ metadata.tib.productionStart=Datering
 metadata.tib.productionEnd=Datering
 metadata.tib.creatorBirthYear=Geboortejaar
 metadata.tib.creatorDeathYear=Sterfjaar
+metadata.tib.color=Kleur
+metadata.tib.exhibition=Tentoonstelling
+metadata.tib.design=Design
+metadata.tib.subjectDepicted=Voorstelling
 metadata.tib.year=Jaar
 metadata.tib.pageStart=Beginpagina
 metadata.tib.pageEnd=Eindpagina
@@ -444,6 +344,20 @@ metadata.tib.pages=Paginering
 metadata.tib.formatted=Geformateerde tekst
 metadata.tib.vindplaats=Vindplaats
 
+metadata.collection.strength=Kracht
+metadata.collection.administrators=Beheerders
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relatie tot kerncollectie
+metadata.collection.earliestWork=Vroegste werk uit collectie
+metadata.collection.latestWork=Meest recente werk uit collectie
+metadata.collection.geographicalRelevance=Geographische verbondenheid
+metadata.collection.aatCategories=AAT categorieën
+metadata.collection.count=Aantal objecten
+metadata.collection.total=Totaal
+metadata.collection.fromCore=Uit kerncollectie
+metadata.collection.fromBorrowed=Uit bruikleen
+
+metadata.museum.type=Museum type
 
 #Users
 
@@ -465,20 +379,6 @@ user.admin.profile.help.linkedIn=LinkedIn publieke profiel naam
 user.admin.profile.help.public=Wanneer dit is aangevinkt is dit profiel ook zichtbaar voor niet-ingelogde gebruikers.
 user.admin.profile.gravatarHelp=Koppel een <a href="http://www.gravatar.com" target="_blank">Gravatar</a> aan dit e-mailadres
 
-##Collections
-user.collection.title.create=Nieuwe collectie aanmaken voor gebruiker {0}
-user.collection.title.update=Collectie aanpassen voor gebruiker {0}
-user.collection.create=Collectie aanmaken
-user.collection.update=Collectie aanpassen
-user.collection.info=Collectie informatie
-user.collection.objects=Collectie objecten
-user.collection.status=Collectie status
-user.collection.label.description=Beschrijving
-user.collection.help.description=Een korte beschrijving van uw collectie
-user.collection.label.addObjects=Object(en) toevoegen
-user.collection.title.objectsList=Objecten in uw collectie
-user.collection.title.selectObjects=Object(en) selecteren
-user.collection.save=Bewaar collectie
 
 ##Datasets
 user.dataset.title.create=Dataset aanmaken voor gebruiker {0}
@@ -490,51 +390,10 @@ user.dataset.label.identifier=Identifier
 user.dataset.help.identifier=De unieke identifier voor deze dataset
 user.dataset.save=Dataset bewaren
 
-##DObjects
-user.object.title.create=Nieuw object aanmaken voor gebruiker {0}
-user.object.title.update=Object aanpassen voor gebruiker {0}
-user.object.create=Object aanmaken
-user.object.update=Object aanpassen
-user.object.label.addToCollection=Voeg toe aan collectie
-user.object.label.file=Bestand
-user.object.save=Bewaar object
-
 ##Sip-Creator
 user.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 user.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <b>sip-creator.jnlp</b> which should cause the application to be downloaded and installed on your machine.  You will need to have <b>Java</b> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
-##Stories
-
-user.story.title.create=Nieuw verhaal aanmaken voor gebruiker {0}
-user.story.title.update=Verhaal aanpassen voor gebruiker {0}
-user.story.create=Verhaal aanmaken
-user.story.update=Verhaal aanpassen
-user.story.updateStory=Aanpassen: {0}
-user.story.storyInformationStep1=Stap 1
-user.story.storyInformation=Verhaal informatie
-user.story.bulletPoint1=Vul de basisinformatie voor het verhaal in: een titel en een korte beschrijving. Deze informatie komt tevens op de titelpagina van uw verhaal.
-user.story.bulletPoint2=Het is aangeraden om de zichtbaarheid status in eerste instantie op "Privé" te houden. Wanneer uw verhaal af is kunt de status veranderen naar "Publiek" zodat andere het kunnen vinden en bekijken.
-user.story.bulletPoint3=Once you have completed the above steps you can start adding pages to your story
-user.story.bulletPoint3=Als de bovenstaande stappen zijn voltooid kunt u pagina's toevoegen
-user.story.label.addPages=Pagina's toevoegen
-user.story.storyPagesStep2=Stap 2
-user.story.storyPages=Verhaal pagina's
-user.story.noPagesFound=Geen pagina's gevonden
-user.story.storyDescription=Een <strong>verhaal</strong> wordt opgebouwd uit <strong>objecten</strong> uit een <strong>collectie</strong>. Dus <em>voor</em> dat u een verhaal kunt aanmaken moet u een collectie met objecten aanmaken.
-user.story.label.viewStory=Bekijk het verhaal
-user.story.label.addPage=Pagina toevoegen
-user.story.label.addObjects=Object(en) toevoegen
-user.story.label.freeText=Vrije tekst
-user.story.label.selectCollection=Kies een collectie
-user.story.label.addImageFromCollection=Voeg een object van deze collectie toe
-user.story.noCollection=Objecten zonder collectie
-user.story.existingPage=Bestaande paginas
-user.story.pageTitle=Pagina titel
-user.story.saveStory=Bewaar verhaal
-user.story.savePage=Bewaar pagina
-user.story.tellStory=Vertel je verhaal
-user.story.title.deletePage=Pagina verwijderen?
-user.story.title.deletePageConfirm=Weet u zeker dat u deze pagina wilt verwijderen?
 
 user.profile.aboutYou=Over jezelf
 user.profile.funFact=Grappig weetje
@@ -621,7 +480,7 @@ org.vc.help.toggle=Hulp met virtuele collecties
 org.vc.help.fields.tab=Invoer velden
 org.vc.help.fields.name.info=De getoonde naam van de virtuele collectie.
 org.vc.help.fields.identifier.info=systeem naam van de virtuele collectie.
-org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie. Meerdere datasets mogen worden toegevoegd door deze te scheiden met een komma <code>dataset1, dataset2</code>.
+org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie.
 org.vc.help.fields.query.info=De zoek-term(en) waarmee de virtuele collectie opgebouwd wordt.
 org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma.
 # QUERIES #
@@ -655,7 +514,12 @@ organization.members=Leden
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
 organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
 
-
+org.stats=Statistieken
+org.stats.history=Geschiedenis
+org.stats.withObjects=Met objecten
+org.stats.withoutObjects=Zonder objecten
+org.stats.nrRecords=Aantal records
+org.stats.landingPages=Met landing-pages
 
 # Controllers
 
@@ -673,24 +537,14 @@ admin.themes.themeNotFound=Theme with id {0} was not found
 admin.themes.saveError=Error saving theme {0}
 user.admin.userNotFound=Could not find user {0}
 user.admin.profile.saveError=Error saving your profile, please try again
-user.collections.objectNotFound=Object with id {0} was not found
-user.collections.saveError=Error saving collection {0}
-user.dobjects.objectNotFound=Object with id {0} was not found
-user.dobjects.saveError=Error saving object {0}
 user.fileupload.removeError=Error removing file, invalid id {0}
-user.stories.storyNotFound=Story with id {0} was not found
-collections.invalidCollectionId=Invalid collection id {0}
 datasets.dataSetNotFound=Dataset {0} was not found
 delvingcontroller.userNotFound=User {0} was not found
 
 listPageTitle.object.user=List of object for user {0}
 listPageTitle.object.all=List of objects
-listPageTitle.collection.user=List of collections for user {0}
-listPageTitle.collection.all=List of collections
 listPageTitle.dataset.user=List of datasets for user {0}
 listPageTitle.dataset.all=List of datasets
-listPageTitle.story.user=List of stories for user {0}
-listPageTitle.story.all=List of stories
 listPageTitle.user.all=List of users
 
 registration.invalidCode=Invalid code. Please type it again
@@ -710,8 +564,6 @@ authentication.error=Login niet juist
 authentication.logout=U bent uitgelogd
 authentication.notactive.error=Uw account is nog niet actief. Activeer uw account door op de link in de verzonden email te klikken.
 servicessecurity.userNotFound=De gebruiker {0} was niet gevonden
-
-stories.storyNotFound=Story with id {0} was not found
 
 profile.profileNotFound=Geen profiel gevonden voor: {0}
 
@@ -733,3 +585,18 @@ organization.datasets.cannotBeCancelled=Dataset indexing cannot be cancelled in 
 organization.datasets.cannotBeDisabled=Dataset cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current state
 organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
+
+###### Plugin messages (TODO: move to plugin once that is available)
+
+plugin.musip.museum=Museum
+plugin.musip.museums=Musea
+plugin.musip.collection=Collectie
+plugin.musip.collections=Collecties
+
+plugin.statistics.statistics=Statistieken
+plugin.statistics.dataset=DataSet
+plugin.statistics.history=Geschiedenies
+plugin.statistics.withObjects=Met objecten
+plugin.statistics.withoutObjects=Zonder objecten
+plugin.statistics.nrRecords=Aantal records
+plugin.statistics.landingPages=Met landing-pages

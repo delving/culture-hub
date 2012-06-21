@@ -7,17 +7,14 @@
 #{/set}
 
 #{set 'moreCss'}
-<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('/common/stylesheets/virtual-collections/virtual-collections.css')}"/>
+<link rel="stylesheet" type="text/css" media="screen" href="@{routes.Assets.at('common/stylesheets/virtual-collections/virtual-collections.css')}"/>
 #{/set}
 
 #{set bodyId: 'organization' /}
 
-*{** Create a comma separated list of available Datasets to use for typeAhead **}*
-#{set 'dataSetList'}[#{list dataSets, as: 'ds'}"${ds.spec}"${ds_isLast ? '' : ',' }#{/list}]#{/set}
-
 #{breadcrumbs theme: themeInfo.getTheme() /}
 
-#{organizationNavBar orgId: orgId, active:"virtual-collections", isOwner: isOwner, isCMSAdmin: isCMSAdmin, currentLanguage: currentLanguage/}
+#{organizationNavBar orgId: orgId, active:"virtual-collections", navigation: navigation /}
 
 <div class="accordion" id="instructions">
     <div class="accordion-group">
@@ -74,7 +71,8 @@
             #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
             #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
-            #{textField name:"dataSets", form:virtualCollectionForm, label:messages.get('thing.datasets'), dataBind:"value: dataSets", required: false, dataSource: dataSetList, multiple: true, inputClass:"span5" /}
+            #{checkboxField name:"autoUpdate", label:messages.get('org.vc.autoUpdate'), dataBind:"checked: autoUpdate" /}
+            #{boundAddRemoveTokenField id:"dataSets", name:"dataSets", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", dataBind:"tokens: dataSets", required: true, label:messages.get('thing.datasets') /}
             #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
             #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
@@ -83,7 +81,7 @@
             </div>
             <hr/>
             <div class="well">
-            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton", type:"reset" /}
+            #{btnButton label: messages.get('ui.label.cancel'), id:"cancelButton" /}
             #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
             #{btnButton label: messages.get('org.vc.save'), extraClass:"btn-success btn-large pull-right span3", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             <div class="wait"></div>
@@ -118,29 +116,29 @@
                 <div id="results" data-bind="foreach: items()">
                     <div class="resultItem media">
                         <div class="img">
-                            <!-- ko if: typeof delving_thumbnail !== 'undefined' -->
-                            <img data-bind="attr: { src: delving_thumbnail }" width="60" onerror="showDefaultImg(this);"/>
+                            <!-- ko if: typeof item.fields['delving_thumbnail'] !== 'undefined' -->
+                            <img data-bind="attr: { src: item.fields['delving_thumbnail'] }" width="60" onerror="showDefaultImg(this);"/>
                             <!-- /ko -->
                         </div>
                         <div class="bd">
-                            <!-- ko if: typeof delving_title !== 'undefined' -->
-                            <strong>&{'thing.title'}:</strong> <span data-bind="text: delving_title"></span><br/>
+                            <!-- ko if: typeof item.fields['delving_title'] !== 'undefined' -->
+                            <strong>&{'thing.title'}:</strong> <span data-bind="text: item.fields['delving_title']"></span><br/>
                             <!-- /ko -->
-                            <!-- ko if: typeof delving_creator !== 'undefined' -->
-                            <strong>&{'metadata.dc.creator'}:</strong> <span data-bind="text: delving_creator"></span><br/>
+                            <!-- ko if: typeof item.fields['delving_creator'] !== 'undefined' -->
+                            <strong>&{'metadata.dc.creator'}:</strong> <span data-bind="text: item.fields['delving_creator']"></span><br/>
                             <!-- /ko -->
-                            <!-- ko if: typeof delving_description !== 'undefined' -->
-                            <strong>&{'metadata.dc.description'}:</strong> <span data-bind="text: delving_description"></span><br/>
+                            <!-- ko if: typeof item.fields['delving_description'] !== 'undefined' -->
+                            <strong>&{'metadata.dc.description'}:</strong> <span data-bind="text: item.fields['delving_description']"></span><br/>
                             <!-- /ko -->
-                            <!-- ko if: typeof delving_provider !== 'undefined' -->
-                            <strong>&{'metadata.dc.provider'}:</strong> <span data-bind="text: delving_spec"></span><br/>
+                            <!-- ko if: typeof item.fields['delving_provider'] !== 'undefined' -->
+                            <strong>&{'metadata.dc.provider'}:</strong> <span data-bind="text: item.fields['delving_spec']"></span><br/>
                             <!-- /ko -->
-                            <!-- ko if: typeof delving_landingPage !== 'undefined' -->
-                            <strong>&{'thing.landingPage'}:</strong> <span data-bind="text: delving_landingPage"></span><br/>
+                            <!-- ko if: typeof item.fields['delving_landingPage'] !== 'undefined' -->
+                            <strong>&{'thing.landingPage'}:</strong> <span data-bind="text: item.fields['delving_landingPage']"></span><br/>
                             <!-- /ko -->
-                            <!-- ko if: typeof delving_hubId !== 'undefined' -->
-                            <strong>hubId:</strong> <span data-bind="text: delving_hubId"></span><br/>
-                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.delving_hubId())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
+                            <!-- ko if: typeof item.fields['delving_hubId'] !== 'undefined' -->
+                            <strong>hubId:</strong> <span data-bind="text: item.fields['delving_hubId']"></span><br/>
+                            <a href="#" class="btn btn-mini btn-inverse" data-bind="click: function(){$root.exclude($data.item.fields['delving_hubId']())}"><i class="icon-minus icon-white"></i>&{'org.vc.excludedIds'}</a>
                             <!-- /ko -->
                         </div>
                     </div>
@@ -156,11 +154,11 @@
 
         var virtualCollectionModel = {};
         var resultModel = {
-            initialized:false,
-            paginate:function (start) {
+            initialized: false,
+            paginate: function(start) {
                 search(resultModel.initialQuery, resultModel.orgId, start);
             },
-            exclude:function (excludeMe) {
+            exclude: function(excludeMe) {
                 var exList = $('#excludedIdentifiers');
                 if (!isEmpty(exList.val())){
                     virtualCollectionModel.excludedIdentifiers(virtualCollectionModel.excludedIdentifiers() + ", " + excludeMe);
@@ -169,6 +167,10 @@
                 }
                 // make nice list of excluded hubIds
                 $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
+
+                // trigger search
+                var query = composeQuery($('#dataSets').val(), $('#includeTerm').val(), $('#excludedIdentifiers').val());
+                search(query, '${orgId}', 1);
             }
         };
 
@@ -195,10 +197,6 @@
         function composeQuery(dataSets, freeFormQuery, excludedIdentifiers) {
             var dataSetCondition = "";
             if (dataSets) {
-                // remove trailing comma and space (added by typeAhead functionality)
-                if(dataSets.charAt( dataSets.trim().length-1 ) == ",") {
-                    dataSets = dataSets.trim().slice(0, -1)
-                }
                 var dataSetList = dataSets.split(",");
                 $.each(dataSetList, function (index, el) {
                     if (el.length > 0) {
@@ -226,7 +224,7 @@
                         if (initial) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + '(';
                         }
-                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + el.trim() + '"';
+                        excludedIdentifiersCondition = excludedIdentifiersCondition + 'delving_hubId:"' + encodeURIComponent(el.trim()) + '"';
                         if (index < excludedIdsList.length - 1) {
                             excludedIdentifiersCondition = excludedIdentifiersCondition + ' OR ';
                         }
@@ -240,16 +238,15 @@
         }
 
         function search(query, orgId, start) {
-            $.get('/organizations/' + orgId + '/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
+            $.get('/organizations/' + orgId + '/api/search?query=' + query + ' + &format=json&start=' + start, null, function (data) {
                 resultModel.initialQuery = query;
                 resultModel.orgId = orgId;
-                if (resultModel.initialized) {
+                if (ko.mapping.isMapped(resultModel)) {
                     ko.mapping.fromJS(data.result, resultModel);
                 } else {
                     $("#previewList").css('visibility', 'visible');
                     $.extend(resultModel, ko.mapping.fromJS(data.result));
                     ko.applyBindings(resultModel, document.getElementById('result'));
-                    resultModel.initialized = true;
                 }
             });
         }
@@ -263,8 +260,15 @@
             if (keyFromTitle == '') {
                 $(this).next('.error').html(genError);
             }
-            $(destination).val(keyFromTitle);
+            virtualCollectionModel.spec(keyFromTitle);
         });
+
+        $('#cancelButton').click(function(e) {
+          e.preventDefault();
+          document.location = document.referrer;
+        });
+
+
         // make nice list of excluded hubIds
         $('#excludedIdentifiers').val($('#excludedIdentifiers').val().replace(/^,/, '').replace(/\r?,/g, ',\n'));
     });

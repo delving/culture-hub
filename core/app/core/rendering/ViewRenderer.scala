@@ -16,10 +16,7 @@
 
 package core.rendering
 
-import collection.mutable.{HashMap, ArrayBuffer}
-import collection.mutable.Stack
 import models.GrantType
-import org.w3c.dom.{Node => WNode}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -29,10 +26,17 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
-import scala.Predef._
+import org.w3c.dom.{Text, Node => WNode}
+import java.net.URLEncoder
+import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
+ *
+ * TODO refactor this:
+ * - the tree walking and building methods should be encapsulated in their own TreeWalker class which gets initialized with an empty stack
+ * - since there is a number of common attributes shared amongst elements (especially in the ViewRendering DSL), those elements
+ *   should be resolved upfront and inherited by all special cases. so a more generic way of declaring elements or their results needs to be put into place
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -60,7 +64,7 @@ object ViewRenderer {
 
 }
 
-class ViewRenderer(schema: String, viewName: String) {
+class ViewRenderer(val schema: String, viewName: String) {
   
   val log = Logger("CultureHub")
 
@@ -83,7 +87,14 @@ class ViewRenderer(schema: String, viewName: String) {
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
     val result = RenderNode("root", None, true)
+    var shortcutResult: Option[RenderedView] = None
     val treeStack = Stack(result)
+    var stackPath = new ArrayBuffer[String]
+
+    def defaultParent = if(treeStack.head.nodeType == "list") treeStack.head.parent else treeStack.head
+
+    val arrays = new ArrayBuffer[List[String]] // paths that are arrays of repeated elements
+
     val root = viewDefinition
     walk(root, record)
 
@@ -94,17 +105,46 @@ class ViewRenderer(schema: String, viewName: String) {
         }
       }
 
+    def push(node: RenderNode) {
+      treeStack.push(node)
+      stackPath += node.nodeType
+    }
+
+    def pop() {
+      treeStack.pop()
+      if(stackPath.length > 0) stackPath = stackPath.dropRight(1)
+    }
+
     def walk(viewDefinitionNode: Node, dataNode: WNode) {
 
       viewDefinitionNode.foreach {
         n =>
           log.debug("Node " + n)
-          if (n.label != "#PCDATA") {
+          val ifExpr = n.attr("if")
+          val ifNotExpr = n.attr("ifNot")
+
+          val ifValue = if(!ifExpr.isEmpty) {
+            val v = XPath.selectText(ifExpr, dataNode, namespaces.asJava)
+            v != null && !v.isEmpty
+          } else {
+            true
+          }
+          val ifNotValue = if(!ifNotExpr.isEmpty) {
+            val v = XPath.selectText(ifNotExpr, dataNode, namespaces.asJava)
+            v != null && !v.isEmpty
+          } else {
+            false
+          }
+
+          if (n.label != "#PCDATA" && ifValue && !ifNotValue) {
 
             // common attributes
-            val label = n.attr("label")
+            val label = if(n.attr("labelExpr").isEmpty) n.attr("label") else XPath.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
+
             val role = n.attr("role")
             val path = n.attr("path")
+            val value = n.attr("value")
+
             val queryLink = {
               val l = n.attr("queryLink")
               if (l.isEmpty) false else l.toBoolean
@@ -118,9 +158,8 @@ class ViewRenderer(schema: String, viewName: String) {
 
               case "view" => enterAndAppendOne(n, dataNode, "root", true)
 
-              case "elem" =>
-
-                if(hasAccess(roleList)) {
+              case "elem" => withAccessControl(roleList) {
+                role =>
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
@@ -139,7 +178,7 @@ class ViewRenderer(schema: String, viewName: String) {
                     None
                   }
 
-                  val r = RenderNode(elemName, elemValue, isArray)
+                  val r = RenderNode(nodeType = elemName, value = elemValue, isArray = isArray)
                   r.addAttrs(attrs)
 
                   if(elemValue.isDefined && n.child.isEmpty) {
@@ -150,18 +189,12 @@ class ViewRenderer(schema: String, viewName: String) {
 
                 }
 
-              case "list" =>
-
-                if(hasAccess(roleList)) {
+              case "list" => withAccessControl(roleList) {
+                role =>
 
                   val name = n.attr("name")
                   val prefix = n.attr("prefix")
-
-                  // for html lists
-                  val listType = n.attr("type")
-                  val separator = n.attr("separator")
-                  val label = n.attr("label")
-                  val hClass = n.attr("class")
+                  val distinct = n.attr("distinct")
 
                   val listName = if(name.isEmpty && prefix.isEmpty) {
                     "list"
@@ -175,28 +208,44 @@ class ViewRenderer(schema: String, viewName: String) {
 
                   val attrs = fetchNestedAttributes(n, dataNode)
 
-                  val list = RenderNode(listName, None, true)
+                  val list = RenderNode(nodeType = listName, value =  None, isArray = true)
                   list.addAttrs(attrs)
 
-                  // for html lists
-                  if(!label.isEmpty) list.addAttr('label -> label)
-                  if(!separator.isEmpty) list.addAttr('separator -> separator)
-                  if(!listType.isEmpty) list.addAttr('type -> listType)
-                  if(!hClass.isEmpty) list.addAttr('class -> hClass)
-
+                  list.parent = defaultParent
                   treeStack.head += list
-                  treeStack push list
+                  push(list)
 
-                  XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.foreach {
+                  arrays += stackPath.toList.drop(1) // drop root
+
+                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
+                  val children = if(distinct == "name") {
+                    val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
+                    distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
+                  } else {
+                    allChildren
+                  }
+
+                  children.foreach {
                     child =>
                       enterNode(n, child)
                   }
-                  treeStack.pop()
+                  pop
                 }
 
               case "attrs" => // this is handled by elem below
 
 
+              case "verbatim" =>
+                // shortcut everything. pull out XML directly, and use lift-json to turn it into JSON. not fit for HTML
+                shortcutResult = Some(new RenderedView {
+                  def toXmlString: String = rawRecord
+
+                  def toJson: String = util.Json.toJson(xml = toXml, escapeNamespaces = true, sequences = arrays.toList)
+
+                  def toXml: NodeSeq = XML.loadString(rawRecord)
+
+                  def toViewTree: RenderNode = null
+                })
 
 
               // ~~~ legacy support
@@ -211,31 +260,43 @@ class ViewRenderer(schema: String, viewName: String) {
                 val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
 
                 val renderNode = RenderNode("field", None)
-                renderNode += RenderNode("key", Some(Messages(internationalizationKey)))
-                renderNode += RenderNode("value", Some(current.getNodeName.replaceAll(":", "_")))
+                renderNode += RenderNode("name", Some(current.getNodeName.replaceAll(":", "_")))
+                renderNode += RenderNode("i18n", Some(Messages(internationalizationKey)(lang)))
                 appendNode(renderNode)
 
 
+              // ~~~ view definition elements
 
-
-              // ~~~ html helpers
-
-              case "row" => enterAndAppendOne(n, dataNode, "row", true, 'class -> n.attr("class"))
-              case "section" => enterAndAppendOne(n, dataNode, "section", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'type -> n.attr("type"), 'title -> n.attr("title"), 'label -> n.attr("label"))
-              case "image" =>
-                if (hasAccess(roleList)) {
-                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("image", values.headOption, 'title -> n.attr("title"), 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
+              case "row" => enterAndAppendOne(n, dataNode, "row", true, 'proportion -> n.attr("proportion"))
+              case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
+              case "container" => withAccessControl(roleList) {
+                role =>
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse(""))
+              }
+              case "image" => withAccessControl(roleList) {
+                role =>
+                  val value = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption.map {
+                    url =>
+                      if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+                        "/image/cache?id=%s".format(URLEncoder.encode(url, "utf-8"))
+                      } else {
+                        url
+                      }
+                  }
+                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
                 }
-              case "field" =>
-                if (hasAccess(roleList)) {
-                  val values = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces)
-                  append("field", values.headOption, 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'class -> n.attr("class")) { renderNode => }
-                }
-              case "enumeration" =>
-                if (hasAccess(roleList)) {
+              case "field" => withAccessControl(roleList) {
+                role =>
+                  val v = if(!value.isEmpty)
+                    Some(evaluateParamExpression(value, parameters))
+                  else
+                    fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption
 
-                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'type -> n.attr("type"), 'separator -> n.attr("separator")) {
+                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                }
+              case "enumeration" => withAccessControl(roleList) {
+                role =>
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.description).getOrElse("")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -248,27 +309,21 @@ class ViewRenderer(schema: String, viewName: String) {
                       }
                   }
                 }
-
               case "link" =>
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
-                val enhancedUrlValue = """\$\{(.*)\}""".r.replaceAllIn(urlValue, m => parameters.get(m.group(1)).getOrElse {
-                  log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
-                  ""
-                })
-
-                val url = enhancedUrlValue + urlExpr.getOrElse("")
+                val url = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
                 val text = if(n.attribute("textExpr").isDefined) {
                   XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
                 } else if(n.attribute("textValue").isDefined) {
-                  n.attr("textValue")
+                  evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
                   ""
                 }
 
-                appendSimple("link", 'url -> url, 'text -> text, 'class -> n.attr("class")) { node => }
+                appendSimple("link", 'url -> url, 'text -> text, 'label -> label, 'type -> n.attr("type")) { node => }
 
               case u@_ => throw new RuntimeException("Unknown element '%s'".format(u))
 
@@ -304,7 +359,7 @@ class ViewRenderer(schema: String, viewName: String) {
 
     /** appends a new RenderNode to the result tree and walks one level deeper **/
     def enterAndAppendOne(viewDefinitionNode: Node, dataNode: WNode, nodeType: String, isArray: Boolean = false, attr: (Symbol, Any)*) {
-      val newRenderNode = RenderNode(nodeType, None, isArray)
+      val newRenderNode = RenderNode(nodeType = nodeType, value = None, isArray = isArray)
       attr foreach {
         newRenderNode addAttr _
       }
@@ -313,14 +368,16 @@ class ViewRenderer(schema: String, viewName: String) {
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
       log.debug("Entered " + viewDefinitionNode.label)
+      renderNode.parent = defaultParent
+
       treeStack.head += renderNode
-      treeStack.push(renderNode)
+      push(renderNode)
       viewDefinitionNode.child foreach {
         n =>
           log.debug("Node " + n)
           walk(n, dataNode)
       }
-      treeStack.pop()
+      pop
     }
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
@@ -343,32 +400,76 @@ class ViewRenderer(schema: String, viewName: String) {
     /** appends a new RenderNode to the result tree and performs an operation on it **/
     def append(nodeType: String, text: Option[String] = None, attr: (Symbol, Any)*)(block: RenderNode => Unit) {
       val newNode = RenderNode(nodeType, text)
+      newNode.parent = defaultParent
       attr foreach {
         newNode addAttr _
       }
       treeStack.head += newNode
-      treeStack.push(newNode)
+      push(newNode)
       block(newNode)
-      treeStack.pop()
+      pop
     }
 
     /** simply appends a node to the current tree head **/
     def appendNode(node: RenderNode) {
+      node.parent = defaultParent
       treeStack.head += node
     }
 
-    def hasAccess(roles: List[String]) = {
-      roles.isEmpty || (userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix) || userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System"))
+    def withAccessControl(roles: List[String])(block: Option[GrantType] => Unit) {
+      if(roles.isEmpty) {
+        block(None)
+      } else if(userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")) {
+        block(Some(GrantType.OWN))
+      } else if(userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix)) {
+        block(userGrantTypes.find(gt => roles.contains(gt.key) && gt.origin == prefix).headOption)
+      } else {
+        // though luck, man
+      }
     }
 
-    NodeRenderedView(viewName, prefix, result.content.head)
+    if(shortcutResult.isDefined) {
+      shortcutResult.get
+    } else {
+      NodeRenderedView(viewName, prefix, result.content.head, arrays.toList)
+    }
 
   }
 
-
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPath.selectText(path, dataNode, namespaces.asJava)
+      XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.toSeq.flatMap {
+        node =>
+          var rnode = node
+          try {
+            if (rnode == null) {
+              None
+            } else {
+              if (!(rnode.isInstanceOf[Text])) {
+                rnode = node.getFirstChild
+              }
+              if (!(rnode.isInstanceOf[Text])) {
+                None
+              } else {
+                Some((rnode.asInstanceOf[Text]).getData)
+              }
+            }
+          }
+          catch {
+            case e: Exception => {
+              throw new RuntimeException(e)
+              None
+            }
+          }
+      }
+
+    }).flatten
+  }
+
+  def evaluateParamExpression(value: String, parameters: Map[String, String]) = {
+    """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
+      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
+      ""
     })
   }
 
@@ -381,13 +482,13 @@ abstract class RenderedView {
   def toViewTree: RenderNode
 }
 
-case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode) extends RenderedView {
+case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
 
   def toXml = XML.loadString(toXmlString)
   
   def toXmlString = RenderNode.toXMLString(viewTree)
 
-  def toJson = RenderNode.toJson(viewTree)
+  def toJson = RenderNode.toJson(viewTree, sequences)
 
   def toViewTree = viewTree
 }
@@ -400,6 +501,7 @@ case class RenderNode(nodeType: String, value: Option[String] = None, isArray: B
   private val contentBuffer = new ArrayBuffer[RenderNode]
   private val attributes = new HashMap[String, Any]
 
+  var parent: RenderNode = null
 
   def content: List[RenderNode] = contentBuffer.toList
 
@@ -505,42 +607,12 @@ case object RenderNode {
     }
   }
 
-  def toJson(n: RenderNode): String = {
-
-    import extensions.JJson._
-    
-    val jsonTree = visitJson(n, HashMap.empty)
-    
-    generate(jsonTree)
-  }
-
-  def visitJson(n: RenderNode, json: HashMap[String, AnyRef]): HashMap[String, AnyRef] = {
-    
-    if(n.nodeType == "root") {
-      for(c <- n.content) {
-        visitJson(c, json)
-      }
-    } else {
-      if(n.isArray) {
-        val children = n.content.map {
-          child => visitJson(child, HashMap.empty)
-        }
-        json.put(n.nodeType, children.toList)
-      } else if(n.isFlatArray) {
-        json.put(n.nodeType, n.content.map(_.nodeType).toList)
-      } else if(!n.isLeaf) {
-        val map = HashMap.empty[String, AnyRef]
-        for(c <- n.content) {
-          visitJson(c, map)
-        }
-        json.put(n.nodeType, map)
-      } else {
-        json.put(n.nodeType, n.text)
-      }
-    }
-    
-    json
-    
+  def toJson(n: RenderNode, sequences: Seq[List[String]]): String = {
+    util.Json.toJson(
+      xml = XML.loadString(toXMLString(n)),
+      escapeNamespaces = true,
+      sequences = sequences
+    )
   }
 
 }

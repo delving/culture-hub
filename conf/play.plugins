@@ -1,1 +1,2 @@
-1000:plugins.CMSPlugin
+1000:plugins.CorePlugin
+9000:plugins.CMSPlugin

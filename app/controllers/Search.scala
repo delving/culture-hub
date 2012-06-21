@@ -7,6 +7,8 @@ import core.search._
 import exceptions._
 import play.api.i18n.Messages
 import core.rendering.ViewRenderer
+import com.mongodb.casbah.Imports._
+import play.api.Play
 
 /**
  *
@@ -16,11 +18,8 @@ import core.rendering.ViewRenderer
 object Search extends DelvingController {
   
   // TODO move later
-  val affViewRenderer = ViewRenderer.fromDefinition("aff", "full")
-
-  val RETURN_TO_RESULTS = "returnToResults"
-  val SEARCH_TERM = "searchTerm"
-  val IN_ORGANIZATION = "inOrg"
+  val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
+  val viewRenderers = RecordDefinition.enabledDefinitions.flatMap(f => ViewRenderer.fromDefinition(f, "html")).map(r => (r.schema -> r)).toMap[String, ViewRenderer]
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -31,13 +30,11 @@ object Search extends DelvingController {
         try {
           val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
           val briefItemView = BriefItemView(response)
-      //    val userCollections: List[ListItem] = if (isConnected) UserCollection.findByUser(connectedUser).toList else List()
 
           Ok(Template("/Search/index.html",
             'briefDocs -> briefItemView.getBriefDocs,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-    //        'collections -> userCollections,
             'themeFacets -> theme.getFacets,
             'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(
@@ -54,51 +51,72 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        val id = "%s_%s_%s".format(orgId, spec, recordId)
-        
-        MetadataRecord.getMDR(id) match {
-          case Some(mdr) =>
+        DataSet.findBySpecAndOrgId(spec, orgId).map {
+          collection =>
+            val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
-            if(mdr.getCachedTransformedRecord("aff").isDefined) {
-              val record = mdr.getCachedTransformedRecord("aff").get
-              if(!affViewRenderer.isDefined) {
-                logError("Could not find AFF view definition")
-                InternalServerError
-              } else {
-                val definition = RecordDefinition.getRecordDefinition("aff").get
-                val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), record)
-                // TODO
-                val grantTypes = List.empty
-                val renderResult = affViewRenderer.get.renderRecord(wrappedRecord, grantTypes, definition.getNamespaces, lang)
+            MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
+              case Some(mdr) =>
 
-                val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
-                  // we're coming from someplace else then a search, remove the return to results cookie
-                  request.session - (RETURN_TO_RESULTS)
-                } else {
-                  request.session
+                val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
+
+                // TODO this is a workaround for not yet having a resolver for directory entries
+                if(facts.contains("providerUri")) {
+                  facts.put("resolvedProviderUri", "/%s/museum/%s".format(orgId, facts("providerUri").split("/").reverse.head))
+                }
+                if(facts.contains("dataProviderUri")) {
+                  facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
                 }
 
-                val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-                val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+                // AFF takes precedence over anything else
+                if(mdr.xml.get("aff").isDefined) {
+                  val record = mdr.xml.get("aff").get
+                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
+                } else {
+                  val ds = DataSet.findBySpecAndOrgId(spec, orgId)
+                  if(ds.isDefined) {
+                    // use the indexing format as rendering format. if none is set try to find the first suitable one
+                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
+                    val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
+                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get)) {
+                      val record = mdr.xml.get(renderingFormat.get).get
+                      renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                    } else {
+                      NotFound(Messages("heritageObject.notViewable"))
+                    }
+                  } else {
+                    NotFound(Messages("datasets.dataSetNotFound", spec))
+                  }
+                }
 
-                Ok(Template("Search/object.html", 'summaryFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
-              }
-
-            } else {
-              NotFound(Messages("heritageObject.notViewable"))
+              case None => NotFound("Record was not found")
             }
-
-          case None => NotFound("Record was not found")
+        }.getOrElse {
+          NotFound("Collection was not found")
         }
     }
   }
 
+  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)(implicit request: RequestHeader) = {
+
+    val renderResult = viewRenderer.renderRecord(record, getUserGrantTypes(orgId), definition.getNamespaces, lang, parameters)
+
+    val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+      // we're coming from someplace else then a search, remove the return to results cookie
+      request.session - (RETURN_TO_RESULTS)
+    } else {
+      request.session
+    }
+
+    val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+    val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+
+    Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
+
+  }
+
 
   // ~~~ Utility methods (not controller actions)
-
-  def browse(recordType: String, user: Option[String], page: Int, theme: PortalTheme)(implicit request: RequestHeader) = {
-    search(user, page, theme, List("%s:%s".format(RECORD_TYPE, recordType)))
-  }
 
   def search(user: Option[String], page: Int, theme: PortalTheme, query: List[String])(implicit request: RequestHeader) = {
     val start = (page - 1) * PAGE_SIZE + 1
@@ -112,12 +130,12 @@ object Search extends DelvingController {
     val briefItemView = BriefItemView(chResponse)
 
     val items = briefItemView.getBriefDocs.map(bd =>
-      ListItem(id = bd.getMongoId,
-        recordType = bd.getRecordType,
+      ListItem(id = bd.getHubId,
+        itemType = bd.getItemType,
         title = bd.getTitle,
         description = bd.getDescription,
         thumbnailUrl = Some(bd.getThumbnailUri(220)),
-        userName = bd.getOwnerId,
+        userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
         url = bd.getUri,
         mimeType = bd.getMimeType))

@@ -49,7 +49,7 @@ object SolrServer {
   private val url = Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2")
   private[search] val solrServer = new HttpSolrServer(url)
   solrServer.setSoTimeout(1000) // socket read timeout
-  solrServer.setConnectionTimeout(100)
+  solrServer.setConnectionTimeout(1000)
   solrServer.setDefaultMaxConnectionsPerHost(64)
   solrServer.setMaxTotalConnections(125)
   solrServer.setFollowRedirects(false) // defaults to false

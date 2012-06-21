@@ -25,11 +25,7 @@ package core
 object Constants {
 
   // ~~~ hub types, used in view as itemName and otherwise for links and search recordTypes
-  val OBJECT = "object"
-  val USERCOLLECTION = "userCollection"
-  val STORY = "story"
   val USER = "user"
-  val MDR = "mdr"
   val DATASET = "dataSet"
 
   // ~~~ identifier fields
@@ -67,21 +63,27 @@ object Constants {
   val THUMBNAIL = SystemField.THUMBNAIL.tag
   val EXTERNAL_LANDING_PAGE = SystemField.LANDING_PAGE.tag
 
-  val OWNER = SystemField.OWNER.tag
-  val CREATOR = SystemField.CREATOR.tag
+  val OWNER = SystemField.OWNER.tag // dataProvider
   val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
   val PROVIDER = SystemField.PROVIDER.tag
 
   // processing-time SystemFields
   val SPEC = SystemField.SPEC.tag
   val VISIBILITY = "delving_visibility"
-  val RECORD_TYPE = "delving_recordType"
   val MIMETYPE = "delving_mimeType"
   val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
 
   val HUB_URI = "delving_hubUrl"
 
   val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
+
+
+  // TODO harmonize the following
+  val RECORD_TYPE = "delving_recordType"
+  val ITEM_TYPE_MDR = "mdr"
+  val MDR = "mdr"
+  val ITEM_TYPE_INDEX = INDEX_API_ITEM
+
 
   // ~~~ link value fields
   val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection
@@ -106,5 +108,16 @@ object Constants {
   val GROUPS = "groups"
 
 
+  // ~~~ MetadataItem types
+
   val HubId = """^(.*?)_(.*?)_(.*)$""".r
+
+
+  // ~~~ Search UI
+  val RETURN_TO_RESULTS = "returnToResults"
+  val SEARCH_TERM = "searchTerm"
+  val IN_ORGANIZATION = "inOrg"
+
+
+
 }

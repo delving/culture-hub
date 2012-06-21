@@ -3,6 +3,7 @@ package core.services
 import core._
 import collection.mutable.HashMap
 import extensions.MissingLibs
+import eu.delving.definitions.OrganizationEntry
 
 
 /**
@@ -12,7 +13,7 @@ import extensions.MissingLibs
 
 class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String, MemoryUser],
                      val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization]
-                    ) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService {
+                    ) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService {
 
 
   // ~~~ authentication
@@ -90,6 +91,13 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   }
 
   def getName(orgId: String, language: String): Option[String] = organizations.get(orgId).getOrElse(return None).name.get(language)
+
+  // directory
+  private val dummyDelving = OrganizationEntry("http://id.delving.org/org/1", "Delving", "NL")
+
+  def findOrganization(query: String): List[OrganizationEntry] = List(dummyDelving)
+
+  def findOrganizationByName(name: String): Option[OrganizationEntry] = if(name.toLowerCase == "delving") Some(dummyDelving) else None
 }
 
 case class MemoryUser(userName: String,

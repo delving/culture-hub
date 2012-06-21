@@ -2,7 +2,7 @@ package controllers
 
 import core.Constants._
 import org.bson.types.ObjectId
-import models.{HubUser, DataSet, EmbeddedLink}
+import models.DataSet
 
 
 /**
@@ -13,9 +13,6 @@ import models.{HubUser, DataSet, EmbeddedLink}
 trait CoreImplicits {
 
   // ~~~ ViewModels
-
-  implicit def linkToToken(embeddedLink: EmbeddedLink): Token = Token(embeddedLink.link.toString, embeddedLink.value("label"), Some(embeddedLink.linkType), Some(embeddedLink.value))
-  implicit def linkListToTokenList(l: List[EmbeddedLink]) = l.map { linkToToken(_) }
 
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(
     id = Option(ds._id),
@@ -34,13 +31,10 @@ trait CoreImplicits {
 
   // ~~~ ListItems
 
-  implicit def userToListItem(u: HubUser) = ListItem(u._id, USER, u.fullname, u.email, None, None, "unknown/unknown", u.userName, false, "/" + u.userName)
   implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, "unknown/unknown", ds.getCreator.userName, false, "/nope")
-
-  implicit def userListToListItemList(l: List[HubUser]) = l.map { userToListItem(_) }
   implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
 
-    // ~~~ ObjectId
+  // ~~~ ObjectId
 
   implicit def oidToString(oid: ObjectId): String = oid.toString
 

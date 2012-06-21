@@ -25,16 +25,12 @@ object Organization extends DelvingController {
             <providers>
               {for (p <- providers) yield
               <provider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
               </provider>}
             </providers>
 
-          DOk(xmlResponse, "provider")
+          DOk(xmlResponse, List("providers"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))
@@ -53,16 +49,12 @@ object Organization extends DelvingController {
             <dataProviders>
               {for (p <- dataProviders) yield
               <dataProvider>
-                <id>
-                  {toIdentifier(p)}
-                </id>
-                <name>
-                  {p}
-                </name>
+                <id>{toIdentifier(p)}</id>
+                <name>{p}</name>
               </dataProvider>}
             </dataProviders>
 
-          DOk(xmlResponse, "dataProvider")
+          DOk(xmlResponse, List("dataProviders"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))
@@ -80,16 +72,12 @@ object Organization extends DelvingController {
             <collections>
               {for (c <- collections) yield
               <collection>
-                <id>
-                  {toIdentifier(c.spec)}
-                </id>
-                <name>
-                  {c.name}
-                </name>
+                <id>{toIdentifier(c.spec)}</id>
+                <name>{c.name}</name>
               </collection>}
             </collections>
 
-          DOk(xmlResponse, "collection")
+          DOk(xmlResponse, List("collection"))
 
         } else {
           NotFound(Messages("organizations.organization.orgNotFound", orgId))

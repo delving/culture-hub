@@ -21,7 +21,7 @@ class RouteLogger extends Actor {
 
     case RouteRequest(request) =>
       fileLog.info("%s %s".format(request.path, request.rawQueryString))
-      mongoLogBuffer += RouteAccess(uri = request.path, queryString = request.queryString)
+      mongoLogBuffer += RouteAccess(uri = request.path, queryString = request.queryString.map(a => (a._1.replaceAll("\\.", "_dot_") -> a._2)))
 
     case PersistRouteAccess =>
       mongoLogBuffer.foreach {

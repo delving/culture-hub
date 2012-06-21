@@ -1,11 +1,13 @@
 import collection.mutable.ListBuffer
+import core.storage.Record
 import java.io.ByteArrayInputStream
-import models.{MetadataRecord, DataSet}
+import models.DataSet
 import org.specs2.execute.Error
 import org.specs2.mutable.Specification
-import util.SimpleDataSetParser
 import play.api.test._
 import play.api.test.Helpers._
+import util.SimpleDataSetParser
+import xml.XML
 
 /**
  *
@@ -19,21 +21,47 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "parse an input stream" in {
 
-      withTestContext {
+      withTestData {
         val buffer = parseStream
         buffer.length must be equalTo (2)
       }
 
     }
 
-    "properly assign valid metadata formats" in {
+    "properly assign invalid metadata formats" in {
 
-      withTestContext {
-        val buffer = parseStream
-        buffer(1).validOutputFormats should not contain ("icn")
+      withTestData {
+        val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        DataSet.getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
 
     }
+
+    "preserve cdata" in {
+      withTestData {
+        val buffer = parseStream
+        buffer(0).document must contain("<![CDATA[")
+      }
+    }
+
+    "preserve &amp; in elements" in {
+      withTestData {
+        val buffer = parseStream
+
+        val parsed = buffer(0).document
+        parsed must contain("<urlWithAmp>http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1</urlWithAmp>")
+      }
+    }
+
+    "preserve &amp; in attributes" in {
+      withTestData {
+        val buffer = parseStream
+
+        val parsed = buffer(0).document
+        parsed must contain("<attrWithAmp some=\"http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1\">Value</attrWithAmp>")
+      }
+    }
+
   }
 
   def parseStream = {
@@ -41,22 +69,19 @@ class DataSetParserSpec extends Specification with TestContext {
     val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
-    val buffer = ListBuffer[MetadataRecord]()
+    val buffer = ListBuffer[Record]()
 
     try {
 
-      var continue = true
-      while (continue) {
-        val record = parser.nextRecord
-        if (record != None) {
-          buffer.append(record.get)
-        } else {
-          continue = false
-        }
+      while (parser.hasNext) {
+        val record = parser.next()
+        buffer.append(record)
       }
 
     } catch {
-      case t => Error(t)
+      case t =>
+        t.printStackTrace()
+        Error(t)
     }
 
     buffer
@@ -68,6 +93,7 @@ class DataSetParserSpec extends Specification with TestContext {
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="1">
 <priref>1</priref>
+<someDescription><![CDATA[&notAnEntity;]]></someDescription>
 <edit.source>collect>intern</edit.source>
 <edit.source>photo</edit.source>
 <edit.source>collect>intern</edit.source>
@@ -91,11 +117,11 @@ class DataSetParserSpec extends Specification with TestContext {
 <insurance.value>700.00</insurance.value>
 <acquisition.method>aankoop</acquisition.method>
 <creator>onbekend</creator>
-<acquisition.price.value>592.50</acquisition.price.value>
+<acquisition.price.value>42</acquisition.price.value>
 <production.place>Engeland</production.place>
-<acquisition.source>Ott, J.B.A.M.</acquisition.source>
-<acquisition.price.currency>NLG</acquisition.price.currency>
-<insurance.value.currency>NLG</insurance.value.currency>
+<acquisition.source>Foo Bar</acquisition.source>
+<acquisition.price.currency>BigMac</acquisition.price.currency>
+<insurance.value.currency>BigMac</insurance.value.currency>
 <technique>gevormd</technique>
 <technique>koperdruk</technique>
 <technique>loodglazuur</technique>
@@ -146,6 +172,8 @@ class DataSetParserSpec extends Specification with TestContext {
 <percentH>creamware</percentH>
 <percentD>2.6</percentD>
 <percentC>24.3</percentC>
+<urlWithAmp>http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1</urlWithAmp>
+<attrWithAmp some="http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1">Value</attrWithAmp>
 </input>
 <input id="2">
 <priref>2</priref>
@@ -180,11 +208,11 @@ class DataSetParserSpec extends Specification with TestContext {
 <acquisition.method>aankoop</acquisition.method>
 <creator>Tichelaar, gleibakkerij van de familie (1700-1868)</creator>
 <creator>Hofstra, Douwe Klazes</creator>
-<acquisition.price.value>3750.00</acquisition.price.value>
+<acquisition.price.value>42</acquisition.price.value>
 <production.place>Makkum</production.place>
-<acquisition.source>Ott, J.B.A.M.</acquisition.source>
-<acquisition.price.currency>NLG</acquisition.price.currency>
-<insurance.value.currency>NLG</insurance.value.currency>
+<acquisition.source>Foo Bar</acquisition.source>
+<acquisition.price.currency>BigMac</acquisition.price.currency>
+<insurance.value.currency>BigMac</insurance.value.currency>
 <technique>gedraaid</technique>
 <technique>inglazuurschildering</technique>
 <technique>tinglazuur</technique>

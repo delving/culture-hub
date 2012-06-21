@@ -1,12 +1,12 @@
 import controllers.SipCreatorEndPoint
+import core.processing.{DataSetCollectionProcessor}
 import java.io.{File, FileInputStream}
 import java.util.zip.GZIPInputStream
-import models.DataSet
+import models.{DataSetState, DataSet}
 import org.specs2.mutable._
 import play.api.mvc.{Result, AsyncResult}
 import play.api.test._
 import play.api.test.Helpers._
-import xml.XML
 
 /**
  * TODO actually test the things we get back
@@ -16,13 +16,10 @@ import xml.XML
 
 class OAIPMHSpec extends Specification with TestContext {
 
-  def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
-
   step {
-    running(FakeApplication()) {
-      load
-      val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
-      SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
+    withTestConfig {
+      load()
+      loadDataSet()
     }
   }
 
@@ -30,10 +27,10 @@ class OAIPMHSpec extends Specification with TestContext {
 
     "return a valid identify response" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val request = FakeRequest("GET", "?verb=Identify")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -43,18 +40,16 @@ class OAIPMHSpec extends Specification with TestContext {
 
         val error = xml \ "error"
         error.length must equalTo(0)
-
-
       }
 
     }
 
     "list sets" in {
 
-      running(FakeApplication()) {
+      withTestConfig {
 
         val request = FakeRequest("GET", "?verb=ListSets")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -71,30 +66,50 @@ class OAIPMHSpec extends Specification with TestContext {
       }
     }
 
-    "list records" in {
+    "list formats" in {
 
-      running(FakeApplication()) {
-
-        val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn")
-        val r = controllers.Services.oaipmh("delving", None)(request)
+      withTestConfig {
+        val request = FakeRequest("GET", "?verb=ListMetadataFormats")
+        val r = controllers.api.OaiPmh.oaipmh("delving", Some("icn"), None)(request)
 
         val response = asyncToResult(r)
 
         status(response) must equalTo(OK)
 
-          // TODO this doesn't work in test mode yet since there are no cached values of the transformed records available
+        println(contentAsXML(response))
 
-//        val xml = contentAsXML(response)
-//        val error = xml \ "error"
-//        error.length must equalTo(0)
+        (contentAsXML(response) \\ "metadataFormat").size must equalTo (1)
+        ((contentAsXML(response) \\ "metadataFormat").head \ "metadataPrefix").text must equalTo("icn")
 
+      }
+
+    }
+
+    "list records" in {
+
+      withTestConfig {
+
+        val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn")
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+
+        val response = asyncToResult(r)
+
+        status(response) must equalTo(OK)
+
+        val xml = contentAsXML(response)
+        println(xml)
+        val error = xml \ "error"
+        error.length must equalTo(0)
+
+        val records = xml \ "ListRecords" \ "record"
+        records.length must equalTo(6) // 6 valid records for ICN
       }
 
     }
 
   }
 
-  step(cleanup)
+  step(cleanup())
 
 
 }
