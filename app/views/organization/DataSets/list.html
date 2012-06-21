@@ -202,12 +202,12 @@
                              });
                          </script>
                      #{/if}
+                    <div class="btn-group">
+                        <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
+                        ${messages.get('ui.label.delete')}
+                        </a>
+                    </div>
                 #{/if}
-                <div class="btn-group">
-                    <a class="btn btn-danger btn-mini delete #{if i.state.name() != models.DataSetState.DISABLED().name() && i.state.name() != models.DataSetState.INCOMPLETE().name() && i.state.name() != models.DataSetState.UPLOADED().name()} disabled#{/if}" id="remove${i.spec}" data-remove="${i.spec}">
-                    ${messages.get('ui.label.delete')}
-                    </a>
-                </div>
             </div>
             </td>
         </tr>
