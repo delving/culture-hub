@@ -6,7 +6,6 @@ resolvers ++= Seq(
     Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "sbt-idea-repo" at "http://mpeltonen.github.com/maven/",
-    "jahia" at "http://maven.jahia.org/maven2",
     "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/groups/public",
     "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots",
     Resolver.url("sbt-buildinfo-resolver-0", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)

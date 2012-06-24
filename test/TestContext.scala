@@ -1,3 +1,4 @@
+import core.HubServices
 import core.indexing.IndexingService
 import core.storage.BaseXStorage
 import models.mongoContext._
@@ -45,18 +46,19 @@ trait TestContext {
   }
 
   def cleanup() {
-    connection.dropDatabase()
-    try {
-      BaseXStorage.withSession(core.storage.Collection("delving", "PrincessehofSample")) {
-        session => {
-          val r = session.execute("drop database delving____PrincessehofSample")
-          println(r)
-        }
-      }
-    } catch {
-      case _ => //ignore if not found
-    }
     withTestConfig {
+      HubServices.init()
+      connection.dropDatabase()
+      try {
+        HubServices.basexStorage.withSession(core.storage.BaseXCollection("delving", "PrincessehofSample")) {
+          session => {
+            val r = session.execute("drop database delving____PrincessehofSample")
+            println(r)
+          }
+        }
+      } catch {
+        case _ => //ignore if not found
+      }
       IndexingService.deleteByQuery("*:*")
     }
   }

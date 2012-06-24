@@ -5,7 +5,7 @@ import scala._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
 
-object ApplicationBuild extends Build {
+object Build extends sbt.Build {
 
   val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
 
@@ -15,7 +15,7 @@ object ApplicationBuild extends Build {
 
   val dosVersion = "1.5"
 
-  val coreVersion = "1.0-SNAPSHOT"
+  val webCoreVersion = "1.0-SNAPSHOT"
 
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
@@ -35,7 +35,7 @@ object ApplicationBuild extends Build {
     "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"      changing()
   )
 
-  val coreDependencies = Seq(
+  val webCoreDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                % "1.1-SNAPSHOT",
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
@@ -51,10 +51,10 @@ object ApplicationBuild extends Build {
     "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6"
   )
 
-  val core = PlayProject("culturehub-core", coreVersion, coreDependencies, file("core/")).settings(
+  val webCore = PlayProject("web-core", webCoreVersion, webCoreDependencies, file("web-core/")).settings(
     organization := "eu.delving",
-    version := coreVersion,
-    publishTo := Some(delvingRepository(coreVersion)),
+    version := webCoreVersion,
+    publishTo := Some(delvingRepository(webCoreVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
     resolvers ++= commonResolvers,
@@ -79,12 +79,12 @@ object ApplicationBuild extends Build {
   // TODO move to its own source repo once we have something stable
   val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(core)
+  ).dependsOn(webCore)
 
 
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(core)
+  ).dependsOn(webCore)
 
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
 
@@ -101,14 +101,14 @@ object ApplicationBuild extends Build {
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
     buildInfoPackage := "eu.delving.culturehub",
 
-    watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "web-core" / "app") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._"
 
-  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(core, dos, statistics, musip)
+  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(webCore, dos, statistics, musip)
 
 
 }
