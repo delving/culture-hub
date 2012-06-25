@@ -149,7 +149,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
 
-    val collections = models.Collection.findAllNonEmpty(orgId, format, accessKey)
+    val collections = models.HarvestableCollection.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -182,9 +182,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
     val allMetadataFormats = if (identifier.isEmpty) {
-      models.Collection.getAllMetadataFormats(orgId, accessKey)
+      models.HarvestableCollection.getAllMetadataFormats(orgId, accessKey)
     } else {
-      models.Collection.getMetadataFormats(identifierSpec, orgId, accessKey)
+      models.HarvestableCollection.getMetadataFormats(identifierSpec, orgId, accessKey)
     }
 
     // apply format filter
@@ -220,8 +220,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val collection: models.Collection = models.Collection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    if(!models.Collection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
+    val collection: models.HarvestableCollection = models.HarvestableCollection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    if(!models.HarvestableCollection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
@@ -299,7 +299,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       else mdRecord.get
     }
 
-    val collection = models.Collection.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
+    val collection = models.HarvestableCollection.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -347,7 +347,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     response
   }
   
-  private def prependNamespaces(metadataFormat: String, collection: Collection, elem: Elem): Elem = {
+  private def prependNamespaces(metadataFormat: String, collection: HarvestableCollection, elem: Elem): Elem = {
 
     var mutableElem = elem
 

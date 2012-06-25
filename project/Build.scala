@@ -102,7 +102,6 @@ object ApplicationBuild extends Build {
     buildInfoPackage := "eu.delving.culturehub",
 
     watchSources <++= baseDirectory map { path => ((path / "core" / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules" / "basex-scala-client") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
