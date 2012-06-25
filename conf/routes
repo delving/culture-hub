@@ -161,7 +161,6 @@ GET         /organizations/:orgId/admin                                       co
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
-GET         /organizations/:orgId/admin/redeploy                              controllers.organization.Admin.redeploy(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 

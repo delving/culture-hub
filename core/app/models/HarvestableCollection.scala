@@ -4,12 +4,12 @@ import com.mongodb.casbah.Imports._
 import core.Constants._
 
 /**
- * Hub Collection access. This covers both real collections (DataSets) and virtual ones (VirtualCollections)
+ * Harvestable Collection. This covers both real collections (DataSets) and virtual ones (VirtualCollections)
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class Collection(spec: String,
+case class HarvestableCollection(spec: String,
                       orgId: String,
                       name: String,
                       namespaces: Map[String, String]) {
@@ -40,12 +40,12 @@ case class Collection(spec: String,
 
 }
 
-object Collection {
+object HarvestableCollection {
 
-  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[Collection] = {
+  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[HarvestableCollection] = {
 
     // TODO implement accessKey lookup
-    val dataSets: List[Collection] ={
+    val dataSets: List[HarvestableCollection] ={
       val sets = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
       if(format.isDefined) {
         sets.filter(ds => ds.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
@@ -54,7 +54,7 @@ object Collection {
       }
     }
 
-    val virtualCollections: List[Collection] = {
+    val virtualCollections: List[HarvestableCollection] = {
       val vcs = VirtualCollection.findAllNonEmpty(orgId)
       if(format.isDefined) {
         vcs.filter(vc => vc.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
@@ -66,15 +66,15 @@ object Collection {
     dataSets ++ virtualCollections
   }
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[Collection] = {
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[HarvestableCollection] = {
     val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
     if(maybeDataSet.isDefined) {
-      val collection: Collection = maybeDataSet.get
+      val collection: HarvestableCollection = maybeDataSet.get
       Some(collection)
     } else {
       val maybeVirtualCollection = VirtualCollection.findBySpecAndOrgId(spec, orgId)
       if(maybeVirtualCollection.isDefined) {
-        val collection: Collection = maybeVirtualCollection.get
+        val collection: HarvestableCollection = maybeVirtualCollection.get
         Some(collection)
       } else {
         None
@@ -110,13 +110,13 @@ object Collection {
 
   
 
-  private implicit def dataSetToCollection(dataSet: DataSet): Collection = Collection(dataSet.spec, dataSet.orgId, dataSet.details.name, dataSet.namespaces)
+  private implicit def dataSetToCollection(dataSet: DataSet): HarvestableCollection = HarvestableCollection(dataSet.spec, dataSet.orgId, dataSet.details.name, dataSet.namespaces)
 
-  private implicit def dataSetListToCollectoinList(dataSets: List[DataSet]): List[Collection] = dataSets.map(dataSetToCollection(_))
+  private implicit def dataSetListToCollectoinList(dataSets: List[DataSet]): List[HarvestableCollection] = dataSets.map(dataSetToCollection(_))
 
-  private implicit def virtualCollectionToCollection(vc: VirtualCollection): Collection = Collection(vc.spec, vc.orgId, vc.name, vc.namespaces)
+  private implicit def virtualCollectionToCollection(vc: VirtualCollection): HarvestableCollection = HarvestableCollection(vc.spec, vc.orgId, vc.name, vc.namespaces)
 
-  private implicit def virtualCollectionListToCollectionList(vcs: List[VirtualCollection]): List[Collection] = vcs.map(virtualCollectionToCollection(_))
+  private implicit def virtualCollectionListToCollectionList(vcs: List[VirtualCollection]): List[HarvestableCollection] = vcs.map(virtualCollectionToCollection(_))
 
   
 

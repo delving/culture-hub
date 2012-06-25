@@ -78,7 +78,7 @@ object Search extends DelvingController {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
                     val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
                     val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get)) {
+                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
                       val record = mdr.xml.get(renderingFormat.get).get
                       renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
                     } else {
