@@ -12,6 +12,7 @@ object Build extends sbt.Build {
   val appName = "culture-hub"
   val cultureHubVersion = "12.07-SNAPSHOT"
   val sipCreatorVersion = "1.0.7-SNAPSHOT"
+  val playExtensionsVersion = "1.1"
 
   val dosVersion = "1.5"
 
@@ -36,7 +37,7 @@ object Build extends sbt.Build {
   )
 
   val webCoreDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                % "1.1-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
 
     "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
@@ -62,18 +63,13 @@ object Build extends sbt.Build {
   )
 
   val dosDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % "1.1-SNAPSHOT",
+    "eu.delving"                %% "play2-extensions"                 % playExtensionsVersion,
     "com.thebuzzmedia"          %  "imgscalr-lib"                     % "3.2"
   )
 
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
     resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
     resolvers ++= commonResolvers
-  )
-
-  // for later
-  val musipDependencies = Seq(
-    "eu.delving"               %% "culturehub-core"                   % "1.0-SNAPSHOT"
   )
 
   // TODO move to its own source repo once we have something stable
