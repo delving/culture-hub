@@ -14,7 +14,7 @@ object ApplicationBuild extends Build {
   val sipCreatorVersion = "1.0.7-SNAPSHOT"
 
   val dosVersion = "1.5"
-f
+
   val coreVersion = "1.0-SNAPSHOT"
 
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
