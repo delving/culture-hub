@@ -16,38 +16,59 @@ switch (recordType) {
     *{*** summary view for things that have a digital object ***}*
     *{#{if _data.hasDigitalObject()}}*
     <div class="thing-container">
-        <div class="ic_container">
-            <a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">
-                #{if _data.getMimeType().contains('image/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
-                #{/if}
-                #{elseif _data.getMimeType().contains('video/') }
-                     <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
-                #{/elseif}
-                #{elseif _data.getMimeType().contains('audio/') }
-                    <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
-                #{/elseif}
-                #{elseif _data.getMimeType().contains('unknown/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
-                #{/elseif}
+        <a class="img clip clip-dc" href="${_data.getUri()}" title="${_data.getTitle()}">
+            #{if _data.getMimeType().contains('image/') }
+                <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
+            #{/if}
+            #{elseif _data.getMimeType().contains('video/') }
+                 <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+            #{/elseif}
+            #{elseif _data.getMimeType().contains('audio/') }
+                <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
+            #{/elseif}
+            #{elseif _data.getMimeType().contains('unknown/') }
+                <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
+            #{/elseif}
+        </a>
+        <div class="category">${recordType}</div>
+        <div class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
+    <div class="description">#{if _data.getDescription()}${views.Helpers.shorten(_data.getDescription(), 80)}#{/if}</div>
 
-                <div class="overlay" style="display:none"></div>
-            </a>
-                #{if _isPrivate}
-                <p class="is_private">
-                    <span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>
-                </p>
-                #{/if}
-            <div class="ic_caption">
-                <p class="ic_category">${recordType}</p>
-                <strong class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></strong>
-                <div class="ic_text">
-                    #{if _data.getDescription()}<p><strong>${messages.get('thing.description')}: </strong><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span></p>#{/if}
-
-                </div>
-            </div>
-        </div>
     </div>
+    *{<div class="thing-container">}*
+        *{<div class="ic_container">}*
+            *{<a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">}*
+                *{#{if _data.getMimeType().contains('image/') }}*
+                    *{<img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>}*
+                *{#{/if}}*
+                *{#{elseif _data.getMimeType().contains('video/') }}*
+                     *{<img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>}*
+                *{#{/elseif}}*
+                *{#{elseif _data.getMimeType().contains('audio/') }}*
+                    *{<img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>}*
+                *{#{/elseif}}*
+                *{#{elseif _data.getMimeType().contains('unknown/') }}*
+                    *{<img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>}*
+                *{#{/elseif}}*
+
+                *{<div class="overlay" style="display:none"></div>}*
+            *{</a>}*
+                *{#{if _isPrivate}}*
+                *{<p class="is_private">}*
+                    *{<span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>}*
+                *{</p>}*
+                *{#{/if}}*
+            *{<div class="ic_caption">}*
+                *{<p class="ic_category">${recordType}</p>}*
+                *{<strong class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></strong>}*
+                *{<div class="ic_text">}*
+                    *{#{if _data.getDescription()}<p><strong>${messages.get('thing.description')}: </strong><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span></p>#{/if}}*
+
+                *{</div>}*
+            *{</div>}*
+        *{</div>}*
+    *{</div>}*
+
     *{#{/if}}*
     *{*** summary view for things that have a no digital object ***}*
     *{#{else}}*
