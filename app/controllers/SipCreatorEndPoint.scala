@@ -16,8 +16,7 @@ import play.api.Play.current
 import core.{Constants, HubServices}
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import core.storage.BaseXStorage
-import core.storage.Collection
+import core.storage.BaseXCollection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
@@ -28,7 +27,6 @@ import java.util.Date
 import models.statistics._
 import models.mongoContext.hubFileStore
 import xml.{Node, NodeSeq, Elem}
-import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -44,6 +42,8 @@ object SipCreatorEndPoint extends ApplicationController {
   val DOT_PLACEHOLDER = "--"
 
   val log: Logger = Logger("CultureHub")
+
+  private lazy val basexStorage = HubServices.basexStorage
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -256,7 +256,6 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
     try {
-      import com.mongodb.casbah.gridfs.Imports._
       val f = hubFileStore.createFile(file)
 
       val stats = Stats.read(inputStream)
@@ -373,9 +372,9 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val collection = Collection(dataSet.orgId, dataSet.spec)
+    val collection = BaseXCollection(dataSet.orgId, dataSet.spec)
 
-    val recordCount = BaseXStorage.count(collection)
+    val recordCount = basexStorage.count(collection)
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
@@ -421,8 +420,8 @@ object SipCreatorEndPoint extends ApplicationController {
           builder.append(">")
           write(builder.toString(), pw, out)
 
-          BaseXStorage.withSession(collection) {
-            implicit session => BaseXStorage.findAllCurrent foreach {
+          basexStorage.withSession(collection) {
+            implicit session => basexStorage.findAllCurrent foreach {
               record =>
                 var count = 0
                 val input = (record \ "document" \ "input").head
@@ -479,8 +478,8 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
-    val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
-      BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
+    val collection = basexStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
+      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
     }
     val parser = new SimpleDataSetParser(source, dataSet)
 
@@ -488,7 +487,7 @@ object SipCreatorEndPoint extends ApplicationController {
       if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
-    BaseXStorage.store(collection, parser, parser.namespaces, onRecordInserted)
+    basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
   }
 
 }

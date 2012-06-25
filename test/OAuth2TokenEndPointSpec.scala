@@ -16,6 +16,10 @@ import play.api.test.Helpers._
 
 class OAuth2TokenEndPointSpec extends Specification with TestContext {
 
+  step {
+    loadStandalone()
+  }
+
   "the OAuth2 token end-point" should {
 
     "accept a password grant request" in {
