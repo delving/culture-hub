@@ -11,6 +11,6 @@ abstract class Collection {
 
   val name: String
 
-  def databaseName: String
+  def storageName: String
 
 }

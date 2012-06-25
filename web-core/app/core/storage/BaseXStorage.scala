@@ -21,37 +21,37 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
 
   lazy val storage = new BaseX(host, port, ePort, user, password, false)
 
-  def createCollection(orgId: String, collectionName: String): BaseXCollection = {
+  def createCollection(orgId: String, collectionName: String): Collection = {
     val c = BaseXCollection(orgId, collectionName)
-    storage.createDatabase(c.databaseName)
+    storage.createDatabase(c.storageName)
     c
   }
 
-  def openCollection(c: BaseXCollection): Option[BaseXCollection] = openCollection(c.orgId, c.name)
+  def openCollection(c: Collection): Option[Collection] = openCollection(c.orgId, c.name)
 
-  def openCollection(orgId: String, collectionName: String): Option[BaseXCollection] = {
+  def openCollection(orgId: String, collectionName: String): Option[Collection] = {
     val c = BaseXCollection(orgId, collectionName)
     try {
-      storage.openDatabase(c.databaseName)
+      storage.openDatabase(c.storageName)
       Some(c)
     } catch {
       case _ => None
     }
   }
 
-  def deleteCollection(c: BaseXCollection) {
-    storage.dropDatabase(c.databaseName)
+  def deleteCollection(c: Collection) {
+    storage.dropDatabase(c.storageName)
   }
 
-  def withSession[T](collection: BaseXCollection)(block: ClientSession => T) = {
-    storage.withSession(collection.databaseName) {
+  def withSession[T](collection: Collection)(block: ClientSession => T) = {
+    storage.withSession(collection.storageName) {
       session =>
         block(session)
     }
   }
 
-  def withBulkSession[T](collection: BaseXCollection)(block: ClientSession => T) = {
-    storage.withSession(collection.databaseName) {
+  def withBulkSession[T](collection: Collection)(block: ClientSession => T) = {
+    storage.withSession(collection.storageName) {
       session =>
         session.setAutoflush(false)
         block(session)
@@ -59,7 +59,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
     }
   }
 
-  def store(collection: BaseXCollection, records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
+  def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
     var inserted: Long = 0
     withBulkSession(collection) {
       session =>
@@ -133,7 +133,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
 }
 
 case class BaseXCollection(orgId: String, name: String) extends Collection {
-  override def databaseName = orgId + "____" + name
+  override def storageName = orgId + "____" + name
 }
 
 
