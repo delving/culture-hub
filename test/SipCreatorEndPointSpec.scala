@@ -227,7 +227,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         gis.close()
         fis.close()
 
-        val result = controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
+        val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest()))
         status(result) must equalTo(OK)
 
         // check locking
@@ -239,7 +239,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         Thread.sleep(1000)
 
         var downloadedSource = ""
-        val zis = new ZipInputStream(is)
+        val zis = new ZipInputStream(new FileInputStream(is))
         var entry = zis.getNextEntry
         val downloadedEntries = Buffer[ZipEntry]()
         while(entry != null) {

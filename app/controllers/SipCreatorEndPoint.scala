@@ -27,6 +27,7 @@ import java.util.Date
 import models.statistics._
 import models.mongoContext.hubFileStore
 import xml.{Node, NodeSeq, Elem}
+import play.api.libs.concurrent.Promise
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -41,7 +42,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   val DOT_PLACEHOLDER = "--"
 
-  val log: Logger = Logger("CultureHub")
+  val log: Logger = Logger(SipCreatorEndPoint.getClass)
 
   private lazy val basexStorage = HubServices.basexStorage
 
@@ -59,9 +60,7 @@ object SipCreatorEndPoint extends ApplicationController {
           Unauthorized("Access Key %s not accepted".format(accessToken.get))
         } else {
           connectedUserObject = OAuth2TokenEndpoint.getUserByToken(accessToken.get)
-          val updatedSession = session + (Constants.USERNAME -> connectedUserObject.get.userName)
-          val r: PlainResult = action(request).asInstanceOf[PlainResult]
-          r.withSession(updatedSession)
+          action(request)
         }
       }
     }
@@ -328,26 +327,38 @@ object SipCreatorEndPoint extends ApplicationController {
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action {
       implicit request =>
-        val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
-        if (maybeDataSet.isEmpty) {
-          NotFound("Unknown spec %s".format(spec))
-        } else {
-          val dataSet = maybeDataSet.get
+        Async {
+          Promise.pure {
+            val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+            if (maybeDataSet.isEmpty) {
+              Left(NotFound("Unknown spec %s".format(spec)))
+            } else {
+              val dataSet = maybeDataSet.get
 
-          // lock it right away
-          val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
-          DataSet.save(updatedDataSet)
+              // lock it right away
+              val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
+              DataSet.save(updatedDataSet)
 
-          val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(getSipStream(dataSet))
-          Ok.stream(dataContent)
+              val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(dataSet))
+              Right(dataContent)
+            }
+          }.map {
+            result =>
+              if(result.isLeft) {
+                result.left.get
+              } else {
+                Ok.stream(result.right.get)
+              }
+          }
         }
     }
   }
 
 
   def getSipStream(dataSet: DataSet) = {
-    val in = new PipedInputStream(100000000) // 95 mb buffer... this should use the Iteratee/Enumeratee method instead.
-    val zipOut = new ZipOutputStream(new PipedOutputStream(in))
+    val temp = TemporaryFile(dataSet.spec)
+    val fos = new FileOutputStream(temp.file)
+    val zipOut = new ZipOutputStream(fos)
 
     writeEntry("dataset_facts.txt", zipOut) {
       out =>
@@ -421,23 +432,26 @@ object SipCreatorEndPoint extends ApplicationController {
           write(builder.toString(), pw, out)
 
           basexStorage.withSession(collection) {
-            implicit session => basexStorage.findAllCurrent foreach {
-              record =>
-                var count = 0
-                val input = (record \ "document" \ "input").head
-                pw.println("""<input id="%s">""".format(input.attribute("id").get.text))
-                input.flatMap(elem => elem match {
-                  case e: Elem => e.child
-                  case _ => NodeSeq.Empty
-                }).filterNot(_.label == "#PCDATA").foreach { node: Node => pw.println(serializeElement(node)) }
-                pw.println("</input>")
+            implicit session =>
+              val total = basexStorage.count
+              basexStorage.findAllCurrent foreach {
+                record =>
+                  var count = 0
+                  val input = (record \ "document" \ "input").head
+                  pw.println("""<input id="%s">""".format(input.attribute("id").get.text))
+                  input.flatMap(elem => elem match {
+                    case e: Elem => e.child
+                    case _ => NodeSeq.Empty
+                  }).filterNot(_.label == "#PCDATA").foreach { node: Node => pw.println(serializeElement(node)) }
+                  pw.println("</input>")
 
-                if (count % 2000 == 0) {
-                  pw.flush()
-                  out.flush()
-                }
-                count += 1
-            }
+                  if (count % 2000 == 0) {
+                    pw.flush()
+                    out.flush()
+                    log.info("Prepared %s of %s records for download".format(count, total))
+                  }
+                  count += 1
+              }
             pw.print("</delving-sip-source>")
             pw.flush()
             out.flush()
@@ -456,7 +470,8 @@ object SipCreatorEndPoint extends ApplicationController {
     }
 
     zipOut.close()
-    in
+    fos.close()
+    temp.file
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
