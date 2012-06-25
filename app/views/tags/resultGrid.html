@@ -1,4 +1,5 @@
 %{ def counter = 1 }%
+*{
 #{list _results, as: 'doc'}
     #{if counter == 1}
     <ul class="thumbnails">
@@ -17,3 +18,17 @@
     %{ counter = 1 }%
     #{/if}
 #{/list}
+}*
+<ul class="thumbnails">
+#{list _results, as: 'doc'}
+    <li class="thumbnail span3">
+        <div class=" draggable ${doc.getItemType()} ">
+            #{thingSummaryView data:doc, iSize: 220 /}
+            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
+            <input type="hidden" name="title" value="${doc.getTitle()}"/>
+        </div>
+    </li>
+
+#{/list}
+</ul>

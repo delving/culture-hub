@@ -4,13 +4,7 @@
 
 #{set bodyId: 'results' /}
 
-#{set 'moreScripts'}
-<script src="@{routes.Assets.at('common/javascripts/results.js')}" type='text/javascript'></script>
-#{/set}
-
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
-
-
 
 #{if briefDocs }
 
@@ -29,9 +23,6 @@
     </div>
 
 </div>
-
-
-
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-top" /}
@@ -84,7 +75,7 @@
 *{</div>}*
 
 *{</div>}*
-</div>
+*{</div>}*
 
 #{/if}
 
