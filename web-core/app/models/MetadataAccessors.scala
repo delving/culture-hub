@@ -45,7 +45,7 @@ abstract class MetadataAccessors extends ViewableItem {
 
   def getOrgId : String =  getSplitHubId._1
   def getSpec : String = getSplitHubId._2
-  def getRecordId : String = getSplitHubId._1
+  def getRecordId : String = getSplitHubId._3
 
   // ~~~ well-known, always provided, meta-data fields
   def getItemType: String = assign(RECORD_TYPE)
