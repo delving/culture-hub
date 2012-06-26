@@ -130,6 +130,12 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
     session.find("for $i in /*:record[@version = %s] order by $i/system/index return $i".format(currentCollectionVersion))
   }
 
+  def findAllCurrentDocuments(implicit session: ClientSession) = {
+    val currentVersion = currentCollectionVersion
+    session.execute("SET SERIALIZER omit-xml-declaration=yes,method=xml,indent=yes,indents=0,format=yes")
+    session.findRaw("for $i in /*:record[@version = %s] order by $i/system/index return $i/*:document/*:input".format(currentVersion))
+  }
+
 }
 
 case class BaseXCollection(orgId: String, name: String) extends Collection {
