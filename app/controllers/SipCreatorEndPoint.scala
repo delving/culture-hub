@@ -29,6 +29,8 @@ import models.mongoContext.hubFileStore
 import xml.Node
 import play.api.libs.concurrent.Promise
 import org.apache.commons.lang.StringEscapeUtils
+import scala.util.matching.Regex.Match
+import java.util.regex.Matcher
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -444,10 +446,22 @@ object SipCreatorEndPoint extends ApplicationController {
                   // the output coming from BaseX differs from the original source as follows:
                   // - the <input> tags contain the XSI namespace declaration
                   // - the formatted XML escapes all entities including UTF-8 characters
-                  // the following 3 lines fix this
+                  // the following lines fix this
                   val noXsi = record.replaceAll(""" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"""", "")
-                  val cleaned = tagContentMatcher.replaceAllIn(noXsi, s => ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1).replaceAll("""\\""", """\\\\"""))) + "<")
-                  pw.println(cleaned)
+
+                  def cleanup: Match => String = { s =>
+                    ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
+                  }
+
+                  val escapeBackslash = noXsi.replaceAll("""\\""", Matcher.quoteReplacement("""\\"""))
+                  try {
+                    val cleaned = tagContentMatcher.replaceAllIn(escapeBackslash, cleanup)
+                    pw.println(cleaned)
+                  } catch {
+                    case t =>
+                      log.error("Error while trying to sanitize following record:\n\n" + escapeBackslash)
+                      throw t
+                  }
 
                   if (count % 10000 == 0) {
                     pw.flush()
