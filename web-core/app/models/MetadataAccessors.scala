@@ -38,10 +38,14 @@ abstract class MetadataAccessors extends ViewableItem {
   // ~~~ identifiers
   def getHubId : String = URLDecoder.decode(assign(HUB_ID), "utf-8")
 
-  // ~~~ institutional record IDs
-  def getOrgId : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(0) else ""
-  def getSpec : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(1) else ""
-  def getRecordId : String = if(getHubId != null && getHubId.split("_").length == 3) getHubId.split("_")(2) else ""
+  def getSplitHubId = {
+    val HubId(orgId, spec, localRecordKey) = getHubId
+    (orgId, spec, localRecordKey)
+  }
+
+  def getOrgId : String =  getSplitHubId._1
+  def getSpec : String = getSplitHubId._2
+  def getRecordId : String = getSplitHubId._1
 
   // ~~~ well-known, always provided, meta-data fields
   def getItemType: String = assign(RECORD_TYPE)
