@@ -453,13 +453,13 @@ object SipCreatorEndPoint extends ApplicationController {
                     ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
                   }
 
-                  val escapeBackslash = noXsi.replaceAll("""\\""", Matcher.quoteReplacement("""\\"""))
+                  val escapeForRegex = Matcher.quoteReplacement(noXsi)
                   try {
-                    val cleaned = tagContentMatcher.replaceAllIn(escapeBackslash, cleanup)
+                    val cleaned = tagContentMatcher.replaceAllIn(escapeForRegex, cleanup)
                     pw.println(cleaned)
                   } catch {
                     case t =>
-                      log.error("Error while trying to sanitize following record:\n\n" + escapeBackslash)
+                      log.error("Error while trying to sanitize following record:\n\n" + escapeForRegex)
                       throw t
                   }
 
