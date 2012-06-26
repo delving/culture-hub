@@ -13,7 +13,7 @@ import akka.actor.Actor
 import eu.delving.metadata.RecMapping
 import play.api.{Play, Logger}
 import play.api.Play.current
-import core.{Constants, HubServices}
+import core.HubServices
 import scala.{Either, Option}
 import util.SimpleDataSetParser
 import core.storage.BaseXCollection
@@ -26,8 +26,9 @@ import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
 import models.mongoContext.hubFileStore
-import xml.{Node, NodeSeq, Elem}
+import xml.Node
 import play.api.libs.concurrent.Promise
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -420,6 +421,8 @@ object SipCreatorEndPoint extends ApplicationController {
     }
 
 
+    val tagContentMatcher = """>([^<]+)<""".r
+
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
         out =>
@@ -434,27 +437,29 @@ object SipCreatorEndPoint extends ApplicationController {
           basexStorage.withSession(collection) {
             implicit session =>
               val total = basexStorage.count
-              basexStorage.findAllCurrent foreach {
+              var count = 0
+              basexStorage.findAllCurrentDocuments foreach {
                 record =>
-                  var count = 0
-                  val input = (record \ "document" \ "input").head
-                  pw.println("""<input id="%s">""".format(input.attribute("id").get.text))
-                  input.flatMap(elem => elem match {
-                    case e: Elem => e.child
-                    case _ => NodeSeq.Empty
-                  }).filterNot(_.label == "#PCDATA").foreach { node: Node => pw.println(serializeElement(node)) }
-                  pw.println("</input>")
 
-                  if (count % 2000 == 0) {
+                  // the output coming from BaseX differs from the original source as follows:
+                  // - the <input> tags contain the XSI namespace declaration
+                  // - the formatted XML escapes all entities including UTF-8 characters
+                  // the following 3 lines fix this
+                  val noXsi = record.replaceAll(""" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"""", "")
+                  val cleaned = tagContentMatcher.replaceAllIn(noXsi, s => ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1).replaceAll("""\\""", """\\\\"""))) + "<")
+                  pw.println(cleaned)
+
+                  if (count % 10000 == 0) {
                     pw.flush()
-                    out.flush()
-                    log.info("Prepared %s of %s records for download".format(count, total))
+                  }
+                  if (count % 10000 == 0) {
+                    log.info("%s: Prepared %s of %s records for download".format(dataSet.spec, count, total))
                   }
                   count += 1
               }
             pw.print("</delving-sip-source>")
+            log.info("Done preparing DataSet %s for download".format(dataSet.spec))
             pw.flush()
-            out.flush()
           }
       }
     }
@@ -489,7 +494,6 @@ object SipCreatorEndPoint extends ApplicationController {
   private def write(content: String, pw: PrintWriter, out: OutputStream) {
     pw.println(content)
     pw.flush()
-    out.flush()
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
