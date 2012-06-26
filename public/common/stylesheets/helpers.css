@@ -104,6 +104,11 @@ dt, dd, li {
     overflow: hidden;
 }
 
+.clip-dc {
+    display: block;
+    height: 160px;
+}
+
 .clip-40 {
     display: block;
     height: 40px;
@@ -128,6 +133,11 @@ dt, dd, li {
 .clip-180 {
     display: block;
     height: 120px;
+}
+
+.clip-200 {
+    display: block;
+    height: 200px;
 }
 
 .clip-210 {
@@ -211,10 +221,11 @@ dt, dd, li {
 }
 
 /* RESULT / BROWSE LIST CAPTIONS / THING-CONTAINER ************************************************************************/
+
 .thing-container {
-    /*background: #222;*/
-    margin-bottom: 10px;
+    margin-bottom: 11px;
 }
+
 .thing-container.no-image {
     background: #e1e1e1;
     margin-bottom: 10px;
@@ -224,12 +235,24 @@ dt, dd, li {
     background: transparent;
 }
 
+.thing-container .category {
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 0;
+    margin: 8px 0;
+}
+
+.thing-container .title,
+.thing-container .description {
+    line-height: 1.5;
+    clear: both;
+}
+/*
 .ic_container {
     vertical-align: baseline;
     position: relative;
     text-align: center;
-    /*min-height: 200px !important;*/
-    /*margin-bottom: 10px;*/
 }
 
 .ic_container img {
@@ -270,7 +293,6 @@ dt, dd, li {
 }
 
 .ic_caption .title a {
-    color: #fff;
     display: block;
     padding: 0 5px;
 }
@@ -290,19 +312,16 @@ dt, dd, li {
 .ic_text {
     padding: 5px;
     margin: 0px;
-    /*text-align: justify;*/
     font-size: smaller;
 
 }
-
+*/
 .is_private {
     background: #fff;
     color: #000;
     opacity: 0.7;
     position: absolute;
     top: 0px;
-    /*font-size: smaller;*/
-    /*text-align: justify;*/
 }
 
 .is_private span {
@@ -317,20 +336,7 @@ dt, dd, li {
     margin: 11px 0;
 }
 
-/*.pagination-top {*/
-    /*margin-bottom: 0;*/
-/*}*/
-
-/*.pagination-bottom {*/
-
-/*}*/
-
-/* token input overrides */
-
-
 /** BOOTSTRAP TABLE HELPER **/
-
-
 
 .table caption {
     color: #888;
@@ -433,16 +439,6 @@ form label.radio {
     background-color: #cc3300 !important;
 }
 
-/*.btn-group .btn:first-child:not([type='form']) {*/
-/*margin-left: 0;*/
-/*-webkit-border-top-left-radius: 4px;*/
-/*-moz-border-radius-topleft: 4px;*/
-/*border-top-left-radius: 4px;*/
-/*-webkit-border-bottom-left-radius: 4px;*/
-/*-moz-border-radius-bottomleft: 4px;*/
-/*border-bottom-left-radius: 4px;*/
-/*}*/
-
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
 -----------------------------------*/
@@ -463,10 +459,6 @@ form label.radio {
 	BOOTSTRAP DROPDOWN HELPER
 -----------------------------------*/
 
-/*.dropdown:hover .dropdown-menu {*/
-    /*display: block;*/
-/*}*/
-
 /* bootstrap pagination: include spans for object list pages */
 
 .pagination a,
@@ -481,24 +473,6 @@ form label.radio {
 
 /* bootstrap labels extra */
 
-/*.label {*/
-    /*padding: 1px 4px 2px;*/
-    /*font-size: 10.998px;*/
-    /*font-weight: bold;*/
-    /*line-height: 13px;*/
-    /*color: #ffffff;*/
-    /*vertical-align: middle;*/
-    /*white-space: nowrap;*/
-    /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);*/
-    /*background-color: #999999;*/
-    /*-webkit-border-radius: 3px;*/
-    /*-moz-border-radius: 3px;*/
-    /*border-radius: 3px;*/
-/*}*/
-/*.label:hover {*/
-    /*color: #ffffff;*/
-    /*text-decoration: none;*/
-/*}*/
 .label-contrast {
     background-color: #fff;
     border: 1px solid #ccc;

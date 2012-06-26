@@ -1,4 +1,5 @@
 $(document).ready(function() {
+
     // Facets stuff
 //    if ($(".facet-container").length > 0) {
 //        // hide() or show() the toggle containers on load
@@ -39,11 +40,12 @@ $(document).ready(function() {
 //            }
 //    });
 
-    $(".ic_container").capslide({
-        caption_color    : 'white',
-        caption_bgcolor  : 'black',
-        overlay_bgcolor  : 'black',
-        border           : '',
-        showcaption      : true
-    });
+//    $(".ic_container").capslide({
+//        caption_color    : 'white',
+//        caption_bgcolor  : 'black',
+//        overlay_bgcolor  : 'black',
+//        border           : '',
+//        showcaption      : true
+//    });
+
 });
