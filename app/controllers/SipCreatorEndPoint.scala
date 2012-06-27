@@ -335,6 +335,8 @@ object SipCreatorEndPoint extends ApplicationController {
             val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
             if (maybeDataSet.isEmpty) {
               Left(NotFound("Unknown spec %s".format(spec)))
+            } else if(maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
+              Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time".format(spec)))
             } else {
               val dataSet = maybeDataSet.get
 
