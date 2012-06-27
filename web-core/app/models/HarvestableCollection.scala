@@ -48,7 +48,7 @@ object HarvestableCollection {
     val dataSets: List[HarvestableCollection] ={
       val sets = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
       if(format.isDefined) {
-        sets.filter(ds => ds.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+        sets.filter(ds => ds.getVisibleMetadataSchemas(accessKey).exists(_.prefix == format.get))
       } else {
         sets
       }

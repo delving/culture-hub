@@ -31,7 +31,7 @@ trait CoreImplicits {
 
   // ~~~ ListItems
 
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, ds.description.getOrElse(""), None, None, "unknown/unknown", ds.getCreator.userName, false, "/nope")
+  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, "", None, None, "unknown/unknown", ds.getCreator.userName, false, "/nope")
   implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
 
   // ~~~ ObjectId

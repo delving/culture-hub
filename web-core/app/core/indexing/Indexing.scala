@@ -29,7 +29,7 @@ import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{MetadataItem, DataSet}
+import models.{Visibility, MetadataItem, DataSet}
 import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 
@@ -70,18 +70,18 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataItem, format: String) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataItem, schemaPrefix: String) {
     import scala.collection.JavaConversions._
 
     // mandatory fields
     inputDoc.addField(ORG_ID, dataSet.orgId)
-    inputDoc.addField(VISIBILITY, dataSet.visibility.value)
+    inputDoc.addField(VISIBILITY, Visibility.PUBLIC.value.toString)
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
 
     inputDoc.addField(HUB_ID, URLEncoder.encode(record.itemId, "utf-8"))
     inputDoc.addField(SPEC, "%s".format(dataSet.spec))
-    inputDoc.addField(SCHEMA, format)
+    inputDoc.addField(SCHEMA, schemaPrefix)
 
     // for backwards-compatibility
     inputDoc.addField(PMH_ID, URLEncoder.encode(record.itemId, "utf-8"))
@@ -148,9 +148,7 @@ object Indexing extends SolrServer {
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
 
-     // FIXME some day
-//    dataSet.getVisibleMetadataFormats().foreach(format => inputDoc.addField(PUBLIC_SCHEMAS, format.prefix))
-    dataSet.getAllMetadataFormats.foreach(format => inputDoc.addField(ALL_SCHEMAS, format.prefix))
+    dataSet.getAllMappingSchemas.foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
 
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 

@@ -28,7 +28,7 @@ object DataSetCollectionProcessor {
 
     val invalidRecords = DataSet.getInvalidRecords(dataSet)
 
-    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
+    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
       t => new ProcessingSchema {

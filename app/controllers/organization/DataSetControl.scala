@@ -47,8 +47,7 @@ case class DataSetViewModel(id: Option[ObjectId] = None,
                             recordDefinitions: Seq[String] = Seq.empty,
                             allRecordDefinitions: List[String],
                             oaiPmhAccess: List[OaiPmhAccessViewModel],
-                            indexingMappingPrefix: String = "",
-                            visibility: Int = 0,
+                            indexingMappingPrefix: Option[String] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
 case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
@@ -109,8 +108,7 @@ object DataSetViewModel {
           "accessKey" -> optional(text)
         )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
       ),
-      "indexingMappingPrefix" -> text,
-      "visibility" -> number,
+      "indexingMappingPrefix" -> optional(text),
       "errors" -> of[Map[String, String]]
     )(DataSetViewModel.apply)(DataSetViewModel.unapply)
   )
@@ -142,8 +140,8 @@ object DataSetControl extends OrganizationController {
                 recordDefinitions = dS.recordDefinitions,
                 allRecordDefinitions = allRecordDefinitions,
                 oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
-                indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
-                visibility = dS.visibility.value)
+                indexingMappingPrefix = dS.getIndexingMappingPrefix
+              )
             )
           } else {
             return Action {
@@ -215,12 +213,12 @@ object DataSetControl extends OrganizationController {
 
                 val updatedDetails = existing.details.copy(facts = factsObject)
                 val updated = existing.copy(
-                  spec = dataSetForm.spec,
-                  details = updatedDetails,
-                  mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
-                  formatAccessControl = formatAccessControl,
-                  idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix),
-                  visibility = Visibility.get(dataSetForm.visibility))
+                    spec = dataSetForm.spec,
+                    details = updatedDetails,
+                    mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                    formatAccessControl = formatAccessControl,
+                    idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
+                  )
                 DataSet.save(updated)
               }
               case None =>
@@ -235,22 +233,13 @@ object DataSetControl extends OrganizationController {
                     orgId = orgId,
                     userName = connectedUser,
                     state = DataSetState.INCOMPLETE,
-                    visibility = Visibility.get(dataSetForm.visibility),
-                    lastUploaded = new Date(),
                     details = Details(
                       name = dataSetForm.facts.name,
-                      facts = factsObject,
-                      metadataFormat = RecordDefinition(
-                        "raw",
-                        "http://delving.eu/namespaces/raw",
-                        "http://delving.eu/namespaces/raw/schema.xsd",
-                        List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
-                        true
-                      )
+                      facts = factsObject
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
                     formatAccessControl = formatAccessControl,
-                    idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix)
+                    idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
                 )
             }

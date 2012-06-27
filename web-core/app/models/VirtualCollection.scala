@@ -35,9 +35,9 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     var intersect: List[RecordDefinition] = List.empty
     for(dataSet: DataSet <- dataSets) yield {
       if(intersect.isEmpty) {
-        intersect = dataSet.getVisibleMetadataFormats(accessKey)
+        intersect = dataSet.getVisibleMetadataSchemas(accessKey)
       } else {
-        intersect = dataSet.getVisibleMetadataFormats(accessKey).intersect(intersect)
+        intersect = dataSet.getVisibleMetadataSchemas(accessKey).intersect(intersect)
       }
     }
     intersect
