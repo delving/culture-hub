@@ -208,10 +208,14 @@ object SipCreatorEndPoint extends ApplicationController {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
               case "source" if extension == "xml.gz" => {
-                val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
-                DataSet.updateState(dataSet.get, DataSetState.PARSING)
-                Right("Received it")
+                if(dataSet.get.state == DataSetState.PROCESSING) {
+                  Left("%s: Cannot upload source while the set is being processed".format(spec))
+                } else {
+                  val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                  receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
+                  DataSet.updateState(dataSet.get, DataSetState.PARSING)
+                  Right("Received it")
+                }
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
               case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, request.body.file)
