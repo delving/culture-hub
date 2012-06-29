@@ -56,8 +56,14 @@ package object mongoContext extends models.MongoContext {
     MongoDBObject("links.linkType" -> 1)
   )
 
-  def addIndexes(collection: MongoCollection, indexes: Seq[DBObject]) {
-    indexes.foreach(collection.ensureIndex(_))
+  def addIndexes(collection: MongoCollection, indexes: Seq[DBObject], indexNames: Seq[String] = Seq.empty) {
+    if(indexNames.size == indexes.size) {
+      indexes.zipWithIndex.foreach {
+        item => collection.ensureIndex(item._1, indexNames(item._2))
+      }
+    } else {
+      indexes.foreach(collection.ensureIndex(_))
+    }
   }
 
   lazy val hubUserCollection = connection("Users")
@@ -119,6 +125,8 @@ package object mongoContext extends models.MongoContext {
 
   // dataSet stats
 
+  val dataSetStatisticsContextIndexNames = Seq("context", "contextDataProvider", "contextProvider")
+
   val dataSetStatisticsContextIndexes = Seq(
     MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1),
     MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.dataProvider" -> 1),
@@ -126,13 +134,13 @@ package object mongoContext extends models.MongoContext {
   )
 
   lazy val dataSetStatistics = connection("DataSetStatistics")
-  addIndexes(dataSetStatistics, dataSetStatisticsContextIndexes)
+  addIndexes(dataSetStatistics, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
 
   lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
-  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes)
+  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
 
   lazy val fieldValues = connection("DataSetStatisticsFieldValues")
-  addIndexes(fieldValues, dataSetStatisticsContextIndexes)
+  addIndexes(fieldValues, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
 
 
   lazy val hubFileStore = GridFS(connection)
