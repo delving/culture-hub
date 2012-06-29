@@ -92,7 +92,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
         case Left(Elem(qname, attrs, namespaces)) if qname.local == "input" =>
           inRecord = true
           val mayId = attrs.find(_.name.local == "id")
-          if (mayId != None) recordId = mayId.get.value
+          if (mayId != None) recordId = StringEscapeUtils.escapeXml(mayId.get.value)
         case Right(EndElem(name, _)) if (name.local == "input") =>
           inRecord = false
           record = Record(
@@ -117,10 +117,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           val d = """<![CDATA[%s]]>""".format(data)
           recordXml.append(d)
           fieldValueXml.append(d)
-        //        case EvEntityRef(text) if (inRecord) =>
-        //          elementHasContent = true
-        //          recordXml.append("&%s;".format(text))
-        //          fieldValueXml.append(text)
         case elemEnd@Right(EndElem(qname, _)) if (inRecord) =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
