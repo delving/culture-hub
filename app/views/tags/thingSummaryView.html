@@ -7,6 +7,12 @@ switch (recordType) {
     case "mdr":
         recordType = messages.get('thing.object.heritage')
         break
+    case "museum":
+    recordType = messages.get('thing.museum')
+    break
+    case "collection":
+    recordType = messages.get('thing.collection')
+    break
     default:
     recordType = _data.getItemType()
 }
@@ -15,13 +21,14 @@ switch (recordType) {
 #{ifnot _viewType == 'media'}
     *{*** summary view for things that have a digital object ***}*
     *{#{if _data.hasDigitalObject()}}*
-    <div class="thing-container">
-        <a class="img clip clip-dc" href="${_data.getUri()}" title="${_data.getTitle()}">
+<div class="thing-container ${_data.getItemType()}">
+    <div class="category">${recordType}</div>
+    <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}">
             #{if _data.getMimeType().contains('image/') }
                 <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
             #{/if}
             #{elseif _data.getMimeType().contains('video/') }
-                 <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+                <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
             #{/elseif}
             #{elseif _data.getMimeType().contains('audio/') }
                 <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
@@ -30,9 +37,9 @@ switch (recordType) {
                 <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
             #{/elseif}
         </a>
-        <div class="category">${recordType}</div>
-        <div class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
-    <div class="description">#{if _data.getDescription()}${views.Helpers.shorten(_data.getDescription(), 80)}#{/if}</div>
+        <div class="title" ><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
+        #{if _data.getDescription()}<div class="description">${views.Helpers.shorten(_data.getDescription(), 80)}</div>#{/if}
+
 
     </div>
     *{<div class="thing-container">}*
