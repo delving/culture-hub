@@ -7,7 +7,8 @@
                 <a class="brand" href="/">DiMCoN</a>
             #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin')/}
                 <form method="get" action="/search" class="navbar-search pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}' rel="tooltip" title="&{'ui.label.search.help'}"/>
+                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    <input type="submit" class="submit" value="&{'ui.label.search'}" class="btn btn-primary btn-mini"/>
                 </form>
             </div>
         </div>

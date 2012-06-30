@@ -4,6 +4,11 @@
 
 #{set bodyId: 'results' /}
 
+#{set 'moreScripts'}
+<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/jquery.masonry.min.js')}"></script>
+<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
+#{/set}
+
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
 
 #{if briefDocs }
