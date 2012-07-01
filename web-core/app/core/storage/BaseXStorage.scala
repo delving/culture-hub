@@ -19,6 +19,8 @@ import play.api.Logger
 
 class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: String) {
 
+  val DEFAUL_BASEX_PATH_EXTENSION = "DOT"
+
   lazy val storage = new BaseX(host, port, ePort, user, password, false)
 
   def createCollection(orgId: String, collectionName: String): Collection = {
@@ -61,6 +63,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
 
   def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
     var inserted: Long = 0
+    val start = System.currentTimeMillis()
     withBulkSession(collection) {
       session =>
         val versions: Map[String, Int] = (session.find("""for $i in /*:record let $id := $i/@id group by $id return <version id="{$id}">{count($i)}</version>""") map {
@@ -73,7 +76,10 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
           val next = it.next()
           if(next._2 % 10000 == 0) session.flush()
           try {
-            session.add(next._1.id, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
+            // we add the record on a path of its own, which is useful because then we know how many distinct records are stored in a BaseX collection
+            // given that those path need to be valid file names, we do preemptive sanitization here
+            val sanitizedId = if(next._1.id.endsWith(".")) next._1.id + DEFAUL_BASEX_PATH_EXTENSION else next._1.id
+            session.add(sanitizedId, buildRecord(next._1, versions.get(next._1.id).getOrElse(0), namespaces, next._2))
           } catch {
             case t =>
               Logger("CultureHub").error(next._1.toString)
@@ -85,6 +91,8 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
         session.flush()
         session.createAttributeIndex()
       }
+    val end = System.currentTimeMillis()
+    Logger("CultureHub").info("Storing %s records into BaseX took %s ms".format(inserted, end - start))
     inserted
   }
 
