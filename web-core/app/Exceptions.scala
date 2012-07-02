@@ -36,10 +36,6 @@ class DataSetNotFoundException(s: String, throwable: Throwable) extends Exceptio
   def this(s: String) = this (s, null)
 }
 
-class HarvindexingException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
-}
-
 class RecordNotFoundException(s: String, throwable: Throwable) extends Exception(s, throwable) {
   def this(s: String) = this (s, null)
 }

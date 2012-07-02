@@ -9,8 +9,11 @@ import scala.collection.JavaConverters._
 import play.api.Logger
 import collection.mutable.ListBuffer
 import core.search._
+import core.collection.Harvestable
 
 /**
+ * A VirtualCollection is a collection resulting from a search, with references to the search results being cached.
+ * The aim is to be able to harvest a fine-tuned set of search results.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -19,15 +22,39 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
                              spec: String,
                              name: String,
                              orgId: String,
+                             creator: String, // userName of the creator
                              query: VirtualCollectionQuery,
                              currentQueryCount: Long = 0,
                              autoUpdate: Boolean = false,
                              dataSetReferences: List[DataSetReference] // kept here for redundancy
-                             ) {
+                             ) extends Harvestable {
+
+  // ~~~ basics
+  def getName: String = name
+
+  def getCreator: String = creator
+
+  def getOwner: String = orgId
+
+  def getTotalRecords = VirtualCollection.children.countByParentId(_id)
+
+  // ~~~ VC specific
 
   def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.findBySpecAndOrgId(r.spec, r.orgId))
 
-  def namespaces = dataSets.map(_.namespaces).flatten.toMap[String, String]
+  def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
+
+  // ~~~ harvesting
+  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
+    val references = VirtualCollection.children.find(MongoDBObject("parentId" -> _id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit)
+    val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> _id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position))
+    val records = references.toList.groupBy(_.collection).map {
+      grouped =>
+        val cache = MetadataCache.get(orgId, grouped._1, ITEM_TYPE_MDR)
+        cache.list()
+    }.flatten.toList
+    (records, totalSize.toInt)
+  }
 
   def getVisibleMetadataFormats(accessKey: Option[String]): List[RecordDefinition] = {
     // all available formats to all dataSets in common
@@ -35,17 +62,18 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     var intersect: List[RecordDefinition] = List.empty
     for(dataSet: DataSet <- dataSets) yield {
       if(intersect.isEmpty) {
-        intersect = dataSet.getVisibleMetadataFormats(accessKey)
+        intersect = dataSet.getVisibleMetadataSchemas(accessKey)
       } else {
-        intersect = dataSet.getVisibleMetadataFormats(accessKey).intersect(intersect)
+        intersect = dataSet.getVisibleMetadataSchemas(accessKey).intersect(intersect)
       }
     }
     intersect
   }
 
-  def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
+  def getNamespaces = dataSets.map(_.getNamespaces).flatten.toMap[String, String]
 
-  def recordCount = VirtualCollection.children.countByParentId(_id)
+
+
 
 }
 

@@ -248,7 +248,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
       Action(action.parser) {
         implicit request: Request[A] => {
 
-          val additionalSessionParams = new collection.mutable.HashMap[String, String]
+          val additionalSessionParams = new scala.collection.mutable.HashMap[String, String]
 
           // CSRF check
           // TODO FIXME

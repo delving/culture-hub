@@ -66,14 +66,14 @@ object Organization extends DelvingController {
     Action {
       implicit request =>
         if (HubServices.organizationService.exists(orgId)) {
-          val collections = models.DataSet.findAllByOrgId(orgId).filter(_.visibility == Visibility.PUBLIC)
+          val collections = models.DataSet.findAllByOrgId(orgId)
 
           val xmlResponse =
             <collections>
               {for (c <- collections) yield
               <collection>
                 <id>{toIdentifier(c.spec)}</id>
-                <name>{c.name}</name>
+                <name>{c.getName}</name>
               </collection>}
             </collections>
 

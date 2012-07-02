@@ -83,20 +83,6 @@
 
                         %{ }}%
 
-                        <div class="control-group">
-                            <label class="control-label">&{'ui.label.visibility'}</label>
-                            <div class="controls">
-                                <label class="radio">
-                                    <input type="radio" name="public" value="${models.Visibility.PRIVATE().value}" data-bind="checked: visibility"/>
-                                &{'ui.label.visibility.notpublic'}
-                                </label>
-                                <label class="radio">
-                                    <input type="radio" name="public" value="${models.Visibility.PUBLIC().value}" data-bind="checked: visibility"/>
-                                &{'ui.label.visibility.public'}
-                                </label>
-                            </div>
-                        </div>
-
                     </div>
                     <div class="span6">
                         <div class="control-group">
@@ -130,7 +116,8 @@
                         <div class="control-group">
                             <label class="control-label">Indexing and Rendering Schema</label>
                             <div class="controls">
-                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'Select a mapping for indexing', value: indexingMappingPrefix"></select>
+                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'None', value: indexingMappingPrefix"></select>
+                                <span class="help-inline">Select a schema for indexing so that this set can be searchable and displayable in the hub</span>
                                 <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
                             </div>
                         </div>
