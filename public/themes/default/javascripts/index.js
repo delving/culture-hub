@@ -1,10 +1,9 @@
 jQuery(document).ready(function() {
-//    $('.carousel').carousel();
-    $(".ic_container").capslide({
-        caption_color    : 'white',
-        caption_bgcolor    : 'black',
-        overlay_bgcolor : 'black',
-        border            : '',
-        showcaption        : true
+    var $container = $('.grid-container');
+    $container.imagesLoaded( function() {
+        $container.masonry({
+            itemSelector : '.grid-item',
+            gutterWidth : 20
+        });
     });
 });
