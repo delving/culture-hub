@@ -184,7 +184,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val allMetadataFormats = if (identifier.isEmpty) {
       models.HarvestableCollection.getAllMetadataFormats(orgId, accessKey)
     } else {
-      models.HarvestableCollection.getMetadataFormats(identifierSpec, orgId, accessKey)
+      HarvestableCollection.findBySpecAndOrgId(identifierSpec, orgId).map {
+        c => c.getMetadataFormats(accessKey)
+      }.getOrElse(List.empty)
     }
 
     // apply format filter
@@ -221,7 +223,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
     val collection: models.HarvestableCollection = models.HarvestableCollection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    if(!models.HarvestableCollection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
+    if(!collection.getMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)

@@ -2,6 +2,7 @@ package models
 
 import com.mongodb.casbah.Imports._
 import core.Constants._
+import core.{OrganizationCollection, Harvestable}
 
 /**
  * Harvestable Collection. This covers both real collections (DataSets) and virtual ones (VirtualCollections)
@@ -13,7 +14,6 @@ case class HarvestableCollection(spec: String,
                       orgId: String,
                       name: String,
                       namespaces: Map[String, String]) {
-
 
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
     val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
@@ -37,6 +37,25 @@ case class HarvestableCollection(spec: String,
       }
     }
   }
+
+  def getMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = {
+    val dataSets = DataSet.findAll(orgId)
+    val virtualCollections = VirtualCollection.findAll(orgId)
+
+    val formats = if (dataSets.exists(_.spec == spec)) {
+      DataSet.getMetadataFormats(spec, orgId, accessKey)
+    } else if (virtualCollections.exists(_.spec == spec)) {
+      VirtualCollection.findBySpecAndOrgId(spec, orgId).map {
+        // TODO check this
+        vc => vc.getVisibleMetadataFormats(accessKey)
+      }.getOrElse(Seq())
+    } else {
+      Seq()
+    }
+
+    formats.distinct
+  }
+
 
 }
 
@@ -80,24 +99,6 @@ object HarvestableCollection {
         None
       }
     }
-  }
-
-  def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): Seq[RecordDefinition] = {
-    val dataSets = DataSet.findAll(orgId)
-    val virtualCollections = VirtualCollection.findAll(orgId)
-
-    val formats = if (dataSets.exists(_.spec == spec)) {
-      DataSet.getMetadataFormats(spec, orgId, accessKey)
-    } else if (virtualCollections.exists(_.spec == spec)) {
-      VirtualCollection.findBySpecAndOrgId(spec, orgId).map {
-        // TODO check this
-        vc => vc.getVisibleMetadataFormats(accessKey)
-      }.getOrElse(Seq())
-    } else {
-      Seq()
-    }
-    
-    formats.distinct
   }
 
   /**
