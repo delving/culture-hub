@@ -373,11 +373,42 @@ dt, dd, li {
     background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 0% 50%  no-repeat;
 }
 
+.table-wrap td span {
+    display: block;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -webkit-text-overflow: ellipsis;
+    width: 160px;
+    white-space: pre-wrap;
+    overflow: hidden;;
+}
+
+/*.table-smaller {*/
+    /*font-size: smaller;*/
+/*}*/
+
+/*.table-smaller th,*/
+/*.table-smaller td {*/
+    /*padding: 2px 5px;*/
+/*}*/
+
 /* addThis widgets */
 
 .addthis_toolbox {
     display: inline-block;
     float: left;
+}
+
+.panel {
+padding: 8px 35px 8px 14px;
+    margin-bottom: 18px;
+    /*text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);*/
+    background-color: #fcf8e3;
+    border: 1px solid #fbeed5;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    /*color: #c09853;*/
 }
 
 /*---------------------------------
@@ -450,6 +481,22 @@ form label.radio {
 .char-count-over-limit {
     background-color: #cc3300 !important;
 }
+
+.dl-inline dt {
+    float: left;
+    clear: left;
+    /*text-align: left;*/
+    /*overflow: hidden;*/
+    /*text-overflow: ellipsis;*/
+    white-space: nowrap;
+}
+.dl-inline dd {
+    margin-left: 5px;
+    /*padding-left: 11px;*/
+    float: left;
+    clear: right;
+}
+
 
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
