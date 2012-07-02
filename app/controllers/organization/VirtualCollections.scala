@@ -27,7 +27,7 @@ object VirtualCollections extends OrganizationController {
               'autoUpdate -> vc.autoUpdate,
               'queryDatasets -> vc.query.dataSets,
               'referencedDatasets -> vc.dataSetReferences.map(_.spec).toList,
-              'recordCount -> vc.recordCount
+              'recordCount -> vc.getTotalRecords
             ))
 
           case None => NotFound("Could not find Virtual Collection " + spec)
@@ -119,6 +119,7 @@ object VirtualCollections extends OrganizationController {
                 val vc = VirtualCollection(
                             spec = virtualCollectionForm.spec,
                             name = virtualCollectionForm.name,
+                            creator = connectedUser,
                             autoUpdate = virtualCollectionForm.autoUpdate,
                             orgId = orgId,
                             query = virtualCollectionQuery,

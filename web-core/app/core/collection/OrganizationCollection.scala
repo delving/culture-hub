@@ -1,4 +1,4 @@
-package core
+package core.collection
 
 /**
  * Collection that belongs to an organization

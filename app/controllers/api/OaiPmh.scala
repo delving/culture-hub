@@ -2,7 +2,7 @@ package controllers.api
 
 import controllers.DelvingController
 import play.api.mvc.Action
-import core.opendata.OaiPmhService
+import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
 
 /**

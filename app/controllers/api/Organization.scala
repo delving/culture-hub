@@ -73,7 +73,7 @@ object Organization extends DelvingController {
               {for (c <- collections) yield
               <collection>
                 <id>{toIdentifier(c.spec)}</id>
-                <name>{c.name}</name>
+                <name>{c.getName}</name>
               </collection>}
             </collections>
 

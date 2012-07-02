@@ -162,7 +162,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         // now we wait since the parsing is asynchronous
         Thread.sleep(3000)
 
-        DataSet.getRecordCount(dataSet) must equalTo(8)
+        DataSet.getSourceRecordCount(dataSet) must equalTo(8)
       }
     }
 

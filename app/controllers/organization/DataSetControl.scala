@@ -262,7 +262,7 @@ object DataSetControl extends OrganizationController {
             } catch {
               case t =>
                 DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
-                Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
+                Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.getName, theme.name))
             }
           case _ => Error(Messages("organization.datasets.cannotBeProcessed"))
         }
