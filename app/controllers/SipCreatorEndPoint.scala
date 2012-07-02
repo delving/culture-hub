@@ -100,17 +100,21 @@ object SipCreatorEndPoint extends ApplicationController {
         val dataSetsXml = <data-set-list>
           {dataSets.map {
           ds =>
-            val creator = ds.getCreator
+            val creator = HubUser.findByUsername(ds.getCreator)
             val lockedBy = ds.getLockedBy
             <data-set>
               <spec>{ds.spec}</spec>
               <name>{ds.details.name}</name>
               <orgId>{ds.orgId}</orgId>
+              {if(creator.isDefined) {
               <createdBy>
-                <username>{creator.userName}</username>
-                <fullname>{creator.fullname}</fullname>
-                <email>{creator.email}</email>
-              </createdBy>{if (lockedBy != None) {
+                <username>{creator.get.userName}</username>
+                <fullname>{creator.get.fullname}</fullname>
+                <email>{creator.get.email}</email>
+              </createdBy>} else {
+              <createdBy>
+                <username>{ds.getCreator}</username>
+              </createdBy>}}{if (lockedBy != None) {
               <lockedBy>
                 <username>{lockedBy.get.userName}</username>
                 <fullname>{lockedBy.get.fullname}</fullname>
@@ -438,7 +442,7 @@ object SipCreatorEndPoint extends ApplicationController {
           val builder = new StringBuilder
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
-          builder.append("%s".format(buildNamespaces(dataSet.namespaces)))
+          builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
           builder.append(">")
           write(builder.toString(), pw, out)
 

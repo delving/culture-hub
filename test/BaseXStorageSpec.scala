@@ -28,7 +28,7 @@ class BaseXStorageSpec extends Specification with TestContext {
         // now we wait since the parsing is asynchronous
         Thread.sleep(3000)
 
-        DataSet.getRecordCount(dataSet) must equalTo(8)
+        DataSet.getSourceRecordCount(dataSet) must equalTo(8)
 
       }
 

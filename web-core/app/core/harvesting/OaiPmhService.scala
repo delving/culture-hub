@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package core.opendata
+package core.harvesting
 
 import java.text.SimpleDateFormat
 import java.util.Date
 import exceptions._
 import core.search.Params
-import core.opendata.PmhVerbType.PmhVerb
+import core.harvesting.PmhVerbType.PmhVerb
 import play.api.Logger
 import xml.{Elem, PrettyPrinter, XML}
 import java.net.URLEncoder
 import core.Constants._
 import models._
+import core.collection.Harvestable
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -149,7 +150,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
 
-    val collections = models.HarvestableCollection.findAllNonEmpty(orgId, format, accessKey)
+    val collections = HarvestableCollectionManager.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -163,7 +164,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         { for (set <- collections) yield
         <set>
           <setSpec>{set.spec}</setSpec>
-          <setName>{set.name}</setName>
+          <setName>{set.getName}</setName>
         </set>
         }
       </ListSets>
@@ -182,9 +183,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
     val allMetadataFormats = if (identifier.isEmpty) {
-      models.HarvestableCollection.getAllMetadataFormats(orgId, accessKey)
+      HarvestableCollectionManager.getAllMetadataFormats(orgId, accessKey)
     } else {
-      models.HarvestableCollection.getMetadataFormats(identifierSpec, orgId, accessKey)
+      HarvestableCollectionManager.findBySpecAndOrgId(identifierSpec, orgId).map {
+        c => c.getVisibleMetadataFormats(accessKey)
+      }.getOrElse(List.empty)
     }
 
     // apply format filter
@@ -220,8 +223,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val collection: models.HarvestableCollection = models.HarvestableCollection.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    if(!models.HarvestableCollection.getMetadataFormats(collection.spec, collection.orgId, accessKey).exists(f => f.prefix == metadataFormat)) {
+    val collection = HarvestableCollectionManager.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    if(!collection.getVisibleMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
@@ -299,7 +302,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       else mdRecord.get
     }
 
-    val collection = models.HarvestableCollection.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
+    val collection = HarvestableCollectionManager.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -347,12 +350,12 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     response
   }
   
-  private def prependNamespaces(metadataFormat: String, collection: HarvestableCollection, elem: Elem): Elem = {
+  private def prependNamespaces(metadataFormat: String, collection: Harvestable, elem: Elem): Elem = {
 
     var mutableElem = elem
 
     val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
-    val globalNamespaces = collection.namespaces.map(ns => Namespace(ns._1, ns._2, ""))
+    val globalNamespaces = collection.getNamespaces.map(ns => Namespace(ns._1, ns._2, ""))
 
     val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filterNot(_.prefix == "xsi")
 

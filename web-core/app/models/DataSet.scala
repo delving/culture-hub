@@ -17,23 +17,21 @@
 package models
 
 import extensions.ConfigurationException
-import java.util.Date
 import org.bson.types.ObjectId
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import xml.{Node, XML}
-import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
-import play.api.i18n.Messages
 import core.HubServices
 import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
 import java.net.URL
 import core.Constants._
-import core.storage.{BaseXCollection, BaseXStorage}
+import core.storage.BaseXCollection
 import models.statistics.DataSetStatistics
+import core.collection.Harvestable
 
 /**
  * DataSet model
@@ -44,33 +42,52 @@ import models.statistics.DataSetStatistics
  * @since 7/8/11 8:12 AM  
  */
 
-case class DataSet(_id: ObjectId = new ObjectId,
+case class DataSet(
+
+                   // basics
+                   _id: ObjectId = new ObjectId,
                    spec: String,
-                   userName: String,
                    orgId: String,
-                   lockedBy: Option[String] = None,
-                   description: Option[String] = Some(""),
+                   userName: String, // creator
+
+                   // state
                    state: DataSetState,
                    errorMessage: Option[String] = None,
-                   visibility: Visibility,
-                   deleted: Boolean = false,
+
+                   // not used
+                   visibility: Visibility = Visibility.PUBLIC, // fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
+                   deleted: Boolean = false, // fixed to false, not used. We simply delete a set. TODO decide whether we remove this.
+
                    details: Details,
-                   lastUploaded: Date,
+
+                   // sip-creator integration
+                   lockedBy: Option[String] = None,
                    hashes: Map[String, String] = Map.empty[String, String],
-                   namespaces: Map[String, String] = Map.empty[String, String], // FIXME: this map makes no sense here since the namespaces depend on the format in which a DataSet is rendered.
-                   mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
-                   idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
-                   idxFacets: List[String] = List.empty[String],
-                   idxSortFields: List[String] = List.empty[String],
                    hints: Array[Byte] = Array.empty[Byte],
-                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
+
+                   // mapping
+                   namespaces: Map[String, String] = Map.empty[String, String], // this map contains all namespaces of the source format, and is necessary for mapping
+                   mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]], // for each prefix, indexes of the records that are not valid for that schema
+
+                   // harvesting
+                   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
+
+                   // indexing
+                   idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
+                   idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
+                   idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
+                   ) extends Harvestable {
 
   // ~~~ accessors
 
-  val name = spec
+  def getName: String = details.name
 
-  def getCreator: HubUser = HubUser.findByUsername(userName).get // orElse we are in trouble
+  def getTotalRecords: Long = details.total_records
+
+  def getOwner: String = orgId
+
+  def getCreator: String = userName
 
   def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.findByUsername(lockedBy.get)
 
@@ -82,19 +99,15 @@ case class DataSet(_id: ObjectId = new ObjectId,
   
   def getIndexingMappingPrefix = idxMappings.headOption
 
-  /** all mapping formats **/
-  def getAllMappingFormats = mappings.map(mapping => mapping._2.format).toList
+  def getAllMappingSchemas = mappings.map(mapping => mapping._2.format).toList
 
-  def getPublishableMappingFormats = getAllMappingFormats.
+  def getPublishableMappingSchemas = getAllMappingSchemas.
     filter(format => formatAccessControl.get(format.prefix).isDefined).
     filter(format => formatAccessControl(format.prefix).isPublicAccess || formatAccessControl(format.prefix).isProtectedAccess).
     toList
 
-  /** all metadata formats, including raw **/
-  def getAllMetadataFormats = details.metadataFormat :: getAllMappingFormats
-
-  def getVisibleMetadataFormats(accessKey: Option[String] = None): List[RecordDefinition] = {
-    getAllMetadataFormats.
+  def getVisibleMetadataSchemas(accessKey: Option[String] = None): List[RecordDefinition] = {
+    getAllMappingSchemas.
       filterNot(format => formatAccessControl.get(format.prefix).isEmpty).
       filter(format => formatAccessControl(format.prefix).hasAccess(accessKey)
     )
@@ -105,9 +118,21 @@ case class DataSet(_id: ObjectId = new ObjectId,
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    DataSet.storage.openCollection(this.orgId, this.spec).isDefined && DataSet.getRecordCount(this) != 0
+    DataSet.storage.openCollection(this.orgId, this.spec).isDefined && DataSet.getSourceRecordCount(this) != 0
   }
 
+  // ~~~ harvesting
+
+  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
+    val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
+    val records = cache.list(position, Some(limit)).filter(_.xml.contains(metadataFormat))
+    val totalSize = cache.count()
+    (records, totalSize)
+  }
+
+  def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = DataSet.getMetadataFormats(spec, orgId, accessKey)
+
+  def getNamespaces: Map[String, String] = namespaces
 }
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] {
@@ -161,15 +186,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val totalRecords = details.getAsOrElse[Long]("total_records", 0)
     // this one is unboxed as Int because when we write it via $set it doesn't get written as a NumberLong...
     val processingCount = details.getAsOrElse[Long]("indexing_count", 0)
-    val invalidRecords = details.getAsOrElse[Int]("invalid_records", 0)
 
     if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
 
-    (processingCount, totalRecords - invalidRecords)
+    (processingCount, totalRecords)
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
-    val allDataSets: List[DataSet] = findByState(DataSetState.INDEXING).sort(MongoDBObject("name" -> 1)).toList
+    val allDataSets: List[DataSet] = findByState(DataSetState.PROCESSING).sort(MongoDBObject("name" -> 1)).toList
     if (allDataSets.length < 3) {
         val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("name" -> 1)).toList
         queuedIndexing.headOption
@@ -188,7 +212,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
 
-
   def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
     val groupDataSets = Group.
                               find(MongoDBObject("users" -> userName)).
@@ -203,18 +226,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
     val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId, "visibility.value" -> Visibility.PUBLIC.value))).filterNot(_.deleted).toList
+    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
   }
-
-  // FIXME this one makes no sense, since findAllCanSee only returns public datasets anyway
-  // i.e. re-think & streamline the visibility concept for DataSets
-  def findAllVisible(orgId: String, userName: String, organizations: String) = findAllCanSee(orgId, userName).filter(ds =>
-    ds.visibility == Visibility.PUBLIC ||
-      (
-        ds.visibility == Visibility.PRIVATE &&
-        organizations != null && organizations.split(",").contains(orgId)
-      )
-    ).toList
 
   def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
@@ -261,12 +274,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet))
   }
 
-  def upsertById(id: ObjectId, dataSet: DataSet) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet), true)
-  }
-
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
-    val updatedDetails = dataSet.details.copy(invalid_records = Some(invalidIndexes.size))
+    val updatedDetails = dataSet.details.copy(invalidRecordCount = (dataSet.details.invalidRecordCount + (prefix -> invalidIndexes.size)))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
   }
@@ -320,13 +329,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ record handling
 
-  def getRecordsCollectionName(dataSet: DataSet): String = getRecordsCollectionName(dataSet.orgId, dataSet.spec)
-
-  def getRecordsCollectionName(orgId: String, spec: String): String = "Records.%s_%s".format(orgId, spec)
-
-  def getRecordsCollection(dataSet: DataSet): MongoCollection = connection(DataSet.getRecordsCollectionName(dataSet))
-
-  def getRecordCount(dataSet: DataSet): Long = storage.count(BaseXCollection(dataSet.orgId, dataSet.spec))
+  def getSourceRecordCount(dataSet: DataSet): Long = storage.count(BaseXCollection(dataSet.orgId, dataSet.spec))
 
   // ~~~ indexing control
 
@@ -357,7 +360,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
   }
 
-
   def invalidateHashes(dataSet: DataSet) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
   }
@@ -366,14 +368,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getAllVisibleMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
     val metadataFormats = findAll(orgId).flatMap {
-      ds => ds.getVisibleMetadataFormats(accessKey)
+      ds => ds.getVisibleMetadataSchemas(accessKey)
     }
     metadataFormats.toList.distinct
   }
 
   def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
     findBySpecAndOrgId(spec, orgId) match {
-      case Some(ds) => ds.getVisibleMetadataFormats(accessKey)
+      case Some(ds) => ds.getVisibleMetadataSchemas(accessKey)
       case None => List[RecordDefinition]()
     }
   }
@@ -392,39 +394,13 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
   val opts = options.map(opt => (opt, opt))
 }
 
-case class DataSetState(name: String) {
-
-  def description = Messages("dataSetState." + name.toLowerCase)
-}
-
-object DataSetState {
-  val INCOMPLETE = DataSetState("incomplete")
-  val PARSING = DataSetState("parsing")
-  val UPLOADED = DataSetState("uploaded")
-  val QUEUED = DataSetState("queued")
-  val PROCESSING = DataSetState("processing")
-  val INDEXING = DataSetState("indexing")
-  val ENABLED = DataSetState("enabled")
-  val DISABLED = DataSetState("disabled")
-  val ERROR = DataSetState("error")
-  val NOTFOUND = DataSetState("notfound")
-  def withName(name: String): Option[DataSetState] = if(valid(name)) Some(DataSetState(name)) else None
-  def valid(name: String) = values.contains(DataSetState(name))
-  val values = List(INCOMPLETE, UPLOADED, QUEUED, INDEXING, DISABLED, ERROR, NOTFOUND)
-}
-
-case class Mapping(recordMapping: Option[String] = None,
-                   format: RecordDefinition,
-                   errorMessage: Option[String] = Some(""),
-                   indexed: Boolean = false)
+case class Mapping(recordMapping: Option[String] = None, format: RecordDefinition)
 
 case class Details(name: String,
                    total_records: Long = 0,
                    indexing_count: Long = 0,
-                   invalid_records: Option[Int] = Some(0),
-                   metadataFormat: RecordDefinition,
-                   facts: BasicDBObject = new BasicDBObject(),
-                   errorMessage: Option[String] = Some("")
+                   invalidRecordCount: Map[String, Long] = Map.empty,
+                   facts: BasicDBObject = new BasicDBObject()
                   ) {
 
   def getFactsAsText: String = {
@@ -434,6 +410,5 @@ case class Details(name: String,
     }
     builder.toString()
   }
-
 
 }

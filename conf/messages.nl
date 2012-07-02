@@ -526,9 +526,10 @@ org.stats.landingPages=Met landing-pages
 user.secured.noAccess=Het spijt ons, echt waar! Maar u heeft geen toegang hier.
 
 dataSetState.incomplete=Incomplete
-dataSetState.uploaded=uploaded and ready for indexing
-dataSetState.queued=Queued for indexing
-dataSetState.indexing=Indexing
+dataSetState.parsing=Parsing source data
+dataSetState.uploaded=uploaded and ready for processing
+dataSetState.queued=Queued for processing
+dataSetState.indexing=Processing
 dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
 dataSetState.error=Error occured while indexing

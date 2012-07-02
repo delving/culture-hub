@@ -28,12 +28,12 @@ object DataSetCollectionProcessor {
 
     val invalidRecords = DataSet.getInvalidRecords(dataSet)
 
-    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingFormats.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
+    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
       t => new ProcessingSchema {
         val definition: RecordDefinition = t
-        val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.namespaces
+        val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.getNamespaces
         val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
         val sourceSchema: String = RAW_PREFIX
 
@@ -50,7 +50,7 @@ object DataSetCollectionProcessor {
         if (recordDefinition.isDefined) {
           val schema = new ProcessingSchema {
             val definition = recordDefinition.get
-            val namespaces: Map[String, String] = c._1.getNamespaces ++ dataSet.namespaces
+            val namespaces: Map[String, String] = c._1.getNamespaces ++ dataSet.getNamespaces
             val mapping: Option[String] = Some(Source.fromURL(c._2).getLines().mkString("\n"))
             val sourceSchema: String = c._1.prefix
 
