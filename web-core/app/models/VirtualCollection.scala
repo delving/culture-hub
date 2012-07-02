@@ -70,7 +70,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     intersect
   }
 
-  def getNamespaces = dataSets.map(_.namespaces).flatten.toMap[String, String]
+  def getNamespaces = dataSets.map(_.getNamespaces).flatten.toMap[String, String]
 
 
 

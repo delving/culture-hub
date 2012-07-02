@@ -442,7 +442,7 @@ object SipCreatorEndPoint extends ApplicationController {
           val builder = new StringBuilder
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
-          builder.append("%s".format(buildNamespaces(dataSet.namespaces)))
+          builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
           builder.append(">")
           write(builder.toString(), pw, out)
 
