@@ -17,13 +17,11 @@
 package models
 
 import extensions.ConfigurationException
-import java.util.Date
 import org.bson.types.ObjectId
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import xml.{Node, XML}
-import com.mongodb.casbah.MongoCollection
 import exceptions.MetaRepoSystemException
 import play.api.i18n.Messages
 import core.HubServices
@@ -32,7 +30,7 @@ import play.api.Play
 import play.api.Play.current
 import java.net.URL
 import core.Constants._
-import core.storage.{BaseXCollection, BaseXStorage}
+import core.storage.{BaseXCollection}
 import models.statistics.DataSetStatistics
 
 /**
@@ -44,25 +42,42 @@ import models.statistics.DataSetStatistics
  * @since 7/8/11 8:12 AM  
  */
 
-case class DataSet(_id: ObjectId = new ObjectId,
+case class DataSet(
+
+                   // basics
+                   _id: ObjectId = new ObjectId,
                    spec: String,
-                   userName: String,
                    orgId: String,
-                   lockedBy: Option[String] = None,
+                   userName: String, // creator
+
+                   // state
                    state: DataSetState,
                    errorMessage: Option[String] = None,
+
+                   // not used
                    visibility: Visibility = Visibility.PUBLIC, // fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
                    deleted: Boolean = false, // fixed to false, not used. We simply delete a set. TODO decide whether we remove this.
+
                    details: Details,
+
+                   // sip-creator integration
+                   lockedBy: Option[String] = None,
                    hashes: Map[String, String] = Map.empty[String, String],
+                   hints: Array[Byte] = Array.empty[Byte],
+
+                   // mapping
                    namespaces: Map[String, String] = Map.empty[String, String], // this map contains all namespaces of the source format, and is necessary for mapping
                    mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]],
+
+                   // harvesting
                    formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
+
+                   // indexing
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
                    idxSortFields: List[String] = List.empty[String], // the sort fields selected for indexing, at the moment derived from configuration
-                   hints: Array[Byte] = Array.empty[Byte],
-                   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]]) {
+                   ) {
 
   // ~~~ accessors
 
