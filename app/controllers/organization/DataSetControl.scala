@@ -140,7 +140,7 @@ object DataSetControl extends OrganizationController {
                 recordDefinitions = dS.recordDefinitions,
                 allRecordDefinitions = allRecordDefinitions,
                 oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
-                indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse("")
+                indexingMappingPrefix = dS.getIndexingMappingPrefix
               )
             )
           } else {
