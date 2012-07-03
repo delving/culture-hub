@@ -93,45 +93,15 @@
                         </table>
                     </div>
                 </td>
-                <td id="description${i.spec}" width="120">
-                *{ todo: get list of all dataset states and create css defs (color) for them }*
-                %{
-                    def state = i.state.name()
-                    def stateClass = ''
-                    switch (state) {
-                    case "error":
-                    stateClass = 'error'
-                    break
-                    case "incomplete":
-                    stateClass = 'warning'
-                    break
-                    case "enabled":
-                    stateClass = 'enabled'
-                    break
-                    case "disabled":
-                    stateClass = 'disabled'
-                    break
-                    case "processing":
-                    stateClass = 'processing'
-                    break
-                    case "queued":
-                    stateClass = 'qeued'
-                    break
-                    case "parsing":
-                    stateClass = 'parsing'
-                    break
-                    default:
-                    stateClass = ''
-                    }
-                %}
-                    #{if i.state.name() == models.DataSetState.ERROR().name()}
-                        <span class="badge badge-important badge-error" rel="popover"
-                              data-original-title="${i.state.description()}"
-                              data-content="${i.error.raw()}">&{'ui.label.error'}</span>
-                    #{/if}
-                    #{else}
-                        <span class="badge badge-${stateClass}">${i.state.description()}</span>
-                    #{/else}
+                <td width="120">
+
+                    <!-- TODO use state description from i18n file, somehow-->
+                    <!-- ko if: state == "error" -->
+                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': state}" rel="popover"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot: state == "error" -->
+                    <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state) } "></span>
+                    <!-- /ko -->
 
                 </td>
                 <td>
@@ -159,20 +129,19 @@
                 </td>
                 <td>
                     #{if isAdmin}
-                        <a class="" href="/organizations/${orgId}/dataset/${i.spec}/update">
+                        <a data-bind="href: { href: '/organizations/' + orgId + '/dataset/' + spec + '/update' }">
                             <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
                         </a>
                     #{/if}
                 </td>
 
             </tr>
-            #{/list}
         </tbody>
     </table>
-#{/}
-#{else}
+
+    <!-- ko ifnot: sets().length > 0 -->
     <p>${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}</p>
-#{/}
+    <!-- /ko -->
 </div>
 </div>
 
@@ -180,11 +149,44 @@
     $(document).ready(function () {
 
         var viewModel = {
-            "sets": ko.observableArray()
+            sets: ko.observableArray(),
+            stateToClass: function(state) {
+                var stateClass = "";
+                switch(state) {
+                    case "uploaded":
+                        stateClass = "uploaded";
+                        break;
+                    case "incomplete":
+                        stateClass = "incomplete";
+                        break;
+                    case "error":
+                        stateClass = 'error';
+                        break;
+                    case "enabled":
+                        stateClass = 'enabled';
+                        break;
+                    case "disabled":
+                        stateClass = 'disabled';
+                        break;
+                    case "processing":
+                        stateClass = 'processing';
+                        break;
+                    case "queued":
+                        stateClass = 'queued';
+                        break;
+                    case "parsing":
+                        stateClass = 'parsing';
+                        break;
+
+                    default:
+                        clazz = "";
+                }
+
+                return "badge-" + clazz;
+            }
         };
 
         var clientId = Math.floor(1 + 10001 * Math.random());
-
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId);
 
         ws.onopen = function() {
@@ -211,9 +213,8 @@
 
         ko.applyBindings(viewModel);
 
+        console.log($.cookie("ds-filter"));
+    });
+
 </script>
-<script type="text/javascript" language="javascript"
-        src="@{routes.Assets.at("common/javascripts/organizations/datasets-list.js")}"></script>
-<script>
-    console.log($.cookie("ds-filter"));
-</script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets-list.js")}"></script>
