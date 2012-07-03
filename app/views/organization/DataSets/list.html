@@ -177,12 +177,12 @@
                     case "parsing":
                         stateClass = 'parsing';
                         break;
-
                     default:
-                        clazz = "";
+                        stateClass = "";
+                        break
                 }
 
-                return "badge-" + clazz;
+                return "badge-" + stateClass;
             }
         };
 
