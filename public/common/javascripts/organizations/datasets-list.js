@@ -22,7 +22,7 @@ $(document).ready(function () {
         placement: 'right'
     });
 
-    $('.rCount').each(function(){
+    $('.rCount').live("mouseover", function(){
         var $pElem = $(this);
         $pElem.popover({
             content: $(this).next('.schema-count').html()
