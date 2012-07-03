@@ -31,7 +31,7 @@ import java.net.URL
 import core.Constants._
 import core.storage.BaseXCollection
 import models.statistics.DataSetStatistics
-import core.collection.Harvestable
+import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 
 /**
  * DataSet model
@@ -77,7 +77,7 @@ case class DataSet(
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
                    idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
-                   ) extends Harvestable {
+                   ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable {
 
   // ~~~ accessors
 
@@ -133,6 +133,19 @@ case class DataSet(
   def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = DataSet.getMetadataFormats(spec, orgId, accessKey)
 
   def getNamespaces: Map[String, String] = namespaces
+
+
+
+  // ~~~ collection information
+
+  def getLanguage: String = details.facts.getAsOrElse[String]("language", "")
+  def getCountry: String = details.facts.getAsOrElse[String]("country", "")
+  def getProvider: String = details.facts.getAsOrElse[String]("provider", "")
+  def getProviderUri: String = details.facts.getAsOrElse[String]("providerUri", "")
+  def getDataProvider: String = details.facts.getAsOrElse[String]("dataProvider", "")
+  def getDataProviderUri: String = details.facts.getAsOrElse[String]("dataProviderUri", "")
+  def getRights: String = details.facts.getAsOrElse[String]("rights", "")
+  def getType: String = details.facts.getAsOrElse[String]("type", "")
 }
 
 object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] {

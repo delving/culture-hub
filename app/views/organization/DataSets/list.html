@@ -168,14 +168,49 @@
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
+
+        var viewModel = {
+            "sets": ko.observableArray()
+        };
+
+        var clientId = Math.floor(1 + 10001 * Math.random());
+
+        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId);
+
+        ws.onopen = function() {
+            console.log("WebSockets connection opened");
+            ws.send(JSON.stringify({
+                eventType: "sendList",
+                clientId: clientId
+            }));
+        };
+
+        ws.onmessage = function(evt) {
+            var data = $.parseJSON(evt.data);
+            console.log(data);
+            switch(data.eventType) {
+                case "loadList":
+                    viewModel.sets(data.list);
+                    break;
+            }
+        };
+
+        ws.onclose = function() {
+            console.log("WebSockets connection closed");
+        };
+
+        ko.applyBindings(viewModel);
+
         $("#dataset-table").tablesorter();
-        var theTable = $('#dataset-table')
+        var theTable = $('#dataset-table');
         theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
             $(this).prev().find(":checkbox").click();
         });
+
         $("#filter").keyup(function () {
             $.uiTableFilter(theTable, this.value);
         });
+
         $('#filter-form').submit(
                 function () {
                     theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
@@ -192,8 +227,10 @@
         })
 
     });
+
     function resetFilter() {
         $.uiTableFilter($('#dataset-table'), '');
         $('input#filter').val('');
     }
+
 </script>

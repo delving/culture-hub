@@ -1,12 +1,13 @@
 package controllers.organization
 
-import play.api.mvc.Action
+import play.api.mvc.{WebSocket, Action}
 import models.DataSet
 import collection.JavaConverters._
 import play.api.i18n.Messages
 import com.mongodb.casbah.commons.MongoDBObject
 import controllers.{Token, Fact, ShortDataSet, OrganizationController}
 import java.util.regex.Pattern
+import play.api.libs.json.JsValue
 
 /**
  *
@@ -41,6 +42,11 @@ object DataSets extends OrganizationController {
         }
     }
   }
+
+  def feed(orgId: String, clientId: String) = WebSocket.async[JsValue] { request  =>
+      // TODO security
+      DataSetListFeed.subscribe(orgId, clientId)
+    }
 
   // TODO[manu] deprecate this one (used by groups, needs data migration)
   def listAsTokens(orgId: String, q: String) = OrgMemberAction(orgId) {
