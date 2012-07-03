@@ -59,7 +59,7 @@ object SipCreator extends OrganizationController {
               <jar href="xmlpull-1.1.3.1.jar"/>
               <jar href="xpp3_min-1.1.4c.jar"/>
               <jar href="gson-1.7.1.jar"/>
-              <jar href="groovy-all-1.8.5.jar"/>
+              <jar href="groovy-all-2.0.0.jar"/>
               <jar href="woodstox-core-asl-4.0.9.jar"/>
               <jar href="stax-api-1.0-2.jar"/>
               <jar href="stax2-api-3.0.3.jar"/>
