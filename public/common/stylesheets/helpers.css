@@ -353,7 +353,7 @@ dt, dd, li {
 .table caption {
     color: #888;
     font-weight: bold;
-    padding: 0 0 8px 8px;
+    padding: 4px 0 4px 0;
     text-align: left;
     text-transform: uppercase;
 }
@@ -391,6 +391,55 @@ dt, dd, li {
 /*.table-smaller td {*/
     /*padding: 2px 5px;*/
 /*}*/
+
+/*---------------------------------
+	STATE-label and badges
+-----------------------------------*/
+
+.label-enabled,
+.badge-enabled {
+    background-color: #468847;
+}
+.label-enabled[href],
+.badge-enabled[href] {
+    background-color: #356635;
+}
+
+.label-disabled,
+.badge-disabled {
+    background-color: #b3b3b3;
+}
+.label-disabled[href],
+.badge-disabled[href] {
+    background-color: #8a8a8a;
+}
+
+.label-processing,
+.badge-processing {
+    background-color: #d0f7b9;
+}
+.label-processing[href],
+.badge-processing[href] {
+    background-color: #9cb78f;
+}
+
+.label-qeued,
+.badge-qeued {
+    background-color: #ffcc33;
+}
+.label-qeued[href],
+.badge-qeued[href] {
+    background-color: #d1a72a;
+}
+
+.label-parsing,
+.badge-parsing {
+    background-color: #beff3c;
+}
+.label-parsing[href],
+.badge-parsing[href] {
+    background-color: #7fa929;
+}
 
 /* addThis widgets */
 

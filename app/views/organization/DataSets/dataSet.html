@@ -5,21 +5,10 @@
 #{breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
-*{<div class="row">}*
-
-*{<h3 class="span12">${dataSet.name()}</h3>}*
-*{</div>}*
 
 <div class="row">
     <div class="span4">
-    *{<h3>Basic dataset information</h3>}*
-    *{<dl class="dl dl-horizontal">}*
-    *{<dt>&{'thing.creator'}</dt><dd>${dataSet.userName}</dd>}*
-    *{#{list facts, as: 'facet'}}*
-    *{<dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>}*
-    *{#{if facet.prompt() == 'Data Set Spec'}#{set 'spec'}${facet.value()}#{/set}#{/if}}*
-    *{#{/list}}*
-    *{</dl>        }*
+
         <table class="table table-condensed table-wrap">
             <caption>Basic information</caption>
             <tbody>
@@ -80,16 +69,16 @@
             </thead>
             <tbody>
             <tr>
-                <td>Enabled</td>
+                <td><span class="badge badge-success">Enabled</span></td>
                 <td>54678</td>
                 <td>54200</td>
                 <td>54540</td>
             </tr>
             </tbody>
         </table>
-
+        <!-- 2nd alert class (alert-...) determined by state of dataset -->
         <div class="alert alert-success">
-            Dataset is enabled and functioning properly (All is well)
+            Dataset is enabled and functioning properly.
         </div>
         *{<div class="alert alert-error">}*
             *{Complete stack trace of dataset error state (Hmmm, something is wrong)}*

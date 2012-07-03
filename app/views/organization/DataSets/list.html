@@ -3,16 +3,11 @@
 #{set title: messages.get('thing.browse.of', messages.get('thing.datasets')) + ': ' + orgId /}
 
 #{set 'moreScripts'}
-<script type="text/javascript" xmlns="http://www.w3.org/1999/html"
-        src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>
 #{/set}
-
-*{#{set 'moreCss'}}*
-*{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap-responsive.css")}"/>}*
-*{#{/set}}*
 
 #{set bodyId: 'organization' /}
 
@@ -22,45 +17,32 @@
 
 <div class="row">
 
-
-*{#{if browsedUserName}}*
-*{<div class="row">}*
-*{&{'thing.organization'}: <span>${browsedOrgName}</span><br/>}*
-*{&{'thing.count'}: ${count}}*
-*{</div>}*
-*{#{/if}}*
-
 #{if items.length() > 0}
 
-*{<div class="well">}*
-
-    <div class="span4">
-        <form class="form-inline pull-left">
-            <h4>&{'dataset.filter.state'}:</h4>
-            <input type="checkbox" name="filter-state" value="">
-            <label for="dataset-state-x">state-x</label>
-            <input type="checkbox" name="filter-state" value="">
-            <label for="dataset-state-x">state-y</label>
-            <input type="checkbox" name="filter-state" value="">
-            <label for="dataset-state-x">state-z</label>
-        </form>
-    </div>
-    <div class="span4">
+    *{<div class="span4">}*
+        *{<form class="form-inline pull-left">}*
+            *{<h4>&{'dataset.filter.state'}:</h4>}*
+            *{<input type="checkbox" name="filter-state" value="">}*
+            *{<label for="dataset-state-x">state-x</label>}*
+            *{<input type="checkbox" name="filter-state" value="">}*
+            *{<label for="dataset-state-x">state-y</label>}*
+            *{<input type="checkbox" name="filter-state" value="">}*
+            *{<label for="dataset-state-x">state-z</label>}*
+        *{</form>}*
+    *{</div>}*
+    <div class="span8">
         <form id="filter-form" class="form-inline pull-left">
             <!-- todo: update message to "Filter by name" -->
-            <h4>&{'dataset.filter.name'}: </h4>
+            *{<h4>&{'dataset.filter.name'}: </h4>}*
             <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"
-                   placeholder="&{'dataset.filter.beginTyping'}"/>
+                   placeholder=""/>
+            <input onclick="saveFilter()" class="btn" type="button" value="Pin"/>
             <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+            <br/><span class="help-inline">Type in any dataset value(s) to filter the table. Press "Pin" to save the filter.</span>
 
         </form>
-
-
     </div>
 
-
-
-*{</div>}*
 <div class="span12">
     <table id="dataset-table" class="table table-striped sortable">
         <caption>${messages.get('thing.datasets')}</caption>
@@ -93,30 +75,64 @@
                 <td>
                     <a href="/search?query=delving_spec%3A${i.spec}"
                        title="Record counts ${i.spec}" class="rCount">${i.total_records}</a>
-                       <div class="schema-count" style="display: none;">
-                           <table class="table table-condensed">
-                               <tr>
-                                   <th>Schema</th><th>Valid records</th>
-                               </tr>
-                               <tr>
-                                   <td><span class="label">ese</span></td><td>23342</td>
-                               </tr>
-                               <tr>
-                                   <td><span class="label">icn</span></td><td>25456</td>
-                               </tr>
-                           </table>
-                       </div>
+
+                    <div class="schema-count" style="display: none;">
+                        <table class="table table-condensed">
+                            <tr>
+                                <th>Schema</th>
+                                <th>Valid records</th>
+                            </tr>
+                            <tr>
+                                <td><span class="label">ese</span></td>
+                                <td>23342</td>
+                            </tr>
+                            <tr>
+                                <td><span class="label">icn</span></td>
+                                <td>25456</td>
+                            </tr>
+                        </table>
+                    </div>
                 </td>
                 <td id="description${i.spec}" width="120">
                 *{ todo: get list of all dataset states and create css defs (color) for them }*
+                %{
+                    def state = i.state.name()
+                    def stateClass = ''
+                    switch (state) {
+                    case "error":
+                    stateClass = 'error'
+                    break
+                    case "incomplete":
+                    stateClass = 'warning'
+                    break
+                    case "enabled":
+                    stateClass = 'enabled'
+                    break
+                    case "disabled":
+                    stateClass = 'disabled'
+                    break
+                    case "processing":
+                    stateClass = 'processing'
+                    break
+                    case "queued":
+                    stateClass = 'qeued'
+                    break
+                    case "parsing":
+                    stateClass = 'parsing'
+                    break
+                    default:
+                    stateClass = ''
+                    }
+                %}
                     #{if i.state.name() == models.DataSetState.ERROR().name()}
                         <span class="badge badge-important badge-error" rel="popover"
                               data-original-title="${i.state.description()}"
                               data-content="${i.error.raw()}">&{'ui.label.error'}</span>
                     #{/if}
                     #{else}
-                        <span class="badge badge-success">${i.state.description()}</span>
+                        <span class="badge badge-${stateClass}">${i.state.description()}</span>
                     #{/else}
+
                 </td>
                 <td>
                     #{ifnot i.lockedBy.isEmpty()}
@@ -138,21 +154,15 @@
                         </script>
                     #{/ifnot}
                     #{else}
-                    <span class="badge badge-info">&{'dataset.lockstatus'}</span>
+                        <span class="badge badge-info">&{'dataset.lockstatus'}</span>
                     #{/else}
                 </td>
                 <td>
                     #{if isAdmin}
-                    <div class="btn-toolbar nom">
-                    *{<div class="btn-group">}*
                         <a class="" href="/organizations/${orgId}/dataset/${i.spec}/update">
                             <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
                         </a>
-                    *{</div>}*
-
-
                     #{/if}
-                </div>
                 </td>
 
             </tr>
@@ -201,36 +211,9 @@
 
         ko.applyBindings(viewModel);
 
-        $("#dataset-table").tablesorter();
-        var theTable = $('#dataset-table');
-        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
-            $(this).prev().find(":checkbox").click();
-        });
-
-        $("#filter").keyup(function () {
-            $.uiTableFilter(theTable, this.value);
-        });
-
-        $('#filter-form').submit(
-                function () {
-                    theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-                    return false;
-                }).focus(); //Give focus to input field
-        $('.badge-error').popover({
-            placement: 'right'
-        });
-        $('.rCount').each(function(){
-            var $pElem = $(this);
-            $pElem.popover({
-                content: $(this).next('.schema-count').html()
-            })
-        })
-
-    });
-
-    function resetFilter() {
-        $.uiTableFilter($('#dataset-table'), '');
-        $('input#filter').val('');
-    }
-
+</script>
+<script type="text/javascript" language="javascript"
+        src="@{routes.Assets.at("common/javascripts/organizations/datasets-list.js")}"></script>
+<script>
+    console.log($.cookie("ds-filter"));
 </script>
