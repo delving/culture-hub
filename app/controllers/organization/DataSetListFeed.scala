@@ -8,12 +8,11 @@ import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import play.api.Play.current
-import models.DataSet
+import models.{DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 
 
 /**
- * TODO add methods to DataSetListFeed object that result in sending the appropriate messages to all subscribers
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -137,6 +136,8 @@ class DataSetListFeed extends Actor {
 
   implicit val timeout = Timeout(1 second)
 
+  var lastSeenInc: Int = 0
+
   var subscribers = Map.empty[String, Subscriber]
 
   def receive = {
@@ -182,12 +183,27 @@ class DataSetListFeed extends Actor {
       }
 
     case Update =>
-//      notifyAllSubscribers("foo", "bar", "bla", JsObject(Seq("Foo" -> JsString("bar"))))
+      val recentEvents = DataSetEventLog.findRecent.filter(r => r._id.getInc > lastSeenInc)
+      if(!recentEvents.isEmpty) lastSeenInc = recentEvents.reverse.head._id.getInc
+
+      val eventsByOrgId = recentEvents.groupBy(_.orgId)
+
+      // TODO for each by same orgId, notify of event.
+      eventsByOrgId.foreach {
+        e =>
+          val orgId = e._1
+          val event = e._2
+
+          // TODO conversion from DataSetEventLog to WebSocket event
+
+      }
+
+
 
 
   }
 
-  def notifyAllSubscribers(orgId: String, spec: String, eventType: String, msg: JsObject) {
+  def notifySubscribers(orgId: String, spec: String, eventType: String, msg: JsObject) {
     val default = JsObject(
       Seq(
         "orgId" -> JsString(orgId),
@@ -196,11 +212,43 @@ class DataSetListFeed extends Actor {
       )
     )
 
-    subscribers.foreach {
+    subscribers.filter(_._1 == orgId).foreach {
       case (_, subscriber) => subscriber.channel.push(default ++ msg)
     }
   }
 
   case class Subscriber(orgId: String, channel: PushEnumerator[JsValue])
+
+}
+
+/**
+ * This actor simply saves a message into a queue in mongo
+ */
+class DataSetEventLogger extends Actor {
+
+  def receive = {
+
+    case DataSetEvent(orgId, spec, eventType, payload, userName) =>
+      DataSetEventLog.insert(DataSetEventLog(orgId = orgId, spec = spec, eventType = eventType, payload = payload, userName = userName))
+    case _ => // do nothing
+
+  }
+}
+
+case class DataSetEvent(orgId: String, spec: String, eventType: String, payload: Option[String] = None, userName: Option[String] = None)
+
+object DataSetEvent {
+
+  lazy val logger = Akka.system.actorOf(Props[DataSetEventLogger])
+
+  def Created(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "created")
+  def Updated(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "updated")
+  def Removed(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "removed")
+
+  def SourceUploaded(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "sourceUploaded", None, Some(userName))
+  def SourceRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, "sourceRecordCountChanged", Some(count.toString))
+  def StateChanged(orgId: String, spec: String, state: DataSetState, userName: Option[String]) = DataSetEvent(orgId, spec, "stateChanged", Some(state.name), userName)
+  def Locked(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "locked", Some(userName), Some(userName))
+  def Unlocked(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, "locked", None, Some(userName))
 
 }

@@ -143,6 +143,10 @@ package object mongoContext extends models.MongoContext {
   addIndexes(fieldValues, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
 
 
+  lazy val dataSetEventLogCollection = connection("DataSetEventLog")
+  addIndexes(dataSetEventLogCollection, Seq(MongoDBObject("orgId" -> 1)))
+
+
   lazy val hubFileStore = GridFS(connection)
 
 
