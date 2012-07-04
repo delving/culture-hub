@@ -402,7 +402,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
-      attrs.foreach(ns => attrBuilder.append(if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
+      attrs.filterNot(_._1.isEmpty).foreach(ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
       attrBuilder.mkString.trim
     }
 
