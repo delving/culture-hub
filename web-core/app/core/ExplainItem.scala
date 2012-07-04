@@ -1,7 +1,7 @@
 package core
 
 import xml.Elem
-import collection.immutable.ListMap
+import scala.collection.immutable.ListMap
 
 /**
  * Describes an API parameter

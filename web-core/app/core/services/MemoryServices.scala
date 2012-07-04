@@ -1,7 +1,7 @@
 package core.services
 
 import core._
-import collection.mutable.HashMap
+import scala.collection.mutable.HashMap
 import extensions.MissingLibs
 import eu.delving.definitions.OrganizationEntry
 
