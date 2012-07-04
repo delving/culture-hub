@@ -45,7 +45,7 @@ object DataSets extends OrganizationController {
 
   def feed(orgId: String, clientId: String) = WebSocket.async[JsValue] { request  =>
       // TODO security
-      DataSetListFeed.subscribe(orgId, clientId)
+      DataSetEventFeed.subscribe(orgId, clientId)
     }
 
   // TODO[manu] deprecate this one (used by groups, needs data migration)

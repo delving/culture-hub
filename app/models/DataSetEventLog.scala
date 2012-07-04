@@ -10,7 +10,14 @@ import com.novus.salat.dao.SalatDAO
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class DataSetEventLog(_id: ObjectId = new ObjectId, orgId: String, spec: String, eventType: String, payload: Option[String], userName: Option[String])
+case class DataSetEventLog(_id: ObjectId = new ObjectId,
+                           orgId: String,
+                           spec: String,
+                           eventType: String,
+                           payload: Option[String],
+                           userName: Option[String],
+                           systemEvent: Boolean = false
+                          )
 
 
 object DataSetEventLog extends SalatDAO[DataSetEventLog, ObjectId](dataSetEventLogCollection) {

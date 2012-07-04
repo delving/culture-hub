@@ -56,7 +56,7 @@
         <tfoot>
         <tr>
             <td colspan="5">
-            <!-- ko if: sets().length == 0 -->
+            <!-- ko if: sets().isEmpty -->
                 ${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
             <!-- /ko -->
             </td>
@@ -88,21 +88,18 @@
                 </td>
                 <td width="120">
 
-                    <!-- TODO use state description from i18n file, somehow-->
                     <!-- ko if: state == "error" -->
                     <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': state}" rel="popover"></span>
                     <!-- /ko -->
                     <!-- ko ifnot: state == "error" -->
                     <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state) } "></span>
                     <!-- /ko -->
-
-
                 </td>
                 <td>
-                    <!-- ko if: lockState == 'locked' -->
+                    <!-- ko if: lockState() == 'locked' -->
                     LockedBy (<span data-bind="text: lockedBy"></span>)
                     <!-- /ko -->
-                    <!-- ko if: lockState != 'locked' -->
+                    <!-- ko if: lockState() == 'unlocked' -->
                     <span class="badge badge-info">&{'dataset.lockstatus'}</span>
                     <!-- /ko -->
                 </td>
@@ -118,9 +115,6 @@
         </tbody>
     </table>
 
-    <!-- ko ifnot: sets().length > 0 -->
-    <p>${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}</p>
-    <!-- /ko -->
 </div>
 </div>
 
@@ -160,8 +154,14 @@
                         stateClass = "";
                         break
                 }
-
                 return "badge-" + stateClass;
+            },
+            updateSet: function(spec, updateCallback) {
+                var maybeSet = $.grep(viewModel.sets(), function(item, index) { return item.spec() == spec });
+                if(maybeSet.length > 0) {
+                    var toUpdate = maybeSet[0];
+                    updateCallback(toUpdate);
+                }
             }
         };
 
@@ -181,7 +181,42 @@
             console.log(data);
             switch(data.eventType) {
                 case "loadList":
-                    viewModel.sets(data.list);
+                    $.each(data.payload, function(index, item) {
+                        viewModel.sets.push(ko.mapping.fromJS(item));
+                    });
+                    break;
+                case "created":
+                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                    break;
+                case "updated":
+                    // TODO maybe be a bit more subtle here
+                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                    break;
+                case "removed":
+                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                    break;
+                case "sourceRecordCountChanged":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.totalRecords(data.payload);
+                    });
+                    break;
+                case "stateChanged":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.state(data.payload);
+                    });
+                    break;
+                case "locked":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.lockState("locked");
+                        toUpdate.lockedBy(data.payload);
+                    });
+                    break;
+                case "unlocked":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.lockState("unlocked");
+                        toUpdate.lockedBy("");
+                    });
                     break;
             }
         };
