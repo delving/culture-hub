@@ -17,8 +17,6 @@
 
 <div class="row">
 
-#{if items.length() > 0}
-
     *{<div class="span4">}*
         *{<form class="form-inline pull-left">}*
             *{<h4>&{'dataset.filter.state'}:</h4>}*
@@ -34,8 +32,7 @@
         <form id="filter-form" class="form-inline pull-left">
             <!-- todo: update message to "Filter by name" -->
             *{<h4>&{'dataset.filter.name'}: </h4>}*
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput"
-                   placeholder=""/>
+            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder=""/>
             <input onclick="saveFilter()" class="btn" type="button" value="Pin"/>
             <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
             <br/><span class="help-inline">Type in any dataset value(s) to filter the table. Press "Pin" to save the filter.</span>
@@ -59,22 +56,18 @@
         <tfoot>
         <tr>
             <td colspan="5">
-                #{ifnot items.length() > 0}
-                    {messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
-                #{/ifnot}
+            <!-- ko if: sets().length == 0 -->
+                ${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
+            <!-- /ko -->
             </td>
         </tr>
         </tfoot>
-        <tbody>
-
-            #{list items, as: 'i'}
+        <tbody data-bind="foreach: sets()">
             <tr>
-                <td><a href="/organizations/${orgId}/dataset/${i.spec}"><i class="icon icon-wrench"></i> ${i.spec}
-                </a></td>
-                <td>Organization name</td>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId + '/dataset/' + spec }"><i class="icon icon-wrench"></i> <span data-bind="text: spec"></span></a></td>
+                <td><span data-bind="text: nodeName"></span></td>
                 <td>
-                    <a href="/search?query=delving_spec%3A${i.spec}"
-                       title="Record counts ${i.spec}" class="rCount">${i.total_records}</a>
+                    <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec, title: 'Record counts ' + spec }" class="rCount"></a>
 
                     <div class="schema-count" style="display: none;">
                         <table class="table table-condensed">
@@ -103,29 +96,15 @@
                     <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state) } "></span>
                     <!-- /ko -->
 
+
                 </td>
                 <td>
-                    #{ifnot i.lockedBy.isEmpty()}
-                        <a class="btn btn-warning btn-mini" id="unlock${i.spec}">
-                        ${messages.get('ui.label.unlock')} (${i.lockedBy.get()})
-                        </a>
-                        <script type="text/javascript">
-                            $(document).ready(function () {
-                                $('#unlock${i.spec}').click(function () {
-                                    $.ajax({
-                                        url:'/organizations/${orgId}/dataset/${i.spec}/forceUnlock',
-                                        type:'POST',
-                                        complete:function () {
-                                            document.location = "/organizations/${orgId}/dataset";
-                                        }
-                                    });
-                                });
-                            });
-                        </script>
-                    #{/ifnot}
-                    #{else}
-                        <span class="badge badge-info">&{'dataset.lockstatus'}</span>
-                    #{/else}
+                    <!-- ko if: lockState == 'locked' -->
+                    LockedBy (<span data-bind="text: lockedBy"></span>)
+                    <!-- /ko -->
+                    <!-- ko if: lockState != 'locked' -->
+                    <span class="badge badge-info">&{'dataset.lockstatus'}</span>
+                    <!-- /ko -->
                 </td>
                 <td>
                     #{if isAdmin}
