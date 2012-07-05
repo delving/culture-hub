@@ -239,6 +239,7 @@ class DataSetEventFeed extends Actor {
     case ClientMessage(message) =>
       val clientId: String = (message \ "clientId").asOpt[Int].getOrElse(0).toString // the Play JSON API is really odd...
       val eventType: String = (message \ "eventType").asOpt[String].getOrElse("")
+      val spec = (message \ "payload").asOpt[String].getOrElse("")
 
       subscribers.find(_._1 == clientId).map {
         subscriber => {
@@ -255,7 +256,6 @@ class DataSetEventFeed extends Actor {
                 )
               )
             case "sendSet" =>
-              val spec = (message \ "payload").asOpt[String].getOrElse("")
               log.debug("About to send set %s to client %s".format(spec, clientId))
               DataSet.findBySpecAndOrgId(spec, subscriber._2.orgId).map {
                 ds => {
@@ -275,6 +275,11 @@ class DataSetEventFeed extends Actor {
                   )
                 )
               }
+
+            // TODO
+//            case "enable" =>
+//            case "disable" =>
+//            case "process" =>
 
             case _ => JsObject(
               Seq(
