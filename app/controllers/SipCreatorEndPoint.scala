@@ -521,9 +521,16 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
-    val collection = basexStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
+
+    // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
+    val mayCollection = basexStorage.openCollection(dataSet.orgId, dataSet.spec)
+    val collection = if(mayCollection.isDefined) {
+      basexStorage.deleteCollection(mayCollection.get)
+      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
+    } else {
       basexStorage.createCollection(dataSet.orgId, dataSet.spec)
     }
+
     val parser = new SimpleDataSetParser(source, dataSet)
 
     def onRecordInserted(count: Long) {
