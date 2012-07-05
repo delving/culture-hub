@@ -21,19 +21,18 @@ import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import models._
 import models.DataSetState._
-import java.util.Date
 import play.api.i18n.Messages
 import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
 import play.api.data.Forms._
 import collection.JavaConverters._
 import extensions.Formatters._
-import play.api.data.{Form}
+import play.api.data.Form
 import play.api.data.validation.Constraints
 import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
 import play.api.libs.concurrent.Promise
-import core.indexing.{IndexingService, Indexing}
-import core.HubServices
+import core.indexing.IndexingService
+import core.{DataSetEvent, HubServices}
 
 /**
  *
@@ -220,6 +219,7 @@ object DataSetControl extends OrganizationController {
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
                 DataSet.save(updated)
+                DataSetEvent ! DataSetEvent.Updated(orgId, dataSetForm.spec, connectedUser)
               }
               case None =>
                 // TODO for now only owners can do
@@ -242,6 +242,9 @@ object DataSetControl extends OrganizationController {
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
                 )
+
+                DataSetEvent ! DataSetEvent.Created(orgId, dataSetForm.spec, connectedUser)
+
             }
             Json(dataSetForm)
           }
@@ -257,11 +260,12 @@ object DataSetControl extends OrganizationController {
           case ENABLED | UPLOADED | DISABLED | ERROR =>
             try {
               DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-              DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
+              DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.QUEUED)
+
               Redirect("/organizations/%s/dataset".format(orgId))
             } catch {
               case t =>
-                DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
+                DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.ERROR, Some(t.getMessage))
                 Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.getName, theme.name))
             }
           case _ => Error(Messages("organization.datasets.cannotBeProcessed"))
@@ -275,7 +279,7 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case ENABLED | UPLOADED | DISABLED | ERROR =>
             DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
+            DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.QUEUED)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeReProcessed"))
         }
@@ -287,11 +291,11 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         dataSet.state match {
           case QUEUED | PROCESSING =>
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.UPLOADED)
+            DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.CANCELLED)
             try {
               IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
             } catch {
-              case t => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
+              case t => DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.ERROR, Some(t.getMessage))
             }
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeCancelled"))
@@ -327,7 +331,7 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         dataSet.state match {
           case QUEUED | PROCESSING | ERROR | ENABLED =>
-            val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, DataSetState.DISABLED)
+            val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.DISABLED)
             IndexingService.deleteBySpec(updatedDataSet.orgId, updatedDataSet.spec)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeDisabled"))
@@ -340,7 +344,7 @@ object DataSetControl extends OrganizationController {
       dataSet => implicit request =>
         dataSet.state match {
           case DISABLED =>
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ENABLED)
+            DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.ENABLED)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeEnabled"))
         }
@@ -353,6 +357,7 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
             DataSet.delete(dataSet)
+            DataSetEvent ! DataSetEvent.Removed(orgId, spec, connectedUser)
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeDeleted"))
         }
@@ -365,7 +370,8 @@ object DataSetControl extends OrganizationController {
         dataSet.state match {
           case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
             DataSet.invalidateHashes(dataSet)
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INCOMPLETE)
+            DataSet.updateStateAndProcessingCount(dataSet, connectedUser, DataSetState.INCOMPLETE)
+
             Redirect("/organizations/%s/dataset".format(orgId))
           case _ => Error(Messages("organization.datasets.cannotBeInvalidated"))
         }
@@ -377,6 +383,7 @@ object DataSetControl extends OrganizationController {
     withDataSet(orgId, spec) {
       dataSet => implicit request =>
         DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
+        DataSetEvent ! DataSetEvent.Unlocked(orgId, spec, connectedUser)
         Ok
     }
   }

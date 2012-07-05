@@ -8,6 +8,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import controllers.{Token, Fact, ShortDataSet, OrganizationController}
 import java.util.regex.Pattern
 import play.api.libs.json.JsValue
+import core.DataSetEventFeed
 
 /**
  *
@@ -43,9 +44,9 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def feed(orgId: String, clientId: String) = WebSocket.async[JsValue] { request  =>
+  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { request  =>
       // TODO security
-      DataSetEventFeed.subscribe(orgId, clientId)
+      DataSetEventFeed.subscribe(orgId, clientId, spec)
     }
 
   // TODO[manu] deprecate this one (used by groups, needs data migration)

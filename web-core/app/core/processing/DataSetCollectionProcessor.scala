@@ -126,8 +126,11 @@ object DataSetCollectionProcessor {
 
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
-    if(DataSet.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
+    val state = DataSet.getState(dataSet.orgId, dataSet.spec)
+    if(state == DataSetState.PROCESSING) {
       DataSet.updateState(dataSet, DataSetState.ENABLED)
+    } else if(state == DataSetState.CANCELLED) {
+      DataSet.updateState(dataSet, DataSetState.UPLOADED)
     }
   }
 

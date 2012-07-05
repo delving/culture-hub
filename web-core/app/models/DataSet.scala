@@ -23,7 +23,7 @@ import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import xml.{Node, XML}
 import exceptions.MetaRepoSystemException
-import core.HubServices
+import core.{DataSetEvent, HubServices}
 import eu.delving.metadata.RecMapping
 import play.api.Play
 import play.api.Play.current
@@ -346,10 +346,11 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ indexing control
 
-  def updateStateAndProcessingCount(dataSet: DataSet, state: DataSetState, errorMessage: Option[String] = None): DataSet = {
+  def updateStateAndProcessingCount(dataSet: DataSet, userName: String, state: DataSetState, errorMessage: Option[String] = None): DataSet = {
     val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
     val updatedDataSet = dataSetLatest.copy(state = state, errorMessage = errorMessage)
     DataSet.save(updatedDataSet)
+    DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, Some(userName))
     updatedDataSet
   }
 
