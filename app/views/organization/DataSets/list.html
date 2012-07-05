@@ -64,10 +64,10 @@
         </tfoot>
         <tbody data-bind="foreach: sets()">
             <tr>
-                <td><a data-bind="attr: { href: '/organizations/' + orgId + '/dataset/' + spec }"><i class="icon icon-wrench"></i> <span data-bind="text: spec"></span></a></td>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }"><i class="icon icon-wrench"></i> <span data-bind="text: spec"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
                 <td>
-                    <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec, title: 'Record counts ' + spec }" class="rCount"></a>
+                    <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec(), title: 'Record counts ' + spec() }" class="rCount"></a>
 
                     <div class="schema-count" style="display: none;">
                         <table class="table table-condensed">
@@ -89,10 +89,10 @@
                 <td width="120">
 
                     <!-- ko if: state == "error" -->
-                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': state}" rel="popover"></span>
+                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': state()}" rel="popover"></span>
                     <!-- /ko -->
                     <!-- ko ifnot: state == "error" -->
-                    <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state) } "></span>
+                    <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state()) } "></span>
                     <!-- /ko -->
                 </td>
                 <td>
@@ -105,7 +105,7 @@
                 </td>
                 <td>
                     #{if isAdmin}
-                        <a data-bind="href: { href: '/organizations/' + orgId + '/dataset/' + spec + '/update' }">
+                        <a data-bind="href: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }">
                             <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
                         </a>
                     #{/if}
