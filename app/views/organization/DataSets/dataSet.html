@@ -4,6 +4,8 @@
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
+
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="row">
@@ -12,17 +14,42 @@
         <table class="table table-condensed table-wrap">
             <caption>Basic information</caption>
             <tbody>
-            <tr>
-                <th>&{'thing.creator'}</th>
-                <td>${dataSet.userName}</td>
-            </tr>
-            #{list facts, as: 'facet'}
-            <tr>
-                <th>${facet.prompt()}</th>
-                <td><span title="${facet.value()}">${facet.value()}</span></td>
-                #{if facet.prompt() == 'Data Set Spec'}#{set 'spec'}${facet.value()}#{/set}#{/if}
-            </tr>
-            #{/list}
+                <tr>
+                    <th>&{'thing.creator'}</th>
+                    <td><span data-bind="text: creator"></span></td>
+                </tr>
+                <tr>
+                    <th>Spec (Identifier)</th>
+                    <td><span data-bind="text: spec"></span></td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td data-bind="text: name"></td>
+                </tr>
+                <tr>
+                    <th>Language</th>
+                    <td data-bind="text: information.language"></td>
+                </tr>
+                <tr>
+                    <th>Country</th>
+                    <td data-bind="text: information.country"></td>
+                </tr>
+                <tr>
+                    <th>Provider</th>
+                    <td data-bind="text: nodeName"></td>
+                </tr>
+                <tr>
+                    <th>Data Provider</th>
+                    <td data-bind="text: information.dataProvider"></td>
+                </tr>
+                <tr>
+                    <th>Rights</th>
+                    <td data-bind="text: information.rights"></td>
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    <td data-bind="text: information.type"></td>
+                </tr>
             </tbody>
         </table>
 
@@ -34,14 +61,10 @@
                 <th>Access rights</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody data-bind="foreach: harvestingConfiguration">
             <tr>
-                <td><span class="label">ese</span></td>
-                <td>Public</td>
-            </tr>
-            <tr>
-                <td><span class="label">icn</span></td>
-                <td>Public</td>
+                <td><span class="label" data-bind="text: schema"></span></td>
+                <td><span data-bind="text: accessType"></span></td>
             </tr>
             </tbody>
             <tfoot>
@@ -54,7 +77,16 @@
             </tr>
             </tfoot>
         </table>
+
+        <table class="table table-condensed">
+            <caption>Indexing and rendering schema</caption>
+            <tr>
+                <td><span data-bind="text: indexingSchema"></span></td>
+            </tr>
+        </table>
     </div>
+
+
     <div class="span8">
 
         <table class="table table-condensed">
@@ -70,7 +102,7 @@
             <tbody>
             <tr>
                 <td><span class="badge badge-success">Enabled</span></td>
-                <td>54678</td>
+                <td><span data-bind="text: totalRecords"></span></td>
                 <td>54200</td>
                 <td>54540</td>
             </tr>
@@ -136,5 +168,60 @@
 
 
 
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+
+        var viewModel = {
+            stateToClass: function(state) { return stateToClass(state); }
+        };
+
+        var clientId = Math.floor(1 + 10001 * Math.random());
+        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${dataSet.spec}');
+
+        ws.onopen = function() {
+            console.log("WebSockets connection opened");
+            ws.send(JSON.stringify({
+                eventType: "sendSet",
+                clientId: clientId,
+                payload: '${dataSet.spec}'
+            }));
+        };
+
+        ws.onmessage = function(evt) {
+            var data = $.parseJSON(evt.data);
+            console.log(data);
+            switch(data.eventType) {
+                case "loadSet":
+                    $.extend(viewModel, ko.mapping.fromJS(data.payload));
+                    ko.applyBindings(viewModel);
+                    break;
+                case "updated":
+                    break;
+                case "removed":
+                    break;
+                case "sourceRecordCountChanged":
+                    viewModel.totalRecords(data.payload);
+                    break;
+                case "stateChanged":
+                    viewModel.state(data.payload);
+                    break;
+                case "locked":
+                    viewModel.lockState("locked");
+                    viewModel.lockedBy(data.payload);
+                    break;
+                case "unlocked":
+                    viewModel.lockState("unlocked");
+                    viewModel.lockedBy("");
+                    break;
+            }
+        };
+
+        ws.onclose = function() {
+            console.log("WebSockets connection closed");
+        };
+
+    });
+
+</script>
 
 

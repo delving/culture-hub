@@ -20,9 +20,7 @@ object DataSets extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSetsPage = DataSet.findAllCanSee(orgId, userName)
-        val items: List[ShortDataSet] = dataSetsPage
-        Ok(Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'count -> dataSetsPage.size))
+        Ok(Template('title -> listPageTitle("dataset")))
     }
   }
 
@@ -45,9 +43,9 @@ object DataSets extends OrganizationController {
   }
 
   def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { request  =>
-      // TODO security
-      DataSetEventFeed.subscribe(orgId, clientId, spec)
-    }
+    // TODO security - lookup username via cookie
+    DataSetEventFeed.subscribe(orgId, clientId, spec)
+  }
 
   // TODO[manu] deprecate this one (used by groups, needs data migration)
   def listAsTokens(orgId: String, q: String) = OrgMemberAction(orgId) {
