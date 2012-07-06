@@ -7,8 +7,10 @@ import play.api.i18n.Messages
 import com.mongodb.casbah.commons.MongoDBObject
 import controllers.{Token, Fact, ShortDataSet, OrganizationController}
 import java.util.regex.Pattern
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsString, JsValue}
 import core.DataSetEventFeed
+import play.api.libs.concurrent.Promise
+import play.api.libs.iteratee.{Enumerator, Done, Input, Iteratee}
 
 /**
  *
@@ -42,9 +44,14 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { request  =>
-    // TODO security - lookup username via cookie
-    DataSetEventFeed.subscribe(orgId, clientId, spec)
+  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request  =>
+    if(request.session.get("userName").isDefined) {
+      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, spec)
+    } else {
+      // return a fake pair
+      // TODO perhaps a better way here ?
+      Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Enumerator.imperative()))
+    }
   }
 
   // TODO[manu] deprecate this one (used by groups, needs data migration)

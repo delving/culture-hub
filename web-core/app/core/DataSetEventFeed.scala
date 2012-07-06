@@ -10,6 +10,12 @@ import play.api.libs.concurrent._
 import play.api.Play.current
 import models.{DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
+import models.DataSetState._
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsString
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsNumber
+import scala.Some
 
 
 /**
@@ -79,13 +85,13 @@ object DataSetEventFeed {
     feed
   }
 
-  def subscribe(orgId: String, clientId: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def subscribe(orgId: String, clientId: String, userName: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
     implicit val timeout = Timeout(1 second)
 
-    (default ? Subscribe(orgId, clientId, spec)).asPromise.map {
+    (default ? Subscribe(orgId, userName, clientId, spec)).asPromise.map {
 
       case Connected(enumerator) =>
 
@@ -116,7 +122,7 @@ object DataSetEventFeed {
     }
   }
 
-  case class Subscribe(orgId: String, clientId: String, spec: Option[String] = None)
+  case class Subscribe(orgId: String, userName: String, clientId: String, spec: Option[String] = None)
   case class Unsubscribe(clientId: String)
 
   case class Connected(enumerator: PushEnumerator[JsValue])
@@ -146,7 +152,7 @@ object DataSetEventFeed {
         "nodeName" -> JsString(nodeName),
         "totalRecords" -> JsNumber(totalRecords),
         "validRecords" -> JsArray(validRecords.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("valid" -> JsNumber(f._2)))))),
-        "state" -> JsString(state),
+        "dataSetState" -> JsString(state),
         "lockState" -> JsString(lockState),
         "lockedBy" -> JsString(lockedBy)
       )
@@ -179,7 +185,7 @@ object DataSetEventFeed {
         "nodeName" -> JsString(nodeName),
         "totalRecords" -> JsNumber(totalRecords),
         "validRecords" -> JsArray(validRecords.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("valid" -> JsNumber(f._2)))))),
-        "state" -> JsString(state),
+        "dataSetState" -> JsString(state),
         "lockState" -> JsString(lockState),
         "lockedBy" -> JsString(lockedBy),
         "harvestingConfiguration" -> JsArray(harvestingConfiguration.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("accessType" -> JsString(f._2)))))),
@@ -219,7 +225,7 @@ class DataSetEventFeed extends Actor {
 
   def receive = {
 
-    case Subscribe(orgId, clientId, spec) => {
+    case Subscribe(orgId, userName, clientId, spec) => {
       // Create an Enumerator to write to this socket
 
       val channel = Enumerator.imperative[JsValue]()
@@ -228,7 +234,7 @@ class DataSetEventFeed extends Actor {
         log.warn("Duplicate clientId connection attempt from " + clientId)
         sender ! CannotConnect("This clientId is already used")
       } else {
-        subscribers = subscribers + (clientId -> Subscriber(orgId, spec, channel))
+        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, spec, channel))
         sender ! Connected(channel)
       }
     }
@@ -237,27 +243,49 @@ class DataSetEventFeed extends Actor {
       subscribers = subscribers - clientId
 
     case ClientMessage(message) =>
+      log.debug("Received message from client: " + message.toString)
+
       val clientId: String = (message \ "clientId").asOpt[Int].getOrElse(0).toString // the Play JSON API is really odd...
       val eventType: String = (message \ "eventType").asOpt[String].getOrElse("")
       val spec = (message \ "payload").asOpt[String].getOrElse("")
 
       subscribers.find(_._1 == clientId).map {
         subscriber => {
-          val msg = eventType match {
+
+          val s = subscriber._2
+          val orgId = subscriber._2.orgId
+          val userName = subscriber._2.userName
+
+          def withEditableSet(block: DataSet => Unit) {
+            DataSet.findBySpecAndOrgId(spec, orgId).map {
+              set => {
+                if(DataSet.canEdit(set, userName)) {
+                  block(set)
+                }
+              }
+            }.getOrElse {
+              send(s, error("DataSet %s not found".format(spec)))
+            }
+          }
+
+          eventType match {
+
             case "sendList" =>
               log.debug("About to send complete list of sets to client " + clientId)
-              val sets: Seq[ListDataSetViewModel] = DataSet.findAllByOrgId(subscriber._2.orgId).toSeq
+              val sets: Seq[ListDataSetViewModel] = DataSet.findAllByOrgId(orgId).toSeq
               val jsonList = sets.map(_.toJson).toSeq
-              val list = JsArray(jsonList)
-              JsObject(
+              val msg = JsObject(
                 Seq(
                   "eventType" -> JsString("loadList"),
-                  "payload" -> list
+                  "payload" -> JsArray(jsonList)
                 )
               )
+
+              send(s, msg)
+
             case "sendSet" =>
               log.debug("About to send set %s to client %s".format(spec, clientId))
-              DataSet.findBySpecAndOrgId(spec, subscriber._2.orgId).map {
+              val msg = DataSet.findBySpecAndOrgId(spec, orgId).map {
                 ds => {
                   val set: DataSetViewModel = ds
                   JsObject(
@@ -276,18 +304,48 @@ class DataSetEventFeed extends Actor {
                 )
               }
 
-            // TODO
-//            case "enable" =>
-//            case "disable" =>
-//            case "process" =>
+              send(s, msg)
 
-            case _ => JsObject(
+            case "enableSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case DISABLED =>
+                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.ENABLED)
+                      send(s, ok)
+                  }
+                }
+              }
+
+            case "disableSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case ENABLED =>
+                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.DISABLED)
+                      send(s, ok)
+                    case _ => // TODO send error
+                  }
+                }
+              }
+
+            case "processSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case ENABLED | DISABLED | UPLOADED =>
+                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.QUEUED)
+                      send(s, ok)
+                  }
+                }
+              }
+
+            case _ => send(s, JsObject(
               Seq(
                 "eventType" -> JsString("unknown")
               )
-            )
+            ))
           }
-          subscriber._2.channel.push(msg)
         }
       }
 
@@ -355,9 +413,23 @@ class DataSetEventFeed extends Actor {
          }
        }
      }
-
-
   }
+
+  def error(message: String) = JsObject(
+    Seq(
+      "eventType" -> JsString("error"),
+      "error" -> JsString(message)
+    )
+  )
+
+  val ok = JsObject(
+    Seq(
+      "eventType" -> JsString("ok")
+    )
+  )
+
+
+  def send(subscriber: Subscriber, msg: JsValue) { subscriber.channel push msg }
 
   def notifySubscribers(subscribers: Map[String, Subscriber], orgId: String, spec: String, eventType: String, msg: Option[JsObject]) {
     val default = JsObject(
@@ -378,7 +450,7 @@ class DataSetEventFeed extends Actor {
     }
   }
 
-  case class Subscriber(orgId: String, spec: Option[String], channel: PushEnumerator[JsValue])
+  case class Subscriber(orgId: String, userName: String, spec: Option[String], channel: PushEnumerator[JsValue])
 
 }
 

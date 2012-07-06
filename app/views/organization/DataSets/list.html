@@ -89,11 +89,11 @@
                 </td>
                 <td width="120">
 
-                    <!-- ko if: state == "error" -->
-                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': state()}" rel="popover"></span>
+                    <!-- ko if: dataSetState == "error" -->
+                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetS()}" rel="popover"></span>
                     <!-- /ko -->
-                    <!-- ko ifnot: state == "error" -->
-                    <span data-bind="text: state, attr: { class: 'badge ' + $parent.stateToClass(state()) } "></span>
+                    <!-- ko ifnot: dataSetState == "error" -->
+                    <span data-bind="text: dataSetState, attr: { class: 'badge ' + $parent.stateToClass(dataSetS()) } "></span>
                     <!-- /ko -->
                 </td>
                 <td>
@@ -172,7 +172,7 @@
                     break;
                 case "stateChanged":
                     viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.state(data.payload);
+                        toUpdate.dataSetState(data.payload);
                     });
                     break;
                 case "locked":
