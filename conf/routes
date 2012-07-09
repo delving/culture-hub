@@ -197,8 +197,6 @@ GET         /organizations/:orgId/dataset/add                                 co
 GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
 POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
 GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-GET         /organizations/:orgId/dataset/:spec/indexingStatus                controllers.organization.DataSetControl.indexingStatus(orgId, spec)
-GET         /organizations/:orgId/dataset/:spec/state                         controllers.organization.DataSetControl.state(orgId, spec)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
