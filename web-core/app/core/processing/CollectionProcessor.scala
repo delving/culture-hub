@@ -55,6 +55,8 @@ class CollectionProcessor(collection: BaseXCollection,
           var record: Node = null
           var index: Int = 0
 
+          updateCount(0)
+
           try {
             val recordCount = basexStorage.count
             val records = basexStorage.findAllCurrent
@@ -152,8 +154,18 @@ class CollectionProcessor(collection: BaseXCollection,
               onIndexingComplete(startProcessing)
             }
 
-            updateCount(index)
-            log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+            if(!interrupted) {
+              updateCount(index)
+              log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+            } else {
+              updateCount(0)
+              if (indexingSchema.isDefined) {
+                log.info("Deleting DataSet %s from SOLR".format(collection.name))
+                IndexingService.deleteBySpec(collection.orgId, collection.name)
+              }
+              log.info("Processing of collection %s interrupted after %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+
+            }
 
           } catch {
             case t => {
