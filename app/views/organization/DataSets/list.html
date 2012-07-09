@@ -90,10 +90,10 @@
                 <td width="120">
 
                     <!-- ko if: dataSetState == "error" -->
-                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetS()}" rel="popover"></span>
+                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetState()}" rel="popover"></span>
                     <!-- /ko -->
                     <!-- ko ifnot: dataSetState == "error" -->
-                    <span data-bind="text: dataSetState, attr: { class: 'badge ' + $parent.stateToClass(dataSetS()) } "></span>
+                    <span data-bind="text: dataSetState, attr: { class: 'badge ' + $parent.stateToClass(dataSetState()) } "></span>
                     <!-- /ko -->
                 </td>
                 <td>
