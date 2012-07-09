@@ -197,16 +197,8 @@ GET         /organizations/:orgId/dataset/add                                 co
 GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
 POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
 GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/index                         controllers.organization.DataSetControl.index(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/reindex                       controllers.organization.DataSetControl.reIndex(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/cancel                        controllers.organization.DataSetControl.cancel(orgId, spec)
 GET         /organizations/:orgId/dataset/:spec/indexingStatus                controllers.organization.DataSetControl.indexingStatus(orgId, spec)
 GET         /organizations/:orgId/dataset/:spec/state                         controllers.organization.DataSetControl.state(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/disable                       controllers.organization.DataSetControl.disable(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/enable                        controllers.organization.DataSetControl.enable(orgId, spec)
-DELETE      /organizations/:orgId/dataset/:spec/remove                        controllers.organization.DataSetControl.delete(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/invalidate                    controllers.organization.DataSetControl.invalidate(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 

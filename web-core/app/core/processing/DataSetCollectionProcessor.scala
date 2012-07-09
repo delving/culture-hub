@@ -91,7 +91,7 @@ object DataSetCollectionProcessor {
       DataSet.updateIndexingCount(dataSet, count)
     }
     def onError(t: Throwable) {
-      DataSet.updateState(dataSet, DataSetState.ERROR, Some(t.getMessage))
+      DataSet.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
     def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
 

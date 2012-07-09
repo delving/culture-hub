@@ -569,7 +569,7 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.updateState(dataSet, DataSetState.ERROR, message)
+            DataSet.updateState(dataSet, DataSetState.ERROR, None, message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
             ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
           case Right(inserted) =>
@@ -581,7 +581,7 @@ class ReceiveSource extends Actor {
         case t =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
           DataSet.invalidateHashes(dataSet)
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.updateState(dataSet, DataSetState.ERROR, None, Some("Error while parsing uploaded source: " + t.getMessage))
 
       } finally {
         tempFileRef = null

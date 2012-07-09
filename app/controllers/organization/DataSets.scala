@@ -11,6 +11,7 @@ import play.api.libs.json.{JsString, JsValue}
 import core.DataSetEventFeed
 import play.api.libs.concurrent.Promise
 import play.api.libs.iteratee.{Enumerator, Done, Input, Iteratee}
+import util.ThemeHandler
 
 /**
  *
@@ -46,7 +47,8 @@ object DataSets extends OrganizationController {
 
   def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request  =>
     if(request.session.get("userName").isDefined) {
-      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, spec)
+      val portalTheme = ThemeHandler.getByDomain(request.domain)
+      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, portalTheme.name, spec)
     } else {
       // return a fake pair
       // TODO perhaps a better way here ?

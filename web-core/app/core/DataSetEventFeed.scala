@@ -4,11 +4,12 @@ import akka.actor._
 import akka.util.duration._
 import akka.util.Timeout
 import akka.pattern.ask
+import indexing.IndexingService
 import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import play.api.Play.current
-import models.{DataSetEventLog, DataSetState, DataSet}
+import models.{PortalTheme, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
 import play.api.libs.json.JsArray
@@ -16,6 +17,7 @@ import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsNumber
 import scala.Some
+import util.ThemeHandler
 
 
 /**
@@ -85,13 +87,13 @@ object DataSetEventFeed {
     feed
   }
 
-  def subscribe(orgId: String, clientId: String, userName: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def subscribe(orgId: String, clientId: String, userName: String, theme: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
     implicit val timeout = Timeout(1 second)
 
-    (default ? Subscribe(orgId, userName, clientId, spec)).asPromise.map {
+    (default ? Subscribe(orgId, userName, theme, clientId, spec)).asPromise.map {
 
       case Connected(enumerator) =>
 
@@ -122,7 +124,7 @@ object DataSetEventFeed {
     }
   }
 
-  case class Subscribe(orgId: String, userName: String, clientId: String, spec: Option[String] = None)
+  case class Subscribe(orgId: String, userName: String, theme: String, clientId: String, spec: Option[String] = None)
   case class Unsubscribe(clientId: String)
 
   case class Connected(enumerator: PushEnumerator[JsValue])
@@ -217,6 +219,8 @@ class DataSetEventFeed extends Actor {
 
   import DataSetEventFeed._
 
+  val log = Logger(getClass)
+
   implicit val timeout = Timeout(1 second)
 
   var lastSeen: Long = System.currentTimeMillis()
@@ -225,7 +229,7 @@ class DataSetEventFeed extends Actor {
 
   def receive = {
 
-    case Subscribe(orgId, userName, clientId, spec) => {
+    case Subscribe(orgId, userName, theme, clientId, spec) => {
       // Create an Enumerator to write to this socket
 
       val channel = Enumerator.imperative[JsValue]()
@@ -234,7 +238,7 @@ class DataSetEventFeed extends Actor {
         log.warn("Duplicate clientId connection attempt from " + clientId)
         sender ! CannotConnect("This clientId is already used")
       } else {
-        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, spec, channel))
+        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, theme, spec, channel))
         sender ! Connected(channel)
       }
     }
@@ -255,6 +259,7 @@ class DataSetEventFeed extends Actor {
           val s = subscriber._2
           val orgId = subscriber._2.orgId
           val userName = subscriber._2.userName
+          val theme = ThemeHandler.getByName(subscriber._2.theme)
 
           def withEditableSet(block: DataSet => Unit) {
             DataSet.findBySpecAndOrgId(spec, orgId).map {
@@ -280,7 +285,6 @@ class DataSetEventFeed extends Actor {
                   "payload" -> JsArray(jsonList)
                 )
               )
-
               send(s, msg)
 
             case "sendSet" =>
@@ -303,7 +307,6 @@ class DataSetEventFeed extends Actor {
                   )
                 )
               }
-
               send(s, msg)
 
             case "enableSet" =>
@@ -311,7 +314,7 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case DISABLED =>
-                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.ENABLED)
+                      DataSet.updateState(set, DataSetState.ENABLED, Some(userName))
                       send(s, ok)
                   }
                 }
@@ -322,9 +325,9 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case ENABLED =>
-                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.DISABLED)
+                      DataSet.updateState(set, DataSetState.DISABLED, Some(userName))
                       send(s, ok)
-                    case _ => // TODO send error
+                    case _ => send(s, error("Cannot disable set that is not enabled"))
                   }
                 }
               }
@@ -333,9 +336,57 @@ class DataSetEventFeed extends Actor {
               withEditableSet {
                 set => {
                   set.state match {
-                    case ENABLED | DISABLED | UPLOADED =>
-                      DataSet.updateStateAndProcessingCount(set, userName, DataSetState.QUEUED)
+                    case ENABLED | DISABLED | UPLOADED | ERROR =>
+                      DataSet.updateIndexingControlState(set, set.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+                      DataSet.updateState(set, DataSetState.QUEUED, Some(userName))
                       send(s, ok)
+                    case _ => send(s, error("Cannot process set that is not enabled, disabled, uploaded or in error"))
+                  }
+                }
+              }
+
+            case "cancelProcessSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case QUEUED | PROCESSING =>
+                      DataSet.updateState(set, DataSetState.CANCELLED, Some(userName))
+                      try {
+                        IndexingService.deleteBySpec(set.orgId, set.spec)
+                      } catch {
+                        case t =>
+                          log.warn("Error while trying to remove cancelled set from index", t)
+                          DataSet.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
+                      }
+                  }
+                }
+              }
+
+            case "resetHashesForSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
+                      DataSet.invalidateHashes(set)
+                      DataSet.updateState(set, DataSetState.INCOMPLETE, Some(userName))
+                    case _ => send(s, error("Cannot reset hashes of a set that is not enabled, disabled, uploaded, in error, or parsing"))
+                  }
+                }
+              }
+
+            case "unlockSet" =>
+              withEditableSet {
+                set =>
+                  DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get, userName)
+              }
+
+            case "deleteSet" =>
+              withEditableSet {
+                set => {
+                  set.state match {
+                    case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
+                      DataSet.delete(set)
+                      DataSetEvent ! DataSetEvent.Removed(orgId, spec, userName)
                   }
                 }
               }
@@ -450,7 +501,7 @@ class DataSetEventFeed extends Actor {
     }
   }
 
-  case class Subscriber(orgId: String, userName: String, spec: Option[String], channel: PushEnumerator[JsValue])
+  case class Subscriber(orgId: String, userName: String, theme: String, spec: Option[String], channel: PushEnumerator[JsValue])
 
 }
 
@@ -461,14 +512,14 @@ class DataSetEventLogger extends Actor {
 
   def receive = {
 
-    case DataSetEvent(orgId, spec, eventType, payload, userName, systemEvent) =>
-      DataSetEventLog.insert(DataSetEventLog(orgId = orgId, spec = spec, eventType = eventType.name, payload = payload, userName = userName, systemEvent = systemEvent))
+    case DataSetEvent(orgId, spec, eventType, payload, userName, systemEvent, transientEvent) =>
+      DataSetEventLog.insert(DataSetEventLog(orgId = orgId, spec = spec, eventType = eventType.name, payload = payload, userName = userName, systemEvent = systemEvent, transientEvent = transientEvent))
     case _ => // do nothing
 
   }
 }
 
-case class DataSetEvent(orgId: String, spec: String, eventType: EventType, payload: Option[String] = None, userName: Option[String] = None, systemEvent: Boolean = false)
+case class DataSetEvent(orgId: String, spec: String, eventType: EventType, payload: Option[String] = None, userName: Option[String] = None, systemEvent: Boolean = false, transientEvent: Boolean = false)
 
 case class EventType(name: String)
 
@@ -476,12 +527,20 @@ object EventType {
   val CREATED = EventType("created")
   val UPDATED = EventType("updated")
   val REMOVED = EventType("removed")
-  val SOURCE_UPLOADED = EventType("sourceUploaded")
-  val SOURCE_RECORD_COUNT_CHANGED = EventType("sourceRecordCountChanged")
-  val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
   val STATE_CHANGED = EventType("stateChanged")
+  val ERROR = EventType("error")
   val LOCKED = EventType("locked")
   val UNLOCKED = EventType("unlocked")
+
+  // ~~~ transient events, for progress report only
+  val SOURCE_RECORD_COUNT_CHANGED = EventType("sourceRecordCountChanged")
+  val PROCESSED_RECORD_COUNT_CHANGED = EventType("processedRecordCountChanged")
+
+  // ~~~ see if this is not a particular kind of state change
+  val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
+  val SOURCE_UPLOADED = EventType("sourceUploaded")
+
+
 }
 
 object DataSetEvent {
@@ -497,10 +556,14 @@ object DataSetEvent {
   def Removed(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.REMOVED)
 
   def SourceUploaded(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.SOURCE_UPLOADED, None, Some(userName))
-  def SourceRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.SOURCE_RECORD_COUNT_CHANGED, Some(count.toString), None, true)
-  def StateChanged(orgId: String, spec: String, state: DataSetState, userName: Option[String]) = DataSetEvent(orgId, spec, EventType.STATE_CHANGED, Some(state.name), userName, userName.isEmpty)
+  def InvalidRecordCountChanged(orgId: String, spec: String, prefix: String, count: Long) = DataSetEvent(orgId, spec, EventType.INVALID_RECORD_COUNT_CHANGED, Some(count.toString), None, true)
+
+  def StateChanged(orgId: String, spec: String, state: DataSetState, userName: Option[String] = None) = DataSetEvent(orgId, spec, EventType.STATE_CHANGED, Some(state.name), userName, userName.isEmpty)
+  def Error(orgId: String, spec: String, message: String, userName: Option[String] = None) = DataSetEvent(orgId, spec, EventType.ERROR, Some(message), userName, userName.isEmpty)
 
   def Locked(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.STATE_CHANGED, Some(userName), Some(userName))
   def Unlocked(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.UNLOCKED, None, Some(userName))
 
+  def SourceRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.SOURCE_RECORD_COUNT_CHANGED, Some(count.toString), None, true, true)
+  def ProcessedRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.PROCESSED_RECORD_COUNT_CHANGED, Some(count.toString), None, true, true)
 }

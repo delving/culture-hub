@@ -219,8 +219,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
-  def findByState(state: DataSetState) = {
-    DataSet.find(MongoDBObject("state.name" -> state.name, "deleted" -> false))
+  def findByState(states: DataSetState*) = {
+    DataSet.find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
   }
 
   def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
@@ -291,6 +291,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedDetails = dataSet.details.copy(invalidRecordCount = (dataSet.details.invalidRecordCount + (prefix -> invalidIndexes.size)))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
     DataSet.save(updatedDataSet)
+    // TODO fire off appropriate state change event
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {
@@ -320,14 +321,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val updatedDataSet = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, updatedMapping))
     DataSet.updateById(dataSet._id, updatedDataSet)
     updatedDataSet
+    // TODO fire off appropriate state change event
   }
 
   def updateNamespaces(spec: String, namespaces: Map[String, String]) {
     update(MongoDBObject("spec" -> spec), $set ("namespaces" -> namespaces.asDBObject))
   }
 
-  def unlock(dataSet: DataSet) {
+  def unlock(dataSet: DataSet, userName: String) {
     update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
+    DataSetEvent ! DataSetEvent.Unlocked(dataSet.orgId, dataSet.spec, userName)
   }
 
   def addHash(dataSet: DataSet, key: String, hash: String) {
@@ -344,21 +347,16 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def getSourceRecordCount(dataSet: DataSet): Long = storage.count(BaseXCollection(dataSet.orgId, dataSet.spec))
 
-  // ~~~ indexing control
+  // ~~~ dataSet control
 
-  def updateStateAndProcessingCount(dataSet: DataSet, userName: String, state: DataSetState, errorMessage: Option[String] = None): DataSet = {
-    val dataSetLatest = DataSet.findBySpecAndOrgId(dataSet.spec, dataSet.orgId).get
-    val updatedDataSet = dataSetLatest.copy(state = state, errorMessage = errorMessage)
-    DataSet.save(updatedDataSet)
-    DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, Some(userName))
-    updatedDataSet
-  }
-
-  def updateState(dataSet: DataSet, state: DataSetState, errorMessage: Option[String] = None) {
+  def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
     if(errorMessage.isDefined) {
       update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name, "errorMessage" -> errorMessage.get))
+      DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
+      DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
     } else {
       update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
+      DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
   }
 
@@ -368,14 +366,17 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def updateIndexingCount(dataSet: DataSet, count: Long) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
+    DataSetEvent ! DataSetEvent.ProcessedRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
   def updateRecordCount(dataSet: DataSet, count: Long) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
+    DataSetEvent ! DataSetEvent.SourceRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
   def invalidateHashes(dataSet: DataSet) {
     DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
+    // TODO fire appropriate event or state change event
   }
 
   // ~~~ OAI-PMH

@@ -57,7 +57,7 @@ object ThemeHandler {
 
   def getDefaultTheme = themeList.filter(_.name == current.configuration.getString("themes.defaultTheme").getOrElse("default")).headOption
 
-  def getByThemeName(name: String) = {
+  def getByName(name: String) = {
     val theme = themeList.filter(_.name.equalsIgnoreCase(name))
     if (!theme.isEmpty) theme.head
     else getDefaultTheme.get

@@ -16,8 +16,9 @@ case class DataSetEventLog(_id: ObjectId = new ObjectId,
                            eventType: String,
                            payload: Option[String],
                            userName: Option[String],
-                           systemEvent: Boolean = false
-                            )
+                           systemEvent: Boolean = false,
+                           transientEvent: Boolean = false
+                          )
 
 
 object DataSetEventLog extends SalatDAO[DataSetEventLog, ObjectId](dataSetEventLogCollection) {
