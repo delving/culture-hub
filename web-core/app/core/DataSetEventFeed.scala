@@ -79,7 +79,7 @@ object DataSetEventFeed {
     // since we're in a multi-node environment we can only but poll the db for updates
     Akka.system.scheduler.schedule(
       2 seconds,
-      2 seconds,
+      1 seconds,
       feed,
       Update
     )
@@ -222,6 +222,8 @@ class DataSetEventFeed extends Actor {
   val log = Logger(getClass)
 
   implicit val timeout = Timeout(1 second)
+
+  val LIST_FEED_EVENTS = Seq(EventType.CREATED, EventType.UPDATED, EventType.REMOVED, EventType.STATE_CHANGED, EventType.LOCKED, EventType.UNLOCKED)
 
   var lastSeen: Long = System.currentTimeMillis()
 
@@ -407,7 +409,7 @@ class DataSetEventFeed extends Actor {
       // handle subscribers differently depending on whether they follow the list or a single set
 
       val listSubscribers = subscribers.filterNot(_._2.spec.isDefined)
-      recentEvents.foreach {
+      recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
         event => {
           log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
           val msg = EventType(event.eventType) match {
@@ -539,7 +541,6 @@ object EventType {
   // ~~~ see if this is not a particular kind of state change
   val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
   val SOURCE_UPLOADED = EventType("sourceUploaded")
-
 
 }
 
