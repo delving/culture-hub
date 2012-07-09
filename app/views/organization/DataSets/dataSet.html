@@ -101,7 +101,7 @@
             </thead>
             <tbody>
             <tr>
-                <td><span class="badge" data-bind="text: dataSetState"></span></td>
+                <td><span class="badge" data-bind="text: dataSetState,  attr: { class: 'badge badge-' + stateToClass(dataSetState()) } "></span></td>
                 <td><span data-bind="text: totalRecords"></span></td>
                 <td>54200</td>
                 <td>54540</td>
@@ -109,22 +109,17 @@
             </tbody>
         </table>
         <!-- 2nd alert class (alert-...) determined by state of dataset -->
-        <div class="alert alert-success">
-            Dataset is enabled and functioning properly.
+        <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
+            Dataset is <strong data-bind="text: dataSetState"></strong>
         </div>
-        *{<div class="alert alert-error">}*
-            *{Complete stack trace of dataset error state (Hmmm, something is wrong)}*
-        *{</div>}*
-        *{<div class="alert alert-info">}*
-            *{Other information that may be useful to display}*
-        *{</div>}*
+
         <h4>Dataset actions</h4>
         <div class="panel panel-focus">
 
             <div class="btn-toolbar">
                 <div class="btn-group">
                     <!-- todo make the disable binding expression work-->
-                    <button class="btn" data-bind="css: { disabled: dataSetState() == 'enabled' }, click: function() { enable(spec); }">Enable</button>
+                    <button class="btn" data-loading-text="..." data-bind="css: { disabled: dataSetState() == 'enabled' }, click: function() { enable(spec); }">Enable</button>
                     <button class="btn" data-bind="css: { disabled: dataSetState() == 'disabled' }, click: function() { disable(spec); }">Disable</button>
                     <button class="btn" data-bind="css: { disabled: dataSetState() != 'uploaded' && dataSetState() != 'enabled' }, click: function() { process(spec); }">Process</button>
                 </div>
@@ -176,7 +171,9 @@
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${dataSet.spec}');
 
         var viewModel = {
-            stateToClass: function(state) { return stateToClass(state); },
+            stateToClass: function(state) {
+                return stateToClass(state);
+            },
             enable: function(spec) {
                 ws.send(JSON.stringify({
                     eventType: 'enableSet',
@@ -212,6 +209,7 @@
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
             console.log(data);
+            console.log('onmessage');
             switch(data.eventType) {
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));

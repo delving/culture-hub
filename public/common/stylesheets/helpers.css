@@ -441,6 +441,28 @@ dt, dd, li {
     background-color: #7fa929;
 }
 
+.label-error,
+.badge-error {
+    background-color: #b22222;
+}
+
+.label-error[href],
+.badge-error[href] {
+    background-color: #711616;
+}
+
+.alert-enabled {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #468847;
+}
+
+.alert-disabled {
+    background-color: #eaeaea;
+    border-color: #ccc;
+    color: #888;
+}
+
 /* addThis widgets */
 
 .addthis_toolbox {

@@ -27,7 +27,7 @@ function stateToClass(state) {
             break;
         default:
             stateClass = "";
-            break
+            break;
     }
-    return "badge-" + stateClass;
+    return stateClass;
 }
