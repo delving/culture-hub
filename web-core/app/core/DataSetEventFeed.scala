@@ -542,7 +542,6 @@ object EventType {
   val PROCESSED_RECORD_COUNT_CHANGED = EventType("processedRecordCountChanged")
 
   // ~~~ TODO: these are temporary events used as a workaround to not having a state model reflecting these transitions
-  val SOURCE_UPLOADED = EventType("sourceUploaded")
   val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
 
 }
@@ -569,7 +568,6 @@ object DataSetEvent {
   def ProcessedRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.PROCESSED_RECORD_COUNT_CHANGED, Some(count.toString), None, true, true)
 
   // ~~~ TODO: these are temporary events used as a workaround to not having a state model reflecting these transitions
-  def SourceUploaded(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.SOURCE_UPLOADED, None, Some(userName))
   def InvalidRecordCountChanged(orgId: String, spec: String, prefix: String, count: Long) = DataSetEvent(orgId, spec, EventType.INVALID_RECORD_COUNT_CHANGED, Some(count.toString), None, true)
 
 }

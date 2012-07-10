@@ -571,7 +571,7 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.updateState(dataSet, DataSetState.ERROR, None, message)
+            DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
             ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
           case Right(inserted) =>
@@ -583,7 +583,7 @@ class ReceiveSource extends Actor {
         case t =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
           DataSet.invalidateHashes(dataSet)
-          DataSet.updateState(dataSet, DataSetState.ERROR, None, Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
 
       } finally {
         tempFileRef = null
@@ -595,7 +595,7 @@ class ReceiveSource extends Actor {
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
       DataSet.updateRecordCount(dataSet, uploadedRecords)
-      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      DataSet.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)
     } catch {
       case t => return Left(t)
