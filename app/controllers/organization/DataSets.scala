@@ -38,8 +38,7 @@ object DataSets extends OrganizationController {
           if (!DataSet.canView(ds, userName)) {
             NotFound(Messages("datasets.dataSetNotFound", ds.spec))
           } else {
-            val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
-            Ok(Template('dataSet -> ds, 'canEdit -> DataSet.canEdit(ds, userName), 'facts -> describedFacts.asJava))
+            Ok(Template('spec -> ds.spec))
           }
         }
     }
