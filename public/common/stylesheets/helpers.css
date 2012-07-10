@@ -88,6 +88,14 @@ dt, dd, li {
     float: left;
 }
 
+/* main search button */
+
+.navbar-search .submit {
+    padding: 3px 9px;
+    margin: 5px 5px 6px 2px;
+}
+
+
 /* dialogs */
 
 /* labels and comments dialogue*/

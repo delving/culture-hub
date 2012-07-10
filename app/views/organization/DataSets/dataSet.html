@@ -87,13 +87,6 @@
                 </td>
             </tr>
             </tbody>
-            <tfoot>
-            <tr>
-                <td>
-                    <a class="btn pull-right" href="/organizations/${orgId}/dataset/${spec}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
-                </td>
-            </tr>
-            </tfoot>
         </table>
     </div>
 
@@ -122,6 +115,9 @@
                         <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
                     </ul>
                 </div>
+                <div class="btn-group pull-right">
+                    <a class="btn" href="/organizations/${orgId}/dataset/${spec}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                </div>
             </div>
         </div>
 
@@ -139,7 +135,7 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'parsing' -->
-            <p>The source data sent via the Sip-Creator is currently being parsed and stored into BaseX.</p>
+            <p>The source data sent via the SIP-Creator is currently being parsed and stored into BaseX.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'uploaded' -->
