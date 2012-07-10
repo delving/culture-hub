@@ -486,10 +486,9 @@ dt, dd, li {
 }
 
 .alert-parsing {
-    background-color: #888;
-    border-color: #444;
-    color: #fff;
-    text-shadow: none;
+    background-color: #fffff0;
+    border-color: #eaeaea;
+    color: #444;
 }
 
 .alert-queued {

@@ -92,20 +92,11 @@
 
 
     <div class="span8">
+
         <div data-bind="template: { name: 'statusInformation' }"></div>
 
-        <!-- 2nd alert class (alert-...) determined by state of dataset -->
-        <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
-                Dataset state: <strong data-bind="text: dataSetState"></strong>
-            <!-- ko if: errorMessage().length > 0 -->
-                <p data-bind="text: errorMessage"></p>
-            <!-- /ko -->
-        </div>
-
-
-
         <h4>Dataset actions</h4>
-        <div class="panel panel-focus">
+        <div class="">
 
             <div class="btn-toolbar">
                 <div class="btn-group">
@@ -125,16 +116,56 @@
                     </ul>
                 </div>
             </div>
+        </div>
 
-            <h5>Action progress</h5>
+        <!-- 2nd alert class (alert-...) determined by state of dataset -->
+        <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
+
+            Dataset state: <strong data-bind="text: dataSetState"></strong>
+
+            <!-- ko if: errorMessage().length > 0 -->
+            <p data-bind="text: errorMessage"></p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'incomplete' -->
+            <p>The DataSet has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'parsing' -->
+            <p>The source data sent via the Sip-Creator is currently being parsed and stored into BaseX.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'uploaded' -->
+            <p>The DataSet is uploaded and ready to be processed.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'queued' -->
+            <p>The DataSet is queued and waiting to be processed.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'processing' -->
+            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed in SOLR.</p>
             <div>
-                <div class="progress" data-bind="css: { active: progressPercentage != '0%' }">
+                <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
                     <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
                 </div>
                 <button class="btn" data-bind="css: { disabled: dataSetState() != 'processing' }, click: function() { cancel(spec); }">Cancel</button>
             </div>
 
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'cancelled' -->
+            <p>The processing of this set was cancelled by the user.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'enabled' -->
+            <p>The DataSet is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <!-- /ko -->
+
         </div>
+
+
+
 
     </div>
 </div>
