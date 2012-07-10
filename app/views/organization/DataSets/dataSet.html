@@ -234,7 +234,7 @@
                 }));
             },
             resetHashes: function(spec) {
-                bootbox.confirm("Are you sure?", function(result) {
+                bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
                      if (result) {
                         ws.send(JSON.stringify({
                             eventType: 'resetHashesForSet',
@@ -245,13 +245,17 @@
                 });
             },
             deleteSet: function(spec) {
-                bootbox.confirm("Are you sure?", function(result) {
+                bootbox.confirm("<h4>Delete</h4><p>Are you sure?</p><p>This will remove the dataset definition and all data. This action cannot be undone.</p>", function(result) {
                     if (result) {
-                        ws.send(JSON.stringify({
-                            eventType: 'deleteSet',
-                            clientId: clientId,
-                            payload: '${dataSet.spec}'
-                        }));
+                        bootbox.confirm("<h4>Delete</h4><p>Are you absolutely sure?</p>", function(result){
+                            if (result) {
+                                ws.send(JSON.stringify({
+                                eventType: 'deleteSet',
+                                clientId: clientId,
+                                payload: '${dataSet.spec}'
+                                }));
+                            }
+                        });
                     }
                 });
             }
