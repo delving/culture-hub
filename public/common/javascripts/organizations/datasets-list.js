@@ -29,15 +29,6 @@ $(document).ready(function () {
         placement: 'right'
     });
 
-    $('.rCount').live("mouseover", function(){
-        var $pElem = $(this);
-        $pElem.popover({
-            content: $(this).next('.schema-count').html()
-        });
-    });
-
-
-
 });
 
 function resetFilter() {
