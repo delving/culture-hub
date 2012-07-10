@@ -224,6 +224,7 @@ dt, dd, li {
 
 .thing-container {
     margin-bottom: 11px;
+    position: relative;
 }
 
 .thing-container.no-image {
@@ -238,6 +239,10 @@ dt, dd, li {
     padding: 2px 6px;
     margin: 0;
     text-shadow: 1px 2px 3px #666;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    opacity: .8;
 }
 
 .thing-container .title {
@@ -407,38 +412,11 @@ dt, dd, li {
 
 .label-disabled,
 .badge-disabled {
-    background-color: #b3b3b3;
+    background-color: #999;
 }
 .label-disabled[href],
 .badge-disabled[href] {
-    background-color: #8a8a8a;
-}
-
-.label-processing,
-.badge-processing {
-    background-color: #d0f7b9;
-}
-.label-processing[href],
-.badge-processing[href] {
-    background-color: #9cb78f;
-}
-
-.label-qeued,
-.badge-qeued {
-    background-color: #ffcc33;
-}
-.label-qeued[href],
-.badge-qeued[href] {
-    background-color: #d1a72a;
-}
-
-.label-parsing,
-.badge-parsing {
-    background-color: #beff3c;
-}
-.label-parsing[href],
-.badge-parsing[href] {
-    background-color: #7fa929;
+    background-color: #999;
 }
 
 .label-error,
@@ -451,6 +429,55 @@ dt, dd, li {
     background-color: #711616;
 }
 
+.label-parsing,
+.badge-parsing {
+    background-color: #444444;
+}
+.label-parsing[href],
+.badge-parsing[href] {
+    background-color: #444444;
+}
+
+.label-uploaded,
+.badge-uploaded {
+    background-color: #660033;
+}
+.label-uploaded[href],
+.badge-uploaded[href] {
+    background-color: #444444;
+}
+
+.label-queued,
+.badge-queued {
+    background-color: #FF9900;
+}
+.label-queued[href],
+.badge-queued[href] {
+    background-color: #FF9900;
+}
+
+.label-processing,
+.badge-processing {
+    background-color: #3a87ad;
+}
+
+.label-processing[href],
+.badge-processing[href] {
+    background-color: #3a87ad;
+}
+
+.label-incomplete,
+.badge-incomplete {
+    background-color: #c09853;
+}
+
+.label-incomplete[href],
+.badge-incomplete[href] {
+    background-color: #c09853;
+}
+
+
+
 .alert-enabled {
     background-color: #dff0d8;
     border-color: #d6e9c6;
@@ -462,6 +489,33 @@ dt, dd, li {
     border-color: #ccc;
     color: #888;
 }
+
+.alert-parsing {
+    background-color: #888;
+    border-color: #444;
+    color: #fff;
+    text-shadow: none;
+}
+
+.alert-queued {
+    background-color: #ffefce;
+    border-color: #ffeabb;
+    color: #e88400;
+}
+
+.alert-processing {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #3a87ad;
+}
+
+.alert-uploaded {
+    background-color: #ffecf3;
+    border-color: #f4e1e8;
+    color: #660033;
+}
+
+
 
 /* addThis widgets */
 

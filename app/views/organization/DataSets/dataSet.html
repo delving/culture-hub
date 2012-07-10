@@ -92,8 +92,10 @@
 
         <!-- 2nd alert class (alert-...) determined by state of dataset -->
         <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
-            Dataset is <strong data-bind="text: dataSetState"></strong>
+            Dataset state: <strong data-bind="text: dataSetState"></strong>
         </div>
+
+
 
         <h4>Dataset actions</h4>
         <div class="panel panel-focus">
@@ -225,7 +227,8 @@
                     viewModel.totalRecords(data.payload);
                     break;
                 case "stateChanged":
-                    viewModel.progressPercentage('0%');
+                        console.log("state change");
+                        console.log(viewModel);
                     viewModel.dataSetState(data.payload);
                     break;
                 case "locked":
