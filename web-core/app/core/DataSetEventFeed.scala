@@ -66,7 +66,8 @@ object DataSetEventFeed {
     lockState = if (ds.lockedBy.isDefined) "locked" else "unlocked",
     lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else "",
     harvestingConfiguration = ds.formatAccessControl.map(f => (f._1 -> f._2.accessType)).toSeq,
-    indexingSchema = ds.getIndexingMappingPrefix.getOrElse("")
+    indexingSchema = ds.getIndexingMappingPrefix.getOrElse(""),
+    errorMessage = ds.errorMessage
   )
 
   implicit def dataSetListToViewModelList(dsl: Seq[DataSet]): Seq[DataSetViewModel] = dsl.map(dataSetToViewModel(_))
@@ -174,7 +175,8 @@ object DataSetEventFeed {
                               lockState: String,
                               lockedBy: String,
                               harvestingConfiguration: Seq[(String, String)],
-                              indexingSchema: String) {
+                              indexingSchema: String,
+                              errorMessage: Option[String]) {
 
     def toJson: JsObject = JsObject(
       Seq(
@@ -191,7 +193,8 @@ object DataSetEventFeed {
         "lockState" -> JsString(lockState),
         "lockedBy" -> JsString(lockedBy),
         "harvestingConfiguration" -> JsArray(harvestingConfiguration.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("accessType" -> JsString(f._2)))))),
-        "indexingSchema" -> JsString(indexingSchema)
+        "indexingSchema" -> JsString(indexingSchema),
+        "errorMessage" -> JsString(errorMessage.getOrElse(""))
       )
     )
   }

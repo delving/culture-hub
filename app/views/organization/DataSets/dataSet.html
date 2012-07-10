@@ -111,7 +111,7 @@
                 <div class="btn-group">
                     <button class="btn" data-loading-text="..." data-bind="css: { disabled: dataSetState() != 'disabled' }, click: function() { enable(spec); }">Enable</button>
                     <button class="btn" data-bind="css: { disabled: dataSetState() != 'enabled' }, click: function() { disable(spec); }">Disable</button>
-                    <button class="btn" data-bind="css: { disabled: dataSetState() != 'uploaded' && dataSetState() != 'enabled' && dataSetState() != 'disabled' }, click: function() { process(spec); }">Process</button>
+                    <button class="btn" data-bind="css: { disabled: dataSetState() != 'uploaded' && dataSetState() != 'enabled' && dataSetState() != 'disabled' && dataSetState() != 'error' }, click: function() { process(spec); }">Process</button>
                 </div>
                 <div class="btn-group">
                     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -163,7 +163,6 @@
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
-            errorMessage: ko.observable(''),
 
             stateToClass: function(state) {
                 return stateToClass(state);
@@ -253,9 +252,9 @@
                     viewModel.totalRecords(data.payload);
                     break;
                 case "stateChanged":
-                        console.log("state change");
-                        console.log(viewModel);
                     viewModel.dataSetState(data.payload);
+                    viewModel.progressPercentage('0%');
+                    viewModel.errorMessage('');
                     break;
                 case "locked":
                     viewModel.lockState("locked");
