@@ -1,13 +1,27 @@
 /**
+ * bootbox.js v2.3.1
+ *
  * The MIT License
  *
- * Copyright (C) 2011-2012 by Nick Payne nick@kurai.co.uk
+ * Copyright (C) 2011-2012 by Nick Payne <nick@kurai.co.uk>
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE
  */
 var bootbox = window.bootbox || (function() {
 
@@ -52,6 +66,11 @@ var bootbox = window.bootbox || (function() {
             OK      : 'OK',
             CANCEL  : 'Annuleren',
             CONFIRM : 'Accepteren'
+        },
+        'ru' : {
+            OK      : 'OK',
+            CANCEL  : 'Отмена',
+            CONFIRM : 'Применить'
         }
     };
 
@@ -194,6 +213,86 @@ var bootbox = window.bootbox || (function() {
                 }
             }
         }]);
+    }
+
+    that.prompt = function(/*str, labelCancel, labelOk, cb*/) {
+        var str         = "",
+            labelCancel = _translate('CANCEL'),
+            labelOk     = _translate('CONFIRM'),
+            cb          = null;
+
+        switch (arguments.length) {
+            case 1:
+                str = arguments[0];
+                break;
+            case 2:
+                str = arguments[0];
+                if (typeof arguments[1] == 'function') {
+                    cb = arguments[1];
+                } else {
+                    labelCancel = arguments[1];
+                }
+                break;
+            case 3:
+                str         = arguments[0];
+                labelCancel = arguments[1];
+                if (typeof arguments[2] == 'function') {
+                    cb = arguments[2];
+                } else {
+                    labelOk = arguments[2];
+                }
+                break;
+            case 4:
+                str         = arguments[0];
+                labelCancel = arguments[1];
+                labelOk     = arguments[2];
+                cb          = arguments[3];
+                break;
+            default:
+                throw new Error("Incorrect number of arguments: expected 1-4");
+                break;
+        }
+
+        var header = str;
+
+        // let's keep a reference to the form object for later
+        var form = $("<form></form>");
+        form.append("<input autocomplete=off type=text />");
+
+        var div = that.dialog(form, [{
+            "label": labelCancel,
+            "icon" : _icons.CANCEL,
+            "callback": function() {
+                if (typeof cb == 'function') {
+                    cb(null);
+                }
+            }
+        }, {
+            "label": labelOk,
+            "icon" : _icons.CONFIRM,
+            "callback": function() {
+                if (typeof cb == 'function') {
+                    cb(
+                        form.find("input[type=text]").val()
+                    );
+                }
+            }
+        }], {
+            "header": header
+        });
+
+        div.on("shown", function() {
+            form.find("input[type=text]").focus();
+
+            // ensure that submitting the form (e.g. with the enter key)
+            // replicates the behaviour of a normal prompt()
+            form.on("submit", function(e) {
+                e.preventDefault();
+                div.find(".btn-primary").click();
+            });
+        });
+
+        return div;
     }
 
     that.modal = function(/*str, label, options*/) {
@@ -367,13 +466,17 @@ var bootbox = window.bootbox || (function() {
 
         // wire up button handlers
         div.on('click', '.modal-footer a, a.close', function(e) {
-            e.preventDefault();
-            hideSource = 'button';
-            div.modal("hide");
-            var handler = $(this).data("handler");
-            var cb = callbacks[handler];
+            var handler   = $(this).data("handler"),
+                cb        = callbacks[handler],
+                hideModal = null;
+
             if (typeof cb == 'function') {
-                cb();
+                hideModal = cb();
+            }
+            if (hideModal !== false){
+                e.preventDefault();
+                hideSource = 'button';
+                div.modal("hide");
             }
         });
 

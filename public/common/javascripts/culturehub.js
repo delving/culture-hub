@@ -239,21 +239,21 @@ function bootboxConfirm( options ) {
                         document.location = options["success_url"];
                     }
                     if(typeof options["success_callback"] == 'function') {
-                        options["success_callback"].apply()
+                        options["success_callback"].apply();
                     }
                 },
                 error: function() {
                     if(typeof options["error_callback"] == 'function') {
-                        options["error_callback"].apply()
+                        options["error_callback"].apply();
                     }
                 }
             });
         } else {
             if(typeof options["cancel_callback"] == 'function') {
-                options["cancel_callback"].apply()
+                options["cancel_callback"].apply();
             }
         }
-    })
+    });
 }
 
 function confirmationDialog(elementId, onConfirm, message, title) {

@@ -388,14 +388,9 @@ dt, dd, li {
     overflow: hidden;;
 }
 
-/*.table-smaller {*/
-    /*font-size: smaller;*/
-/*}*/
-
-/*.table-smaller th,*/
-/*.table-smaller td {*/
-    /*padding: 2px 5px;*/
-/*}*/
+.table-stacked {
+    margin: 0;
+}
 
 /*---------------------------------
 	STATE-label and badges

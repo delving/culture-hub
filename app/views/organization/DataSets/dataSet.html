@@ -53,12 +53,12 @@
             </tbody>
         </table>
 
-        <table class="table table-condensed">
+        <table class="table table-condensed table-stacked">
             <caption>Processing configuration</caption>
             <thead>
             <tr>
                 <th>Output schema</th>
-                <th>Access rights</th>
+                <th>OAI-PMH Access rights</th>
             </tr>
             </thead>
             <tbody data-bind="foreach: harvestingConfiguration">
@@ -67,22 +67,26 @@
                 <td><span data-bind="text: accessType"></span></td>
             </tr>
             </tbody>
-            <tfoot>
-            <tr>
-                <td colspan="2">
-                #{if get('spec')}
-                    <a class="btn" href="/organizations/${orgId}/dataset/${get('spec')}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
-                #{/if}
-                </td>
-            </tr>
-            </tfoot>
         </table>
 
         <table class="table table-condensed">
-            <caption>Indexing and rendering schema</caption>
+            <thead>
             <tr>
-                <td><span data-bind="text: indexingSchema"></span></td>
+                <th>Indexing and rendering schema</th>
             </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><span class="label" data-bind="text: indexingSchema"></span></td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td>
+                    <a class="btn pull-right" href="/organizations/${orgId}/dataset/${get('spec')}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                </td>
+            </tr>
+            </tfoot>
         </table>
     </div>
 
@@ -92,7 +96,10 @@
 
         <!-- 2nd alert class (alert-...) determined by state of dataset -->
         <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
-            Dataset state: <strong data-bind="text: dataSetState"></strong>
+                Dataset state: <strong data-bind="text: dataSetState"></strong>
+            <!-- ko if: errorMessage().length > 0 -->
+                <p data-bind="text: errorMessage"></p>
+            <!-- /ko -->
         </div>
 
 
@@ -114,7 +121,7 @@
                     <ul class="dropdown-menu">
                         <li><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
                         <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
-                        <li><a href="#"><i class="icon icon-remove"></i> Delete</a></li>
+                        <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
                     </ul>
                 </div>
             </div>
@@ -126,6 +133,7 @@
                 </div>
                 <button class="btn" data-bind="css: { disabled: dataSetState() != 'processing' }, click: function() { cancel(spec); }">Cancel</button>
             </div>
+
         </div>
 
     </div>
@@ -153,7 +161,10 @@
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${dataSet.spec}');
 
         var viewModel = {
+
             progressPercentage: ko.observable('0%'),
+            errorMessage: ko.observable(''),
+
             stateToClass: function(state) {
                 return stateToClass(state);
             },
@@ -193,11 +204,26 @@
                 }));
             },
             resetHashes: function(spec) {
-                ws.send(JSON.stringify({
-                    eventType: 'resetHashesForSet',
-                    clientId: clientId,
-                    payload: '${dataSet.spec}'
-                }));
+                bootbox.confirm("Are you sure?", function(result) {
+                     if (result) {
+                        ws.send(JSON.stringify({
+                            eventType: 'resetHashesForSet',
+                            clientId: clientId,
+                            payload: '${dataSet.spec}'
+                        }));
+                     }
+                });
+            },
+            deleteSet: function(spec) {
+                bootbox.confirm("Are you sure?", function(result) {
+                    if (result) {
+                        ws.send(JSON.stringify({
+                            eventType: 'deleteSet',
+                            clientId: clientId,
+                            payload: '${dataSet.spec}'
+                        }));
+                    }
+                });
             }
         };
 
@@ -238,6 +264,9 @@
                 case "unlocked":
                     viewModel.lockState("unlocked");
                     viewModel.lockedBy("");
+                    break;
+                case "error":
+                    viewModel.errorMessage(data.payload);
                     break;
                 case "processedRecordCountChanged":
                     var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
