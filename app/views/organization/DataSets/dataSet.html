@@ -1,12 +1,12 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.dataset') + ' ' + dataSet.name + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
 
-#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
 
 <div class="row">
     <div class="span4">
@@ -77,13 +77,20 @@
             </thead>
             <tbody>
             <tr>
-                <td><span class="label" data-bind="text: indexingSchema"></span></td>
+                <td>
+                    <!-- ko if: indexingSchema().length > 0 -->
+                    <span class="label" data-bind="text: indexingSchema"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot: indexingSchema().length > 0 -->
+                    <span>No schema selected</span>
+                    <!-- /ko -->
+                </td>
             </tr>
             </tbody>
             <tfoot>
             <tr>
                 <td>
-                    <a class="btn pull-right" href="/organizations/${orgId}/dataset/${get('spec')}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                    <a class="btn pull-right" href="/organizations/${orgId}/dataset/${spec}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
                 </td>
             </tr>
             </tfoot>
@@ -169,27 +176,12 @@
 
     </div>
 </div>
-<div class="row">
-*{<div class="span12">}*
-        *{#{if canEdit}}*
-        *{<div class="well">}*
-            *{#{if get('spec')}}*
-            *{<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${get('spec')}/update">${messages.get('ui.label.edit')}</a>}*
-            *{#{/if}}*
-            *{<a class="btn btn-mini" href="/organizations/${orgId}/dataset">&{'organization.dataset.list'}</a>}*
-        *{</div>}*
-        *{#{/if}}*
-    *{</div>}*
-</div>
-
-
-
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
 
         var clientId = Math.floor(1 + 10001 * Math.random());
-        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${dataSet.spec}');
+        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
 
         var viewModel = {
 
@@ -202,35 +194,35 @@
                 ws.send(JSON.stringify({
                     eventType: 'enableSet',
                     clientId: clientId,
-                    payload: '${dataSet.spec}'
+                    payload: '${spec}'
                 }));
             },
             disable: function(spec) {
                 ws.send(JSON.stringify({
                     eventType: 'disableSet',
                     clientId: clientId,
-                    payload: '${dataSet.spec}'
+                    payload: '${spec}'
                 }));
             },
             process: function(spec) {
                 ws.send(JSON.stringify({
                     eventType: 'processSet',
                     clientId: clientId,
-                    payload: '${dataSet.spec}'
+                    payload: '${spec}'
                 }));
             },
             cancel: function(spec) {
                 ws.send(JSON.stringify({
                     eventType: 'cancelProcessSet',
                     clientId: clientId,
-                    payload: '${dataSet.spec}'
+                    payload: '${spec}'
                 }));
             },
             unlock: function(spec) {
                 ws.send(JSON.stringify({
                     eventType: 'unlockSet',
                     clientId: clientId,
-                    payload: '${dataSet.spec}'
+                    payload: '${spec}'
                 }));
             },
             resetHashes: function(spec) {
@@ -239,7 +231,7 @@
                         ws.send(JSON.stringify({
                             eventType: 'resetHashesForSet',
                             clientId: clientId,
-                            payload: '${dataSet.spec}'
+                            payload: '${spec}'
                         }));
                      }
                 });
@@ -252,7 +244,7 @@
                                 ws.send(JSON.stringify({
                                 eventType: 'deleteSet',
                                 clientId: clientId,
-                                payload: '${dataSet.spec}'
+                                payload: '${spec}'
                                 }));
                             }
                         });
@@ -262,18 +254,15 @@
         };
 
         ws.onopen = function() {
-            console.log("WebSockets connection opened");
             ws.send(JSON.stringify({
                 eventType: "sendSet",
                 clientId: clientId,
-                payload: '${dataSet.spec}'
+                payload: '${spec}'
             }));
         };
 
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
-            console.log(data);
-            console.log('onmessage');
             switch(data.eventType) {
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));
@@ -307,10 +296,6 @@
                     viewModel.progressPercentage(percentage + '%');
                     break;
             }
-        };
-
-        ws.onclose = function() {
-            console.log("WebSockets connection closed");
         };
 
     });

@@ -47,7 +47,7 @@
         <thead>
         <tr>
             <th class="sort">&{'thing.name'}</th>
-            <th class="sort">&{'thing.provider'}</th>
+            <th class="sort">&{'thing.organization'}</th>
             <th class="sort">&{'ui.label.nritems'}</th>
             <th class="sort">&{'ui.label.state'}</th>
             <th class="sort">&{'ui.label.availability'}</th>
@@ -98,10 +98,10 @@
                 </td>
                 <td>
                     <!-- ko if: lockState() == 'locked' -->
-                    LockedBy (<span data-bind="text: lockedBy"></span>)
+                    <span class="badge badge-info">&{'organization.dataset.locked'}</span> (<span data-bind="text: lockedBy"></span>)
                     <!-- /ko -->
                     <!-- ko if: lockState() == 'unlocked' -->
-                    <span class="badge badge-info">&{'dataset.lockstatus'}</span>
+                    <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>
                     <!-- /ko -->
                 </td>
                 <td>

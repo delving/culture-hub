@@ -541,9 +541,9 @@ object EventType {
   val SOURCE_RECORD_COUNT_CHANGED = EventType("sourceRecordCountChanged")
   val PROCESSED_RECORD_COUNT_CHANGED = EventType("processedRecordCountChanged")
 
-  // ~~~ see if this is not a particular kind of state change
-  val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
+  // ~~~ TODO: these are temporary events used as a workaround to not having a state model reflecting these transitions
   val SOURCE_UPLOADED = EventType("sourceUploaded")
+  val INVALID_RECORD_COUNT_CHANGED = EventType("invalidRecordCountChanged")
 
 }
 
@@ -559,9 +559,6 @@ object DataSetEvent {
   def Updated(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.UPDATED)
   def Removed(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.REMOVED)
 
-  def SourceUploaded(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.SOURCE_UPLOADED, None, Some(userName))
-  def InvalidRecordCountChanged(orgId: String, spec: String, prefix: String, count: Long) = DataSetEvent(orgId, spec, EventType.INVALID_RECORD_COUNT_CHANGED, Some(count.toString), None, true)
-
   def StateChanged(orgId: String, spec: String, state: DataSetState, userName: Option[String] = None) = DataSetEvent(orgId, spec, EventType.STATE_CHANGED, Some(state.name), userName, userName.isEmpty)
   def Error(orgId: String, spec: String, message: String, userName: Option[String] = None) = DataSetEvent(orgId, spec, EventType.ERROR, Some(message), userName, userName.isEmpty)
 
@@ -570,4 +567,9 @@ object DataSetEvent {
 
   def SourceRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.SOURCE_RECORD_COUNT_CHANGED, Some(count.toString), None, true, true)
   def ProcessedRecordCountChanged(orgId: String, spec: String, count: Long) = DataSetEvent(orgId, spec, EventType.PROCESSED_RECORD_COUNT_CHANGED, Some(count.toString), None, true, true)
+
+  // ~~~ TODO: these are temporary events used as a workaround to not having a state model reflecting these transitions
+  def SourceUploaded(orgId: String, spec: String, userName: String) = DataSetEvent(orgId, spec, EventType.SOURCE_UPLOADED, None, Some(userName))
+  def InvalidRecordCountChanged(orgId: String, spec: String, prefix: String, count: Long) = DataSetEvent(orgId, spec, EventType.INVALID_RECORD_COUNT_CHANGED, Some(count.toString), None, true)
+
 }

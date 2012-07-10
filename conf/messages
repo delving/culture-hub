@@ -26,6 +26,7 @@ ui.label.add=Add
 ui.label.addcomment=Add comment
 ui.label.administration=Administration
 ui.label.administratorOptions=Administrator options
+ui.label.availability=Availability
 ui.label.block=Block
 ui.label.browse=Browse
 ui.label.cancel=Cancel
@@ -160,8 +161,9 @@ thing.browse.of=Browse {0} of
 thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
+thing.provider=Provider
 
-thing.address=Adress
+thing.address=Address
 thing.postalCode=Postal code
 thing.place=Place
 thing.municipality=Municipality
@@ -548,6 +550,10 @@ organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this Dataset
 organization.dataset.save=Save Dataset
 organization.dataset.list=Dataset list
+
+organization.dataset.locked=Locked
+organization.dataset.unlocked=Locked
+
 organization.members=Members
 
 
