@@ -533,8 +533,11 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
+    val totalRecords = DataSetStatistics.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
+
     def onRecordInserted(count: Long) {
-      if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
+      if(count % modulo == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)

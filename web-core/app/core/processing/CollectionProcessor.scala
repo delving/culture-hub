@@ -72,7 +72,7 @@ class CollectionProcessor(collection: BaseXCollection,
                   val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
                   val recordIndex = (record \ "system" \ "index").text.toInt
 
-                  if (index % 100 == 0) updateCount(index)
+                  if (index % math.round(recordCount / 100) == 0) updateCount(index)
                   if (index % 2000 == 0) {
                     log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
                   }
