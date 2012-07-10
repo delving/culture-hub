@@ -321,6 +321,7 @@ class DataSetEventFeed extends Actor {
                     case DISABLED =>
                       DataSet.updateState(set, DataSetState.ENABLED, Some(userName))
                       send(s, ok)
+                    case _ => send(s, error("Cannot enable set that is not disabled"))
                   }
                 }
               }
@@ -363,6 +364,7 @@ class DataSetEventFeed extends Actor {
                           log.warn("Error while trying to remove cancelled set from index", t)
                           DataSet.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                       }
+                    case _ => send(s, error("Cannot cancel processing of a set that is not queued or processing"))
                   }
                 }
               }
@@ -392,6 +394,7 @@ class DataSetEventFeed extends Actor {
                     case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
                       DataSet.delete(set)
                       DataSetEvent ! DataSetEvent.Removed(orgId, spec, userName)
+                    case _ => send(s, error("Cannot delete set that is in use (i.e. processing, enabled, or parsing)"))
                   }
                 }
               }
@@ -473,7 +476,7 @@ class DataSetEventFeed extends Actor {
 
   def error(message: String) = JsObject(
     Seq(
-      "eventType" -> JsString("error"),
+      "eventType" -> JsString("serverError"),
       "error" -> JsString(message)
     )
   )

@@ -291,6 +291,9 @@
                     var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
                     viewModel.progressPercentage(percentage + '%');
                     break;
+                case "serverError":
+                    bootbox.alert(data.payload);
+                    break;
             }
         };
 
