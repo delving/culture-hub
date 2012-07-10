@@ -98,7 +98,7 @@
                 </td>
                 <td>
                     <!-- ko if: lockState() == 'locked' -->
-                    <span class="badge badge-info">&{'organization.dataset.locked'}</span> (<span data-bind="text: lockedBy"></span>)
+                    <span class="badge">&{'organization.dataset.lockedBy'} <span data-bind="text: lockedBy"></span></span>
                     <!-- /ko -->
                     <!-- ko if: lockState() == 'unlocked' -->
                     <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>

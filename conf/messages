@@ -552,6 +552,7 @@ organization.dataset.save=Save Dataset
 organization.dataset.list=Dataset list
 
 organization.dataset.locked=Locked
+organization.dataset.lockedBy=Locked by:
 organization.dataset.unlocked=Unlocked
 
 organization.members=Members
