@@ -92,6 +92,10 @@ object Global extends GlobalSettings {
       ProcessDataSets
     )
 
+    // DataSet housekeeping
+    val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
+    Akka.system.scheduler.schedule(20 seconds, 30 minutes, dataSetHousekeeper, CleanupTransientEvents)
+
     // token expiration
     val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
     Akka.system.scheduler.schedule(

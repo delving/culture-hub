@@ -25,5 +25,9 @@ object DataSetEventLog extends SalatDAO[DataSetEventLog, ObjectId](dataSetEventL
 
   def findRecent = find(MongoDBObject()).limit(50).$orderby(MongoDBObject("_id" -> -1)).toList
 
+  def removeTransient() {
+    remove(MongoDBObject("transientEvent" -> true))
+  }
+
 }
 
