@@ -153,6 +153,10 @@
                     $.each(data.payload, function(index, item) {
                         viewModel.sets.push(ko.mapping.fromJS(item));
                     });
+                    if ($.cookie("ds-filter")) {
+                        $.uiTableFilter($('#dataset-table'), $.cookie("ds-filter"));
+                        $('input#filter').val($.cookie("ds-filter"));
+                    }
                     break;
                 case "created":
                     viewModel.sets.push(ko.mapping.fromJS(data.payload));
@@ -197,6 +201,7 @@
         ko.applyBindings(viewModel);
 
         console.log($.cookie("ds-filter"));
+
     });
 
 </script>

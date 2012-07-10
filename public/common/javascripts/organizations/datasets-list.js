@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     $("#dataset-table").tablesorter();
 
-    var theTable = $('#dataset-table')
+    var theTable = $('#dataset-table');
 
     theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
         $(this).prev().find(":checkbox").click();
@@ -18,6 +18,13 @@ $(document).ready(function () {
             return false;
         }).focus(); //Give focus to input field
 
+    // Check to see if there is a filter cookie. If so filter the table
+    if ($.cookie("ds-filter")) {
+        $.uiTableFilter(theTable, $.cookie("ds-filter"));
+        $('input#filter').val($.cookie("ds-filter"));
+    }
+
+
     $('.badge-error').popover({
         placement: 'right'
     });
@@ -29,11 +36,7 @@ $(document).ready(function () {
         });
     });
 
-    // Check to see if there is a filter cookie. If so filter the table
-    if ($.cookie("ds-filter")) {
-        $.uiTableFilter(theTable, $.cookie("ds-filter"));
-        $('input#filter').val($.cookie("ds-filter"));
-    }
+
 
 });
 
