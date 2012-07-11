@@ -272,6 +272,8 @@ class DataSetEventFeed extends Actor {
               set => {
                 if(DataSet.canEdit(set, userName)) {
                   block(set)
+                } else {
+                  send(s, error("You don't have the right to do this!"))
                 }
               }
             }.getOrElse {
@@ -298,10 +300,11 @@ class DataSetEventFeed extends Actor {
               val msg = DataSet.findBySpecAndOrgId(spec, orgId).map {
                 ds => {
                   val set: DataSetViewModel = ds
+                  val payload = set.toJson ++ JsObject(Seq("cannotEdit" -> JsBoolean(!DataSet.canEdit(ds, userName))))
                   JsObject(
                     Seq(
                       "eventType" -> JsString("loadSet"),
-                      "payload" -> set.toJson
+                      "payload" -> payload
                     )
                   )
                 }
@@ -487,7 +490,7 @@ class DataSetEventFeed extends Actor {
   def error(message: String) = JsObject(
     Seq(
       "eventType" -> JsString("serverError"),
-      "error" -> JsString(message)
+      "payload" -> JsString(message)
     )
   )
 
