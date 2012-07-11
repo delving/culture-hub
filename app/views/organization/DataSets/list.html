@@ -92,7 +92,7 @@
                 </td>
                 <td>
                     #{if isAdmin}
-                        <a data-bind="href: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }">
+                        <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }">
                             <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
                         </a>
                     #{/if}
