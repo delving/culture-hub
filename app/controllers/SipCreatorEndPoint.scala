@@ -536,7 +536,7 @@ object SipCreatorEndPoint extends ApplicationController {
     val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
 
     def onRecordInserted(count: Long) {
-      if(count % modulo == 0) DataSet.updateRecordCount(dataSet, count)
+      if(count % (if(modulo == 0) 100 else modulo) == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
