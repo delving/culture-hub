@@ -88,6 +88,14 @@ dt, dd, li {
     float: left;
 }
 
+/* main search button */
+
+.navbar-search .submit {
+    padding: 3px 9px;
+    margin: 5px 5px 6px 2px;
+}
+
+
 /* dialogs */
 
 /* labels and comments dialogue*/
@@ -224,6 +232,7 @@ dt, dd, li {
 
 .thing-container {
     margin-bottom: 11px;
+    position: relative;
 }
 
 .thing-container.no-image {
@@ -238,6 +247,10 @@ dt, dd, li {
     padding: 2px 6px;
     margin: 0;
     text-shadow: 1px 2px 3px #666;
+    /*position: absolute;*/
+    /*top: 0px;*/
+    /*right: 0px;*/
+    /*opacity: .8;*/
 }
 
 .thing-container .title {
@@ -353,7 +366,7 @@ dt, dd, li {
 .table caption {
     color: #888;
     font-weight: bold;
-    padding: 0 0 8px 8px;
+    padding: 4px 0 4px 0;
     text-align: left;
     text-transform: uppercase;
 }
@@ -373,11 +386,180 @@ dt, dd, li {
     background: #f1f1f1  url(/assets/common/images/sortable-desc.gif) 0% 50%  no-repeat;
 }
 
+.table-wrap td span {
+    display: block;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -webkit-text-overflow: ellipsis;
+    width: 160px;
+    white-space: pre-wrap;
+    overflow: hidden;;
+}
+
+.table-stacked {
+    margin: 0;
+}
+
+.table-clean th, .table-clean td {
+    border: none;
+}
+
+
+/*---------------------------------
+	STATE-label and badges
+-----------------------------------*/
+
+/* ENABLED */
+
+.label-enabled,
+.badge-enabled {
+    background-color: #468847;
+}
+.label-enabled[href],
+.badge-enabled[href] {
+    background-color: #356635;
+}
+
+
+.alert-enabled {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #468847;
+}
+
+/* DISABLED */
+
+.label-disabled,
+.badge-disabled {
+    background-color: #999;
+}
+.label-disabled[href],
+.badge-disabled[href] {
+    background-color: #999;
+}
+
+.alert-disabled {
+    background-color: #eaeaea;
+    border-color: #ccc;
+    color: #888;
+}
+
+/* ERROR */
+
+.label-error,
+.badge-error {
+    background-color: #b22222;
+}
+
+.label-error[href],
+.badge-error[href] {
+    background-color: #711616;
+}
+
+/* PARSING */
+
+.label-parsing,
+.badge-parsing {
+    background-color: #808000;
+}
+.label-parsing[href],
+.badge-parsing[href] {
+    background-color: #808000;
+}
+
+.alert-parsing {
+    background-color: #ebecca;
+    border-color: #dcddbb;
+    color: #808000;
+}
+
+/* UPLOADED */
+
+.label-uploaded,
+.badge-uploaded {
+    background-color: #C35817;
+}
+.label-uploaded[href],
+.badge-uploaded[href] {
+    background-color: #C35817;
+}
+
+.alert-uploaded {
+    background-color: #F2D7C7;
+    border-color: #d9beaf;
+    color: #C35817;
+}
+
+/* QUEUED */
+
+.label-queued,
+.badge-queued {
+    background-color: #FF9900;
+}
+.label-queued[href],
+.badge-queued[href] {
+    background-color: #FF9900;
+}
+
+.alert-queued {
+    background-color: #ffefce;
+    border-color: #ffeabb;
+    color: #e88400;
+}
+
+/* PROCESSING */
+
+.label-processing,
+.badge-processing {
+    background-color: #3a87ad;
+}
+
+.label-processing[href],
+.badge-processing[href] {
+    background-color: #3a87ad;
+}
+
+.alert-processing {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #3a87ad;
+}
+
+/* INCOMPLETE */
+
+.label-incomplete,
+.badge-incomplete {
+    background-color: #aaaaa0;
+}
+
+.label-incomplete[href],
+.badge-incomplete[href] {
+    background-color: #aaaaa0;
+}
+
+.alert-incomplete {
+    background-color: #ddddd0;
+    border-color: #bbbbb0;
+    color: #666;
+}
+
 /* addThis widgets */
 
 .addthis_toolbox {
     display: inline-block;
     float: left;
+}
+
+.panel {
+padding: 8px 35px 8px 14px;
+    margin-bottom: 18px;
+    /*text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);*/
+    background-color: #fcf8e3;
+    border: 1px solid #fbeed5;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    /*color: #c09853;*/
 }
 
 /*---------------------------------
@@ -450,6 +632,22 @@ form label.radio {
 .char-count-over-limit {
     background-color: #cc3300 !important;
 }
+
+.dl-inline dt {
+    float: left;
+    clear: left;
+    /*text-align: left;*/
+    /*overflow: hidden;*/
+    /*text-overflow: ellipsis;*/
+    white-space: nowrap;
+}
+.dl-inline dd {
+    margin-left: 5px;
+    /*padding-left: 11px;*/
+    float: left;
+    clear: right;
+}
+
 
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
@@ -525,4 +723,10 @@ form label.radio {
 
 #instructions .accordion-body {
     background: #fffff0;
+}
+
+/* bootstrap dropdown disabled state */
+
+.dropdown-menu.disabled {
+    display: none;
 }

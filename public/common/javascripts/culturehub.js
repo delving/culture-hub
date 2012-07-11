@@ -239,21 +239,21 @@ function bootboxConfirm( options ) {
                         document.location = options["success_url"];
                     }
                     if(typeof options["success_callback"] == 'function') {
-                        options["success_callback"].apply()
+                        options["success_callback"].apply();
                     }
                 },
                 error: function() {
                     if(typeof options["error_callback"] == 'function') {
-                        options["error_callback"].apply()
+                        options["error_callback"].apply();
                     }
                 }
             });
         } else {
             if(typeof options["cancel_callback"] == 'function') {
-                options["cancel_callback"].apply()
+                options["cancel_callback"].apply();
             }
         }
-    })
+    });
 }
 
 function confirmationDialog(elementId, onConfirm, message, title) {
@@ -679,39 +679,6 @@ function checkSimpleSearchSubmit(oId){
 
     return true;
 }
-
-$(document).ready(function() {
-
-//    // Toggle the dropdown menu's
-//    $(".dropdown .button, .dropdown button").click(function () {
-//        if (!$(this).find('span.toggle').hasClass('active')) {
-//            $('.dropdown-slider').slideUp();
-//            $('span.toggle').removeClass('active');
-//        }
-//
-//    // open selected dropown
-//        $(this).parent().find('.dropdown-slider').slideToggle('fast');
-//        $(this).find('span.toggle').toggleClass('active');
-//
-//        return false;
-//    });
-//
-//    // Launch TipTip tooltip
-//    $('.tiptip a.button, .tiptip button').tipTip();
-//
-//    $('select.link').change(function(){
-//       window.location.href=$(this).attr('value');
-//    });
-
-});
-
-// Close open dropdown slider by clicking elsewhwere on page
-//$(document).bind('click', function (e) {
-//    if (e.target.id != $('.dropdown').attr('class')) {
-//        $('.dropdown-slider').slideUp();
-//        $('span.toggle').removeClass('active');
-//    }
-//});
 
 
 /**

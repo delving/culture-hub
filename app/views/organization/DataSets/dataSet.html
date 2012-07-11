@@ -1,35 +1,364 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.dataset') + ' ' + dataSet.name + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
+#{/set}
+
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
 
 <div class="row">
-    <div class="span6">
-        <dl class="dl dl-horizontal">
-            <dt>&{'thing.creator'}</dt><dd>${dataSet.userName}</dd>
-            #{list facts, as: 'facet'}
-                <dt>${facet.prompt()}</dt><dd>${facet.value()}</dd>
-                #{if facet.prompt() == 'Data Set Spec'}#{set 'spec'}${facet.value()}#{/set}#{/if}
-            #{/list}
-        </dl>
+    <div class="span4">
+
+        <table class="table table-condensed table-wrap">
+            <caption>Basic information</caption>
+            <tbody>
+                <tr>
+                    <th width="100">&{'thing.creator'}</th>
+                    <td><span data-bind="text: creator"></span></td>
+                </tr>
+                <tr>
+                    <th>Spec (Identifier)</th>
+                    <td><span data-bind="text: spec"></span></td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td data-bind="text: name"></td>
+                </tr>
+                <tr>
+                    <th>Language</th>
+                    <td data-bind="text: information.language"></td>
+                </tr>
+                <tr>
+                    <th>Country</th>
+                    <td data-bind="text: information.country"></td>
+                </tr>
+                <tr>
+                    <th>Provider</th>
+                    <td data-bind="text: nodeName"></td>
+                </tr>
+                <tr>
+                    <th>Data Provider</th>
+                    <td data-bind="text: information.dataProvider"></td>
+                </tr>
+                <tr>
+                    <th>Rights</th>
+                    <td><span data-bind="text: information.rights, attr: {title: information.rights}"></span></td>
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    <td data-bind="text: information.type"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-condensed table-stacked">
+            <caption>Processing configuration</caption>
+            <thead>
+            <tr>
+                <th>Output schema</th>
+                <th>OAI-PMH Access rights</th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: harvestingConfiguration">
+            <tr>
+                <td><span class="label" data-bind="text: schema"></span></td>
+                <td><span data-bind="text: accessType"></span></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Indexing and rendering schema</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <!-- ko if: indexingSchema().length > 0 -->
+                    <span class="label" data-bind="text: indexingSchema"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot: indexingSchema().length > 0 -->
+                    <span>No schema selected</span>
+                    <!-- /ko -->
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="span6">
-        #{if canEdit}
-        <div class="well">
-            #{if get('spec')}
-            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/dataset/${get('spec')}/update">${messages.get('ui.label.edit')}</a>
-            #{/if}
-            <a class="btn btn-mini" href="/organizations/${orgId}/dataset">&{'organization.dataset.list'}</a>
+
+
+    <div class="span8">
+
+        <div data-bind="template: { name: 'statusInformation' }"></div>
+
+        <h4>Dataset actions</h4>
+        <div class="">
+
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                    <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'disabled') }, click: function() { enable(spec); }">Enable</button>
+                    <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'enabled') }, click: function() { disable(spec); }">Disable</button>
+                    <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'uploaded' && dataSetState() != 'enabled' && dataSetState() != 'disabled' && dataSetState() != 'error') }, click: function() { process(spec); }">Process</button>
+                </div>
+                <div class="btn-group">
+                    <a class="btn dropdown-toggle"  data-bind="css: { disabled: cannotEdit | (dataSetState() != 'disabled') }" data-toggle="dropdown" href="#">
+                        Expert actions
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'disabled') }">
+                        <li><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
+                        <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
+                        <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group pull-right">
+                    <a data-bind="css: { disabled: cannotEdit }" class="btn" href="/organizations/${orgId}/dataset/${spec}/update"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                </div>
+            </div>
         </div>
-        #{/if}
+
+        <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
+
+            <p>Dataset state: <strong data-bind="text: dataSetState"></strong></p>
+
+            <!-- ko if: errorMessage().length > 0 -->
+            <p data-bind="text: errorMessage"></p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'incomplete' -->
+            <p>The DataSet has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'parsing' -->
+            <p>The source data sent via the SIP-Creator is currently being parsed and stored into BaseX.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'uploaded' -->
+            <p>The DataSet is uploaded and ready to be processed.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'queued' -->
+            <p>The DataSet is queued and waiting to be processed.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'processing' -->
+            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
+            <div>
+                <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
+                    <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
+                </div>
+                <button class="btn" data-bind="css: { disabled: dataSetState() != 'processing' }, click: function() { cancel(spec); }">Cancel</button>
+            </div>
+
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'cancelled' -->
+            <p>The processing of this set was cancelled by the user.</p>
+            <!-- /ko -->
+
+            <!-- ko if: dataSetState() == 'enabled' -->
+            <p>The DataSet is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <!-- /ko -->
+
+        </div>
+
+
+        <div class="accordion" id="useful-links">
+            <div class="accordion-group">
+                <div class="accordion-heading  clearfix">
+                    <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="useful-links" data-toggle="collapse">
+                        <i class="icon icon-check"></i> Check your data
+                    </a>
+                </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <table class="table table-clean ">
+                            <tbody>
+                            <tr>
+                                <th>CultureHub search</th>
+                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
+                            </tr>
+                            <tr>
+                                <th>Search API</th>
+                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*', attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*' }"></a></td>
+                            </tr>
+                            <!-- ko foreach: harvestingConfiguration -->
+                            <tr>
+                                <th>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></th>
+                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }"></a></td>
+                            </tr>
+                            <!-- /ko -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>
 
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
 
 
 
+        var clientId = Math.floor(1 + 10001 * Math.random());
+        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
 
+        var viewModel = {
+
+            progressPercentage: ko.observable('0%'),
+            baseUri: ko.observable("http://" + location.host + "/"),
+
+            stateToClass: function(state) {
+                return stateToClass(state);
+            },
+            enable: function(spec) {
+                ws.send(JSON.stringify({
+                    eventType: 'enableSet',
+                    clientId: clientId,
+                    payload: '${spec}'
+                }));
+            },
+            disable: function(spec) {
+                ws.send(JSON.stringify({
+                    eventType: 'disableSet',
+                    clientId: clientId,
+                    payload: '${spec}'
+                }));
+            },
+            process: function(spec) {
+                ws.send(JSON.stringify({
+                    eventType: 'processSet',
+                    clientId: clientId,
+                    payload: '${spec}'
+                }));
+            },
+            cancel: function(spec) {
+                ws.send(JSON.stringify({
+                    eventType: 'cancelProcessSet',
+                    clientId: clientId,
+                    payload: '${spec}'
+                }));
+            },
+            unlock: function(spec) {
+                ws.send(JSON.stringify({
+                    eventType: 'unlockSet',
+                    clientId: clientId,
+                    payload: '${spec}'
+                }));
+            },
+            resetHashes: function(spec) {
+                bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
+                     if (result) {
+                        ws.send(JSON.stringify({
+                            eventType: 'resetHashesForSet',
+                            clientId: clientId,
+                            payload: '${spec}'
+                        }));
+                     }
+                });
+            },
+            deleteSet: function(spec) {
+                bootbox.confirm("<h4>Delete</h4><p>Are you sure?</p><p>This will remove the dataset definition and all data. This action cannot be undone.</p>", function(result) {
+                    if (result) {
+                        bootbox.confirm("<h4>Delete</h4><p>Are you absolutely sure?</p>", function(result){
+                            if (result) {
+                                ws.send(JSON.stringify({
+                                eventType: 'deleteSet',
+                                clientId: clientId,
+                                payload: '${spec}'
+                                }));
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        ws.onopen = function() {
+            ws.send(JSON.stringify({
+                eventType: "sendSet",
+                clientId: clientId,
+                payload: '${spec}'
+            }));
+        };
+
+        ws.onmessage = function(evt) {
+            var data = $.parseJSON(evt.data);
+            console.log(data)
+            switch(data.eventType) {
+                case "loadSet":
+                    $.extend(viewModel, ko.mapping.fromJS(data.payload));
+                    ko.applyBindings(viewModel);
+                    break;
+                case "updated":
+                    break;
+                case "removed":
+                    break;
+                case "sourceRecordCountChanged":
+                    viewModel.totalRecords(data.payload);
+                    break;
+                case "stateChanged":
+                    viewModel.dataSetState(data.payload);
+                    viewModel.progressPercentage('0%');
+                    viewModel.errorMessage('');
+                    break;
+                case "locked":
+                    viewModel.lockState("locked");
+                    viewModel.lockedBy(data.payload);
+                    break;
+                case "unlocked":
+                    viewModel.lockState("unlocked");
+                    viewModel.lockedBy("");
+                    break;
+                case "error":
+                    viewModel.errorMessage(data.payload);
+                    break;
+                case "processedRecordCountChanged":
+                    var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
+                    viewModel.progressPercentage(percentage + '%');
+                    break;
+                case "serverError":
+                    bootbox.alert(data.payload);
+                    break;
+            }
+        };
+
+    });
+
+</script>
+<script type="text/html" id="statusInformation">
+    <table class="table table-condensed">
+        <caption>Status information</caption>
+        <thead>
+        <tr>
+            <th>State</th>
+            <th>Total records</th>
+            {{each validRecords}}
+            <th>Valid <span class="label" data-bind="text: schema"></span></th>
+            {{/each}}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="badge" data-bind="text: dataSetState, attr: { class: 'badge badge-' + stateToClass(dataSetState()) } "></span></td>
+            <td><span data-bind="text: totalRecords"></span></td>
+            {{each validRecords}}
+            <td><span data-bind="text: valid"></span></td>
+            {{/each}}
+        </tr>
+        </tbody>
+    </table>
+</script>
 

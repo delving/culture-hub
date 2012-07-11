@@ -7,8 +7,10 @@ import actors._
 import akka.actor.SupervisorStrategy.Restart
 import akka.routing.RoundRobinRouter
 import controllers.ReceiveSource
+import core.indexing.IndexingService
 import core.{CultureHubPlugin, HubServices}
 import java.io.File
+import models.{DataSetState, DataSet}
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
@@ -70,15 +72,16 @@ object Global extends GlobalSettings {
       case None =>
         Logger("CultureHub").error("No cultureHub.organization configured!")
         System.exit(-1)
-  }
+    }
 
-    val dataSetParser = Akka.system.actorOf(Props[ReceiveSource].withRouter(
+    // ~~~ bootstrap jobs
+
+    // DataSet source parsing
+    Akka.system.actorOf(Props[ReceiveSource].withRouter(
       RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
         case _ => Restart
       })
     ), name = "dataSetParser")
-
-    // ~~~ bootstrap jobs
 
     // DataSet indexing
     val indexer = Akka.system.actorOf(Props[Processor])
@@ -88,6 +91,10 @@ object Global extends GlobalSettings {
       indexer,
       ProcessDataSets
     )
+
+    // DataSet housekeeping
+    val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
+    Akka.system.scheduler.schedule(20 seconds, 30 minutes, dataSetHousekeeper, CleanupTransientEvents)
 
     // token expiration
     val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
@@ -150,7 +157,20 @@ object Global extends GlobalSettings {
 //    )
 
 
+    // ~~~ cleanup set states
+    // TODO move to appropriate component initialization
 
+    DataSet.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+      set =>
+        DataSet.updateState(set, DataSetState.CANCELLED)
+        try {
+          IndexingService.deleteBySpec(set.orgId, set.spec)
+        } catch {
+          case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+        } finally {
+          DataSet.updateState(set, DataSetState.UPLOADED)
+        }
+    }
 
     // ~~~ load test data
 
@@ -166,6 +186,15 @@ object Global extends GlobalSettings {
     import models.mongoContext._
     close()
     }
+
+    // TODO move to component initialization
+    // cleanly cancel all active processing
+    DataSet.findByState(DataSetState.PROCESSING).foreach {
+      set =>
+        DataSet.updateState(set, DataSetState.CANCELLED)
+    }
+    Thread.sleep(2000)
+
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {

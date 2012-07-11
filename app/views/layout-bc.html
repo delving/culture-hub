@@ -6,11 +6,12 @@
                 <div class="nav-collapse">
                     <a class="brand" href="/">Brabant Cloud</a>
                 #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin')/}
-                    <form method="get" action="/search" class="navbar-search pull-right" id="simple-search"
+                    <form method="get" action="/search" class="navbar-search pull-right form-horizontal" id="simple-search"
                           onsubmit="return checkSimpleSearchSubmit('query');">
                         <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query"
                                name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'
-                               rel="tooltip" title="&{'ui.label.search.help'}"/>
+                               />
+                        <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
                     </form>
                 </div>
             </div>

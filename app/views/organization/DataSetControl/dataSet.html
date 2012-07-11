@@ -86,10 +86,10 @@
                     </div>
                     <div class="span6">
                         <div class="control-group">
-                            <label class="control-label">Target Record Definitions</label>
+                            <label class="control-label">Target Schemas</label>
                             <div class="controls">
                                 <table class="table">
-                                <thead><th width="150">Record Definition</th><th>OAI-PMH Access</th></thead>
+                                <thead><th width="150">Schema</th><th>OAI-PMH Access</th></thead>
                                 <tbody>
                                 #{list recordDefinitions, as: 'recordDef'}
                             <tr>
@@ -138,7 +138,9 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var dataSetModel = {};
+        var dataSetModel = {
+            indexingMappingPrefix: ko.observable("")
+        };
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
