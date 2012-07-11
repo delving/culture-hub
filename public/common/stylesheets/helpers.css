@@ -400,6 +400,11 @@ dt, dd, li {
     margin: 0;
 }
 
+.table-clean th, .table-clean td {
+    border: none;
+}
+
+
 /*---------------------------------
 	STATE-label and badges
 -----------------------------------*/

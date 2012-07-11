@@ -1,10 +1,16 @@
 #{extends themeInfo.get('themeLayout') /}
 
 #{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
+#{/set}
+
 #{set bodyId: 'organization' /}
 #{breadcrumbs /}
 
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
+
 
 #{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
 
@@ -165,37 +171,47 @@
             <!-- /ko -->
 
         </div>
+
+
+        <div class="accordion" id="useful-links">
+            <div class="accordion-group">
+                <div class="accordion-heading  clearfix">
+                    <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="useful-links" data-toggle="collapse">
+                        Check your data
+                    </a>
+                </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <table class="table table-clean ">
+                            *{<thead>}*
+                            *{<tr>}*
+                                *{<th>Name</th>}*
+                                *{<th>URL</th>}*
+                            *{</tr>}*
+                            *{</thead>}*
+                            <tbody>
+                            <tr>
+                                <th>CultureHub search</th>
+                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
+                            </tr>
+                            <tr>
+                                <th>Search API</th>
+                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*', attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*' }"></a></td>
+                            </tr>
+                            <!-- ko foreach: harvestingConfiguration -->
+                            <tr>
+                                <th>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></th>
+                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }"></a></td>
+                            </tr>
+                            <!-- /ko -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <div class="span12">
-        <table class="table table-condensed table-stacked">
-            <caption>Useful links</caption>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>URL</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>CultureHub search</td>
-                    <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
-                </tr>
-                <tr>
-                    <td>Search API</td>
-                    <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*', attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*' }"></a></td>
-                </tr>
-                <!-- ko foreach: harvestingConfiguration -->
-                <tr>
-                    <td>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></td>
-                    <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }"></a></td>
-                </tr>
-                <!-- /ko -->
-            </tbody>
-        </table>
-
-    </div>
-
 
 </div>
 
