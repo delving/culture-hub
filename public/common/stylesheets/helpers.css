@@ -247,10 +247,10 @@ dt, dd, li {
     padding: 2px 6px;
     margin: 0;
     text-shadow: 1px 2px 3px #666;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    opacity: .8;
+    /*position: absolute;*/
+    /*top: 0px;*/
+    /*right: 0px;*/
+    /*opacity: .8;*/
 }
 
 .thing-container .title {
