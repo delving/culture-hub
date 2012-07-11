@@ -1,3 +1,4 @@
+#{set 'visibility'}hidden#{/}
 #{extends themeInfo.get('themeLayout') /}
 
 #{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
@@ -301,6 +302,7 @@
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));
                     ko.applyBindings(viewModel);
+                    $("body").css('visibility', 'visible');
                     break;
                 case "updated":
                     break;
