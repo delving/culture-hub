@@ -74,18 +74,7 @@ object DataSetEventFeed {
 
 
   lazy val default = {
-
-    val feed = Akka.system.actorOf(Props[DataSetEventFeed])
-
-    // since we're in a multi-node environment we can only but poll the db for updates
-    Akka.system.scheduler.schedule(
-      2 seconds,
-      1 seconds,
-      feed,
-      Update
-    )
-
-    feed
+    Akka.system.actorOf(Props[DataSetEventFeed])
   }
 
   def subscribe(orgId: String, clientId: String, userName: String, theme: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
@@ -131,6 +120,8 @@ object DataSetEventFeed {
   case class Connected(enumerator: PushEnumerator[JsValue])
   case class CannotConnect(msg: String)
 
+  case object StartPolling
+  case object StopPolling
   case object Update
 
   case class ClientMessage(message: JsValue)
@@ -224,6 +215,8 @@ class DataSetEventFeed extends Actor {
 
   val log = Logger(getClass)
 
+  var pollScheduler: Cancellable = null
+
   implicit val timeout = Timeout(1 second)
 
   val LIST_FEED_EVENTS = Seq(EventType.CREATED, EventType.UPDATED, EventType.REMOVED, EventType.STATE_CHANGED, EventType.LOCKED, EventType.UNLOCKED)
@@ -243,13 +236,21 @@ class DataSetEventFeed extends Actor {
         log.warn("Duplicate clientId connection attempt from " + clientId)
         sender ! CannotConnect("This clientId is already used")
       } else {
+        if(subscribers.isEmpty) {
+         // if there was no subscriber before, start the polling
+         self ! StartPolling
+        }
         subscribers = subscribers + (clientId -> Subscriber(orgId, userName, theme, spec, channel))
         sender ! Connected(channel)
       }
+
     }
 
     case Unsubscribe(clientId) =>
       subscribers = subscribers - clientId
+      if(subscribers.isEmpty) {
+        self ! StopPolling
+      }
 
     case ClientMessage(message) =>
       log.debug("Received message from client: " + message.toString)
@@ -407,6 +408,15 @@ class DataSetEventFeed extends Actor {
           }
         }
       }
+
+    case StartPolling =>
+      // since we're in a multi-node environment we can only but poll the db for updates
+      pollScheduler = Akka.system.scheduler.schedule(0 seconds, 1 seconds, DataSetEventFeed.default, Update)
+      log.debug("Started periodical polling of database for new DataSetEvents, polling every second")
+
+    case StopPolling =>
+      pollScheduler.cancel()
+      log.debug("Stopped periodical polling of database for new DataSetEvents")
 
     case Update =>
       val recentEvents = DataSetEventLog.findRecent.filter(r => r._id.getTime > lastSeen)
