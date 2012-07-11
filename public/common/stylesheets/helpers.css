@@ -724,3 +724,9 @@ form label.radio {
 #instructions .accordion-body {
     background: #fffff0;
 }
+
+/* bootstrap dropdown disabled state */
+
+.dropdown-menu.disabled {
+    display: none;
+}
