@@ -205,6 +205,9 @@ object SipCreatorEndPoint extends ApplicationController {
             Error(msg)
           } else if(request.contentType == None) {
             BadRequest("Request has no content type")
+          } else if(!DataSet.canEdit(dataSet.get, connectedUser)) {
+            log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.get.spec))
+            Forbidden("You are not allowed to modify this DataSet")
           } else {
             val inputStream = if (request.contentType == Some("application/x-gzip")) new GZIPInputStream(new FileInputStream(request.body.file)) else new FileInputStream(request.body.file)
 
@@ -216,7 +219,7 @@ object SipCreatorEndPoint extends ApplicationController {
                   Left("%s: Cannot upload source while the set is being processed".format(spec))
                 } else {
                   val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                  receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
+                  receiveActor ! SourceStream(dataSet.get, connectedUser, theme, inputStream, request.body)
                   DataSet.updateState(dataSet.get, DataSetState.PARSING)
                   Right("Received it")
                 }
@@ -256,10 +259,6 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
-    if (!DataSet.canEdit(dataSet, connectedUser)) {
-      log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
-      throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
-    }
     DataSet.updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }
@@ -533,8 +532,11 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
+    val totalRecords = DataSetStatistics.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
+
     def onRecordInserted(count: Long) {
-      if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
+      if(count % modulo == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
@@ -547,14 +549,14 @@ class ReceiveSource extends Actor {
   var tempFileRef: TemporaryFile = null
 
   protected def receive = {
-    case SourceStream(dataSet, theme, inputStream, tempFile) =>
+    case SourceStream(dataSet, userName, theme, inputStream, tempFile) =>
       val now = System.currentTimeMillis()
 
       // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, theme, inputStream) match {
+        receiveSource(dataSet, userName, theme, inputStream) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -569,7 +571,7 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.updateState(dataSet, DataSetState.ERROR, message)
+            DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
             ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
           case Right(inserted) =>
@@ -581,19 +583,19 @@ class ReceiveSource extends Actor {
         case t =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
           DataSet.invalidateHashes(dataSet)
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
 
       } finally {
         tempFileRef = null
       }
   }
 
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
       DataSet.updateRecordCount(dataSet, uploadedRecords)
-      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      DataSet.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)
     } catch {
       case t => return Left(t)
@@ -603,4 +605,4 @@ class ReceiveSource extends Actor {
 
 }
 
-case class SourceStream(dataSet: DataSet, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)
+case class SourceStream(dataSet: DataSet, userName: String, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)

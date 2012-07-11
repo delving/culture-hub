@@ -91,7 +91,7 @@ object DataSetCollectionProcessor {
       DataSet.updateIndexingCount(dataSet, count)
     }
     def onError(t: Throwable) {
-      DataSet.updateState(dataSet, DataSetState.ERROR, Some(t.getMessage))
+      DataSet.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
     def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
 
@@ -126,8 +126,11 @@ object DataSetCollectionProcessor {
 
     DataSet.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
-    if(DataSet.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
+    val state = DataSet.getState(dataSet.orgId, dataSet.spec)
+    if(state == DataSetState.PROCESSING) {
       DataSet.updateState(dataSet, DataSetState.ENABLED)
+    } else if(state == DataSetState.CANCELLED) {
+      DataSet.updateState(dataSet, DataSetState.UPLOADED)
     }
   }
 

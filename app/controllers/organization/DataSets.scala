@@ -1,12 +1,17 @@
 package controllers.organization
 
-import play.api.mvc.Action
+import play.api.mvc.{WebSocket, Action}
 import models.DataSet
 import collection.JavaConverters._
 import play.api.i18n.Messages
 import com.mongodb.casbah.commons.MongoDBObject
 import controllers.{Token, Fact, ShortDataSet, OrganizationController}
 import java.util.regex.Pattern
+import play.api.libs.json.{JsString, JsValue}
+import core.DataSetEventFeed
+import play.api.libs.concurrent.Promise
+import play.api.libs.iteratee.{Enumerator, Done, Input, Iteratee}
+import util.ThemeHandler
 
 /**
  *
@@ -18,9 +23,7 @@ object DataSets extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSetsPage = DataSet.findAllCanSee(orgId, userName)
-        val items: List[ShortDataSet] = dataSetsPage
-        Ok(Template('title -> listPageTitle("dataset"), 'items -> items.sortBy(_.spec), 'count -> dataSetsPage.size))
+        Ok(Template('title -> listPageTitle("dataset")))
     }
   }
 
@@ -35,10 +38,20 @@ object DataSets extends OrganizationController {
           if (!DataSet.canView(ds, userName)) {
             NotFound(Messages("datasets.dataSetNotFound", ds.spec))
           } else {
-            val describedFacts = DataSet.factDefinitionList.map(factDef => Fact(factDef.name, factDef.prompt, Option(ds.details.facts.get(factDef.name)).getOrElse("").toString))
-            Ok(Template('dataSet -> ds, 'canEdit -> DataSet.canEdit(ds, userName), 'facts -> describedFacts.asJava))
+            Ok(Template('spec -> ds.spec))
           }
         }
+    }
+  }
+
+  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request  =>
+    if(request.session.get("userName").isDefined) {
+      val portalTheme = ThemeHandler.getByDomain(request.domain)
+      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, portalTheme.name, spec)
+    } else {
+      // return a fake pair
+      // TODO perhaps a better way here ?
+      Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Enumerator.imperative()))
     }
   }
 

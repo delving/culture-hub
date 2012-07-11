@@ -9,8 +9,9 @@
                 <div class="container"  id="top-nav">
                 #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin')/}
                 <div class="nav-collapse">
-                    <form method="get" action="/search" class="navbar-search pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                    <form method="get" action="/search" class="navbar-search pull-right form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                         <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                        <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
                     </form>
                 </div>
                 </div>
