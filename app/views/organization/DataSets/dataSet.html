@@ -146,7 +146,7 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'processing' -->
-            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed in SOLR.</p>
+            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
             <div>
                 <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
                     <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
@@ -166,6 +166,37 @@
 
         </div>
     </div>
+
+    <div class="span12">
+        <table class="table table-condensed table-stacked">
+            <caption>Useful links</caption>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CultureHub search</td>
+                    <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
+                </tr>
+                <tr>
+                    <td>Search API</td>
+                    <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*', attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*' }"></a></td>
+                </tr>
+                <!-- ko foreach: harvestingConfiguration -->
+                <tr>
+                    <td>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></td>
+                    <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }"></a></td>
+                </tr>
+                <!-- /ko -->
+            </tbody>
+        </table>
+
+    </div>
+
+
 </div>
 
 <script type="text/javascript" language="javascript">
@@ -177,6 +208,7 @@
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
+            baseUri: ko.observable("http://" + location.host + "/"),
 
             stateToClass: function(state) {
                 return stateToClass(state);
