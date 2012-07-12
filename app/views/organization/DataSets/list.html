@@ -42,7 +42,7 @@
     </div>
 
 <div class="span12">
-    <table id="dataset-table" class="table table-striped sortable">
+    <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
         <tr>
@@ -65,7 +65,7 @@
         </tfoot>
         <tbody data-bind="foreach: sets()">
             <tr>
-                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }"><i class="icon icon-wrench"></i> <span data-bind="text: spec"></span></a></td>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
                 <td>
                     <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount"></a>
@@ -182,21 +182,6 @@
                     });
                     break;
             }
-        };
-
-        // special popover handling for the record counts
-        ko.bindingHandlers.popover = {
-          init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-              $(element).popover({
-                  content: "bla"
-              });
-          },
-          update: function (element, valueAccessor, allBindingsAccessor, context) {
-              $(element).popover({
-                  content: "bla"
-              });
-          }
-
         };
 
         ko.applyBindings(viewModel);

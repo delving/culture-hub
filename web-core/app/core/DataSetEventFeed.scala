@@ -467,7 +467,12 @@ class DataSetEventFeed extends Actor {
                  DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
                    set => {
                      val viewModel: DataSetViewModel = set
-                     viewModel.toJson
+                     JsObject(
+                       Seq(
+                         "eventType" -> JsString("updated"),
+                         "payload" -> viewModel.toJson
+                       )
+                     )
                    }
                  }
                case _ =>
