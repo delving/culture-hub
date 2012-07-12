@@ -42,7 +42,7 @@
     </div>
 
 <div class="span12">
-    <table id="dataset-table" class="table table-striped sortable">
+    <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
         <tr>
@@ -196,7 +196,6 @@
                   content: "bla"
               });
           }
-
         };
 
         ko.applyBindings(viewModel);

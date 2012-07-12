@@ -325,6 +325,15 @@ function elementIdMatch(id, element) {
 
 // ~~~ KnockoutJS binders
 
+// binding handler for triggering the jQuery triggerUpdate event
+ko.bindingHandlers.triggerUpdate = {
+update: function (element, valueAccessor) {
+    ko.utils.unwrapObservable(valueAccessor());
+    $(element).trigger("update");
+}
+};
+
+
 /**
  * KnockoutJS binder for the jQuery tokenInput plugin
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
