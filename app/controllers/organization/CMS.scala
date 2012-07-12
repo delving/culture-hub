@@ -100,7 +100,7 @@ object CMS extends OrganizationController {
         def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
 
         val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
-          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", connectedUser, false, false, menuEntries.length + 1, NO_MENU), List.empty)
+          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", connectedUser, "", false, false, menuEntries.length + 1, NO_MENU), List.empty)
           case Some(key) =>
             val versions = CMSPage.findByKey(orgId, key)
             if (versions.length == 0) {
