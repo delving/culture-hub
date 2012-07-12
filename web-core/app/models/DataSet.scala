@@ -411,7 +411,7 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 
 case class Mapping(recordMapping: Option[String] = None, format: RecordDefinition)
 
-case class Details(name: String,
+case class Details(name: String, // TODO this is repeated with the fact "name"...one day, unify
                    total_records: Long = 0,
                    indexing_count: Long = 0,
                    invalidRecordCount: Map[String, Long] = Map.empty,
