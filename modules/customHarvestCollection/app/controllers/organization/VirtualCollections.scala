@@ -94,15 +94,15 @@ object VirtualCollections extends OrganizationController {
                     // create new virtual collection
                     VirtualCollection.createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, theme, connectedUser) match {
                       case Right(u) =>
-                      // update collection definition
-                      val updated = u.copy(
-                        spec = virtualCollectionForm.spec,
-                        name = virtualCollectionForm.name,
-                        autoUpdate = virtualCollectionForm.autoUpdate,
-                        query = virtualCollectionQuery,
-                        currentQueryCount = VirtualCollection.children.countByParentId(u._id)
-                      )
-                    VirtualCollection.save(updated)
+                        // update collection definition
+                        val updated = u.copy(
+                          spec = virtualCollectionForm.spec,
+                          name = virtualCollectionForm.name,
+                          autoUpdate = virtualCollectionForm.autoUpdate,
+                          query = virtualCollectionQuery,
+                          currentQueryCount = VirtualCollection.children.countByParentId(u._id)
+                        )
+                        VirtualCollection.save(updated)
 
 
                       case Left(t) =>
@@ -111,19 +111,18 @@ object VirtualCollections extends OrganizationController {
                     }
 
 
-
                   case None =>
                     NotFound("Could not find VirtualCollection with ID " + id)
                 }
               case None =>
                 val vc = VirtualCollection(
-                            spec = virtualCollectionForm.spec,
-                            name = virtualCollectionForm.name,
-                            creator = connectedUser,
-                            autoUpdate = virtualCollectionForm.autoUpdate,
-                            orgId = orgId,
-                            query = virtualCollectionQuery,
-                            dataSetReferences = List.empty)
+                  spec = virtualCollectionForm.spec,
+                  name = virtualCollectionForm.name,
+                  creator = connectedUser,
+                  autoUpdate = virtualCollectionForm.autoUpdate,
+                  orgId = orgId,
+                  query = virtualCollectionQuery,
+                  dataSetReferences = List.empty)
                 val id = VirtualCollection.insert(vc)
                 id match {
                   case Some(vcid) =>
@@ -156,30 +155,30 @@ object VirtualCollections extends OrganizationController {
     }
   }
 
-case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
-                                      spec: String,
-                                      name: String,
-                                      autoUpdate: Boolean,
-                                      dataSets: List[Token] = List.empty[Token],
-                                      freeFormQuery: String,
-                                      excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
-                                      errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+  case class VirtualCollectionViewModel(id: Option[ObjectId] = None,
+                                        spec: String,
+                                        name: String,
+                                        autoUpdate: Boolean,
+                                        dataSets: List[Token] = List.empty[Token],
+                                        freeFormQuery: String,
+                                        excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
+                                        errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
-object VirtualCollectionViewModel {
+  object VirtualCollectionViewModel {
 
-  val virtualCollectionForm = Form(
-    mapping(
-      "id" -> optional(of[ObjectId]),
-      "spec" -> nonEmptyText,
-      "name" -> nonEmptyText,
-      "autoUpdate" -> boolean,
-      "dataSets" -> VirtualCollections.tokenListMapping,
-      "freeFormQuery" -> text,
-      "excludedIdentifiers" -> text,
-      "errors" -> of[Map[String, String]]
-    )(VirtualCollectionViewModel.apply)(VirtualCollectionViewModel.unapply)
-  )
+    val virtualCollectionForm = Form(
+      mapping(
+        "id" -> optional(of[ObjectId]),
+        "spec" -> nonEmptyText,
+        "name" -> nonEmptyText,
+        "autoUpdate" -> boolean,
+        "dataSets" -> VirtualCollections.tokenListMapping,
+        "freeFormQuery" -> text,
+        "excludedIdentifiers" -> text,
+        "errors" -> of[Map[String, String]]
+      )(VirtualCollectionViewModel.apply)(VirtualCollectionViewModel.unapply)
+    )
 
-}
+  }
 
 }

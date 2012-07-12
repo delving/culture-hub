@@ -2,7 +2,8 @@ package plugins
 
 import play.api.Application
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import models.{PortalTheme, GrantType}
+import models.{DataSetHarvestCollectionLookup, PortalTheme, GrantType}
+import core.collection.HarvestCollectionLookup
 
 
 /**
@@ -13,6 +14,8 @@ import models.{PortalTheme, GrantType}
 class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "core"
+
+  private val dataSetHarvestableCollectionManager = new DataSetHarvestCollectionLookup
 
   override def enabled: Boolean = true
 
@@ -55,22 +58,11 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       )
     ),
     MainMenuEntry(
-      key = "virtual-collections",
-      titleKey = "thing.virtualCollections",
-      items = Seq(
-        MenuElement("/organizations/%s/virtualCollection".format(context("orgId")), "org.vc.list"),
-        MenuElement("/organizations/%s/virtualCollection/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
-      )
-    ),
-    MainMenuEntry(
       key = "sipcreator",
       titleKey = "ui.label.sipcreator",
       mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(context("orgId")), "ui.label.sipcreator"))
     )
   )
+
+  override def getHarvestableCollectionManagers: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestableCollectionManager)
 }
-
-/*
-
-
-*/

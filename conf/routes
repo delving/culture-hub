@@ -200,14 +200,6 @@ GET         /organizations/:orgId/dataset/:spec                               co
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
-GET         /organizations/:orgId/virtualCollection                           controllers.organization.VirtualCollections.list(orgId)
-GET         /organizations/:orgId/virtualCollection/add                       controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String] = None)
-GET         /organizations/:orgId/virtualCollection/:spec/update              controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String])
-POST        /organizations/:orgId/virtualCollection/submit                    controllers.organization.VirtualCollections.submit(orgId: String)
-GET         /organizations/:orgId/virtualCollection/:spec                     controllers.organization.VirtualCollections.view(orgId, spec)
-DELETE      /organizations/:orgId/virtualCollection/:spec                     controllers.organization.VirtualCollections.delete(orgId, spec)
-
-
 GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 
 GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)

@@ -27,7 +27,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
                              currentQueryCount: Long = 0,
                              autoUpdate: Boolean = false,
                              dataSetReferences: List[DataSetReference] // kept here for redundancy
-                             ) extends Harvestable {
+                              ) extends Harvestable {
 
   // ~~~ basics
   def getName: String = name
@@ -60,8 +60,8 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     // all available formats to all dataSets in common
     // can probably be done in a more functional way, but how?
     var intersect: List[RecordDefinition] = List.empty
-    for(dataSet: DataSet <- dataSets) yield {
-      if(intersect.isEmpty) {
+    for (dataSet: DataSet <- dataSets) yield {
+      if (intersect.isEmpty) {
         intersect = dataSet.getVisibleMetadataSchemas(accessKey)
       } else {
         intersect = dataSet.getVisibleMetadataSchemas(accessKey).intersect(intersect)
@@ -73,8 +73,6 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
   def getNamespaces = dataSets.map(_.getNamespaces).flatten.toMap[String, String]
 
 
-
-
 }
 
 case class DataSetReference(spec: String, orgId: String)
@@ -84,7 +82,7 @@ case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String,
   def toSolrQuery = {
     val specCondition = dataSets.map(s => SPEC + ":" + s + " ").mkString(" ")
     val excludedIdentifiersCondition = "NOT (" + excludeHubIds.map(s => "delving_hubId:\"" + s + "\"").mkString(" OR ") + ")"
-    "delving_recordType:mdr " + specCondition + " " + freeFormQuery + (if(!excludeHubIds.isEmpty) " " + excludedIdentifiersCondition else "")
+    "delving_recordType:mdr " + specCondition + " " + freeFormQuery + (if (!excludeHubIds.isEmpty) " " + excludedIdentifiersCondition else "")
   }
 }
 
@@ -94,7 +92,9 @@ case class MDRReference(_id: ObjectId = new ObjectId,
                         collection: String, // collection in which this one is kept
                         itemId: String, // id of the MDR
                         index: Int, // index, generated at collection creation time, to use as count
-                        invalidTargetSchemas: Seq[String]) // cache of invalid output formats
+                        invalidTargetSchemas: Seq[String])
+
+// cache of invalid output formats
 
 
 object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) {
@@ -163,7 +163,7 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
     Logger("CultureHub").debug("Found ids " + hubIds)
     ids ++= hubIds
 
-    if(briefItemView.getPagination.isNext) {
+    if (briefItemView.getPagination.isNext) {
       getIdsFromQuery(query, briefItemView.getPagination.getNextPage, ids, theme, connectedUser)
     }
     ids.toList

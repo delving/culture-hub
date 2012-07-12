@@ -4,7 +4,7 @@ import play.api.mvc.Handler
 import scala.util.matching.Regex
 import models.PortalTheme
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import play.api.{Play, Application}
+import play.api.Application
 
 /**
  *
@@ -15,14 +15,14 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "musip"
 
-  override val routes: Map[Regex, List[String] => Handler] = Map(
-    """^/([A-Za-z0-9-]+)/collection/([A-Za-z0-9-]+)$""".r -> {
+  override val routes: Map[(String, Regex), List[String] => Handler] = Map(
+    ("GET", """^/([A-Za-z0-9-]+)/collection/([A-Za-z0-9-]+)$""".r) -> {
       pathArgs: List[String] => controllers.musip.Show.collection(pathArgs(0), pathArgs(1))
     },
-    """^/([A-Za-z0-9-]+)/museum/([A-Za-z0-9-]+)$""".r -> {
+    ("GET", """^/([A-Za-z0-9-]+)/museum/([A-Za-z0-9-]+)$""".r) -> {
       pathArgs: List[String] => controllers.musip.Show.museum(pathArgs(0), pathArgs(1))
     },
-    """^/organizations/([A-Za-z0-9-]+)/admin/musip/synchronize$""".r -> {
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/admin/musip/synchronize$""".r) -> {
       pathArgs: List[String] => controllers.musip.Admin.synchronize(pathArgs(0))
     })
 
