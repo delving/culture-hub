@@ -150,7 +150,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
 
-    val collections = HarvestableCollectionManager.findAllNonEmpty(orgId, format, accessKey)
+    val collections = AggregatingHarvestableCollectionLookup.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -183,9 +183,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
     val allMetadataFormats = if (identifier.isEmpty) {
-      HarvestableCollectionManager.getAllMetadataFormats(orgId, accessKey)
+      AggregatingHarvestableCollectionLookup.getAllMetadataFormats(orgId, accessKey)
     } else {
-      HarvestableCollectionManager.findBySpecAndOrgId(identifierSpec, orgId).map {
+      AggregatingHarvestableCollectionLookup.findBySpecAndOrgId(identifierSpec, orgId).map {
         c => c.getVisibleMetadataFormats(accessKey)
       }.getOrElse(List.empty)
     }
@@ -223,7 +223,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val collection = HarvestableCollectionManager.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    val collection = AggregatingHarvestableCollectionLookup.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
     if(!collection.getVisibleMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
@@ -302,7 +302,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       else mdRecord.get
     }
 
-    val collection = HarvestableCollectionManager.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
+    val collection = AggregatingHarvestableCollectionLookup.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"

@@ -31,7 +31,7 @@
                         <span>#{list vc.getPublicMetadataPrefixes(), as:'prefix'}<a href="http://${request.host()}/organizations/${orgId}/api/oai-pmh?verb=ListRecords&set=${vc.spec}&metadataPrefix=${prefix}">${prefix}</a>#{/list}</span>
                     </td>
                     <td>
-                        <span>${vc.recordCount()}</span>
+                        <span>${vc.getTotalRecords()}</span>
                     </td>
                     <td>
                         <span>${vc.currentQueryCount}</span>

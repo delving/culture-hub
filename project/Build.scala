@@ -82,6 +82,10 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers
   ).dependsOn(webCore)
 
+  val customHarvestCollection = PlayProject("customHarvestCollection", "1.0", Seq.empty, path = file("modules/customHarvestCollection")).settings(
+    resolvers ++= commonResolvers
+  ).dependsOn(webCore)
+
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
 
     onLoadMessage := "May the force be with you",
@@ -98,13 +102,14 @@ object Build extends sbt.Build {
     buildInfoPackage := "eu.delving.culturehub",
 
     watchSources <++= baseDirectory map { path => ((path / "web-core" / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules" / "customHarvestCollection" / "app") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._"
 
-  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(webCore, dos, statistics, musip)
+  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection)
 
 
 }
