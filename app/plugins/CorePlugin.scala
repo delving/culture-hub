@@ -15,7 +15,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "core"
 
-  private val dataSetHarvestableCollectionManager = new DataSetHarvestCollectionLookup
+  private val dataSetHarvestCollectionLookup = new DataSetHarvestCollectionLookup
 
   override def enabled: Boolean = true
 
@@ -64,5 +64,5 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     )
   )
 
-  override def getHarvestableCollectionManagers: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestableCollectionManager)
+  override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 }

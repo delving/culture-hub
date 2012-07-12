@@ -21,7 +21,7 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
 
   val pluginKey: String = "customHarvestCollection"
 
-  private val customHarvestCollectionHarvestableCollectionManager = new CustomHarvestCollectionHarvestCollectionLookup
+  private val customHarvestCollectionHarvestCollectionLookup = new CustomHarvestCollectionHarvestCollectionLookup
 
 
   override def onApplicationStart() {
@@ -85,6 +85,6 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
     )
   )
 
-  override def getHarvestableCollectionManagers: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestableCollectionManager)
+  override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestCollectionLookup)
 
 }

@@ -1,43 +1,35 @@
 package core.harvesting
 
-import core.collection.{Harvestable}
-import models.{RecordDefinition, DataSetState, DataSet}
+import core.collection.Harvestable
+import models.RecordDefinition
+import core.CultureHubPlugin
+import play.api.Play
+import play.api.Play.current
 
 /**
- * Lookup mechanism for Harvestable Collections
- *
- * TODO in the future, each harvestable collection type should register itself against this manager along with a way to retrieve the various lookups.
- * That way harvesting becomes a more modular functionality. At the moment all lookups are assembled here.
+ * Aggregated lookup mechanism all for Harvestable Collections
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object AggregatingHarvestableCollectionLookup {
 
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
+  lazy val harvestCollectionLookups = hubPlugins.flatMap(_.getHarvestCollectionLookups)
+
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[Harvestable] = {
-
-    // TODO implement accessKey lookup
-    val dataSets: List[Harvestable] = {
-      val sets = DataSet.findAll(orgId).filterNot(_.state != DataSetState.ENABLED)
-      if(format.isDefined) {
-        sets.filter(ds => ds.getVisibleMetadataSchemas(accessKey).exists(_.prefix == format.get))
-      } else {
-        sets
-      }
-    }
-
-    dataSets
+    harvestCollectionLookups.flatMap(lookup => lookup.findAllNonEmpty(orgId, format, accessKey))
   }
 
   def findBySpecAndOrgId(spec: String, orgId: String): Option[Harvestable] = {
-    DataSet.findBySpecAndOrgId(spec, orgId)
+    harvestCollectionLookups.flatMap(_.findBySpecAndOrgId(spec, orgId)).headOption
   }
 
   /**
    * Gets all publicly available formats out there, plus the ones available via the accessKey.
    */
   def getAllMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
-    DataSet.getAllVisibleMetadataFormats(orgId, accessKey).distinct
+    harvestCollectionLookups.flatMap(_.getAllMetadataFormats(orgId, accessKey))
   }
 
 

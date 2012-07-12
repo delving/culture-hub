@@ -37,7 +37,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
     map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
 
-  def getHarvestableCollectionManagers: Seq[HarvestCollectionLookup] = List.empty
+  def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
 
 }
 

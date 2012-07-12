@@ -46,8 +46,8 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
   // ~~~ harvesting
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
-    val references = VirtualCollection.children.find(MongoDBObject("parentId" -> _id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position)).sort(MongoDBObject("idx" -> 1)).limit(limit)
-    val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> _id, "validOutputFormats" -> metadataFormat) ++ ("idx" $gt position))
+    val references = VirtualCollection.children.find(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position)).sort(MongoDBObject("index" -> 1)).limit(limit)
+    val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position))
     val records = references.toList.groupBy(_.collection).map {
       grouped =>
         val cache = MetadataCache.get(orgId, grouped._1, ITEM_TYPE_MDR)
