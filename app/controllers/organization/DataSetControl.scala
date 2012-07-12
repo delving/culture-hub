@@ -194,7 +194,6 @@ object DataSetControl extends OrganizationController {
 
 
             dataSetForm.id match {
-              // TODO for update, add the operator that appends key-value pairs rather than setting all
               case Some(id) => {
                 val existing = DataSet.findOneById(id).get
                 if (!DataSet.canEdit(existing, connectedUser)) {
@@ -203,7 +202,7 @@ object DataSetControl extends OrganizationController {
                   }
                 }
 
-                val updatedDetails = existing.details.copy(facts = factsObject)
+                val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
                 val updated = existing.copy(
                     spec = dataSetForm.spec,
                     details = updatedDetails,
