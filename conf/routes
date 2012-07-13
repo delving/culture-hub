@@ -123,9 +123,6 @@ POST         /:user/admin/profile                                             co
 GET         /organizations/:orgId/api                                         controllers.api.Api.api(orgId)
 
 GET         /organizations/:orgId/api/search                                  controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/provider/:provider               controllers.api.Search.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/dataProvider/:dataProvider       controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/collection/:collection           controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
 
 GET         /organizations/:orgId/api/oai-pmh                                 controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
 GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])

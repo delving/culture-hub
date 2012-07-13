@@ -30,18 +30,6 @@ object Search extends DelvingController {
             if (!orgId.isEmpty)
               hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
 
-            if (provider.isDefined) {
-              hiddenQueryFilters += """%s:"%s"""".format(PROVIDER, provider.get.replaceAll("_", " "))
-            }
-
-            if (dataProvider.isDefined) {
-              hiddenQueryFilters += """%s:"%s"""".format(OWNER, dataProvider.get.replaceAll("_", " "))
-            }
-
-            if (collection.isDefined) {
-              hiddenQueryFilters += """%s:"%s"""".format(SPEC, collection.get)
-            }
-
             SearchService.getApiResult(Some(orgId), request, theme, hiddenQueryFilters.toList)
 
           } map {
