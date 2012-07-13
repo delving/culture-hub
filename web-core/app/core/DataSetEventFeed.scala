@@ -35,7 +35,7 @@ object DataSetEventFeed {
     orgId = ds.orgId,
     name = ds.getName,
     nodeId = "", // TODO once we have nodes...
-    nodeName = ds.getProvider,
+    nodeName = ds.getDataProvider,
     totalRecords = ds.getTotalRecords,
     validRecords = ds.details.invalidRecordCount.map(f => (f._1 -> (ds.getTotalRecords - f._2))),
     state = ds.state.name,
@@ -59,7 +59,7 @@ object DataSetEventFeed {
       `type` = ds.getType
     ),
     nodeId = "", // TODO once we have nodes...
-    nodeName = ds.getProvider,
+    nodeName = ds.getDataProvider,
     totalRecords = ds.getTotalRecords,
     validRecords = ds.details.invalidRecordCount.map(f => (f._1 -> (ds.getTotalRecords - f._2))),
     state = ds.state.name,
