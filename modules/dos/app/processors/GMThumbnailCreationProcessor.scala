@@ -72,6 +72,8 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
       resizeOperation.resize(width, width)
       resizeOperation.p_profile("\"*\"")
       resizeOperation.addImage(thumbnailFile.getAbsolutePath)
+      resizeOperation.units("PixelsPerInch")
+      resizeOperation.resample(72)
       try {
         cmd.run(resizeOperation)
         if(thumbnailFile.exists()) {
