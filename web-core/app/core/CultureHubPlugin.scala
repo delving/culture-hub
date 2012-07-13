@@ -1,5 +1,6 @@
 package core
 
+import collection.HarvestCollectionLookup
 import scala.util.matching.Regex
 import play.api._
 import mvc.{RequestHeader, Handler}
@@ -20,7 +21,9 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   override def enabled: Boolean = app.configuration.getString("cultureHub.plugins").map(_.split(",").map(_.trim).contains(pluginKey)).getOrElse(false)
 
-  val routes: Map[Regex, List[String] => Handler] = Map.empty
+  val routes: Map[(String, Regex), List[String] => Handler] = Map.empty
+
+  def onApplicationStart() { }
 
   val onApplicationRequest: RequestContext => Unit = {
     request =>
@@ -33,6 +36,8 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def getOrganizationNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean) = organizationMenuEntries(context, roles).
     filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
     map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
+
+  def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
 
 }
 

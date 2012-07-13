@@ -1,13 +1,12 @@
-package actors
+package jobs
 
-import akka.actor.Actor
-import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.MongoDBObject
 import core.search.SolrServer
-import org.apache.solr.client.solrj.SolrQuery
-import models.{PortalTheme, VirtualCollection}
-import controllers.ErrorReporter
 import play.api.Logger
+import models.{PortalTheme, VirtualCollection}
+import com.mongodb.casbah.Imports._
+import controllers.ErrorReporter
+import org.apache.solr.client.solrj.SolrQuery
+import akka.actor._
 
 /**
  *

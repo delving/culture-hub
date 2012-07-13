@@ -24,6 +24,8 @@ import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
 
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
+
   override def onStart(app: Application) {
     if(!Play.isTest) {
       println("""
@@ -123,21 +125,6 @@ object Global extends GlobalSettings {
       CacheSolrFields
     )
 
-    // virtual collection update
-    val virtualCollectionCount = Akka.system.actorOf(Props[VirtualCollectionCount])
-    Akka.system.scheduler.schedule(
-      1 minute,
-      1 hour,
-      virtualCollectionCount,
-      UpdateVirtualCollectionCount
-    )
-    Akka.system.scheduler.schedule(
-      1 minute,
-      2 hours,
-      virtualCollectionCount,
-      UpdateVirtualCollection
-    )
-
     // routes access logger
     val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
     Akka.system.scheduler.schedule(
@@ -155,6 +142,10 @@ object Global extends GlobalSettings {
 //      statsLogger,
 //      ComputeStatistics
 //    )
+
+
+    // ~~~ plugins
+    hubPlugins.foreach(_.onApplicationStart())
 
 
     // ~~~ cleanup set states
@@ -217,7 +208,6 @@ object Global extends GlobalSettings {
 
   }
 
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
   lazy val routes = hubPlugins.flatMap(_.routes)
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
@@ -238,8 +228,8 @@ object Global extends GlobalSettings {
     // poor man's modular routing, based on CultureHub plugins
 
     val matches = routes.flatMap(r => {
-      val matcher = r._1.pattern.matcher(request.path)
-      if(matcher.matches()) {
+      val matcher = r._1._2.pattern.matcher(request.path)
+      if(request.method == r._1._1 && matcher.matches()) {
         val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
         Some((pathElems.toList, r._2))
       } else {
