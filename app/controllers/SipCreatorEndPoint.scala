@@ -1,6 +1,6 @@
 package controllers
 
-import exceptions.{StorageInsertionException, UnauthorizedException, AccessKeyException}
+import exceptions.{StorageInsertionException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
@@ -16,7 +16,6 @@ import play.api.Play.current
 import core.HubServices
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import core.storage.BaseXCollection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
@@ -40,8 +39,6 @@ import java.util.regex.Matcher
  */
 
 object SipCreatorEndPoint extends ApplicationController {
-
-  private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
 
   val DOT_PLACEHOLDER = "--"
 
@@ -395,9 +392,7 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val collection = BaseXCollection(dataSet.orgId, dataSet.spec)
-
-    val recordCount = basexStorage.count(collection)
+    val recordCount = basexStorage.count(dataSet)
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
@@ -445,7 +440,7 @@ object SipCreatorEndPoint extends ApplicationController {
           builder.append(">")
           write(builder.toString(), pw, out)
 
-          basexStorage.withSession(collection) {
+          basexStorage.withSession(dataSet) {
             implicit session =>
               val total = basexStorage.count
               var count = 0
@@ -522,12 +517,12 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
-    val mayCollection = basexStorage.openCollection(dataSet.orgId, dataSet.spec)
+    val mayCollection = basexStorage.openCollection(dataSet)
     val collection = if(mayCollection.isDefined) {
       basexStorage.deleteCollection(mayCollection.get)
-      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
+      basexStorage.createCollection(dataSet)
     } else {
-      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
+      basexStorage.createCollection(dataSet)
     }
 
     val parser = new SimpleDataSetParser(source, dataSet)

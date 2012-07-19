@@ -1,6 +1,5 @@
 package core.processing
 
-import core.storage.{BaseXCollection, BaseXStorage}
 import scala.collection.JavaConverters._
 import play.api.Logger
 import core.mapping.MappingService
@@ -9,6 +8,8 @@ import java.util.concurrent.TimeUnit
 import eu.delving.MappingResult
 import core.SystemField
 import core.Constants._
+import core.collection.Collection
+import core.storage.BaseXStorage
 import core.indexing.IndexingService
 import models._
 import org.joda.time.{DateTimeZone, DateTime}
@@ -23,7 +24,7 @@ import xml.{Elem, NodeSeq, Node}
  * - indexing the record in the selected indexingSchema
  *
  */
-class CollectionProcessor(collection: BaseXCollection,
+class CollectionProcessor(collection: Collection,
                           targetSchemas: List[ProcessingSchema],
                           indexingSchema: Option[ProcessingSchema],
                           renderingSchema: Option[ProcessingSchema],
@@ -47,7 +48,7 @@ class CollectionProcessor(collection: BaseXCollection,
   def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String], onIndexingComplete: DateTime => Unit) {
     val startProcessing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
-    log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.name, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
+    log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.spec, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
 
     try {
       basexStorage.withSession(collection) {
@@ -60,7 +61,7 @@ class CollectionProcessor(collection: BaseXCollection,
           try {
             val recordCount = basexStorage.count
             val records = basexStorage.findAllCurrent
-            val cache = MetadataCache.get(collection.orgId, collection.name, ITEM_TYPE_MDR)
+            val cache = MetadataCache.get(collection.getOwner, collection.spec, ITEM_TYPE_MDR)
 
             records.zipWithIndex.foreach {
               r => {
@@ -69,13 +70,13 @@ class CollectionProcessor(collection: BaseXCollection,
                   index = r._2
 
                   val localId = (record \ "@id").text
-                  val hubId = "%s_%s_%s".format(collection.orgId, collection.name, localId)
+                  val hubId = "%s_%s_%s".format(collection.getOwner, collection.spec, localId)
                   val recordIndex = (record \ "system" \ "index").text.toInt
                   val modulo = math.round(recordCount / 100)
 
                   if (index % (if(modulo == 0) 100 else modulo) == 0) updateCount(index)
                   if (index % 2000 == 0) {
-                    log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
+                    log.info("%s:%s: processed %s of %s records, for schemas '%s'".format(collection.getOwner, collection.spec, index, recordCount, targetSchemasString))
                   }
 
                   val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
@@ -131,12 +132,12 @@ class CollectionProcessor(collection: BaseXCollection,
                   }
 
                   val cachedRecord = MetadataItem(
-                    collection = collection.name,
+                    collection = collection.spec,
                     itemType = ITEM_TYPE_MDR,
                     itemId = hubId,
                     xml = serializedRecords,
                     systemFields = allSystemFields.getOrElse(Map.empty),
-                    index = index.toInt
+                    index = index
                   )
                   cache.saveOrUpdate(cachedRecord)
 
@@ -150,43 +151,43 @@ class CollectionProcessor(collection: BaseXCollection,
                 }
               }
             }
-            log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.name, index, recordCount, targetSchemasString))
+            log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.spec, index, recordCount, targetSchemasString))
             if (!interrupted && indexingSchema.isDefined) {
               onIndexingComplete(startProcessing)
             }
 
             if(!interrupted) {
               updateCount(index)
-              log.info("Processing of collection %s finished, took %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+              log.info("Processing of collection %s of organization %s finished, took %s seconds".format(collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
             } else {
               updateCount(0)
               if (indexingSchema.isDefined) {
-                log.info("Deleting DataSet %s from SOLR".format(collection.name))
-                IndexingService.deleteBySpec(collection.orgId, collection.name)
+                log.info("Deleting DataSet %s from SOLR".format(collection.spec))
+                IndexingService.deleteBySpec(collection.getOwner, collection.spec)
               }
-              log.info("Processing of collection %s interrupted after %s seconds".format(collection.name, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+              log.info("Processing of collection %s of organization %s interrupted after %s seconds".format(collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
 
             }
 
           } catch {
-            case t => {
+            case t: Throwable => {
               t.printStackTrace()
 
-              log.error("""Error while processing records of collection %s, at index %s
+              log.error("""Error while processing records of collection %s of organization %s, at index %s
               |
               | Source record:
               |
               | %s
               |
-              """.stripMargin.format(collection.name, index, record), t)
+              """.stripMargin.format(collection.spec, collection.getOwner, index, record), t)
 
               if (indexingSchema.isDefined) {
-                log.info("Deleting DataSet %s from SOLR".format(collection.name))
-                IndexingService.deleteBySpec(collection.orgId, collection.name)
+                log.info("Deleting DataSet %s from SOLR".format(collection.spec))
+                IndexingService.deleteBySpec(collection.getOwner, collection.spec)
               }
 
               updateCount(0)
-              log.error("Error while processing collection %s: %s".format(collection.name, t.getMessage), t)
+              log.error("Error while processing collection %s of organization %s: %s".format(collection.spec, collection.getOwner, t.getMessage), t)
               onError(t)
             }
 
@@ -195,9 +196,9 @@ class CollectionProcessor(collection: BaseXCollection,
 
       }
     } catch {
-      case t => {
+      case t: Throwable => {
         t.printStackTrace()
-        log.error("Error while processing collection %s, cannot read source data: %s".format(collection.name, t.getMessage), t)
+        log.error("Error while processing collection %s of organization %s, cannot read source data: %s".format(collection.spec, collection.getOwner, t.getMessage), t)
         onError(t)
       }
 
@@ -212,7 +213,7 @@ class CollectionProcessor(collection: BaseXCollection,
       try {
         Some(SystemField.valueOf(sf._1).tag -> sf._2)
       } catch {
-        case _ =>
+        case t: Throwable =>
           // we boldly ignore any fields that do not match the system fields
           None
       }
