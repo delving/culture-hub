@@ -81,7 +81,7 @@ object VirtualCollections extends OrganizationController {
               virtualCollectionForm.dataSets.map(_.id),
               virtualCollectionForm.freeFormQuery,
               virtualCollectionForm.excludedIdentifiers.split(",").map(_.trim).filterNot(_.isEmpty).toList,
-              theme.name
+              configuration.name
             )
             virtualCollectionForm.id match {
               case Some(id) =>
@@ -92,7 +92,7 @@ object VirtualCollections extends OrganizationController {
                     VirtualCollection.children.removeByParentId(id)
 
                     // create new virtual collection
-                    VirtualCollection.createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, theme, connectedUser) match {
+                    VirtualCollection.createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
                       case Right(u) =>
                         // update collection definition
                         val updated = u.copy(
@@ -126,7 +126,7 @@ object VirtualCollections extends OrganizationController {
                 val id = VirtualCollection.insert(vc)
                 id match {
                   case Some(vcid) =>
-                    VirtualCollection.createVirtualCollectionFromQuery(vcid, virtualCollectionQuery.toSolrQuery, theme, connectedUser) match {
+                    VirtualCollection.createVirtualCollectionFromQuery(vcid, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")

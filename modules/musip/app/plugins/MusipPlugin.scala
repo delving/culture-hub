@@ -2,7 +2,7 @@ package plugins
 
 import play.api.mvc.Handler
 import scala.util.matching.Regex
-import models.PortalTheme
+import models.DomainConfiguration
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
 import play.api.Application
 
@@ -26,7 +26,7 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
       pathArgs: List[String] => controllers.musip.Admin.synchronize(pathArgs(0))
     })
 
-  override def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq(
+  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "museums",
       titleKey = "plugin.musip.museums",

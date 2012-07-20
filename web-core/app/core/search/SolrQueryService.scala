@@ -23,7 +23,7 @@ import play.api.Logger
 import play.api.mvc.RequestHeader
 import core.Constants._
 import collection.immutable.{List, Map}
-import models.PortalTheme
+import models.DomainConfiguration
 import scala.xml.XML
 import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
@@ -101,13 +101,13 @@ object SolrQueryService extends SolrServer {
   //    query
   //  }
 
-  def parseSolrQueryFromParams(params: Params, theme: PortalTheme) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params, configuration: DomainConfiguration) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
-    val facetsFromTheme: List[String] = theme.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
-    val facetFields: List[String] = if (params._contains("facet.field")) facetsFromTheme ::: params.getValues("facet.field").toList
-    else facetsFromTheme
+    val facetsFromConfiguration: List[String] = configuration.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
+    val facetFields: List[String] = if (params._contains("facet.field")) facetsFromConfiguration ::: params.getValues("facet.field").toList
+    else facetsFromConfiguration
 
     params.put("facet.field", facetFields)
 
@@ -187,12 +187,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, theme: PortalTheme, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
+  def createCHQuery(request: RequestHeader, configuration: DomainConfiguration, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
     val params = Params(request.queryString)
-    createCHQuery(params, theme, summaryView, connectedUser, additionalSystemHQFs)
+    createCHQuery(params, configuration, summaryView, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, theme: PortalTheme, summaryView: Boolean, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
+  def createCHQuery(params: Params, configuration: DomainConfiguration, summaryView: Boolean, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -232,9 +232,9 @@ object SolrQueryService extends SolrServer {
 
     val format = params.getValueOrElse("format", "xml")
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
-    val hiddenQueryFilters = createFilterQueryList(if (!theme.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ theme.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
+    val hiddenQueryFilters = createFilterQueryList(if (!configuration.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
 
-    val query = parseSolrQueryFromParams(params, theme)
+    val query = parseSolrQueryFromParams(params, configuration)
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
@@ -409,12 +409,6 @@ object SolrQueryService extends SolrServer {
     if (!href.isEmpty) href.mkString(FACET_PROMPT,FACET_PROMPT,"") else ""
   }
 
-  //  def createDocIdPager(request: Request,  theme: PortalTheme) : DocIdWindowPager = {
-  //    val chQuery = createCHQuery(request, theme)
-  //
-  //    DocIdWindowPager("bla")
-  //  }
-
 }
 
 case class DocIdWindowPager (test: String) {
@@ -557,7 +551,7 @@ case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQue
 
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
-case class CHResponse(params: Params, theme: PortalTheme, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
+case class CHResponse(params: Params, configuration: DomainConfiguration, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
 
   def useCacheUrl: Boolean = params.hasKeyAndValue("cache", "true")
 

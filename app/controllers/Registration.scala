@@ -115,7 +115,7 @@ object Registration extends ApplicationController {
             activationToken match {
               case Some(token) =>
                 try {
-                  Mails.activation(r.email, r.firstName + " " + r.lastName, token, theme, request.host)
+                  Mails.activation(r.email, r.firstName + " " + r.lastName, token, configuration, request.host)
                   index.flashing(("registrationSuccess", r.email))
                 } catch {
                   case t: Throwable => {
@@ -156,7 +156,7 @@ object Registration extends ApplicationController {
           val activated = HubServices.registrationService.activateUser(activationToken)
           if (activated.isDefined) {
             try {
-              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullName, activated.get.email, theme)
+              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullName, activated.get.email, configuration)
               indexAction.flashing(("activation", "true"))
             } catch {
               case t => logError(t, "Could not send activation email")
@@ -202,7 +202,7 @@ object Registration extends ApplicationController {
           resetPassword => {
             HubServices.registrationService.preparePasswordReset(resetPassword.email) match {
               case Some(resetPasswordToken) =>
-                Mails.resetPassword(resetPassword.email, resetPasswordToken, theme, request.host)
+                Mails.resetPassword(resetPassword.email, resetPasswordToken, configuration, request.host)
                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
               case None =>
                 // TODO adjust view for this case
@@ -214,7 +214,7 @@ object Registration extends ApplicationController {
     }
   }
 
-  def resetPassword(resetPasswordToken: String) = Themed {
+  def resetPassword(resetPasswordToken: String) = DomainConfigured {
     Action {
       implicit request =>
         val indexAction = Redirect(controllers.routes.Application.index)
@@ -240,7 +240,7 @@ object Registration extends ApplicationController {
     )(NewPassword.apply)(NewPassword.unapply) verifying(sameNewPassword)
   )
 
-  def newPassword(resetPasswordToken: String) = Themed {
+  def newPassword(resetPasswordToken: String) = DomainConfigured {
     Action {
       implicit request =>
         if(Option(resetPasswordToken).isEmpty) {

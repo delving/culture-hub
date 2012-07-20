@@ -51,7 +51,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = Themed {
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = DomainConfigured {
     Action(action.parser) {
       implicit request => {
         if (accessToken.isEmpty) {
@@ -216,7 +216,7 @@ object SipCreatorEndPoint extends ApplicationController {
                   Left("%s: Cannot upload source while the set is being processed".format(spec))
                 } else {
                   val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                  receiveActor ! SourceStream(dataSet.get, connectedUser, theme, inputStream, request.body)
+                  receiveActor ! SourceStream(dataSet.get, connectedUser, configuration, inputStream, request.body)
                   DataSet.updateState(dataSet.get, DataSetState.PARSING)
                   Right("Received it")
                 }
@@ -544,14 +544,14 @@ class ReceiveSource extends Actor {
   var tempFileRef: TemporaryFile = null
 
   protected def receive = {
-    case SourceStream(dataSet, userName, theme, inputStream, tempFile) =>
+    case SourceStream(dataSet, userName, configuration, inputStream, tempFile) =>
       val now = System.currentTimeMillis()
 
       // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, userName, theme, inputStream) match {
+        receiveSource(dataSet, userName, configuration, inputStream) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -568,7 +568,7 @@ class ReceiveSource extends Actor {
             }
             DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), configuration)
           case Right(inserted) =>
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
             Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
@@ -585,7 +585,7 @@ class ReceiveSource extends Actor {
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, configuration: DomainConfiguration, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
@@ -600,4 +600,4 @@ class ReceiveSource extends Actor {
 
 }
 
-case class SourceStream(dataSet: DataSet, userName: String, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)
+case class SourceStream(dataSet: DataSet, userName: String, configuration: DomainConfiguration, stream: InputStream, temporaryFile: TemporaryFile)

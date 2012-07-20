@@ -77,7 +77,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
 case class DataSetReference(spec: String, orgId: String)
 
-case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty, theme: String) {
+case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty, domainConfiguration: String) {
 
   def toSolrQuery = {
     val specCondition = dataSets.map(s => SPEC + ":" + s + " ").mkString(" ")
@@ -107,13 +107,13 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
 
   def findBySpecAndOrgId(spec: String, orgId: String) = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
-  def createVirtualCollectionFromQuery(id: ObjectId, query: String, theme: PortalTheme, connectedUser: String): Either[Throwable, VirtualCollection] = {
+  def createVirtualCollectionFromQuery(id: ObjectId, query: String, configuration: DomainConfiguration, connectedUser: String): Either[Throwable, VirtualCollection] = {
     val vc = VirtualCollection.findOneById(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
       VirtualCollection.children.removeByParentId(vc._id)
 
-      val hubIds = getIdsFromQuery(query = query, theme = vc.query.theme, connectedUser = connectedUser)
+      val hubIds = getIdsFromQuery(query = query, configuration = vc.query.domainConfiguration, connectedUser = connectedUser)
       val groupedHubIds = hubIds.groupBy(id => (id.split("_")(0), id.split("_")(1)))
 
       val dataSetReferences: List[DataSetReference] = groupedHubIds.flatMap {
@@ -151,20 +151,20 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
     }
   }
 
-  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, theme: String, connectedUser: String): List[String] = {
+  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: String, connectedUser: String): List[String] = {
 
     // for the start, only pass a dead-simple query
-    val portalTheme = PortalTheme.getAll.find(_.name == theme).get
+    val domainConfiguration = DomainConfiguration.getAll.find(_.name == configuration).get
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
-    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, portalTheme, true, Option(connectedUser), List.empty[String])
-    val response = CHResponse(params, portalTheme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, domainConfiguration, true, Option(connectedUser), List.empty[String])
+    val response = CHResponse(params, domainConfiguration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
     val briefItemView = BriefItemView(response)
     val hubIds = briefItemView.getBriefDocs.map(_.getHubId).filterNot(_.isEmpty)
     Logger("CultureHub").debug("Found ids " + hubIds)
     ids ++= hubIds
 
     if (briefItemView.getPagination.isNext) {
-      getIdsFromQuery(query, briefItemView.getPagination.getNextPage, ids, theme, connectedUser)
+      getIdsFromQuery(query, briefItemView.getPagination.getNextPage, ids, configuration, connectedUser)
     }
     ids.toList
   }

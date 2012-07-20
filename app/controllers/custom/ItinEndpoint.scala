@@ -20,7 +20,7 @@ import core.search.SearchService
 import play.api.Play
 import play.api.Play.current
 import collection.JavaConverters._
-import core.ThemeAware
+import core.DomainConfigurationAware
 import play.api.Logger
 import controllers.DelvingController
 import models.{DrupalEntity, StoreResponse}
@@ -34,15 +34,15 @@ import play.api.libs.concurrent.Promise
  * @since 11/5/11 10:35 AM
  */
 
-object ItinEndPoint extends DelvingController with ThemeAware {
+object ItinEndPoint extends DelvingController with DomainConfigurationAware {
 
-  def search = Themed {
+  def search = DomainConfigured {
     Action {
       implicit request =>
         if (!enabled) {
           Status(NOT_FOUND)
         } else {
-          SearchService.getApiResult(None, request, theme, List())
+          SearchService.getApiResult(None, request, configuration, List())
         }
     }
   }

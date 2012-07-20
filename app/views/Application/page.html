@@ -6,7 +6,7 @@
 
 #{set pageId: page.key /}
 
-#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
+#{breadcrumbs request: request, configuration: themeInfo.getConfiguration() /}
 
 #{if page.published == true}
     ${page.content.raw()}

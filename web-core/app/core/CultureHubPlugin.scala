@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 import play.api._
 import mvc.{RequestHeader, Handler}
 import eu.delving.templates.scala.RenderArgs
-import models.{GrantType, PortalTheme}
+import models.{GrantType, DomainConfiguration}
 import scala.collection.JavaConverters._
 
 
@@ -29,7 +29,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     request =>
   }
 
-  def mainMenuEntries(theme: PortalTheme, lang: String): Seq[MainMenuEntry] = Seq.empty
+  def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
@@ -59,5 +59,5 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Se
   ).asJava
 }
 
-case class RequestContext(request: RequestHeader, theme: PortalTheme, renderArgs: RenderArgs, lang: String)
+case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: RenderArgs, lang: String)
 
