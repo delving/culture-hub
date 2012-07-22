@@ -1,6 +1,6 @@
 import core.HubServices
 import core.indexing.IndexingService
-import core.storage.BaseXStorage
+import models.DataSet
 import models.mongoContext._
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
@@ -50,11 +50,14 @@ trait TestContext {
       HubServices.init()
       connection.dropDatabase()
       try {
-        HubServices.basexStorage.withSession(core.storage.BaseXCollection("delving", "PrincessehofSample")) {
-          session => {
-            val r = session.execute("drop database delving____PrincessehofSample")
-            println(r)
-          }
+        DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").map {
+          set =>
+            HubServices.basexStorage.withSession(set) {
+              session => {
+                val r = session.execute("drop database delving____PrincessehofSample")
+                println(r)
+              }
+            }
         }
       } catch {
         case _ => //ignore if not found

@@ -19,7 +19,7 @@ import play.api._
 import libs.Files
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
@@ -58,7 +58,7 @@ object Global extends GlobalSettings {
 
 
     // ~~~ load themes
-    ThemeHandler.startup()
+    DomainConfigurationHandler.startup()
 
     // ~~~ bootstrap services
     HubServices.init()

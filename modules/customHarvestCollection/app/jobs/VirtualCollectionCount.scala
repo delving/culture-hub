@@ -2,7 +2,7 @@ package jobs
 
 import core.search.SolrServer
 import play.api.Logger
-import models.{PortalTheme, VirtualCollection}
+import models.{DomainConfiguration, VirtualCollection}
 import com.mongodb.casbah.Imports._
 import controllers.ErrorReporter
 import org.apache.solr.client.solrj.SolrQuery
@@ -31,13 +31,13 @@ class VirtualCollectionCount extends Actor with SolrServer {
         vc =>
           val currentCount = count(vc)
           if(currentCount != vc.getTotalRecords) {
-            val portalTheme = PortalTheme.getAll.find(_.name == vc.query.theme).get
-            VirtualCollection.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, portalTheme, null) match {
+            val domainConfiguration = DomainConfiguration.getAll.find(_.name == vc.query.domainConfiguration).get
+            VirtualCollection.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, domainConfiguration, null) match {
               case Right(computed) =>
                 log.info("Recomputed Virtual Collection %s, found %s records".format(vc.name, computed.getTotalRecords))
               case Left(error) =>
                 Logger("CultureHub").error("Error computing virtual collection %s during periodic recomputation".format(vc.name), error)
-                ErrorReporter.reportError("Periodic Virtual Collection computer", error, "Error computing Virtual Collection " + vc.name, portalTheme)
+                ErrorReporter.reportError("Periodic Virtual Collection computer", error, "Error computing Virtual Collection " + vc.name, domainConfiguration)
             }
           }
       }

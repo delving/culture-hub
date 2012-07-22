@@ -1,6 +1,5 @@
 package core.processing
 
-import core.storage.BaseXCollection
 import play.api.Logger
 import models._
 import java.net.URL
@@ -82,7 +81,7 @@ object DataSetCollectionProcessor {
       actionableTargetSchemas.headOption
     }
 
-    val collectionProcessor = new CollectionProcessor(BaseXCollection(dataSet.orgId, dataSet.spec), actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage)
+    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage)
     def interrupted = {
       val current = DataSet.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED

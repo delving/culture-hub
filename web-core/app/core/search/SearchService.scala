@@ -28,7 +28,7 @@ import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import models.{MetadataCache, RecordDefinition, PortalTheme}
+import models.{MetadataCache, RecordDefinition, DomainConfiguration}
 import xml.{PrettyPrinter, NodeSeq, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
@@ -41,8 +41,8 @@ import java.net.{URLEncoder, URLDecoder}
  */
 object SearchService {
 
-  def getApiResult(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty): PlainResult =
-    new SearchService(orgId, request, theme, hiddenQueryFilters).getApiResult
+  def getApiResult(orgId: Option[String], request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty): PlainResult =
+    new SearchService(orgId, request, configuration, hiddenQueryFilters).getApiResult
 
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
@@ -51,7 +51,7 @@ object SearchService {
   }
 }
 
-class SearchService(orgId: Option[String], request: RequestHeader, theme: PortalTheme, hiddenQueryFilters: List[String] = List.empty) {
+class SearchService(orgId: Option[String], request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty) {
 
   val log = Logger("CultureHub")
 
@@ -67,7 +67,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
   def getApiResult: PlainResult = {
 
     val response = try {
-      if (theme.apiWsKey) {
+      if (configuration.apiWsKey) {
         val wskey = params.getValueOrElse("wskey", "unknown") //paramMap.getOrElse("wskey", Array[String]("unknown")).head
         // todo add proper wskey checking
         if (!wskey.toString.equalsIgnoreCase("unknown")) {
@@ -100,7 +100,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
 
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
-      case x if x._contains("explain") => ExplainResponse(theme, params).renderAsJson
+      case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsJson
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
@@ -118,7 +118,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
 
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
-      case x if x._contains("explain") => ExplainResponse(theme, params).renderAsXml
+      case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
@@ -133,8 +133,8 @@ class SearchService(orgId: Option[String], request: RequestHeader, theme: Portal
 
   private def getBriefResultsFromSolr: BriefItemView = {
     require(params.valueIsNonEmpty("query"))
-    val chQuery = SolrQueryService.createCHQuery(request, theme, true, additionalSystemHQFs = hiddenQueryFilters)
-    BriefItemView(CHResponse(params, theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
+    val chQuery = SolrQueryService.createCHQuery(request, configuration, true, additionalSystemHQFs = hiddenQueryFilters)
+    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
   def getRenderedFullView(viewName: String, schema: Option[String] = None): Either[String, RenderedView] = {
@@ -492,7 +492,7 @@ case class FacetAutoComplete(params: Params) {
 
 }
 
-case class ExplainResponse(theme: PortalTheme, params: Params) {
+case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 

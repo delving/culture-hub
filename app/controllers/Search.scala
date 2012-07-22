@@ -26,16 +26,16 @@ object Search extends DelvingController {
   def search(query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = Root {
     Action {
       implicit request =>
-        val chQuery = SolrQueryService.createCHQuery(request, theme, true, Option(connectedUser), additionalSystemHQFs)
+        val chQuery = SolrQueryService.createCHQuery(request, configuration, true, Option(connectedUser), additionalSystemHQFs)
         try {
-          val response = CHResponse(Params(request.queryString), theme, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
           val briefItemView = BriefItemView(response)
 
           Ok(Template("/Search/index.html",
             'briefDocs -> briefItemView.getBriefDocs,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-            'themeFacets -> theme.getFacets,
+            'themeFacets -> configuration.getFacets,
             'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(
             session +
@@ -118,15 +118,15 @@ object Search extends DelvingController {
 
   // ~~~ Utility methods (not controller actions)
 
-  def search(user: Option[String], page: Int, theme: PortalTheme, query: List[String])(implicit request: RequestHeader) = {
+  def search(user: Option[String], page: Int, configuration: DomainConfiguration, query: List[String])(implicit request: RequestHeader) = {
     val start = (page - 1) * PAGE_SIZE + 1
     val queryList = (user match {
       case Some(u) => List("%s:%s".format(OWNER, u))
       case None => List()
     }) ::: query
-    val chQuery = SolrQueryService.createCHQuery(request, theme, false, Option(connectedUser), queryList)
+    val chQuery = SolrQueryService.createCHQuery(request, configuration, false, Option(connectedUser), queryList)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
-    val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), theme, queryResponse, chQuery)
+    val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), configuration, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
     val items = briefItemView.getBriefDocs.map(bd =>

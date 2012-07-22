@@ -78,7 +78,7 @@ object Authentication extends ApplicationController {
                 HubUser.findByUsername(user._1)
               }
             }.getOrElse {
-              ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1), theme)
+              ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1), configuration)
               return Action { implicit request => Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again")) }
             }
          }

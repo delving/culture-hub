@@ -21,7 +21,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with ThemeAware with Logging with Extensions {
+trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions {
 
   protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
 
@@ -33,14 +33,14 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
 
   private val LANG_COOKIE = "CH_LANG"
 
-  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(theme.defaultLanguage)
+  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
   def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
 
   def ApplicationAction[A](action: Action[A]): Action[A] = {
-    Themed {
+    DomainConfigured {
       Action(action.parser) {
         implicit request: Request[A] => {
 
@@ -50,9 +50,9 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
             Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
             langParam.get(0)
           } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
-            // if there is no language for this cookie / user set, set the default one from the PortalTheme
-            Logger("CultureHub").trace("Setting language from theme to " + theme.defaultLanguage)
-            theme.defaultLanguage
+            // if there is no language for this cookie / user set, set the default one from the configuration
+            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.defaultLanguage)
+            configuration.defaultLanguage
           } else {
             Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
             request.cookies.get(LANG_COOKIE).get.value
@@ -65,11 +65,11 @@ trait ApplicationController extends Controller with GroovyTemplates with ThemeAw
           renderArgs += (__LANG, requestLanguage)
 
           // apply plugin handlers
-          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, theme, renderArgs, getLang)))
+          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, configuration, renderArgs, getLang)))
 
           // main navigation
           val menu = hubPlugins.map(
-            plugin => plugin.mainMenuEntries(theme, getLang).map(_.asJavaMap)
+            plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
           ).flatten.asJava
 
           renderArgs += ("menu" -> menu)

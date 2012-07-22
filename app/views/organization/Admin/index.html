@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/ui/jquery-ui-1.8.16.custom.css")}"/>
 #{/set}
 
-#{breadcrumbs request: request, theme: themeInfo.getTheme() /}
+#{breadcrumbs request: request, configuration: themeInfo.getConfiguration() /}
 
 #{organizationNavBar orgId: orgId, active:"administration", navigation: navigation /}
 

@@ -1,6 +1,6 @@
 package controllers
 
-import exceptions.{StorageInsertionException, UnauthorizedException, AccessKeyException}
+import exceptions.{StorageInsertionException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
@@ -16,7 +16,6 @@ import play.api.Play.current
 import core.HubServices
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import core.storage.BaseXCollection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
@@ -41,8 +40,6 @@ import java.util.regex.Matcher
 
 object SipCreatorEndPoint extends ApplicationController {
 
-  private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
-
   val DOT_PLACEHOLDER = "--"
 
   val log: Logger = Logger(SipCreatorEndPoint.getClass)
@@ -54,7 +51,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = Themed {
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = DomainConfigured {
     Action(action.parser) {
       implicit request => {
         if (accessToken.isEmpty) {
@@ -219,7 +216,7 @@ object SipCreatorEndPoint extends ApplicationController {
                   Left("%s: Cannot upload source while the set is being processed".format(spec))
                 } else {
                   val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                  receiveActor ! SourceStream(dataSet.get, connectedUser, theme, inputStream, request.body)
+                  receiveActor ! SourceStream(dataSet.get, connectedUser, configuration, inputStream, request.body)
                   DataSet.updateState(dataSet.get, DataSetState.PARSING)
                   Right("Received it")
                 }
@@ -395,9 +392,7 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val collection = BaseXCollection(dataSet.orgId, dataSet.spec)
-
-    val recordCount = basexStorage.count(collection)
+    val recordCount = basexStorage.count(dataSet)
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
@@ -445,7 +440,7 @@ object SipCreatorEndPoint extends ApplicationController {
           builder.append(">")
           write(builder.toString(), pw, out)
 
-          basexStorage.withSession(collection) {
+          basexStorage.withSession(dataSet) {
             implicit session =>
               val total = basexStorage.count
               var count = 0
@@ -522,12 +517,12 @@ object SipCreatorEndPoint extends ApplicationController {
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
-    val mayCollection = basexStorage.openCollection(dataSet.orgId, dataSet.spec)
+    val mayCollection = basexStorage.openCollection(dataSet)
     val collection = if(mayCollection.isDefined) {
       basexStorage.deleteCollection(mayCollection.get)
-      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
+      basexStorage.createCollection(dataSet)
     } else {
-      basexStorage.createCollection(dataSet.orgId, dataSet.spec)
+      basexStorage.createCollection(dataSet)
     }
 
     val parser = new SimpleDataSetParser(source, dataSet)
@@ -549,14 +544,14 @@ class ReceiveSource extends Actor {
   var tempFileRef: TemporaryFile = null
 
   protected def receive = {
-    case SourceStream(dataSet, userName, theme, inputStream, tempFile) =>
+    case SourceStream(dataSet, userName, configuration, inputStream, tempFile) =>
       val now = System.currentTimeMillis()
 
       // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, userName, theme, inputStream) match {
+        receiveSource(dataSet, userName, configuration, inputStream) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -573,7 +568,7 @@ class ReceiveSource extends Actor {
             }
             DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), configuration)
           case Right(inserted) =>
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
             Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
@@ -590,7 +585,7 @@ class ReceiveSource extends Actor {
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, configuration: DomainConfiguration, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
@@ -605,4 +600,4 @@ class ReceiveSource extends Actor {
 
 }
 
-case class SourceStream(dataSet: DataSet, userName: String, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)
+case class SourceStream(dataSet: DataSet, userName: String, configuration: DomainConfiguration, stream: InputStream, temporaryFile: TemporaryFile)

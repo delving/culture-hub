@@ -29,7 +29,6 @@ import play.api.Play
 import play.api.Play.current
 import java.net.URL
 import core.Constants._
-import core.storage.BaseXCollection
 import models.statistics.DataSetStatistics
 import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 
@@ -118,7 +117,7 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    DataSet.storage.openCollection(this.orgId, this.spec).isDefined && DataSet.getSourceRecordCount(this) != 0
+    DataSet.storage.openCollection(this).isDefined && DataSet.getSourceRecordCount(this) != 0
   }
 
   // ~~~ harvesting
@@ -339,13 +338,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
-    storage.deleteCollection(BaseXCollection(dataSet.orgId, dataSet.spec))
+    storage.deleteCollection(dataSet)
     remove(dataSet)
   }
 
   // ~~~ record handling
 
-  def getSourceRecordCount(dataSet: DataSet): Long = storage.count(BaseXCollection(dataSet.orgId, dataSet.spec))
+  def getSourceRecordCount(dataSet: DataSet): Long = storage.count(dataSet)
 
   // ~~~ dataSet control
 

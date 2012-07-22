@@ -5,8 +5,8 @@ import eu.delving.basex.client.BaseX
 import exceptions.StorageInsertionException
 import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
-import xml.Node
 import play.api.Logger
+import core.collection.Collection
 
 /**
  * BaseX-based Storage engine.
@@ -23,37 +23,33 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
 
   lazy val storage = new BaseX(host, port, ePort, user, password, false)
 
-  def createCollection(orgId: String, collectionName: String): Collection = {
-    val c = BaseXCollection(orgId, collectionName)
-    storage.createDatabase(c.storageName)
-    c
+  def createCollection(collection: Collection): Collection = {
+    storage.createDatabase(storageName(collection))
+    collection
   }
 
-  def openCollection(c: Collection): Option[Collection] = openCollection(c.orgId, c.name)
-
-  def openCollection(orgId: String, collectionName: String): Option[Collection] = {
-    val c = BaseXCollection(orgId, collectionName)
+  def openCollection(collection: Collection): Option[Collection] = {
     try {
-      storage.openDatabase(c.storageName)
-      Some(c)
+      storage.openDatabase(storageName(collection))
+      Some(collection)
     } catch {
-      case _ => None
+      case t: Throwable => None
     }
   }
 
   def deleteCollection(c: Collection) {
-    storage.dropDatabase(c.storageName)
+    storage.dropDatabase(storageName(c))
   }
 
   def withSession[T](collection: Collection)(block: ClientSession => T) = {
-    storage.withSession(collection.storageName) {
+    storage.withSession(storageName(collection)) {
       session =>
         block(session)
     }
   }
 
   def withBulkSession[T](collection: Collection)(block: ClientSession => T) = {
-    storage.withSession(collection.storageName) {
+    storage.withSession(storageName(collection)) {
       session =>
         session.setAutoflush(false)
         block(session)
@@ -93,7 +89,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
     inserted
   }
 
-  def count(collection: BaseXCollection): Int = {
+  def count(collection: Collection): Int = {
     val c = openCollection(collection)
     c.map {
       col =>
@@ -141,12 +137,9 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
     session.findRaw("for $i in /*:record[@version = %s] order by $i/system/index return $i/*:document/*:input".format(currentVersion))
   }
 
-}
+  private def storageName(c: Collection) = c.getOwner + "____" + c.spec
 
-case class BaseXCollection(orgId: String, name: String) extends Collection {
-  override def storageName = orgId + "____" + name
 }
-
 
 
 
