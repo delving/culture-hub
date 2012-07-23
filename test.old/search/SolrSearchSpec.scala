@@ -7,7 +7,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.FacetField
 import org.apache.solr.client.solrj.response.FacetField.Count
 import play.mvc.Scope.Params
-import models.PortalTheme
+import models.DomainConfiguration
 
 /**
  *

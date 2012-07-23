@@ -1,6 +1,5 @@
 package models {
 
-import org.bson.types.ObjectId
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Play, Logger}
@@ -8,25 +7,24 @@ import Play.current
 import collection.JavaConverters._
 
 /**
+ * Holds configuration that is used when a specific domain is accessed. It overrides a default configuration.
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class PortalTheme(_id:                                 ObjectId = new ObjectId,
-                       name:                                String,
-                       subdomain:                           Option[String] = None,
-                       domains:                             List[String] = List.empty,
-                       themeDir:                            String,
-                       defaultLanguage:                     String = "en",
-                       siteName:                            Option[String],
-                       siteSlogan:                          Option[String],
-                       emailTarget:                         EmailTarget = EmailTarget(),
-                       hiddenQueryFilter:                   Option[String] = Some(""),
-                       homePage:                            Option[String] = None,
-                       facets:                              Option[String] = None, // dc_creator:crea:Creator,dc_type
-                       sortFields:                          Option[String] = None, // dc_creator,dc_provider:desc
-                       apiWsKey:                            Boolean = false) {
+case class DomainConfiguration(name:                        String,
+                               domains:                     List[String] = List.empty,
+                               themeDir:                    String,
+                               defaultLanguage:             String = "en",
+                               siteName:                    Option[String],
+                               siteSlogan:                  Option[String],
+                               emailTarget:                 EmailTarget = EmailTarget(),
+                               hiddenQueryFilter:           Option[String] = Some(""),
+                               homePage:                    Option[String] = None,
+                               facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
+                               sortFields:                  Option[String] = None, // dc_creator,dc_provider:desc
+                               apiWsKey:                    Boolean = false) {
 
   def getFacets: List[SolrFacetElement] = {
     facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
@@ -73,23 +71,23 @@ case class EmailTarget(adminTo: String = "test-user@delving.eu",
                        systemFrom: String = "noreply@delving.eu",
                        feedbackFrom: String = "noreply@delving.eu")
 
-object PortalTheme {
+object DomainConfiguration {
 
   def getAll = {
     val config = Play.configuration.getConfig("themes").get
-      val allThemes = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-      allThemes.map {
-        themeKey => {
-          val theme = config.getConfig(themeKey).get
-          PortalTheme(
-            name = themeKey,
-            domains = theme.underlying.getStringList("domains").asScala.toList,
-            themeDir = theme.getString("themeDir").getOrElse("default"),
-            defaultLanguage = theme.getString("defaultLanguage").getOrElse("en"),
-            siteName = theme.getString("siteName"),
-            siteSlogan = theme.getString("siteSlogan").orElse(Some("Delving CultureHub")),
+      val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      allDomainConfigurations.map {
+        configurationKey => {
+          val configuration = config.getConfig(configurationKey).get
+          DomainConfiguration(
+            name = configurationKey,
+            domains = configuration.underlying.getStringList("domains").asScala.toList,
+            themeDir = configuration.getString("themeDir").getOrElse("default"),
+            defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
+            siteName = configuration.getString("siteName"),
+            siteSlogan = configuration.getString("siteSlogan").orElse(Some("Delving CultureHub")),
             emailTarget = {
-              val emailTarget = theme.getConfig("emailTarget").get
+              val emailTarget = configuration.getConfig("emailTarget").get
               EmailTarget(
                 adminTo = emailTarget.getString("adminTo").getOrElse("servers@delving.eu"),
                 exceptionTo = emailTarget.getString("exceptionTo").getOrElse("servers@delving.eu"),
@@ -99,11 +97,11 @@ object PortalTheme {
                 feedbackFrom = emailTarget.getString("feedbackFrom").getOrElse("servers@delving.eu")
               )
             },
-            hiddenQueryFilter = theme.getString("hiddenQueryFilter"),
-            homePage = theme.getString("homePage"),
-            facets = theme.getString("facets"),
-            sortFields = theme.getString("sortFields"),
-            apiWsKey = theme.getBoolean("apiWsKey").getOrElse(false)
+            hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
+            homePage = configuration.getString("homePage"),
+            facets = configuration.getString("facets"),
+            sortFields = configuration.getString("sortFields"),
+            apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false)
           )
         }
       }.toList

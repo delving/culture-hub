@@ -4,7 +4,7 @@ import controllers.OrganizationController
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 import models._
 import core.HubServices
 import core.search.Params

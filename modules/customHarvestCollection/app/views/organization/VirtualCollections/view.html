@@ -2,7 +2,7 @@
 #{set title: messages.get('thing.virtualCollection') + ' ' + name + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs theme: themeInfo.getTheme() /}
+#{breadcrumbs configuration: themeInfo.getConfiguration() /}
 
 #{organizationNavBar orgId: orgId, active:"virtual-collections", navigation: navigation /}
 

@@ -1,22 +1,22 @@
 package core
 
-import models.PortalTheme
+import models.DomainConfiguration
 import util.ThemeInfoReader
 import play.api.PlayException
 
 /**
- * Provides theme-related configuration and information to the view
+ * Provides graphical theme related configuration and information to the view
  */
-class ThemeInfo(theme: PortalTheme) {
+class ThemeInfo(configuration: DomainConfiguration) {
 
-  def getTheme = theme
+  def getConfiguration = configuration
 
   def get(property: String) = {
     themeProperty[String](property, classOf[String])
   }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val value: String = ThemeInfoReader.get(property, theme.name, theme.themeDir) match {
+    val value: String = ThemeInfoReader.get(property, configuration.name, configuration.themeDir) match {
       case Some(prop) => prop
       case None =>
         ThemeInfoReader.get(property, "default", "default") match {
@@ -34,9 +34,9 @@ class ThemeInfo(theme: PortalTheme) {
     result.asInstanceOf[T]
   }
 
-  def path(path: String) = "/assets/themes/%s/%s".format(theme.themeDir, path)
+  def path(path: String) = "/assets/themes/%s/%s".format(configuration.themeDir, path)
 
-  val siteName = theme.siteName.getOrElse("Delving CultureHub")
-  val siteSlogan = theme.siteSlogan.getOrElse("")
+  val siteName = configuration.siteName.getOrElse("Delving CultureHub")
+  val siteSlogan = configuration.siteSlogan.getOrElse("")
 
 }

@@ -20,7 +20,7 @@ import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
 import play.api.mvc.{RequestHeader, Results, Result}
-import models.PortalTheme
+import models.DomainConfiguration
 import extensions.Email
 import core.ThemeInfo
 import util.Quotes
@@ -49,12 +49,12 @@ trait Logging extends Secured { self: ApplicationController =>
   }
   def Error(implicit request: RequestHeader)        = {
     Logger.error(withContext("Internal server error"))
-    reportError(request, "Internal server error", theme)
+    reportError(request, "Internal server error", configuration)
     Results.InternalServerError(views.html.errors.error(None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
     Logger.error(withContext(why))
-    reportError(request, why, theme)
+    reportError(request, why, configuration)
     Results.InternalServerError(why)
   }
   def BadRequest(implicit request: RequestHeader)              = {
@@ -90,19 +90,19 @@ trait Logging extends Secured { self: ApplicationController =>
   def warning(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
     Logger(CH).warn(withContext(m(message, args)), e)
   }
-  def logError(message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
+  def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)))
-    reportError(request, if(message != null) message.format(args) else "", theme)
+    reportError(request, if(message != null) message.format(args) else "", configuration)
   }
 
-  def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, theme: PortalTheme) {
+  def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)), e)
-    reportError(request, if(message != null) message.format(args) else "", theme)
+    reportError(request, if(message != null) message.format(args) else "", configuration)
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
     Logger(CH).error("Attempted security breach: " + message)
-    ErrorReporter.reportError(securitySubject, toReport(message, request), theme)
+    ErrorReporter.reportError(securitySubject, toReport(message, request), configuration)
   }
   
   private def m(message: String, args: Seq[String]) = {
@@ -122,19 +122,19 @@ trait Logging extends Secured { self: ApplicationController =>
 
 object ErrorReporter {
 
-  def reportError(request: RequestHeader, message: String, theme: PortalTheme) {
-    reportError(subject(request), toReport(message, request), theme)
+  def reportError(request: RequestHeader, message: String, configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, request), configuration)
   }
-  def reportError(request: RequestHeader, e: Throwable, message: String, theme: PortalTheme) {
-    reportError(subject(request), toReport(message, e, request), theme)
-  }
-
-  def reportError(job: String, t: Throwable, message: String, theme: PortalTheme) {
-    reportError("[CultureHub] An error occured on node %s".format(current.configuration.getString("culturehub.nodeName")), toReport(job, message, t), theme)
+  def reportError(request: RequestHeader, e: Throwable, message: String, configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, e, request), configuration)
   }
 
-  def reportError(subject: String, report: String, theme: PortalTheme) {
-    Email(theme.emailTarget.systemFrom, subject).to(theme.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(theme)).send()
+  def reportError(job: String, t: Throwable, message: String, configuration: DomainConfiguration) {
+    reportError("[CultureHub] An error occured on node %s".format(current.configuration.getString("culturehub.nodeName")), toReport(job, message, t), configuration)
+  }
+
+  def reportError(subject: String, report: String, configuration: DomainConfiguration) {
+    Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(configuration)).send()
   }
 
   private def getUser(request: RequestHeader) = request.session.get("userName").getOrElse("Unknown")

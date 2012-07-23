@@ -9,7 +9,7 @@ import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import play.api.Play.current
-import models.{PortalTheme, DataSetEventLog, DataSetState, DataSet}
+import models.{DomainConfiguration, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
 import play.api.libs.json.JsArray
@@ -17,7 +17,7 @@ import play.api.libs.json.JsString
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsNumber
 import scala.Some
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 
 
 /**
@@ -77,13 +77,13 @@ object DataSetEventFeed {
     Akka.system.actorOf(Props[DataSetEventFeed])
   }
 
-  def subscribe(orgId: String, clientId: String, userName: String, theme: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
     implicit val timeout = Timeout(1 second)
 
-    (default ? Subscribe(orgId, userName, theme, clientId, spec)).asPromise.map {
+    (default ? Subscribe(orgId, userName, configuration, clientId, spec)).asPromise.map {
 
       case Connected(enumerator) =>
 
@@ -114,7 +114,7 @@ object DataSetEventFeed {
     }
   }
 
-  case class Subscribe(orgId: String, userName: String, theme: String, clientId: String, spec: Option[String] = None)
+  case class Subscribe(orgId: String, userName: String, configuration: String, clientId: String, spec: Option[String] = None)
   case class Unsubscribe(clientId: String)
 
   case class Connected(enumerator: PushEnumerator[JsValue])
@@ -227,7 +227,7 @@ class DataSetEventFeed extends Actor {
 
   def receive = {
 
-    case Subscribe(orgId, userName, theme, clientId, spec) => {
+    case Subscribe(orgId, userName, configuration, clientId, spec) => {
       // Create an Enumerator to write to this socket
 
       val channel = Enumerator.imperative[JsValue]()
@@ -240,7 +240,7 @@ class DataSetEventFeed extends Actor {
          // if there was no subscriber before, start the polling
          self ! StartPolling
         }
-        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, theme, spec, channel))
+        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, channel))
         sender ! Connected(channel)
       }
 
@@ -265,7 +265,7 @@ class DataSetEventFeed extends Actor {
           val s = subscriber._2
           val orgId = subscriber._2.orgId
           val userName = subscriber._2.userName
-          val theme = ThemeHandler.getByName(subscriber._2.theme)
+          val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
 
           def withEditableSet(block: DataSet => Unit) {
             DataSet.findBySpecAndOrgId(spec, orgId).map {
@@ -347,7 +347,7 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case ENABLED | DISABLED | UPLOADED | ERROR =>
-                      DataSet.updateIndexingControlState(set, set.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
+                      DataSet.updateIndexingControlState(set, set.getIndexingMappingPrefix.getOrElse(""), configuration.getFacets.map(_.facetName), configuration.getSortFields.map(_.sortKey))
                       DataSet.updateState(set, DataSetState.QUEUED, Some(userName))
                       send(s, ok)
                     case _ => send(s, error("Cannot process set that is not enabled, disabled, uploaded or in error"))
@@ -527,7 +527,7 @@ class DataSetEventFeed extends Actor {
     }
   }
 
-  case class Subscriber(orgId: String, userName: String, theme: String, spec: Option[String], channel: PushEnumerator[JsValue])
+  case class Subscriber(orgId: String, userName: String, configuration: String, spec: Option[String], channel: PushEnumerator[JsValue])
 
 }
 

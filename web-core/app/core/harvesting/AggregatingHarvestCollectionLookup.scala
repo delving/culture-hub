@@ -7,12 +7,12 @@ import play.api.Play
 import play.api.Play.current
 
 /**
- * Aggregated lookup mechanism all for Harvestable Collections
+ * Aggregated lookup mechanism all for Harvest Collections
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object AggregatingHarvestableCollectionLookup {
+object AggregatingHarvestCollectionLookup {
 
   lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
   lazy val harvestCollectionLookups = hubPlugins.flatMap(_.getHarvestCollectionLookups)

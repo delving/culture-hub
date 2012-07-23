@@ -1,7 +1,6 @@
-import com.mongodb.casbah.commons.MongoDBObject
-import models.PortalTheme
+import models.DomainConfiguration
 import org.specs2.mutable.Specification
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 
 import play.api.test._
 import play.api.test.Helpers._
@@ -13,26 +12,23 @@ import play.api.test.Helpers._
 
 class PlatformSpec extends Specification with TestContext {
 
-  val themeHandler = ThemeHandler
+  val domainConfigurationHandler = DomainConfigurationHandler
 
-  "The PortalTheme handled" should {
+  "The DomainConfigurationHandler handled" should {
 
-    "load themes from disk into the database" in {
+    "load configurations from disk into memory" in {
       withTestConfig {
-        themeHandler.startup()
-        PortalTheme.getAll.size should not equalTo (0)
+        domainConfigurationHandler.startup()
+        DomainConfiguration.getAll.size should not equalTo (0)
       }
     }
 
-    "deliver a default theme" in {
+    "deliver a default configuration" in {
       withTestConfig {
-        themeHandler.getDefaultTheme should not equalTo (null)
+        domainConfigurationHandler.getDefaultConfiguration should not equalTo (null)
       }
     }
 
   }
-
-  step(cleanup)
-
 
 }
