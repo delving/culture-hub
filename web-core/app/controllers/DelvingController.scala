@@ -62,7 +62,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
-          renderArgs += (__LANG, requestLanguage)
+          renderArgs += (__LANG -> requestLanguage)
 
           // apply plugin handlers
           onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, configuration, renderArgs, getLang)))
@@ -267,12 +267,12 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           // Connected user
           HubUser.findByUsername(userName).map {
             u => {
-              renderArgs +=("fullName", u.fullname)
-              renderArgs +=("userName", u.userName)
-              renderArgs +=("userId", u._id)
+              renderArgs +=("fullName" -> u.fullname)
+              renderArgs +=("userName" -> u.userName)
+              renderArgs +=("userId" -> u._id)
               //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-              renderArgs +=("organizations", u.organizations)
-              renderArgs +=("email", u.email)
+              renderArgs +=("organizations" -> u.organizations)
+              renderArgs +=("email" -> u.email)
 
               // refresh session parameters
               additionalSessionParams += (Constants.ORGANIZATIONS -> u.organizations.mkString(","))
@@ -304,9 +304,9 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           val maybeUser = HubUser.findByUsername(user)
           maybeUser match {
             case Some(u) =>
-              renderArgs +=("browsedFullName", u.fullname)
-              renderArgs +=("browsedUserId", u._id)
-              renderArgs +=("browsedUserName", u.userName)
+              renderArgs +=("browsedFullName" -> u.fullname)
+              renderArgs +=("browsedUserId" -> u._id)
+              renderArgs +=("browsedUserName" -> u.userName)
               action(request)
             case None => NotFound(Messages("delvingcontroller.userNotFound", user))
           }
@@ -351,9 +351,9 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           val orgName = HubServices.organizationService.getName(orgId, "en")
           val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
           renderArgs += ("orgId" -> orgId)
-          renderArgs += ("browsedOrgName", orgName)
-          renderArgs += ("currentLanguage", getLang)
-          renderArgs += ("isAdmin" -> isAdmin)
+          renderArgs += ("browsedOrgName" -> orgName)
+          renderArgs += ("currentLanguage" -> getLang)
+          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
             u => Group.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq

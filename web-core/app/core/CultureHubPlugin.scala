@@ -4,7 +4,6 @@ import collection.HarvestCollectionLookup
 import scala.util.matching.Regex
 import play.api._
 import mvc.{RequestHeader, Handler}
-import eu.delving.templates.scala.RenderArgs
 import models.{GrantType, DomainConfiguration}
 import scala.collection.JavaConverters._
 
@@ -59,5 +58,5 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Se
   ).asJava
 }
 
-case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: RenderArgs, lang: String)
+case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
 
