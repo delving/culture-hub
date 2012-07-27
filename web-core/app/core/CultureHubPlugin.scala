@@ -1,6 +1,7 @@
 package core
 
 import collection.HarvestCollectionLookup
+import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
 import mvc.{RequestHeader, Handler}
@@ -20,7 +21,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   override def enabled: Boolean = app.configuration.getString("cultureHub.plugins").map(_.split(",").map(_.trim).contains(pluginKey)).getOrElse(false)
 
-  val routes: Map[(String, Regex), List[String] => Handler] = Map.empty
+  val routes: ListMap[(String, Regex), List[String] => Handler] = ListMap.empty
 
   def onApplicationStart() { }
 

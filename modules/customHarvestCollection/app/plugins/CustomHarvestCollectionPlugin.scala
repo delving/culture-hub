@@ -11,6 +11,7 @@ import akka.actor.Props
 import akka.util.duration._
 import jobs.{UpdateVirtualCollection, UpdateVirtualCollectionCount, VirtualCollectionCount}
 import scala.util.matching.Regex
+import collection.immutable.ListMap
 
 /**
  *
@@ -52,7 +53,7 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
   DELETE      /organizations/:orgId/virtualCollection/:spec                     controllers.organization.VirtualCollections.delete(orgId, spec)
   */
 
-  override val routes: Map[(String, Regex), (List[String]) => Handler] = Map(
+  override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
     ("GET", """^/organizations/([A-Za-z0-9-]+)/virtualCollection$""".r) -> {
       pathArgs: List[String] => controllers.organization.VirtualCollections.list(pathArgs(0))
     },

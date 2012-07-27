@@ -5,6 +5,7 @@ import scala.util.matching.Regex
 import models.DomainConfiguration
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
 import play.api.Application
+import collection.immutable.ListMap
 
 /**
  *
@@ -15,7 +16,7 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "musip"
 
-  override val routes: Map[(String, Regex), List[String] => Handler] = Map(
+  override val routes: ListMap[(String, Regex), List[String] => Handler] = ListMap(
     ("GET", """^/([A-Za-z0-9-]+)/collection/([A-Za-z0-9-]+)$""".r) -> {
       pathArgs: List[String] => controllers.musip.Show.collection(pathArgs(0), pathArgs(1))
     },

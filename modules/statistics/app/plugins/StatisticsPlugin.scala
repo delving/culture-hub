@@ -5,6 +5,7 @@ import scala.util.matching.Regex
 import play.api.mvc.Handler
 import models.GrantType
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import collection.immutable.ListMap
 
 /**
  *
@@ -15,7 +16,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "statistics"
 
-  override val routes: Map[(String, Regex), (List[String]) => Handler] = Map(
+  override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
     ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics/dataset$""".r) -> {
       pathArgs: List[String] => controllers.statistics.Statistics.statistics(pathArgs(0))
     })
