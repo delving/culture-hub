@@ -92,7 +92,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       replaceAll("\\[", "%5B").
       replaceAll("\\]", "%5D").
       replaceAll(" ", "%20").
-      replaceAll("+", "%2B")
+      replaceAll("\\+", "%2B")
   }
 
   private def storeImage(url: String): Boolean = {
