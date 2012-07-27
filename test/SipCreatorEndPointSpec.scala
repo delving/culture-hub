@@ -159,8 +159,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
-        // now we wait since the parsing is asynchronous
-        Thread.sleep(3000)
+        // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
+        Thread.sleep(10000)
 
         DataSet.getSourceRecordCount(dataSet) must equalTo(8)
       }
