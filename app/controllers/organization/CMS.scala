@@ -31,7 +31,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (HubServices.organizationService.isAdmin(orgId, connectedUser) || Group.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
+          if (HubServices.organizationService.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -41,26 +41,26 @@ object CMS extends OrganizationController {
     }
   }
 
-  implicit def cmsPageToViewModel(p: CMSPage) = {
+  implicit def cmsPageToViewModel(p: CMSPage)(implicit configuration: DomainConfiguration) = {
     // for the moment we have one main menu so we can do it like this
-    val menuEntryPosition = MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key) match {
+    val menuEntryPosition = MenuEntry.dao.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key) match {
       case Some(e) => e.position
-      case None => MenuEntry.findEntries(p.orgId, p.theme, MAIN_MENU).length + 1
+      case None => MenuEntry.dao.findEntries(p.orgId, p.theme, MAIN_MENU).length + 1
     }
 
-    val menu = if (MenuEntry.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key).isDefined) MAIN_MENU else NO_MENU
+    val menu = if (MenuEntry.dao.findByPageAndMenu(p.orgId, p.theme, MAIN_MENU, p.key).isDefined) MAIN_MENU else NO_MENU
 
     CMSPageViewModel(p._id.getTime, p.key, p.theme, p.lang, p.title, p.userName, p.content, p.isSnippet, p.published, menuEntryPosition, menu)
   }
 
-  implicit def cmsPageListToViewModelList(l: List[CMSPage]) = l.map(cmsPageToViewModel(_))
+  implicit def cmsPageListToViewModelList(l: List[CMSPage])(implicit configuration: DomainConfiguration) = l.map(cmsPageToViewModel(_))
 
 
   def list(orgId: String, language: Option[String]) = CMSAction(orgId) {
     Action {
       implicit request =>
         val lang = language.getOrElse(getLang)
-        val pages = CMSPage.list(orgId, lang)
+        val pages = CMSPage.dao.list(orgId, lang)
         Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang))
     }
   }
@@ -97,12 +97,12 @@ object CMS extends OrganizationController {
   def page(orgId: String, language: String, page: Option[String]): Action[AnyContent] = CMSAction(orgId) {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.findEntries(orgId, configuration.name, MAIN_MENU)
+        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.name, MAIN_MENU)
 
         val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
           case None => (CMSPageViewModel(System.currentTimeMillis(), "", configuration.name, language, "", connectedUser, "", false, false, menuEntries.length + 1, NO_MENU), List.empty)
           case Some(key) =>
-            val versions = CMSPage.findByKey(orgId, key)
+            val versions = CMSPage.dao.findByKey(orgId, key)
             if (versions.length == 0) {
               return Action {
                 implicit request => NotFound(key)
@@ -125,11 +125,11 @@ object CMS extends OrganizationController {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
 
             if (pageModel.menu == MAIN_MENU) {
-              MenuEntry.addPage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
+              MenuEntry.dao.addPage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
             } else if (pageModel.menu == NO_MENU) {
-              MenuEntry.removePage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.lang)
+              MenuEntry.dao.removePage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.lang)
             }
-            val page: CMSPageViewModel = CMSPage.create(orgId, configuration.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published)
+            val page: CMSPageViewModel = CMSPage.dao.create(orgId, configuration.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published)
 
             Json(page)
           }
@@ -140,10 +140,10 @@ object CMS extends OrganizationController {
   def pageDelete(orgId: String, key: String, language: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        CMSPage.delete(orgId, key, language)
+        CMSPage.dao.delete(orgId, key, language)
 
         // also delete menu entries that refer to that page, for now only from the main menu
-        MenuEntry.removePage(orgId, configuration.name, MAIN_MENU, key, language)
+        MenuEntry.dao.removePage(orgId, configuration.name, MAIN_MENU, key, language)
 
         Ok
     }
@@ -153,7 +153,7 @@ object CMS extends OrganizationController {
     Action {
       implicit request =>
       // TODO link the themes to the organization so this also works on multi-org hubs
-        CMSPage.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> configuration.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> configuration.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)
           case Some(pagePreview) => Ok(Template('page -> pagePreview))
         }

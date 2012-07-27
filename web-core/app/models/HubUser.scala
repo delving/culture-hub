@@ -52,13 +52,13 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
     true
   }
 
-  def removeFromOrganization(userName: String, orgId: String): Boolean = {
+  def removeFromOrganization(userName: String, orgId: String)(implicit configuration: DomainConfiguration): Boolean = {
     try {
       HubUser.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
 
       // remove from all groups
-      Group.findDirectMemberships(userName, orgId).foreach {
-        group => Group.removeUser(userName, group._id)
+      Group.dao.findDirectMemberships(userName, orgId).foreach {
+        group => Group.dao.removeUser(userName, group._id)
       }
     } catch {
       case _ => return false

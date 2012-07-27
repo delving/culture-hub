@@ -29,7 +29,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     request =>
   }
 
-  def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
+  def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 

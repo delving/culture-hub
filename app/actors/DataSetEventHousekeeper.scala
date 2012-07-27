@@ -11,7 +11,7 @@ import models.DataSetEventLog
 class DataSetEventHousekeeper extends Actor {
 
   def receive = {
-    case CleanupTransientEvents => DataSetEventLog.removeTransient()
+    case CleanupTransientEvents => DataSetEventLog.all.foreach(l => l.removeTransient())
   }
 
 }

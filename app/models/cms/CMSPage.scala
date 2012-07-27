@@ -21,6 +21,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import models.mongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
+import models.MultiModel
 
 /**
  *
@@ -52,8 +53,17 @@ case class MenuEntry(_id: ObjectId = new ObjectId(),
                      published: Boolean = false
                       )
 
+object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
+  def connectionName: String = "CMSPages"
 
-object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
+  def initIndexes(collection: MongoCollection) {
+    addIndexes(collection, Seq(MongoDBObject("_id" -> 1, "language" -> 1)))
+  }
+
+  def initDAO(collection: MongoCollection, connection: MongoDB): CMSPageDAO = new CMSPageDAO(collection)
+}
+
+class CMSPageDAO(collection: MongoCollection) extends SalatDAO[CMSPage, ObjectId](collection) {
 
   def list(orgId: String, lang: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "lang" -> lang)).toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
 
@@ -63,7 +73,7 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
 
   def create(orgId: String, theme: String, key: String, lang: String, userName: String, title: String, content: String, published: Boolean): CMSPage = {
     val page = CMSPage(orgId = orgId, theme = theme, key = key, userName = userName, title = title, content = content, isSnippet = false, lang = lang, published = published)
-    val inserted = CMSPage.insert(page)
+    val inserted = insert(page)
     page.copy(_id = inserted.get)
   }
 
@@ -73,7 +83,19 @@ object CMSPage extends SalatDAO[CMSPage, ObjectId](cmsPages) {
 
 }
 
-object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
+object MenuEntry extends MultiModel[MenuEntry, MenuEntryDAO] {
+
+  def connectionName: String = "CMSMenuEntries"
+
+  def initIndexes(collection: MongoCollection) {
+    addIndexes(collection, Seq(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1)))
+    addIndexes(collection, Seq(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1)))
+  }
+
+  def initDAO(collection: MongoCollection, connection: MongoDB): MenuEntryDAO = new MenuEntryDAO(collection)
+}
+
+class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, ObjectId](collection) {
 
   def findByPageAndMenu(orgId: String, theme: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "menuKey" -> menuKey, "targetPageKey" -> key))
 
@@ -99,13 +121,13 @@ object MenuEntry extends SalatDAO[MenuEntry, ObjectId](cmsMenuEntries) {
   }
 
   def removePage(orgId: String, theme: String, menuKey: String, targetPageKey: String, lang: String) {
-    MenuEntry.findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "targetPageKey" -> targetPageKey)) match {
+    findOne(MongoDBObject("orgId" -> orgId, "theme" -> theme, "targetPageKey" -> targetPageKey)) match {
       case Some(entry) =>
         val updated = entry.copy(title = entry.title - (lang))
         if (updated.title.isEmpty) {
-          MenuEntry.remove(MongoDBObject("_id" -> updated._id))
+          remove(MongoDBObject("_id" -> updated._id))
         } else {
-          MenuEntry.save(updated)
+          save(updated)
         }
       case None => // nothing
     }

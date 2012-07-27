@@ -1,9 +1,9 @@
 package models
 
-import mongoContext._
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
+import models.mongoContext._
 
 /**
  *
@@ -20,8 +20,19 @@ case class DataSetEventLog(_id: ObjectId = new ObjectId,
                            transientEvent: Boolean = false
                           )
 
+object DataSetEventLog extends MultiModel[DataSetEventLog, DataSetEventLogDAO] {
 
-object DataSetEventLog extends SalatDAO[DataSetEventLog, ObjectId](dataSetEventLogCollection) {
+  val connectionName: String = "DataSetEventLog"
+
+  def initIndexes(collection: MongoCollection) {
+    addIndexes(collection, Seq(MongoDBObject("orgId" -> 1)))
+    addIndexes(collection, Seq(MongoDBObject("transientEvent" -> 1)))
+  }
+
+  def initDAO(collection: MongoCollection, connection: MongoDB): DataSetEventLogDAO = new DataSetEventLogDAO(collection)
+}
+
+class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEventLog, ObjectId](connection) {
 
   def findRecent = find(MongoDBObject()).limit(50).sort(MongoDBObject("_id" -> -1)).toList.reverse
 

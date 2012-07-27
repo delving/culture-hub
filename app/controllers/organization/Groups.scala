@@ -3,7 +3,7 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import models.{GrantType, Group}
+import models.{DomainConfiguration, GrantType, Group}
 import models.mongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel, Token}
@@ -22,7 +22,7 @@ object Groups extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val groups = Group.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
+        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
         Ok(Template('groups -> groups))
     }
   }
@@ -33,7 +33,7 @@ object Groups extends OrganizationController {
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
           Forbidden(Messages("user.secured.noAccess"))
         } else {
-          val group: Option[Group] = groupId.flatMap(Group.findOneById(_))
+          val group: Option[Group] = groupId.flatMap(Group.dao.findOneById(_))
           val (usersAsTokens, dataSetsAsTokens) = group match {
             case None => (JJson.generate(List()), JJson.generate(List()))
             case Some(g) =>
@@ -50,7 +50,7 @@ object Groups extends OrganizationController {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
         elementAction(orgId, id, groupId, "organizations.group.cannotAddUser") {
-          Group.addUser(_, _)
+          Group.dao.addUser(_, _)
         }
     }
   }
@@ -60,7 +60,7 @@ object Groups extends OrganizationController {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
         elementAction(orgId, id, groupId, "organizations.group.cannotRemoveUser") {
-          Group.removeUser(_, _)
+          Group.dao.removeUser(_, _)
         }
     }
   }
@@ -72,7 +72,7 @@ object Groups extends OrganizationController {
         elementAction(orgId, id, groupId, "organizations.group.cannotAddDataset") {
           (id, groupId) =>
             if (!ObjectId.isValid(id)) false
-            Group.addDataSet(new ObjectId(id), groupId)
+            Group.dao.addDataSet(new ObjectId(id), groupId)
         }
     }
   }
@@ -84,7 +84,7 @@ object Groups extends OrganizationController {
         elementAction(orgId, id, groupId, "organizations.group.cannotRemoveDataset") {
           (id, groupId) =>
             if (!ObjectId.isValid(id)) false
-            Group.removeDataSet(new ObjectId(id), groupId)
+            Group.dao.removeDataSet(new ObjectId(id), groupId)
         }
     }
   }
@@ -108,7 +108,7 @@ object Groups extends OrganizationController {
         if(!groupId.isDefined) {
           Results.BadRequest
         } else {
-          Group.remove(MongoDBObject("_id" -> groupId, "orgId" -> orgId))
+          Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> orgId))
           Ok
         }
     }
@@ -135,7 +135,7 @@ object Groups extends OrganizationController {
                   }
               }
 
-              if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.findOneById(groupModel.id.get) == None))) {
+              if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.dao.findOneById(groupModel.id.get) == None))) {
                 reportSecurity("User %s tried to create an owners team!".format(connectedUser))
                 return Action {
                   Forbidden("Your IP has been logged and reported to the police.")
@@ -144,22 +144,22 @@ object Groups extends OrganizationController {
 
               val persisted = groupModel.id match {
                 case None =>
-                  Group.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType.key)) match {
+                  Group.dao.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType.key)) match {
                     case None => None
                     case Some(id) =>
-                      groupModel.users.foreach(u => Group.addUser(u.id, id))
-                      groupModel.dataSets.foreach(ds => Group.addDataSet(new ObjectId(ds.id), id))
+                      groupModel.users.foreach(u => Group.dao.addUser(u.id, id))
+                      groupModel.dataSets.foreach(ds => Group.dao.addDataSet(new ObjectId(ds.id), id))
                       Some(groupModel.copy(id = Some(id)))
                   }
                 case Some(id) =>
-                  Group.findOneById(groupModel.id.get) match {
+                  Group.dao.findOneById(groupModel.id.get) match {
                     case None => return Action {
                       NotFound("Group with ID %s was not found".format(id))
                     }
                     case Some(g) =>
                       g.grantType match {
                         case GrantType.OWN.key => // do nothing
-                        case _ => Group.updateGroupInfo(id, groupModel.name, grantType)
+                        case _ => Group.dao.updateGroupInfo(id, groupModel.name, grantType)
                       }
                       Some(groupModel)
                   }
@@ -176,8 +176,8 @@ object Groups extends OrganizationController {
     }
   }
 
-  private def load(orgId: String, groupId: Option[ObjectId]): String = {
-    groupId.flatMap(Group.findOneById(_)) match {
+  private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
+    groupId.flatMap(Group.dao.findOneById(_)) match {
       case None => JJson.generate(GroupViewModel())
       case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != GrantType.OWN.key))
     }

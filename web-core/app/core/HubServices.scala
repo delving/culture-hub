@@ -1,12 +1,16 @@
 package core
 
+import _root_.util.DomainConfigurationHandler
 import services._
-import models.HubUser
+import models.{DomainConfiguration, HubUser}
 import play.api.Play
 import play.api.Play.current
 import storage.BaseXStorage
 
 /**
+ * Global Services used by the Hub, initialized at startup time (see Global)
+ *
+ * TODO decide on a dependency injection mechanism
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -14,7 +18,6 @@ import storage.BaseXStorage
 object HubServices {
 
   // ~~~ service references
-  // TODO decide on a dependency injection mechanism
 
   var authenticationService: AuthenticationService = null
   var registrationService: RegistrationService = null
@@ -24,7 +27,11 @@ object HubServices {
 
   var basexStorage: BaseXStorage = null
 
+  var configurations: Seq[DomainConfiguration] = Seq.empty
+
   def init() {
+
+    configurations = DomainConfiguration.getAll
 
     val services = Play.configuration.getString("cultureCommons.host") match {
       case Some(host) =>

@@ -170,7 +170,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
   def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
-      val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+      val groups: List[GrantType] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
       // TODO make this cleaner
       if(isAdmin) {
         groups ++ List(GrantType.get("own"))
@@ -356,7 +356,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
-            u => Group.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
+            u => Group.dao.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
           }.getOrElse {
             List.empty
           }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)

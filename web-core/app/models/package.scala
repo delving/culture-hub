@@ -69,12 +69,7 @@ package object mongoContext extends models.MongoContext {
   lazy val hubUserCollection = connection("Users")
   hubUserCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
 
-  lazy val groupCollection = connection("Groups")
-
   lazy val dataSetsCollection = connection("Datasets")
-
-  lazy val virtualCollectionsCollection = connection("VirtualCollections")
-  lazy val virtualCollectionsRecordsCollection = connection("VirtualCollectionsRecords")
 
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
@@ -91,16 +86,7 @@ package object mongoContext extends models.MongoContext {
   // DataSet findTo
   linksCollection.ensureIndex(MongoDBObject("to.uri" -> 1, "linkType" -> 1))
 
-  lazy val cmsPages = connection("CMSPages")
-  cmsPages.ensureIndex(MongoDBObject("_id" -> 1, "language" -> 1))
-
-  lazy val cmsMenuEntries = connection("CMSMenuEntries")
-  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1))
-  cmsMenuEntries.ensureIndex(MongoDBObject("orgId" -> 1, "theme" -> 1, "menuKey" -> 1, "parentKey" -> 1))
-
   lazy val drupalEntitiesCollecion = connection("drupalEntities")
-
-  lazy val routeAccessCollection = connection("RouteAccess")
 
   val statisticsIndexes = Seq(
     MongoDBObject("orgId" -> 1, "key" -> 1)
@@ -120,33 +106,18 @@ package object mongoContext extends models.MongoContext {
 
   lazy val statisticsRunCollection = connection("StatisticsRun")
 
+  lazy val hubFileStore = GridFS(connection)
 
-  // dataSet stats
 
-  val dataSetStatisticsContextIndexNames = Seq("context", "contextDataProvider", "contextProvider")
+  // ~~~ shared indexes
 
   val dataSetStatisticsContextIndexes = Seq(
     MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1),
     MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.dataProvider" -> 1),
     MongoDBObject("context.orgId" -> 1, "context.spec" -> 1, "context.uploadDate" -> 1, "context.provider" -> 1)
   )
+  val dataSetStatisticsContextIndexNames = Seq("context", "contextDataProvider", "contextProvider")
 
-  lazy val dataSetStatistics = connection("DataSetStatistics")
-  addIndexes(dataSetStatistics, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
-
-  lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
-  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
-
-  lazy val fieldValues = connection("DataSetStatisticsFieldValues")
-  addIndexes(fieldValues, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
-
-
-  lazy val dataSetEventLogCollection = connection("DataSetEventLog")
-  addIndexes(dataSetEventLogCollection, Seq(MongoDBObject("orgId" -> 1)))
-  addIndexes(dataSetEventLogCollection, Seq(MongoDBObject("transientEvent" -> 1)))
-
-
-  lazy val hubFileStore = GridFS(connection)
 
 
 }

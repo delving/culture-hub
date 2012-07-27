@@ -4,6 +4,7 @@ import java.io.{File, FileInputStream}
 import java.util.zip.GZIPInputStream
 import models.{DataSetState, DataSet}
 import org.specs2.mutable.Specification
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -18,6 +19,7 @@ class BaseXStorageSpec extends Specification with TestContext {
 
       withTestData {
 
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
         SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
         DataSet.updateState(dataSet, DataSetState.QUEUED)

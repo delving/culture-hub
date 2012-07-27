@@ -134,16 +134,6 @@ object Global extends GlobalSettings {
       PersistRouteAccess
     )
 
-    // LATER: statistics computation
-//    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
-//    Akka.system.scheduler.schedule(
-//      0 seconds,
-//      1 minutes, // TODO increase later on!!!
-//      statsLogger,
-//      ComputeStatistics
-//    )
-
-
     // ~~~ plugins
     hubPlugins.foreach(_.onApplicationStart())
 

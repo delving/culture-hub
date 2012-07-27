@@ -265,7 +265,7 @@ class DataSetEventFeed extends Actor {
           val s = subscriber._2
           val orgId = subscriber._2.orgId
           val userName = subscriber._2.userName
-          val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
+          implicit val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
 
           def withEditableSet(block: DataSet => Unit) {
             DataSet.findBySpecAndOrgId(spec, orgId).map {
@@ -422,74 +422,78 @@ class DataSetEventFeed extends Actor {
       log.debug("Stopped periodical polling of database for new DataSetEvents")
 
     case Update =>
-      val recentEvents = DataSetEventLog.findRecent.filter(r => r._id.getTime > lastSeen)
-      if (!recentEvents.isEmpty) lastSeen = recentEvents.reverse.head._id.getTime
+      DataSetEventLog.all.foreach {
+        dsel => {
+          val recentEvents = dsel.findRecent.filter(r => r._id.getTime > lastSeen)
+          if (!recentEvents.isEmpty) lastSeen = recentEvents.reverse.head._id.getTime
 
-      // handle subscribers differently depending on whether they follow the list or a single set
+          // handle subscribers differently depending on whether they follow the list or a single set
 
-      val listSubscribers = subscribers.filterNot(_._2.spec.isDefined)
-      recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
-        event => {
-          log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
-          val msg = EventType(event.eventType) match {
-            case EventType.CREATED | EventType.UPDATED =>
-              DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
-                set => {
-                  val viewModel: ListDataSetViewModel = set
-                  viewModel.toJson
-                }
+          val listSubscribers = subscribers.filterNot(_._2.spec.isDefined)
+          recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
+            event => {
+              log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
+              val msg = EventType(event.eventType) match {
+                case EventType.CREATED | EventType.UPDATED =>
+                  DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
+                    set => {
+                      val viewModel: ListDataSetViewModel = set
+                      viewModel.toJson
+                    }
+                  }
+                case _ =>
+                  // for the rest, just use a default mechanism
+                  event.payload.map {
+                    payload => JsObject(
+                      Seq(
+                        "payload" -> JsString(payload)
+                      )
+                    )
+                  }
               }
-            case _ =>
-              // for the rest, just use a default mechanism
-              event.payload.map {
-                payload => JsObject(
-                  Seq(
-                    "payload" -> JsString(payload)
-                  )
-                )
-              }
+              notifySubscribers(listSubscribers, event.orgId, event.spec, event.eventType, msg)
+            }
           }
-          notifySubscribers(listSubscribers, event.orgId, event.spec, event.eventType, msg)
-        }
-      }
 
-    val setSubscribers = subscribers.filter(_._2.spec.isDefined)
-    val watchedSets = setSubscribers.map(_._2.spec.get).toSeq
-    recentEvents.groupBy(_.spec).foreach {
-       e => {
-         val set = e._1
-         // only consider watched sets
-         e._2.filter(s => watchedSets.contains(s.spec)).foreach {
-           event =>
-             log.debug("Broadcasting DataSet event to all subscribers of set %s: ".format(set) + event.toString)
-             val msg = EventType(event.eventType) match {
-               case EventType.UPDATED =>
-                 DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
-                   set => {
-                     val viewModel: DataSetViewModel = set
-                     JsObject(
-                       Seq(
-                         "eventType" -> JsString("updated"),
-                         "payload" -> viewModel.toJson
+        val setSubscribers = subscribers.filter(_._2.spec.isDefined)
+        val watchedSets = setSubscribers.map(_._2.spec.get).toSeq
+        recentEvents.groupBy(_.spec).foreach {
+           e => {
+             val set = e._1
+             // only consider watched sets
+             e._2.filter(s => watchedSets.contains(s.spec)).foreach {
+               event =>
+                 log.debug("Broadcasting DataSet event to all subscribers of set %s: ".format(set) + event.toString)
+                 val msg = EventType(event.eventType) match {
+                   case EventType.UPDATED =>
+                     DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
+                       set => {
+                         val viewModel: DataSetViewModel = set
+                         JsObject(
+                           Seq(
+                             "eventType" -> JsString("updated"),
+                             "payload" -> viewModel.toJson
+                           )
+                         )
+                       }
+                     }
+                   case _ =>
+                     // for the rest, just use a default mechanism
+                     event.payload.map {
+                       payload => JsObject(
+                         Seq(
+                           "payload" -> JsString(payload)
+                         )
                        )
-                     )
-                   }
+                     }
                  }
-               case _ =>
-                 // for the rest, just use a default mechanism
-                 event.payload.map {
-                   payload => JsObject(
-                     Seq(
-                       "payload" -> JsString(payload)
-                     )
-                   )
-                 }
-             }
-             notifySubscribers(setSubscribers.filter(_._2.spec == Some(set)), event.orgId, event.spec, event.eventType, msg)
+                 notifySubscribers(setSubscribers.filter(_._2.spec == Some(set)), event.orgId, event.spec, event.eventType, msg)
 
+             }
+           }
          }
-       }
-     }
+      }
+    }
   }
 
   def error(message: String) = JsObject(
@@ -539,13 +543,30 @@ class DataSetEventLogger extends Actor {
   def receive = {
 
     case DataSetEvent(orgId, spec, eventType, payload, userName, systemEvent, transientEvent) =>
-      DataSetEventLog.insert(DataSetEventLog(orgId = orgId, spec = spec, eventType = eventType.name, payload = payload, userName = userName, systemEvent = systemEvent, transientEvent = transientEvent))
+      implicit val configuration: DomainConfiguration = DomainConfigurationHandler.getByOrgId(orgId)
+      DataSetEventLog.dao.insert(
+        DataSetEventLog(
+          orgId = orgId,
+          spec = spec,
+          eventType = eventType.name,
+          payload = payload,
+          userName = userName,
+          systemEvent = systemEvent,
+          transientEvent = transientEvent)
+      )
     case _ => // do nothing
 
   }
 }
 
-case class DataSetEvent(orgId: String, spec: String, eventType: EventType, payload: Option[String] = None, userName: Option[String] = None, systemEvent: Boolean = false, transientEvent: Boolean = false)
+case class DataSetEvent(orgId: String,
+                        spec: String,
+                        eventType: EventType,
+                        payload: Option[String] = None,
+                        userName: Option[String] = None,
+                        systemEvent: Boolean = false,
+                        transientEvent: Boolean = false
+                       )
 
 case class EventType(name: String)
 

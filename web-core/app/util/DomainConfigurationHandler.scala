@@ -25,6 +25,8 @@ import extensions.ConfigurationException
 /**
  * Takes care of loading domain-specific configuration
  *
+ * TODO always have a default configuration / or NO default configuration!
+ *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 3/9/11 3:25 PM
@@ -61,6 +63,10 @@ object DomainConfigurationHandler {
     val configuration = domainConfigurationList.filter(_.name.equalsIgnoreCase(name))
     if (!configuration.isEmpty) configuration.head
     else getDefaultConfiguration.get
+  }
+
+  def getByOrgId(orgId: String) = {
+    domainConfigurationList.find(_.orgId == orgId).getOrElse(getDefaultConfiguration.get)
   }
 
   def getByDomain(domain: String): DomainConfiguration = {

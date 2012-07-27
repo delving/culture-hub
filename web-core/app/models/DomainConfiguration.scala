@@ -9,12 +9,16 @@ import collection.JavaConverters._
 /**
  * Holds configuration that is used when a specific domain is accessed. It overrides a default configuration.
  *
+ * TODO replace RuntimeExceptions with logging + ConfigurationException
+ *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 case class DomainConfiguration(name:                        String,
+                               orgId:                       String,
                                domains:                     List[String] = List.empty,
+                               mongoDatabase:               String,
                                themeDir:                    String,
                                defaultLanguage:             String = "en",
                                siteName:                    Option[String],
@@ -73,15 +77,20 @@ case class EmailTarget(adminTo: String = "test-user@delving.eu",
 
 object DomainConfiguration {
 
+  /**
+   * Computes all domain configurations based on the default Play configuration mechanism.
+   */
   def getAll = {
     val config = Play.configuration.getConfig("themes").get
       val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-      allDomainConfigurations.map {
+      val configurations = allDomainConfigurations.map {
         configurationKey => {
           val configuration = config.getConfig(configurationKey).get
           DomainConfiguration(
             name = configurationKey,
+            orgId = configuration.getString("orgId").getOrElse(throw new RuntimeException("Invalid configuration %s: no orgId provided".format(configurationKey))),
             domains = configuration.underlying.getStringList("domains").asScala.toList,
+            mongoDatabase = configuration.getString("mongoDatabase").getOrElse(throw new RuntimeException("Invalid configuration %s: no mongoDatabase provided".format(configurationKey))),
             themeDir = configuration.getString("themeDir").getOrElse("default"),
             defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
             siteName = configuration.getString("siteName"),
@@ -105,7 +114,15 @@ object DomainConfiguration {
           )
         }
       }.toList
+
+    val duplicateOrgIds = configurations.groupBy(_.orgId).filter(_._2.size > 1)
+    if(!duplicateOrgIds.isEmpty) {
+      throw new RuntimeException("Found domain configurations that use the same orgId: " +
+        duplicateOrgIds.map(t => t._1 + ": " + t._2.map(_.name).mkString(", ")).mkString(", ")
+      )
     }
+    configurations
+  }
 
 }
 

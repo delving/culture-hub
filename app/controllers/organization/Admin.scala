@@ -4,14 +4,11 @@ import controllers.OrganizationController
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
-import util.DomainConfigurationHandler
 import models._
 import core.HubServices
-import core.search.Params
+import play.api.Play
 import play.api.Play.current
 import play.api.libs.ws.WS
-import java.io.File
-import play.api.{Logger, Play}
 
 /**
  *

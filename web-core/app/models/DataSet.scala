@@ -224,8 +224,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
 
-  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
+  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType)(implicit configuration: DomainConfiguration): List[DataSet] = {
     val groupDataSets = Group.
+                              dao.
                               find(MongoDBObject("users" -> userName)).
                               filter(g => g.grantType == grantType.key).
                               map(g => DataSet.find("_id" $in g.dataSets).toList).
@@ -235,9 +236,9 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     (groupDataSets ++ adminDataSets).distinct
   }
 
-  def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
+  def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
     if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
-    val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
+    val ids = Group.dao.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
     (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
   }
 
@@ -245,14 +246,14 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // ~~~ access control
 
-  def canView(ds: DataSet, userName: String) = {
+  def canView(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
     HubServices.organizationService.isAdmin(ds.orgId, userName) ||
-    Group.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
+    Group.dao.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
     ds.visibility == Visibility.PUBLIC
   }
 
-  def canEdit(ds: DataSet, userName: String) = {
-    HubServices.organizationService.isAdmin(ds.orgId, userName) || Group.count(MongoDBObject(
+  def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+    HubServices.organizationService.isAdmin(ds.orgId, userName) || Group.dao.count(MongoDBObject(
       "dataSets" -> ds._id,
       "users" -> userName,
       "grantType" -> GrantType.MODIFY.key)
@@ -396,8 +397,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // statistics
 
-  def getMostRecentDataSetStatistics = {
-    DataSetStatistics.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+  def getMostRecentDataSetStatistics(implicit configuration: DomainConfiguration) = {
+    DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 
 }

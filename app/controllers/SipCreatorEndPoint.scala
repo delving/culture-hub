@@ -260,7 +260,7 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
     try {
       val f = hubFileStore.createFile(file)
 
@@ -287,7 +287,7 @@ object SipCreatorEndPoint extends ApplicationController {
         fieldCount = Histogram(stats.recordStats.fieldCount)
       )
 
-      DataSetStatistics.insert(dss).map {
+      DataSetStatistics.dao.insert(dss).map {
         dssId => {
 
           stats.fieldValueMap.asScala.foreach {
@@ -298,7 +298,7 @@ object SipCreatorEndPoint extends ApplicationController {
                     path = fv._1.toString,
                     valueStats = ValueStats(fv._2)
                   )
-              DataSetStatistics.values.insert(fieldValues)
+              DataSetStatistics.dao.values.insert(fieldValues)
           }
 
           stats.recordStats.frequencies.asScala.foreach {
@@ -309,7 +309,7 @@ object SipCreatorEndPoint extends ApplicationController {
                     path = ff._1.toString,
                     histogram = Histogram(ff._2)
                   )
-              DataSetStatistics.frequencies.insert(frequencies)
+              DataSetStatistics.dao.frequencies.insert(frequencies)
           }
 
           Right("Good")
@@ -514,7 +514,7 @@ object SipCreatorEndPoint extends ApplicationController {
     pw.flush()
   }
 
-  def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
+  def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: DomainConfiguration): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
     val mayCollection = basexStorage.openCollection(dataSet)
@@ -527,7 +527,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
-    val totalRecords = DataSetStatistics.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    val totalRecords = DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
     val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
 
     def onRecordInserted(count: Long) {
@@ -551,7 +551,7 @@ class ReceiveSource extends Actor {
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, userName, configuration, inputStream) match {
+        receiveSource(dataSet, userName, inputStream)(configuration) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -585,7 +585,7 @@ class ReceiveSource extends Actor {
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, configuration: DomainConfiguration, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: DomainConfiguration): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)

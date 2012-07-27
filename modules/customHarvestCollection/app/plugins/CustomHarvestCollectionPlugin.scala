@@ -1,12 +1,12 @@
 package plugins
 
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
 import core.collection.HarvestCollectionLookup
 import play.api.mvc.Handler
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.Application
-import models.{GrantType, CustomHarvestCollectionHarvestCollectionLookup}
+import models.{VirtualCollection, GrantType, CustomHarvestCollectionHarvestCollectionLookup}
 import akka.actor.Props
 import akka.util.duration._
 import jobs.{UpdateVirtualCollection, UpdateVirtualCollectionCount, VirtualCollectionCount}
@@ -26,6 +26,10 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
 
 
   override def onApplicationStart() {
+
+    VirtualCollection.init(HubServices.configurations)
+
+
     // virtual collection update
     val virtualCollectionCount = Akka.system.actorOf(Props[VirtualCollectionCount])
     Akka.system.scheduler.schedule(

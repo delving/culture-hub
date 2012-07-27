@@ -23,12 +23,14 @@ import core.processing.DataSetCollectionProcessor
 object TestDataLoader {
 
   def load() {
+    implicit val configuration = DomainConfigurationHandler.getDefaultConfiguration.get
     if (HubUser.count() == 0) bootstrapUser()
-    if (Group.count() == 0) bootstrapAccessControl()
+    if (Group.dao.count() == 0) bootstrapAccessControl()
     if (DataSet.count() == 0) bootstrapDatasets()
   }
 
   def loadDataSet() {
+    implicit val configuration = DomainConfigurationHandler.getDefaultConfiguration.get
     val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
     SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
     DataSet.updateState(dataSet, DataSetState.QUEUED)

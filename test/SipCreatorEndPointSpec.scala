@@ -14,6 +14,7 @@ import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
+import util.DomainConfigurationHandler
 import xml.XML
 
 class SipCreatorEndPointSpec extends Specification with TestContext {
@@ -216,6 +217,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
       case class ZipEntry(name: String)
 
       withTestConfig {
+
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
