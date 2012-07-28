@@ -262,7 +262,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
     try {
-      val f = hubFileStore.createFile(file)
+      val f = hubFileStore(configuration).createFile(file)
 
       val stats = Stats.read(inputStream)
 

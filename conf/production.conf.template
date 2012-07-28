@@ -29,7 +29,6 @@ cultureCommons.host="https://commons.delving.eu"
 themes.defaultTheme=default
 
 ### Mongo configuration
-cultureHub.db.name=
 mongo.test.context = false
 mongo.server1.host = mongo1
 mongo.server1.port = 27017

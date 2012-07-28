@@ -16,45 +16,20 @@ package models
  * limitations under the License.
  */
 
-import play.Play
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.MongoCollection
+import _root_.util.DomainConfigurationHandler
+import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
 import play.api.Play.current
 import extensions.ConfigurationException
 import com.mongodb.casbah.gridfs.GridFS
 
-// TODO when it works, rename to "models"
 package object mongoContext extends models.MongoContext {
 
   def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
-  // ~~~ mongo connections
-  val connectionName = if(Play.isProd) {
-    current.configuration.getString("cultureHub.db.name").getOrElse(throw ConfigurationException("Could not find database name under key 'db.cultureHub.name'"))
-  } else if(Play.isDev) {
-    "culturehub"
-  } else if(Play.isTest) {
-    "culturehub-TEST"
-  } else {
-    null
-  }
-
   val geonamesConnection = createConnection("geonames")
   lazy val geonamesCollection = geonamesConnection("geonames")
   geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
-
-
-
-  val connection = createConnection(connectionName)
-
-  // ~~~ mongo collections
-
-  val thingIndexes = Seq(
-    MongoDBObject("user_id" -> 1, "visibility.value" -> 1, "deleted" -> 1),
-    MongoDBObject("userName" -> 1, "visibility.value" -> 1, "deleted" -> 1),
-    MongoDBObject("links.linkType" -> 1)
-  )
 
   def addIndexes(collection: MongoCollection, indexes: Seq[DBObject], indexNames: Seq[String] = Seq.empty) {
     if(indexNames.size == indexes.size) {
@@ -66,42 +41,9 @@ package object mongoContext extends models.MongoContext {
     }
   }
 
-  lazy val linksCollection = connection("Links") // the links
-  // TODO more link indexes!!
-  linksCollection.ensureIndex(MongoDBObject("linkType" -> 1, "value" -> 1))
-
-  // duplicate links check
-  linksCollection.ensureIndex(MongoDBObject(
-    "userName" -> 1,
-    "linkType" -> 1,
-    "value" -> 1,
-    "from.id" -> 1, "from.hubType" -> 1, "from.uri" -> 1, "from.refType" -> 1,
-    "to.id" -> 1, "to.hubType" -> 1, "to.uri" -> 1, "to.refType" -> 1), "uniqueLink")
-
-  // DataSet findTo
-  linksCollection.ensureIndex(MongoDBObject("to.uri" -> 1, "linkType" -> 1))
-
-  lazy val drupalEntitiesCollecion = connection("drupalEntities")
-
-  val statisticsIndexes = Seq(
-    MongoDBObject("orgId" -> 1, "key" -> 1)
-  )
-
-  lazy val providerStatisticsCollection = connection("ProviderStatistics")
-  addIndexes(providerStatisticsCollection, statisticsIndexes)
-
-  lazy val dataProviderStatisticsCollection = connection("DataProviderStatistics")
-  addIndexes(dataProviderStatisticsCollection, statisticsIndexes)
-
-  lazy val organizationStatisticsCollection = connection("OrganizationStatistics")
-  addIndexes(organizationStatisticsCollection, statisticsIndexes)
-
-  lazy val collectionStatisticsCollection = connection("CollectionStatistics")
-  addIndexes(collectionStatisticsCollection, statisticsIndexes)
-
-  lazy val statisticsRunCollection = connection("StatisticsRun")
-
-  lazy val hubFileStore = GridFS(connection)
+  lazy val hubFileStore: Map[DomainConfiguration, GridFS] = {
+    DomainConfigurationHandler.domainConfigurations.map(c => (c -> GridFS(createConnection(c.mongoDatabase)))).toMap
+  }
 
 
   // ~~~ shared indexes
