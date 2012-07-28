@@ -51,7 +51,7 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        DataSet.findBySpecAndOrgId(spec, orgId).map {
+        DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
           collection =>
             val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
@@ -73,7 +73,7 @@ object Search extends DelvingController {
                   val record = mdr.xml.get("aff").get
                   renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else {
-                  val ds = DataSet.findBySpecAndOrgId(spec, orgId)
+                  val ds = DataSet.dao.findBySpecAndOrgId(spec, orgId)
                   if(ds.isDefined) {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
                     val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption

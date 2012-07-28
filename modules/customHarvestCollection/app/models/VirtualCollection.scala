@@ -41,7 +41,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
   // ~~~ VC specific
 
-  def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.findBySpecAndOrgId(r.spec, r.orgId))
+  def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.dao(orgId).findBySpecAndOrgId(r.spec, r.orgId))
 
   def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
 
@@ -134,7 +134,7 @@ class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) ext
           val spec = specIds._1._2
           val ids = specIds._2
 
-          DataSet.findBySpecAndOrgId(spec, orgId) match {
+          DataSet.dao(configuration).findBySpecAndOrgId(spec, orgId) match {
 
             case Some(ds) =>
               val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)

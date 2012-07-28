@@ -3,7 +3,7 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import models.{DomainConfiguration, GrantType, Group}
+import models.{DataSet, DomainConfiguration, GrantType, Group}
 import models.mongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel, Token}
@@ -37,7 +37,7 @@ object Groups extends OrganizationController {
           val (usersAsTokens, dataSetsAsTokens) = group match {
             case None => (JJson.generate(List()), JJson.generate(List()))
             case Some(g) =>
-              val dataSets = dataSetsCollection.find("_id" $in g.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
+              val dataSets = DataSet.dao.collection.find("_id" $in g.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
               (JJson.generate(g.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
           }
           Ok(Template('id -> groupId, 'data -> load(orgId, groupId), 'groupForm -> GroupViewModel.groupForm, 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens, 'grantTypes -> GrantType.allGrantTypes.filterNot(_ == GrantType.OWN)))

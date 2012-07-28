@@ -32,8 +32,8 @@ class DataSetParserSpec extends Specification with TestContext {
     "properly assign invalid metadata formats" in {
 
       withTestData {
-        val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
-        DataSet.getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
+        val ds = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
+        DataSet.dao("delving").getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
 
     }
@@ -79,7 +79,7 @@ class DataSetParserSpec extends Specification with TestContext {
   def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
 
   def parseStream(sampleSource: String): mutable.Buffer[Record] = {
-    val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    val ds = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
     val bis = new ByteArrayInputStream(sampleSource.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 

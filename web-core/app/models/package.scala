@@ -66,8 +66,6 @@ package object mongoContext extends models.MongoContext {
     }
   }
 
-  lazy val dataSetsCollection = connection("Datasets")
-
   lazy val linksCollection = connection("Links") // the links
   // TODO more link indexes!!
   linksCollection.ensureIndex(MongoDBObject("linkType" -> 1, "value" -> 1))

@@ -30,12 +30,12 @@ object DataSets extends OrganizationController {
   def dataSet(orgId: String, spec: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
         if (maybeDataSet.isEmpty) {
           NotFound(Messages("organization.datasets.dataSetNotFound", spec))
         } else {
           val ds = maybeDataSet.get
-          if (!DataSet.canView(ds, userName)) {
+          if (!DataSet.dao.canView(ds, userName)) {
             NotFound(Messages("datasets.dataSetNotFound", ds.spec))
           } else {
             Ok(Template('spec -> ds.spec))
@@ -59,7 +59,7 @@ object DataSets extends OrganizationController {
   def listAsTokens(orgId: String, q: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+        val dataSets = DataSet.dao.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
         val asTokens = dataSets.map(ds => Token(ds._id, ds.spec, Some("dataset")))
         Json(asTokens)
     }
@@ -68,7 +68,7 @@ object DataSets extends OrganizationController {
   def listAsTokensBySpec(orgId: String, q: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSets = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
+        val dataSets = DataSet.dao.find(MongoDBObject("orgId" -> orgId, "deleted" -> false, "spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE)))
         val asTokens = dataSets.map(ds => Token(ds.spec, ds.spec, Some("dataset")))
         Json(asTokens)
     }

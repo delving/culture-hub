@@ -20,9 +20,9 @@ class BaseXStorageSpec extends Specification with TestContext {
       withTestData {
 
         implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
-        val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
         SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
-        DataSet.updateState(dataSet, DataSetState.QUEUED)
+        DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
         DataSetCollectionProcessor.process(dataSet)
 
         1 must equalTo(1)
@@ -30,7 +30,7 @@ class BaseXStorageSpec extends Specification with TestContext {
         // now we wait since the parsing is asynchronous
         Thread.sleep(3000)
 
-        DataSet.getSourceRecordCount(dataSet) must equalTo(8)
+        DataSet.dao.getSourceRecordCount(dataSet) must equalTo(8)
 
       }
 

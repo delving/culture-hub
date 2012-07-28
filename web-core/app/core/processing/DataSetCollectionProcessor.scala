@@ -23,9 +23,9 @@ object DataSetCollectionProcessor {
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet) {
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
 
-    val invalidRecords = DataSet.getInvalidRecords(dataSet)
+    val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
     val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
@@ -83,14 +83,14 @@ object DataSetCollectionProcessor {
 
     val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage)
     def interrupted = {
-      val current = DataSet.getState(dataSet.orgId, dataSet.spec)
+      val current = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED
     }
     def updateCount(count: Long) {
-      DataSet.updateIndexingCount(dataSet, count)
+      DataSet.dao.updateIndexingCount(dataSet, count)
     }
     def onError(t: Throwable) {
-      DataSet.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
+      DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
     def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
 
@@ -123,13 +123,13 @@ object DataSetCollectionProcessor {
 
     }
 
-    DataSet.updateState(dataSet, DataSetState.PROCESSING)
+    DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
-    val state = DataSet.getState(dataSet.orgId, dataSet.spec)
+    val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
     if(state == DataSetState.PROCESSING) {
-      DataSet.updateState(dataSet, DataSetState.ENABLED)
+      DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
     } else if(state == DataSetState.CANCELLED) {
-      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      DataSet.dao.updateState(dataSet, DataSetState.UPLOADED)
     }
   }
 

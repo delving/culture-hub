@@ -50,7 +50,7 @@ trait TestContext {
       HubServices.init()
       connection.dropDatabase()
       try {
-        DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").map {
+        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").map {
           set =>
             HubServices.basexStorage.withSession(set) {
               session => {

@@ -4,7 +4,7 @@
  */
 
 import actors._
-import akka.actor.SupervisorStrategy.Restart
+import akka.actor.SupervisorStrategy.{Stop, Restart}
 import akka.routing.RoundRobinRouter
 import controllers.ReceiveSource
 import core.indexing.IndexingService
@@ -79,18 +79,22 @@ object Global extends GlobalSettings {
 
     // DataSet source parsing
     Akka.system.actorOf(Props[ReceiveSource].withRouter(
-      RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
+      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
         case _ => Restart
       })
     ), name = "dataSetParser")
 
-    // DataSet indexing
-    val indexer = Akka.system.actorOf(Props[Processor])
+    // DataSet processing
+    val processor = Akka.system.actorOf(Props[Processor].withRouter(
+      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+        case _ => Stop
+      })
+    ), name = "dataSetProcessor")
     Akka.system.scheduler.schedule(
       0 seconds,
       10 seconds,
-      indexer,
-      ProcessDataSets
+      processor,
+      PollDataSets
     )
 
     // DataSet housekeeping
@@ -140,15 +144,18 @@ object Global extends GlobalSettings {
     // ~~~ cleanup set states
     // TODO move to appropriate component initialization
 
-    DataSet.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
-      set =>
-        DataSet.updateState(set, DataSetState.CANCELLED)
-        try {
-          IndexingService.deleteBySpec(set.orgId, set.spec)
-        } catch {
-          case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
-        } finally {
-          DataSet.updateState(set, DataSetState.UPLOADED)
+    DataSet.all.foreach {
+      dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+          set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+            try {
+              IndexingService.deleteBySpec(set.orgId, set.spec)
+            } catch {
+              case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+            } finally {
+              dataSetDAO.updateState(set, DataSetState.UPLOADED)
+            }
         }
     }
 
@@ -169,9 +176,13 @@ object Global extends GlobalSettings {
 
     // TODO move to component initialization
     // cleanly cancel all active processing
-    DataSet.findByState(DataSetState.PROCESSING).foreach {
-      set =>
-        DataSet.updateState(set, DataSetState.CANCELLED)
+    DataSet.all.foreach {
+      dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
+          set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+        }
+
     }
     Thread.sleep(2000)
 

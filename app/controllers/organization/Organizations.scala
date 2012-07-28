@@ -19,7 +19,7 @@ object Organizations extends DelvingController {
       implicit request =>
         if (HubServices.organizationService.exists(orgId)) {
           val members: List[HubUser] = HubUser.dao.listOrganizationMembers(orgId).flatMap(HubUser.dao.findByUsername(_))
-          val dataSets: List[ShortDataSet] = DataSet.findAllCanSee(orgId, connectedUser)
+          val dataSets: List[ShortDataSet] = DataSet.dao.findAllCanSee(orgId, connectedUser)
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,

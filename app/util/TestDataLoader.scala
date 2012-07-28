@@ -26,14 +26,14 @@ object TestDataLoader {
     implicit val configuration = DomainConfigurationHandler.getDefaultConfiguration.get
     if (HubUser.dao.count() == 0) bootstrapUser()
     if (Group.dao.count() == 0) bootstrapAccessControl()
-    if (DataSet.count() == 0) bootstrapDatasets()
+    if (DataSet.dao.count() == 0) bootstrapDatasets()
   }
 
   def loadDataSet() {
     implicit val configuration = DomainConfigurationHandler.getDefaultConfiguration.get
-    val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
     SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
-    DataSet.updateState(dataSet, DataSetState.QUEUED)
+    DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
     DataSetCollectionProcessor.process(dataSet)
   }
 
@@ -85,7 +85,7 @@ object TestDataLoader {
     factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
     factMap.put("type", "IMAGE")
 
-    DataSet.insert(DataSet(
+    DataSet.dao("delving").insert(DataSet(
       spec = "PrincessehofSample",
       userName = "bob",
       orgId = "delving",
