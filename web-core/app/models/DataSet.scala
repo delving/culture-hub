@@ -88,7 +88,7 @@ case class DataSet(
 
   def getCreator: String = userName
 
-  def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.findByUsername(lockedBy.get)
+  def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.dao(orgId).findByUsername(lockedBy.get)
 
   def getFacts: Map[String, String] = {
     val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]

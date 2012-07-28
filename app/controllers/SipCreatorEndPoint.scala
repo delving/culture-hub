@@ -97,7 +97,7 @@ object SipCreatorEndPoint extends ApplicationController {
         val dataSetsXml = <data-set-list>
           {dataSets.map {
           ds =>
-            val creator = HubUser.findByUsername(ds.getCreator)
+            val creator = HubUser.dao.findByUsername(ds.getCreator)
             val lockedBy = ds.getLockedBy
             <data-set>
               <spec>{ds.spec}</spec>

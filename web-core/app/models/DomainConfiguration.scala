@@ -121,7 +121,12 @@ object DomainConfiguration {
         duplicateOrgIds.map(t => t._1 + ": " + t._2.map(_.name).mkString(", ")).mkString(", ")
       )
     }
-    configurations
+
+    if(Play.isTest) {
+      configurations.map(c => c.copy(mongoDatabase = c.mongoDatabase + "-TEST"))
+    } else {
+      configurations
+    }
   }
 
 }

@@ -31,11 +31,22 @@ case class HubUser(_id: ObjectId = new ObjectId,
 /** OAuth2 Access token **/
 case class AccessToken(token: String, issueTime: Long = System.currentTimeMillis())
 
-object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager[HubUser] {
+object HubUser extends MultiModel[HubUser, HubUserDAO] {
+
+  protected def connectionName: String = "Users"
+
+  protected def initIndexes(collection: MongoCollection) {
+    collection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
+  }
+
+  protected def initDAO(collection: MongoCollection, connection: MongoDB): HubUserDAO = new HubUserDAO(collection)
+}
+
+class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId](collection) with Pager[HubUser] {
 
   def findAll = find(MongoDBObject())
 
-  def findByUsername(userName: String, active: Boolean = true): Option[HubUser] = HubUser.findOne(MongoDBObject("userName" -> userName))
+  def findByUsername(userName: String, active: Boolean = true): Option[HubUser] = findOne(MongoDBObject("userName" -> userName))
 
 //  def findBookmarksCollection(userName: String): Option[UserCollection] = {
 //    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
@@ -45,7 +56,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
 
   def addToOrganization(userName: String, orgId: String): Boolean = {
     try {
-      HubUser.update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, WriteConcern.Safe)
+      update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, WriteConcern.Safe)
     } catch {
       case _ => return false
     }
@@ -54,11 +65,11 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
 
   def removeFromOrganization(userName: String, orgId: String)(implicit configuration: DomainConfiguration): Boolean = {
     try {
-      HubUser.update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
+      update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
 
       // remove from all groups
       Group.dao.findDirectMemberships(userName, orgId).foreach {
-        group => Group.dao.removeUser(userName, group._id)
+        group => Group.dao.removeUser(orgId, userName, group._id)
       }
     } catch {
       case _ => return false
@@ -67,7 +78,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
   }
   
   def listOrganizationMembers(orgId: String): List[String] = {
-    HubUser.find(MongoDBObject("organizations" -> orgId)).map(_.userName).toList
+    find(MongoDBObject("organizations" -> orgId)).map(_.userName).toList
   }
   
   // ~~~ various
@@ -76,7 +87,7 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
     findByUsername(userName).map {
       u => {
         val updated = u.copy(firstName = firstName, lastName = lastName, email = email,  userProfile = profile)
-        HubUser.save(updated)
+        save(updated)
       }
     }
   }
@@ -84,26 +95,26 @@ object HubUser extends SalatDAO[HubUser, ObjectId](hubUserCollection) with Pager
   // ~~~ OAuth2
 
   def setOauthTokens(user: HubUser, accessToken: String, refreshToken: String) {
-    HubUser.update(MongoDBObject("userName" -> user.userName), HubUser._grater.asDBObject(user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken))))
+    update(MongoDBObject("userName" -> user.userName), _grater.asDBObject(user.copy(accessToken = Some(AccessToken(token = accessToken)), refreshToken = Some(refreshToken))))
   }
 
   def isValidAccessToken(token: String, timeout: Long = 3600): Boolean = {
     val delta = System.currentTimeMillis() - timeout * 1000
-    HubUser.count(MongoDBObject("accessToken.token" -> token, "accessToken.issueTime" -> MongoDBObject("$gt" -> delta))) > 0
+    count(MongoDBObject("accessToken.token" -> token, "accessToken.issueTime" -> MongoDBObject("$gt" -> delta))) > 0
   }
 
   def findByAccessToken(token: String): Option[HubUser] = {
-    if((Play.isTest || Play.isDev) && token == "TEST") return HubUser.findOne(MongoDBObject("userName" -> "bob"))
-    HubUser.findOne(MongoDBObject("accessToken.token" -> token))
+    if((Play.isTest || Play.isDev) && token == "TEST") return findOne(MongoDBObject("userName" -> "bob"))
+    findOne(MongoDBObject("accessToken.token" -> token))
   }
 
   def findByRefreshToken(token: String): Option[HubUser] = {
-    HubUser.findOne(MongoDBObject("refreshToken" -> token))
+    findOne(MongoDBObject("refreshToken" -> token))
   }
 
   def evictExpiredAccessTokens(timeout: Long = 3600) {
     val delta = System.currentTimeMillis() - timeout * 1000
-    HubUser.update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)))
+    update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)))
   }
 
 

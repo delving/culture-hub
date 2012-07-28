@@ -33,19 +33,20 @@ import extensions.ConfigurationException
  */
 object DomainConfigurationHandler {
 
-  private var domainConfigurationList: Seq[DomainConfiguration] = Seq.empty
-  private var domainConfigurations: Seq[(String, DomainConfiguration)] = Seq.empty
+  private var domainConfigurationsMap: Seq[(String, DomainConfiguration)] = Seq.empty
   private var domainLookupCache: HashMap[String, DomainConfiguration] = HashMap.empty
+
+  var domainConfigurations: Seq[DomainConfiguration] = Seq.empty
 
   def getConfigurationNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
-    domainConfigurationList.foreach(configuration => set.add(configuration.name))
+    domainConfigurations.foreach(configuration => set.add(configuration.name))
     set
   }
 
   def startup() {
-    domainConfigurationList = DomainConfiguration.getAll
-    domainConfigurations = toDomainList(domainConfigurationList)
+    domainConfigurations = DomainConfiguration.getAll
+    domainConfigurationsMap = toDomainList(domainConfigurations)
     domainLookupCache = HashMap.empty
 
     if (!getDefaultConfiguration.isDefined) {
@@ -53,20 +54,20 @@ object DomainConfigurationHandler {
     }
   }
 
-  def hasSingleConfiguration: Boolean = domainConfigurationList.length == 1
+  def hasSingleConfiguration: Boolean = domainConfigurations.length == 1
 
-  def hasConfiguration(configurationName: String): Boolean = !domainConfigurationList.filter(configuration => configuration.name == configurationName).isEmpty
+  def hasConfiguration(configurationName: String): Boolean = !domainConfigurations.filter(configuration => configuration.name == configurationName).isEmpty
 
-  def getDefaultConfiguration = domainConfigurationList.filter(_.name == current.configuration.getString("themes.defaultTheme").getOrElse("default")).headOption
+  def getDefaultConfiguration = domainConfigurations.filter(_.name == current.configuration.getString("themes.defaultTheme").getOrElse("default")).headOption
 
   def getByName(name: String) = {
-    val configuration = domainConfigurationList.filter(_.name.equalsIgnoreCase(name))
+    val configuration = domainConfigurations.filter(_.name.equalsIgnoreCase(name))
     if (!configuration.isEmpty) configuration.head
     else getDefaultConfiguration.get
   }
 
   def getByOrgId(orgId: String) = {
-    domainConfigurationList.find(_.orgId == orgId).getOrElse(getDefaultConfiguration.get)
+    domainConfigurations.find(_.orgId == orgId).getOrElse(getDefaultConfiguration.get)
   }
 
   def getByDomain(domain: String): DomainConfiguration = {
@@ -79,7 +80,7 @@ object DomainConfigurationHandler {
       // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
       if(!domainLookupCache.contains(domain)) {
         // fetch by longest matching domain
-        val configuration = domainConfigurations.foldLeft(("#", getDefaultConfiguration.get)) {
+        val configuration = domainConfigurationsMap.foldLeft(("#", getDefaultConfiguration.get)) {
           (r: (String, DomainConfiguration), c: (String, DomainConfiguration)) => {
             val rMatches = domain.startsWith(r._1)
             val cMatches = domain.startsWith(c._1)

@@ -15,12 +15,6 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "cms"
 
-
-  override def onApplicationStart() {
-    CMSPage.init(HubServices.configurations)
-    MenuEntry.init(HubServices.configurations)
-  }
-
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
     _root_.models.cms.MenuEntry.dao.findEntries(configuration.name, CMS.MAIN_MENU).filterNot(e => !e.title.contains(lang) || !e.published).map(e => MainMenuEntry(
       key = e.menuKey,

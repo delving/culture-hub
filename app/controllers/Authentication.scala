@@ -57,7 +57,7 @@ object Authentication extends ApplicationController {
         formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
         user => {
           // first check if the user exists in this hub
-          val u: Option[HubUser] = HubUser.findByUsername(user._1).orElse {
+          val u: Option[HubUser] = HubUser.dao.findByUsername(user._1).orElse {
             // create a local user
             HubServices.userProfileService.getUserProfile(user._1).map {
               p => {
@@ -74,8 +74,8 @@ object Authentication extends ApplicationController {
                                            linkedIn = p.linkedIn
                                          )
                                         )
-                HubUser.insert(newHubUser)
-                HubUser.findByUsername(user._1)
+                HubUser.dao.insert(newHubUser)
+                HubUser.dao.findByUsername(user._1)
               }
             }.getOrElse {
               ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1), configuration)

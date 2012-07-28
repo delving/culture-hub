@@ -47,40 +47,41 @@ object ItinEndPoint extends DelvingController with DomainConfigurationAware {
     }
   }
 
-  def store: Action[scala.xml.NodeSeq] = Action(parse.tolerantXml) {
-    implicit request => {
-      Async {
-
-        if (!enabled) {
-          Promise.pure().map {
-            response => Status(NOT_FOUND)
-          }
-        } else {
-          Promise.pure {
-            val xmlResponse = try {
-              val response: StoreResponse = DrupalEntity.dao.processStoreRequest(request.body)((item, list) => DrupalEntity.dao.insertInMongoAndIndex(item, list))
-              StoreResponse(response.itemsParsed, response.coRefsParsed)
-            } catch {
-              case ex: Exception =>
-                Logger.error("Problem with the posted xml file", ex)
-                StoreResponse(success = false, errorMessage = "Unable to receive the xml-file from the POST")
+  def store: Action[scala.xml.NodeSeq] = DomainConfigured {
+    Action(parse.tolerantXml) {
+      implicit request => {
+        Async {
+          if (!enabled) {
+            Promise.pure().map {
+              response => Status(NOT_FOUND)
             }
+          } else {
+            Promise.pure {
+              val xmlResponse = try {
+                val response: StoreResponse = DrupalEntity.dao.processStoreRequest(request.body)((item, list) => DrupalEntity.dao.insertInMongoAndIndex(item, list))
+                StoreResponse(response.itemsParsed, response.coRefsParsed)
+              } catch {
+                case ex: Exception =>
+                  Logger.error("Problem with the posted xml file", ex)
+                  StoreResponse(success = false, errorMessage = "Unable to receive the xml-file from the POST")
+              }
 
-            <response recordsProcessed={xmlResponse.itemsParsed.toString} linksProcessed={xmlResponse.coRefsParsed.toString}>
-              <status>
-                {if (xmlResponse.success) "success" else "failure"}
-              </status>{if (!xmlResponse.errorMessage.isEmpty) <error>
-              {xmlResponse.errorMessage}
-            </error>}
-            </response>
-          } map {
-            response => Ok(response.toString()).as(XML)
+              <response recordsProcessed={xmlResponse.itemsParsed.toString} linksProcessed={xmlResponse.coRefsParsed.toString}>
+                <status>
+                  {if (xmlResponse.success) "success" else "failure"}
+                </status>{if (!xmlResponse.errorMessage.isEmpty) <error>
+                {xmlResponse.errorMessage}
+              </error>}
+              </response>
+            } map {
+              response => Ok(response.toString()).as(XML)
 
+            }
           }
         }
       }
-    }
 
+    }
   }
 
 

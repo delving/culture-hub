@@ -24,7 +24,7 @@ object TestDataLoader {
 
   def load() {
     implicit val configuration = DomainConfigurationHandler.getDefaultConfiguration.get
-    if (HubUser.count() == 0) bootstrapUser()
+    if (HubUser.dao.count() == 0) bootstrapUser()
     if (Group.dao.count() == 0) bootstrapAccessControl()
     if (DataSet.count() == 0) bootstrapDatasets()
   }
@@ -39,7 +39,7 @@ object TestDataLoader {
 
   private def bootstrapUser() {
     val profile = UserProfile()
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab939"),
       userName = "bob",
       firstName = "bob",
@@ -47,7 +47,7 @@ object TestDataLoader {
       email = "bob@gmail.com",
       userProfile = profile
     ))
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93a"),
       userName = "jimmy",
       firstName = "Jimmy",
@@ -55,7 +55,7 @@ object TestDataLoader {
       email = "jimmy@gmail.com",
       userProfile = profile
     ))
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93b"),
       userName = "dan",
       firstName = "Dan",
@@ -68,7 +68,7 @@ object TestDataLoader {
   private def bootstrapAccessControl() {
 
     // all users are in delving
-    HubUser.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
+    HubUser.dao("delving").find(MongoDBObject()).foreach(u => HubUser.dao("delving").addToOrganization(u.userName, "delving"))
 
   }
 

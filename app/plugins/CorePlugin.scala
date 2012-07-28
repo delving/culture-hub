@@ -22,18 +22,6 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
-
-  override def onApplicationStart() {
-    val c = HubServices.configurations
-    RouteAccess.init(c)
-    DrupalEntity.init(c)
-
-    // later move to own plugins
-    DataSetEventLog.init(c)
-    Group.init(c)
-
-  }
-
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",

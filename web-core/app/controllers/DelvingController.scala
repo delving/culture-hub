@@ -44,6 +44,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
       Action(action.parser) {
         implicit request: Request[A] => {
 
+          renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+
           val langParam = request.queryString.get(LANG)
 
           val requestLanguage = if (langParam.isDefined) {
@@ -225,7 +227,7 @@ trait OrganizationController extends DelvingController with Secured {
             if (orgId == null || orgId.isEmpty) {
               Error("How did you even get here?")
             }
-            if (!HubUser.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
+            if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
               Forbidden(Messages("user.secured.noAccess"))
             } else {
               action(request)
@@ -265,7 +267,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 //          }
 
           // Connected user
-          HubUser.findByUsername(userName).map {
+          HubUser.dao.findByUsername(userName).map {
             u => {
               renderArgs +=("fullName" -> u.fullname)
               renderArgs +=("userName" -> u.userName)
@@ -301,7 +303,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val maybeUser = HubUser.findByUsername(user)
+          val maybeUser = HubUser.dao.findByUsername(user)
           maybeUser match {
             case Some(u) =>
               renderArgs +=("browsedFullName" -> u.fullname)
@@ -364,12 +366,16 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 
           renderArgs += ("roles" -> roles.asJava)
 
-          val navigation = hubPlugins.map(
-            plugin => plugin.getOrganizationNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
-          ).flatten.asJava
+          val navigation = hubPlugins.map {
+            plugin => plugin.
+              getOrganizationNavigation(
+                context = Map("orgId" -> orgId, "currentLanguage" -> getLang),
+                roles = roles,
+                isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)
+            ).map(_.asJavaMap)
+          }.flatten.asJava
 
           renderArgs += ("navigation" -> navigation)
-
 
           action(request)
       }

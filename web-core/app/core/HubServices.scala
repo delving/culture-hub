@@ -1,6 +1,5 @@
 package core
 
-import _root_.util.DomainConfigurationHandler
 import services._
 import models.{DomainConfiguration, HubUser}
 import play.api.Play
@@ -27,11 +26,7 @@ object HubServices {
 
   var basexStorage: BaseXStorage = null
 
-  var configurations: Seq[DomainConfiguration] = Seq.empty
-
   def init() {
-
-    configurations = DomainConfiguration.getAll
 
     val services = Play.configuration.getString("cultureCommons.host") match {
       case Some(host) =>
@@ -40,8 +35,23 @@ object HubServices {
         val apiToken = Play.configuration.getString("cultureCommons.apiToken").getOrElse(throw new RuntimeException("No api token provided"))
         new CommonsServices(host, orgId, apiToken, node)
       case None if !Play.isProd =>
-        // load all hubUsers as basis for the remote ones
-        val users = HubUser.findAll.map(u => MemoryUser(u.userName, u.firstName, u.lastName, u.email, "secret", u.userProfile, true)).map(u => (u.userName -> u)).toMap
+        // in development mode, load all hubUsers as basis for the remote ones
+        val users = HubUser.all.flatMap { users =>
+          users.findAll.map {
+            u => {
+              MemoryUser(
+                u.userName,
+                u.firstName,
+                u.lastName,
+                u.email,
+                "secret",
+                u.userProfile,
+                true
+              )
+            }
+          }
+        }.map(u => (u.userName -> u)).toMap
+
         val memoryServices = new MemoryServices
         users.foreach {
           u => memoryServices.users += u

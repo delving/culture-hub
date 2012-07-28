@@ -49,8 +49,8 @@ object Groups extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotAddUser") {
-          Group.dao.addUser(_, _)
+        elementAction(orgId, id, groupId, "organizations.group.cannotAddUser") { (userName, groupId) =>
+          Group.dao.addUser(orgId, userName, groupId)
         }
     }
   }
@@ -59,8 +59,8 @@ object Groups extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotRemoveUser") {
-          Group.dao.removeUser(_, _)
+        elementAction(orgId, id, groupId, "organizations.group.cannotRemoveUser") { (userName, groupId) =>
+          Group.dao.removeUser(orgId, userName, groupId)
         }
     }
   }
@@ -147,7 +147,7 @@ object Groups extends OrganizationController {
                   Group.dao.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType.key)) match {
                     case None => None
                     case Some(id) =>
-                      groupModel.users.foreach(u => Group.dao.addUser(u.id, id))
+                      groupModel.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
                       groupModel.dataSets.foreach(ds => Group.dao.addDataSet(new ObjectId(ds.id), id))
                       Some(groupModel.copy(id = Some(id)))
                   }

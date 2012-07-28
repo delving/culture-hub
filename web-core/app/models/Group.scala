@@ -38,16 +38,16 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
 
   def findDirectMemberships(userName: String, orgId: String) = find(MongoDBObject("orgId" -> orgId, "users" -> userName))
 
-  def addUser(userName: String, groupId: ObjectId): Boolean = {
+  def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    HubUser.update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
+    HubUser.dao(orgId).update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
     update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }
 
-  def removeUser(userName: String, groupId: ObjectId): Boolean = {
+  def removeUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    HubUser.update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, WriteConcern.Safe)
+    HubUser.dao(orgId).update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, WriteConcern.Safe)
     update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }

@@ -56,8 +56,7 @@ object Global extends GlobalSettings {
       Files.moveFile(runningPid, new File(current.path, "../" + port + "/RUNNING_PID"))
     }
 
-
-    // ~~~ load themes
+    // ~~~ load configurations
     DomainConfigurationHandler.startup()
 
     // ~~~ bootstrap services

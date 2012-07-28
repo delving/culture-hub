@@ -32,7 +32,7 @@ import play.api.i18n.Messages
 import validation.{ValidationError, Valid, Invalid, Constraint}
 import play.libs.Time
 import play.libs.Images.Captcha
-import core.HubServices
+import core.{ThemeInfo, HubServices}
 
 /**
  *
@@ -217,6 +217,7 @@ object Registration extends ApplicationController {
   def resetPassword(resetPasswordToken: String) = DomainConfigured {
     Action {
       implicit request =>
+        renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
         val indexAction = Redirect(controllers.routes.Application.index)
         if(Option(resetPasswordToken).isEmpty) {
           indexAction.flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
@@ -243,6 +244,7 @@ object Registration extends ApplicationController {
   def newPassword(resetPasswordToken: String) = DomainConfigured {
     Action {
       implicit request =>
+        renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
         if(Option(resetPasswordToken).isEmpty) {
           Redirect(controllers.routes.Application.index).flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
         } else {

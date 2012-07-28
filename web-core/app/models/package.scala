@@ -66,9 +66,6 @@ package object mongoContext extends models.MongoContext {
     }
   }
 
-  lazy val hubUserCollection = connection("Users")
-  hubUserCollection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
-
   lazy val dataSetsCollection = connection("Datasets")
 
   lazy val linksCollection = connection("Links") // the links

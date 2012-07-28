@@ -27,9 +27,6 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
 
   override def onApplicationStart() {
 
-    VirtualCollection.init(HubServices.configurations)
-
-
     // virtual collection update
     val virtualCollectionCount = Akka.system.actorOf(Props[VirtualCollectionCount])
     Akka.system.scheduler.schedule(
