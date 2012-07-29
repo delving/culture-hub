@@ -77,6 +77,9 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers
   ).dependsOn(webCore)
 
+  val itin = PlayProject("itin", "1.0", Seq.empty, path = file("modules/itin")).settings(
+    resolvers ++= commonResolvers
+  ).dependsOn(webCore)
 
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers
@@ -101,15 +104,21 @@ object Build extends sbt.Build {
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
     buildInfoPackage := "eu.delving.culturehub",
 
-    watchSources <++= baseDirectory map { path => ((path / "web-core" / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules" / "customHarvestCollection" / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "web-core" / "app")                             ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules"  / "customHarvestCollection" / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules"  / "statistics"              / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules"  / "dos"                     / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules"  / "musip"                   / "app") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._"
 
-  ).settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection)
+  ).settings(
+    addArtifact(
+      Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist
+    ).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection, itin)
 
 
 }

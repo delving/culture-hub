@@ -16,7 +16,6 @@
 
 package controllers {
 
-import java.io.File
 import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.gridfs.GridFS
 import play.api.Play
