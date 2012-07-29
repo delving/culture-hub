@@ -1,4 +1,6 @@
+<ul class="nav ${_extraClass ? _extraClass : ''}">
 #{list _menu, as:'m'}
 <li class="#{if m.key == pageId}active#{/if}"><a href="${m.mainEntry.url}">&{m.mainEntry.titleKey}</a></li>
 #{/list}
+</ul>
 
