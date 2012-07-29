@@ -123,7 +123,7 @@ object Global extends GlobalSettings {
       0 seconds,
       10 seconds,
       dos,
-      Look
+      Poll
     )
 
     // SOLR

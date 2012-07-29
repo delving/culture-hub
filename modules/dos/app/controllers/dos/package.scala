@@ -31,18 +31,10 @@ package object dos extends MongoContext {
   val fileStoreConnection = createConnection(Play.configuration.getString("dos.db.fileStore.name").getOrElse("fileStore"))
   val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnection)
 
-  // TODO this fails with a NPE
-//  val fileStoreCollection = fileStoreConnection.getCollectionFromString("db.%s.fs.files".format(Play.configuration.getProperty("dos.db.fileStore.name", "fileStore")))
-//  fileStoreCollection.ensureIndex(MongoDBObject(FILE_POINTER_FIELD -> 1))
-//  fileStoreCollection.ensureIndex(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> 1))
-//  fileStoreCollection.ensureIndex(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> 1))
-//  fileStoreCollection.ensureIndex(MongoDBObject(UPLOAD_UID_FIELD -> 1))
-//  fileStoreCollection.ensureIndex(MongoDBObject(IMAGE_ID_FIELD -> 1, ORGANIZATION_IDENTIFIER_FIELD -> 1, COLLECTION_IDENTIFIER_FIELD -> 1))
-
   val imageCacheStoreConnection = createConnection(Play.configuration.getString("dos.db.imageCache.name").getOrElse("imageCache"))
   val imageCacheStore: GridFS = if(testing) GridFS(testStoreConnection) else GridFS(imageCacheStoreConnection)
 
-  val emptyThumbnailPath = Play.configuration.getString("dos.emptyImagePath").getOrElse("/public/dos/images/dummy-object.png")
+  val emptyThumbnailPath = "/public/images/dummy-object.png"
   val emptyThumbnailUrl = "/assets/dos/images/dummy-object.png"
 
   val DEFAULT_THUMBNAIL_WIDTH = 220

@@ -88,7 +88,7 @@ object PTIFTilingProcessor extends Processor {
       tiler.setGeneratePreviewHTML(false);
 
       val images = p.listFiles().filter(f => isImage(f.getName))
-      Task.setTotalItems(task, images.size)
+      Task.dao(task.orgId).setTotalItems(task, images.size)
 
       for (i <- images; if (!task.isCancelled)) {
         val targetFileName = getImageName(i.getName)
@@ -98,7 +98,7 @@ object PTIFTilingProcessor extends Processor {
         try {
           val tileInfo = tiler.convert(i, targetFile)
           info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels", Some(i.getAbsolutePath), Some(targetFile.getAbsolutePath))
-          Task.incrementProcessedItems(task, 1)
+          Task.dao(task.orgId).incrementProcessedItems(task, 1)
         } catch {
           case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage), Some(i.getAbsolutePath))
         }

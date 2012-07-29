@@ -70,7 +70,7 @@ object Build extends sbt.Build {
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
     resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
     resolvers ++= commonResolvers
-  )
+  ).dependsOn(webCore)
 
   // TODO move to its own source repo once we have something stable
   val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(

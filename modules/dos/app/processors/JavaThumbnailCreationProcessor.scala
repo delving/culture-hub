@@ -37,7 +37,7 @@ object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Th
       } catch {
         case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
       } finally {
-        Task.incrementProcessedItems(task, 1)
+        Task.dao(task.orgId).incrementProcessedItems(task, 1)
       }
     }
   }
