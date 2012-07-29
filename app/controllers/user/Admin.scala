@@ -48,7 +48,7 @@ object Admin extends DelvingController {
             )))
 
             // update remote
-            val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
+            val updated = HubServices.userProfileService(configuration).updateUserProfile(connectedUser, core.UserProfile(
               isPublic = profileModel.isPublic,
               firstName = profileModel.firstName,
               lastName = profileModel.lastName,

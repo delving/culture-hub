@@ -53,7 +53,7 @@ trait TestContext {
       try {
         DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").map {
           set =>
-            HubServices.basexStorage.withSession(set) {
+            HubServices.basexStorage(configuration).withSession(set) {
               session => {
                 val r = session.execute("drop database delving____PrincessehofSample")
                 println(r)

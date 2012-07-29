@@ -184,10 +184,10 @@ object Groups extends OrganizationController {
   }
 
   private def canUpdateGroup(orgId: String, groupId: ObjectId)(implicit request: RequestHeader): Boolean = {
-    groupId != null && HubServices.organizationService.isAdmin(orgId, userName)
+    groupId != null && HubServices.organizationService(configuration).isAdmin(orgId, userName)
   }
 
-  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, userName)
+  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService(configuration).isAdmin(orgId, userName)
 }
 
 case class GroupViewModel(id: Option[ObjectId] = None,

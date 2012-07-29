@@ -44,7 +44,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   val log: Logger = Logger(SipCreatorEndPoint.getClass)
 
-  private lazy val basexStorage = HubServices.basexStorage
+  private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -72,7 +72,7 @@ object SipCreatorEndPoint extends ApplicationController {
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
         } else {
-          if (!HubServices.organizationService.exists(orgId)) {
+          if (!HubServices.organizationService(configuration).exists(orgId)) {
             NotFound("Unknown organization " + orgId)
           } else {
             action(request)
@@ -364,7 +364,7 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
 
-  def getSipStream(dataSet: DataSet) = {
+  def getSipStream(dataSet: DataSet)(implicit configuration: DomainConfiguration) = {
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)

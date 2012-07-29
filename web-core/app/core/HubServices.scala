@@ -1,5 +1,7 @@
 package core
 
+import _root_.util.DomainConfigurationHandler
+import scala.collection.mutable.HashMap
 import services._
 import models.{DomainConfiguration, HubUser}
 import play.api.Play
@@ -9,8 +11,6 @@ import storage.BaseXStorage
 /**
  * Global Services used by the Hub, initialized at startup time (see Global)
  *
- * TODO decide on a dependency injection mechanism
- *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
@@ -18,23 +18,27 @@ object HubServices {
 
   // ~~~ service references
 
-  var authenticationService: AuthenticationService = null
-  var registrationService: RegistrationService = null
-  var userProfileService: UserProfileService = null
-  var organizationService: OrganizationService = null
-  var directoryService: DirectoryService = null
+  val authenticationService = new HashMap[DomainConfiguration, AuthenticationService]
+  val registrationService = new HashMap[DomainConfiguration, RegistrationService]
+  val userProfileService = new HashMap[DomainConfiguration, UserProfileService]
+  val organizationService = new HashMap[DomainConfiguration, OrganizationService]
+  val directoryService = new HashMap[DomainConfiguration, DirectoryService]
 
-  var basexStorage: BaseXStorage = null
+  val basexStorage =  new HashMap[DomainConfiguration, BaseXStorage]
 
   def init() {
 
-    val services = Play.configuration.getString("cultureCommons.host") match {
-      case Some(host) =>
-        val node = Play.configuration.getString("cultureHub.nodeName").getOrElse(throw new RuntimeException("No nodeName provided"))
-        val orgId = Play.configuration.getString("cultureHub.orgId").getOrElse(throw new RuntimeException("No orgId provided"))
-        val apiToken = Play.configuration.getString("cultureCommons.apiToken").getOrElse(throw new RuntimeException("No api token provided"))
-        new CommonsServices(host, orgId, apiToken, node)
-      case None if !Play.isProd =>
+    DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+
+      val services = configuration.commonsHost match {
+
+        case host if (!host.isEmpty) =>
+          val node = configuration.nodeName
+          val orgId = configuration.orgId
+          val apiToken = configuration.apiToken
+          new CommonsServices(host, orgId, apiToken, node)
+
+        case host if (host.isEmpty) && !Play.isProd =>
         // in development mode, load all hubUsers as basis for the remote ones
         val users = HubUser.all.flatMap { users =>
           users.findAll.map {
@@ -60,24 +64,13 @@ object HubServices {
         // add example organization
         val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
         memoryServices.organizations += ("delving" -> delving)
-
         memoryServices
-      case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
+
+        case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
+      }
+
+      Seq(authenticationService, registrationService, userProfileService, organizationService, directoryService).foreach(_ += (configuration -> services))
+      basexStorage += (configuration -> new BaseXStorage(configuration.baseXConfiguration))
     }
-
-    authenticationService = services
-    registrationService = services
-    userProfileService = services
-    organizationService = services
-    directoryService = services
-
-    basexStorage = new BaseXStorage(
-      Play.configuration.getString("basex.host").getOrElse("localhost"),
-      Play.configuration.getInt("basex.port").getOrElse(1984),
-      Play.configuration.getInt("basex.eport").getOrElse(1985),
-      Play.configuration.getString("basex.user").getOrElse("admin"),
-      Play.configuration.getString("basex.password").getOrElse("admin")
-    )
-
   }
 }

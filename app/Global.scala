@@ -21,13 +21,14 @@ import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.DomainConfigurationHandler
 import eu.delving.culturehub.BuildInfo
+import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
 
   lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
 
   override def onStart(app: Application) {
-    if(!Play.isTest) {
+    if (!Play.isTest) {
       println("""
                 ____       __      _
                / __ \___  / /   __(_)___  ____ _
@@ -50,29 +51,33 @@ object Global extends GlobalSettings {
     }
 
     // temporary deployment trick
-    if(Play.isProd) {
+    if (Play.isProd) {
       val port = if(System.getProperty("http.port") == null) "9000" else System.getProperty("http.port")
       val runningPid = new File(current.path, "RUNNING_PID")
       Files.moveFile(runningPid, new File(current.path, "../" + port + "/RUNNING_PID"))
     }
 
     // ~~~ load configurations
-    DomainConfigurationHandler.startup()
+    try {
+      DomainConfigurationHandler.startup()
+    } catch {
+      case t: Throwable => System.exit(-1)
+    }
+
+    if (!Play.isTest) {
+      println("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
+    }
 
     // ~~~ bootstrap services
     HubServices.init()
     MappingService.init()
 
     // ~~~ sanity check
-    Play.configuration.getString("cultureHub.orgId") match {
-      case Some(orgId) => 
-        if(!HubServices.organizationService.exists(orgId)) {
-          Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!".format(orgId))
-          System.exit(-1)
-        }
-      case None =>
-        Logger("CultureHub").error("No cultureHub.organization configured!")
+    DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+      if(!HubServices.organizationService(configuration).exists(configuration.orgId)) {
+        Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
         System.exit(-1)
+      }
     }
 
     // ~~~ bootstrap jobs
@@ -168,7 +173,7 @@ object Global extends GlobalSettings {
   }
 
   override def onStop(app: Application) {
-    if(!Play.isTest) {
+    if (!Play.isTest) {
     // close all Mongo connections
     import models.mongoContext._
     close()
@@ -189,7 +194,7 @@ object Global extends GlobalSettings {
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-    if(Play.isProd) {
+    if (Play.isProd) {
       import play.api.mvc.Results._
       InternalServerError(views.html.errors.error(Some(ex)))
     } else {
@@ -200,7 +205,6 @@ object Global extends GlobalSettings {
   override def onHandlerNotFound(request: RequestHeader) = {
 
     if(Play.isProd) {
-      import play.api.mvc.Results._
       InternalServerError(views.html.errors.notFound(request, "", None))
     } else {
       super.onHandlerNotFound(request)
@@ -215,7 +219,7 @@ object Global extends GlobalSettings {
     val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
     val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
-    if(matcher.matches()) {
+    if (matcher.matches()) {
       // log route access, for API calls
       routeLogger ! RouteRequest(request)
 
@@ -229,7 +233,7 @@ object Global extends GlobalSettings {
 
     val matches = routes.flatMap(r => {
       val matcher = r._1._2.pattern.matcher(request.path)
-      if(request.method == r._1._1 && matcher.matches()) {
+      if (request.method == r._1._1 && matcher.matches()) {
         val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
         Some((pathElems.toList, r._2))
       } else {
@@ -237,7 +241,7 @@ object Global extends GlobalSettings {
       }
     })
 
-    if(matches.headOption.isDefined) {
+    if (matches.headOption.isDefined) {
       val handlerCall = matches.head
       val handler = handlerCall._2(handlerCall._1)
       Some(handler)

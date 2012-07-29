@@ -18,11 +18,9 @@ mail.smtp.host=mx2.hostice.net
 
 ### Global CultureHub settings
 cultureHub.nodeName=
-cultureHub.orgId=
 
 cultureHub.additionalModules=
 
-cultureCommons.apiToken=
 cultureCommons.host="https://commons.delving.eu"
 
 # Default theme for this hub

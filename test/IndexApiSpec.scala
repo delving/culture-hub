@@ -36,7 +36,7 @@ class IndexApiSpec extends Specification with TestContext {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
-          uri = "",
+          uri = "delving.localhost",
           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
           body =  testItems
         )
@@ -75,7 +75,7 @@ class IndexApiSpec extends Specification with TestContext {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
-          uri = "",
+          uri = "delving.localhost",
           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
           body =  <indexRequest>
                     <indexItem itemId="123" itemType="book">
@@ -122,7 +122,7 @@ class IndexApiSpec extends Specification with TestContext {
 
           val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
-            uri = "",
+            uri = "delving.localhost",
             headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
             body = testItems
 
@@ -132,7 +132,7 @@ class IndexApiSpec extends Specification with TestContext {
 
           val fakeDeleteRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
-            uri = "",
+            uri = "delving.localhost",
             headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
             body = <indexRequest>
                      <indexItem itemId="123" itemType="book" delete="true" />
@@ -162,7 +162,7 @@ class IndexApiSpec extends Specification with TestContext {
 
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
-        uri = "",
+        uri = "delving.localhost",
         headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
         body =  <indexRequest>
                   <indexItem itemId="123" itemType="foo">
@@ -197,7 +197,7 @@ class IndexApiSpec extends Specification with TestContext {
     running(FakeApplication()) {
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
-        uri = "",
+        uri = "delving.localhost",
         headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
         body =  <indexRequest>
                   <indexItem itemId="123456" itemType="test" delete="false">

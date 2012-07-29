@@ -48,55 +48,39 @@ object DomainConfigurationHandler {
     domainConfigurations = DomainConfiguration.getAll
     domainConfigurationsMap = toDomainList(domainConfigurations)
     domainLookupCache = HashMap.empty
-
-    if (!getDefaultConfiguration.isDefined) {
-      throw ConfigurationException("No default domain configuration could be found!")
-    }
   }
 
-  def hasSingleConfiguration: Boolean = domainConfigurations.length == 1
-
-  def hasConfiguration(configurationName: String): Boolean = !domainConfigurations.filter(configuration => configuration.name == configurationName).isEmpty
-
-  def getDefaultConfiguration = domainConfigurations.filter(_.name == current.configuration.getString("themes.defaultTheme").getOrElse("default")).headOption
-
   def getByName(name: String) = {
-    val configuration = domainConfigurations.filter(_.name.equalsIgnoreCase(name))
-    if (!configuration.isEmpty) configuration.head
-    else getDefaultConfiguration.get
+    domainConfigurations.find(_.name.equalsIgnoreCase(name)).getOrElse(throw new RuntimeException("No configuration for name " + name))
   }
 
   def getByOrgId(orgId: String) = {
-    domainConfigurations.find(_.orgId == orgId).getOrElse(getDefaultConfiguration.get)
+    domainConfigurations.find(_.orgId == orgId).getOrElse(throw new RuntimeException("No configuration for orgId " + orgId))
   }
 
   def getByDomain(domain: String): DomainConfiguration = {
     if (Play.isDev) {
       startup()
     }
-    if (hasSingleConfiguration) {
-      getDefaultConfiguration.get
-    } else {
-      // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
-      if(!domainLookupCache.contains(domain)) {
-        // fetch by longest matching domain
-        val configuration = domainConfigurationsMap.foldLeft(("#", getDefaultConfiguration.get)) {
-          (r: (String, DomainConfiguration), c: (String, DomainConfiguration)) => {
-            val rMatches = domain.startsWith(r._1)
-            val cMatches = domain.startsWith(c._1)
-            val rLonger = r._1.length() > c._1.length()
+    // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
+    if(!domainLookupCache.contains(domain)) {
+      // fetch by longest matching domain
+      val configuration = domainConfigurationsMap.foldLeft(("#", domainConfigurations.head)) {
+        (r: (String, DomainConfiguration), c: (String, DomainConfiguration)) => {
+          val rMatches = domain.startsWith(r._1)
+          val cMatches = domain.startsWith(c._1)
+          val rLonger = r._1.length() > c._1.length()
 
-            if (rMatches && cMatches && rLonger) r
-            else if (rMatches && cMatches && !rLonger) c
-            else if (rMatches && !cMatches) r
-            else if (cMatches && !rMatches) c
-            else r // default
-          }
-        }._2
-        domainLookupCache = domainLookupCache + (domain -> configuration)
-      }
-      domainLookupCache(domain)
+          if (rMatches && cMatches && rLonger) r
+          else if (rMatches && cMatches && !rLonger) c
+          else if (rMatches && !cMatches) r
+          else if (cMatches && !rMatches) c
+          else r // default
+        }
+      }._2
+      domainLookupCache = domainLookupCache + (domain -> configuration)
     }
+    domainLookupCache(domain)
   }
 
   private def toDomainList(domainList: Seq[DomainConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)

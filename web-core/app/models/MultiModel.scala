@@ -35,8 +35,8 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
   protected def initDAO(collection: MongoCollection, connection: MongoDB): B
 
   def dao(implicit configuration: DomainConfiguration): B = multiDAOs.get(configuration).getOrElse {
-    Logger("CultureHub").error("No DAO for configuration " + configuration)
-    throw new RuntimeException("No DAO for domain " + configuration)
+    Logger("CultureHub").error("No DAO for configuration " + configuration.name)
+    throw new RuntimeException("No DAO for domain " + configuration.name)
   }
 
   def dao(orgId: String): B = multiDAOs.find(_._1.orgId == orgId).map(_._2).getOrElse {

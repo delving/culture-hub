@@ -162,7 +162,7 @@ object DataSetControl extends OrganizationController {
             factsObject.putAll(dataSetForm.facts.asMap)
 
             // try to enrich with provider and dataProvider uris
-            def enrich(input: String, output: String) = HubServices.directoryService.findOrganizationByName(factsObject.get(input).toString) match {
+            def enrich(input: String, output: String) = HubServices.directoryService(configuration).findOrganizationByName(factsObject.get(input).toString) match {
               case Some(p) => factsObject.put(output, p.uri)
               case None => factsObject.remove(output)
             }
@@ -247,7 +247,7 @@ object DataSetControl extends OrganizationController {
   def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        Json(HubServices.directoryService.findOrganization(term).map(_.name))
+        Json(HubServices.directoryService(configuration).findOrganization(term).map(_.name))
     }
   }
 

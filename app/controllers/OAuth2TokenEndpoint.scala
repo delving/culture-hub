@@ -50,7 +50,7 @@ object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
               val mayUser = grantType match {
                 // TODO use real node from URL
                 case GrantType.PASSWORD =>
-                  if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
+                  if (!HubServices.authenticationService(configuration).connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
                     Left(errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password"))
                   } else {
                     Right(HubUser.dao.findByUsername(oauthRequest.getUsername).get)

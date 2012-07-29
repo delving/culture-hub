@@ -1,5 +1,6 @@
 package models
 
+import _root_.util.DomainConfigurationHandler
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import mongoContext._
@@ -29,7 +30,7 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
-    if(HubServices.organizationService.isAdmin(orgId, userName)) {
+    if(HubServices.organizationService(DomainConfigurationHandler.getByOrgId(orgId)).isAdmin(orgId, userName)) {
       find(MongoDBObject("orgId" -> orgId))
     } else {
       find(MongoDBObject("users" -> userName, "orgId" -> orgId))

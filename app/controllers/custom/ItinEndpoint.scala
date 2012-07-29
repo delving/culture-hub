@@ -30,6 +30,7 @@ import play.api.libs.concurrent.Promise
 
 /**
  *
+ * TODO turn this into a plugin. We need to check how the Play test framework works with tests in multi-module projects.
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @since 11/5/11 10:35 AM
  */

@@ -19,13 +19,9 @@ package models
 import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
-import play.api.Play.current
-import extensions.ConfigurationException
 import com.mongodb.casbah.gridfs.GridFS
 
 package object mongoContext extends models.MongoContext {
-
-  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
 
   val geonamesConnection = createConnection("geonames")
   lazy val geonamesCollection = geonamesConnection("geonames")

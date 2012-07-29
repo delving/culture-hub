@@ -15,6 +15,7 @@ import models._
 import cms.{MenuEntry, CMSPage}
 import com.mongodb.casbah.Imports._
 import core.HubServices
+import util.DomainConfigurationHandler
 
 
 /**
@@ -31,7 +32,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (HubServices.organizationService.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
+          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -160,10 +161,10 @@ object CMS extends OrganizationController {
     }
   }
 
-  private def getThemes = if (Play.isDev || DomainConfiguration.getAll.length == 1) {
-    DomainConfiguration.getAll.map(t => (t.name, t.name))
+  private def getThemes = if (Play.isDev || DomainConfigurationHandler.domainConfigurations.length == 1) {
+    DomainConfigurationHandler.domainConfigurations.map(t => (t.name, t.name))
   } else {
-    DomainConfiguration.getAll.filterNot(_.name == "default").map(t => (t.name, t.name))
+    DomainConfigurationHandler.domainConfigurations.filterNot(_.name == "default").map(t => (t.name, t.name))
   }
 
 

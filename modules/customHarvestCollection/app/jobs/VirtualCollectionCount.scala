@@ -7,6 +7,7 @@ import com.mongodb.casbah.Imports._
 import controllers.ErrorReporter
 import org.apache.solr.client.solrj.SolrQuery
 import akka.actor._
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -40,7 +41,7 @@ class VirtualCollectionCount extends Actor with SolrServer {
             vc =>
               val currentCount = count(vc)
               if(currentCount != vc.getTotalRecords) {
-                val domainConfiguration = DomainConfiguration.getAll.find(_.name == vc.query.domainConfiguration).get
+                val domainConfiguration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration)
                 dao.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, domainConfiguration, null) match {
                   case Right(computed) =>
                     log.info("Recomputed Virtual Collection %s, found %s records".format(vc.name, computed.getTotalRecords))

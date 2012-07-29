@@ -17,7 +17,7 @@ object Organization extends DelvingController {
   def providers(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (HubServices.organizationService(configuration).exists(orgId)) {
 
           val providers = getFactAlternatives(orgId, "provider")
 
@@ -41,7 +41,7 @@ object Organization extends DelvingController {
   def dataProviders(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (HubServices.organizationService(configuration).exists(orgId)) {
 
           val dataProviders = getFactAlternatives(orgId, "dataProvider")
 
@@ -65,7 +65,7 @@ object Organization extends DelvingController {
   def collections(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (HubServices.organizationService(configuration).exists(orgId)) {
           val collections = models.DataSet.dao.findAllByOrgId(orgId)
 
           val xmlResponse =

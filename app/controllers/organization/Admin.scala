@@ -20,11 +20,11 @@ object Admin extends OrganizationController {
   def index(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        if (!HubServices.organizationService.exists(orgId)) {
+        if (!HubServices.organizationService(configuration).exists(orgId)) {
           NotFound(Messages("organizations.organization.orgNotFound").format(orgId))
         } else {
           val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
-          Ok(Template('members -> membersAsTokens, 'owners -> HubServices.organizationService.listAdmins(orgId)))
+          Ok(Template('members -> membersAsTokens, 'owners -> HubServices.organizationService(configuration).listAdmins(orgId)))
         }
     }
   }

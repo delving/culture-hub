@@ -81,7 +81,7 @@ object DataSetCollectionProcessor {
       actionableTargetSchemas.headOption
     }
 
-    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage)
+    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage(configuration))
     def interrupted = {
       val current = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED

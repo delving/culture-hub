@@ -12,7 +12,7 @@ import collection.JavaConverters._
 import org.bson.types.ObjectId
 import xml.NodeSeq
 import core._
-import models.{GrantType, Group, HubUser}
+import models.{DomainConfiguration, GrantType, Group, HubUser}
 import play.api.data.Forms._
 
 /**
@@ -171,7 +171,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
     userName =>
-      val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+      val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
       val groups: List[GrantType] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
       // TODO make this cleaner
       if(isAdmin) {
@@ -203,7 +203,7 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, connectedUser)
+  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService(configuration).isAdmin(orgId, connectedUser)
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
@@ -241,7 +241,7 @@ trait OrganizationController extends DelvingController with Secured {
 
 trait DelvingController extends ApplicationController with CoreImplicits {
 
-  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
+  def getNode(implicit configuration: DomainConfiguration) = configuration.nodeName
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
@@ -350,8 +350,8 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = HubServices.organizationService.getName(orgId, "en")
-          val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+          val orgName = HubServices.organizationService(configuration).getName(orgId, "en")
+          val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
           renderArgs += ("orgId" -> orgId)
           renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)

@@ -10,6 +10,7 @@ import play.api.Logger
 import collection.mutable.ListBuffer
 import core.search._
 import core.collection.Harvestable
+import util.DomainConfigurationHandler
 
 /**
  * A VirtualCollection is a collection resulting from a search, with references to the search results being cached.
@@ -166,7 +167,7 @@ class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) ext
   private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: String, connectedUser: String): List[String] = {
 
     // for the start, only pass a dead-simple query
-    val domainConfiguration = DomainConfiguration.getAll.find(_.name == configuration).get
+    val domainConfiguration = DomainConfigurationHandler.getByName(configuration)
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
     val chQuery: CHQuery = SolrQueryService.createCHQuery(params, domainConfiguration, true, Option(connectedUser), List.empty[String])
     val response = CHResponse(params, domainConfiguration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)

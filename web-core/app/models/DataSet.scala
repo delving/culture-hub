@@ -16,6 +16,7 @@
 
 package models
 
+import _root_.util.DomainConfigurationHandler
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
 import models.mongoContext._
@@ -78,6 +79,8 @@ case class DataSet(
                    idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
                    ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable {
 
+  val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+
   // ~~~ accessors
 
   def getName: String = details.name
@@ -117,7 +120,7 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    DataSet.recordStorage.openCollection(this).isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
+    HubServices.basexStorage(configuration).openCollection(this).isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
   // ~~~ harvesting
@@ -154,8 +157,6 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB): DataSetDAO = new DataSetDAO(collection)
-
-  lazy val recordStorage = HubServices.basexStorage
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -223,13 +224,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
                               filter(g => g.grantType == grantType.key).
                               map(g => find("_id" $in g.dataSets).toList).
                               toList.flatten
-    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService.isAdmin(orgId, userName)).map(orgId => findAllByOrgId(orgId)).toList.flatten
+    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService(configuration).isAdmin(orgId, userName)).map(orgId => findAllByOrgId(orgId)).toList.flatten
 
     (groupDataSets ++ adminDataSets).distinct
   }
 
   def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
-    if(HubServices.organizationService.isAdmin(orgId, userName)) return findAllByOrgId(orgId).toList
+    if(HubServices.organizationService(configuration).isAdmin(orgId, userName)) return findAllByOrgId(orgId).toList
     val ids = Group.dao.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
     (find(("_id" $in ids)) ++ find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
   }
@@ -239,13 +240,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   // ~~~ access control
 
   def canView(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    HubServices.organizationService.isAdmin(ds.orgId, userName) ||
+    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) ||
     Group.dao.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
     ds.visibility == Visibility.PUBLIC
   }
 
   def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    HubServices.organizationService.isAdmin(ds.orgId, userName) || Group.dao.count(MongoDBObject(
+    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) || Group.dao.count(MongoDBObject(
       "dataSets" -> ds._id,
       "users" -> userName,
       "grantType" -> GrantType.MODIFY.key)
@@ -331,13 +332,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
 
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
-    DataSet.recordStorage.deleteCollection(dataSet)
+    HubServices.basexStorage(dataSet.configuration).deleteCollection(dataSet)
     remove(dataSet)
   }
 
   // ~~~ record handling
 
-  def getSourceRecordCount(dataSet: DataSet): Long = DataSet.recordStorage.count(dataSet)
+  def getSourceRecordCount(dataSet: DataSet): Long = HubServices.basexStorage(dataSet.configuration).count(dataSet)
 
   // ~~~ dataSet control
 

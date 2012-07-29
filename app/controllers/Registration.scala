@@ -33,6 +33,7 @@ import validation.{ValidationError, Valid, Invalid, Constraint}
 import play.libs.Time
 import play.libs.Images.Captcha
 import core.{ThemeInfo, HubServices}
+import models.DomainConfiguration
 
 /**
  *
@@ -50,32 +51,32 @@ object Registration extends ApplicationController {
                               code: String,
                               randomId: String)
 
-  val samePassword = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
+  def samePassword(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
     case r if r.password1 == r.password2 => Valid
     case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
   }
 
-  val captchaConstraint = Constraint[RegistrationInfo]("registration.invalidCode") {
+  def captchaConstraint(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.invalidCode") {
     case r if Cache.get(r.randomId) == Some(r.code) => Valid
     case e => Invalid(ValidationError(Messages("registration.invalidCode")))
   }
 
-  val emailTaken = Constraint[RegistrationInfo]("registration.duplicateEmail") {
-    case r if !HubServices.registrationService.isEmailTaken(r.email) => Valid
+  def emailTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateEmail") {
+    case r if !HubServices.registrationService(configuration).isEmailTaken(r.email) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
   }
 
-  val userNameTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-    case r if !HubServices.registrationService.isUserNameTaken(r.userName) => Valid
+  def userNameTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    case r if !HubServices.registrationService(configuration).isUserNameTaken(r.userName) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
   }
 
-  val orgIdTaken = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-    case r if !HubServices.organizationService.exists(r.userName) => Valid
+  def orgIdTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    case r if !HubServices.organizationService(configuration).exists(r.userName) => Valid
     case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
   }
 
-  val registrationForm: Form[RegistrationInfo] = Form(
+  def registrationForm(implicit configuration: DomainConfiguration): Form[RegistrationInfo] = Form(
     mapping(
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,
@@ -108,7 +109,7 @@ object Registration extends ApplicationController {
             val r = registration
             Cache.set(r.randomId, null)
 
-            val activationToken = HubServices.registrationService.registerUser(r.userName, getNode, r.firstName, r.lastName, r.email, r.password1)
+            val activationToken = HubServices.registrationService(configuration).registerUser(r.userName, configuration.nodeName, r.firstName, r.lastName, r.email, r.password1)
 
             val index = Redirect(controllers.routes.Application.index)
 
@@ -153,10 +154,10 @@ object Registration extends ApplicationController {
           warning("Empty activation token received")
           indexAction.flashing(("activation", "false"))
         } else {
-          val activated = HubServices.registrationService.activateUser(activationToken)
+          val activated = HubServices.registrationService(configuration).activateUser(activationToken)
           if (activated.isDefined) {
             try {
-              Mails.newUser("New user registered on " + getNode, getNode, activated.get.userName, activated.get.fullName, activated.get.email, configuration)
+              Mails.newUser("New user registered on " + configuration.nodeName, configuration.nodeName, activated.get.userName, activated.get.fullName, activated.get.email, configuration)
               indexAction.flashing(("activation", "true"))
             } catch {
               case t => logError(t, "Could not send activation email")
@@ -176,19 +177,19 @@ object Registration extends ApplicationController {
   }
 
 
-  val accountNotFound = Constraint[String]("registration.accountNotFoundWithEmail") {
-    case r if HubServices.registrationService.isEmailTaken(r) => Valid
+  def accountNotFound(implicit configuration: DomainConfiguration) = Constraint[String]("registration.accountNotFoundWithEmail") {
+    case r if HubServices.registrationService(configuration).isEmailTaken(r) => Valid
     case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
   }
   
-  val accountNotActive = Constraint[String]("registration.accountNotActive") {
-    case r if HubServices.registrationService.isAccountActive(r) => Valid
+  def accountNotActive(implicit configuration: DomainConfiguration) = Constraint[String]("registration.accountNotActive") {
+    case r if HubServices.registrationService(configuration).isAccountActive(r) => Valid
     case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
   }
 
   case class ResetPassword(email: String)
 
-  val resetPasswordForm: Form[ResetPassword] = Form(
+  def resetPasswordForm(implicit configuration: DomainConfiguration): Form[ResetPassword] = Form(
     mapping(
       "email" -> email.verifying(accountNotFound, accountNotActive)
     )(ResetPassword.apply)(ResetPassword.unapply)
@@ -200,7 +201,7 @@ object Registration extends ApplicationController {
         resetPasswordForm.bindFromRequest().fold(
           formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
           resetPassword => {
-            HubServices.registrationService.preparePasswordReset(resetPassword.email) match {
+            HubServices.registrationService(configuration).preparePasswordReset(resetPassword.email) match {
               case Some(resetPasswordToken) =>
                 Mails.resetPassword(resetPassword.email, resetPasswordToken, configuration, request.host)
                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
@@ -251,7 +252,7 @@ object Registration extends ApplicationController {
           newPasswordForm.bindFromRequest().fold(
             formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
             newPassword => {
-              val passwordChanged = HubServices.registrationService.resetPassword(resetPasswordToken, newPassword.password1)
+              val passwordChanged = HubServices.registrationService(configuration).resetPassword(resetPasswordToken, newPassword.password1)
               if(passwordChanged) {
                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordSuccess", "true"))
               } else {
