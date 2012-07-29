@@ -18,7 +18,7 @@ package controllers
 
 import org.bson.types.ObjectId
 import views.Helpers.getThumbnailUrl
-import models.{Visibility, ViewableItem, DataSetState}
+import models.{DomainConfiguration, Visibility, ViewableItem, DataSetState}
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
@@ -72,7 +72,7 @@ case class ListItem(id: String,
   def getOwner = userName
   def getCreator = userName
   def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
-  def getUri = url
+  def getUri(configuration: DomainConfiguration) = url
   def getLandingPage = url
   def getThumbnailUri = thumbnail(100)
   def getThumbnailUri(size: Int) = thumbnail(size)

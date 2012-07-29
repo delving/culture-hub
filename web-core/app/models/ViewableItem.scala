@@ -49,7 +49,7 @@ trait ViewableItem {
   def getItemType: String
   def getTitle : String
   def getDescription: String
-  def getUri: String // internal landing page for this thing
+  def getUri(configuration: DomainConfiguration): String // internal landing page for this thing
   def getThumbnailUri: String
   def getThumbnailUri(size: Int): String
 

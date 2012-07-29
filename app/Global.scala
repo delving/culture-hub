@@ -61,7 +61,9 @@ object Global extends GlobalSettings {
     try {
       DomainConfigurationHandler.startup()
     } catch {
-      case t: Throwable => System.exit(-1)
+      case t: Throwable =>
+        t.printStackTrace()
+        System.exit(-1)
     }
 
     if (!Play.isTest) {
@@ -75,7 +77,7 @@ object Global extends GlobalSettings {
     // ~~~ sanity check
     DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
       if(!HubServices.organizationService(configuration).exists(configuration.orgId)) {
-        Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
+        println("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
         System.exit(-1)
       }
     }

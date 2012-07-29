@@ -9,6 +9,7 @@ import play.api.i18n.Messages
 import core.rendering.ViewRenderer
 import com.mongodb.casbah.Imports._
 import play.api.Play
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -18,8 +19,16 @@ import play.api.Play
 object Search extends DelvingController {
   
   // TODO move later
-  val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
-  val viewRenderers = RecordDefinition.enabledDefinitions.flatMap(f => ViewRenderer.fromDefinition(f, "html")).map(r => (r.schema -> r)).toMap[String, ViewRenderer]
+  lazy val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
+  lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
+    pair => {
+      (pair._1 -> {
+        pair._2.
+          flatMap(f => ViewRenderer.fromDefinition(f, "html")).
+          map(r => (r.schema -> r)).toMap[String, ViewRenderer]
+      })
+    }
+  }
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -76,11 +85,11 @@ object Search extends DelvingController {
                   val ds = DataSet.dao.findBySpecAndOrgId(spec, orgId)
                   if(ds.isDefined) {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
-                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
+                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions(configuration).toList).headOption
                     val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
+                    if(renderingFormat.isDefined && viewRenderers(configuration).contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
                       val record = mdr.xml.get(renderingFormat.get).get
-                      renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                      renderRecord(mdr, record, viewRenderers(configuration)(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
                     } else {
                       NotFound(Messages("heritageObject.notViewable"))
                     }
@@ -137,7 +146,7 @@ object Search extends DelvingController {
         thumbnailUrl = Some(bd.getThumbnailUri(220)),
         userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri,
+        url = bd.getUri(configuration),
         mimeType = bd.getMimeType))
 
     (items, briefItemView.pagination.getNumFound)

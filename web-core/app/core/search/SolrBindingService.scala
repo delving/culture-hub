@@ -289,9 +289,9 @@ case class SolrDocId(solrDocument : SolrResultDocument) {
 
 case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors  {
 
-    override protected def assign(key: String) = solrDocument.getFirst(key)
+    protected def assign(key: String) = solrDocument.getFirst(key)
 
-    override protected def values(key: String): List[String] = getFieldValue(key).getValueAsArray.toList
+    protected def values(key: String): List[String] = getFieldValue(key).getValueAsArray.toList
 
     def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 

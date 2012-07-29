@@ -56,11 +56,11 @@ abstract class MetadataAccessors extends ViewableItem {
   def getVisibility: String = assign(VISIBILITY)
 
   // TODO add plugin mechanism
-  def getUri : String = getItemType match {
+  def getUri(configuration: DomainConfiguration): String = getItemType match {
     case MDR =>
       // TODO don't use heuristics
       val allSchemas = values(ALL_SCHEMAS)
-      val allSupportedFormats = RecordDefinition.enabledDefinitions
+      val allSupportedFormats = RecordDefinition.enabledDefinitions(configuration)
       val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
       if(renderFormat.isDefined) {
         "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId

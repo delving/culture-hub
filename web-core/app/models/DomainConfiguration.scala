@@ -10,7 +10,6 @@ import collection.JavaConverters._
  * Holds configuration that is used when a specific domain is accessed. It overrides a default configuration.
  *
  * TODO override of BaseXconfiguration
- * TODO use BaseXconfiguration also in other places
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -35,6 +34,10 @@ case class DomainConfiguration(
   mongoDatabase:               String,
   baseXConfiguration:          BaseXConfiguration,
   solrBaseUrl:                 String,
+
+  // ~~~ schema
+  schemas:                     Seq[String],
+  crossWalks:                  Seq[String],
 
   // ~~~ user interface
   themeDir:                    String,
@@ -114,8 +117,10 @@ object DomainConfiguration {
   val COMMONS_HOST = "commons.host"
   val COMMONS_NODE_NAME = "commons.nodeName"
   val COMMONS_API_TOKEN = "commons.apiToken"
+  val SCHEMAS = "schemas"
+  val CROSSWALKS = "crossWalks"
 
-  val MANDATORY_OVERRIDABLE_KEYS = Seq(ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME)
+  val MANDATORY_OVERRIDABLE_KEYS = Seq(ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS)
   val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN)
 
 
@@ -173,6 +178,8 @@ object DomainConfiguration {
                 mongoDatabase = configuration.getString(MONGO_DATABASE).get,
                 baseXConfiguration = rootBaseXConfiguration, // TODO override
                 solrBaseUrl = getString(configuration, SOLR_BASE_URL),
+                schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
+                crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
                 themeDir = configuration.getString("themeDir").getOrElse("default"),
                 defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
                 siteName = configuration.getString("siteName"),
@@ -201,7 +208,7 @@ object DomainConfiguration {
 
     // if there's anything wrong, we promptly refuse to start
     if (!missingKeys.isEmpty) {
-      Logger("CultureHub").error(
+      log.error(
         """Invalid configuration(s), hence we won't start:
           |%s
         """.stripMargin.format(
