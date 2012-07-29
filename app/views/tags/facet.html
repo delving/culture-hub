@@ -4,13 +4,13 @@
 
         #{if facet.getType() == _type}
 
-            <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#" rel="no-follow">
+        <li class="nav-header">
                 #{if _typeKey}${_typeKey}#{/if}
                 #{else}${_type}#{/else}
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">
+        </li>
+        <li>
+        <div class="facetContainer">
+            <ul class="nav nav-list">
                 #{list facet.getLinks(), as: 'link'}
                 %{
                     def qs = '/search?query='+ _qString + link.url
@@ -37,17 +37,72 @@
 
                     }%
                     #{if !link.remove()}
-                        <li><a href="${qs}">${thingType} (${link.count()})</a>
+                        <li><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a>
                         </li>
                     #{/if}
                     #{else}
-                        <li class="active"><a href="${qs}">${thingType}
+                        <li class="active"><a href="${qs}&facetBoolType=OR">${thingType}
                             (${link.count()})</a></li>
                     #{/else}
 
                 #{/list}
             </ul>
-            </li>
+
+        </div>
+        </li>
         #{/if}
     #{/if}
 #{/list}
+*{#{list _facetMap, as: 'facet'}}*
+
+    *{#{if facet.getLinks().length() > 0 }}*
+
+        *{#{if facet.getType() == _type}}*
+
+            *{<li class="dropdown">}*
+                *{<a class="dropdown-toggle" data-toggle="dropdown" href="#" rel="no-follow">}*
+                *{#{if _typeKey}${_typeKey}#{/if}}*
+                *{#{else}${_type}#{/else}}*
+                *{<span class="caret"></span>}*
+            *{</a>}*
+            *{<ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">}*
+                *{#{list facet.getLinks(), as: 'link'}}*
+                *{%{}*
+                    *{def qs = '/search?query='+ _qString + link.url}*
+                    *{// translate object types}*
+                    *{def thingType = link.value()}*
+                    *{if (facet.getType() == "delving_recordType_facet") {}*
+                    *{switch (link.value()) {}*
+                    *{case 'mdr':}*
+                    *{thingType = messages.get('thing.object.heritage')}*
+                    *{break}*
+                    *{case 'object':}*
+                    *{thingType = messages.get('thing.object.user')}*
+                    *{break}*
+                    *{case 'collection':}*
+                    *{thingType = messages.get('thing.collection')}*
+                    *{break}*
+                    *{case 'museum':}*
+                    *{thingType = messages.get('thing.museum')}*
+                    *{break}*
+                    *{default:}*
+                    *{thingType = link.value()}*
+                    *{}}*
+                    *{}}*
+
+                    *{}%}*
+                    *{#{if !link.remove()}}*
+                        *{<li><a href="${qs}">${thingType} (${link.count()})</a>}*
+                        *{</li>}*
+                    *{#{/if}}*
+                    *{#{else}}*
+                        *{<li class="active"><a href="${qs}">${thingType}}*
+                            *{(${link.count()})</a></li>}*
+                    *{#{/else}}*
+
+                *{#{/list}}*
+            *{</ul>}*
+            *{</li>}*
+        *{#{/if}}*
+    *{#{/if}}*
+*{#{/list}}*

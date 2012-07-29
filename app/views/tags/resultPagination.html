@@ -2,7 +2,7 @@
 <div class="pagination ${_extraClass ? _extraClass : ''}">
  <ul>
     #{if _pageLinks.previous}
-        <li><a rel="no-follow" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}">${messages.get('ui.label.previous')}</a></li>
+        <li><a rel="no-follow" href="?${_pQuery}&amp;start=${_pageLinks.previousPage}&facetBoolType=OR">${messages.get('ui.label.previous')}</a></li>
     #{/if}
     #{else}
         <li class="disabled"><a href="#">${messages.get('ui.label.previous')}</a></li>
@@ -11,7 +11,7 @@
     #{list _pageLinks.getPageLinks(), as:'link'}
 
     #{if link.linked}
-       <li><a href="?${_pQuery}&amp;start=${link.start}" rel="no-follow">${link.display}</a></li>
+       <li><a href="?${_pQuery}&amp;start=${link.start}&facetBoolType=OR" rel="no-follow">${link.display}</a></li>
     #{/if}
     #{else}
        <li class="active"><a href="#" rel="no-follow">${link.display}</a></li>
@@ -19,7 +19,7 @@
     #{/list}
 
     #{if _pageLinks.next}
-       <li class="next"><a href="?${_pQuery}&amp;start=${_pageLinks.nextPage}">${messages.get('ui.label.next')}</a></li>
+       <li class="next"><a href="?${_pQuery}&amp;start=${_pageLinks.nextPage}&facetBoolType=OR">${messages.get('ui.label.next')}</a></li>
     #{/if}
     #{else}
         <li class="disabled"><a href="#" rel="no-follow">${messages.get('ui.label.next')}</a> </li>

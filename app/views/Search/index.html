@@ -20,11 +20,7 @@
     </div>
 
     <div class="facets span8">
-        <ul class="nav nav-pills pull-right">
-            #{list items: themeFacets, as: 'tf'}
-                #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
-            #{/list}
-        </ul>
+
     </div>
 
 </div>
@@ -33,8 +29,18 @@
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-top" /}
     #{/if}
 
-
-    #{resultGrid results: briefDocs /}
+<div class="row">
+    <div class="span9">
+        #{resultGrid results: briefDocs /}
+    </div>
+    <div class="span3">
+        <ul class="nav nav-list">
+        #{list items: themeFacets, as: 'tf'}
+            #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
+        #{/list}
+        </ul>
+    </div>
+</div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
 
