@@ -60,7 +60,7 @@ class VirtualCollectionCount extends Actor with SolrServer {
   }
 
   def count(vc: VirtualCollection): Long = {
-    val result = getSolrServer.query(new SolrQuery(vc.query.toSolrQuery + " delving_orgId:" + vc.orgId))
+    val result = getSolrServer(DomainConfigurationHandler.getByOrgId(vc.orgId)).query(new SolrQuery(vc.query.toSolrQuery + " delving_orgId:" + vc.orgId))
     val count = result.getResults.getNumFound
     count
   }

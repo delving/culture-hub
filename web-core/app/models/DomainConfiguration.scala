@@ -44,6 +44,9 @@ case class DomainConfiguration(
   // ~~~ user interface
   ui:                          UserInterfaceConfiguration,
 
+  // ~~~ access control
+//  roles:                       String,
+
   // ~~~ search
   hiddenQueryFilter:           Option[String] = Some(""),
   facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type

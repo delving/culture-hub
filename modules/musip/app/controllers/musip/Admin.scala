@@ -11,6 +11,7 @@ import models.{MetadataCache, MetadataItem}
 import play.api.libs.ws.WS
 import play.api.{Logger, Play}
 import java.util.concurrent.TimeUnit
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -81,7 +82,7 @@ object Admin extends OrganizationController {
       doc.addField(SYSTEM_TYPE, HUB_ITEM)
       doc.addField(HUB_URI, "/%s/%s/%s".format(orgId, itemType, localId))
 
-      IndexingService.stageForIndexing(doc)
+      IndexingService.stageForIndexing(doc)(DomainConfigurationHandler.getByOrgId(orgId))
     }
     IndexingService.commit()
     items.size

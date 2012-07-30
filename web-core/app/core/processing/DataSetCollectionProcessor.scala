@@ -92,7 +92,8 @@ object DataSetCollectionProcessor {
     def onError(t: Throwable) {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
+    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String, configuration: DomainConfiguration) =
+      Indexing.indexOne(dataSet, item, fields, prefix)(configuration)
 
     def onIndexingComplete(start: DateTime) {
       IndexingService.commit()
@@ -102,7 +103,7 @@ object DataSetCollectionProcessor {
       var success = false
       while(retries < 3 && !success) {
         try {
-          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start)
+          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start, configuration)
           success = true
         } catch {
           case t => retries += 1
@@ -116,7 +117,7 @@ object DataSetCollectionProcessor {
       // it does not matter how long we wait
       // hence, we just trigger it here, and ignore the exception.
       try {
-        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)))
+        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)), configuration)
       } catch {
         case t => // as described earlier on, just ignore this exception
       }
@@ -124,7 +125,7 @@ object DataSetCollectionProcessor {
     }
 
     DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
+    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete, configuration)
     val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
     if(state == DataSetState.PROCESSING) {
       DataSet.dao.updateState(dataSet, DataSetState.ENABLED)

@@ -9,6 +9,7 @@ import play.api.Play.current
  */
 
 case class GrantType(key: String, description: String, origin: String = "System")
+
 object GrantType {
 
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))

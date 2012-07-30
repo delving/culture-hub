@@ -50,8 +50,8 @@ trait ViewableItem {
   def getTitle : String
   def getDescription: String
   def getUri(configuration: DomainConfiguration): String // internal landing page for this thing
-  def getThumbnailUri: String
-  def getThumbnailUri(size: Int): String
+  def getThumbnailUri(configuration: DomainConfiguration): String
+  def getThumbnailUri(size: Int, configuration: DomainConfiguration): String
 
   def getOwner: String
   def getVisibility: String

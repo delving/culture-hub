@@ -16,6 +16,7 @@
 
 package core.search
 
+import _root_.util.DomainConfigurationHandler
 import org.bson.types.ObjectId
 import org.apache.solr.client.solrj.SolrQuery
 import play.api.Play.current
@@ -25,7 +26,10 @@ import play.api.Play
 import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
 import collection.JavaConverters._
 import play.api.cache.Cache
-import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrServer, StreamingUpdateSolrServer, CommonsHttpSolrServer}
+import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrServer}
+import xml.XML
+import java.net.URL
+import models.DomainConfiguration
 
 
 /**
@@ -36,37 +40,34 @@ import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrSe
 
 trait SolrServer {
 
-  def getSolrServer = SolrServer.solrServer
+  def getSolrServer(configuration: DomainConfiguration) = SolrServer.solrServer(configuration)
 
   def getStreamingUpdateServer = SolrServer.streamingUpdateServer
 
-  def runQuery(query: SolrQuery): QueryResponse = SolrServer.solrServer.query(query)
+  def runQuery(query: SolrQuery, configuration: DomainConfiguration): QueryResponse = SolrServer.solrServer(configuration).query(query)
 
 }
 
 object SolrServer {
 
+  lazy val solrServers: Map[String, HttpSolrServer] = DomainConfigurationHandler.domainConfigurations.map { configuration =>
+    (configuration.solrBaseUrl -> {
+      val solrServer = new HttpSolrServer(url)
+      solrServer.setSoTimeout(1000) // socket read timeout
+      solrServer.setConnectionTimeout(1000)
+      solrServer.setDefaultMaxConnectionsPerHost(64)
+      solrServer.setMaxTotalConnections(125)
+      solrServer.setFollowRedirects(false) // defaults to false
+      solrServer.setAllowCompression(false)
+      solrServer.setMaxRetries(1)
+      solrServer
+    })
+  }.toMap
+
   private val url = Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2")
-  private[search] val solrServer = new HttpSolrServer(url)
-  solrServer.setSoTimeout(1000) // socket read timeout
-  solrServer.setConnectionTimeout(1000)
-  solrServer.setDefaultMaxConnectionsPerHost(64)
-  solrServer.setMaxTotalConnections(125)
-  solrServer.setFollowRedirects(false) // defaults to false
-  // allowCompression defaults to false.
-  // Server side must support gzip or deflate for this to have any effect.
-  solrServer.setAllowCompression(false)
-  solrServer.setMaxRetries(1)
-  // defaults to 0.  > 1 not recommended.
+  private[search] def solrServer(configuration: DomainConfiguration) = solrServers(configuration.solrBaseUrl)
 
   private[search] val streamingUpdateServer = new ConcurrentUpdateSolrServer(url, 1000, 5)
-//  streamingUpdateServer.setSoTimeout(10000) // socket read timeout
-//  streamingUpdateServer.setConnectionTimeout(15000)
-//  streamingUpdateServer.setDefaultMaxConnectionsPerHost(10)
-//  streamingUpdateServer.setMaxTotalConnections(15)
-//  streamingUpdateServer.setFollowRedirects(false) // defaults to false
-//  streamingUpdateServer.setAllowCompression(false)
-//  streamingUpdateServer.setMaxRetries(1) // defaults to 0.  > 1 not recommended.
 
   def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
 
@@ -106,7 +107,6 @@ object SolrServer {
   val SOLR_FIELDS = "solrFields"
 
   def getSolrFields: List[SolrDynamicField] = {
-
     Cache.getOrElse(SOLR_FIELDS, 120) {
       computeSolrFields
     }
@@ -114,8 +114,6 @@ object SolrServer {
   }
 
   def computeSolrFields = {
-    import xml.XML
-    import java.net.URL
     val lukeUrl: URL = new URL("%s/admin/luke".format(url))
     val fields = XML.load(lukeUrl) \\ "lst"
 
@@ -143,21 +141,21 @@ object SolrServer {
 
   }
 
-  def getFacetFieldAutocomplete(facetName: String,  facetQuery: String, facetLimit: Int = 10) = {
+  def getFacetFieldAutocomplete(facetName: String, facetQuery: String, facetLimit: Int = 10)(configuration: DomainConfiguration) = {
     val normalisedFacetName = "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName))
     val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
     val query = new SolrQuery("*:*")
     query setFacet true
     query setFacetLimit facetLimit
     query setFacetMinCount 1
-//    query addFacetField (normalisedFacetName)
-//    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
+    //    query addFacetField (normalisedFacetName)
+    //    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
     query addFacetField (facetName)
-    query setFacetPrefix (facetName, facetQuery.capitalize) // split(" ") map(_.capitalize) mkString(" ")
+    query setFacetPrefix(facetName, facetQuery.capitalize) // split(" ") map(_.capitalize) mkString(" ")
     query setRows 0
-    val response = solrServer query (query)
+    val response = solrServer(configuration) query (query)
     val facetValues = (response getFacetField (facetName))
-//    val facetValuesLowerCase = (response getFacetField (normalisedFacetName))
+    //    val facetValuesLowerCase = (response getFacetField (normalisedFacetName))
 
     if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
   }

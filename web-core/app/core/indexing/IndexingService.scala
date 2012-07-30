@@ -8,6 +8,7 @@ import org.apache.solr.common.SolrInputDocument
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
+import models.DomainConfiguration
 
 /**
  * Indexing API
@@ -17,7 +18,7 @@ object IndexingService extends SolrServer {
   /**
    * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
    */
-  def stageForIndexing(doc: SolrInputDocument) {
+  def stageForIndexing(doc: SolrInputDocument)(implicit configuration: DomainConfiguration) {
     import scala.collection.JavaConversions._
 
     val hasDigitalObject: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL) && !entry.getValue.isEmpty).isEmpty
@@ -90,10 +91,10 @@ object IndexingService extends SolrServer {
     getStreamingUpdateServer.commit
   }
 
-  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime) {
+  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime, configuration: DomainConfiguration) {
     val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     val deleteQuery = SPEC + ":" + spec + " AND " + ORG_ID + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
-    val orphans = getSolrServer.query(new SolrQuery(deleteQuery)).getResults.getNumFound
+    val orphans = getSolrServer(configuration).query(new SolrQuery(deleteQuery)).getResults.getNumFound
     if (orphans > 0) {
       try {
         val deleteResponse = getStreamingUpdateServer.deleteByQuery(deleteQuery)

@@ -29,7 +29,7 @@ import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{Visibility, MetadataItem, DataSet}
+import models.{DomainConfiguration, Visibility, MetadataItem, DataSet}
 import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 
@@ -40,7 +40,7 @@ import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 object Indexing extends SolrServer {
 
-  def indexOne(dataSet: DataSet, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
+  def indexOne(dataSet: DataSet, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
     try {

@@ -74,8 +74,8 @@ case class ListItem(id: String,
   def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
   def getUri(configuration: DomainConfiguration) = url
   def getLandingPage = url
-  def getThumbnailUri = thumbnail(100)
-  def getThumbnailUri(size: Int) = thumbnail(size)
+  def getThumbnailUri(configuration: DomainConfiguration) = thumbnail(100)
+  def getThumbnailUri(size: Int, configuration: DomainConfiguration) = thumbnail(size)
   def getMimeType = mimeType
   def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
 }

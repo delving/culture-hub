@@ -36,7 +36,7 @@ object Search extends DelvingController {
       implicit request =>
         val chQuery = SolrQueryService.createCHQuery(request, configuration, true, Option(connectedUser), additionalSystemHQFs)
         try {
-          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
           val briefItemView = BriefItemView(response)
 
           Ok(Template("/Search/index.html",
@@ -133,7 +133,7 @@ object Search extends DelvingController {
       case None => List()
     }) ::: query
     val chQuery = SolrQueryService.createCHQuery(request, configuration, false, Option(connectedUser), queryList)
-    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
+    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true)
     val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), configuration, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
@@ -142,7 +142,7 @@ object Search extends DelvingController {
         itemType = bd.getItemType,
         title = bd.getTitle,
         description = bd.getDescription,
-        thumbnailUrl = Some(bd.getThumbnailUri(220)),
+        thumbnailUrl = Some(bd.getThumbnailUri(220, configuration)),
         userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
         url = bd.getUri(configuration),

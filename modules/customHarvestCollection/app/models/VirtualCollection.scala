@@ -126,7 +126,7 @@ class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) ext
     try {
       children.removeByParentId(vc._id)
 
-      val hubIds = getIdsFromQuery(query = query, configuration = vc.query.domainConfiguration, connectedUser = connectedUser)
+      val hubIds = getIdsFromQuery(query = query, configuration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration), connectedUser = connectedUser)
       val groupedHubIds = hubIds.groupBy(id => (id.split("_")(0), id.split("_")(1)))
 
       val dataSetReferences: List[DataSetReference] = groupedHubIds.flatMap {
@@ -164,13 +164,12 @@ class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) ext
     }
   }
 
-  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: String, connectedUser: String): List[String] = {
+  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: DomainConfiguration, connectedUser: String): List[String] = {
 
     // for the start, only pass a dead-simple query
-    val domainConfiguration = DomainConfigurationHandler.getByName(configuration)
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
-    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, domainConfiguration, true, Option(connectedUser), List.empty[String])
-    val response = CHResponse(params, domainConfiguration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, configuration, true, Option(connectedUser), List.empty[String])
+    val response = CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
     val briefItemView = BriefItemView(response)
     val hubIds = briefItemView.getBriefDocs.map(_.getHubId).filterNot(_.isEmpty)
     Logger("CultureHub").debug("Found ids " + hubIds)

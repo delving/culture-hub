@@ -45,7 +45,14 @@ class CollectionProcessor(collection: Collection,
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
-  def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String], onIndexingComplete: DateTime => Unit) {
+  def process(interrupted: => Boolean,
+              updateCount: Long => Unit,
+              onError: Throwable => Unit,
+              indexOne: (MetadataItem, MultiMap, String, DomainConfiguration) => Either[Throwable, String],
+              onIndexingComplete: DateTime => Unit,
+              configuration: DomainConfiguration
+             ) {
+
     val startProcessing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.spec, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
@@ -145,7 +152,7 @@ class CollectionProcessor(collection: Collection,
                     val r = mappingResults(indexingSchema.get.prefix)
                     val fields: Map[String, List[String]] = r.fields()
                     val searchFields: Map[String, List[String]] = r.searchFields()
-                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
+                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix, configuration)
                   }
 
                 }

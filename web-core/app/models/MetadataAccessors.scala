@@ -74,15 +74,15 @@ abstract class MetadataAccessors extends ViewableItem {
     case MDR => assign(EXTERNAL_LANDING_PAGE)
     case _ => ""
   }
-  def getThumbnailUri: String = getThumbnailUri(180)
+  def getThumbnailUri(configuration: DomainConfiguration): String = getThumbnailUri(180, configuration)
 
-  def getThumbnailUri(size: Int): String = {
+  def getThumbnailUri(size: Int, configuration: DomainConfiguration): String = {
     assign(THUMBNAIL) match {
       case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
         val mongoId = Some(new ObjectId(id))
         thumbnailUrl(mongoId, size)
       case url if url.startsWith("http") =>
-        if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+        if(configuration.objectService.imageCacheEnabled) {
           "/thumbnail/cache?id=%s&width=%s".format(URLEncoder.encode(url, "utf-8"), size)
         } else {
           url
