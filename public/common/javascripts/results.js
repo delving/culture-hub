@@ -4,10 +4,10 @@ $(document).ready(function() {
     $container.imagesLoaded( function() {
         $container.masonry({
             itemSelector : '.grid-item',
-            gutterWidth : 20
+            gutterWidth : 10
         });
     });
-
+    
     // Facets stuff
 //    if ($(".facet-container").length > 0) {
 //        // hide() or show() the toggle containers on load

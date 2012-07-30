@@ -10,7 +10,7 @@
         </li>
         <li>
         <div class="facetContainer">
-            <ul class="nav nav-list">
+            <ul class="nav nav-list nav-facets">
                 #{list facet.getLinks(), as: 'link'}
                 %{
                     def qs = '/search?query='+ _qString + link.url

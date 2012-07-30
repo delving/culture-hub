@@ -14,15 +14,9 @@
 #{if briefDocs }
 
 <div class="row">
-
-    <div class="item-count span4">
-        <h6>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h6>
+    <div class="item-count span12">
+       <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
     </div>
-
-    <div class="facets span8">
-
-    </div>
-
 </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
@@ -30,11 +24,11 @@
     #{/if}
 
 <div class="row">
-    <div class="span9">
+    <div class="span8">
         #{resultGrid results: briefDocs /}
     </div>
-    <div class="span3">
-        <ul class="nav nav-list">
+    <div class="span4">
+        <ul class="nav nav-list nav-facets">
         #{list items: themeFacets, as: 'tf'}
             #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
         #{/list}
@@ -95,15 +89,16 @@
 &{'ui.message.nothingFound'}
 </div>
 #{/else}
-
+*{
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay">
     <!-- the external content is loaded inside this tag -->
     <div class="contentWrap"></div>
 </div>
 
+
 <script type="text/javascript">
-    $(document).ready(function () {
+//    $(document).ready(function () {
 
 //  $('#dropbox').dropbox();
 //
@@ -128,5 +123,6 @@
 //        });
 //      });
 
-    });
+//    });
 </script>
+}*

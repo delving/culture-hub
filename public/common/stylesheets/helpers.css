@@ -730,3 +730,17 @@ form label.radio {
 .dropdown-menu.disabled {
     display: none;
 }
+
+/* facets */
+
+.well-facets {
+    padding: 0;
+}
+
+/*.nav-facets {*/
+    /*padding: 0;*/
+/*}*/
+
+/*.nav-facets > li > a {*/
+    /*padding: 3px 0px;*/
+/*}*/
