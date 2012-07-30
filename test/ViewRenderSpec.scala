@@ -26,6 +26,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.templates.GenericTemplateLoader
 import core.rendering._
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -39,9 +40,11 @@ class ViewRenderSpec extends Specification with TestContext {
     "render a record as HTML" in {
       withTestConfig {
 
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val renderer = new ViewRenderer("icn", "full")
+        val renderer = new ViewRenderer("icn", "full", configuration)
         val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"), Map.empty)
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
@@ -86,11 +89,13 @@ class ViewRenderSpec extends Specification with TestContext {
     "render an AFF record as HTML" in {
       withTestConfig {
 
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val renderer = new ViewRenderer("aff", "html")
+        val renderer = new ViewRenderer("aff", "html", configuration)
         val view = renderer.renderRecord(affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
@@ -106,9 +111,11 @@ class ViewRenderSpec extends Specification with TestContext {
 
     "render a record as XML" in {
       withTestConfig {
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
+        val view = ViewRenderer.fromDefinition("aff", "full", configuration).get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
 
         val xml = view.toXmlString
 
@@ -139,8 +146,10 @@ class ViewRenderSpec extends Specification with TestContext {
 
     "render a record as JSON" in {
       withTestConfig {
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-        val renderer = new ViewRenderer("aff", "xml")
+        val renderer = new ViewRenderer("aff", "xml", configuration)
         val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
         val json = view.toJson
 
@@ -162,8 +171,10 @@ class ViewRenderSpec extends Specification with TestContext {
 
     "render a legacy record as JSON" in {
       withTestConfig {
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val testRecord = legacyRecord()
-        val renderer = new ViewRenderer("legacy", "api")
+        val renderer = new ViewRenderer("legacy", "api", configuration)
         val view = renderer.renderRecord(testRecord, List.empty, legacyNamespaces, Lang("en"))
 
         val json = view.toJson
@@ -178,8 +189,10 @@ class ViewRenderSpec extends Specification with TestContext {
     "render a legacy record as XML" in {
       withTestConfig {
 
+        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val testRecord = legacyRecord()
-        val renderer = new ViewRenderer("legacy", "api")
+        val renderer = new ViewRenderer("legacy", "api", configuration)
         val view = renderer.renderRecord(testRecord, List.empty, legacyNamespaces, Lang("en"))
 
         (view.toXml \ "layout" \ "fields" \ "field").filter(c => (c \ "name").text == "tib_objectSoort").size must equalTo(1)
