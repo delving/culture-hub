@@ -30,12 +30,12 @@ case class DomainConfiguration(
   nodeName:                    String, // TODO deprecate this. We keep it for now to ease migration
   apiToken:                    String,
 
+  objectService:               ObjectServiceConfiguration,
+
   // ~~~ data
   mongoDatabase:               String,
   baseXConfiguration:          BaseXConfiguration,
   solrBaseUrl:                 String,
-  fileStoreDatabaseName:       String,
-  imageCacheDatabaseName:      String,
 
   // ~~~ schema
   schemas:                     Seq[String],
@@ -97,6 +97,14 @@ case class UserInterfaceConfiguration(
   homePage:                    Option[String] = None
 )
 
+case class ObjectServiceConfiguration(
+  fileStoreDatabaseName:       String,
+  imageCacheDatabaseName:      String,
+  imageCacheEnabled:           Boolean,
+  tilesOutputBaseDir:          String,
+  tilesWorkingBaseDir:         String
+)
+
 case class BaseXConfiguration(
   host: String,
   port: Int,
@@ -120,16 +128,22 @@ object DomainConfiguration {
   val ORG_ID = "orgId"
   val SOLR_BASE_URL = "solr.baseUrl"
   val MONGO_DATABASE = "mongoDatabase"
-  val FILESTORE_DATABASE = "fileStoreDatabase"
-  val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
   val COMMONS_HOST = "commons.host"
   val COMMONS_NODE_NAME = "commons.nodeName"
   val COMMONS_API_TOKEN = "commons.apiToken"
+  val FILESTORE_DATABASE = "fileStoreDatabase"
+  val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
+  val IMAGE_CACHE_ENABLED = "imageCacheEnabled"
+  val TILES_WORKING_DIR = "tilesWorkingBaseDir"
+  val TILES_OUTPUT_DIR = "tilesOutputBaseDir"
   val SCHEMAS = "schemas"
   val CROSSWALKS = "crossWalks"
 
-  val MANDATORY_OVERRIDABLE_KEYS = Seq(ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS, IMAGE_CACHE_DATABASE, FILESTORE_DATABASE)
-  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN)
+  val MANDATORY_OVERRIDABLE_KEYS = Seq(
+    ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS, IMAGE_CACHE_DATABASE,
+    FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR
+  )
+  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED)
 
 
   /**
@@ -186,8 +200,13 @@ object DomainConfiguration {
                 mongoDatabase = configuration.getString(MONGO_DATABASE).get,
                 baseXConfiguration = rootBaseXConfiguration, // TODO override
                 solrBaseUrl = getString(configuration, SOLR_BASE_URL),
-                fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
-                imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
+                objectService = ObjectServiceConfiguration(
+                  fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
+                  imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
+                  imageCacheEnabled = configuration.getBoolean(IMAGE_CACHE_ENABLED).getOrElse(false),
+                  tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
+                  tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
+                ),
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
                 ui = UserInterfaceConfiguration(
@@ -254,8 +273,10 @@ object DomainConfiguration {
       configurations.map { c =>
         c.copy(
           mongoDatabase = c.mongoDatabase + "-TEST",
-          fileStoreDatabaseName = c.fileStoreDatabaseName + "-TEST",
-          imageCacheDatabaseName = c.imageCacheDatabaseName + "-TEST"
+          objectService = c.objectService.copy(
+            fileStoreDatabaseName = c.objectService.fileStoreDatabaseName + "-TEST",
+            imageCacheDatabaseName = c.objectService.imageCacheDatabaseName + "-TEST"
+          )
         )
       }
     } else {

@@ -196,7 +196,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, configuration
       // let's do some rendering
       RecordDefinition.getRecordDefinition(prefix) match {
         case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName, configuration)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))

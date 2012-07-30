@@ -19,12 +19,11 @@ import util.DomainConfigurationHandler
 object Search extends DelvingController {
   
   // TODO move later
-  lazy val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
   lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
     pair => {
       (pair._1 -> {
         pair._2.
-          flatMap(f => ViewRenderer.fromDefinition(f, "html")).
+          flatMap(f => ViewRenderer.fromDefinition(f, "html", pair._1)).
           map(r => (r.schema -> r)).toMap[String, ViewRenderer]
       })
     }
@@ -80,7 +79,7 @@ object Search extends DelvingController {
                 // AFF takes precedence over anything else
                 if(mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
-                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
+                  renderRecord(mdr, record, viewRenderers(configuration)("aff"), RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else {
                   val ds = DataSet.dao.findBySpecAndOrgId(spec, orgId)
                   if(ds.isDefined) {

@@ -16,7 +16,7 @@
 
 package core.rendering
 
-import models.GrantType
+import models.{DomainConfiguration, GrantType}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -43,10 +43,10 @@ import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewName: String) = {
+  def fromDefinition(schema: String, viewName: String, configuration: DomainConfiguration) = {
     val definition = getViewDefinition(schema, viewName)
     if(definition.isDefined) {
-      Some(new ViewRenderer(schema, viewName))
+      Some(new ViewRenderer(schema, viewName, configuration))
     } else {
       None
     }
@@ -64,7 +64,7 @@ object ViewRenderer {
 
 }
 
-class ViewRenderer(val schema: String, viewName: String) {
+class ViewRenderer(val schema: String, viewName: String, configuration: DomainConfiguration) {
   
   val log = Logger("CultureHub")
 
@@ -277,7 +277,7 @@ class ViewRenderer(val schema: String, viewName: String) {
                 role =>
                   val value = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption.map {
                     url =>
-                      if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+                      if(configuration.objectService.imageCacheEnabled) {
                         "/image/cache?id=%s".format(URLEncoder.encode(url, "utf-8"))
                       } else {
                         url
