@@ -21,6 +21,7 @@ import com.mongodb.casbah.gridfs.GridFS
 import play.api.Play
 import play.api.Play.current
 import models._
+import util.DomainConfigurationHandler
 
 package object dos extends MongoContext {
 
@@ -28,8 +29,9 @@ package object dos extends MongoContext {
   lazy val testStoreConnection = MongoConnection().getDB("testDoSStore")
   val testing = Play.isTest
 
-  val fileStoreConnection = createConnection(Play.configuration.getString("dos.db.fileStore.name").getOrElse("fileStore"))
-  val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnection)
+  lazy val fileStore: Map[DomainConfiguration, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
+    (dc -> GridFS(createConnection(dc.fileStoreDatabaseName)))
+  }.toMap
 
   val imageCacheStoreConnection = createConnection(Play.configuration.getString("dos.db.imageCache.name").getOrElse("imageCache"))
   val imageCacheStore: GridFS = if(testing) GridFS(testStoreConnection) else GridFS(imageCacheStoreConnection)

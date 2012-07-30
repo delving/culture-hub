@@ -33,7 +33,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   private val LANG_COOKIE = "CH_LANG"
 
-  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.defaultLanguage)
+  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
@@ -53,8 +53,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
             langParam.get(0)
           } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
             // if there is no language for this cookie / user set, set the default one from the configuration
-            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.defaultLanguage)
-            configuration.defaultLanguage
+            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
+            configuration.ui.defaultLanguage
           } else {
             Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
             request.cookies.get(LANG_COOKIE).get.value

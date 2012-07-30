@@ -27,6 +27,8 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
+import core.DomainConfigurationAware
+import models.DomainConfiguration
 
 
 /**
@@ -34,30 +36,38 @@ import extensions.MissingLibs
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageDisplay extends Controller with RespondWithDefaultImage {
+object ImageDisplay extends Controller with RespondWithDefaultImage with DomainConfigurationAware {
 
   // ~~ public HTTP API
 
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false) = Action {
-    implicit request =>
-      renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width), browse = browse, isFileId = fileId)
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false) = DomainConfigured {
+    Action {
+      implicit request =>
+        renderImage(
+          id = id,
+          store = fileStore(configuration),
+          thumbnail = true,
+          orgId = orgId,
+          collectionId = collectionId,
+          thumbnailWidth = thumbnailWidth(width),
+          browse = browse,
+          isFileId = fileId
+        )
+    }
   }
 
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String, fileId: Boolean) = Action {
-    implicit request =>
-      renderImage(id = id, thumbnail = false, isFileId = fileId)
+  def displayImage(id: String, fileId: Boolean) = DomainConfigured {
+    Action {
+      implicit request =>
+        renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
+    }
   }
-
-  // ~~ public Scala API
-
-  def imageExists(objectId: ObjectId) = fileStore.find(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> objectId)).nonEmpty
-
 
   // ~~ PRIVATE
 
@@ -66,7 +76,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
                                collectionId: String = "",
                                thumbnail: Boolean,
                                thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH,
-                               store: GridFS = fileStore,
+                               store: GridFS,
                                browse: Boolean = false,
                                isFileId: Boolean = false)
                               (implicit request: Request[AnyContent]): Result = {
@@ -76,7 +86,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
       // - we want a thumbnail, and pass in the mongo ObjectId of the file this thumbnail originated from
       // - we want a thumbnail, and pass in the mongo ObjectId of an associated item that can be used to lookup the thumbnail (the thumbnail is "active" for that item id)
       // - we want an image, and pass in the mongo ObjectId of the file
-      // - we want an image, and pass in the mongo ObjectId of an associaed item that can be used to lookup the image (the image is "active" for that item id)
+      // - we want an image, and pass in the mongo ObjectId of an associated item that can be used to lookup the image (the image is "active" for that item id)
       val f: String = if (isFileId && thumbnail) {
         FILE_POINTER_FIELD
       } else if(isFileId && !thumbnail) {

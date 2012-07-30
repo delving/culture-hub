@@ -34,17 +34,15 @@ case class DomainConfiguration(
   mongoDatabase:               String,
   baseXConfiguration:          BaseXConfiguration,
   solrBaseUrl:                 String,
+  fileStoreDatabaseName:       String,
+  imageCacheDatabaseName:      String,
 
   // ~~~ schema
   schemas:                     Seq[String],
   crossWalks:                  Seq[String],
 
   // ~~~ user interface
-  themeDir:                    String,
-  defaultLanguage:             String = "en",
-  siteName:                    Option[String],
-  siteSlogan:                  Option[String],
-  homePage:                    Option[String] = None,
+  ui:                          UserInterfaceConfiguration,
 
   // ~~~ search
   hiddenQueryFilter:           Option[String] = Some(""),
@@ -91,6 +89,14 @@ case class DomainConfiguration(
 
 }
 
+case class UserInterfaceConfiguration(
+  themeDir:                    String,
+  defaultLanguage:             String = "en",
+  siteName:                    Option[String],
+  siteSlogan:                  Option[String],
+  homePage:                    Option[String] = None
+)
+
 case class BaseXConfiguration(
   host: String,
   port: Int,
@@ -114,13 +120,15 @@ object DomainConfiguration {
   val ORG_ID = "orgId"
   val SOLR_BASE_URL = "solr.baseUrl"
   val MONGO_DATABASE = "mongoDatabase"
+  val FILESTORE_DATABASE = "fileStoreDatabase"
+  val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
   val COMMONS_HOST = "commons.host"
   val COMMONS_NODE_NAME = "commons.nodeName"
   val COMMONS_API_TOKEN = "commons.apiToken"
   val SCHEMAS = "schemas"
   val CROSSWALKS = "crossWalks"
 
-  val MANDATORY_OVERRIDABLE_KEYS = Seq(ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS)
+  val MANDATORY_OVERRIDABLE_KEYS = Seq(ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS, IMAGE_CACHE_DATABASE, FILESTORE_DATABASE)
   val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN)
 
 
@@ -178,12 +186,16 @@ object DomainConfiguration {
                 mongoDatabase = configuration.getString(MONGO_DATABASE).get,
                 baseXConfiguration = rootBaseXConfiguration, // TODO override
                 solrBaseUrl = getString(configuration, SOLR_BASE_URL),
+                fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
+                imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
-                themeDir = configuration.getString("themeDir").getOrElse("default"),
-                defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
-                siteName = configuration.getString("siteName"),
-                siteSlogan = configuration.getString("siteSlogan").orElse(Some("Delving CultureHub")),
+                ui = UserInterfaceConfiguration(
+                  themeDir = configuration.getString("themeDir").getOrElse("default"),
+                  defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
+                  siteName = configuration.getString("siteName"),
+                  siteSlogan = configuration.getString("siteSlogan").orElse(Some("Delving CultureHub"))
+                ),
                 emailTarget = {
                   val emailTarget = configuration.getConfig("emailTarget").get
                   EmailTarget(
@@ -196,7 +208,6 @@ object DomainConfiguration {
                   )
                 },
                 hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
-                homePage = configuration.getString("homePage"),
                 facets = configuration.getString("facets"),
                 sortFields = configuration.getString("sortFields"),
                 apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false)
@@ -240,7 +251,13 @@ object DomainConfiguration {
     }
 
     if (Play.isTest) {
-      configurations.map(c => c.copy(mongoDatabase = c.mongoDatabase + "-TEST"))
+      configurations.map { c =>
+        c.copy(
+          mongoDatabase = c.mongoDatabase + "-TEST",
+          fileStoreDatabaseName = c.fileStoreDatabaseName + "-TEST",
+          imageCacheDatabaseName = c.imageCacheDatabaseName + "-TEST"
+        )
+      }
     } else {
       configurations
     }
