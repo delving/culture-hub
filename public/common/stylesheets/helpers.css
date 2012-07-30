@@ -254,7 +254,7 @@ dt, dd, li {
 }
 
 .thing-container .title {
-    background: #444;
+    /*background: #444;*/
     font-weight: bold;
     font-size: 120%;
     padding: 2px 6px;
@@ -263,7 +263,7 @@ dt, dd, li {
 }
 
 .thing-container .title a {
-    color: #fff;
+    /*color: #fff;*/
 }
 
 /* GRID ITEM */

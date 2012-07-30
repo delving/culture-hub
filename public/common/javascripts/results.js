@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+    'use strict';
     var $container = $('.grid-container');
     $container.imagesLoaded( function() {
         $container.masonry({

@@ -1,20 +1,5 @@
 #{include 'commonHeader.html'/}
 
-*{<div class="navbar navbar-fixed-top navbar-top">}*
-    *{<div class="navbar-inner">}*
-        *{<div class="container">}*
-            *{<div class="nav-collapse">}*
-                *{<a class="brand" href="/">DiMCoN</a>}*
-                 *{#{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin'), extraClass:"pull-right"/}}*
-                *{<form method="get" action="/search" class="navbar-search form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">}*
-                    *{<input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>}*
-                    *{<button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>}*
-                *{</form>}*
-            *{</div>}*
-        *{</div>}*
-    *{</div>}*
-*{</div>}*
-
 <div class="header-top">
     <div class="container">
         <div class="row">
@@ -39,6 +24,19 @@
     </div>
 </div>
 
+<div class="search">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <form method="get" action="/search" class="form-horizontal form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="header">
     <div class="container">
         <div class="row">
@@ -49,32 +47,6 @@
         </div>
     </div>
 </div>
-
-<div class="search">
-    <div class="container">
-        <div class="row">
-            <div class="span12">
-                 <form method="get" action="/search" class="form-horizontal form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
-                    <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-*{<div id="search">}*
-    *{<div class="container">}*
-        *{<div class="row">}*
-            *{<div class="span12">}*
-                *{<form method="get" action="/search" class="pull-right form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">}*
-                    *{<input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>}*
-                    *{<button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>}*
-                *{</form>}*
-            *{</div>}*
-        *{</div>}*
-    *{</div>}*
-*{</div>}*
 
 <div id="content" role="main">
     <div class="container">
