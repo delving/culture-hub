@@ -1,8 +1,5 @@
 package models
 
-import play.api.Play
-import play.api.Play.current
-
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -23,16 +20,12 @@ object GrantType {
 
   val systemGrantTypes = List(VIEW, MODIFY, CMS, OWN)
 
-  def dynamicGrantTypes = Role.getAllRoles
+  def dynamicGrantTypes(configuration: DomainConfiguration) = configuration.roles
 
-  val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
+  def computeGrantTypes(configuration: DomainConfiguration) = (systemGrantTypes ++ dynamicGrantTypes(configuration).map(r => GrantType(r.key, r.description("en"), "Config")))
 
-  def allGrantTypes = if(Play.isDev) {
-    (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
-  } else {
-    cachedGrantTypes
-  }
+  def allGrantTypes(configuration: DomainConfiguration) = computeGrantTypes(configuration)
 
-  def get(grantType: String) = allGrantTypes.find(_.key == grantType).getOrElse(illegal(grantType))
+  def get(grantType: String)(implicit configuration: DomainConfiguration) = allGrantTypes(configuration).find(_.key == grantType).getOrElse(illegal(grantType))
 
 }

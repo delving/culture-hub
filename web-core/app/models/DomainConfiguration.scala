@@ -45,13 +45,14 @@ case class DomainConfiguration(
   ui:                          UserInterfaceConfiguration,
 
   // ~~~ access control
-//  roles:                       String,
+  roles:                       Seq[Role],
 
   // ~~~ search
   hiddenQueryFilter:           Option[String] = Some(""),
   facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
   sortFields:                  Option[String] = None, // dc_creator,dc_provider:desc
   apiWsKey:                    Boolean = false
+
 ) {
 
   def getFacets: List[SolrFacetElement] = {
@@ -229,6 +230,18 @@ object DomainConfiguration {
                     feedbackFrom = emailTarget.getString("feedbackFrom").getOrElse("servers@delving.eu")
                   )
                 },
+                roles = configuration.getConfig("roles").map {
+                  roles => roles.keys.map {
+                    key => {
+                      val roleKey = key.split("\\.").head
+                      // TODO parse all kind of languages
+                      val roleDescriptions: Map[String, String] = roles.keys.filter(_.startsWith(roleKey + ".description.")).map {
+                        descriptionKey => (descriptionKey.split("\\.").reverse.head -> roles.getString(descriptionKey).getOrElse(""))
+                      }.toMap
+                      Role(roleKey, roleDescriptions)
+                    }
+                  }.toSeq
+                }.getOrElse(Seq.empty),
                 hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
                 facets = configuration.getString("facets"),
                 sortFields = configuration.getString("sortFields"),

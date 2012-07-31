@@ -40,7 +40,14 @@ object Groups extends OrganizationController {
               val dataSets = DataSet.dao.collection.find("_id" $in g.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
               (JJson.generate(g.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
           }
-          Ok(Template('id -> groupId, 'data -> load(orgId, groupId), 'groupForm -> GroupViewModel.groupForm, 'users -> usersAsTokens, 'dataSets -> dataSetsAsTokens, 'grantTypes -> GrantType.allGrantTypes.filterNot(_ == GrantType.OWN)))
+          Ok(Template(
+            'id -> groupId,
+            'data -> load(orgId, groupId),
+            'groupForm -> GroupViewModel.groupForm,
+            'users -> usersAsTokens,
+            'dataSets -> dataSetsAsTokens,
+            'grantTypes -> GrantType.allGrantTypes(configuration).filterNot(_ == GrantType.OWN)
+          ))
         }
     }
   }
