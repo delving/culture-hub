@@ -51,10 +51,6 @@ object Indexing extends SolrServer {
     Right("ok")
   }
 
-  def commit() {
-    IndexingService.commit
-  }
-
   private def createSolrInputDocument(indexDoc: Map[String, List[Any]]): SolrInputDocument = {
 
     val doc = new SolrInputDocument

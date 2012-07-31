@@ -465,7 +465,7 @@ case class FacetAutoComplete(params: Params, configuration: DomainConfiguration)
   val autocomplete: Seq[Count] =  if (facet != "listAll")
     SolrServer.getFacetFieldAutocomplete(facet, query, rows)(configuration)
   else
-    SolrServer.getSolrFields.sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
+    SolrServer.getSolrFields(configuration).sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
 
   def renderAsXml : Elem = {
     <results>
@@ -523,7 +523,7 @@ case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
     ExplainItem("pt", List("Standard latitude longitude separeded by a comma"), "The point around which the geo-search is executed with the type of query specified by geoType")
   )
 
-  val solrFields = SolrServer.getSolrFields.sortBy(_.name)
+  val solrFields = SolrServer.getSolrFields(configuration).sortBy(_.name)
   val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
   val sortableFields = solrFields.filter(_.fieldIsSortable)
 

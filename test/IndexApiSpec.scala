@@ -199,7 +199,7 @@ class IndexApiSpec extends Specification with TestContext {
   }
 
   "yield errors for items with invalid dates" in {
-    running(FakeApplication()) {
+    withTestConfig {
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
         uri = "delving.localhost",
@@ -243,7 +243,8 @@ class IndexApiSpec extends Specification with TestContext {
 
 
   step {
-    running(FakeApplication()) {
+    withTestConfig {
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       IndexingService.deleteByQuery("delving_orgId:delving delving_systemType:indexApiItem")
     }
   }

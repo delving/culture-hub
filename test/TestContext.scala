@@ -48,7 +48,7 @@ trait TestContext {
   def cleanup() {
     withTestConfig {
       HubServices.init()
-      val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       createConnection(configuration.mongoDatabase).dropDatabase()
       try {
         DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").map {

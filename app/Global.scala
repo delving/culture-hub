@@ -157,7 +157,7 @@ object Global extends GlobalSettings {
           set =>
             dataSetDAO.updateState(set, DataSetState.CANCELLED)
             try {
-              IndexingService.deleteBySpec(set.orgId, set.spec)
+              IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
             } catch {
               case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
             } finally {

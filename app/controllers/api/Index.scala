@@ -102,7 +102,7 @@ object Index extends DelvingController {
                 indexed += 1
               }
             }
-            IndexingService.commit()
+            IndexingService.commit
 
             val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
 

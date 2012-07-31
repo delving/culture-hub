@@ -96,14 +96,14 @@ object DataSetCollectionProcessor {
       Indexing.indexOne(dataSet, item, fields, prefix)(configuration)
 
     def onIndexingComplete(start: DateTime) {
-      IndexingService.commit()
+      IndexingService.commit
 
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
       var success = false
       while(retries < 3 && !success) {
         try {
-          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start, configuration)
+          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start)
           success = true
         } catch {
           case t => retries += 1
@@ -125,7 +125,7 @@ object DataSetCollectionProcessor {
     }
 
     DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete, configuration)
+    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)(configuration)
     val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
     if(state == DataSetState.PROCESSING) {
       DataSet.dao.updateState(dataSet, DataSetState.ENABLED)

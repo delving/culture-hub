@@ -17,24 +17,28 @@
 package core.search
 
 import _root_.util.DomainConfigurationHandler
-import org.bson.types.ObjectId
 import org.apache.solr.client.solrj.SolrQuery
-import play.api.Play.current
+import xml.XML
 import xml.Node
-import org.apache.solr.common.SolrInputDocument
-import play.api.Play
-import org.apache.solr.client.solrj.response.{FacetField, UpdateResponse, QueryResponse}
+import org.apache.solr.client.solrj.response.{FacetField, QueryResponse}
 import collection.JavaConverters._
 import play.api.cache.Cache
 import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrServer}
-import xml.XML
 import java.net.URL
 import models.DomainConfiguration
+import play.api.Play.current
 
 
 /**
+ * REFACTORME:
+ *
+ * The SolrServer trait should go, and instead a SolrServerService (or so) should be used, taking into account the
+ * DomainConfiguration design.
+ *
+ * Currently we cache the different SOLR servers on a per-resource basis, in order not to create duplicate resources (which may be expensive)
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt <ernhardt.manuel@gmail.com>
  * @since 7/7/11 1:18 AM  
  */
 
@@ -42,7 +46,7 @@ trait SolrServer {
 
   def getSolrServer(configuration: DomainConfiguration) = SolrServer.solrServer(configuration)
 
-  def getStreamingUpdateServer = SolrServer.streamingUpdateServer
+  def getStreamingUpdateServer(configuration: DomainConfiguration) = SolrServer.streamingUpdateServer(configuration)
 
   def runQuery(query: SolrQuery, configuration: DomainConfiguration): QueryResponse = SolrServer.solrServer(configuration).query(query)
 
@@ -50,9 +54,12 @@ trait SolrServer {
 
 object SolrServer {
 
-  lazy val solrServers: Map[String, HttpSolrServer] = DomainConfigurationHandler.domainConfigurations.map { configuration =>
+  val SOLR_FIELDS_CACHE_KEY_PREFIX = "solrFields"
+
+  private lazy val solrServers: Map[String, HttpSolrServer] = DomainConfigurationHandler.domainConfigurations.map { configuration =>
+    println("Initializing solrServers")
     (configuration.solrBaseUrl -> {
-      val solrServer = new HttpSolrServer(url)
+      val solrServer = new HttpSolrServer(configuration.solrBaseUrl)
       solrServer.setSoTimeout(1000) // socket read timeout
       solrServer.setConnectionTimeout(1000)
       solrServer.setDefaultMaxConnectionsPerHost(64)
@@ -64,38 +71,25 @@ object SolrServer {
     })
   }.toMap
 
-  private val url = Play.configuration.getString("solr.baseUrl").getOrElse("http://localhost:8983/solr/core2")
+  private lazy val solrUpdateServers: Map[String, ConcurrentUpdateSolrServer] = DomainConfigurationHandler.domainConfigurations.map {
+    println("Initializing solrUpdateServers")
+    configuration =>
+      (configuration.solrBaseUrl -> {
+        new ConcurrentUpdateSolrServer(configuration.solrBaseUrl, 1000, 5)
+      })
+  }.toMap
+
   private[search] def solrServer(configuration: DomainConfiguration) = solrServers(configuration.solrBaseUrl)
 
-  private[search] val streamingUpdateServer = new ConcurrentUpdateSolrServer(url, 1000, 5)
+  private[search] def streamingUpdateServer(configuration: DomainConfiguration) = solrUpdateServers.get(configuration.solrBaseUrl).getOrElse(
+    throw new RuntimeException("Couldn't find cached SOLR update server for key '%s', available keys: %s".format(
+      configuration.solrBaseUrl, solrUpdateServers.map(_._1).mkString(", ")
+    )))
 
-  def deleteFromSolrById(id: String): UpdateResponse = streamingUpdateServer.deleteById(id)
-
-  def deleteFromSolrById(id: ObjectId): UpdateResponse = {
-    val response = deleteFromSolrById(id.toString)
-    commit()
+  def deleteFromSolrByQuery(query: String)(implicit configuration: DomainConfiguration) = {
+    val response = streamingUpdateServer(configuration).deleteByQuery(query)
+    streamingUpdateServer(configuration).commit()
     response
-  }
-
-  def deleteFromSolrByQuery(query: String) = {
-    val response = streamingUpdateServer.deleteByQuery(query)
-    commit()
-    response
-  }
-
-  def indexSolrDocument(doc: SolrInputDocument) = streamingUpdateServer.add(doc)
-
-  def pushToSolr(doc: SolrInputDocument) {
-    indexSolrDocument(doc)
-    commit()
-  }
-
-  def commit() {
-    streamingUpdateServer.commit()
-  }
-
-  def rollback() {
-    streamingUpdateServer.rollback()
   }
 
   def getSolrFrequencyItemList(node: Node): List[SolrFrequencyItem] = {
@@ -104,17 +98,15 @@ object SolrServer {
     }.toList
   }
 
-  val SOLR_FIELDS = "solrFields"
-
-  def getSolrFields: List[SolrDynamicField] = {
-    Cache.getOrElse(SOLR_FIELDS, 120) {
-      computeSolrFields
+  def getSolrFields(configuration: DomainConfiguration): List[SolrDynamicField] = {
+    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.name, 120) {
+      computeSolrFields(configuration)
     }
 
   }
 
-  def computeSolrFields = {
-    val lukeUrl: URL = new URL("%s/admin/luke".format(url))
+  def computeSolrFields(configuration: DomainConfiguration) = {
+    val lukeUrl: URL = new URL("%s/admin/luke".format(configuration.solrBaseUrl))
     val fields = XML.load(lukeUrl) \\ "lst"
 
     fields.filter(node => node.attribute("name") != None && node.attribute("name").get.text.equalsIgnoreCase("fields")).head.nonEmptyChildren.map {
@@ -148,14 +140,11 @@ object SolrServer {
     query setFacet true
     query setFacetLimit facetLimit
     query setFacetMinCount 1
-    //    query addFacetField (normalisedFacetName)
-    //    query setFacetPrefix (normalisedFacetName, normalisedFacetQuery)
     query addFacetField (facetName)
-    query setFacetPrefix(facetName, facetQuery.capitalize) // split(" ") map(_.capitalize) mkString(" ")
+    query setFacetPrefix(facetName, facetQuery.capitalize)
     query setRows 0
     val response = solrServer(configuration) query (query)
     val facetValues = (response getFacetField (facetName))
-    //    val facetValuesLowerCase = (response getFacetField (normalisedFacetName))
 
     if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
   }

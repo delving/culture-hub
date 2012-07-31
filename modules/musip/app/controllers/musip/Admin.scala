@@ -57,6 +57,9 @@ object Admin extends OrganizationController {
   }
 
   private def sync(items: NodeSeq, orgId: String, itemType: String, extractSystemFields: NodeSeq => MultiMap): Int = {
+
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+
     IndexingService.deleteByQuery("delving_orgId:%s delving_recordType:%s delving_systemType:hubItem".format(orgId, itemType))
     for (item <- items.zipWithIndex) {
       val index = item._2
@@ -84,7 +87,7 @@ object Admin extends OrganizationController {
 
       IndexingService.stageForIndexing(doc)(DomainConfigurationHandler.getByOrgId(orgId))
     }
-    IndexingService.commit()
+    IndexingService.commit(configuration)
     items.size
   }
 

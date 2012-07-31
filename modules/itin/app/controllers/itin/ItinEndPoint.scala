@@ -47,7 +47,7 @@ object ItinEndPoint extends DelvingController with DomainConfigurationAware {
       Async {
           Promise.pure {
             val xmlResponse = try {
-              val response: StoreResponse = DrupalEntity.dao.processStoreRequest(request.body)((item, list) => DrupalEntity.dao.insertInMongoAndIndex(item, list))
+              val response: StoreResponse = DrupalEntity.dao.processStoreRequest(request.body, configuration)((item, list) => DrupalEntity.dao.insertInMongoAndIndex(item, list))
               StoreResponse(response.itemsParsed, response.coRefsParsed)
             } catch {
               case ex: Exception =>

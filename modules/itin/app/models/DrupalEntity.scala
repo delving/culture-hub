@@ -86,7 +86,7 @@ object DrupalEntity extends MultiModel[DrupalEntity, DrupalEntityDAO] {
 
 class DrupalEntityDAO(collection: MongoCollection) extends SalatDAO[DrupalEntity, ObjectId](collection) {
 
-  import xml.{Elem, Node}
+  import xml.Node
 
   def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink])(implicit configuration: DomainConfiguration) {
     import com.mongodb.casbah.commons.MongoDBObject
@@ -135,7 +135,7 @@ class DrupalEntityDAO(collection: MongoCollection) extends SalatDAO[DrupalEntity
     }.toList
   }
 
-  def processStoreRequest(xmlData: NodeSeq)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
+  def processStoreRequest(xmlData: NodeSeq, configuration: DomainConfiguration)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
     val records = xmlData \\ "record"
     try {
       val recordCounter = records.foldLeft((0, 0)) {
@@ -149,12 +149,12 @@ class DrupalEntityDAO(collection: MongoCollection) extends SalatDAO[DrupalEntity
           (counter._1 + 1, counter._2 + coRefs.length)
         }
       }
-      IndexingService.commit()
+      IndexingService.commit(configuration)
       StoreResponse(records.length, recordCounter._2)
     }
     catch {
       case ex: Exception =>
-        IndexingService.rollback()
+        IndexingService.rollback(configuration)
         StoreResponse(0, 0, false, ex.getMessage)
     }
   }
@@ -175,10 +175,6 @@ case class CoReferenceLink(_id: ObjectId = new ObjectId,
   def toXml: String = {
     "<link>implement the rest</link>"
   }
-
-  //  def fromXml(xmlString: String): CoReferenceLink = {
-  //    CoReferenceLink()
-  //  }
 
 }
 
