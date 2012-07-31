@@ -27,7 +27,7 @@ import java.net.{URLEncoder, URLDecoder}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class MetadataAccessors extends ViewableItem {
+abstract class MetadataAccessors {
 
   protected def assign(key: String): String
 

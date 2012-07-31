@@ -52,18 +52,11 @@ case class ListItem(id: String,
                     itemType: String,
                     title: String,
                     description: String = "",
-                    thumbnailId: Option[ObjectId] = None,
-                    thumbnailUrl: Option[String] = None,
+                    thumbnailUrl: String = "",
                     mimeType: String = "unknown/unknown",
                     userName: String,
                     isPrivate: Boolean,
                     url: String) extends ViewableItem {
-  
-  def thumbnail(size: Int = 100): String = (thumbnailId, thumbnailUrl) match {
-    case (None,  None) => getThumbnailUrl(None)
-    case (Some(id), None) => getThumbnailUrl(Some(id), size)
-    case (None, Some(url)) => url
-  }
 
   def getHubId = "%s_%s_%s".format(userName, itemType, id)
   def getItemType = itemType
@@ -72,12 +65,12 @@ case class ListItem(id: String,
   def getOwner = userName
   def getCreator = userName
   def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
-  def getUri(configuration: DomainConfiguration) = url
+  def getUri = url
   def getLandingPage = url
-  def getThumbnailUri(configuration: DomainConfiguration) = thumbnail(100)
-  def getThumbnailUri(size: Int, configuration: DomainConfiguration) = thumbnail(size)
+  def getThumbnailUri = thumbnailUrl
+  def getThumbnailUri(size: Int) = thumbnailUrl
   def getMimeType = mimeType
-  def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
+  def hasDigitalObject = !thumbnailUrl.trim.isEmpty
 }
 
 abstract class ViewModel {

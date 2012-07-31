@@ -105,7 +105,8 @@ object Search extends DelvingController {
     }
   }
 
-  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)(implicit request: RequestHeader) = {
+  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)
+                          (implicit request: RequestHeader, configuration: DomainConfiguration) = {
 
     val renderResult = viewRenderer.renderRecord(record, getUserGrantTypes(orgId), definition.getNamespaces, lang, parameters)
 
@@ -142,7 +143,7 @@ object Search extends DelvingController {
         itemType = bd.getItemType,
         title = bd.getTitle,
         description = bd.getDescription,
-        thumbnailUrl = Some(bd.getThumbnailUri(220, configuration)),
+        thumbnailUrl = bd.getThumbnailUri(220, configuration),
         userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
         url = bd.getUri(configuration),

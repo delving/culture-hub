@@ -169,7 +169,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   // ~~~ Access control
 
-  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration) = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
       val groups: List[GrantType] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
