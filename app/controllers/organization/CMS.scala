@@ -171,7 +171,7 @@ object CMS extends OrganizationController {
 
 case class CMSPageViewModel(dateCreated: Long,
                             key: String, // the key of this page (unique across all version sets of pages)
-                            domainConfiguration: String, // the domain configuration this page belongs to
+                            theme: String, // the domain configuration this page belongs to
                             lang: String, // 2-letters ISO code of the page language
                             title: String, // title of the page in this language
                             userName: String, // creator / editor
