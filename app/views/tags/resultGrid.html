@@ -1,3 +1,16 @@
+<div class="grid-container">
+#{list _results, as: 'doc'}
+    <div class="grid-item span1of2">
+    *{<div class=" draggable ${doc.getItemType()} ">}*
+        #{thingSummaryView data:doc, iSize: 220 /}
+        <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+        <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
+        <input type="hidden" name="title" value="${doc.getTitle()}"/>
+    *{</div>}*
+    </div>
+#{/list}
+</div>
+
 *{%{ def counter = 1 }%}*
 *{
 #{list _results, as: 'doc'}
@@ -51,16 +64,3 @@
 *{#{/list}}*
 *{</div>}*
 
-<div class="grid-container">
-#{list _results, as: 'doc'}
-    <div class="grid-item span4">
-    *{<div class=" draggable ${doc.getItemType()} ">}*
-        #{thingSummaryView data:doc, iSize: 220 /}
-        <input type="hidden" name="idUri" value="${doc.getUri()}"/>
-        <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
-        <input type="hidden" name="title" value="${doc.getTitle()}"/>
-    *{</div>}*
-    </div>
-
-#{/list}
-</div>
