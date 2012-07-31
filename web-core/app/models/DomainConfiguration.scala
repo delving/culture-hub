@@ -9,8 +9,6 @@ import collection.JavaConverters._
 /**
  * Holds configuration that is used when a specific domain is accessed. It overrides a default configuration.
  *
- * TODO override of BaseXconfiguration
- *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -25,17 +23,15 @@ case class DomainConfiguration(
   // ~~~ mail
   emailTarget:                 EmailTarget = EmailTarget(),
 
-  // ~~~ services
-  commonsHost:                 String,
-  nodeName:                    String, // TODO deprecate this. We keep it for now to ease migration
-  apiToken:                    String,
-
-  objectService:               ObjectServiceConfiguration,
-
   // ~~~ data
   mongoDatabase:               String,
   baseXConfiguration:          BaseXConfiguration,
   solrBaseUrl:                 String,
+
+  // ~~~ services
+  commonsService:              CommonsServiceConfiguration,
+  objectService:               ObjectServiceConfiguration,
+  oaiPmhService:               OaiPmhServiceConfiguration,
 
   // ~~~ schema
   schemas:                     Seq[String],
@@ -101,12 +97,27 @@ case class UserInterfaceConfiguration(
   homePage:                    Option[String] = None
 )
 
+case class CommonsServiceConfiguration(
+  commonsHost:                 String,
+  nodeName:                    String, // TODO deprecate this. We keep it for now to ease migration
+  apiToken:                    String
+)
+
 case class ObjectServiceConfiguration(
   fileStoreDatabaseName:       String,
   imageCacheDatabaseName:      String,
   imageCacheEnabled:           Boolean,
   tilesOutputBaseDir:          String,
   tilesWorkingBaseDir:         String
+)
+
+case class OaiPmhServiceConfiguration(
+  repositoryName: String,
+  adminEmail: String,
+  earliestDateStamp: String,
+  repositoryIdentifier: String,
+  sampleIdentifier: String,
+  responseListSize: Int
 )
 
 case class BaseXConfiguration(
@@ -130,24 +141,44 @@ object DomainConfiguration {
 
   // ~~~ keys
   val ORG_ID = "orgId"
+
   val SOLR_BASE_URL = "solr.baseUrl"
   val MONGO_DATABASE = "mongoDatabase"
+
   val COMMONS_HOST = "commons.host"
   val COMMONS_NODE_NAME = "commons.nodeName"
   val COMMONS_API_TOKEN = "commons.apiToken"
+
   val FILESTORE_DATABASE = "fileStoreDatabase"
   val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
   val IMAGE_CACHE_ENABLED = "imageCacheEnabled"
   val TILES_WORKING_DIR = "tilesWorkingBaseDir"
   val TILES_OUTPUT_DIR = "tilesOutputBaseDir"
+
   val SCHEMAS = "schemas"
   val CROSSWALKS = "crossWalks"
 
+  val OAI_REPO_NAME = "services.pmh.repositoryName"
+  val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
+  val OAI_EARLIEST_TIMESTAMP = "services.pmh.earliestDateStamp"
+  val OAI_REPO_IDENTIFIER = "services.pmh.repositoryIdentifier"
+  val OAI_SAMPLE_IDENTIFIER = "services.pmh.sampleIdentifier"
+  val OAI_RESPONSE_LIST_SIZE = "services.pmh.responseListSize"
+
+  val BASEX_HOST = "basex.host"
+  val BASEX_PORT = "basex.port"
+  val BASEX_EPORT = "basex.eport"
+  val BASEX_USER = "basex.user"
+  val BASEX_PASSWORD = "basex.password"
+
   val MANDATORY_OVERRIDABLE_KEYS = Seq(
-    ORG_ID, SOLR_BASE_URL, COMMONS_HOST, COMMONS_NODE_NAME, SCHEMAS, CROSSWALKS, IMAGE_CACHE_DATABASE,
-    FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR
+    SOLR_BASE_URL,
+    COMMONS_HOST, COMMONS_NODE_NAME,
+    IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
+    OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
+    BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD
   )
-  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED)
+  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS)
 
 
   /**
@@ -155,18 +186,9 @@ object DomainConfiguration {
    */
   def getAll = {
 
-    // first we fetch the main configuration, which then can be overridden on a per-domain basis
-    val rootBaseXConfiguration = BaseXConfiguration(
-      Play.configuration.getString("basex.host").getOrElse("localhost"),
-      Play.configuration.getInt("basex.port").getOrElse(1984),
-      Play.configuration.getInt("basex.eport").getOrElse(1985),
-      Play.configuration.getString("basex.user").getOrElse("admin"),
-      Play.configuration.getString("basex.password").getOrElse("admin")
-    )
-
     var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
-    val config = Play.configuration.getConfig("themes").get
+    val config = Play.configuration.getConfig("configurations").get
       val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
       val configurations: Seq[DomainConfiguration] = allDomainConfigurations.flatMap {
         configurationKey => {
@@ -198,12 +220,28 @@ object DomainConfiguration {
                 name = configurationKey,
                 orgId = configuration.getString(ORG_ID).get,
                 domains = configuration.underlying.getStringList("domains").asScala.toList,
-                commonsHost = getString(configuration, COMMONS_HOST),
-                nodeName = configuration.getString(COMMONS_NODE_NAME).get,
-                apiToken = configuration.getString(COMMONS_API_TOKEN).get,
                 mongoDatabase = configuration.getString(MONGO_DATABASE).get,
-                baseXConfiguration = rootBaseXConfiguration, // TODO override
+                baseXConfiguration = BaseXConfiguration(
+                  host = getString(configuration, BASEX_HOST),
+                  port = getInt(configuration, BASEX_PORT),
+                  eport = getInt(configuration, BASEX_EPORT),
+                  user = getString(configuration, BASEX_USER),
+                  password = getString(configuration, BASEX_PASSWORD)
+                ),
                 solrBaseUrl = getString(configuration, SOLR_BASE_URL),
+                commonsService = CommonsServiceConfiguration(
+                  commonsHost = getString(configuration, COMMONS_HOST),
+                  nodeName = configuration.getString(COMMONS_NODE_NAME).get,
+                  apiToken = configuration.getString(COMMONS_API_TOKEN).get
+                ),
+                oaiPmhService = OaiPmhServiceConfiguration(
+                  repositoryName = getString(configuration, OAI_REPO_NAME),
+                  adminEmail = getString(configuration, OAI_ADMIN_EMAIL),
+                  earliestDateStamp = getString(configuration, OAI_EARLIEST_TIMESTAMP),
+                  repositoryIdentifier = getString(configuration, OAI_REPO_IDENTIFIER),
+                  sampleIdentifier = getString(configuration, OAI_SAMPLE_IDENTIFIER),
+                  responseListSize = getInt(configuration, OAI_RESPONSE_LIST_SIZE)
+                ),
                 objectService = ObjectServiceConfiguration(
                   fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
                   imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
@@ -301,8 +339,11 @@ object DomainConfiguration {
   }
 
 
-  private def getString(configuration: Configuration, key: String) =
+  private def getString(configuration: Configuration, key: String): String =
     configuration.getString(key).getOrElse(Play.configuration.getString(key).get)
+
+  private def getInt(configuration: Configuration, key: String): Int =
+    configuration.getInt(key).getOrElse(Play.configuration.getInt(key).get)
 
 }
 

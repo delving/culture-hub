@@ -14,20 +14,22 @@ object OaiPmh extends DelvingController {
 
   // TODO API documentation
 
-  def oaipmh(orgId: String, format: Option[String], accessKey: Option[String]) = Action {
-    implicit request =>
-      Async {
-        val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
-        Promise.pure(oaiPmhService.parseRequest).map {
-          response =>
+  def oaipmh(orgId: String, format: Option[String], accessKey: Option[String]) = DomainConfigured {
+    Action {
+      implicit request =>
+        Async {
+          val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey, configuration)
+          Promise.pure(oaiPmhService.parseRequest).map {
+            response =>
 
-            if (!request.path.contains("api")) {
-              warning("Using deprecated API call " + request.uri)
-            }
+              if (!request.path.contains("api")) {
+                warning("Using deprecated API call " + request.uri)
+              }
 
-            Ok(response).as(XML)
+              Ok(response).as(XML)
+          }
         }
-      }
+    }
   }
 
 }

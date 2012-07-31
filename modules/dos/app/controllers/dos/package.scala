@@ -22,13 +22,16 @@ import util.DomainConfigurationHandler
 
 package object dos extends MongoContext {
 
-  lazy val fileStore: Map[DomainConfiguration, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
-    (dc -> GridFS(createConnection(dc.objectService.fileStoreDatabaseName)))
+  lazy val fileStoreCache: Map[String, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
+    (dc.objectService.fileStoreDatabaseName -> GridFS(createConnection(dc.objectService.fileStoreDatabaseName)))
   }.toMap
 
-  lazy val imageCacheStore: Map[DomainConfiguration, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
-      (dc -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
+  lazy val imageCacheStoreCache: Map[String, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
+      (dc.objectService.imageCacheDatabaseName -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
     }.toMap
+
+  def imageCacheStore(configuration: DomainConfiguration) = imageCacheStoreCache(configuration.objectService.imageCacheDatabaseName)
+  def fileStore(configuration: DomainConfiguration) = fileStoreCache(configuration.objectService.fileStoreDatabaseName)
 
   val emptyThumbnailPath = "/public/images/dummy-object.png"
   val emptyThumbnailUrl = "/assets/dos/images/dummy-object.png"

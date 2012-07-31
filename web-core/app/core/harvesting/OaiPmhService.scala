@@ -50,7 +50,7 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String]) extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String], configuration: DomainConfiguration) {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)
@@ -64,6 +64,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
    */
 
   def parseRequest : String = {
+
+    println(configuration.oaiPmhService)
 
     if (!isLegalPmhRequest(params)) return createErrorResponse("badArgument").toString()
 
@@ -124,11 +126,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <responseDate>{currentDate}</responseDate>
       <request verb="Identify">{requestURL}</request>
       <Identify>
-        <repositoryName>{repositoryName}</repositoryName>
+        <repositoryName>{configuration.oaiPmhService.repositoryName}</repositoryName>
         <baseURL>{requestURL}</baseURL>
         <protocolVersion>2.0</protocolVersion>
-        <adminEmail>{adminEmail}</adminEmail>
-        <earliestDatestamp>{earliestDateStamp}</earliestDatestamp>
+        <adminEmail>{configuration.oaiPmhService.adminEmail}</adminEmail>
+        <earliestDatestamp>{configuration.oaiPmhService.earliestDateStamp}</earliestDatestamp>
         <deletedRecord>persistent</deletedRecord>
         <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
         <compression>deflate</compression>
@@ -139,9 +141,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           xsi:schemaLocation=
           "http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
             <scheme>oai</scheme>
-            <repositoryIdentifier>{repositoryIdentifier}</repositoryIdentifier>
+            <repositoryIdentifier>{configuration.oaiPmhService.repositoryIdentifier}</repositoryIdentifier>
             <delimiter>:</delimiter>
-            <sampleIdentifier>{sampleIdentifier}</sampleIdentifier>
+            <sampleIdentifier>{configuration.oaiPmhService.sampleIdentifier}</sampleIdentifier>
           </oai-identifier>
         </description>
       </Identify>
@@ -418,7 +420,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 
-    val recordsReturned = responseListSize
+    val recordsReturned = configuration.oaiPmhService.responseListSize
 
     private val ResumptionTokenExtractor = """(.+?):(.+?):(.+?):(.+?):(.+)""".r
 
@@ -463,18 +465,4 @@ object PmhVerbType extends Enumeration {
   val LIST_RECORDS = PmhVerb("ListRecords")
   val GET_RECORD = PmhVerb("GetRecord")
   val IDENTIFY = PmhVerb("Identify")
-}
-
-trait MetaConfig {
-
-  import play.api.Play
-  import play.api.Play.current
-  def conf(key: String) = Play.configuration.getString(key).getOrElse("").trim
-
-  val repositoryName: String = conf("services.pmh.repositoryName")
-  val adminEmail: String = conf("services.pmh.adminEmail")
-  val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
-  val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
-  val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
-  val responseListSize: Int = Play.configuration.getInt("services.pmh.responseListSize").getOrElse(250)
 }

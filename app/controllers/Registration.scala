@@ -109,7 +109,7 @@ object Registration extends ApplicationController {
             val r = registration
             Cache.set(r.randomId, null)
 
-            val activationToken = HubServices.registrationService(configuration).registerUser(r.userName, configuration.nodeName, r.firstName, r.lastName, r.email, r.password1)
+            val activationToken = HubServices.registrationService(configuration).registerUser(r.userName, configuration.commonsService.nodeName, r.firstName, r.lastName, r.email, r.password1)
 
             val index = Redirect(controllers.routes.Application.index)
 
@@ -157,7 +157,7 @@ object Registration extends ApplicationController {
           val activated = HubServices.registrationService(configuration).activateUser(activationToken)
           if (activated.isDefined) {
             try {
-              Mails.newUser("New user registered on " + configuration.nodeName, configuration.nodeName, activated.get.userName, activated.get.fullName, activated.get.email, configuration)
+              Mails.newUser("New user registered on " + configuration.commonsService.nodeName, configuration.commonsService.nodeName, activated.get.userName, activated.get.fullName, activated.get.email, configuration)
               indexAction.flashing(("activation", "true"))
             } catch {
               case t => logError(t, "Could not send activation email")

@@ -130,7 +130,7 @@ object ErrorReporter {
   }
 
   def reportError(job: String, t: Throwable, message: String, configuration: DomainConfiguration) {
-    reportError("[CultureHub] An error occured on node %s".format(configuration.nodeName), toReport(job, message, t), configuration)
+    reportError("[CultureHub] An error occured on node %s".format(configuration.commonsService.nodeName), toReport(job, message, t), configuration)
   }
 
   def reportError(subject: String, report: String, configuration: DomainConfiguration) {

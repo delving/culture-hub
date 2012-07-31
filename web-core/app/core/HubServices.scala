@@ -30,12 +30,12 @@ object HubServices {
 
     DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
 
-      val services = configuration.commonsHost match {
+      val services = configuration.commonsService.commonsHost match {
 
         case host if (!host.isEmpty) =>
-          val node = configuration.nodeName
+          val node = configuration.commonsService.nodeName
           val orgId = configuration.orgId
-          val apiToken = configuration.apiToken
+          val apiToken = configuration.commonsService.apiToken
           new CommonsServices(host, orgId, apiToken, node)
 
         case host if (host.isEmpty) && !Play.isProd =>
