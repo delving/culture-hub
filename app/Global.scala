@@ -217,38 +217,45 @@ object Global extends GlobalSettings {
   lazy val routes = hubPlugins.flatMap(_.routes)
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
-    val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
-    val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
-    val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
-    if (matcher.matches()) {
-      // log route access, for API calls
-      routeLogger ! RouteRequest(request)
-
-      if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
-        // redirect to the standard explain response
-        return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
-      }
-    }
-
-    // poor man's modular routing, based on CultureHub plugins
-
-    val matches = routes.flatMap(r => {
-      val matcher = r._1._2.pattern.matcher(request.path)
-      if (request.method == r._1._1 && matcher.matches()) {
-        val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
-        Some((pathElems.toList, r._2))
-      } else {
-        None
-      }
-    })
-
-    if (matches.headOption.isDefined) {
-      val handlerCall = matches.head
-      val handler = handlerCall._2(handlerCall._1)
-      Some(handler)
+    // check if we access a configured domain
+    if (!DomainConfigurationHandler.hasConfiguration(request.domain)) {
+      Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
+      Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
-      super.onRouteRequest(request)
+      val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
+      val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+      val matcher = apiRouteMatcher.pattern.matcher(request.uri)
+
+      if (matcher.matches()) {
+        // log route access, for API calls
+        routeLogger ! RouteRequest(request)
+
+        if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+          // redirect to the standard explain response
+          return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+        }
+      }
+
+      // poor man's modular routing, based on CultureHub plugins
+
+      val matches = routes.flatMap(r => {
+        val matcher = r._1._2.pattern.matcher(request.path)
+        if (request.method == r._1._1 && matcher.matches()) {
+          val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
+          Some((pathElems.toList, r._2))
+        } else {
+          None
+        }
+      })
+
+      if (matches.headOption.isDefined) {
+        val handlerCall = matches.head
+        val handler = handlerCall._2(handlerCall._1)
+        Some(handler)
+      } else {
+        super.onRouteRequest(request)
+      }
     }
   }
 }

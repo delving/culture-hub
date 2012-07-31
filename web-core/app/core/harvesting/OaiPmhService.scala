@@ -65,8 +65,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def parseRequest : String = {
 
-    println(configuration.oaiPmhService)
-
     if (!isLegalPmhRequest(params)) return createErrorResponse("badArgument").toString()
 
     def pmhRequest(verb: PmhVerb) : PmhRequestEntry = createPmhRequest(params, verb)

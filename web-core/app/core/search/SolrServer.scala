@@ -57,7 +57,6 @@ object SolrServer {
   val SOLR_FIELDS_CACHE_KEY_PREFIX = "solrFields"
 
   private lazy val solrServers: Map[String, HttpSolrServer] = DomainConfigurationHandler.domainConfigurations.map { configuration =>
-    println("Initializing solrServers")
     (configuration.solrBaseUrl -> {
       val solrServer = new HttpSolrServer(configuration.solrBaseUrl)
       solrServer.setSoTimeout(1000) // socket read timeout
@@ -72,7 +71,6 @@ object SolrServer {
   }.toMap
 
   private lazy val solrUpdateServers: Map[String, ConcurrentUpdateSolrServer] = DomainConfigurationHandler.domainConfigurations.map {
-    println("Initializing solrUpdateServers")
     configuration =>
       (configuration.solrBaseUrl -> {
         new ConcurrentUpdateSolrServer(configuration.solrBaseUrl, 1000, 5)

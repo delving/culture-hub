@@ -58,6 +58,8 @@ object DomainConfigurationHandler {
     domainConfigurations.find(_.orgId == orgId).getOrElse(throw new RuntimeException("No configuration for orgId " + orgId))
   }
 
+  def hasConfiguration(domain: String) = domainConfigurations.exists(_.domains.exists(domain.startsWith(_)))
+
   def getByDomain(domain: String): DomainConfiguration = {
     if (Play.isDev) {
       startup()
