@@ -2,6 +2,19 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.07
+
+### New features
+
+- manu, eric: complete overhaul of the DataSet page. Now using WebSockets to keep clients in sync
+
+### Fixes and refactoring
+
+- manu: refactoring VirtualCollections to a plugin
+- manu: renaming PortalTheme to DomainConfiguration
+- manu: using new play2-extensions version, addressing a memory-leak
+
+
 # 12.06
 
 ### New features
