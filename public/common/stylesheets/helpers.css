@@ -53,6 +53,12 @@ dt, dd, li {
     float: left;
 }
 
+.span1of4 {
+    width: 24%;
+    margin-right: 1%;
+    float: left;
+}
+
 
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
@@ -819,9 +825,16 @@ form label.radio {
 }
 
 /* Advanced search plugin */
+#collection-list {
+    clear: both;
+}
 
 #collection-list span.label {
     margin: 0 4px;
+}
+
+ul.collection-list {
+    /*display: inline-block;*/
 }
 
 
