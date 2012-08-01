@@ -4,7 +4,7 @@ import controllers.OrganizationController
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 import models._
 import core.HubServices
 import core.search.Params
@@ -64,8 +64,8 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val reIndexable = DataSet.findByState(DataSetState.ENABLED).toList
-        reIndexable foreach { r => DataSet.updateStateAndProcessingCount(r, DataSetState.QUEUED)}
-        Ok("Queued %s DataSets for indexing".format(reIndexable.size))
+        reIndexable foreach { r => DataSet.updateState(r, DataSetState.QUEUED, Some(connectedUser)) }
+        Ok("Queued %s DataSets for processing".format(reIndexable.size))
     }
   }
 
@@ -84,35 +84,6 @@ object Admin extends OrganizationController {
           case Right(r) => Ok(r.xml)
           case Left(error) => InternalServerError(error.getMessage)
         }
-    }
-  }
-
-  def redeploy(orgId: String) = OrgOwnerAction(orgId) {
-    Action {
-      implicit request =>
-        val parsing = DataSet.findByState(DataSetState.PARSING).toList
-        val processing = DataSet.findByState(DataSetState.PROCESSING).toList
-
-        if(parsing.size == 0 && processing.size == 0) {
-          val pb = new ProcessBuilder(Seq("/bin/sh", new File(Play.application.path, "redeploy.sh").getAbsolutePath, "&") : _ *)
-          pb.start()
-          Logger("CultureHub").info("Redeploying of CultureHub triggered by HTTP request")
-          Ok("Ok, redeploying")
-        } else {
-          val parsingSets = parsing.map(ds => "%s (%s parsed)".format(ds.spec, ds.details.total_records)).mkString(", ")
-          val processingSets = processing.map(ds => "%s (%s/%s)".format(ds.spec, ds.details.indexing_count, ds.details.total_records)).mkString(", ")
-          Ok(
-            """Can't redeploy:
-              | parsing:
-              | %s
-              |
-              | processing:
-              | %s
-            """.stripMargin.format(parsingSets, processingSets))
-        }
-
-
-
     }
   }
 

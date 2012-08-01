@@ -85,9 +85,14 @@ class ImageCacheService extends HTTPClient with Thumbnail {
     imageCacheStore.findOne(MongoDBObject("filename" -> url)) != None
   }
 
+  /** Sanitize URLs globally. This ain't elegant but it is the most robust approach **/
   private def sanitizeUrl(url: String): String = {
-    val sanitizeUrl: String = url.replaceAll("""\\""", "%5C").replaceAll("\\[", "%5B").replaceAll("\\]", "%5D").replaceAll(" ", "%20")
-    sanitizeUrl
+    url.
+      replaceAll("""\\""", "%5C").
+      replaceAll("\\[", "%5B").
+      replaceAll("\\]", "%5D").
+      replaceAll(" ", "%20").
+      replaceAll("\\+", "%2B")
   }
 
   private def storeImage(url: String): Boolean = {

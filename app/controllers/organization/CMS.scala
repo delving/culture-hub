@@ -97,10 +97,10 @@ object CMS extends OrganizationController {
   def page(orgId: String, language: String, page: Option[String]): Action[AnyContent] = CMSAction(orgId) {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.findEntries(orgId, theme.name, MAIN_MENU)
+        def menuEntries = MenuEntry.findEntries(orgId, configuration.name, MAIN_MENU)
 
         val p: (CMSPageViewModel, List[CMSPageViewModel]) = page match {
-          case None => (CMSPageViewModel(System.currentTimeMillis(), "", theme.name, language, "", "", connectedUser, false, false, menuEntries.length + 1, NO_MENU), List.empty)
+          case None => (CMSPageViewModel(System.currentTimeMillis(), "", configuration.name, language, "", connectedUser, "", false, false, menuEntries.length + 1, NO_MENU), List.empty)
           case Some(key) =>
             val versions = CMSPage.findByKey(orgId, key)
             if (versions.length == 0) {
@@ -125,11 +125,11 @@ object CMS extends OrganizationController {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
 
             if (pageModel.menu == MAIN_MENU) {
-              MenuEntry.addPage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
+              MenuEntry.addPage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
             } else if (pageModel.menu == NO_MENU) {
-              MenuEntry.removePage(orgId, theme.name, MAIN_MENU, pageModel.key, pageModel.lang)
+              MenuEntry.removePage(orgId, configuration.name, MAIN_MENU, pageModel.key, pageModel.lang)
             }
-            val page: CMSPageViewModel = CMSPage.create(orgId, theme.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published)
+            val page: CMSPageViewModel = CMSPage.create(orgId, configuration.name, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published)
 
             Json(page)
           }
@@ -143,7 +143,7 @@ object CMS extends OrganizationController {
         CMSPage.delete(orgId, key, language)
 
         // also delete menu entries that refer to that page, for now only from the main menu
-        MenuEntry.removePage(orgId, theme.name, MAIN_MENU, key, language)
+        MenuEntry.removePage(orgId, configuration.name, MAIN_MENU, key, language)
 
         Ok
     }
@@ -153,17 +153,17 @@ object CMS extends OrganizationController {
     Action {
       implicit request =>
       // TODO link the themes to the organization so this also works on multi-org hubs
-        CMSPage.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> theme.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+        CMSPage.find(MongoDBObject("key" -> key, "lang" -> getLang, "theme" -> configuration.name)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)
           case Some(pagePreview) => Ok(Template('page -> pagePreview))
         }
     }
   }
 
-  private def getThemes = if (Play.isDev || PortalTheme.getAll.length == 1) {
-    PortalTheme.getAll.map(t => (t.name, t.name))
+  private def getThemes = if (Play.isDev || DomainConfiguration.getAll.length == 1) {
+    DomainConfiguration.getAll.map(t => (t.name, t.name))
   } else {
-    PortalTheme.getAll.filterNot(_.name == "default").map(t => (t.name, t.name))
+    DomainConfiguration.getAll.filterNot(_.name == "default").map(t => (t.name, t.name))
   }
 
 
@@ -171,7 +171,7 @@ object CMS extends OrganizationController {
 
 case class CMSPageViewModel(dateCreated: Long,
                             key: String, // the key of this page (unique across all version sets of pages)
-                            theme: String, // the hub theme this page belongs to
+                            theme: String, // the domain configuration this page belongs to
                             lang: String, // 2-letters ISO code of the page language
                             title: String, // title of the page in this language
                             userName: String, // creator / editor

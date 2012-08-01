@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title:'Search results' /}
+#{set title: systemFields.apply("delving_owner").get(0) +" | "+ systemFields.apply("delving_title").get(0) /}
 
 #{set 'moreScripts'}
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
@@ -79,6 +79,7 @@
 //    });
 }*
 $(document).ready(function() {
+
     if ($('a[rel=zoom]').size() > 0) {
         // Deepzoom image
         var zoomImg = $('a[rel=zoom]').attr('href');

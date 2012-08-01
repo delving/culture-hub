@@ -1,6 +1,6 @@
 package controllers
 
-import exceptions.{StorageInsertionException, UnauthorizedException, AccessKeyException}
+import exceptions.{StorageInsertionException, AccessKeyException}
 import play.api.mvc._
 import core.mapping.MappingService
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
@@ -13,11 +13,9 @@ import akka.actor.Actor
 import eu.delving.metadata.RecMapping
 import play.api.{Play, Logger}
 import play.api.Play.current
-import core.{Constants, HubServices}
+import core.HubServices
 import scala.{Either, Option}
 import util.SimpleDataSetParser
-import core.storage.BaseXStorage
-import core.storage.Collection
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
@@ -27,8 +25,11 @@ import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
 import models.mongoContext.hubFileStore
-import xml.{Node, NodeSeq, Elem}
+import xml.Node
+import play.api.libs.concurrent.Promise
 import org.apache.commons.lang.StringEscapeUtils
+import scala.util.matching.Regex.Match
+import java.util.regex.Matcher
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -39,18 +40,18 @@ import org.apache.commons.lang.StringEscapeUtils
 
 object SipCreatorEndPoint extends ApplicationController {
 
-  private val UNAUTHORIZED_UPDATE = "You do not have the necessary rights to modify this data set"
-
   val DOT_PLACEHOLDER = "--"
 
-  val log: Logger = Logger("CultureHub")
+  val log: Logger = Logger(SipCreatorEndPoint.getClass)
+
+  private lazy val basexStorage = HubServices.basexStorage
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = Themed {
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = DomainConfigured {
     Action(action.parser) {
       implicit request => {
         if (accessToken.isEmpty) {
@@ -59,9 +60,7 @@ object SipCreatorEndPoint extends ApplicationController {
           Unauthorized("Access Key %s not accepted".format(accessToken.get))
         } else {
           connectedUserObject = OAuth2TokenEndpoint.getUserByToken(accessToken.get)
-          val updatedSession = session + (Constants.USERNAME -> connectedUserObject.get.userName)
-          val r: PlainResult = action(request).asInstanceOf[PlainResult]
-          r.withSession(updatedSession)
+          action(request)
         }
       }
     }
@@ -98,17 +97,21 @@ object SipCreatorEndPoint extends ApplicationController {
         val dataSetsXml = <data-set-list>
           {dataSets.map {
           ds =>
-            val creator = ds.getCreator
+            val creator = HubUser.findByUsername(ds.getCreator)
             val lockedBy = ds.getLockedBy
             <data-set>
               <spec>{ds.spec}</spec>
               <name>{ds.details.name}</name>
               <orgId>{ds.orgId}</orgId>
+              {if(creator.isDefined) {
               <createdBy>
-                <username>{creator.userName}</username>
-                <fullname>{creator.fullname}</fullname>
-                <email>{creator.email}</email>
-              </createdBy>{if (lockedBy != None) {
+                <username>{creator.get.userName}</username>
+                <fullname>{creator.get.fullname}</fullname>
+                <email>{creator.get.email}</email>
+              </createdBy>} else {
+              <createdBy>
+                <username>{ds.getCreator}</username>
+              </createdBy>}}{if (lockedBy != None) {
               <lockedBy>
                 <username>{lockedBy.get.userName}</username>
                 <fullname>{lockedBy.get.fullname}</fullname>
@@ -199,6 +202,9 @@ object SipCreatorEndPoint extends ApplicationController {
             Error(msg)
           } else if(request.contentType == None) {
             BadRequest("Request has no content type")
+          } else if(!DataSet.canEdit(dataSet.get, connectedUser)) {
+            log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.get.spec))
+            Forbidden("You are not allowed to modify this DataSet")
           } else {
             val inputStream = if (request.contentType == Some("application/x-gzip")) new GZIPInputStream(new FileInputStream(request.body.file)) else new FileInputStream(request.body.file)
 
@@ -206,10 +212,14 @@ object SipCreatorEndPoint extends ApplicationController {
               case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
               case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
               case "source" if extension == "xml.gz" => {
-                val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                receiveActor ! SourceStream(dataSet.get, theme, inputStream, request.body)
-                DataSet.updateState(dataSet.get, DataSetState.PARSING)
-                Right("Received it")
+                if(dataSet.get.state == DataSetState.PROCESSING) {
+                  Left("%s: Cannot upload source while the set is being processed".format(spec))
+                } else {
+                  val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                  receiveActor ! SourceStream(dataSet.get, connectedUser, configuration, inputStream, request.body)
+                  DataSet.updateState(dataSet.get, DataSetState.PARSING)
+                  Right("Received it")
+                }
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
               case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, request.body.file)
@@ -246,17 +256,12 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
-    if (!DataSet.canEdit(dataSet, connectedUser)) {
-      log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.spec))
-      throw new UnauthorizedException(UNAUTHORIZED_UPDATE)
-    }
     DataSet.updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }
 
   private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
     try {
-      import com.mongodb.casbah.gridfs.Imports._
       val f = hubFileStore.createFile(file)
 
       val stats = Stats.read(inputStream)
@@ -329,26 +334,40 @@ object SipCreatorEndPoint extends ApplicationController {
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action {
       implicit request =>
-        val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
-        if (maybeDataSet.isEmpty) {
-          NotFound("Unknown spec %s".format(spec))
-        } else {
-          val dataSet = maybeDataSet.get
+        Async {
+          Promise.pure {
+            val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+            if (maybeDataSet.isEmpty) {
+              Left(NotFound("Unknown spec %s".format(spec)))
+            } else if(maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
+              Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time".format(spec)))
+            } else {
+              val dataSet = maybeDataSet.get
 
-          // lock it right away
-          val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
-          DataSet.save(updatedDataSet)
+              // lock it right away
+              val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
+              DataSet.save(updatedDataSet)
 
-          val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(getSipStream(dataSet))
-          Ok.stream(dataContent)
+              val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(dataSet))
+              Right(dataContent)
+            }
+          }.map {
+            result =>
+              if(result.isLeft) {
+                result.left.get
+              } else {
+                Ok.stream(result.right.get)
+              }
+          }
         }
     }
   }
 
 
   def getSipStream(dataSet: DataSet) = {
-    val in = new PipedInputStream(100000000) // 95 mb buffer... this should use the Iteratee/Enumeratee method instead.
-    val zipOut = new ZipOutputStream(new PipedOutputStream(in))
+    val temp = TemporaryFile(dataSet.spec)
+    val fos = new FileOutputStream(temp.file)
+    val zipOut = new ZipOutputStream(fos)
 
     writeEntry("dataset_facts.txt", zipOut) {
       out =>
@@ -373,13 +392,11 @@ object SipCreatorEndPoint extends ApplicationController {
       }
     }
 
-    val collection = Collection(dataSet.orgId, dataSet.spec)
-
-    val recordCount = BaseXStorage.count(collection)
+    val recordCount = basexStorage.count(dataSet)
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
-      attrs.foreach(ns => attrBuilder.append(if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
+      attrs.filterNot(_._1.isEmpty).foreach(ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
       attrBuilder.mkString.trim
     }
 
@@ -410,6 +427,8 @@ object SipCreatorEndPoint extends ApplicationController {
     }
 
 
+    val tagContentMatcher = """>([^<]+)<""".r
+
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
         out =>
@@ -417,31 +436,48 @@ object SipCreatorEndPoint extends ApplicationController {
           val builder = new StringBuilder
           builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
           builder.append("<delving-sip-source ")
-          builder.append("%s".format(buildNamespaces(dataSet.namespaces)))
+          builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
           builder.append(">")
           write(builder.toString(), pw, out)
 
-          BaseXStorage.withSession(collection) {
-            implicit session => BaseXStorage.findAllCurrent foreach {
-              record =>
-                var count = 0
-                val input = (record \ "document" \ "input").head
-                pw.println("""<input id="%s">""".format(input.attribute("id").get.text))
-                input.flatMap(elem => elem match {
-                  case e: Elem => e.child
-                  case _ => NodeSeq.Empty
-                }).filterNot(_.label == "#PCDATA").foreach { node: Node => pw.println(serializeElement(node)) }
-                pw.println("</input>")
+          basexStorage.withSession(dataSet) {
+            implicit session =>
+              val total = basexStorage.count
+              var count = 0
+              basexStorage.findAllCurrentDocuments foreach {
+                record =>
 
-                if (count % 2000 == 0) {
-                  pw.flush()
-                  out.flush()
-                }
-                count += 1
-            }
+                  // the output coming from BaseX differs from the original source as follows:
+                  // - the <input> tags contain the XSI namespace declaration
+                  // - the formatted XML escapes all entities including UTF-8 characters
+                  // the following lines fix this
+                  val noXsi = record.replaceAll(""" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"""", "")
+
+                  def cleanup: Match => String = { s =>
+                    ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
+                  }
+
+                  val escapeForRegex = Matcher.quoteReplacement(noXsi)
+                  try {
+                    val cleaned = tagContentMatcher.replaceAllIn(escapeForRegex, cleanup)
+                    pw.println(cleaned)
+                  } catch {
+                    case t =>
+                      log.error("Error while trying to sanitize following record:\n\n" + escapeForRegex)
+                      throw t
+                  }
+
+                  if (count % 10000 == 0) {
+                    pw.flush()
+                  }
+                  if (count % 10000 == 0) {
+                    log.info("%s: Prepared %s of %s records for download".format(dataSet.spec, count, total))
+                  }
+                  count += 1
+              }
             pw.print("</delving-sip-source>")
+            log.info("Done preparing DataSet %s for download".format(dataSet.spec))
             pw.flush()
-            out.flush()
           }
       }
     }
@@ -457,7 +493,8 @@ object SipCreatorEndPoint extends ApplicationController {
     }
 
     zipOut.close()
-    in
+    fos.close()
+    temp.file
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {
@@ -475,20 +512,29 @@ object SipCreatorEndPoint extends ApplicationController {
   private def write(content: String, pw: PrintWriter, out: OutputStream) {
     pw.println(content)
     pw.flush()
-    out.flush()
   }
 
   def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
-    val collection = BaseXStorage.openCollection(dataSet.orgId, dataSet.spec).getOrElse {
-      BaseXStorage.createCollection(dataSet.orgId, dataSet.spec)
+
+    // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
+    val mayCollection = basexStorage.openCollection(dataSet)
+    val collection = if(mayCollection.isDefined) {
+      basexStorage.deleteCollection(mayCollection.get)
+      basexStorage.createCollection(dataSet)
+    } else {
+      basexStorage.createCollection(dataSet)
     }
+
     val parser = new SimpleDataSetParser(source, dataSet)
 
+    val totalRecords = DataSetStatistics.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
+
     def onRecordInserted(count: Long) {
-      if(count % 100 == 0) DataSet.updateRecordCount(dataSet, count)
+      if(count % (if(modulo == 0) 100 else modulo) == 0) DataSet.updateRecordCount(dataSet, count)
     }
 
-    BaseXStorage.store(collection, parser, parser.namespaces, onRecordInserted)
+    basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
   }
 
 }
@@ -498,14 +544,14 @@ class ReceiveSource extends Actor {
   var tempFileRef: TemporaryFile = null
 
   protected def receive = {
-    case SourceStream(dataSet, theme, inputStream, tempFile) =>
+    case SourceStream(dataSet, userName, configuration, inputStream, tempFile) =>
       val now = System.currentTimeMillis()
 
       // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, theme, inputStream) match {
+        receiveSource(dataSet, userName, configuration, inputStream) match {
           case Left(t) =>
             DataSet.invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -520,9 +566,9 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.updateState(dataSet, DataSetState.ERROR, message)
+            DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), theme)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), configuration)
           case Right(inserted) =>
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
             Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
@@ -532,19 +578,19 @@ class ReceiveSource extends Actor {
         case t =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
           DataSet.invalidateHashes(dataSet)
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
 
       } finally {
         tempFileRef = null
       }
   }
 
-  private def receiveSource(dataSet: DataSet, theme: PortalTheme, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, configuration: DomainConfiguration, inputStream: InputStream): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
       DataSet.updateRecordCount(dataSet, uploadedRecords)
-      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      DataSet.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)
     } catch {
       case t => return Left(t)
@@ -554,4 +600,4 @@ class ReceiveSource extends Actor {
 
 }
 
-case class SourceStream(dataSet: DataSet, theme: PortalTheme, stream: InputStream, temporaryFile: TemporaryFile)
+case class SourceStream(dataSet: DataSet, userName: String, configuration: DomainConfiguration, stream: InputStream, temporaryFile: TemporaryFile)

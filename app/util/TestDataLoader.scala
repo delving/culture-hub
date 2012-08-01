@@ -87,38 +87,19 @@ object TestDataLoader {
       spec = "PrincessehofSample",
       userName = "bob",
       orgId = "delving",
-      description = Some("Test Data"),
       state = DataSetState.ENABLED,
-      visibility = Visibility(10),
       deleted = false,
       details = Details(
         name = "Princessehof Sample Dataset",
-        metadataFormat = RecordDefinition(
-          prefix = "raw",
-          namespace = "http://delving.eu/namespaces/raw",
-          schema = "http://delving.eu/namespaces/raw/schema.xsd",
-          allNamespaces = List(
-            Namespace(prefix="dc", uri="http://purl.org/dc/elements/1.1/", schema="http://dublincore.org/schemas/xmls/qdc/dc.xsd"),
-            Namespace(prefix="dcterms", uri="http://purl.org/dc/terms/", schema="http://dublincore.org/schemas/xmls/qdc/dcterms.xsd"),
-            Namespace(prefix="europeana", uri="http://www.europeana.eu/schemas/ese/", schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"),
-            Namespace(prefix="ese", uri="http://www.europeana.eu/schemas/ese/", schema="http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd"),
-            Namespace(prefix="icn", uri="http://www.icn.nl/", schema="http://www.icn.nl/schemas/ICN-V3.2.xsd"),
-            Namespace(prefix="delving", uri="http://www.delving.eu/", schema="http://www.delving.eu/schemas/delving-1.0.xsd")
-          ),
-          isFlat = true
-        ),
-        facts = factMap,
-        errorMessage = Some("")
+        facts = factMap
       ),
-
-      lastUploaded = new Date(0),
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
       mappings = Map("icn" -> Mapping(
         format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head,
         recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
       )),
-      formatAccessControl = Map("raw" -> FormatAccessControl(accessType = "public"), "icn" -> FormatAccessControl(accessType = "public"))
+      formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
     ))
   }
 

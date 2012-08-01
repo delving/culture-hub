@@ -26,6 +26,7 @@ ui.label.add=Add
 ui.label.addcomment=Add comment
 ui.label.administration=Administration
 ui.label.administratorOptions=Administrator options
+ui.label.availability=Availability
 ui.label.block=Block
 ui.label.browse=Browse
 ui.label.cancel=Cancel
@@ -89,6 +90,7 @@ ui.label.share=Share
 ui.label.sipcreator=SIP-Creator
 ui.label.startupload=Start upload
 ui.label.status=Status
+ui.label.state=State
 ui.label.unlock=Unlock
 ui.label.uploadcancel=Cancel upload
 ui.label.username=Username
@@ -159,8 +161,9 @@ thing.browse.of=Browse {0} of
 thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
+thing.provider=Provider
 
-thing.address=Adress
+thing.address=Address
 thing.postalCode=Postal code
 thing.place=Place
 thing.municipality=Municipality
@@ -217,6 +220,8 @@ dataset.disable=Disable
 dataset.enable=Enable
 dataset.confirmDeletion=Are you sure you want to remove this Dataset?
 dataset.find=Find a Dataset
+dataset.filter.name=Filter by name
+dataset.filter.state=Filter by state
 dataset.invalidate=Reset hashes
 dataset.disableDatasetForDeletion=You need to disable the dataset before it can be deleted
 dataset.filter.beginTyping=Begin typing a dataset name
@@ -545,6 +550,11 @@ organization.dataset.label.identifier=Identifier
 organization.dataset.help.identifier=The unique identifier of this Dataset
 organization.dataset.save=Save Dataset
 organization.dataset.list=Dataset list
+
+organization.dataset.locked=Locked
+organization.dataset.lockedBy=Locked by:
+organization.dataset.unlocked=Unlocked
+
 organization.members=Members
 
 
@@ -561,7 +571,7 @@ dataSetState.uploaded=Uploaded and ready for processing
 dataSetState.parsing=Parsing and storing uploaded source data
 dataSetState.queued=Queued for processing
 dataSetState.processing=Processing
-dataSetState.indexing=Indexing
+dataSetState.cancelled=Processing cancelled
 dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
 dataSetState.error=Error occured while processing
