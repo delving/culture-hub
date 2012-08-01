@@ -29,9 +29,10 @@ object Search extends DelvingController {
 
   def index(query: String, page: Int) = search(query, page)
 
-  def search(query: String = "*:*", page: Int = 1, additionalSystemHQFs: List[String] = List.empty[String]) = Root {
+  def search(query: String = "*:*", page: Int) = Root {
     Action {
       implicit request =>
+        val additionalSystemHQFs = List("%s:%s".format(RECORD_TYPE, MDR))
         val chQuery = SolrQueryService.createCHQuery(request, configuration, true, Option(connectedUser), additionalSystemHQFs)
         try {
           val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
@@ -141,16 +142,23 @@ object Search extends DelvingController {
     (items, briefItemView.pagination.getNumFound)
   }
 
-  private def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: DomainConfiguration) = briefDocs.map(bd =>
-    ListItem(id = bd.getHubId,
-      itemType = bd.getItemType,
-      title = bd.getTitle,
-      description = bd.getDescription,
-      thumbnailUrl = bd.getThumbnailUri(220, configuration),
-      userName = bd.getOrgId,
-      isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-      url = bd.getUri(configuration),
-      mimeType = bd.getMimeType))
+  private def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: DomainConfiguration) = briefDocs.map { bd =>
+    try {
+      ListItem(id = bd.getHubId,
+        itemType = bd.getItemType,
+        title = bd.getTitle,
+        description = bd.getDescription,
+        thumbnailUrl = bd.getThumbnailUri(220, configuration),
+        userName = bd.getOrgId,
+        isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
+        url = bd.getUri(configuration),
+        mimeType = bd.getMimeType)
+    } catch {
+      case t =>
+        println(bd)
+        null
+    }
+  }
 
 
 }
