@@ -298,17 +298,17 @@ object SolrQueryService extends SolrServer {
       runQuery(solrQuery, configuration)
     }
     catch {
-      case e: SolrException => {
-        Logger.error("unable to execute SolrQuery", e)
-        throw new MalformedQueryException("Malformed Query", e)
-      }
-      case e: SolrServerException if e.getMessage.equalsIgnoreCase("Error executing query") => {
+      case e: SolrServerException if e.getMessage.contains("returned non ok status:400") => {
         Logger.error("Unable to fetch result", e)
         throw new MalformedQueryException("Malformed Query", e)
       }
-      case e: SolrServerException => {
+      case e: SolrServerException if e.getMessage.contains("Server refused connection") => {
         Logger.error("Unable to connect to Solr Server", e)
         throw new SolrConnectionException("SOLR_UNREACHABLE", e)
+      }
+      case e: Throwable => {
+        Logger.error("unable to execute SolrQuery", e)
+        throw new SolrConnectionException("Malformed Query", e)
       }
     }
   }
