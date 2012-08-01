@@ -21,9 +21,9 @@ switch (recordType) {
 #{ifnot _viewType == 'media'}
     *{*** summary view for things that have a digital object ***}*
     *{#{if _data.hasDigitalObject()}}*
-<div class="thing-container ${_data.getItemType()}">
-    <div class="category">${recordType}</div>
-    <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}">
+<div class="thing-container ${_data.getItemType()} media">
+    *{<div class="category">${recordType}</div>}*
+    <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}" style="width:100px">
             #{if _data.getMimeType().contains('image/') }
                 <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
             #{/if}
@@ -37,8 +37,13 @@ switch (recordType) {
                 <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
             #{/elseif}
         </a>
-        <div class="title" ><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
-        #{if _data.getDescription()}<div class="description">${views.Helpers.shorten(_data.getDescription(), 80)}</div>#{/if}
+
+        <div class="bd">
+            <div class="title" ><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
+                #{if _data.getOwner()}<div class="owner">${views.Helpers.shorten(_data.getOwner(), 80)}</div>#{/if}
+                #{if _data.getDescription()}<div class="description">${views.Helpers.shorten(_data.getDescription(), 80)}</div>#{/if}
+        </div>
+
 
 
     </div>

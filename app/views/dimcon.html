@@ -1,0 +1,71 @@
+#{include 'commonHeader.html'/}
+
+<div class="header-top">
+    <div class="container">
+        <div class="row">
+            <div class="span4">
+                <div id="primary-branding">
+                    <a href="@{controllers.routes.Application.index()}">
+                        <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}"/>
+                    </a>
+                </div>
+            </div>
+            <div class="span8" id="main-nav">
+                <div class="navbar navbar-user">
+                    <div class="navbar-inner">
+                        <div class="container">
+                        #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin'), extraClass:"pull-right"/}
+                        </div>
+                    </div>
+                </div>
+                    #{mainMenu menu:menu /}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="header">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <h1>${themeInfo.siteName()}</h1>
+                <h2>${themeInfo.siteSlogan()}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <form method="get" action="/search" class="form-horizontal form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="content" role="main">
+    <div class="container">
+        #{doLayout /}
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <div class="pull-right">
+                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img
+                            src="@{routes.Assets.at('common/images/delving-small.png')}"
+                            alt="Powered by DELVING.EU" id="pbd" />Powered by Delving</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
