@@ -148,6 +148,15 @@ case class DataSet(
   def getDataProviderUri: String = details.facts.getAsOrElse[String]("dataProviderUri", "")
   def getRights: String = details.facts.getAsOrElse[String]("rights", "")
   def getType: String = details.facts.getAsOrElse[String]("type", "")
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[DataSet]
+
+  override def hashCode(): Int = (orgId + spec).hashCode
+
+  override def equals(other: Any): Boolean = canEqual(other) && {
+    val ds = other.asInstanceOf[DataSet]
+    ds.orgId == orgId && ds.spec == spec && ds.userName == userName && ds._id == _id
+  }
 }
 
 object DataSet extends MultiModel[DataSet, DataSetDAO] {

@@ -23,8 +23,6 @@ import play.api.data.Forms._
 
 trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions {
 
-  protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
-
   // ~~~ i18n
 
   private val LANG = "lang"
@@ -65,7 +63,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
           renderArgs += (__LANG -> requestLanguage)
 
           // main navigation
-          val menu = hubPlugins.map(
+          val menu = CultureHubPlugin.getEnabledPlugins.map(
             plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
           ).flatten.asJava
 
@@ -361,7 +359,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 
           renderArgs += ("roles" -> roles.asJava)
 
-          val navigation = hubPlugins.map {
+          val navigation = CultureHubPlugin.getEnabledPlugins.map {
             plugin => plugin.
               getOrganizationNavigation(
                 context = Map("orgId" -> orgId, "currentLanguage" -> getLang),

@@ -192,7 +192,7 @@ object DomainConfiguration {
     var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
     val config = Play.configuration.getConfig("configurations").get
-      val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
       val configurations: Seq[DomainConfiguration] = allDomainConfigurations.flatMap {
         configurationKey => {
           val configuration = config.getConfig(configurationKey).get

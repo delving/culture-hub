@@ -53,6 +53,9 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
 
+  override def hashCode(): Int = pluginKey.hashCode
+
+  override def equals(p1: Any): Boolean = p1.isInstanceOf[CultureHubPlugin] && p1.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
 }
 
 object CultureHubPlugin {
