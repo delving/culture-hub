@@ -3,6 +3,7 @@ package controllers.search
 import play.api.mvc._
 import controllers.DelvingController
 import scala.collection.JavaConverters._
+import models.DataSet
 
 /**
  *
@@ -14,7 +15,7 @@ object AdvancedSearch extends DelvingController {
   def advancedSearch = Root {
     Action {
       implicit request =>
-        val providers = List("Provider 1", "Provider 2", "Provider 42" )
+        val providers = DataSet.dao.findAllByOrgId(configuration.orgId).map(_.getDataProvider).toList.distinct
         Ok(Template('providers -> providers.asJava))
     }
   }
