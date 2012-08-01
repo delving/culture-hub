@@ -8,8 +8,6 @@ import exceptions._
 import play.api.i18n.Messages
 import core.rendering.ViewRenderer
 import com.mongodb.casbah.Imports._
-import play.api.Play
-import util.DomainConfigurationHandler
 
 /**
  *
@@ -17,7 +15,7 @@ import util.DomainConfigurationHandler
  */
 
 object Search extends DelvingController {
-  
+
   // TODO move later
   lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
     pair => {
@@ -40,7 +38,7 @@ object Search extends DelvingController {
           val briefItemView = BriefItemView(response)
 
           Ok(Template("/Search/index.html",
-            'briefDocs -> briefItemView.getBriefDocs,
+            'briefDocs -> toListItems(briefItemView.getBriefDocs),
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'themeFacets -> configuration.getFacets,
@@ -69,24 +67,24 @@ object Search extends DelvingController {
                 val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
 
                 // TODO this is a workaround for not yet having a resolver for directory entries
-                if(facts.contains("providerUri")) {
+                if (facts.contains("providerUri")) {
                   facts.put("resolvedProviderUri", "/%s/museum/%s".format(orgId, facts("providerUri").split("/").reverse.head))
                 }
-                if(facts.contains("dataProviderUri")) {
+                if (facts.contains("dataProviderUri")) {
                   facts.put("resolvedDataProviderUri", "/%s/museum/%s".format(orgId, facts("dataProviderUri").split("/").reverse.head))
                 }
 
                 // AFF takes precedence over anything else
-                if(mdr.xml.get("aff").isDefined) {
+                if (mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
                   renderRecord(mdr, record, viewRenderers(configuration)("aff"), RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else {
                   val ds = DataSet.dao.findBySpecAndOrgId(spec, orgId)
-                  if(ds.isDefined) {
+                  if (ds.isDefined) {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
                     val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions(configuration).toList).headOption
                     val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if(renderingFormat.isDefined && viewRenderers(configuration).contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
+                    if (renderingFormat.isDefined && viewRenderers(configuration).contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
                       val record = mdr.xml.get(renderingFormat.get).get
                       renderRecord(mdr, record, viewRenderers(configuration)(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
                     } else {
@@ -138,19 +136,21 @@ object Search extends DelvingController {
     val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), configuration, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
-    val items = briefItemView.getBriefDocs.map(bd =>
-      ListItem(id = bd.getHubId,
-        itemType = bd.getItemType,
-        title = bd.getTitle,
-        description = bd.getDescription,
-        thumbnailUrl = bd.getThumbnailUri(220, configuration),
-        userName = bd.getOrgId,
-        isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri(configuration),
-        mimeType = bd.getMimeType))
+    val items: Seq[ListItem] = toListItems(briefItemView.getBriefDocs)(configuration)
 
     (items, briefItemView.pagination.getNumFound)
   }
+
+  private def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: DomainConfiguration) = briefDocs.map(bd =>
+    ListItem(id = bd.getHubId,
+      itemType = bd.getItemType,
+      title = bd.getTitle,
+      description = bd.getDescription,
+      thumbnailUrl = bd.getThumbnailUri(220, configuration),
+      userName = bd.getOrgId,
+      isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
+      url = bd.getUri(configuration),
+      mimeType = bd.getMimeType))
 
 
 }
