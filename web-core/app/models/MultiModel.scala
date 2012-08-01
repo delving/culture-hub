@@ -46,4 +46,6 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
   def all: Seq[B] = multiDAOs.values.toSeq
 
+  def byConfiguration = multiDAOs
+
 }

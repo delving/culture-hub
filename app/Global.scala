@@ -25,7 +25,10 @@ import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
 
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
+    filter(_.isInstanceOf[CultureHubPlugin]).
+    map(_.asInstanceOf[CultureHubPlugin]).
+    toList
 
   override def onStart(app: Application) {
     if (!Play.isTest) {
@@ -214,8 +217,6 @@ object Global extends GlobalSettings {
 
   }
 
-  lazy val routes = hubPlugins.flatMap(_.routes)
-
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
     // check if we access a configured domain
@@ -223,6 +224,9 @@ object Global extends GlobalSettings {
       Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
+      val configuration = DomainConfigurationHandler.getByDomain(request.domain)
+      val routes = hubPlugins.filter(p => p.isEnabled(configuration)).flatMap(_.routes)
+
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
       val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
       val matcher = apiRouteMatcher.pattern.matcher(request.uri)

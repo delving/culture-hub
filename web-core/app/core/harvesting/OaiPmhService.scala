@@ -50,7 +50,7 @@ object OaiPmhService {
 
 }
 
-class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String], configuration: DomainConfiguration) {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String])(implicit configuration: DomainConfiguration) {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)

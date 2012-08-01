@@ -33,6 +33,8 @@ case class DomainConfiguration(
   objectService:               ObjectServiceConfiguration,
   oaiPmhService:               OaiPmhServiceConfiguration,
 
+  plugins:                     Seq[String],
+
   // ~~~ schema
   schemas:                     Seq[String],
   crossWalks:                  Seq[String],
@@ -93,8 +95,7 @@ case class UserInterfaceConfiguration(
   themeDir:                    String,
   defaultLanguage:             String = "en",
   siteName:                    Option[String],
-  siteSlogan:                  Option[String],
-  homePage:                    Option[String] = None
+  siteSlogan:                  Option[String]
 )
 
 case class CommonsServiceConfiguration(
@@ -155,6 +156,8 @@ object DomainConfiguration {
   val TILES_WORKING_DIR = "tilesWorkingBaseDir"
   val TILES_OUTPUT_DIR = "tilesOutputBaseDir"
 
+  val PLUGINS = "plugins"
+
   val SCHEMAS = "schemas"
   val CROSSWALKS = "crossWalks"
 
@@ -178,7 +181,7 @@ object DomainConfiguration {
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD
   )
-  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS)
+  val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
 
 
   /**
@@ -249,6 +252,7 @@ object DomainConfiguration {
                   tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
                   tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
                 ),
+                plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
                 ui = UserInterfaceConfiguration(

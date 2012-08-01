@@ -19,12 +19,7 @@ mail.smtp.host=mx2.hostice.net
 ### Global CultureHub settings
 cultureHub.nodeName=
 
-cultureHub.additionalModules=
-
 cultureCommons.host="https://commons.delving.eu"
-
-# Default theme for this hub
-themes.defaultTheme=default
 
 ### Mongo configuration
 mongo.test.context = false
@@ -35,13 +30,5 @@ mongo.server2.port = 27017
 mongo.server3.host = mongo1
 mongo.server3.port = 27019
 
-### Solr configuration
-solr.baseUrl =
-
-### DeepZoom
-iipsrv.url=
-
 ### DoS configuration
 dos.graphicsmagic.cmd=/usr/bin/gm
-dos.tilesOutputBaseDir=
-dos.tilesWorkingBaseDir=

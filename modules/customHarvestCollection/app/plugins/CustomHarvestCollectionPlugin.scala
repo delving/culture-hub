@@ -20,7 +20,7 @@ import collection.immutable.ListMap
 
 class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(app) {
 
-  val pluginKey: String = "customHarvestCollection"
+  val pluginKey: String = CustomHarvestCollectionPlugin.CUSTOM_HARVEST_COLLECTION_KEY
 
   private val customHarvestCollectionHarvestCollectionLookup = new CustomHarvestCollectionHarvestCollectionLookup
 
@@ -88,5 +88,11 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
   )
 
   override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestCollectionLookup)
+
+}
+
+object CustomHarvestCollectionPlugin {
+
+  val CUSTOM_HARVEST_COLLECTION_KEY = "customHarvestCollection"
 
 }

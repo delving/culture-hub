@@ -4,10 +4,10 @@ import collection.HarvestCollectionLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
+import play.api.Play.current
 import mvc.{RequestHeader, Handler}
 import models.{GrantType, DomainConfiguration}
 import scala.collection.JavaConverters._
-
 
 /**
  * A CultureHub plugin
@@ -19,25 +19,39 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   val pluginKey: String
 
+  /** whether this plugin is enabled for the whole hub **/
   override def enabled: Boolean = app.configuration.getString("cultureHub.plugins").map(_.split(",").map(_.trim).contains(pluginKey)).getOrElse(false)
+
+  /** whether this plugin is enabled for the current domain **/
+  def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey)
 
   val routes: ListMap[(String, Regex), List[String] => Handler] = ListMap.empty
 
   def onApplicationStart() { }
 
-  val onApplicationRequest: RequestContext => Unit = {
-    request =>
-  }
-
   def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
-  def getOrganizationNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean) = organizationMenuEntries(context, roles).
-    filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
-    map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
+  def getOrganizationNavigation(context: Map[String, String], roles: Seq[String], isMember: Boolean)(implicit configuration: DomainConfiguration) = if(isEnabled(configuration)) {
+    organizationMenuEntries(context, roles).
+      filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
+      map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
+  } else {
+    Seq.empty
+  }
 
   def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
+
+}
+
+object CultureHubPlugin {
+
+  def getEnabledPlugins(implicit configuration: DomainConfiguration): List[CultureHubPlugin] = Play.application.plugins
+      .filter(_.isInstanceOf[CultureHubPlugin])
+      .map(_.asInstanceOf[CultureHubPlugin])
+      .filter(_.isEnabled(configuration))
+      .toList
 
 }
 

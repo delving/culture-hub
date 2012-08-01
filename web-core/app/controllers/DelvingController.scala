@@ -25,8 +25,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
 
-  private val onApplicationRequestHandlers: Seq[RequestContext => Unit] = hubPlugins.map(_.onApplicationRequest)
-
   // ~~~ i18n
 
   private val LANG = "lang"
@@ -65,9 +63,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
           // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG -> requestLanguage)
-
-          // apply plugin handlers
-          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, configuration, renderArgs, getLang)))
 
           // main navigation
           val menu = hubPlugins.map(
