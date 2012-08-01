@@ -186,10 +186,6 @@
                                 <th>CultureHub search</th>
                                 <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
                             </tr>
-                            <tr>
-                                <th>Search API</th>
-                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*', attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search/collection/' + spec() + '?query=*.*' }"></a></td>
-                            </tr>
                             <!-- ko foreach: harvestingConfiguration -->
                             <tr>
                                 <th>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></th>
