@@ -4,6 +4,10 @@
 
 #{set bodyId: 'results' /}
 
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media.css")}"/>
+#{/set}
+
 #{set 'moreScripts'}
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/jquery.masonry.min.js')}"></script>
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
@@ -13,33 +17,33 @@
 
 #{if briefDocs }
 
-<div class="row">
-
-    <div class="item-count span4">
-        <h6>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h6>
+    <div class="row">
+        <div class="item-count span12">
+            <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
+        </div>
     </div>
-
-    <div class="facets span8">
-        <ul class="nav nav-pills pull-right">
-            #{list items: themeFacets, as: 'tf'}
-                #{facet facetMap: facets, type: tf.facetName()+'_facet', typeKey: messages.get(tf.facetInternationalisationCode()), qString: pagination.getPresentationQuery().getUserSubmittedQuery(), columns: tf.nrDisplayColumns /}
-            #{/list}
-        </ul>
-    </div>
-
-</div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-top" /}
     #{/if}
 
-
-    #{resultGrid results: briefDocs /}
+    <div class="row">
+        <div class="span8">
+            #{resultGrid results: briefDocs /}
+        </div>
+        <div class="span4">
+            #{list items: themeFacets, as: 'tf'}
+                #{facet facetMap: facets,
+                        type: tf.facetName()+'_facet',
+                        typeKey: messages.get(tf.facetInternationalisationCode()),
+                        qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
+                        columns: tf.nrDisplayColumns/}
+            #{/list}
+        </div>
+    </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-
         #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), extraClass:"pagination-bottom" /}
-
     #{/if}
 
 *{#{if userName}}*
@@ -85,19 +89,20 @@
 #{/if}
 
 #{else}
-<div class="g-12of12 grid_12 centered pam">
+<div class="span12 centered pam">
 &{'ui.message.nothingFound'}
 </div>
 #{/else}
-
+*{
 <!-- overlayed element -->
 <div id="overlay" class="result-overlay">
     <!-- the external content is loaded inside this tag -->
     <div class="contentWrap"></div>
 </div>
 
+
 <script type="text/javascript">
-    $(document).ready(function () {
+//    $(document).ready(function () {
 
 //  $('#dropbox').dropbox();
 //
@@ -122,5 +127,6 @@
 //        });
 //      });
 
-    });
+//    });
 </script>
+}*

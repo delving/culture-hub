@@ -1,16 +1,64 @@
 #{list _facetMap, as: 'facet'}
+    #{if facet.getLinks().length() > 0 && facet.getType() == _type}
+        *{ FACET HEADER }*
+        <h4 class="facet-toggle dropdown #{if facet.isFacetSelected()}open#{/if}">
+            ${_typeKey ? _typeKey : _type}
+            #{if _collapsable == true}<b class="caret"></b>#{/if}
+        </h4>
+        *{ FACET CONTAINER: lists all facets of type x }*
+        <div class="facet-container">
+            #{list facet.getLinks(), as: 'link'}
+                %{
+                    def qs = '/search?query='+ _qString + link.url
+                    // translate object types
+                    def thingType = link.value()
+                    if (facet.getType() == "delving_recordType_facet") {
+                        switch (link.value()) {
+                            case 'mdr':
+                            thingType = messages.get('thing.object.heritage')
+                            break
+                            case 'object':
+                            thingType = messages.get('thing.object.user')
+                            break
+                            case 'collection':
+                            thingType = messages.get('thing.collection')
+                            break
+                            case 'museum':
+                            thingType = messages.get('thing.museum')
+                            break
+                            default:
+                            thingType = link.value()
+                        }
+                    }
+                }%
+                <div class="facet #{if _columns == 2}span1of2#{/if}">
+                    #{if !link.remove()}
+                        <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
+                    #{/if}
+                    #{else}
+                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
+                    #{/else}
+                </div>
+            #{/list}
+        </div>
+
+    #{/if}
+#{/list}
+
+*{
+#{list _facetMap, as: 'facet'}
 
     #{if facet.getLinks().length() > 0 }
 
         #{if facet.getType() == _type}
 
-            <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#" rel="no-follow">
+        <li class="nav-header">
                 #{if _typeKey}${_typeKey}#{/if}
                 #{else}${_type}#{/else}
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">
+        </li>
+        <li>
+        <div class="facet-container">
+            <ul class="nav nav-facets">
                 #{list facet.getLinks(), as: 'link'}
                 %{
                     def qs = '/search?query='+ _qString + link.url
@@ -37,17 +85,73 @@
 
                     }%
                     #{if !link.remove()}
-                        <li><a href="${qs}">${thingType} (${link.count()})</a>
+                        <li><input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
                         </li>
                     #{/if}
                     #{else}
-                        <li class="active"><a href="${qs}">${thingType}
-                            (${link.count()})</a></li>
+                        <li class="active"><input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType}
+                            (${link.count()})</a></span></li>
                     #{/else}
 
                 #{/list}
             </ul>
-            </li>
+
+        </div>
+        </li>
         #{/if}
     #{/if}
 #{/list}
+}*
+*{#{list _facetMap, as: 'facet'}}*
+
+    *{#{if facet.getLinks().length() > 0 }}*
+
+        *{#{if facet.getType() == _type}}*
+
+            *{<li class="dropdown">}*
+                *{<a class="dropdown-toggle" data-toggle="dropdown" href="#" rel="no-follow">}*
+                *{#{if _typeKey}${_typeKey}#{/if}}*
+                *{#{else}${_type}#{/else}}*
+                *{<span class="caret"></span>}*
+            *{</a>}*
+            *{<ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">}*
+                *{#{list facet.getLinks(), as: 'link'}}*
+                *{%{}*
+                    *{def qs = '/search?query='+ _qString + link.url}*
+                    *{// translate object types}*
+                    *{def thingType = link.value()}*
+                    *{if (facet.getType() == "delving_recordType_facet") {}*
+                    *{switch (link.value()) {}*
+                    *{case 'mdr':}*
+                    *{thingType = messages.get('thing.object.heritage')}*
+                    *{break}*
+                    *{case 'object':}*
+                    *{thingType = messages.get('thing.object.user')}*
+                    *{break}*
+                    *{case 'collection':}*
+                    *{thingType = messages.get('thing.collection')}*
+                    *{break}*
+                    *{case 'museum':}*
+                    *{thingType = messages.get('thing.museum')}*
+                    *{break}*
+                    *{default:}*
+                    *{thingType = link.value()}*
+                    *{}}*
+                    *{}}*
+
+                    *{}%}*
+                    *{#{if !link.remove()}}*
+                        *{<li><a href="${qs}">${thingType} (${link.count()})</a>}*
+                        *{</li>}*
+                    *{#{/if}}*
+                    *{#{else}}*
+                        *{<li class="active"><a href="${qs}">${thingType}}*
+                            *{(${link.count()})</a></li>}*
+                    *{#{/else}}*
+
+                *{#{/list}}*
+            *{</ul>}*
+            *{</li>}*
+        *{#{/if}}*
+    *{#{/if}}*
+*{#{/list}}*

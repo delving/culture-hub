@@ -12,18 +12,18 @@
                         <a href="#">${doc.getTitle()}</a>
                     </div>
                     <div class="bd">
-                        *{#{if doc.getDescription()}}*
-                             *{<p>${doc.getDescription().shorten(180)}</p>}*
-                        *{#{/}}*
-                        *{#{if doc.getYear()}}*
-                           *{${doc.getYear()} |}*
-                        *{#{/}}*
-                        *{#{if doc.getCreator()}}*
-                            *{${doc.getCreator()} |}*
-                        *{#{/}}*
-                        *{#{if doc.getProvider()}}*
-                            *{${doc.getProvider()}}*
-                        *{#{/}}*
+                        #{if doc.getDescription()}
+                             <p>${doc.getDescription().shorten(180)}</p>
+                        #{/}
+                        #{if doc.getYear()}
+                           ${doc.getYear()} |
+                        #{/}
+                        #{if doc.getCreator()}
+                            ${doc.getCreator()} |
+                        #{/}
+                        #{if doc.getProvider()}
+                            ${doc.getProvider()}
+                        #{/}
                     </div>
                 </div>
             </div>
