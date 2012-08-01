@@ -46,7 +46,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
     pull.next() match {
       case Left(Elem(qname, _, namespaces)) if qname.local == "delving-sip-source" =>
         ns ++= namespaces
-        DataSet.updateNamespaces(dataSet.spec, ns.toMap)
+        DataSet.dao(dataSet.orgId).updateNamespaces(dataSet.spec, ns.toMap)
       case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
     }
     parseNext() match {

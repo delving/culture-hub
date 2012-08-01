@@ -76,47 +76,49 @@ object Index extends DelvingController {
       Ok
   }
 
-  def submit(orgId: String) = Action(parse.tolerantXml) {
-    implicit request => {
-      Async {
-        Promise.pure {
+  def submit(orgId: String) = DomainConfigured {
+    Action(parse.tolerantXml) {
+      implicit request => {
+        Async {
+          Promise.pure {
 
-          val (valid, invalid) = parseIndexRequest(orgId, request.body)
+            val (valid, invalid) = parseIndexRequest(orgId, request.body)
 
-          var indexed: Int = 0
-          var deleted: Int = 0
+            var indexed: Int = 0
+            var deleted: Int = 0
 
-          for(i <- valid.zipWithIndex) {
-            val item = i._1
-            val index = i._2
-            val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
-            if(item.deleted) {
-              cache.remove(item.itemId)
-              IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
-              deleted += 1
-            } else {
-              val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), index = index)
-              cache.saveOrUpdate(cacheItem)
-              IndexingService.stageForIndexing(item.toSolrDocument)
-              indexed += 1
+            for(i <- valid.zipWithIndex) {
+              val item = i._1
+              val index = i._2
+              val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
+              if(item.deleted) {
+                cache.remove(item.itemId)
+                IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                deleted += 1
+              } else {
+                val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), index = index)
+                cache.saveOrUpdate(cacheItem)
+                IndexingService.stageForIndexing(item.toSolrDocument)
+                indexed += 1
+              }
             }
+            IndexingService.commit
+
+            val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
+
+            <indexResponse>
+              <totalItemCount>{valid.size + invalid.size}</totalItemCount>
+              <indexedItemCount>{valid.filterNot(_.deleted).size}</indexedItemCount>
+              <deletedItemCount>{valid.filter(_.deleted).size}</deletedItemCount>
+              <invalidItemCount>{invalid.size}</invalidItemCount>
+              <invalidItems>{invalidItems}</invalidItems>
+            </indexResponse>
+
+          } map {
+            response => Ok(response)
           }
-          IndexingService.commit()
 
-          val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
-
-          <indexResponse>
-            <totalItemCount>{valid.size + invalid.size}</totalItemCount>
-            <indexedItemCount>{valid.filterNot(_.deleted).size}</indexedItemCount>
-            <deletedItemCount>{valid.filter(_.deleted).size}</deletedItemCount>
-            <invalidItemCount>{invalid.size}</invalidItemCount>
-            <invalidItems>{invalidItems}</invalidItems>
-          </indexResponse>
-
-        } map {
-          response => Ok(response)
         }
-
       }
     }
   }

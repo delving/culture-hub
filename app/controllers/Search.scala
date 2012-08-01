@@ -9,6 +9,7 @@ import play.api.i18n.Messages
 import core.rendering.ViewRenderer
 import com.mongodb.casbah.Imports._
 import play.api.Play
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -18,8 +19,15 @@ import play.api.Play
 object Search extends DelvingController {
   
   // TODO move later
-  val affViewRenderer = ViewRenderer.fromDefinition("aff", "html")
-  val viewRenderers = RecordDefinition.enabledDefinitions.flatMap(f => ViewRenderer.fromDefinition(f, "html")).map(r => (r.schema -> r)).toMap[String, ViewRenderer]
+  lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
+    pair => {
+      (pair._1 -> {
+        pair._2.
+          flatMap(f => ViewRenderer.fromDefinition(f, "html", pair._1)).
+          map(r => (r.schema -> r)).toMap[String, ViewRenderer]
+      })
+    }
+  }
 
   def index(query: String, page: Int) = search(query, page)
 
@@ -28,7 +36,7 @@ object Search extends DelvingController {
       implicit request =>
         val chQuery = SolrQueryService.createCHQuery(request, configuration, true, Option(connectedUser), additionalSystemHQFs)
         try {
-          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
           val briefItemView = BriefItemView(response)
 
           Ok(Template("/Search/index.html",
@@ -51,7 +59,7 @@ object Search extends DelvingController {
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
       implicit request =>
-        DataSet.findBySpecAndOrgId(spec, orgId).map {
+        DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
           collection =>
             val hubId = "%s_%s_%s".format(orgId, spec, recordId)
 
@@ -71,16 +79,16 @@ object Search extends DelvingController {
                 // AFF takes precedence over anything else
                 if(mdr.xml.get("aff").isDefined) {
                   val record = mdr.xml.get("aff").get
-                  renderRecord(mdr, record, affViewRenderer.get, RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
+                  renderRecord(mdr, record, viewRenderers(configuration)("aff"), RecordDefinition.getRecordDefinition("aff").get, orgId, facts.toMap)
                 } else {
-                  val ds = DataSet.findBySpecAndOrgId(spec, orgId)
+                  val ds = DataSet.dao.findBySpecAndOrgId(spec, orgId)
                   if(ds.isDefined) {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
-                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions.toList).headOption
+                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions(configuration).toList).headOption
                     val renderingFormat = ds.get.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if(renderingFormat.isDefined && viewRenderers.contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
+                    if(renderingFormat.isDefined && viewRenderers(configuration).contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
                       val record = mdr.xml.get(renderingFormat.get).get
-                      renderRecord(mdr, record, viewRenderers(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
+                      renderRecord(mdr, record, viewRenderers(configuration)(renderingFormat.get), RecordDefinition.getRecordDefinition(renderingFormat.get).get, orgId, facts.toMap)
                     } else {
                       NotFound(Messages("heritageObject.notViewable"))
                     }
@@ -97,7 +105,8 @@ object Search extends DelvingController {
     }
   }
 
-  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)(implicit request: RequestHeader) = {
+  private def renderRecord(mdr: MetadataItem, record: String, viewRenderer: ViewRenderer, definition: RecordDefinition, orgId: String, parameters: Map[String, String] = Map.empty)
+                          (implicit request: RequestHeader, configuration: DomainConfiguration) = {
 
     val renderResult = viewRenderer.renderRecord(record, getUserGrantTypes(orgId), definition.getNamespaces, lang, parameters)
 
@@ -125,7 +134,7 @@ object Search extends DelvingController {
       case None => List()
     }) ::: query
     val chQuery = SolrQueryService.createCHQuery(request, configuration, false, Option(connectedUser), queryList)
-    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
+    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true)
     val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), configuration, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 
@@ -134,10 +143,10 @@ object Search extends DelvingController {
         itemType = bd.getItemType,
         title = bd.getTitle,
         description = bd.getDescription,
-        thumbnailUrl = Some(bd.getThumbnailUri(220)),
+        thumbnailUrl = bd.getThumbnailUri(220, configuration),
         userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri,
+        url = bd.getUri(configuration),
         mimeType = bd.getMimeType))
 
     (items, briefItemView.pagination.getNumFound)

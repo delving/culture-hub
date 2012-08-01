@@ -28,7 +28,7 @@ class ItinEndPointSpec extends Specification with TestContext {
           body = XML.loadString(scala.io.Source.fromFile(new File(Play.application.path, "test/resource/xmlpost1320334216.xml")).getLines().mkString("\n"))
         )
 
-        val result = asyncToResult(controllers.custom.ItinEndPoint.store()(fakeRequest))
+        val result = asyncToResult(controllers.itin.ItinEndPoint.store()(fakeRequest))
         status(result) must equalTo(OK)
 
         contentAsString(result) must contain("success")

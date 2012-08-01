@@ -11,6 +11,7 @@ import models.{MetadataCache, MetadataItem}
 import play.api.libs.ws.WS
 import play.api.{Logger, Play}
 import java.util.concurrent.TimeUnit
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -56,6 +57,9 @@ object Admin extends OrganizationController {
   }
 
   private def sync(items: NodeSeq, orgId: String, itemType: String, extractSystemFields: NodeSeq => MultiMap): Int = {
+
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+
     IndexingService.deleteByQuery("delving_orgId:%s delving_recordType:%s delving_systemType:hubItem".format(orgId, itemType))
     for (item <- items.zipWithIndex) {
       val index = item._2
@@ -81,9 +85,9 @@ object Admin extends OrganizationController {
       doc.addField(SYSTEM_TYPE, HUB_ITEM)
       doc.addField(HUB_URI, "/%s/%s/%s".format(orgId, itemType, localId))
 
-      IndexingService.stageForIndexing(doc)
+      IndexingService.stageForIndexing(doc)(DomainConfigurationHandler.getByOrgId(orgId))
     }
-    IndexingService.commit()
+    IndexingService.commit(configuration)
     items.size
   }
 

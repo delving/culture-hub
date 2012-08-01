@@ -5,7 +5,7 @@ import models.mongoContext._
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
 import play.api.test.Helpers._
-import util.TestDataLoader
+import util.{DomainConfigurationHandler, TestDataLoader}
 import xml.XML
 
 
@@ -48,11 +48,12 @@ trait TestContext {
   def cleanup() {
     withTestConfig {
       HubServices.init()
-      connection.dropDatabase()
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      createConnection(configuration.mongoDatabase).dropDatabase()
       try {
-        DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").map {
+        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").map {
           set =>
-            HubServices.basexStorage.withSession(set) {
+            HubServices.basexStorage(configuration).withSession(set) {
               session => {
                 val r = session.execute("drop database delving____PrincessehofSample")
                 println(r)

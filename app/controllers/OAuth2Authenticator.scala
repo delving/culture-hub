@@ -11,46 +11,48 @@ import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.message.OAuthResponse.OAuthErrorResponseBuilder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import play.api.mvc._
-import core.HubServices
+import core.{DomainConfigurationAware, HubServices}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object OAuth2Authenticator extends Controller {
+object OAuth2Authenticator extends Controller with DomainConfigurationAware {
 
-  def authenticate = Action {
-    implicit request =>
+  def authenticate = DomainConfigured {
+    Action {
+      implicit request =>
 
-      val oauthRequest = new PlayOAuthAuthzRequest(request)
-      val responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE)
-      val authenticated: Boolean = HubServices.authenticationService.connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
+        val oauthRequest = new PlayOAuthAuthzRequest(request)
+        val responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE)
+        val authenticated: Boolean = HubServices.authenticationService(configuration).connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
 
-          if(authenticated) {
-            val oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator)
-            val builder = OAuthASResponse.authorizationResponse(HttpServletResponse.SC_FOUND)
+        if(authenticated) {
+          val oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator)
+          val builder = OAuthASResponse.authorizationResponse(HttpServletResponse.SC_FOUND)
 
-            if (responseType == ResponseType.CODE.toString || responseType == ResponseType.CODE_AND_TOKEN.toString) {
-              builder.setCode(oauthIssuerImpl.authorizationCode());
-            }
-            if (responseType.equals(ResponseType.TOKEN.toString) || responseType == ResponseType.CODE_AND_TOKEN.toString) {
-              builder.setAccessToken(oauthIssuerImpl.accessToken());
-              builder.setExpiresIn(String.valueOf(3600));
-            }
-
-            val redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI)
-            val response = builder.location(redirectURI).buildQueryMessage();
-            Redirect(response.getLocationUri)
-          } else {
-            val builder = new OAuthErrorResponseBuilder(HttpServletResponse.SC_UNAUTHORIZED)
-            // http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.1.2.1
-            builder.setError("access_denied").setErrorDescription("Access denied")
-
-            // TODO check if this works
-            Unauthorized(builder.buildBodyMessage().getBody)
+          if (responseType == ResponseType.CODE.toString || responseType == ResponseType.CODE_AND_TOKEN.toString) {
+            builder.setCode(oauthIssuerImpl.authorizationCode());
           }
+          if (responseType.equals(ResponseType.TOKEN.toString) || responseType == ResponseType.CODE_AND_TOKEN.toString) {
+            builder.setAccessToken(oauthIssuerImpl.accessToken());
+            builder.setExpiresIn(String.valueOf(3600));
+          }
+
+          val redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI)
+          val response = builder.location(redirectURI).buildQueryMessage();
+          Redirect(response.getLocationUri)
+        } else {
+          val builder = new OAuthErrorResponseBuilder(HttpServletResponse.SC_UNAUTHORIZED)
+          // http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.1.2.1
+          builder.setError("access_denied").setErrorDescription("Access denied")
+
+          // TODO check if this works
+          Unauthorized(builder.buildBodyMessage().getBody)
         }
+    }
+  }
 
   }
 

@@ -16,8 +16,8 @@ import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
 import play.api.mvc._
-import core.HubServices
-import models.HubUser
+import core.{DomainConfigurationAware, HubServices}
+import models.{DomainConfiguration, HubUser}
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -29,83 +29,85 @@ import models.HubUser
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object OAuth2TokenEndpoint extends Controller {
+object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
 
   val TOKEN_TIMEOUT = 3600
 
-  def token: Action[AnyContent] = Action {
-    implicit request =>
-      val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
+  def token: Action[AnyContent] = DomainConfigured {
+    Action {
+      implicit request =>
+        val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
 
-      try {
-        val oauthRequest = new PlayOAuthTokenRequest(request)
+        try {
+          val oauthRequest = new PlayOAuthTokenRequest(request)
 
-        // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
-        if (oauthRequest.getGrantType == null) {
-          errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
-        } else {
-          try {
-            val grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
-            val mayUser = grantType match {
-              // TODO use real node from URL
-              case GrantType.PASSWORD =>
-                if (!HubServices.authenticationService.connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
-                  Left(errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password"))
-                } else {
-                  Right(HubUser.findByUsername(oauthRequest.getUsername).get)
+          // see http://tools.ietf.org/html/draft-ietf-oauth-v2-18#section-4.4.1
+          if (oauthRequest.getGrantType == null) {
+            errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "no grant_type provided")
+          } else {
+            try {
+              val grantType = GrantType.valueOf(oauthRequest.getGrantType.toUpperCase)
+              val mayUser = grantType match {
+                // TODO use real node from URL
+                case GrantType.PASSWORD =>
+                  if (!HubServices.authenticationService(configuration).connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
+                    Left(errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password"))
+                  } else {
+                    Right(HubUser.dao.findByUsername(oauthRequest.getUsername).get)
+                  }
+                case GrantType.REFRESH_TOKEN => {
+                  val maybeUser = HubUser.dao.findByRefreshToken(oauthRequest.getRefreshToken)
+                  if (maybeUser == None) {
+                    Left(errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token"))
+                  } else {
+                    Right(maybeUser.get)
+                  }
                 }
-              case GrantType.REFRESH_TOKEN => {
-                val maybeUser = HubUser.findByRefreshToken(oauthRequest.getRefreshToken)
-                if (maybeUser == None) {
-                  Left(errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token"))
-                } else {
-                  Right(maybeUser.get)
-                }
+                // TODO
+                case GrantType.AUTHORIZATION_CODE | GrantType.ASSERTION | GrantType.NONE => Left(errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type"))
               }
-              // TODO
-              case GrantType.AUTHORIZATION_CODE | GrantType.ASSERTION | GrantType.NONE => Left(errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type"))
-            }
 
-            if (mayUser.isLeft) {
-              mayUser.left.get
-            } else {
-              val user = mayUser.right.get
-
-              var accessToken: String = null
-              var refreshToken: String = null
-
-              if (grantType == GrantType.REFRESH_TOKEN) {
-                accessToken = oauthIssuerImpl.accessToken
-                refreshToken = oauthIssuerImpl.refreshToken
-                HubUser.setOauthTokens(user, accessToken, refreshToken)
+              if (mayUser.isLeft) {
+                mayUser.left.get
               } else {
-                accessToken = if (user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
-                refreshToken = if (user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
-                // save only if this is new
-                if (user.accessToken == None) {
-                  HubUser.setOauthTokens(user, accessToken, refreshToken)
+                val user = mayUser.right.get
+
+                var accessToken: String = null
+                var refreshToken: String = null
+
+                if (grantType == GrantType.REFRESH_TOKEN) {
+                  accessToken = oauthIssuerImpl.accessToken
+                  refreshToken = oauthIssuerImpl.refreshToken
+                  HubUser.dao.setOauthTokens(user, accessToken, refreshToken)
+                } else {
+                  accessToken = if (user.accessToken != None) user.accessToken.get.token else oauthIssuerImpl.accessToken
+                  refreshToken = if (user.refreshToken != None) user.refreshToken.get else oauthIssuerImpl.refreshToken
+                  // save only if this is new
+                  if (user.accessToken == None) {
+                    HubUser.dao.setOauthTokens(user, accessToken, refreshToken)
+                  }
                 }
+
+                val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
+                WrappedJson(resp.getBody)
+
               }
-
-              val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
-              WrappedJson(resp.getBody)
-
+            } catch {
+              case e: OAuthProblemException => {
+                val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
+                val resp: OAuthResponse = builder.error(e).buildJSONMessage()
+                Logger("CultureHub").warn(resp.getBody)
+                BadRequest(resp.getBody).as(JSON)
+              }
             }
-          } catch {
-            case e: OAuthProblemException => {
-              val builder = new OAuthResponse.OAuthErrorResponseBuilder(HttpServletResponse.SC_BAD_REQUEST)
-              val resp: OAuthResponse = builder.error(e).buildJSONMessage()
-              Logger("CultureHub").warn(resp.getBody)
-              BadRequest(resp.getBody).as(JSON)
-            }
+
           }
-
+        } catch {
+          case iae: IllegalArgumentException => errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
         }
-      } catch {
-        case iae: IllegalArgumentException => errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
-      }
 
 
+    }
   }
 
   def errorResponse(tokenResponse: String, message: String)(implicit request: RequestHeader) = {
@@ -121,16 +123,12 @@ object OAuth2TokenEndpoint extends Controller {
 
   // ~~~
 
-  def isValidToken(token: String): Boolean = {
+  def isValidToken(token: String)(implicit configuration: DomainConfiguration): Boolean = {
     if ((Play.isTest || Play.isDev) && token == "TEST") return true
-    HubUser.isValidAccessToken(token, TOKEN_TIMEOUT)
+    HubUser.dao.isValidAccessToken(token, TOKEN_TIMEOUT)
   }
 
-  def evictExpiredTokens() {
-    HubUser.evictExpiredAccessTokens(TOKEN_TIMEOUT)
-  }
-
-  def getUserByToken(token: String) = HubUser.findByAccessToken(token)
+  def getUserByToken(token: String)(implicit configuration: DomainConfiguration) = HubUser.dao.findByAccessToken(token)
 
 }
 

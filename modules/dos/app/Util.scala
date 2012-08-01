@@ -24,6 +24,7 @@ import models.dos.{Log, LogLevel, Task}
 /**
  * Logger that traces everything in relation to tasks.
  * Log entries are "smart" - they both are human-readable and machine-readable so we can turn the log entries into events that help build the history of everything that has happened to a thing.
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
@@ -38,7 +39,17 @@ trait Logging {
   }
 
   def log(task: Task, message: String, level: LogLevel = LogLevel.INFO, sourceItem: Option[String] = None, resultItem: Option[String] = None) {
-    Log.insert(Log(message = message, level = level, task_id = task._id, taskType = task.taskType, sourceItem = sourceItem, resultItem = resultItem, node = getNode))
+    Log.dao(task.orgId).insert(
+      Log(
+        orgId = task.orgId,
+        message = message,
+        level = level,
+        task_id = task._id,
+        taskType = task.taskType,
+        sourceItem = sourceItem,
+        resultItem = resultItem,
+        node = getNode)
+    )
   }
 
   private def getNode = Play.configuration.getString("cultureHub.nodeName").getOrElse("defaultDosNode")

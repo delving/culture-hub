@@ -2,6 +2,7 @@ package models
 
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
+import com.mongodb.casbah._
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
 import core.search.SolrServer
@@ -37,7 +38,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   }
 
 
-  def toSolrDocument: SolrInputDocument = {
+  def toSolrDocument(implicit configuration: DomainConfiguration): SolrInputDocument = {
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
     doc addField(ID, id.nodeId)
@@ -61,7 +62,7 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
         nodeToField(node, doc)
     }
     // store links
-    DrupalEntity.createCoRefList(fields, id).foreach {
+    DrupalEntity.dao.createCoRefList(fields, id).foreach {
       coRef => {
         doc addField("itin_link_path_s", coRef.to.uri)
         doc addField("itin_link_pathAlias_s", coRef.to.title)
@@ -73,14 +74,24 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
 
 case class DrupalEntityId(id: String, nodeId: String, nodeType: String, bundle: String)
 
-object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupalEntitiesCollecion) {
+object DrupalEntity extends MultiModel[DrupalEntity, DrupalEntityDAO] {
 
-  import xml.{Elem, Node}
+  def connectionName: String = "drupalEntities"
 
-  def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink]) {
+  def initIndexes(collection: MongoCollection) {}
+
+  def initDAO(collection: MongoCollection, connection: MongoDB): DrupalEntityDAO = new DrupalEntityDAO(collection)
+}
+
+
+class DrupalEntityDAO(collection: MongoCollection) extends SalatDAO[DrupalEntity, ObjectId](collection) {
+
+  import xml.Node
+
+  def insertInMongoAndIndex(entity: DrupalEntity, links: List[CoReferenceLink])(implicit configuration: DomainConfiguration) {
     import com.mongodb.casbah.commons.MongoDBObject
     import com.mongodb.WriteConcern
-    update(MongoDBObject("id.nodeId" -> entity.id.nodeId), DrupalEntity._grater.asDBObject(entity), true, false)
+    update(MongoDBObject("id.nodeId" -> entity.id.nodeId), DrupalEntity.dao._grater.asDBObject(entity), true, false)
     if (!entity.deleted) IndexingService.stageForIndexing(entity.toSolrDocument) else IndexingService.deleteById(entity.id.nodeId)
   }
 
@@ -124,7 +135,7 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
     }.toList
   }
 
-  def processStoreRequest(xmlData: NodeSeq)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
+  def processStoreRequest(xmlData: NodeSeq, configuration: DomainConfiguration)(processBlock: (DrupalEntity, List[CoReferenceLink]) => Unit): StoreResponse = {
     val records = xmlData \\ "record"
     try {
       val recordCounter = records.foldLeft((0, 0)) {
@@ -138,12 +149,12 @@ object DrupalEntity extends SalatDAO[DrupalEntity, ObjectId](collection = drupal
           (counter._1 + 1, counter._2 + coRefs.length)
         }
       }
-      IndexingService.commit()
+      IndexingService.commit(configuration)
       StoreResponse(records.length, recordCounter._2)
     }
     catch {
       case ex: Exception =>
-        IndexingService.rollback()
+        IndexingService.rollback(configuration)
         StoreResponse(0, 0, false, ex.getMessage)
     }
   }
@@ -164,10 +175,6 @@ case class CoReferenceLink(_id: ObjectId = new ObjectId,
   def toXml: String = {
     "<link>implement the rest</link>"
   }
-
-  //  def fromXml(xmlString: String): CoReferenceLink = {
-  //    CoReferenceLink()
-  //  }
 
 }
 

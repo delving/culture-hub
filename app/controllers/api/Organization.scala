@@ -17,7 +17,7 @@ object Organization extends DelvingController {
   def providers(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (HubServices.organizationService(configuration).exists(orgId)) {
 
           val providers = getFactAlternatives(orgId, "provider")
 
@@ -41,7 +41,7 @@ object Organization extends DelvingController {
   def dataProviders(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (HubServices.organizationService(configuration).exists(orgId)) {
 
           val dataProviders = getFactAlternatives(orgId, "dataProvider")
 
@@ -65,8 +65,8 @@ object Organization extends DelvingController {
   def collections(orgId: String) = Root {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-          val collections = models.DataSet.findAllByOrgId(orgId)
+        if (HubServices.organizationService(configuration).exists(orgId)) {
+          val collections = models.DataSet.dao.findAllByOrgId(orgId)
 
           val xmlResponse =
             <collections>
@@ -85,7 +85,7 @@ object Organization extends DelvingController {
     }
   }
 
-  private def getFactAlternatives(orgId: String, fact: String) = DataSet.findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
+  private def getFactAlternatives(orgId: String, fact: String) = DataSet.dao(orgId).findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
 
   private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 

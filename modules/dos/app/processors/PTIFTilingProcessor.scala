@@ -23,6 +23,7 @@ import models.dos.Task
 import java.io.File
 import play.api.Play
 import play.api.Play.current
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -33,9 +34,10 @@ object PTIFTilingProcessor extends Processor {
 
   def process(task: Task, processorParams: Map[String, AnyRef]) {
 
-    // TODO warn / throw error if these ain't set
-    val tilesOutputBasePath = new File(Play.configuration.getString("dos.tilesOutputBaseDir").getOrElse("/tmp/tiles"))
-    val tilesWorkingBasePath = new File(Play.configuration.getString("dos.tilesWorkingBaseDir").getOrElse("/tmp/tilesWork"))
+    val configuration = DomainConfigurationHandler.getByOrgId(task.orgId)
+
+    val tilesOutputBasePath = new File(configuration.objectService.tilesOutputBaseDir)
+    val tilesWorkingBasePath = new File(configuration.objectService.tilesWorkingBaseDir)
 
     def checkOrCreate(dir: File) = dir.exists() || !dir.exists() && dir.mkdir()
 
@@ -88,7 +90,7 @@ object PTIFTilingProcessor extends Processor {
       tiler.setGeneratePreviewHTML(false);
 
       val images = p.listFiles().filter(f => isImage(f.getName))
-      Task.setTotalItems(task, images.size)
+      Task.dao(task.orgId).setTotalItems(task, images.size)
 
       for (i <- images; if (!task.isCancelled)) {
         val targetFileName = getImageName(i.getName)
@@ -98,7 +100,7 @@ object PTIFTilingProcessor extends Processor {
         try {
           val tileInfo = tiler.convert(i, targetFile)
           info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels", Some(i.getAbsolutePath), Some(targetFile.getAbsolutePath))
-          Task.incrementProcessedItems(task, 1)
+          Task.dao(task.orgId).incrementProcessedItems(task, 1)
         } catch {
           case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage), Some(i.getAbsolutePath))
         }

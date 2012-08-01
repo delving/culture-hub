@@ -1,6 +1,7 @@
 package models
 package statistics
 
+import _root_.util.DomainConfigurationHandler
 import java.util.Date
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
@@ -20,10 +21,10 @@ case class DataSetStatistics(_id: ObjectId = new ObjectId,
                              fieldCount: Histogram) {
 
   def getStatisticsFile = {
-    hubFileStore.findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
+    hubFileStore(DomainConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
   }
 
-  def getHistogram(path: String): Option[Histogram] = DataSetStatistics.frequencies.
+  def getHistogram(path: String)(implicit configuration: DomainConfiguration): Option[Histogram] = DataSetStatistics.dao.frequencies.
     findByParentId(_id, MongoDBObject("context.orgId" -> context.orgId, "context.spec" -> context.spec, "context.uploadDate" -> context.uploadDate, "path" -> path)).toList.headOption.
     map(_.histogram)
 
@@ -83,9 +84,24 @@ case class DataSetStatisticsContext(orgId: String,
                             dataProviderUri: String,
                             uploadDate: Date)
 
+object DataSetStatistics extends MultiModel[DataSetStatistics, DataSetStatisticsDAO] {
 
+  def connectionName: String = "DataSetStatistics"
 
-object DataSetStatistics extends SalatDAO[DataSetStatistics, ObjectId](dataSetStatistics) {
+  def initIndexes(collection: MongoCollection) {
+    addIndexes(collection, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
+  }
+
+  def initDAO(collection: MongoCollection, connection: MongoDB): DataSetStatisticsDAO = new DataSetStatisticsDAO(collection, connection)
+}
+
+class DataSetStatisticsDAO(collection: MongoCollection, connection: MongoDB) extends SalatDAO[DataSetStatistics, ObjectId](collection) {
+
+  lazy val fieldFrequencies = connection("DataSetStatisticsFieldFrequencies")
+  addIndexes(fieldFrequencies, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
+
+  lazy val fieldValues = connection("DataSetStatisticsFieldValues")
+  addIndexes(fieldValues, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
 
   val frequencies = new ChildCollection[FieldFrequencies, ObjectId](collection = fieldFrequencies, parentIdField = "parentId") {}
 

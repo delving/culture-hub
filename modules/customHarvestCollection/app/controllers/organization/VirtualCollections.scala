@@ -19,7 +19,7 @@ object VirtualCollections extends OrganizationController {
   def view(orgId: String, spec: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
+        VirtualCollection.dao.findBySpecAndOrgId(spec, orgId) match {
           case Some(vc) =>
             Ok(Template(
               'spec -> spec,
@@ -40,7 +40,7 @@ object VirtualCollections extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val collections = VirtualCollection.findAll(orgId)
+        val collections = VirtualCollection.dao.findAll(orgId)
         Ok(Template('virtualCollections -> collections))
     }
   }
@@ -50,7 +50,7 @@ object VirtualCollections extends OrganizationController {
       implicit request =>
 
         val viewModel = spec match {
-          case Some(cid) => VirtualCollection.findBySpecAndOrgId(cid, orgId) match {
+          case Some(cid) => VirtualCollection.dao.findBySpecAndOrgId(cid, orgId) match {
             case Some(vc) => Some(VirtualCollectionViewModel(Some(vc._id), vc.spec, vc.name, vc.autoUpdate, vc.query.dataSets.map(r => Token(r, r)), vc.query.freeFormQuery, vc.query.excludeHubIds.mkString(",")))
             case None => None
           }
@@ -85,14 +85,14 @@ object VirtualCollections extends OrganizationController {
             )
             virtualCollectionForm.id match {
               case Some(id) =>
-                VirtualCollection.findOneById(id) match {
+                VirtualCollection.dao.findOneById(id) match {
                   case Some(vc) =>
 
                     // clear the previous entries
-                    VirtualCollection.children.removeByParentId(id)
+                    VirtualCollection.dao.children.removeByParentId(id)
 
                     // create new virtual collection
-                    VirtualCollection.createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
+                    VirtualCollection.dao.createVirtualCollectionFromQuery(id, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
                       case Right(u) =>
                         // update collection definition
                         val updated = u.copy(
@@ -100,9 +100,9 @@ object VirtualCollections extends OrganizationController {
                           name = virtualCollectionForm.name,
                           autoUpdate = virtualCollectionForm.autoUpdate,
                           query = virtualCollectionQuery,
-                          currentQueryCount = VirtualCollection.children.countByParentId(u._id)
+                          currentQueryCount = VirtualCollection.dao.children.countByParentId(u._id)
                         )
-                        VirtualCollection.save(updated)
+                        VirtualCollection.dao.save(updated)
 
 
                       case Left(t) =>
@@ -123,10 +123,10 @@ object VirtualCollections extends OrganizationController {
                   orgId = orgId,
                   query = virtualCollectionQuery,
                   dataSetReferences = List.empty)
-                val id = VirtualCollection.insert(vc)
+                val id = VirtualCollection.dao.insert(vc)
                 id match {
                   case Some(vcid) =>
-                    VirtualCollection.createVirtualCollectionFromQuery(vcid, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
+                    VirtualCollection.dao.createVirtualCollectionFromQuery(vcid, virtualCollectionQuery.toSolrQuery, configuration, connectedUser) match {
                       case Right(ok) => Ok
                       case Left(t) =>
                         logError(t, "Error while computing virtual collection")
@@ -144,10 +144,10 @@ object VirtualCollections extends OrganizationController {
   def delete(orgId: String, spec: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        VirtualCollection.findBySpecAndOrgId(spec, orgId) match {
+        VirtualCollection.dao.findBySpecAndOrgId(spec, orgId) match {
           case Some(vc) =>
-            VirtualCollection.children.removeByParentId(vc._id)
-            VirtualCollection.remove(vc)
+            VirtualCollection.dao.children.removeByParentId(vc._id)
+            VirtualCollection.dao.remove(vc)
             Ok
           case None => Results.NotFound
         }

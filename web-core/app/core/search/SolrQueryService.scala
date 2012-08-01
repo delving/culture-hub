@@ -245,14 +245,14 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false): QueryResponse = {
+  def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false, configuration: DomainConfiguration): QueryResponse = {
     val r = DelvingIdType(id, idType)
     val query = new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId))
     if (relatedItems) query.setQueryType(MORE_LIKE_THIS)
-    SolrQueryService.getSolrResponseFromServer(query)
+    SolrQueryService.getSolrResponseFromServer(query, configuration)
   }
 
-  def resolveHubIdAndFormat(orgId: Option[String], id: String, idType: String): Option[(String, String, Seq[String])] = {
+  def resolveHubIdAndFormat(orgId: Option[String], id: String, idType: String, configuration: DomainConfiguration): Option[(String, String, Seq[String])] = {
     val t = DelvingIdType(id, idType)
     val solrQuery = if(orgId.isDefined) {
       if (idType == "legacy") {
@@ -264,7 +264,7 @@ object SolrQueryService extends SolrServer {
       "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
     }
     val query = new SolrQuery(solrQuery)
-    val response = SolrQueryService.getSolrResponseFromServer(query)
+    val response = SolrQueryService.getSolrResponseFromServer(query, configuration)
     if(response.getResults.size() == 0) {
       Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
       None
@@ -280,7 +280,7 @@ object SolrQueryService extends SolrServer {
     }
   }
 
-  def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false): QueryResponse = {
+  def getSolrResponseFromServer(solrQuery: SolrQuery, configuration: DomainConfiguration, decrementStart: Boolean = false): QueryResponse = {
     import org.apache.solr.common.SolrException
     import play.Logger
     import org.apache.solr.client.solrj.SolrServerException
@@ -295,7 +295,7 @@ object SolrQueryService extends SolrServer {
     }
     try {
       Logger.debug(solrQuery.toString)
-      runQuery(solrQuery)
+      runQuery(solrQuery, configuration)
     }
     catch {
       case e: SolrException => {

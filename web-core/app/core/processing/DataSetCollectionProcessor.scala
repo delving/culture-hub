@@ -23,9 +23,9 @@ object DataSetCollectionProcessor {
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet) {
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
 
-    val invalidRecords = DataSet.getInvalidRecords(dataSet)
+    val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
     val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
 
@@ -40,7 +40,7 @@ object DataSetCollectionProcessor {
       }
     }
 
-    val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
+    val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(configuration, source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
     val crosswalkSchemas: Seq[ProcessingSchema] = crosswalks flatMap {
       c =>
         val prefix = c._2.getPath.substring(c._2.getPath.indexOf(c._1.prefix + "-")).split("-")(0)
@@ -81,21 +81,22 @@ object DataSetCollectionProcessor {
       actionableTargetSchemas.headOption
     }
 
-    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage)
+    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage(configuration))
     def interrupted = {
-      val current = DataSet.getState(dataSet.orgId, dataSet.spec)
+      val current = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED
     }
     def updateCount(count: Long) {
-      DataSet.updateIndexingCount(dataSet, count)
+      DataSet.dao.updateIndexingCount(dataSet, count)
     }
     def onError(t: Throwable) {
-      DataSet.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
+      DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String) = Indexing.indexOne(dataSet, item, fields, prefix)
+    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String, configuration: DomainConfiguration) =
+      Indexing.indexOne(dataSet, item, fields, prefix)(configuration)
 
     def onIndexingComplete(start: DateTime) {
-      IndexingService.commit()
+      IndexingService.commit
 
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
@@ -116,20 +117,20 @@ object DataSetCollectionProcessor {
       // it does not matter how long we wait
       // hence, we just trigger it here, and ignore the exception.
       try {
-        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)))
+        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)), configuration)
       } catch {
         case t => // as described earlier on, just ignore this exception
       }
 
     }
 
-    DataSet.updateState(dataSet, DataSetState.PROCESSING)
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)
-    val state = DataSet.getState(dataSet.orgId, dataSet.spec)
+    DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
+    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)(configuration)
+    val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
     if(state == DataSetState.PROCESSING) {
-      DataSet.updateState(dataSet, DataSetState.ENABLED)
+      DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
     } else if(state == DataSetState.CANCELLED) {
-      DataSet.updateState(dataSet, DataSetState.UPLOADED)
+      DataSet.dao.updateState(dataSet, DataSetState.UPLOADED)
     }
   }
 

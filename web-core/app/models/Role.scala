@@ -1,24 +1,11 @@
 package models
 
-import play.api.Play
-import play.api.Play.current
-
 /**
+ * A user Role, with internationalized descriptions
+ *
+ * TODO merge with GrantType
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class Role(key: String, description: String)
-
-object Role {
-
-  def getAllRoles = Play.configuration.getConfig("roles").map {
-    rolesConfig => rolesConfig.keys.map {
-      r =>
-        Role(r, rolesConfig.getString("description").getOrElse(""))
-    }
-  }.getOrElse {
-    Seq.empty
-  }.toSeq
-
-}
+case class Role(key: String, description: Map[String, String])

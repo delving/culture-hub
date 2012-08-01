@@ -27,7 +27,7 @@ import java.net.{URLEncoder, URLDecoder}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class MetadataAccessors extends ViewableItem {
+abstract class MetadataAccessors {
 
   protected def assign(key: String): String
 
@@ -56,11 +56,11 @@ abstract class MetadataAccessors extends ViewableItem {
   def getVisibility: String = assign(VISIBILITY)
 
   // TODO add plugin mechanism
-  def getUri : String = getItemType match {
+  def getUri(configuration: DomainConfiguration): String = getItemType match {
     case MDR =>
       // TODO don't use heuristics
       val allSchemas = values(ALL_SCHEMAS)
-      val allSupportedFormats = RecordDefinition.enabledDefinitions
+      val allSupportedFormats = RecordDefinition.enabledDefinitions(configuration)
       val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
       if(renderFormat.isDefined) {
         "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
@@ -74,15 +74,15 @@ abstract class MetadataAccessors extends ViewableItem {
     case MDR => assign(EXTERNAL_LANDING_PAGE)
     case _ => ""
   }
-  def getThumbnailUri: String = getThumbnailUri(180)
+  def getThumbnailUri(configuration: DomainConfiguration): String = getThumbnailUri(180, configuration)
 
-  def getThumbnailUri(size: Int): String = {
+  def getThumbnailUri(size: Int, configuration: DomainConfiguration): String = {
     assign(THUMBNAIL) match {
       case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
         val mongoId = Some(new ObjectId(id))
         thumbnailUrl(mongoId, size)
       case url if url.startsWith("http") =>
-        if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+        if(configuration.objectService.imageCacheEnabled) {
           "/thumbnail/cache?id=%s&width=%s".format(URLEncoder.encode(url, "utf-8"), size)
         } else {
           url
