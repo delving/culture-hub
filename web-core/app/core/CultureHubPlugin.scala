@@ -20,7 +20,17 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   val pluginKey: String
 
   /** whether this plugin is enabled for the whole hub **/
-  override def enabled: Boolean = app.configuration.getString("cultureHub.plugins").map(_.split(",").map(_.trim).contains(pluginKey)).getOrElse(false)
+  override def enabled: Boolean = {
+    val config = app.configuration.getConfig("configurations").get
+    val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+    val plugins: Seq[String] = allDomainConfigurations.flatMap {
+      key => {
+        val configuration = config.getConfig(key).get
+        configuration.underlying.getStringList("plugins").asScala.toSeq
+      }
+    }
+    plugins.distinct.contains(pluginKey)
+  }
 
   /** whether this plugin is enabled for the current domain **/
   def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey)
