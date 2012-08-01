@@ -818,6 +818,12 @@ form label.radio {
     display: table-cell;
 }
 
+/* Advanced search plugin */
+
+#collection-list span.label {
+    margin: 0 4px;
+}
+
 
 
 /*.nav-facets {*/
