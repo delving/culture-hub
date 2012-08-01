@@ -201,7 +201,7 @@ object Global extends GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     if (Play.isProd) {
       import play.api.mvc.Results._
-      InternalServerError(views.html.errors.error(Some(ex)))
+      InternalServerError(views.html.errors.error(Some(ex), None))
     } else {
       super.onError(request, ex)
     }
